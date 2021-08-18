@@ -2,6 +2,8 @@
 
 ## Quickstart
 
+A mashup between [Cairo's quickstart](https://www.cairo-lang.org/docs/quickstart.html#) and [StarkWare's intro](https://www.cairo-lang.org/docs/hello_starknet/intro.html).
+
 ### 1. Install Cairo
 We recommend working inside a python virtual environment, but you can also install the Cairo package directly. To create and enter the virtual environment, type:
 

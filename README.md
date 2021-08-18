@@ -30,10 +30,10 @@ Download the python package (cairo-lang-0.3.1.zip) from https://github.com/stark
 pip3 install cairo-lang-0.3.1.zip
 ```
 
-Cairo was tested with python3.7. To make it work with python3.6, you will have to install contextvars:
+Cairo was tested with python3.7. To make it work with python3.6, you will have to install `contextvars`:
 
 ```bash
-pip3 install `contextvars`
+pip3 install contextvars
 ```
 
 ### 2. Compile the contracts

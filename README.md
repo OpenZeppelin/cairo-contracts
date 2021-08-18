@@ -74,6 +74,13 @@ The following command allows you to query the transaction status based on the tr
 ```bash
 starknet tx_status --id TRANSACTION_ID
 ```
+The possible statuses are:
+
+- `NOT_RECEIVED`: The transaction has not been received yet (i.e., not written to storage).
+- `RECEIVED`: The transaction was received by the operator.
+- `PENDING`: The transaction passed the validation and is waiting to be sent on-chain.
+- `REJECTED`: The transaction failed validation and thus was skipped.
+- `ACCEPTED_ONCHAIN`: The transaction was accepted on-chain.
 
 Then we can query the balance:
 

@@ -4,7 +4,7 @@
 
 A mashup between [Cairo's quickstart](https://www.cairo-lang.org/docs/quickstart.html#) and [StarkWare's intro](https://www.cairo-lang.org/docs/hello_starknet/intro.html).
 
-### 1. Install Cairo
+### 0. Install Cairo
 We recommend working inside a python virtual environment, but you can also install the Cairo package directly. To create and enter the virtual environment, type:
 
 ```bash
@@ -36,6 +36,12 @@ Cairo was tested with python3.7. To make it work with python3.6, you will have t
 
 ```bash
 pip3 install contextvars
+```
+
+### 1. Clone the repo
+
+```bash
+git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
 ### 2. Compile the contracts

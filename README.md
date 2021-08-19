@@ -44,6 +44,13 @@ pip3 install contextvars
 git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
+Then `cd` into it and create a `build` directory:
+
+```bash
+cd cairo-contracts/
+mkdir build
+```
+
 ### 2. Compile the contracts
 ```bash
 starknet-compile contracts/contract.cairo \

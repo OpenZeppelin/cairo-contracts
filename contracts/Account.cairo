@@ -6,6 +6,18 @@ from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_lt
 
+struct Message:
+    to: felt
+    calldata: felt
+    new_nonce: felt
+end
+
+struct SignedMessage:
+    message: Message
+    sig_r: felt
+    sig_s: felt
+end
+
 @storage_var
 func balance() -> (res: felt):
 end
@@ -19,22 +31,28 @@ func address() -> (res: felt):
 end
 
 @external
-func validate_transaction{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*. range_check_ptr }
-    (to: felt, _nonce: felt, message: felt, sig_r: felt, sig_s: felt):
+func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }
+    (signed_message: SignedMessage):
+
+    let (message) = signed_message.message
+    let (address) = address.read()
 
     # verify signature
-    let (address) = address.read()
     verify_ecdsa_signature(
         message=message,
         public_key=address,
-        signature_r=sig_r,
-        signature_s=sig_s)
+        signature_r=signed_message.sig_r,
+        signature_s=signed_message.sig_s)
 
     # validate nonce
     let (current_nonce) = nonce.read()
-    assert_lt(current_nonce, _nonce)
+    assert_lt(current_nonce, message.new_nonce)
 
     # update nonce
-    nonce.write(_nonce)
+    nonce.write(message.new_nonce)
+
+    # execute call
+    # message.to.call(message.calldata)
+
     return ()
 end

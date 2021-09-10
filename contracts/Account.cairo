@@ -5,10 +5,14 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_lt
+from starkware.starknet.common import syscall_ptr
+from starkware.starknet.common import call_contract
 
 struct Message:
     to: felt
+    selector: felt
     calldata: felt
+    calldata_size: felt
     new_nonce: felt
 end
 
@@ -31,11 +35,11 @@ func address() -> (res: felt):
 end
 
 @external
-func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }
-    (signed_message: SignedMessage):
+func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr, syscall_ptr }
+    (signed_message: SignedMessage) -> (response_size : felt, response : felt*):
 
-    let (message) = signed_message.message
-    let (address) = address.read()
+    let message = signed_message.message
+    let address = address.read()
 
     # verify signature
     verify_ecdsa_signature(
@@ -45,14 +49,19 @@ func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr
         signature_s=signed_message.sig_s)
 
     # validate nonce
-    let (current_nonce) = nonce.read()
+    let current_nonce = nonce.read()
     assert_lt(current_nonce, message.new_nonce)
 
     # update nonce
     nonce.write(message.new_nonce)
 
     # execute call
-    # message.to.call(message.calldata)
+    let response = call_contract(
+        contract_address=message.to,
+        function_selector=message.selector,
+        calldata_size=message.calldata_size,
+        calldata=message.calldata
+    )
 
-    return ()
+    return (response=response.retdata, response_size=response.retdata_size)
 end

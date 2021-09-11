@@ -31,7 +31,7 @@ func address() -> (res: felt):
 end
 
 @view
-func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr, syscall_ptr }
+func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }
     (signed_message: SignedMessage):
 
     let message = signed_message.message

@@ -23,10 +23,6 @@ struct SignedMessage:
 end
 
 @storage_var
-func balance() -> (res: felt):
-end
-
-@storage_var
 func nonce() -> (res: felt):
 end
 

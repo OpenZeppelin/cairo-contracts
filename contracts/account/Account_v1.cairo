@@ -58,7 +58,7 @@ func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let message = signed_message.message
 
     # validate transaction
-    validate(SignedMessage)
+    validate(signed_message)
 
     # update nonce
     # todo: decide between any larger nonce or strict +1

@@ -39,12 +39,14 @@ func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_pt
 
     # verify signature
     verify_ecdsa_signature(
+        # to do: this should be a felt, not a struct
         message=message,
         public_key=address,
         signature_r=signed_message.sig_r,
         signature_s=signed_message.sig_s)
 
     # validate nonce
+    # todo: decide between any larger nonce or strict +1
     let current_nonce = nonce.read()
     assert_lt(current_nonce, message.new_nonce)
 
@@ -61,7 +63,6 @@ func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr
     validate(signed_message)
 
     # update nonce
-    # todo: decide between any larger nonce or strict +1
     nonce.write(message.new_nonce)
 
     # execute call

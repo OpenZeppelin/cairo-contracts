@@ -1,5 +1,12 @@
 # OpenZeppelin Cairo Contracts
 
+**A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
+
+> #### ⚠️ WARNING! ⚠️
+> This is repo contains highly experimental code.
+> Expect rapid iteration.
+> **Do not use in production.**
+
 ## Quickstart
 
 A mashup between [Cairo's quickstart](https://www.cairo-lang.org/docs/quickstart.html#) and [StarkWare's intro](https://www.cairo-lang.org/docs/hello_starknet/intro.html).

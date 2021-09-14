@@ -38,7 +38,8 @@ end
 
 @external
 func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* } (_public_key: felt):
-    assert_lt(initialized, 1)
+    let _initialized = initialized.read()
+    assert_lt(_initialized, 1)
     initialized.write(1)
     public_key.write(_public_key)
     return ()

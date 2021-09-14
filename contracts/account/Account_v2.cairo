@@ -42,20 +42,15 @@ func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* } (_public_ke
 end
 
 @view
-func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }
-    (signed_message: SignedMessage):
-
-    let message = signed_message.message
-    let public_key = public_key.read()
-
+func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }(signed_message: SignedMessage):
     # validate nonce
-    assert nonce.read() = message.nonce
+    assert nonce.read() = signed_message.message.nonce
 
     # verify signature
     verify_ecdsa_signature(
         # to do: this should be a felt, not a struct
-        message=message,
-        public_key=public_key,
+        message=signed_message.message,
+        public_key=public_key.read(),
         signature_r=signed_message.sig_r,
         signature_s=signed_message.sig_s)
 
@@ -82,5 +77,5 @@ func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr
         calldata=message.calldata
     )
 
-    return (response=response.retdata, response_size=response.retdata_size)
+    return (response_size=response.retdata_size, response=response.retdata)
 end

@@ -4,7 +4,6 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.starknet.common.storage import Storage
-from starkware.cairo.common.math import assert_lt
 from starkware.starknet.common import syscall_ptr
 from starkware.starknet.common import call_contract
 
@@ -15,7 +14,7 @@ struct Message:
     selector: felt
     calldata: felt
     calldata_size: felt
-    new_nonce: felt
+    nonce: felt
 end
 
 struct SignedMessage:
@@ -38,8 +37,7 @@ end
 
 @external
 func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* } (_public_key: felt):
-    let _initialized = initialized.read()
-    assert_lt(_initialized, 1)
+    assert initialized.read() = 0
     initialized.write(1)
     public_key.write(_public_key)
     return ()
@@ -52,6 +50,9 @@ func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_pt
     let message = signed_message.message
     let public_key = public_key.read()
 
+    # validate nonce
+    assert nonce.read() = message.nonce
+
     # verify signature
     verify_ecdsa_signature(
         # to do: this should be a felt, not a struct
@@ -59,11 +60,6 @@ func validate{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_pt
         public_key=public_key,
         signature_r=signed_message.sig_r,
         signature_s=signed_message.sig_s)
-
-    # validate nonce
-    # todo: decide between any larger nonce or strict +1
-    let current_nonce = nonce.read()
-    assert_lt(current_nonce, message.new_nonce)
 
     return ()
 end
@@ -77,8 +73,8 @@ func execute{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr
     # validate transaction
     validate(signed_message)
 
-    # update nonce
-    nonce.write(message.new_nonce)
+    # bump nonce
+    nonce.write(nonce.read() + 1)
 
     # execute call
     let response = call_contract(

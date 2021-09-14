@@ -35,9 +35,14 @@ end
 
 @external
 func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* } (_public_key: felt):
+    # check uninitialization
     assert initialized.read() = 0
-    initialized.write(1)
+
+    # initialize public_key
     public_key.write(_public_key)
+
+    # lock initialization
+    initialized.write(1)
     return ()
 end
 

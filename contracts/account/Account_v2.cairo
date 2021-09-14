@@ -7,8 +7,6 @@ from starkware.starknet.common.storage import Storage
 from starkware.starknet.common import syscall_ptr
 from starkware.starknet.common import call_contract
 
-from Initializable import initialized, _initialize
-
 struct Message:
     to: felt
     selector: felt

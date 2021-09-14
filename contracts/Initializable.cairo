@@ -10,8 +10,7 @@ end
 
 @external
 func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* }():
-    let _initialized = initialized.read()
-    assert _initialized = 0
+    assert initialized.read() = 0
     initialized.write(1)
     return ()
 end

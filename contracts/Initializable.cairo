@@ -9,8 +9,9 @@ func initialized() -> (res: felt):
 end
 
 @external
-func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* }():
-    assert initialized.read() = 0
+func initialize{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }():
+    let (_initialized) = initialized.read()
+    assert _initialized = 0
     initialized.write(1)
     return ()
 end

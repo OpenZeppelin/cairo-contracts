@@ -4,8 +4,6 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.storage import Storage
 from starkware.starknet.common.syscall import get_caller_address
-
-
 from Initializable import initialized, initialize
 
 @storage_var

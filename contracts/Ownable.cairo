@@ -3,7 +3,8 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.storage import Storage
-from starkware.cairo.common.math import assert_lt
+from starkware.starknet.common.syscall import get_caller_address
+
 
 from Initializable import initialized, initialize
 
@@ -21,7 +22,7 @@ end
 @external
 func transfer_ownership{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin* }(new_owner: felt) -> (new_owner: felt):
     let owner = owner.read()
-    assert owner = msg.sender
+    assert owner = get_caller_address()
     owner.write(new_owner)
     return (new_owner=new_owner)
 end

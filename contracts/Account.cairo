@@ -55,15 +55,9 @@ end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
     let res = message.to
-
-    let (res) = hash2{hash_ptr=pedersen_ptr}(
-        res, message.selector)
-
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.selector)
     let (res) = hash_calldata(message.calldata, message.calldata_size)
-
-    let (res) = hash2{hash_ptr=pedersen_ptr}(
-        res, message.nonce)
-
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
     return (res=res)
 end
 
@@ -94,8 +88,10 @@ func validate{
     assert _current_nonce = signed_message.message.nonce
 
     # verify signature
-    let (message) = hash_message(signed_message.message)
     local storage_ptr : Storage* = storage_ptr
+    local range_check_ptr = range_check_ptr
+
+    let (message) = hash_message(signed_message.message)
     let (_public_key) = public_key.read()
 
     verify_ecdsa_signature(

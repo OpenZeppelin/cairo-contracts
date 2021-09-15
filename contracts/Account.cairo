@@ -69,9 +69,9 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
         return (res=[calldata])
     end
 
-    let res = [calldata]
-    let (hash) = hash_calldata(calldata, calldata_size - 1)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, hash)
+    let _calldata = [calldata]
+    let (res) = hash_calldata(calldata, calldata_size - 1)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, _calldata)
     return (res=res)
 end
 
@@ -87,10 +87,11 @@ func validate{
     let (_current_nonce) = current_nonce.read()
     assert _current_nonce = signed_message.message.nonce
 
-    # verify signature
+    # reference implicit arguments to prevent them from being revoked by `hash_message`
     local storage_ptr : Storage* = storage_ptr
     local range_check_ptr = range_check_ptr
 
+    # verify signature
     let (message) = hash_message(signed_message.message)
     let (_public_key) = public_key.read()
 

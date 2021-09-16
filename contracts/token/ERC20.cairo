@@ -2,8 +2,9 @@
 %builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.signature import verify_ecdsa_signature
+from starkware.starknet.common.syscalls import get_caller_address
 from starkware.starknet.common.storage import Storage
+from starkware.cairo.common.math import assert_nn_le
 
 @storage_var
 func balances(user: felt) -> (res: felt):
@@ -19,29 +20,34 @@ func decimals() -> (res: felt):
 end
 
 @view
-func balanceOf{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }
-    (user: felt) -> (res: felt):
-    let (res) = balance.read(user=user)
+func balanceOf{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    } (user: felt) -> (res: felt):
+    let (res) = balances.read(user=user)
     return (res)
 end
 
 @external
-func transfer{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*. range_check_ptr }
-    (from: felt, to: felt, amount: felt, sig_r: felt, sig_s: felt) -> (res: felt):
-    verify_ecdsa_signature(
-        message=amount,
-        public_key=from,
-        signature_r=sig_r,
-        signature_s=sig_s)
+func transfer{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (receiver: felt, amount: felt):
+    let (sender) = get_caller_address()
+
+    # validate sender has enough funds
+    let (sender_balance) = balances.read(user=sender)
+    assert_nn_le(amount, sender_balance)
 
     # substract from sender
-    let (res) = balances.read(user=to)
-    balances.write(to, res - amount)
+    balances.write(sender, sender_balance - amount)
 
-    # add to recipient
-    let (res) = balances.read(user=to)
-    balances.write(to, res + amount)
-    
-    # does it make sense?
-    return (1)
+    # add to receiver
+    let (res) = balances.read(user=receiver)
+    balances.write(receiver, res + amount)
+
+    return ()
 end

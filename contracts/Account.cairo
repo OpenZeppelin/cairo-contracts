@@ -143,3 +143,19 @@ func execute{
 
     return (response=response.retdata_size)
 end
+
+##
+# Getters
+##
+
+@external
+func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = public_key.read()
+    return (res=res)
+end
+
+@external
+func get_L1_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = L1_address.read()
+    return (res=res)
+end

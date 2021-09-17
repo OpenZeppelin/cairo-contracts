@@ -2,7 +2,6 @@
 import sys, os, subprocess
 from config import CONTRACTS_DIRECTORY, BUILD_DIRECTORY, ABIS_DIRECTORY
 
-
 def compile(params):
   """
   $ compile.py 

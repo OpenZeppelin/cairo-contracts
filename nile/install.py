@@ -3,8 +3,7 @@ import sys, os, shutil, subprocess
 import urllib.request
 from config import TEMP_DIRECTORY
 
-def install(url):
-  tag = "0.4.0"
+def install(tag):
   url = "https://github.com/starkware-libs/cairo-lang/releases/download/v{}/cairo-lang-{}.zip".format(tag, tag)
   location = "{}cairo-lang-{}.zip".format(TEMP_DIRECTORY, tag)
   os.makedirs(TEMP_DIRECTORY, exist_ok=True)

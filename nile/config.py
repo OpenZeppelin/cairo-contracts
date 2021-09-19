@@ -1,4 +1,0 @@
-CONTRACTS_DIRECTORY = "contracts/"
-BUILD_DIRECTORY = "artifacts/"
-TEMP_DIRECTORY = ".temp/"
-ABIS_DIRECTORY = "{}abis/".format(BUILD_DIRECTORY)

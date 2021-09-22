@@ -1,5 +1,5 @@
 import os
-import pytest
+import pytest, asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.compiler.compile import compile_starknet_files
@@ -10,22 +10,32 @@ PRIVATE_KEY = 123456789987654321
 PUBLIC_KEY = private_to_stark_key(PRIVATE_KEY)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 
-@pytest.mark.asyncio
-async def test_initializer():
-  starknet = await Starknet.empty()
-  account, account_address = await deploy(starknet, "contracts/Account.cairo")
-  await account.initialize(PUBLIC_KEY, L1_ADDRESS).invoke()
+@pytest.fixture(scope='module')
+def event_loop():
+    return asyncio.new_event_loop()
 
+@pytest.fixture(scope='module')
+async def account_factory():
+  starknet = await Starknet.empty()
+  account_deployment = await deploy(starknet, "contracts/Account.cairo")
+  (account, _) = account_deployment
+  await account.initialize(PUBLIC_KEY, L1_ADDRESS).invoke()
+  return starknet, account_deployment
+
+
+@pytest.mark.asyncio
+async def test_initializer(account_factory):
+  (starknet, account_deployment) = account_factory
+  (account, account_address) = account_deployment
   assert await account.get_public_key().call() == (PUBLIC_KEY,)
   assert await account.get_L1_address().call() == (L1_ADDRESS,)
 
 
 @pytest.mark.asyncio
-async def test_execute():
-  starknet = await Starknet.empty()
-  account, account_address = await deploy(starknet, "contracts/Account.cairo")
+async def test_execute(account_factory):
+  (starknet, account_deployment) = account_factory
+  (account, account_address) = account_deployment
   initializable, initializable_address = await deploy(starknet, "contracts/Initializable.cairo")
-  await account.initialize(PUBLIC_KEY, L1_ADDRESS).invoke()
 
   account_transaction = build_transaction(account, initializable_address, 'initialize', [], 0)
 

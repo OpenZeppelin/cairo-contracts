@@ -55,7 +55,8 @@ def build_transaction(account, to, _selector, calldata, nonce):
 
 def hash_message(to, selector, calldata, nonce):
   res = pedersen_hash(to, selector)
-  res = hash_calldata(calldata)
+  res_calldata = hash_calldata(calldata)
+  res = pedersen_hash(res, res_calldata)
   return pedersen_hash(res, nonce)
 
 def hash_calldata(calldata):

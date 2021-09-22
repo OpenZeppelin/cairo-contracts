@@ -3,10 +3,16 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.storage import Storage
 from starkware.starknet.common.syscalls import get_caller_address
-from Initializable import initialized, initialize
+from contracts.Initializable import initialized, initialize
 
 @storage_var
 func _owner() -> (res: felt):
+end
+
+@external
+func get_owner{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = _owner.read()
+    return (res=res)
 end
 
 @external

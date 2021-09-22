@@ -54,8 +54,7 @@ func initialize{
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
-    let res = message.to
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.selector)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(message.to, message.selector)
     let (res) = hash_calldata(message.calldata, message.calldata_size)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
     return (res=res)
@@ -65,6 +64,10 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
         calldata: felt*,
         calldata_size: felt
     ) -> (res: felt):
+    if calldata_size == 0:
+        return (res=0)
+    end
+
     if calldata_size == 1:
         return (res=[calldata])
     end
@@ -144,9 +147,9 @@ func execute{
     return (response=response.retdata_size)
 end
 
-##
+#####
 # Getters
-##
+###
 
 @external
 func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):

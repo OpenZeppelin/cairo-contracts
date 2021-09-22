@@ -9,10 +9,24 @@ from contracts.Initializable import initialized, initialize
 func _owner() -> (res: felt):
 end
 
-@external
+
+@view
 func get_owner{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = _owner.read()
     return (res=res)
+end
+
+@view
+func only_owner{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }():
+    let (owner) = _owner.read()
+    let (caller) = get_caller_address()
+    assert owner = caller
+    return ()
 end
 
 @external
@@ -33,11 +47,7 @@ func transfer_ownership{
         syscall_ptr: felt*,
         range_check_ptr
     } (new_owner: felt) -> (new_owner: felt):
-    let (owner) = _owner.read()
-    let (caller) = get_caller_address()
-
-    assert owner = caller
-
+    only_owner()
     _owner.write(new_owner)
     return (new_owner=new_owner)
 end

@@ -6,18 +6,18 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.crypto.signature.signature import (pedersen_hash, private_to_stark_key, sign)
 from starkware.starknet.public.abi import get_selector_from_name
 
-privkey = 123456789987654321
-pubkey = private_to_stark_key(privkey)
-l1_address = int(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984)
+PRIVATE_KEY = 123456789987654321
+PUBLIC_KEY = private_to_stark_key(PRIVATE_KEY)
+L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 
 @pytest.mark.asyncio
 async def test_initializer():
   starknet = await Starknet.empty()
   account, account_address = await deploy(starknet, "contracts/Account.cairo")
-  await account.initialize(pubkey, l1_address).invoke()
+  await account.initialize(PUBLIC_KEY, L1_ADDRESS).invoke()
 
-  assert await account.get_public_key().call() == (pubkey,)
-  assert await account.get_L1_address().call() == (l1_address,)
+  assert await account.get_public_key().call() == (PUBLIC_KEY,)
+  assert await account.get_L1_address().call() == (L1_ADDRESS,)
 
 
 @pytest.mark.asyncio
@@ -25,18 +25,12 @@ async def test_execute():
   starknet = await Starknet.empty()
   account, account_address = await deploy(starknet, "contracts/Account.cairo")
   initializable, initializable_address = await deploy(starknet, "contracts/Initializable.cairo")
-  await account.initialize(pubkey, l1_address).invoke()
+  await account.initialize(PUBLIC_KEY, L1_ADDRESS).invoke()
 
-  to = initializable_address
-  selector = get_selector_from_name('initialize')
-  calldata = []
-  nonce = 0
-  message_hash = hash_message(to, selector, calldata, nonce)
-  (sig_r, sig_s) = sign(msg_hash=message_hash, priv_key=privkey)
-  execute_call = account.execute(to, selector, calldata, nonce, sig_r, sig_s)
+  account_transaction = build_transaction(account, initializable_address, 'initialize', [], 0)
 
   assert await initializable.initialized().call() == (0,)
-  await execute_call.invoke()
+  await account_transaction.invoke()
   assert await initializable.initialized().call() == (1,)
 
 
@@ -51,6 +45,13 @@ async def deploy(starknet, path):
   )
 
   return (contract, contract_address)
+
+
+def build_transaction(account, to, _selector, calldata, nonce):
+  selector = get_selector_from_name(_selector)
+  message_hash = hash_message(to, selector, calldata, nonce)
+  (sig_r, sig_s) = sign(msg_hash=message_hash, priv_key=PRIVATE_KEY)
+  return account.execute(to, selector, calldata, nonce, sig_r, sig_s)
 
 def hash_message(to, selector, calldata, nonce):
   res = pedersen_hash(to, selector)

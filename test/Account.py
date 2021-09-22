@@ -1,9 +1,9 @@
 import os
 import pytest, asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, deploy, build_transaction
+from controllers import signer, deploy, Account
 
-signer = Signer(123456789987654321)
+my_signer = signer.Signer(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 
 @pytest.fixture(scope='module')
@@ -13,28 +13,23 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
   starknet = await Starknet.empty()
-  account_deployment = await deploy(starknet, "contracts/Account.cairo")
-  (account, _) = account_deployment
-  await account.initialize(signer.public_key, L1_ADDRESS).invoke()
-  return starknet, account_deployment
+  account = Account.Account(starknet, my_signer, L1_ADDRESS)
+  await account.initialize()
+  return starknet, account
 
 
 @pytest.mark.asyncio
 async def test_initializer(account_factory):
-  (starknet, account_deployment) = account_factory
-  (account, account_address) = account_deployment
-  assert await account.get_public_key().call() == (signer.public_key,)
-  assert await account.get_L1_address().call() == (L1_ADDRESS,)
+  (_, account) = account_factory
+  assert await account.call('get_public_key') == (my_signer.public_key,)
+  assert await account.call('get_L1_address') == (L1_ADDRESS,)
 
 
 @pytest.mark.asyncio
 async def test_execute(account_factory):
-  (starknet, account_deployment) = account_factory
-  (account, account_address) = account_deployment
-  initializable, initializable_address = await deploy(starknet, "contracts/Initializable.cairo")
-
-  account_transaction = build_transaction(signer, account, initializable_address, 'initialize', [], 0)
+  (starknet, account) = account_factory
+  initializable, initializable_address = await deploy.deploy(starknet, "contracts/Initializable.cairo")
 
   assert await initializable.initialized().call() == (0,)
-  await account_transaction.invoke()
+  await account.send_transaction(initializable_address, 'initialize', [])
   assert await initializable.initialized().call() == (1,)

@@ -1,6 +1,6 @@
 from starkware.crypto.signature.signature import pedersen_hash
 from starkware.starknet.public.abi import get_selector_from_name
-from controllers import signer, deploy
+from controllers.deploy import deploy
 
 class Account():
   def __init__(self, starknet, signer, L1_ADDRESS):
@@ -11,7 +11,8 @@ class Account():
     self._initialized = False
 
   async def initialize(self):
-    (self._contract, self._address) = await deploy.deploy(self._starknet, 'contracts/Account.cairo')
+    self._contract = await deploy(self._starknet, 'contracts/Account.cairo')
+    self.address = self._contract.contract_address
     await self._contract.initialize(self._signer.public_key, self._L1_ADDRESS).invoke()
     self._initialized = True
 
@@ -28,9 +29,6 @@ class Account():
     tx = self.build_transaction(to, selector_name, calldata, self._nonce)
     self._nonce += 1
     await tx.invoke()
-
-  def get_address(self):
-    return self._address
 
   def call(self, method):
     return getattr(self._contract, method)().call()

@@ -139,6 +139,6 @@ func approve{
         range_check_ptr
     } (spender: felt, amount: felt):
     let (caller) = get_caller_address()
-    allowances.write(owner=caller, spender=spender, amount=amount)
+    allowances.write(caller, spender, amount)
     return ()
 end

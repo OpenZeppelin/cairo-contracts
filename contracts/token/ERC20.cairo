@@ -11,6 +11,10 @@ func balances(user: felt) -> (res: felt):
 end
 
 @storage_var
+func allowances(owner: felt, spender: felt) -> (res: felt):
+end
+
+@storage_var
 func total_supply() -> (res: felt):
 end
 
@@ -40,6 +44,16 @@ func balanceOf{
         range_check_ptr
     } (user: felt) -> (res: felt):
     let (res) = balances.read(user=user)
+    return (res)
+end
+
+@view
+func allowance{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    } (owner: felt, spender: felt) -> (res: felt):
+    let (res) = allowances.read(owner=owner, spender=spender)
     return (res)
 end
 
@@ -73,15 +87,11 @@ func _mint{
     return ()
 end
 
-@external
-func transfer{
+func _transfer{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
         range_check_ptr
-    } (recipient: felt, amount: felt):
-    let (sender) = get_caller_address()
-
+    } (sender: felt, recipient: felt, amount: felt):
     # validate sender has enough funds
     let (sender_balance) = balances.read(user=sender)
     assert_nn_le(amount, sender_balance)
@@ -92,5 +102,43 @@ func transfer{
     # add to recipient
     let (res) = balances.read(user=recipient)
     balances.write(recipient, res + amount)
+    return ()
+end
+
+@external
+func transfer{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (recipient: felt, amount: felt):
+    let (sender) = get_caller_address()
+    _transfer(sender, recipient, amount)
+    return ()
+end
+
+@external
+func transfer_from{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (sender: felt, recipient: felt, amount: felt):
+    let (caller) = get_caller_address()
+    let (caller_allowance) = allowances.read(owner=sender, spender=caller)
+    assert_nn_le(amount, caller_allowance)
+    _transfer(sender, recipient, amount)
+    return ()
+end
+
+@external
+func approve{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (spender: felt, amount: felt):
+    let (caller) = get_caller_address()
+    allowances.write(owner=caller, spender=spender, amount=amount)
     return ()
 end

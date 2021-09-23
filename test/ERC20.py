@@ -33,9 +33,7 @@ async def test_transfer(erc20_factory):
   amount = 100
   assert await erc20.balanceOf(account.contract_address).call() == (1000,)
   assert await erc20.balanceOf(recipient).call() == (0,)
-  assert await erc20.get_total_supply().call() == (1000,)
   transfer = build_transaction(signer, account, erc20.contract_address, 'transfer', [recipient, amount], 1)
   await transfer.invoke()
   assert await erc20.balanceOf(account.contract_address).call() == (900,)
   assert await erc20.balanceOf(recipient).call() == (100,)
-  assert await erc20.get_total_supply().call() == (1000,)

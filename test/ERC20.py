@@ -23,7 +23,7 @@ async def erc20_factory():
 @pytest.mark.asyncio
 async def test_initializer(erc20_factory):
   starknet, erc20, account = erc20_factory
-  assert await erc20.balanceOf(account.contract_address).call() == (1000,)
+  assert await erc20.balance_of(account.contract_address).call() == (1000,)
   assert await erc20.get_total_supply().call() == (1000,)
 
 @pytest.mark.asyncio
@@ -31,9 +31,9 @@ async def test_transfer(erc20_factory):
   starknet, erc20, account = erc20_factory
   recipient = 123
   amount = 100
-  assert await erc20.balanceOf(account.contract_address).call() == (1000,)
-  assert await erc20.balanceOf(recipient).call() == (0,)
+  assert await erc20.balance_of(account.contract_address).call() == (1000,)
+  assert await erc20.balance_of(recipient).call() == (0,)
   transfer = build_transaction(signer, account, erc20.contract_address, 'transfer', [recipient, amount], 1)
   await transfer.invoke()
-  assert await erc20.balanceOf(account.contract_address).call() == (900,)
-  assert await erc20.balanceOf(recipient).call() == (100,)
+  assert await erc20.balance_of(account.contract_address).call() == (900,)
+  assert await erc20.balance_of(recipient).call() == (100,)

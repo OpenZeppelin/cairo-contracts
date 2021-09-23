@@ -1,5 +1,3 @@
-from starkware.starknet.testing.contract import StarknetContract
-from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.crypto.signature.signature import pedersen_hash, private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -12,23 +10,11 @@ class Signer():
     def sign(self, message_hash):
         return sign(msg_hash=message_hash, priv_key=self._private_key)
 
-
-async def deploy(starknet, path):
-    contract_definition = compile_starknet_files([path], debug_info=True)
-    contract_address = await starknet.deploy(contract_definition=contract_definition)
-
-    return StarknetContract(
-        starknet=starknet,
-        abi=contract_definition.abi,
-        contract_address=contract_address,
-    )
-
-
-def build_transaction(signer, account, to, _selector, calldata, nonce):
-    selector = get_selector_from_name(_selector)
-    message_hash = hash_message(to, selector, calldata, nonce)
-    (sig_r, sig_s) = signer.sign(message_hash)
-    return account.execute(to, selector, calldata, nonce, sig_r, sig_s)
+    def build_transaction(self, account, to, _selector, calldata, nonce):
+        selector = get_selector_from_name(_selector)
+        message_hash = hash_message(to, selector, calldata, nonce)
+        (sig_r, sig_s) = self.sign(message_hash)
+        return account.execute(to, selector, calldata, nonce, sig_r, sig_s)
 
 
 def hash_message(to, selector, calldata, nonce):

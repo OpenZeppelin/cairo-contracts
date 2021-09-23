@@ -2,7 +2,7 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.compiler.compile import compile_starknet_files
-from utils import deploy
+from utils.deploy import deploy
 
 
 @pytest.mark.asyncio

@@ -38,7 +38,7 @@ func get_total_supply{
 end
 
 @view
-func balanceOf{
+func balance_of{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr

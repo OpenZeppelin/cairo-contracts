@@ -16,13 +16,11 @@ async def deploy(starknet, path):
   contract_definition = compile_starknet_files([path], debug_info=True)
   contract_address = await starknet.deploy(contract_definition=contract_definition)
 
-  contract = StarknetContract(
+  return StarknetContract(
     starknet=starknet,
     abi=contract_definition.abi,
     contract_address=contract_address,
   )
-
-  return (contract, contract_address)
 
 
 def build_transaction(signer, account, to, _selector, calldata, nonce):

@@ -13,32 +13,21 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def ownable_factory():
   starknet = await Starknet.empty()
-
-  owner_deployment = await deploy(starknet, "contracts/Account.cairo")
-  (owner, owner_address) = owner_deployment
+  owner = await deploy(starknet, "contracts/Account.cairo")
+  ownable = await deploy(starknet, "contracts/Ownable.cairo")
   await owner.initialize(signer.public_key, L1_ADDRESS).invoke()
-
-  ownable_deployment = await deploy(starknet, "contracts/Ownable.cairo")
-  (ownable, _) = ownable_deployment
-  await ownable.initialize_ownable(owner_address).invoke()
-
-  return starknet, ownable_deployment, owner_deployment
-
+  await ownable.initialize_ownable(owner.contract_address).invoke()
+  return starknet, ownable, owner
 
 @pytest.mark.asyncio
 async def test_initializer(ownable_factory):
-  (starknet, ownable_deployment, owner_deployment) = ownable_factory
-  (ownable, _) = ownable_deployment
-  (_, owner_address) = owner_deployment
-  assert await ownable.get_owner().call() == (owner_address,)
-
+  starknet, ownable, owner = ownable_factory
+  assert await ownable.get_owner().call() == (owner.contract_address,)
 
 @pytest.mark.asyncio
 async def test_transfer_ownership(ownable_factory):
-  (starknet, ownable_deployment, owner_deployment) = ownable_factory
-  (ownable, ownable_address) = ownable_deployment
-  (owner, _) = owner_deployment
+  starknet, ownable, owner = ownable_factory
   new_owner = 123
-  transfer_ownership = build_transaction(signer, owner, ownable_address, 'transfer_ownership', [new_owner], 0)
+  transfer_ownership = build_transaction(signer, owner, ownable.contract_address, 'transfer_ownership', [new_owner], 0)
   await transfer_ownership.invoke()
   assert await ownable.get_owner().call() == (new_owner,)

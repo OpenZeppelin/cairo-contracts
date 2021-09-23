@@ -78,7 +78,7 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
     end
 
     let _calldata = [calldata]
-    let (res) = hash_calldata(calldata, calldata_size - 1)
+    let (res) = hash_calldata(calldata + 1, calldata_size - 1)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, _calldata)
     return (res=res)
 end

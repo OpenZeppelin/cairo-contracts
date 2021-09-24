@@ -16,8 +16,8 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def erc20_factory():
     starknet = await Starknet.empty()
-    account = await deploy(starknet, "contracts/Account.cairo")
     erc20 = await deploy(starknet, "contracts/token/ERC20.cairo")
+    account = await deploy(starknet, "contracts/Account.cairo")
     await account.initialize(signer.public_key, L1_ADDRESS).invoke()
     initialize = signer.build_transaction(
         account, erc20.contract_address, 'initialize', [], 0)
@@ -44,3 +44,39 @@ async def test_transfer(erc20_factory):
     await transfer.invoke()
     assert await erc20.balance_of(account.contract_address).call() == (900,)
     assert await erc20.balance_of(recipient).call() == (100,)
+
+
+@pytest.mark.asyncio
+async def test_approve(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 123
+    amount = 345
+    assert await erc20.allowance(account.contract_address, spender).call() == (0,)
+    approval = signer.build_transaction(
+        account, erc20.contract_address, 'approve', [spender, amount], 2)
+    await approval.invoke()
+    assert await erc20.allowance(account.contract_address, spender).call() == (amount,)
+
+
+@pytest.mark.asyncio
+async def test_transfer_from(erc20_factory):
+    starknet, erc20, account = erc20_factory
+    spender = await deploy(starknet, "contracts/Account.cairo")
+    # we use the same signer to control the main and the spender accounts
+    # this is ok since they're still two different accounts
+    await spender.initialize(signer.public_key, L1_ADDRESS).invoke()
+    amount = 345
+    recipient = 987
+    (previous_balance,) = await erc20.balance_of(account.contract_address).call()
+
+    approval = signer.build_transaction(
+        account, erc20.contract_address, 'approve', [spender.contract_address, amount], 3)
+    await approval.invoke()
+
+    transfer = signer.build_transaction(
+        spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, amount], 0)
+    await transfer.invoke()
+
+    assert await erc20.balance_of(account.contract_address).call() == (previous_balance - amount,)
+    assert await erc20.balance_of(recipient).call() == (amount,)
+    assert await erc20.allowance(account.contract_address, spender.contract_address).call() == (0,)

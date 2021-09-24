@@ -128,6 +128,7 @@ func transfer_from{
     let (caller_allowance) = allowances.read(owner=sender, spender=caller)
     assert_nn_le(amount, caller_allowance)
     _transfer(sender, recipient, amount)
+    allowances.write(sender, caller, caller_allowance - amount)
     return ()
 end
 

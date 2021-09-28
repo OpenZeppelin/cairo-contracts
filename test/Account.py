@@ -33,9 +33,9 @@ async def test_execute(account_factory):
     starknet, account = account_factory
     initializable = await deploy(starknet, "contracts/Initializable.cairo")
 
-    account_transaction = signer.build_transaction(
+    transaction = signer.build_transaction(
         account, initializable.contract_address, 'initialize', [], 0)
 
     assert await initializable.initialized().call() == (0,)
-    await account_transaction.invoke()
+    await transaction.invoke()
     assert await initializable.initialized().call() == (1,)

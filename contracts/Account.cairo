@@ -8,6 +8,10 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract
 from starkware.starknet.common.storage import Storage
 
+#
+# Structs
+#
+
 struct Message:
     member to: felt
     member selector: felt
@@ -21,6 +25,10 @@ struct SignedMessage:
     member sig_r: felt
     member sig_s: felt
 end
+
+#
+# Storage variables
+#
 
 @storage_var
 func current_nonce() -> (res: felt):
@@ -38,6 +46,26 @@ end
 func L1_address() -> (res: felt):
 end
 
+#
+# Getters
+#
+
+@external
+func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = public_key.read()
+    return (res=res)
+end
+
+@external
+func get_L1_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = L1_address.read()
+    return (res=res)
+end
+
+#
+# Initializer
+#
+
 @external
 func initialize{
         storage_ptr: Storage*,
@@ -53,64 +81,9 @@ func initialize{
     return ()
 end
 
-func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
-    alloc_locals
-    let (res) = hash2{hash_ptr=pedersen_ptr}(message.to, message.selector)
-    # we need to make `res` local
-    # to prevent the reference from being revoked
-    local res = res
-    let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
-    return (res=res)
-end
-
-func hash_calldata{pedersen_ptr: HashBuiltin*}(
-        calldata: felt*,
-        calldata_size: felt
-    ) -> (res: felt):
-    if calldata_size == 0:
-        return (res=0)
-    end
-
-    if calldata_size == 1:
-        return (res=[calldata])
-    end
-
-    let _calldata = [calldata]
-    let (res) = hash_calldata(calldata + 1, calldata_size - 1)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, _calldata)
-    return (res=res)
-end
-
-func validate{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        ecdsa_ptr: SignatureBuiltin*,
-        range_check_ptr
-    } (signed_message: SignedMessage*):
-    alloc_locals
-
-    # validate nonce
-    let (_current_nonce) = current_nonce.read()
-    assert _current_nonce = signed_message.message.nonce
-
-    # reference implicit arguments to prevent them from being revoked by `hash_message`
-    local storage_ptr : Storage* = storage_ptr
-    local range_check_ptr = range_check_ptr
-
-    # verify signature
-    let (message) = hash_message(signed_message.message)
-    let (_public_key) = public_key.read()
-
-    verify_ecdsa_signature(
-        message=message,
-        public_key=_public_key,
-        signature_r=signed_message.sig_r,
-        signature_s=signed_message.sig_s)
-
-    return ()
-end
+#
+# Business logic
+#
 
 @external
 func execute{
@@ -152,18 +125,61 @@ func execute{
     return (response=response.retdata_size)
 end
 
-#####
-# Getters
-###
+func validate{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
+        range_check_ptr
+    } (signed_message: SignedMessage*):
+    alloc_locals
 
-@external
-func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
-    let (res) = public_key.read()
+    # validate nonce
+    let (_current_nonce) = current_nonce.read()
+    assert _current_nonce = signed_message.message.nonce
+
+    # reference implicit arguments to prevent them from being revoked by `hash_message`
+    local storage_ptr : Storage* = storage_ptr
+    local range_check_ptr = range_check_ptr
+
+    # verify signature
+    let (message) = hash_message(signed_message.message)
+    let (_public_key) = public_key.read()
+
+    verify_ecdsa_signature(
+        message=message,
+        public_key=_public_key,
+        signature_r=signed_message.sig_r,
+        signature_s=signed_message.sig_s)
+
+    return ()
+end
+
+func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
+    alloc_locals
+    let (res) = hash2{hash_ptr=pedersen_ptr}(message.to, message.selector)
+    # we need to make `res` local
+    # to prevent the reference from being revoked
+    local res = res
+    let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
     return (res=res)
 end
 
-@external
-func get_L1_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
-    let (res) = L1_address.read()
+func hash_calldata{pedersen_ptr: HashBuiltin*}(
+        calldata: felt*,
+        calldata_size: felt
+    ) -> (res: felt):
+    if calldata_size == 0:
+        return (res=0)
+    end
+
+    if calldata_size == 1:
+        return (res=[calldata])
+    end
+
+    let _calldata = [calldata]
+    let (res) = hash_calldata(calldata + 1, calldata_size - 1)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, _calldata)
     return (res=res)
 end

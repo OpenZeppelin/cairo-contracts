@@ -8,6 +8,22 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract
 from starkware.starknet.common.storage import Storage
 
+# Interface and functions to deal with self
+@contract_interface
+namespace ISelf:
+    func get_self{syscall_ptr: felt*}() -> (address: felt):
+    end
+end
+
+func this{syscall_ptr: felt*}() -> (address: felt):
+    let (this) = ISelf(_self_contract.get_self()
+    return(address=this)
+end
+
+@storage_var
+func _self_contract -> (address: felt)
+end
+
 #
 # Structs
 #
@@ -71,13 +87,14 @@ func initialize{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    } (_public_key: felt, _L1_address: felt):
+    } (_public_key: felt, _L1_address: felt, self_contract: felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
 
     public_key.write(_public_key)
     L1_address.write(_L1_address)
+    _self_contract.write(self_contract)
     return ()
 end
 
@@ -159,10 +176,14 @@ func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt)
     let (res) = hash2{hash_ptr=pedersen_ptr}(message.to, message.selector)
     # we need to make `res` local
     # to prevent the reference from being revoked
+    let (this_address) = this()
+
     local res = res
     let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, this_address)
+    
     return (res=res)
 end
 

@@ -26,6 +26,10 @@ end
 func initialized() -> (res: felt):
 end
 
+@storage_var
+func total_supply() -> (res: felt):
+end
+
 @external
 func initialize{
         storage_ptr: Storage*,
@@ -113,8 +117,8 @@ func _mint{
         syscall_ptr: felt*,
         range_check_ptr
     } (recipient: felt, amount: felt):
-    let (res) = balances.read(user=recipient)
-    balances.write(recipient, res + amount)
+    let (res) = balance.read(user=recipient)
+    balance.write(recipient, res + amount)
 
     let (supply) = total_supply.read()
     total_supply.write(supply + amount)
@@ -127,15 +131,15 @@ func _transfer{
         range_check_ptr
     } (sender: felt, recipient: felt, amount: felt):
     # validate sender has enough funds
-    let (sender_balance) = balances.read(user=sender)
+    let (sender_balance) = balance.read(user=sender)
     assert_nn_le(amount, sender_balance)
 
     # substract from sender
-    balances.write(sender, sender_balance - amount)
+    balance.write(sender, sender_balance - amount)
 
     # add to recipient
-    let (res) = balances.read(user=recipient)
-    balances.write(recipient, res + amount)
+    let (res) = balance.read(user=recipient)
+    balance.write(recipient, res + amount)
     return ()
 end
 

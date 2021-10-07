@@ -6,6 +6,10 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
 
+#
+# Storage
+#
+
 @storage_var
 func balances(user: felt) -> (res: felt):
 end
@@ -27,6 +31,10 @@ end
 func initialized() -> (res: felt):
 end
 
+#
+# Getters
+#
+
 @view
 func get_total_supply{
         storage_ptr: Storage*,
@@ -34,6 +42,16 @@ func get_total_supply{
         range_check_ptr
     } () -> (res: felt):
     let (res) = total_supply.read()
+    return (res)
+end
+
+@view
+func get_decimals{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    } () -> (res: felt):
+    let (res) = decimals.read()
     return (res)
 end
 
@@ -56,6 +74,10 @@ func allowance{
     let (res) = allowances.read(owner=owner, spender=spender)
     return (res)
 end
+
+#
+# Initializer
+#
 
 @external
 func initialize{

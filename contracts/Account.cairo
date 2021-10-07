@@ -28,7 +28,7 @@ struct SignedMessage:
 end
 
 #
-# Storage variables
+# Storage
 #
 
 @storage_var

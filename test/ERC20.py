@@ -18,7 +18,7 @@ async def erc20_factory():
     starknet = await Starknet.empty()
     erc20 = await deploy(starknet, "contracts/token/ERC20.cairo")
     account = await deploy(starknet, "contracts/Account.cairo")
-    await account.initialize(signer.public_key, L1_ADDRESS).invoke()
+    await account.initialize(signer.public_key, account.contract_address, L1_ADDRESS).invoke()
     initialize = signer.build_transaction(
         account, erc20.contract_address, 'initialize', [], 0)
     await initialize.invoke()
@@ -64,7 +64,7 @@ async def test_transfer_from(erc20_factory):
     spender = await deploy(starknet, "contracts/Account.cairo")
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(signer.public_key, L1_ADDRESS).invoke()
+    await spender.initialize(signer.public_key, spender.contract_address, L1_ADDRESS).invoke()
     amount = 345
     recipient = 987
     (previous_balance,) = await erc20.balance_of(account.contract_address).call()

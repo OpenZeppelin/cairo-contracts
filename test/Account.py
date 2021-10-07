@@ -17,7 +17,7 @@ def event_loop():
 async def account_factory():
     starknet = await Starknet.empty()
     account = await deploy(starknet, "contracts/Account.cairo")
-    await account.initialize(signer.public_key, L1_ADDRESS).invoke()
+    await account.initialize(signer.public_key, account.contract_address, L1_ADDRESS).invoke()
     return starknet, account
 
 
@@ -25,6 +25,7 @@ async def account_factory():
 async def test_initializer(account_factory):
     _, account = account_factory
     assert await account.get_public_key().call() == (signer.public_key,)
+    assert await account.get_address().call() == (account.contract_address,)
     assert await account.get_L1_address().call() == (L1_ADDRESS,)
 
 

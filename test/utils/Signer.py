@@ -12,15 +12,17 @@ class Signer():
 
     def build_transaction(self, account, to, selector_name, calldata, nonce):
         selector = get_selector_from_name(selector_name)
-        message_hash = hash_message(to, selector, calldata, nonce)
+        message_hash = hash_message(
+            to, selector, calldata, account.contract_address, nonce)
         (sig_r, sig_s) = self.sign(message_hash)
-        return account.execute(to, selector, calldata, nonce, sig_r, sig_s)
+        return account.execute(to, selector, calldata, account.contract_address, nonce, sig_r, sig_s)
 
 
-def hash_message(to, selector, calldata, nonce):
+def hash_message(to, selector, calldata, account_address, nonce):
     res = pedersen_hash(to, selector)
     res_calldata = hash_calldata(calldata)
     res = pedersen_hash(res, res_calldata)
+    res = pedersen_hash(res, account_address)
     return pedersen_hash(res, nonce)
 
 

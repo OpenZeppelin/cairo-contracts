@@ -18,14 +18,14 @@ async def ownable_factory():
     starknet = await Starknet.empty()
     owner = await deploy(starknet, "contracts/Account.cairo")
     ownable = await deploy(starknet, "contracts/Ownable.cairo")
-    await owner.initialize(signer.public_key, L1_ADDRESS).invoke()
+    await owner.initialize(signer.public_key, owner.contract_address, L1_ADDRESS).invoke()
     await ownable.initialize_ownable(owner.contract_address).invoke()
     return starknet, ownable, owner
 
 
 @pytest.mark.asyncio
 async def test_initializer(ownable_factory):
-    starknet, ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     assert await ownable.get_owner().call() == (owner.contract_address,)
 
 

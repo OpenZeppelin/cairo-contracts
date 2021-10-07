@@ -17,6 +17,7 @@ struct Message:
     member selector: felt
     member calldata: felt*
     member calldata_size: felt
+    member this: felt
     member nonce: felt
 end
 
@@ -46,6 +47,10 @@ end
 func L1_address() -> (res: felt):
 end
 
+@storage_var
+func address() -> (res: felt):
+end
+
 #
 # Getters
 #
@@ -53,6 +58,12 @@ end
 @external
 func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = public_key.read()
+    return (res=res)
+end
+
+@external
+func get_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = address.read()
     return (res=res)
 end
 
@@ -71,12 +82,13 @@ func initialize{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    } (_public_key: felt, _L1_address: felt):
+    } (_public_key: felt, _address: felt, _L1_address: felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
 
     public_key.write(_public_key)
+    address.write(_address)
     L1_address.write(_L1_address)
     return ()
 end
@@ -97,6 +109,7 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
+        this: felt,
         nonce: felt,
         sig_r: felt,
         sig_s: felt
@@ -104,7 +117,7 @@ func execute{
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()
-    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, nonce)
+    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, this, nonce)
     local signed_message: SignedMessage = SignedMessage(&message, sig_r, sig_s)
 
     # validate transaction
@@ -132,6 +145,9 @@ func validate{
         range_check_ptr
     } (signed_message: SignedMessage*):
     alloc_locals
+    # protect against replays accross accounts sharing keys
+    let (_address) = address.read()
+    assert _address = signed_message.message.this
 
     # validate nonce
     let (_current_nonce) = current_nonce.read()
@@ -162,6 +178,7 @@ func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt)
     local res = res
     let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.this)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
     return (res=res)
 end

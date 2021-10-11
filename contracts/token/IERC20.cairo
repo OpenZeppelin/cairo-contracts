@@ -1,3 +1,5 @@
+%lang starknet
+
 @contract_interface
 namespace IERC20:
     func get_total_supply() -> (res : felt):

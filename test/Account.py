@@ -2,7 +2,6 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils.Signer import Signer
-from utils.deploy import deploy
 
 signer = Signer(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
@@ -16,7 +15,7 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await Starknet.empty()
-    account = await deploy(starknet, "contracts/Account.cairo")
+    account = await starknet.deploy("contracts/Account.cairo")
     await account.initialize(signer.public_key, account.contract_address, L1_ADDRESS).invoke()
     return starknet, account
 
@@ -32,7 +31,7 @@ async def test_initializer(account_factory):
 @pytest.mark.asyncio
 async def test_execute(account_factory):
     starknet, account = account_factory
-    initializable = await deploy(starknet, "contracts/Initializable.cairo")
+    initializable = await starknet.deploy("contracts/Initializable.cairo")
 
     transaction = signer.build_transaction(
         account, initializable.contract_address, 'initialize', [], 0)

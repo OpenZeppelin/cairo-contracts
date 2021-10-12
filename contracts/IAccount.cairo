@@ -16,7 +16,6 @@ namespace IAccount:
             selector: felt,
             calldata_len: felt,
             calldata: felt*,
-            this: felt,
             nonce: felt,
             sig_r: felt,
             sig_s: felt,

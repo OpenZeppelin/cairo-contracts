@@ -109,7 +109,6 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
-        this: felt,
         nonce: felt,
         sig_r: felt,
         sig_s: felt
@@ -117,7 +116,9 @@ func execute{
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()
-    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, this, nonce)
+    # protect against replays accross accounts sharing keys
+    let (_address) = address.read()
+    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, _address, nonce)
     local signed_message: SignedMessage = SignedMessage(&message, sig_r, sig_s)
 
     # validate transaction
@@ -145,10 +146,6 @@ func validate{
         range_check_ptr
     } (signed_message: SignedMessage*):
     alloc_locals
-    # protect against replays accross accounts sharing keys
-    let (_address) = address.read()
-    assert _address = signed_message.message.this
-
     # validate nonce
     let (_current_nonce) = current_nonce.read()
     assert _current_nonce = signed_message.message.nonce

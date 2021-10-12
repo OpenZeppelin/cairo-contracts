@@ -22,9 +22,8 @@ end
 func total_supply() -> (res: felt):
 end
 
-@view
+@storage_var
 func decimals() -> (res: felt):
-    return (18)
 end
 
 @storage_var
@@ -89,6 +88,7 @@ func initialize{
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
+    decimals.write(18)
 
     let (sender) = get_caller_address()
     _mint(sender, 1000)

@@ -15,7 +15,7 @@ class Signer():
         message_hash = hash_message(
             to, selector, calldata, account.contract_address, nonce)
         (sig_r, sig_s) = self.sign(message_hash)
-        return account.execute(to, selector, calldata, account.contract_address, nonce, sig_r, sig_s)
+        return account.execute(to, selector, calldata, nonce, sig_r, sig_s)
 
 
 def hash_message(to, selector, calldata, account_address, nonce):

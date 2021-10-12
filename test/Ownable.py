@@ -2,7 +2,6 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils.Signer import Signer
-from utils.deploy import deploy
 
 signer = Signer(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
@@ -16,8 +15,8 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def ownable_factory():
     starknet = await Starknet.empty()
-    owner = await deploy(starknet, "contracts/Account.cairo")
-    ownable = await deploy(starknet, "contracts/Ownable.cairo")
+    owner = await starknet.deploy("contracts/Account.cairo")
+    ownable = await starknet.deploy("contracts/Ownable.cairo")
     await owner.initialize(signer.public_key, owner.contract_address, L1_ADDRESS).invoke()
     await ownable.initialize_ownable(owner.contract_address).invoke()
     return starknet, ownable, owner

@@ -1,6 +1,8 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
+from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
@@ -35,38 +37,44 @@ async def test_execute(account_factory):
     starknet, account = account_factory
     initializable = await starknet.deploy("contracts/Initializable.cairo")
 
-    transaction = await signer.build_transaction(
-        account, initializable.contract_address, 'initialize', [])
-
     assert await initializable.initialized().call() == (0,)
-    await transaction.invoke()
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
     assert await initializable.initialized().call() == (1,)
 
 
-# @pytest.mark.asyncio
-# async def test_nonce(account_factory):
-#     starknet, account = account_factory
-#     initializable = await starknet.deploy("contracts/Initializable.cairo")
+@pytest.mark.asyncio
+async def test_nonce(account_factory):
+    starknet, account = account_factory
+    initializable = await starknet.deploy("contracts/Initializable.cairo")
 
-#     await signer.build_transaction(
-#         account, initializable.contract_address, 'initialize', []).invoke()
+    current_nonce, = await account.get_nonce().call()
 
-#     try:
-#         await signer.build_transaction(
-#             account, initializable.contract_address, 'initialize', []).invoke()
-#     except:
-#         assert 4 == 0
+    # lower nonce
+    try:
+        await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce - 1)
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+        assert await initializable.initialized().call() == (0,)
+
+    # higher nonce
+    try:
+        await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce + 1)
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+        assert await initializable.initialized().call() == (0,)
+
+    # right nonce
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce)
+    assert await initializable.initialized().call() == (1,)
 
 
 @pytest.mark.asyncio
 async def test_L1_address_setter(account_factory):
     _, account = account_factory
     assert await account.get_L1_address().call() == (L1_ADDRESS,)
-
-    tx = await signer.build_transaction(
-        account, account.contract_address, 'set_L1_address', [ANOTHER_ADDRESS])
-    await tx.invoke()
-
+    await signer.send_transaction(account, account.contract_address, 'set_L1_address', [ANOTHER_ADDRESS])
     assert await account.get_L1_address().call() == (ANOTHER_ADDRESS,)
 
 
@@ -74,15 +82,5 @@ async def test_L1_address_setter(account_factory):
 async def test_public_key_setter(account_factory):
     _, account = account_factory
     assert await account.get_public_key().call() == (signer.public_key,)
-
-    tx = await signer.build_transaction(
-        account, account.contract_address, 'set_public_key', [other.public_key])
-    await tx.invoke()
-
+    await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
     assert await account.get_public_key().call() == (other.public_key,)
-
-    # tear down test. todo: cleanup on fixture directly
-    tx = await other.build_transaction(
-        account, account.contract_address, 'set_public_key', [signer.public_key])
-
-    await tx.invoke()

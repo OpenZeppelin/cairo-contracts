@@ -160,7 +160,6 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
-        nonce: felt,
         sig_r: felt,
         sig_s: felt
     ) -> (response : felt):
@@ -172,14 +171,16 @@ func execute{
     let (__fp__, _) = get_fp_and_pc()
     # protect against replays accross accounts sharing keys
     let (_address) = address.read()
-    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, _address, nonce)
+    let (_current_nonce) = current_nonce.read()
+    local _current_nonce = _current_nonce # prevent revokation
+
+    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, _address, _current_nonce)
     local signed_message: SignedMessage = SignedMessage(&message, sig_r, sig_s)
 
     # validate transaction
     validate(&signed_message)
 
     # bump nonce
-    let (_current_nonce) = current_nonce.read()
     current_nonce.write(_current_nonce + 1)
 
     # execute call

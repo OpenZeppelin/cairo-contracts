@@ -8,7 +8,10 @@ namespace IAccount:
     func get_address() -> (res : felt):
     end
 
-    func get_L1_address(user: felt) -> (res : felt):
+    func get_L1_address() -> (res : felt):
+    end
+
+    func get_nonce() -> (res : felt):
     end
 
     func execute(

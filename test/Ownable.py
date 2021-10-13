@@ -32,7 +32,5 @@ async def test_initializer(ownable_factory):
 async def test_transfer_ownership(ownable_factory):
     _, ownable, owner = ownable_factory
     new_owner = 123
-    transfer_ownership = signer.build_transaction(
-        owner, ownable.contract_address, 'transfer_ownership', [new_owner], 0)
-    await transfer_ownership.invoke()
+    await signer.send_transaction(owner, ownable.contract_address, 'transfer_ownership', [new_owner])
     assert await ownable.get_owner().call() == (new_owner,)

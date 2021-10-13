@@ -114,6 +114,9 @@ func execute{
         sig_s: felt
     ) -> (response : felt):
     alloc_locals
+    # prevent uninitalized usage
+    let (_initialized) = initialized.read()
+    assert _initialized = 1
 
     let (__fp__, _) = get_fp_and_pc()
     # protect against replays accross accounts sharing keys

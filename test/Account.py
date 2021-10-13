@@ -46,7 +46,6 @@ async def test_execute(account_factory):
 async def test_nonce(account_factory):
     starknet, account = account_factory
     initializable = await starknet.deploy("contracts/Initializable.cairo")
-
     current_nonce, = await account.get_nonce().call()
 
     # lower nonce

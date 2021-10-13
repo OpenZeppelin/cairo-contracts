@@ -10,7 +10,8 @@ class Signer():
     def sign(self, message_hash):
         return sign(msg_hash=message_hash, priv_key=self.private_key)
 
-    def build_transaction(self, account, to, selector_name, calldata, nonce):
+    async def build_transaction(self, account, to, selector_name, calldata):
+        (nonce,) = await account.get_nonce().call()
         selector = get_selector_from_name(selector_name)
         message_hash = hash_message(
             to, selector, calldata, account.contract_address, nonce)

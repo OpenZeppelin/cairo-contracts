@@ -5,7 +5,7 @@ from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.starknet.common.syscalls import call_contract
+from starkware.starknet.common.syscalls import call_contract, get_caller_address
 from starkware.starknet.common.storage import Storage
 
 #
@@ -52,6 +52,23 @@ func address() -> (res: felt):
 end
 
 #
+# Guards
+#
+
+@view
+func assert_only_self{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }():
+    let (self) = address.read()
+    let (caller) = get_caller_address()
+    assert self = caller
+    return ()
+end
+
+#
 # Getters
 #
 
@@ -71,6 +88,40 @@ end
 func get_L1_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = L1_address.read()
     return (res=res)
+end
+
+@external
+func get_nonce{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+    let (res) = current_nonce.read()
+    return (res=res)
+end
+
+#
+# Setters
+#
+
+@external
+func set_public_key{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(new_public_key: felt):
+    assert_only_self()
+    public_key.write(new_public_key)
+    return ()
+end
+
+@external
+func set_L1_address{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(new_L1_address: felt):
+    assert_only_self()
+    L1_address.write(new_L1_address)
+    return ()
 end
 
 #

@@ -51,18 +51,18 @@ async def test_nonce(account_factory):
     # lower nonce
     try:
         await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce - 1)
+        assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-        assert await initializable.initialized().call() == (0,)
 
     # higher nonce
     try:
         await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce + 1)
+        assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-        assert await initializable.initialized().call() == (0,)
 
     # right nonce
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce)

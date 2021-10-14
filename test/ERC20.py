@@ -1,6 +1,8 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
+from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
@@ -34,11 +36,27 @@ async def test_transfer(erc20_factory):
     _, erc20, account = erc20_factory
     recipient = 123
     amount = 100
+    (previous_supply,) = await erc20.get_total_supply().call()
     assert await erc20.balance_of(account.contract_address).call() == (1000,)
     assert await erc20.balance_of(recipient).call() == (0,)
     await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, amount])
     assert await erc20.balance_of(account.contract_address).call() == (900,)
     assert await erc20.balance_of(recipient).call() == (100,)
+    assert (previous_supply,) == await erc20.get_total_supply().call()
+
+
+@pytest.mark.asyncio
+async def test_insufficient_sender_funds(erc20_factory):
+    _, erc20, account = erc20_factory
+    recipient = 123
+    (balance,) = await erc20.balance_of(account.contract_address).call()
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, balance + 1])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
 @pytest.mark.asyncio

@@ -21,12 +21,6 @@ struct Message:
     member nonce: felt
 end
 
-struct SignedMessage:
-    member message: Message*
-    member sig_r: felt
-    member sig_s: felt
-end
-
 #
 # Storage
 #
@@ -148,6 +142,34 @@ end
 # Business logic
 #
 
+@view
+func is_valid_signature{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (
+        hash: felt,
+        signature_len: felt,
+        signature: felt*
+    ) -> ():
+    let (_public_key) = public_key.read()
+    # This interface expects a signature pointer and length to make
+    # no assumption about signature validation schemes.
+    # But this implementation does, and it expects a (sig_r, sig_s) pair.
+    let sig_r = signature[0]
+    let sig_s = signature[1]
+
+    verify_ecdsa_signature(
+        message=hash,
+        public_key=_public_key,
+        signature_r=sig_r,
+        signature_s=sig_s)
+
+    return ()
+end
+
 @external
 func execute{
         storage_ptr: Storage*,
@@ -160,8 +182,8 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
-        sig_r: felt,
-        sig_s: felt
+        signature_len: felt,
+        signature: felt*
     ) -> (response : felt):
     alloc_locals
     # prevent uninitalized usage
@@ -169,16 +191,25 @@ func execute{
     assert _initialized = 1
 
     let (__fp__, _) = get_fp_and_pc()
-    # protect against replays accross accounts sharing keys
     let (_address) = address.read()
     let (_current_nonce) = current_nonce.read()
-    local _current_nonce = _current_nonce # prevent revokation
 
-    local message: Message = Message(to, selector, calldata, calldata_size=calldata_len, _address, _current_nonce)
-    local signed_message: SignedMessage = SignedMessage(&message, sig_r, sig_s)
+    local storage_ptr : Storage* = storage_ptr
+    local range_check_ptr = range_check_ptr
+    local _current_nonce = _current_nonce
+
+    local message: Message = Message(
+        to,
+        selector,
+        calldata,
+        calldata_size=calldata_len,
+        _address,
+        _current_nonce
+    )
 
     # validate transaction
-    validate(&signed_message)
+    let (hash) = hash_message(&message)
+    is_valid_signature(hash, signature_len, signature)
 
     # bump nonce
     current_nonce.write(_current_nonce + 1)
@@ -192,34 +223,6 @@ func execute{
     )
 
     return (response=response.retdata_size)
-end
-
-func validate{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        ecdsa_ptr: SignatureBuiltin*,
-        range_check_ptr
-    } (signed_message: SignedMessage*):
-    alloc_locals
-    # validate nonce
-    let (_current_nonce) = current_nonce.read()
-    assert _current_nonce = signed_message.message.nonce
-
-    # reference implicit arguments to prevent them from being revoked by `hash_message`
-    local storage_ptr : Storage* = storage_ptr
-    local range_check_ptr = range_check_ptr
-
-    # verify signature
-    let (message) = hash_message(signed_message.message)
-    let (_public_key) = public_key.read()
-
-    verify_ecdsa_signature(
-        message=message,
-        public_key=_public_key,
-        signature_r=signed_message.sig_r,
-        signature_s=signed_message.sig_s)
-
-    return ()
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):

@@ -19,8 +19,8 @@ namespace IAccount:
             selector: felt,
             calldata_len: felt,
             calldata: felt*,
-            sig_r: felt,
-            sig_s: felt,
+            signature_len: felt,
+            signature: felt*
         ) -> (response: felt):
     end
 end

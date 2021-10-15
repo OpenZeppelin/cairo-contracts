@@ -62,6 +62,17 @@ func assert_only_self{
     return ()
 end
 
+@view
+func assert_initialized{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    let (_initialized) = initialized.read()
+    assert _initialized = 1
+    return ()
+end
+
 #
 # Getters
 #
@@ -154,6 +165,7 @@ func is_valid_signature{
         signature_len: felt,
         signature: felt*
     ) -> ():
+    assert_initialized()
     let (_public_key) = public_key.read()
     # This interface expects a signature pointer and length to make
     # no assumption about signature validation schemes.
@@ -186,9 +198,7 @@ func execute{
         signature: felt*
     ) -> (response : felt):
     alloc_locals
-    # prevent uninitalized usage
-    let (_initialized) = initialized.read()
-    assert _initialized = 1
+    assert_initialized()
 
     let (__fp__, _) = get_fp_and_pc()
     let (_address) = address.read()

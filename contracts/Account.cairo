@@ -142,6 +142,34 @@ end
 # Business logic
 #
 
+@view
+func is_valid_signature{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (
+        hash: felt,
+        signature_len: felt,
+        signature: felt*
+    ) -> ():
+    let (_public_key) = public_key.read()
+    # This interface expects a signature pointer and length to make
+    # no assumption about signature validation schemes.
+    # But this implementation does, and it expects a (sig_r, sig_s) pair.
+    let sig_r = signature[0]
+    let sig_s = signature[1]
+
+    verify_ecdsa_signature(
+        message=hash,
+        public_key=_public_key,
+        signature_r=sig_r,
+        signature_s=sig_s)
+
+    return ()
+end
+
 @external
 func execute{
         storage_ptr: Storage*,
@@ -195,34 +223,6 @@ func execute{
     )
 
     return (response=response.retdata_size)
-end
-
-@view
-func is_valid_signature{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        ecdsa_ptr: SignatureBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (
-        hash: felt,
-        signature_len: felt,
-        signature: felt*
-    ) -> ():
-    let (_public_key) = public_key.read()
-    # This interface expects a signature pointer and length to make
-    # no assumption about signature validation schemes.
-    # But this implementation does, and it expects a (sig_r, sig_s) pair.
-    let sig_r = signature[0]
-    let sig_s = signature[1]
-
-    verify_ecdsa_signature(
-        message=hash,
-        public_key=_public_key,
-        signature_r=sig_r,
-        signature_s=sig_s)
-
-    return ()
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):

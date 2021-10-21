@@ -109,6 +109,20 @@ func _mint{
     return ()
 end
 
+func _burn{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (account: felt, amount: felt):
+    let (res) = balances.read(user=account)
+    balances.write(account, res - amount)
+
+    let (supply) = total_supply.read()
+    total_supply.write(supply - amount)
+    return ()
+end
+
 func _transfer{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
@@ -124,6 +138,16 @@ func _transfer{
     # add to recipient
     let (res) = balances.read(user=recipient)
     balances.write(recipient, res + amount)
+    return ()
+end
+
+func _approve{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (caller: felt, spender: felt, amount: felt):
+    allowances.write(caller, spender, amount)
     return ()
 end
 
@@ -162,6 +186,37 @@ func approve{
         range_check_ptr
     } (spender: felt, amount: felt):
     let (caller) = get_caller_address()
-    allowances.write(caller, spender, amount)
+    _approve(caller, spender, amount)
     return ()
 end
+
+@external
+func increase_allowance{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (spender: felt, added_value: felt):
+    let (caller) = get_caller_address()
+    let (amount) = allowance(caller, spender)
+    allowances.write(caller, spender, amount + added_value)
+    return()
+end
+    
+
+@external
+func decrease_allowance{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (spender: felt, subtracted_value: felt):
+    let (caller) = get_caller_address()
+    let (caller_allowance) = allowances.read(owner=caller, spender=spender)
+    # checks that the decreased balance isn't below zero
+    assert_nn_le(subtracted_value, caller_allowance)
+
+    allowances.write(caller, spender, caller_allowance - subtracted_value)
+    return()
+end
+

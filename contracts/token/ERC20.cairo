@@ -5,7 +5,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
-from starkware.cairo.common.uint256 import uint256_sub, uint256_check
 
 #
 # Storage

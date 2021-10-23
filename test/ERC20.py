@@ -124,7 +124,7 @@ async def test_decrease_allowance(erc20_factory):
 async def test_decrease_allowance_below_zero(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
-    spender = 111
+    spender = 987
     init_amount = 345
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, init_amount])
     assert await erc20.allowance(account.contract_address, spender).call() == (345,)
@@ -146,7 +146,6 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     recipient = 222
     (previous_balance,) = await erc20.balance_of(account.contract_address).call()
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, previous_balance])
-
     try:
         # increasing the transfer amount above allowance
         await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, previous_balance + 1])

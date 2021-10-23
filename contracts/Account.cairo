@@ -38,10 +38,6 @@ func initialized() -> (res: felt):
 end
 
 @storage_var
-func L1_address() -> (res: felt):
-end
-
-@storage_var
 func address() -> (res: felt):
 end
 
@@ -90,12 +86,6 @@ func get_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check
 end
 
 @external
-func get_L1_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
-    let (res) = L1_address.read()
-    return (res=res)
-end
-
-@external
 func get_nonce{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = current_nonce.read()
     return (res=res)
@@ -117,18 +107,6 @@ func set_public_key{
     return ()
 end
 
-@external
-func set_L1_address{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(new_L1_address: felt):
-    assert_only_self()
-    L1_address.write(new_L1_address)
-    return ()
-end
-
 #
 # Initializer
 #
@@ -138,14 +116,12 @@ func initialize{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    } (_public_key: felt, _address: felt, _L1_address: felt):
+    } (_public_key: felt, _address: felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
-
     public_key.write(_public_key)
     address.write(_address)
-    L1_address.write(_L1_address)
     return ()
 end
 

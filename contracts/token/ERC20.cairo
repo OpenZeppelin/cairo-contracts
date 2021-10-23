@@ -5,6 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
+from starkware.cairo.common.uint256 import uint256_sub, uint256_check
 
 #
 # Storage
@@ -109,20 +110,6 @@ func _mint{
     return ()
 end
 
-func _burn{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (account: felt, amount: felt):
-    let (res) = balances.read(user=account)
-    balances.write(account, res - amount)
-
-    let (supply) = total_supply.read()
-    total_supply.write(supply - amount)
-    return ()
-end
-
 func _transfer{
         storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
@@ -198,11 +185,10 @@ func increase_allowance{
         range_check_ptr
     } (spender: felt, added_value: felt):
     let (caller) = get_caller_address()
-    let (amount) = allowance(caller, spender)
+    let (amount) = allowances.read(caller, spender)
     allowances.write(caller, spender, amount + added_value)
     return()
 end
-    
 
 @external
 func decrease_allowance{
@@ -219,4 +205,3 @@ func decrease_allowance{
     allowances.write(caller, spender, caller_allowance - subtracted_value)
     return()
 end
-

@@ -6,7 +6,6 @@ from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
-L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 
 
 @pytest.fixture(scope='module')
@@ -19,7 +18,7 @@ async def erc20_factory():
     starknet = await Starknet.empty()
     erc20 = await starknet.deploy("contracts/token/ERC20.cairo")
     account = await starknet.deploy("contracts/Account.cairo")
-    await account.initialize(signer.public_key, account.contract_address, L1_ADDRESS).invoke()
+    await account.initialize(signer.public_key, account.contract_address).invoke()
     await signer.send_transaction(account, erc20.contract_address, 'initialize', [])
     return starknet, erc20, account
 
@@ -75,7 +74,7 @@ async def test_transfer_from(erc20_factory):
     spender = await starknet.deploy("contracts/Account.cairo")
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(signer.public_key, spender.contract_address, L1_ADDRESS).invoke()
+    await spender.initialize(signer.public_key, spender.contract_address).invoke()
     amount = 345
     recipient = 987
     (previous_balance,) = await erc20.balance_of(account.contract_address).call()

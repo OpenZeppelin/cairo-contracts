@@ -5,7 +5,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
-from starkware.cairo.common.uint256 import uint256_sub, uint256_check
 
 #
 # Storage
@@ -185,8 +184,8 @@ func increase_allowance{
         range_check_ptr
     } (spender: felt, added_value: felt):
     let (caller) = get_caller_address()
-    let (amount) = allowances.read(caller, spender)
-    allowances.write(caller, spender, amount + added_value)
+    let (current_allowance) = allowances.read(caller, spender)
+    _approve(caller, spender, current_allowance + added_value)
     return()
 end
 
@@ -198,10 +197,10 @@ func decrease_allowance{
         range_check_ptr
     } (spender: felt, subtracted_value: felt):
     let (caller) = get_caller_address()
-    let (caller_allowance) = allowances.read(owner=caller, spender=spender)
+    let (current_allowance) = allowances.read(owner=caller, spender=spender)
     # checks that the decreased balance isn't below zero
-    assert_nn_le(subtracted_value, caller_allowance)
+    assert_nn_le(subtracted_value, current_allowance)
 
-    allowances.write(caller, spender, caller_allowance - subtracted_value)
+    _approve(caller, spender, current_allowance - subtracted_value)
     return()
 end

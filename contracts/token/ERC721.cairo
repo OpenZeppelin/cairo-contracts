@@ -158,8 +158,6 @@ func _mint{
     let (exists) = _exists(token_id)
     assert exists = 0
 
-    _beforeTokenTransfer(0, to, token_id)
-
     let (balance) = balances.read(to)
     balances.write(to, balance + 1)
 
@@ -174,8 +172,6 @@ func _burn{
     alloc_locals
 
     let (local owner) = owner_of(token_id)
-
-    _beforeTokenTransfer(owner, 0, token_id)
 
     # Clear approvals
     _approve(0, token_id)
@@ -197,8 +193,6 @@ func _transfer{
     assert _owner_of = _from
 
     assert_not_zero(to)
-
-    _beforeTokenTransfer(_from, to, token_id)
 
     # Clear approvals
     _approve(0, token_id)
@@ -246,11 +240,5 @@ func transfer_from{
     _is_approved_or_owner(caller, token_id=token_id)
 
     _transfer(_from, to, token_id)
-    return ()
-end
-
-func _beforeTokenTransfer{
-        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        _from : felt, to : felt, token_id : felt):
     return ()
 end

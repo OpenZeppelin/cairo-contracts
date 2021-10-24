@@ -99,10 +99,12 @@ end
 func _is_approved_or_owner{
         storage_ptr : Storage*, pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         spender : felt, token_id : felt) -> (res : felt):
+    alloc_locals
+
     let (exists) = _exists(token_id)
     assert exists = 1
 
-    let (owner) = owner_of(token_id)
+    let (local owner) = owner_of(token_id)
     if owner == spender:
         return (1)
     end
@@ -111,9 +113,6 @@ func _is_approved_or_owner{
     if approved_addr == spender:
         return (1)
     end
-
-    # Temporary workaround for `owner` because of revoked reference
-    let (owner) = owner_of(token_id)
 
     let (is_operator) = is_approved_for_all(owner, spender)
     if is_operator == 1:
@@ -172,15 +171,14 @@ end
 func _burn{
         storage_ptr : Storage*, pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         token_id : felt):
-    let (owner) = owner_of(token_id)
+    alloc_locals
+
+    let (local owner) = owner_of(token_id)
 
     _beforeTokenTransfer(owner, 0, token_id)
 
     # Clear approvals
     _approve(0, token_id)
-
-    # Temporary workaround for revoked reference
-    let (owner) = owner_of(token_id)
 
     # Decrease owner balance
     let (balance) = balances.read(owner)

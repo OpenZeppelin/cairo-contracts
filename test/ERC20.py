@@ -80,7 +80,8 @@ async def test_transfer_from(erc20_factory):
     (previous_balance,) = await erc20.balance_of(account.contract_address).call()
 
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, amount])
-    await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, amount])
+    await signer.send_transaction(spender, erc20.contract_address, 'transfer_from',
+                                  [account.contract_address, recipient, amount])
 
     assert await erc20.balance_of(account.contract_address).call() == (previous_balance - amount,)
     assert await erc20.balance_of(recipient).call() == (amount,)

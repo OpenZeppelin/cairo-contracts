@@ -156,7 +156,7 @@ func _mint{
     assert_not_zero(to)
 
     let (exists) = _exists(token_id)
-    assert_not_zero(exists)
+    assert exists = 0
 
     _beforeTokenTransfer(0, to, token_id)
 

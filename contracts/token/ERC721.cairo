@@ -159,7 +159,7 @@ func _mint{
     let (exists) = _exists(token_id)
     assert_not_zero(exists)
 
-    # beforeTokenTransfer should be here
+    _beforeTokenTransfer(0, to, token_id)
 
     let (balance) = balances.read(to)
     balances.write(to, balance + 1)
@@ -174,10 +174,13 @@ func _burn{
         token_id : felt):
     let (owner) = owner_of(token_id)
 
-    # beforeTokenTransfer should be here
+    _beforeTokenTransfer(owner, 0, token_id)
 
     # Clear approvals
     _approve(0, token_id)
+
+    # Temporary workaround for revoked reference
+    let (owner) = owner_of(token_id)
 
     # Decrease owner balance
     let (balance) = balances.read(owner)
@@ -197,7 +200,7 @@ func _transfer{
 
     assert_not_zero(to)
 
-    # beforeTokenTransfer should be here
+    _beforeTokenTransfer(_from, to, token_id)
 
     # Clear approvals
     _approve(0, token_id)
@@ -245,5 +248,11 @@ func transfer_from{
     _is_approved_or_owner(caller, token_id=token_id)
 
     _transfer(_from, to, token_id)
+    return ()
+end
+
+func _beforeTokenTransfer{
+        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, to : felt, token_id : felt):
     return ()
 end

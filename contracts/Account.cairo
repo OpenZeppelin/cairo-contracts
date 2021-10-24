@@ -73,19 +73,19 @@ end
 # Getters
 #
 
-@external
+@view
 func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = public_key.read()
     return (res=res)
 end
 
-@external
+@view
 func get_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = address.read()
     return (res=res)
 end
 
-@external
+@view
 func get_nonce{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
     let (res) = current_nonce.read()
     return (res=res)

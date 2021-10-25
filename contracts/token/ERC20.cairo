@@ -101,7 +101,6 @@ func _mint{
         syscall_ptr: felt*,
         range_check_ptr
     } (recipient: felt, amount: felt):
-    let (total) = total_supply.read()
     let (res) = balances.read(user=recipient)
     balances.write(recipient, res + amount)
 

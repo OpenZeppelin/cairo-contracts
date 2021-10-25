@@ -93,14 +93,13 @@ async def test_increase_allowance(erc20_factory):
     # new spender, starting from zero
     spender = 234
     amount = 345
-    new_amount = 690
     assert await erc20.allowance(account.contract_address, spender).call() == (0,)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, amount])
     assert await erc20.allowance(account.contract_address, spender).call() == (amount,)
 
     # increase allowance
     await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (new_amount,)
+    assert await erc20.allowance(account.contract_address, spender).call() == (amount * 2,)
 
 
 @pytest.mark.asyncio
@@ -127,6 +126,7 @@ async def test_decrease_allowance_below_zero(erc20_factory):
     init_amount = 345
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, init_amount])
     assert await erc20.allowance(account.contract_address, spender).call() == (345,)
+
     try:
         # increasing the decreased allowance amount by more than the user's allowance
         await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, init_amount + 1])
@@ -140,14 +140,38 @@ async def test_decrease_allowance_below_zero(erc20_factory):
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy("contracts/Account.cairo")
-    # again, using the same signer to control both main and spender accounts
-    await spender.initialize(signer.public_key, spender.contract_address, L1_ADDRESS).invoke()
+    # we use the same signer to control the main and the spender accounts
+    # this is ok since they're still two different accounts
+    await spender.initialize(signer.public_key, spender.contract_address).invoke()
     recipient = 222
-    (previous_balance,) = await erc20.balance_of(account.contract_address).call()
-    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, previous_balance])
+    allowance = 111
+
+    # ensure transfer_from() executes correctly
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])
+    await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, allowance])
+
+    # executing the same transactions with transfer amount greater than allowance
     try:
+        await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])
         # increasing the transfer amount above allowance
-        await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, previous_balance + 1])
+        await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, allowance + 1])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_overflow_increase_allowance(erc20_factory):
+    _, erc20, account = erc20_factory
+    # new spender, starting from zero
+    spender = 234
+    amount = 2**200
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, amount])
+
+    try:
+        # overflow check will revert the transaction
+        await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, amount])
         assert False
     except StarkException as err:
         _, error = err.args

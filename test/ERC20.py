@@ -177,3 +177,4 @@ async def test_overflow_increase_allowance(erc20_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+

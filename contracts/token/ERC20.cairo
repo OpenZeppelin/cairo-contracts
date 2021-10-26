@@ -207,3 +207,4 @@ func decrease_allowance{
     _approve(caller, spender, current_allowance - subtracted_value)
     return()
 end
+

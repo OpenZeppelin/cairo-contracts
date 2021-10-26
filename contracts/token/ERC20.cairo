@@ -132,7 +132,8 @@ func _approve{
         pedersen_ptr: HashBuiltin*,
         syscall_ptr: felt*,
         range_check_ptr
-    } (caller: felt, spender: felt, amount: felt):
+    } (spender: felt, amount: felt):
+    let (caller) = get_caller_address()
     allowances.write(caller, spender, amount)
     return ()
 end
@@ -171,8 +172,7 @@ func approve{
         syscall_ptr: felt*,
         range_check_ptr
     } (spender: felt, amount: felt):
-    let (caller) = get_caller_address()
-    _approve(caller, spender, amount)
+    _approve(spender, amount)
     return ()
 end
 
@@ -185,7 +185,11 @@ func increase_allowance{
     } (spender: felt, added_value: felt):
     let (caller) = get_caller_address()
     let (current_allowance) = allowances.read(caller, spender)
-    _approve(caller, spender, current_allowance + added_value)
+    # using a tempvar for internal check
+    tempvar res = current_allowance + added_value
+    # overflow check
+    assert_nn_le(current_allowance + added_value, res)
+    _approve(spender, res)
     return()
 end
 
@@ -200,7 +204,6 @@ func decrease_allowance{
     let (current_allowance) = allowances.read(owner=caller, spender=spender)
     # checks that the decreased balance isn't below zero
     assert_nn_le(subtracted_value, current_allowance)
-
-    _approve(caller, spender, current_allowance - subtracted_value)
+    _approve(spender, current_allowance - subtracted_value)
     return()
 end

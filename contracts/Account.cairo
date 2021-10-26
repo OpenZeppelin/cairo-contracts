@@ -13,11 +13,11 @@ from starkware.starknet.common.storage import Storage
 #
 
 struct Message:
+    member sender: felt
     member to: felt
     member selector: felt
     member calldata: felt*
     member calldata_size: felt
-    member this: felt
     member nonce: felt
 end
 
@@ -185,11 +185,11 @@ func execute{
     local _current_nonce = _current_nonce
 
     local message: Message = Message(
+        _address,
         to,
         selector,
         calldata,
         calldata_size=calldata_len,
-        _address,
         _current_nonce
     )
 
@@ -213,13 +213,13 @@ end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
     alloc_locals
-    let (res) = hash2{hash_ptr=pedersen_ptr}(message.to, message.selector)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(message.sender, message.to)
+    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.selector)
     # we need to make `res` local
     # to prevent the reference from being revoked
     local res = res
     let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.this)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
     return (res=res)
 end

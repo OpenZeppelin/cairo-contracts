@@ -147,10 +147,6 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     recipient = 222
     allowance = 111
 
-    # ensure transfer_from() executes correctly
-    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])
-    await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, allowance])
-
     # executing the same transactions with transfer amount greater than allowance
     try:
         await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])

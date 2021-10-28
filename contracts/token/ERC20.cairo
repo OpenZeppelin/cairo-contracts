@@ -127,6 +127,16 @@ func _transfer{
     return ()
 end
 
+func _approve{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (caller: felt, spender: felt, amount: felt):
+    allowances.write(caller, spender, amount)
+    return ()
+end
+
 @external
 func transfer{
         storage_ptr: Storage*,
@@ -162,6 +172,39 @@ func approve{
         range_check_ptr
     } (spender: felt, amount: felt):
     let (caller) = get_caller_address()
-    allowances.write(caller, spender, amount)
+    _approve(caller, spender, amount)
     return ()
 end
+
+@external
+func increase_allowance{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (spender: felt, added_value: felt):
+    let (caller) = get_caller_address()
+    let (current_allowance) = allowances.read(caller, spender)
+    # using a tempvar for internal check
+    tempvar res = current_allowance + added_value
+    # overflow check
+    assert_nn_le(current_allowance + added_value, res)
+    _approve(caller, spender, res)
+    return()
+end
+
+@external
+func decrease_allowance{
+        storage_ptr: Storage*,
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    } (spender: felt, subtracted_value: felt):
+    let (caller) = get_caller_address()
+    let (current_allowance) = allowances.read(owner=caller, spender=spender)
+    # checks that the decreased balance isn't below zero
+    assert_nn_le(subtracted_value, current_allowance)
+    _approve(caller, spender, current_allowance - subtracted_value)
+    return()
+end
+

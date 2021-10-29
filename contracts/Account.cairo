@@ -6,19 +6,18 @@ from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract, get_caller_address
-from starkware.starknet.common.storage import Storage
 
 #
 # Structs
 #
 
 struct Message:
-    member sender: felt
-    member to: felt
-    member selector: felt
-    member calldata: felt*
-    member calldata_size: felt
-    member nonce: felt
+    member sender : felt
+    member to : felt
+    member selector : felt
+    member calldata : felt*
+    member calldata_size : felt
+    member nonce : felt
 end
 
 #
@@ -26,19 +25,19 @@ end
 #
 
 @storage_var
-func current_nonce() -> (res: felt):
+func current_nonce() -> (res : felt):
 end
 
 @storage_var
-func public_key() -> (res: felt):
+func public_key() -> (res : felt):
 end
 
 @storage_var
-func initialized() -> (res: felt):
+func initialized() -> (res : felt):
 end
 
 @storage_var
-func address() -> (res: felt):
+func address() -> (res : felt):
 end
 
 #
@@ -46,12 +45,7 @@ end
 #
 
 @view
-func assert_only_self{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }():
+func assert_only_self{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
     let (self) = address.read()
     let (caller) = get_caller_address()
     assert self = caller
@@ -59,11 +53,7 @@ func assert_only_self{
 end
 
 @view
-func assert_initialized{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
+func assert_initialized{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
     let (_initialized) = initialized.read()
     assert _initialized = 1
     return ()
@@ -74,19 +64,21 @@ end
 #
 
 @view
-func get_public_key{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+func get_public_key{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}() -> (
+        res : felt):
     let (res) = public_key.read()
     return (res=res)
 end
 
 @view
-func get_address{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+func get_address{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}() -> (
+        res : felt):
     let (res) = address.read()
     return (res=res)
 end
 
 @view
-func get_nonce{ storage_ptr: Storage*, pedersen_ptr: HashBuiltin*, range_check_ptr }() -> (res: felt):
+func get_nonce{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}() -> (res : felt):
     let (res) = current_nonce.read()
     return (res=res)
 end
@@ -96,12 +88,8 @@ end
 #
 
 @external
-func set_public_key{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(new_public_key: felt):
+func set_public_key{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        new_public_key : felt):
     assert_only_self()
     public_key.write(new_public_key)
     return ()
@@ -112,11 +100,8 @@ end
 #
 
 @external
-func initialize{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (_public_key: felt, _address: felt):
+func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _public_key : felt, _address : felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
@@ -131,18 +116,12 @@ end
 
 @view
 func is_valid_signature{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        ecdsa_ptr: SignatureBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (
-        hash: felt,
-        signature_len: felt,
-        signature: felt*
-    ) -> ():
+        pedersen_ptr : HashBuiltin*, ecdsa_ptr : SignatureBuiltin*, syscall_ptr : felt*,
+        range_check_ptr}(hash : felt, signature_len : felt, signature : felt*) -> ():
+    alloc_locals
     assert_initialized()
     let (_public_key) = public_key.read()
+    local syscall_ptr : felt* = syscall_ptr
     # This interface expects a signature pointer and length to make
     # no assumption about signature validation schemes.
     # But this implementation does, and it expects a (sig_r, sig_s) pair.
@@ -150,29 +129,17 @@ func is_valid_signature{
     let sig_s = signature[1]
 
     verify_ecdsa_signature(
-        message=hash,
-        public_key=_public_key,
-        signature_r=sig_r,
-        signature_s=sig_s)
+        message=hash, public_key=_public_key, signature_r=sig_r, signature_s=sig_s)
 
     return ()
 end
 
 @external
 func execute{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        ecdsa_ptr: SignatureBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (
-        to: felt,
-        selector: felt,
-        calldata_len: felt,
-        calldata: felt*,
-        signature_len: felt,
-        signature: felt*
-    ) -> (response : felt):
+        pedersen_ptr : HashBuiltin*, ecdsa_ptr : SignatureBuiltin*, syscall_ptr : felt*,
+        range_check_ptr}(
+        to : felt, selector : felt, calldata_len : felt, calldata : felt*, signature_len : felt,
+        signature : felt*) -> (response : felt):
     alloc_locals
     assert_initialized()
 
@@ -180,18 +147,18 @@ func execute{
     let (_address) = address.read()
     let (_current_nonce) = current_nonce.read()
 
-    local storage_ptr : Storage* = storage_ptr
+    local syscall_ptr : felt* = syscall_ptr
     local range_check_ptr = range_check_ptr
     local _current_nonce = _current_nonce
 
-    local message: Message = Message(
+    local message : Message = Message(
         _address,
         to,
         selector,
         calldata,
         calldata_size=calldata_len,
         _current_nonce
-    )
+        )
 
     # validate transaction
     let (hash) = hash_message(&message)
@@ -205,13 +172,12 @@ func execute{
         contract_address=message.to,
         function_selector=message.selector,
         calldata_size=message.calldata_size,
-        calldata=message.calldata
-    )
+        calldata=message.calldata)
 
     return (response=response.retdata_size)
 end
 
-func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
+func hash_message{pedersen_ptr : HashBuiltin*}(message : Message*) -> (res : felt):
     alloc_locals
     let (res) = hash2{hash_ptr=pedersen_ptr}(message.sender, message.to)
     let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.selector)
@@ -224,10 +190,8 @@ func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt)
     return (res=res)
 end
 
-func hash_calldata{pedersen_ptr: HashBuiltin*}(
-        calldata: felt*,
-        calldata_size: felt
-    ) -> (res: felt):
+func hash_calldata{pedersen_ptr : HashBuiltin*}(calldata : felt*, calldata_size : felt) -> (
+        res : felt):
     if calldata_size == 0:
         return (res=0)
     end

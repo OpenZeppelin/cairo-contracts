@@ -3,7 +3,6 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
 
 #
@@ -11,23 +10,23 @@ from starkware.cairo.common.math import assert_nn_le
 #
 
 @storage_var
-func balances(user: felt) -> (res: felt):
+func balances(user : felt) -> (res : felt):
 end
 
 @storage_var
-func allowances(owner: felt, spender: felt) -> (res: felt):
+func allowances(owner : felt, spender : felt) -> (res : felt):
 end
 
 @storage_var
-func total_supply() -> (res: felt):
+func total_supply() -> (res : felt):
 end
 
 @storage_var
-func decimals() -> (res: felt):
+func decimals() -> (res : felt):
 end
 
 @storage_var
-func initialized() -> (res: felt):
+func initialized() -> (res : felt):
 end
 
 #
@@ -35,41 +34,29 @@ end
 #
 
 @view
-func get_total_supply{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } () -> (res: felt):
+func get_total_supply{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+        res : felt):
     let (res) = total_supply.read()
     return (res)
 end
 
 @view
-func get_decimals{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } () -> (res: felt):
+func get_decimals{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+        res : felt):
     let (res) = decimals.read()
     return (res)
 end
 
 @view
-func balance_of{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (user: felt) -> (res: felt):
+func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(user : felt) -> (
+        res : felt):
     let (res) = balances.read(user=user)
     return (res)
 end
 
 @view
-func allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (owner: felt, spender: felt) -> (res: felt):
+func allowance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        owner : felt, spender : felt) -> (res : felt):
     let (res) = allowances.read(owner=owner, spender=spender)
     return (res)
 end
@@ -79,12 +66,7 @@ end
 #
 
 @external
-func initialize{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } ():
+func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
@@ -95,12 +77,8 @@ func initialize{
     return ()
 end
 
-func _mint{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (recipient: felt, amount: felt):
+func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, amount : felt):
     let (res) = balances.read(user=recipient)
     balances.write(recipient, res + amount)
 
@@ -109,11 +87,8 @@ func _mint{
     return ()
 end
 
-func _transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
+func _transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        sender : felt, recipient : felt, amount : felt):
     # validate sender has enough funds
     let (sender_balance) = balances.read(user=sender)
     assert_nn_le(amount, sender_balance)
@@ -127,35 +102,23 @@ func _transfer{
     return ()
 end
 
-func _approve{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (caller: felt, spender: felt, amount: felt):
+func _approve{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        caller : felt, spender : felt, amount : felt):
     allowances.write(caller, spender, amount)
     return ()
 end
 
 @external
-func transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (recipient: felt, amount: felt):
+func transfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, amount : felt):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
     return ()
 end
 
 @external
-func transfer_from{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
+func transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        sender : felt, recipient : felt, amount : felt):
     let (caller) = get_caller_address()
     let (caller_allowance) = allowances.read(owner=sender, spender=caller)
     assert_nn_le(amount, caller_allowance)
@@ -165,24 +128,16 @@ func transfer_from{
 end
 
 @external
-func approve{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (spender: felt, amount: felt):
+func approve{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        spender : felt, amount : felt):
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
     return ()
 end
 
 @external
-func increase_allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (spender: felt, added_value: felt):
+func increase_allowance{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        spender : felt, added_value : felt):
     let (caller) = get_caller_address()
     let (current_allowance) = allowances.read(caller, spender)
     # using a tempvar for internal check
@@ -190,21 +145,16 @@ func increase_allowance{
     # overflow check
     assert_nn_le(current_allowance + added_value, res)
     _approve(caller, spender, res)
-    return()
+    return ()
 end
 
 @external
-func decrease_allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (spender: felt, subtracted_value: felt):
+func decrease_allowance{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        spender : felt, subtracted_value : felt):
     let (caller) = get_caller_address()
     let (current_allowance) = allowances.read(owner=caller, spender=spender)
     # checks that the decreased balance isn't below zero
     assert_nn_le(subtracted_value, current_allowance)
     _approve(caller, spender, current_allowance - subtracted_value)
-    return()
+    return ()
 end
-

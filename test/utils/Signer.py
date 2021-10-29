@@ -12,7 +12,8 @@ class Signer():
 
     async def send_transaction(self, account, to, selector_name, calldata, nonce=None):
         if nonce is None:
-            nonce, = await account.get_nonce().call()
+            res = await account.get_nonce().call()
+            nonce, = res.result
 
         selector = get_selector_from_name(selector_name)
         message_hash = hash_message(

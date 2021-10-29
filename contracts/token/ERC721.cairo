@@ -3,7 +3,6 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
 
 @storage_var
@@ -11,7 +10,7 @@ func owner(token_id: felt) -> (res: felt):
 end
 
 @storage_var
-func balance(owner: felt) -> (res: felt):
+func balances(owner: felt) -> (res: felt):
 end
 
 @storage_var
@@ -28,11 +27,8 @@ end
 
 @external
 func initialize{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } ():
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} ():
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
@@ -44,31 +40,24 @@ end
 
 @view
 func balance_of{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (owner: felt) -> (res: felt):
-    let (res) = balance.read(owner=owner)
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (owner: felt) -> (res: felt):
+    let (res) = balances.read(owner=owner)
     return (res)
 end
 
 @view
 func owner_of{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (token_id: felt) -> (res: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (token_id: felt) -> (res: felt):
     let (res) = owner.read(token_id=token_id)
     return (res)
 end
 
 @external
 func approve{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (to: felt, token_id: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (to: felt, token_id: felt):
     let (_owner) = owner.read(token_id)
 
     if _owner == to:
@@ -81,11 +70,8 @@ func approve{
 end
 
 func _is_approved_or_owner{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (to: felt, token_id: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (to: felt, token_id: felt):
     let (caller) = get_caller_address()
     let (_owner) = owner.read(token_id)
 
@@ -99,20 +85,15 @@ end
 
 @view
 func get_approved{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (token_id: felt) -> (res: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (token_id: felt) -> (res: felt):
     let (res) = token_approvals.read(token_id=token_id)
     return (res)
 end
 
 func _mint{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (recipient: felt, amount: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (recipient: felt, amount: felt):
     let (res) = balances.read(user=recipient)
     balances.write(recipient, res + amount)
 
@@ -122,10 +103,8 @@ func _mint{
 end
 
 func _transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (sender: felt, recipient: felt, amount: felt):
     # validate sender has enough funds
     let (sender_balance) = balances.read(user=sender)
     assert_nn_le(amount, sender_balance)
@@ -141,11 +120,8 @@ end
 
 @external
 func transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (recipient: felt, amount: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (recipient: felt, amount: felt):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
     return ()
@@ -153,11 +129,8 @@ end
 
 @external
 func transfer_from{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (sender: felt, recipient: felt, amount: felt):
     let (caller) = get_caller_address()
     let (caller_allowance) = allowances.read(owner=sender, spender=caller)
     assert_nn_le(amount, caller_allowance)

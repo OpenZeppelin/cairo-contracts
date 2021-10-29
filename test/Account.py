@@ -25,8 +25,12 @@ async def account_factory():
 @pytest.mark.asyncio
 async def test_initializer(account_factory):
     _, account = account_factory
-    assert await account.get_public_key().call() == (signer.public_key,)
-    assert await account.get_address().call() == (account.contract_address,)
+
+    execution_info = await account.get_public_key().call()
+    assert execution_info.result == (signer.public_key,)
+
+    execution_info = await account.get_address().call()
+    assert execution_info.result == (account.contract_address,)
 
 
 @pytest.mark.asyncio
@@ -34,9 +38,14 @@ async def test_execute(account_factory):
     starknet, account = account_factory
     initializable = await starknet.deploy("contracts/Initializable.cairo")
 
-    assert await initializable.initialized().call() == (0,)
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result == (0,)
+
+    # initialize
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
-    assert await initializable.initialized().call() == (1,)
+
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result.res == (1,)
 
 
 @pytest.mark.asyncio
@@ -69,6 +78,12 @@ async def test_nonce(account_factory):
 @pytest.mark.asyncio
 async def test_public_key_setter(account_factory):
     _, account = account_factory
-    assert await account.get_public_key().call() == (signer.public_key,)
+
+    execution_info = await account.get_public_key().call()
+    assert execution_info.result == (signer.public_key,)
+
+    # set new pubkey
     await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
-    assert await account.get_public_key().call() == (other.public_key,)
+
+    execution_info = await account.get_public_key().call()
+    assert execution_info.result == (other.public_key,)

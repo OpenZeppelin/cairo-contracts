@@ -6,6 +6,10 @@ from starkware.starknet.testing.starknet import Starknet
 async def test_initializer():
     starknet = await Starknet.empty()
     initializable = await starknet.deploy("contracts/Initializable.cairo")
-    assert await initializable.initialized().call() == (0,)
+    expected = await initializable.initialized().call()
+    assert expected.result == (0,)
+
     await initializable.initialize().invoke()
-    assert await initializable.initialized().call() == (1,)
+
+    expected = await initializable.initialized().call()
+    assert expected.result == (1,)

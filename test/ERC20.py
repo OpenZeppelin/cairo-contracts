@@ -26,8 +26,11 @@ async def erc20_factory():
 @pytest.mark.asyncio
 async def test_initializer(erc20_factory):
     _, erc20, account = erc20_factory
-    assert await erc20.balance_of(account.contract_address).call() == (1000,)
-    assert await erc20.get_total_supply().call() == (1000,)
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result == (1000,)
+
+    execution_info = await erc20.get_total_supply().call()
+    assert execution_info.result == (1000,)
 
 
 @pytest.mark.asyncio
@@ -36,12 +39,23 @@ async def test_transfer(erc20_factory):
     recipient = 123
     amount = 100
     (previous_supply,) = await erc20.get_total_supply().call()
-    assert await erc20.balance_of(account.contract_address).call() == (1000,)
-    assert await erc20.balance_of(recipient).call() == (0,)
+
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result == (1000,)
+
+    execution_info = await erc20.balance_of(recipient).call()
+    assert execution_info.result == (0,)
+
     await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, amount])
-    assert await erc20.balance_of(account.contract_address).call() == (900,)
-    assert await erc20.balance_of(recipient).call() == (100,)
-    assert (previous_supply,) == await erc20.get_total_supply().call()
+
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result == (900,)
+
+    execution_info = await erc20.balance_of(recipient).call()
+    assert execution_info.result == (100,)
+
+    execution_info = await erc20.get_total_supply().call()
+    assert execution_info.result == (previous_supply,)
 
 
 @pytest.mark.asyncio
@@ -63,9 +77,15 @@ async def test_approve(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 123
     amount = 345
-    assert await erc20.allowance(account.contract_address, spender).call() == (0,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (0,)
+
+    # set approval
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (amount,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (amount,)
 
 
 @pytest.mark.asyncio
@@ -83,9 +103,14 @@ async def test_transfer_from(erc20_factory):
     await signer.send_transaction(spender, erc20.contract_address, 'transfer_from',
                                   [account.contract_address, recipient, amount])
 
-    assert await erc20.balance_of(account.contract_address).call() == (previous_balance - amount,)
-    assert await erc20.balance_of(recipient).call() == (amount,)
-    assert await erc20.allowance(account.contract_address, spender.contract_address).call() == (0,)
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result == (previous_balance - amount,)
+
+    execution_info = await erc20.balance_of(recipient).call()
+    assert execution_info.result == (amount,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info.result == (0,)
 
 
 @pytest.mark.asyncio
@@ -94,13 +119,20 @@ async def test_increase_allowance(erc20_factory):
     # new spender, starting from zero
     spender = 234
     amount = 345
-    assert await erc20.allowance(account.contract_address, spender).call() == (0,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (0,)
+
+    # set approve
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (amount,)
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (amount,)
 
     # increase allowance
     await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (amount * 2,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (amount * 2,)
 
 
 @pytest.mark.asyncio
@@ -111,12 +143,21 @@ async def test_decrease_allowance(erc20_factory):
     init_amount = 345
     subtract_amount = 100
     new_amount = 245
-    assert await erc20.allowance(account.contract_address, spender).call() == (0,)
-    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, init_amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (init_amount,)
 
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (0,)
+
+    # set approve
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, init_amount])
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (init_amount,)
+
+    # decrease allowance
     await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, subtract_amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (new_amount,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (init_amount - subtract_amount,)
 
 
 @pytest.mark.asyncio
@@ -126,7 +167,9 @@ async def test_decrease_allowance_below_zero(erc20_factory):
     spender = 987
     init_amount = 345
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, init_amount])
-    assert await erc20.allowance(account.contract_address, spender).call() == (345,)
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result == (init_amount,)
 
     try:
         # increasing the decreased allowance amount by more than the user's allowance
@@ -146,10 +189,9 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     await spender.initialize(signer.public_key, spender.contract_address).invoke()
     recipient = 222
     allowance = 111
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])
 
-    # executing the same transactions with transfer amount greater than allowance
     try:
-        await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, allowance])
         # increasing the transfer amount above allowance
         await signer.send_transaction(spender, erc20.contract_address, 'transfer_from', [account.contract_address, recipient, allowance + 1])
         assert False

@@ -27,8 +27,8 @@ async def test_set_address(account_factory):
     _, account, registry = account_factory
 
     await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [L1_ADDRESS])
-
-    execution_info = await registry.get_l1_address(account.contract_address).call()
+    # assert await registry.get_L1_address(account.contract_address).call() == (L1_ADDRESS,)
+    execution_info = await registry.get_L1_address(account.contract_address).call()
     assert execution_info.result == (L1_ADDRESS,)
 
 
@@ -38,11 +38,11 @@ async def test_update_address(account_factory):
 
     await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [L1_ADDRESS])
 
-    execution_info = await registry.get_l1_address(account.contract_address).call()
+    execution_info = await registry.get_L1_address(account.contract_address).call()
     assert execution_info.result == (L1_ADDRESS,)
 
     # set new address
     await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [ANOTHER_ADDRESS])
 
-    execution_info = await registry.get_l1_address(account.contract_address).call()
+    execution_info = await registry.get_L1_address(account.contract_address).call()
     assert execution_info.result == (ANOTHER_ADDRESS,)

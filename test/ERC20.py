@@ -38,7 +38,8 @@ async def test_transfer(erc20_factory):
     _, erc20, account = erc20_factory
     recipient = 123
     amount = 100
-    (previous_supply,) = await erc20.get_total_supply().call()
+    execution_info = await erc20.get_total_supply().call()
+    previous_supply = execution_info.result
 
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result == (1000,)
@@ -55,14 +56,15 @@ async def test_transfer(erc20_factory):
     assert execution_info.result == (100,)
 
     execution_info = await erc20.get_total_supply().call()
-    assert execution_info.result == (previous_supply,)
+    assert execution_info.result == previous_supply
 
 
 @pytest.mark.asyncio
 async def test_insufficient_sender_funds(erc20_factory):
     _, erc20, account = erc20_factory
     recipient = 123
-    (balance,) = await erc20.balance_of(account.contract_address).call()
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    balance = execution_info.result.res
 
     try:
         await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, balance + 1])
@@ -97,7 +99,8 @@ async def test_transfer_from(erc20_factory):
     await spender.initialize(signer.public_key, spender.contract_address).invoke()
     amount = 345
     recipient = 987
-    (previous_balance,) = await erc20.balance_of(account.contract_address).call()
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    previous_balance = execution_info.result.res
 
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, amount])
     await signer.send_transaction(spender, erc20.contract_address, 'transfer_from',
@@ -125,6 +128,7 @@ async def test_increase_allowance(erc20_factory):
 
     # set approve
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, amount])
+
     execution_info = await erc20.allowance(account.contract_address, spender).call()
     assert execution_info.result == (amount,)
 

@@ -45,14 +45,15 @@ async def test_execute(account_factory):
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
 
     execution_info = await initializable.initialized().call()
-    assert execution_info.result.res == (1,)
+    assert execution_info.result == (1,)
 
 
 @pytest.mark.asyncio
 async def test_nonce(account_factory):
     starknet, account = account_factory
     initializable = await starknet.deploy("contracts/Initializable.cairo")
-    current_nonce, = await account.get_nonce().call()
+    execution_info = await account.get_nonce().call()
+    current_nonce = execution_info.result.res
 
     # lower nonce
     try:
@@ -69,10 +70,11 @@ async def test_nonce(account_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
     # right nonce
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce)
-    assert await initializable.initialized().call() == (1,)
+
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result == (1,)
 
 
 @pytest.mark.asyncio

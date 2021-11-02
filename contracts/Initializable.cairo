@@ -2,7 +2,6 @@
 %builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-#from starkware.starknet.common.storage import Storage
 
 @storage_var
 func _initialized() -> (res: felt):

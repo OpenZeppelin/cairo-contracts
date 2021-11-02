@@ -16,15 +16,17 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def erc20_factory():
     starknet = await Starknet.empty()
-    erc20 = await starknet.deploy("contracts/token/ERC20.cairo")
     account = await starknet.deploy("contracts/Account.cairo")
+    erc20 = await starknet.deploy(
+        source="contracts/token/ERC20.cairo",
+        constructor_calldata=[account.contract_address]
+    )
     await account.initialize(signer.public_key, account.contract_address).invoke()
-    await signer.send_transaction(account, erc20.contract_address, 'initialize', [])
     return starknet, erc20, account
 
 
 @pytest.mark.asyncio
-async def test_initializer(erc20_factory):
+async def test_constructor(erc20_factory):
     _, erc20, account = erc20_factory
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result == (1000,)

@@ -25,8 +25,17 @@ end
 func decimals() -> (res: felt):
 end
 
-@storage_var
-func initialized() -> (res: felt):
+#
+# Constructor
+#
+
+@constructor
+func constructor{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr}(deployer: felt):
+    decimals.write(18)
+    _mint(deployer, 1000)
+    return ()
 end
 
 #
@@ -66,22 +75,8 @@ func allowance{
 end
 
 #
-# Initializer
+# Internals
 #
-
-@external
-func initialize{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} ():
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-    initialized.write(1)
-    decimals.write(18)
-
-    let (sender) = get_caller_address()
-    _mint(sender, 1000)
-    return ()
-end
 
 func _mint{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
@@ -116,6 +111,10 @@ func _approve{
     allowances.write(caller, spender, amount)
     return ()
 end
+
+#
+# Externals
+#
 
 @external
 func transfer{

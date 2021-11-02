@@ -131,10 +131,8 @@ func is_valid_signature{
         signature_len: felt,
         signature: felt*
     ) -> ():
-    #alloc_locals
     assert_initialized()
     let (_public_key) = public_key.read()
-    #local syscall_ptr : felt* = syscall_ptr
 
     # This interface expects a signature pointer and length to make
     # no assumption about signature validation schemes.

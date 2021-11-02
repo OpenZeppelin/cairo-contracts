@@ -146,7 +146,6 @@ async def test_decrease_allowance(erc20_factory):
     spender = 321
     init_amount = 345
     subtract_amount = 100
-    new_amount = 245
 
     execution_info = await erc20.allowance(account.contract_address, spender).call()
     assert execution_info.result == (0,)

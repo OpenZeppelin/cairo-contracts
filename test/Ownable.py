@@ -15,18 +15,20 @@ def event_loop():
 async def ownable_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy("contracts/Account.cairo")
-    ownable = await starknet.deploy("contracts/Ownable.cairo")
     await owner.initialize(signer.public_key, owner.contract_address).invoke()
-    await ownable.initialize_ownable(owner.contract_address).invoke()
+
+    ownable = await starknet.deploy(
+        source="contracts/Ownable.cairo",
+        constructor_calldata=[owner.contract_address]
+    )
     return starknet, ownable, owner
 
 
 @pytest.mark.asyncio
-async def test_initializer(ownable_factory):
+async def test_constructor(ownable_factory):
     _, ownable, owner = ownable_factory
     expected = await ownable.get_owner().call()
     assert expected.result.res == owner.contract_address
-    print("fffffff ", owner)
 
 
 @pytest.mark.asyncio

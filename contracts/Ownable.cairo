@@ -1,8 +1,8 @@
 %lang starknet
+%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from contracts.Initializable import initialized, initialize
 
 @storage_var
 func _owner() -> (res: felt):
@@ -26,11 +26,10 @@ func only_owner{
     return ()
 end
 
-@external
-func initialize_ownable{
+@constructor
+func constructor{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr} (initial_owner: felt):
-    initialize()
     _owner.write(initial_owner)
     return ()
 end

@@ -35,9 +35,9 @@ end
 @constructor
 func constructor{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(deployer: felt):
+        range_check_ptr}(sender: felt):
     decimals.write(18)
-    _mint(deployer, Uint256(1000,0))
+    _mint(sender, Uint256(1000,0))
     return ()
 end
 
@@ -102,8 +102,7 @@ func _transfer{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals    
-    let (sender_balance: Uint256) = balances.read(user=sender)
-    local sender_balance: Uint256 = sender_balance
+    let (local sender_balance: Uint256) = balances.read(user=sender)
 
     # reassign syscall_ptr and pedersen_ptr to avoid revocation
     local syscall_ptr: felt* = syscall_ptr
@@ -150,17 +149,12 @@ func transfer_from{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
-    let (caller) = get_caller_address()
-    local caller = caller
-
-    let (caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
-    local caller_allowance: Uint256 = caller_allowance
+    let (local caller) = get_caller_address()
+    let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
 
     # reassign syscall_ptr and pedersen_ptr to avoid revocation
     local syscall_ptr: felt* = syscall_ptr
     local pedersen_ptr: HashBuiltin* = pedersen_ptr
-
-    local amount: Uint256 = amount
 
     # validates amount <= caller_allowance and returns 1 if true   
     let (validate_le) = uint256_le(amount, caller_allowance)
@@ -189,19 +183,15 @@ func increase_allowance{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr}(spender: felt, added_value: Uint256):
     alloc_locals
-    let (caller) = get_caller_address()
-    local caller = caller
-
+    let (local caller) = get_caller_address()
     let (current_allowance: Uint256) = allowances.read(caller, spender)
-
-    local added_value: Uint256 = added_value
 
     # reassign syscall_ptr and pedersen_ptr to avoid revocation
     local syscall_ptr: felt* = syscall_ptr
     local pedersen_ptr: HashBuiltin* = pedersen_ptr
 
-    let (new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
-    local new_allowance: Uint256 = new_allowance
+    # add allowance
+    let (local new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
 
     # validates current_allowance < new_allowance and returns 1 if true   
     let (validate_lt) = uint256_lt(current_allowance, new_allowance)
@@ -217,17 +207,15 @@ func decrease_allowance{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr} (spender: felt, subtracted_value: Uint256):
     alloc_locals
-    let (caller) = get_caller_address()
-    local caller = caller
-
+    let (local caller) = get_caller_address()
     let (current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
 
     # reassign syscall_ptr and pedersen_ptr to avoid revocation
     local syscall_ptr: felt* = syscall_ptr
     local pedersen_ptr: HashBuiltin* = pedersen_ptr
 
-    let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
-    local new_allowance: Uint256 = new_allowance
+    # subtract allowance
+    let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     # validates new_allowance < current_allowance and returns 1 if true   
     let (validate_lt) = uint256_lt(new_allowance, current_allowance)

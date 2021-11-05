@@ -26,11 +26,10 @@ func only_owner{
     return ()
 end
 
-@external
-func initialize_ownable{
+@constructor
+func constructor{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
         range_check_ptr} (initial_owner: felt):
-    initialize()
     _owner.write(initial_owner)
     return ()
 end

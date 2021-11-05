@@ -17,8 +17,14 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await Starknet.empty()
-    account = await starknet.deploy("contracts/Account.cairo")
-    await account.initialize(signer.public_key, account.contract_address).invoke()
+    account = await starknet.deploy(
+        source="contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    # Keeping the initialize function to set the contract_address
+    # until `this.address` is available
+    await account.initialize(account.contract_address).invoke()
     return starknet, account
 
 

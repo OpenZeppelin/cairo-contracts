@@ -19,8 +19,9 @@ class Signer():
         message_hash = hash_message(
             account.contract_address, to, selector, calldata, nonce)
         sig_r, sig_s = self.sign(message_hash)
+        signatures = [sig_r, sig_s]
 
-        return await account.execute(to, selector, calldata, [sig_r, sig_s]).invoke()
+        return await account.execute(to, selector, calldata).invoke(signature=signatures)
 
 
 def hash_message(sender, to, selector, calldata, nonce):

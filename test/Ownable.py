@@ -14,8 +14,11 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def ownable_factory():
     starknet = await Starknet.empty()
-    owner = await starknet.deploy("contracts/Account.cairo")
-    await owner.initialize(signer.public_key, owner.contract_address).invoke()
+    owner = await starknet.deploy(
+        source="contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+    await owner.initialize(owner.contract_address).invoke()
 
     ownable = await starknet.deploy(
         source="contracts/Ownable.cairo",

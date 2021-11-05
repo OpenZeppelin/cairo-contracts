@@ -32,9 +32,11 @@ end
 @constructor
 func constructor{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(deployer: felt):
+        range_check_ptr}(sender: felt):
+    # get_caller_address() returns '0' in the constructor;
+    # therefore, sender parameter is included
     decimals.write(18)
-    _mint(deployer, 1000)
+    _mint(sender, 1000)
     return ()
 end
 

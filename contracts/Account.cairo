@@ -5,7 +5,7 @@ from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.starknet.common.syscalls import call_contract, get_caller_address
+from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_signature
 
 #
 # Structs
@@ -104,17 +104,29 @@ func set_public_key{
 end
 
 #
-# Initializer
+# Constructor
 #
+
+@constructor
+func constructor{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+        range_check_ptr} (_public_key: felt):
+    public_key.write(_public_key)
+    return()
+end
+
+#
+# Initializer—will remove once this.address is available for the constructor
+#             to set the contract address
+
 
 @external
 func initialize{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (_public_key: felt, _address: felt):
+        range_check_ptr} (_address: felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
-    public_key.write(_public_key)
     address.write(_address)
     return ()
 end
@@ -157,8 +169,6 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
-        signature_len: felt,
-        signature: felt*
     ) -> (response : felt):
     alloc_locals
     assert_initialized()
@@ -182,6 +192,7 @@ func execute{
 
     # validate transaction
     let (hash) = hash_message(&message)
+    let (signature_len, signature) = get_tx_signature()
     is_valid_signature(hash, signature_len, signature)
 
     # bump nonce

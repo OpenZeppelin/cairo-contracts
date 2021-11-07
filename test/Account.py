@@ -4,6 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
+from utils.Deploy import deploy_contract
 
 signer = Signer(123456789987654321)
 other = Signer(987654321123456789)
@@ -17,10 +18,7 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    account = await deploy_contract(starknet, "contracts/Account.cairo", [signer.public_key])
 
     # Keeping the initialize function to set the contract_address
     # until `this.address` is available
@@ -42,7 +40,7 @@ async def test_initializer(account_factory):
 @pytest.mark.asyncio
 async def test_execute(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    initializable = await deploy_contract(starknet, "contracts/Initializable.cairo")
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
@@ -57,7 +55,7 @@ async def test_execute(account_factory):
 @pytest.mark.asyncio
 async def test_nonce(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    initializable = await deploy_contract(starknet, "contracts/Initializable.cairo")
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res
 

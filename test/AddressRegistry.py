@@ -2,6 +2,7 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils.Signer import Signer
+from utils.Deploy import deploy_contract
 
 signer = Signer(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
@@ -16,11 +17,8 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await Starknet.empty()
-    registry = await starknet.deploy("contracts/AddressRegistry.cairo")
-    account = await starknet.deploy(
-        "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    registry = await deploy_contract(starknet, "contracts/AddressRegistry.cairo")
+    account = await deploy_contract(starknet, "contracts/Account.cairo", [signer.public_key])
 
     await account.initialize(account.contract_address).invoke()
     return starknet, account, registry

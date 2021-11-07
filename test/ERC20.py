@@ -4,6 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
+from utils.Deploy import deploy_contract
 
 signer = Signer(123456789987654321)
 
@@ -16,17 +17,10 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def erc20_factory():
     starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
-
+    account = await deploy_contract(starknet, "contracts/Account.cairo", [signer.public_key])
     await account.initialize(account.contract_address).invoke()
 
-    erc20 = await starknet.deploy(
-        "contracts/token/ERC20.cairo",
-        constructor_calldata=[account.contract_address]
-    )
+    erc20 = await deploy_contract(starknet, "contracts/token/ERC20.cairo", [account.contract_address])
     return starknet, erc20, account
 
 
@@ -100,10 +94,7 @@ async def test_approve(erc20_factory):
 @pytest.mark.asyncio
 async def test_transfer_from(erc20_factory):
     starknet, erc20, account = erc20_factory
-    spender = await starknet.deploy(
-        "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    spender = await deploy_contract(starknet, "contracts/Account.cairo", [signer.public_key])
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
     await spender.initialize(spender.contract_address).invoke()
@@ -196,10 +187,7 @@ async def test_decrease_allowance_below_zero(erc20_factory):
 @pytest.mark.asyncio
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
-    spender = await starknet.deploy(
-        "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    spender = await deploy_contract(starknet, "contracts/Account.cairo", [signer.public_key])
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
     await spender.initialize(spender.contract_address).invoke()

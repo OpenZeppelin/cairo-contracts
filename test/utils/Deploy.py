@@ -1,5 +1,3 @@
-import os
-from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.compiler.compile import compile_starknet_files
 
 

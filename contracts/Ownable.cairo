@@ -13,7 +13,8 @@ end
 func get_owner{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr}() -> (res: felt):
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = _owner.read()
     return (res=res)
 end

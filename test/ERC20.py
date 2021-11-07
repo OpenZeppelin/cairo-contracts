@@ -4,7 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
-from utils.Deploy import deploy_contract
+from utils.deploy_contract import deploy_contract
 
 signer = Signer(123456789987654321)
 

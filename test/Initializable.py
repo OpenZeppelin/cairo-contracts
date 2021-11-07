@@ -1,6 +1,6 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
-from utils.Deploy import deploy_contract
+from utils.deploy_contract import deploy_contract
 
 
 @pytest.mark.asyncio

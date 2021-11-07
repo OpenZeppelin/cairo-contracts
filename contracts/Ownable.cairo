@@ -10,7 +10,9 @@ end
 
 
 @view
-func get_owner{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
+func get_owner{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr}() -> (res: felt):
     let (res) = _owner.read()
     return (res=res)
@@ -18,8 +20,10 @@ end
 
 @view
 func only_owner{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} ():
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
     let (owner) = _owner.read()
     let (caller) = get_caller_address()
     assert owner = caller

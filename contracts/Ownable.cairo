@@ -28,16 +28,20 @@ end
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (initial_owner: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(initial_owner: felt):
     _owner.write(initial_owner)
     return ()
 end
 
 @external
 func transfer_ownership{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (new_owner: felt) -> (new_owner: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(new_owner: felt) -> (new_owner: felt):
     only_owner()
     _owner.write(new_owner)
     return (new_owner=new_owner)

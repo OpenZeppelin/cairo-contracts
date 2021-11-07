@@ -9,16 +9,20 @@ end
 
 @external
 func initialized{ 
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} () -> (res: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = _initialized.read()
     return (res=res)
 end
 
 @external
 func initialize{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} ():
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
     let (initialized) = _initialized.read()
     assert initialized = 0
     _initialized.write(1)

@@ -46,8 +46,10 @@ end
 
 @view
 func assert_only_self{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} ():
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
     let (self) = address.read()
     let (caller) = get_caller_address()
     assert self = caller
@@ -56,8 +58,10 @@ end
 
 @view
 func assert_initialized{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}():
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
     let (_initialized) = initialized.read()
     assert _initialized = 1
     return ()
@@ -68,24 +72,31 @@ end
 #
 
 @view
-func get_public_key{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}() -> (res: felt):
+func get_public_key{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = public_key.read()
     return (res=res)
 end
 
 @view
 func get_address{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} () -> (res: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = address.read()
     return (res=res)
 end
 
 @view
 func get_nonce{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} () -> (res: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = current_nonce.read()
     return (res=res)
 end
@@ -96,8 +107,10 @@ end
 
 @external
 func set_public_key{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (new_public_key: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(new_public_key: felt):
     assert_only_self()
     public_key.write(new_public_key)
     return ()
@@ -109,8 +122,10 @@ end
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (_public_key: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(_public_key: felt):
     public_key.write(_public_key)
     return()
 end
@@ -122,8 +137,10 @@ end
 
 @external
 func initialize{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr} (_address: felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(_address: felt):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
@@ -137,8 +154,11 @@ end
 
 @view
 func is_valid_signature{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr, ecdsa_ptr: SignatureBuiltin*} (
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr, 
+        ecdsa_ptr: SignatureBuiltin*
+    }(
         hash: felt,
         signature_len: felt,
         signature: felt*
@@ -163,8 +183,11 @@ end
 
 @external
 func execute{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr, ecdsa_ptr: SignatureBuiltin*} (
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr, 
+        ecdsa_ptr: SignatureBuiltin*
+    }(
         to: felt,
         selector: felt,
         calldata_len: felt,

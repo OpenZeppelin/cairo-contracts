@@ -17,14 +17,14 @@ def event_loop():
 async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        source="contracts/Account.cairo",
+        "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
     await account.initialize(account.contract_address).invoke()
 
     erc20 = await starknet.deploy(
-        source="contracts/token/ERC20.cairo",
+        "contracts/token/ERC20.cairo",
         constructor_calldata=[account.contract_address]
     )
     return starknet, erc20, account
@@ -101,7 +101,7 @@ async def test_approve(erc20_factory):
 async def test_transfer_from(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        source="contracts/Account.cairo",
+        "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -119,11 +119,11 @@ async def test_transfer_from(erc20_factory):
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result == (previous_balance - amount,)
 
-    # execution_info = await erc20.balance_of(recipient).call()
-    #assert execution_info.result == (amount,)
+    execution_info = await erc20.balance_of(recipient).call()
+    assert execution_info.result == (amount,)
 
-    # execution_info = await erc20.allowance(account.contract_address, spender.contract_address).call()
-    #assert execution_info.result == (0,)
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info.result == (0,)
 
 
 @pytest.mark.asyncio
@@ -197,7 +197,7 @@ async def test_decrease_allowance_below_zero(erc20_factory):
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        source="contracts/Account.cairo",
+        "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts

@@ -116,8 +116,8 @@ func constructor{
 end
 
 #
-# Initializer—will remove once this.address is available for the constructor
-#             to set the contract address
+# Initializer (will remove once this.address is available for the constructor)
+#             
 
 
 @external

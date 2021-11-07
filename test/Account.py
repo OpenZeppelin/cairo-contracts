@@ -18,7 +18,7 @@ def event_loop():
 async def account_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        source="contracts/Account.cairo",
+        "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

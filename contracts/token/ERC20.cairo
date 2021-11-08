@@ -99,9 +99,9 @@ func _mint{
         range_check_ptr
     }(recipient: felt, amount: Uint256):
     alloc_locals
-    let (res: Uint256) = balances.read(user=recipient)
+    let (balance: Uint256) = balances.read(user=recipient)
     # the underscore is for the 1 bit carry
-    let (local new_balance, _: Uint256) = uint256_add(res, amount)
+    let (local new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
     let (supply: Uint256) = total_supply.read()

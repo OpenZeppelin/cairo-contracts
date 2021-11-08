@@ -44,6 +44,17 @@ async def test_constructor(erc1155_factory):
     assert execution_info.result == (500,)
 
 @pytest.mark.asyncio
+async def test_balance_of_batch(erc1155_factory):
+    _, erc1155, account = erc1155_factory
+
+    accounts = [account.contract_address,account.contract_address,account.contract_address]
+    token_ids = [2,1,1]
+
+    execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
+    assert execution_info.result.res == [500, 1000, 1000]
+    assert len(execution_info.result.res) == len(token_ids)
+
+@pytest.mark.asyncio
 async def test_transfer(erc1155_factory):
     _, erc1155, account = erc1155_factory
     recipient = 123

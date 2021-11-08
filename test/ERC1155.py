@@ -42,3 +42,23 @@ async def test_constructor(erc1155_factory):
     assert execution_info.result == (1000,)
     execution_info = await erc1155.balance_of(account.contract_address, 2).call()
     assert execution_info.result == (500,)
+
+@pytest.mark.asyncio
+async def test_transfer(erc1155_factory):
+    _, erc1155, account = erc1155_factory
+    recipient = 123
+    token_id = 1
+    amount = 100
+
+    execution_info = await erc1155.get_total_supply(token_id).call()
+    previous_supply = execution_info.result
+
+    assert await erc1155.balance_of(account.contract_address, token_id).call() == (1000,)
+    assert await erc1155.balance_of(recipient, token_id).call() == (0,)
+
+    await signer.send_transaction(account, erc1155.contract_address, 'transfer', [recipient, token_id, amount])
+    assert await erc1155.balance_of(account.contract_address, token_id).call() == (900,)
+    assert await erc1155.balance_of(recipient, token_id).call() == (100,)
+
+    execution_info = await erc1155.get_total_supply(token_id).call()
+    assert execution_info.result == previous_supply

@@ -102,7 +102,7 @@ func is_approved_for_all{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
     } (account: felt, operator: felt) -> (res: felt):
-    let (res) = operator_approvals(owner=account, operator).read(res)
+    let (res) = operator_approvals(owner=account, operator).read()
     return (res)
 end
 

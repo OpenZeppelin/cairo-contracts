@@ -50,6 +50,21 @@ end
 @view
 
 #### fonction uri --> after !!!!
+
+#
+# Constructor
+#
+
+@constructor
+func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        recipient : felt, token_id_len : felt, token_id : felt*, amount_len : felt, amount : felt*):
+    # get_caller_address() returns '0' in the constructor;
+    # therefore, recipient parameter is included
+    _mint_batch(recipient, token_id_len, token_id, amount_len, amount)
+    return ()
+end
+
+
 #
 # Initializer
 #
@@ -109,8 +124,8 @@ end
 
 @view
 func balance_of{
-        storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
         range_check_ptr
     } (owner: felt, token_id: felt) -> (res: felt):
     let (res) = balance.read(owner=owner, token_id=id)
@@ -157,8 +172,8 @@ end
 
 @view
 func owner_of{
-        storage_ptr: Storage*,
         pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
         range_check_ptr
     } (token_id: felt, token_no: felt) -> (res: felt):
     let (res) = owner.read(token_id=token_id, token_no=token_no)

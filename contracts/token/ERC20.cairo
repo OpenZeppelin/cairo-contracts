@@ -98,15 +98,15 @@ func _mint{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
-    alloc_locals
+    
     let (balance: Uint256) = balances.read(user=recipient)
     # the underscore is for the 1 bit carry
-    let (local new_balance, _: Uint256) = uint256_add(balance, amount)
+    let (new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
     let (supply: Uint256) = total_supply.read()
     # the underscore is for the 1 bit carry
-    let (local new_supply, _: Uint256) = uint256_add(supply, amount)
+    let (new_supply, _: Uint256) = uint256_add(supply, amount)
     total_supply.write(new_supply)
     return ()
 end

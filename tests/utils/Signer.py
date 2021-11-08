@@ -1,5 +1,6 @@
-from starkware.crypto.signature.signature import pedersen_hash, private_to_stark_key, sign
+from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.cairo.common.hash_state import compute_hash_on_elements
 
 
 class Signer():
@@ -24,17 +25,11 @@ class Signer():
 
 
 def hash_message(sender, to, selector, calldata, nonce):
-    res = pedersen_hash(sender, to)
-    res = pedersen_hash(res, selector)
-    res_calldata = hash_calldata(calldata)
-    res = pedersen_hash(res, res_calldata)
-    return pedersen_hash(res, nonce)
-
-
-def hash_calldata(calldata):
-    if len(calldata) == 0:
-        return 0
-    elif len(calldata) == 1:
-        return calldata[0]
-    else:
-        return pedersen_hash(hash_calldata(calldata[1:]), calldata[0])
+    message = [
+        sender,
+        to,
+        selector,
+        compute_hash_on_elements(calldata),
+        nonce
+    ]
+    return compute_hash_on_elements(message)

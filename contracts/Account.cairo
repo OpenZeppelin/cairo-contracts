@@ -6,6 +6,9 @@ from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_signature
+from starkware.cairo.common.hash_state import (
+    hash_init, hash_finalize, hash_update, hash_update_single
+)
 
 #
 # Structs
@@ -234,31 +237,42 @@ end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
     alloc_locals
-    let (res) = hash2{hash_ptr=pedersen_ptr}(message.sender, message.to)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.selector)
-    # we need to make `res` local
+    # we need to make `res_calldata` local
     # to prevent the reference from being revoked
-    local res = res
-    let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, res_calldata)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, message.nonce)
+    let (local res_calldata) = hash_calldata(message.calldata, message.calldata_size)
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        # first three iterations are 'sender', 'to', and 'selector'
+        let (hash_state_ptr) = hash_update(
+            hash_state_ptr, 
+            message, 
+            3
+        )
+        let (hash_state_ptr) = hash_update_single(
+            hash_state_ptr, res_calldata)
+        let (hash_state_ptr) = hash_update_single(
+            hash_state_ptr, message.nonce)
+        let (res) = hash_finalize(hash_state_ptr)
+        let pedersen_ptr = hash_ptr
     return (res=res)
+    end
 end
 
 func hash_calldata{pedersen_ptr: HashBuiltin*}(
         calldata: felt*,
         calldata_size: felt
     ) -> (res: felt):
-    if calldata_size == 0:
-        return (res=0)
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        let (hash_state_ptr) = hash_update(
+            hash_state_ptr,
+            calldata,
+            calldata_size
+        )
+        let (res) = hash_finalize(hash_state_ptr)
+        let pedersen_ptr = hash_ptr
+        return (res=res)
     end
-
-    if calldata_size == 1:
-        return (res=[calldata])
-    end
-
-    let _calldata = [calldata]
-    let (res) = hash_calldata(calldata + 1, calldata_size - 1)
-    let (res) = hash2{hash_ptr=pedersen_ptr}(res, _calldata)
-    return (res=res)
 end

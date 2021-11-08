@@ -206,3 +206,50 @@ func balances_sum(balance_of_one : felt, size : felt) -> (total_balance : felt):
     let (sum_of_rest) = balances_sum(balance_of_one=balance.read(owner=owner, id=size -1), size=size - 1)
     return (total_balance= balance_of_one + sum_of_rest)
 end
+
+#
+# Transfer
+#
+
+func _transfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        sender : felt, recipient : felt, token_id : felt, amount : felt):
+    # validate sender has enough funds
+    let (sender_balance) = balances.read(owner=sender, token_id=token_id)
+    assert_nn_le(amount, sender_balance)
+
+    # substract from sender
+    balances.write(sender, token_id, sender_balance - amount)
+
+    # add to recipient
+    let (res) = balances.read(owner=recipient, token_id=token_id)
+    balances.write(recipient, token_id, res + amount)
+    return ()
+end
+
+@external
+func transfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, token_id : felt, amount : felt):
+    let (sender) = get_caller_address()
+    _transfer(sender, recipient, token_id, amount)
+    return ()
+end
+
+@external
+func transfer_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, token_id_len : felt, token_id : felt*, amount_len : felt, amount : felt*):
+    let (sender) = get_caller_address()
+    assert token_id_len = amount_len
+    if token_id_len == 0:
+        return ()
+    end
+    _transfer(sender, recipient, token_id[0], amount[0])
+    return transfer_batch(
+        recipient=recipient,
+        token_id_len=token_id_len - 1,
+        token_id=token_id + 1,
+        amount_len=amount_len - 1,
+        amount=amount + 1)
+end
+
+# func transfer_from
+# func batch_transfer_from

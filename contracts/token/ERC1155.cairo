@@ -143,19 +143,29 @@ end
 #     return (res)
 # end
 
+func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        owner : felt*, token_id : felt*, rett : felt*, ret_index : felt, max : felt):
+    alloc_locals
+    if ret_index == max:
+        return ()
+    end
+    let (local retval0 : felt) = balances.read(owner=owner[0], token_id=token_id[0])
+    rett[0] = retval0
+    populate_balance_of_batch(owner + 1, token_id + 1, rett + 1, ret_index + 1, max)
+    return ()
+end
+
 @view
 func balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        owner_len : felt, owner : felt*, token_id_len : felt, token_id : felt*) -> (res : felt):
+        owner_len : felt, owner : felt*, token_id_len : felt, token_id : felt*) -> (
+        res_len : felt, res : felt*):
     assert owner_len = token_id_len
-    if owner_len == 0:
-        return (0)
-    end
-    balance_of(owner[0], token_id[0])
-    return balance_of_batch(
-        owner_len=owner_len - 1,
-        owner=owner + 1,
-        token_id_len=token_id_len - 1,
-        token_id=token_id + 1)
+    alloc_locals
+    local max = owner_len
+    let (local ret_array : felt*) = alloc()
+    local ret_index = 0
+    populate_balance_of_batch(owner, token_id, ret_array, ret_index, max)
+    return (max, ret_array)
 end
 
 # function for testing purposes

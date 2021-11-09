@@ -131,19 +131,6 @@ func balance_of{
     return (res)
 end
 
-<<<<<<< HEAD
-=======
-# @view
-# func balance_of_batch{
-#         storage_ptr: Storage*,
-#         pedersen_ptr: HashBuiltin*,
-#         range_check_ptr
-#     } (owner: felt) -> (res: felt):
-#     ###Have to make a sum
-#     let (res) = balances_sum(balance.read(owner=owner, id=max_token_id.read()), size=max_token_id.read())
-#     return (res)
-# end
-
 func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         owner : felt*, token_id : felt*, rett : felt*, ret_index : felt, max : felt):
     alloc_locals
@@ -156,7 +143,6 @@ func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*,
     return ()
 end
 
->>>>>>> 6769f41c7e3ef9530b4522a4310d12b16ed28ce9
 @view
 func balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         owner_len : felt, owner : felt*, token_id_len : felt, token_id : felt*) -> (

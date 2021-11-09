@@ -95,3 +95,15 @@ async def test_transfer_batch(erc1155_factory):
 
     assert (await erc1155.get_total_supply(token_id[0]).call()).result == previous_supply[0]
     assert (await erc1155.get_total_supply(token_id[1]).call()).result == previous_supply[1]
+
+@pytest.mark.asyncio
+async def test_insufficient_sender_balance(erc1155_factory):
+    _, erc1155, account = erc1155_factory
+    recipient = 123
+
+    try:
+        await signer.send_transaction(account, erc1155.contract_address, 'transfer_batch', [recipient, 2, 1, 2, 2, 1001, 50])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

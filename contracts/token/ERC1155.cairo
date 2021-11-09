@@ -81,25 +81,25 @@ func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
 end
 
 func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        recipient : felt, token_id : felt, amount : felt) -> ():
-    let (res) = balances.read(owner=recipient, token_id=token_id)
-    balances.write(recipient, token_id, res + amount)
-
-    let (supply) = total_supply.read(token_id=token_id)
-    total_supply.write(token_id, supply + amount)
+        to : felt, token_id : felt, amount : felt) -> ():
+    assert_not_zero(to)
+    let (res) = balances.read(owner=to, token_id=token_id)
+    balances.write(to, token_id, res + amount)
     return ()
 end
 
 func _mint_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        recipient : felt, token_id_len : felt, token_id : felt*, amount_len : felt,
+        to : felt, token_id_len : felt, token_id : felt*, amount_len : felt,
         amount : felt*) -> ():
+    assert_not_zero(to)
     assert token_id_len = amount_len
+
     if token_id_len == 0:
         return ()
     end
-    _mint(recipient, token_id[0], amount[0])
+    _mint(to, token_id[0], amount[0])
     return _mint_batch(
-        recipient=recipient,
+        to=to,
         token_id_len=token_id_len - 1,
         token_id=token_id + 1,
         amount_len=amount_len - 1,

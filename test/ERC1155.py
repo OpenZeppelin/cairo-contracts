@@ -23,33 +23,30 @@ async def erc1155_factory():
 
     await account.initialize(account.contract_address).invoke()
 
+    # Initialize ERC1155 contract with token_id => 1 : 1000 / 2 : 500
     erc1155 = await starknet.deploy(
         "contracts/token/ERC1155.cairo",
-        # token_id: token_no => 1 : 1000 / 2 : 500
         constructor_calldata=[account.contract_address, 2, 1, 2, 2, 1000, 500]
     )
     return starknet, erc1155, account
 
-# @pytest.mark.asyncio
-# async def test_constructor(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
+@pytest.mark.asyncio
+async def test_constructor(erc1155_factory):
+    _, erc1155, account = erc1155_factory
 
-#     assert (await erc1155.get_total_supply(1).call()).result == (1000,)
-#     assert (await erc1155.get_total_supply(2).call()).result == (500,)
+    assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (1000,)
+    assert (await erc1155.balance_of(account.contract_address, 2).call()).result == (500,)
 
-#     assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (1000,)
-#     assert (await erc1155.balance_of(account.contract_address, 2).call()).result == (500,)
+@pytest.mark.asyncio
+async def test_balance_of_batch(erc1155_factory):
+    _, erc1155, account = erc1155_factory
 
-# @pytest.mark.asyncio
-# async def test_balance_of_batch(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
+    accounts = [account.contract_address,account.contract_address,account.contract_address]
+    token_ids = [2,1,1]
 
-#     accounts = [account.contract_address,account.contract_address,account.contract_address]
-#     token_ids = [2,1,1]
-
-#     execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
-#     assert execution_info.result.res == [500, 1000, 1000]
-#     assert len(execution_info.result.res) == len(token_ids)
+    execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
+    assert execution_info.result.res == [500, 1000, 1000]
+    assert len(execution_info.result.res) == len(token_ids)
 
 # @pytest.mark.asyncio
 # async def test_transfer(erc1155_factory):

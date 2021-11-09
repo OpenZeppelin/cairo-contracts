@@ -3,8 +3,8 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.starknet.common.storage import Storage
 from starkware.cairo.common.math import assert_nn_le
+from starkware.cairo.common.alloc import alloc
 
 #
 # Storage
@@ -40,7 +40,7 @@ end
 
 ################ Now it's felt* maybe after string will be implemented on cairo
 @storage_var
-func contract_uri() -> (res: felt*):
+func contract_uri() -> (res: felt):
 end
 
 #Support interface !!
@@ -127,7 +127,7 @@ func balance_of{
         syscall_ptr : felt*, 
         range_check_ptr
     } (owner: felt, token_id: felt) -> (res: felt):
-    let (res) = balance.read(owner=owner, token_id=id)
+    let (res) = balances.read(owner=owner, token_id=token_id)
     return (res)
 end
 
@@ -171,7 +171,7 @@ end
 @view
 func owner_of{
         pedersen_ptr: HashBuiltin*,
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         range_check_ptr
     } (token_id: felt, token_no: felt) -> (res: felt):
     let (res) = owner.read(token_id=token_id, token_no=token_no)
@@ -190,21 +190,21 @@ end
 
 
 @view
-func is_approved_for_all{storage_ptr: Storage*,pedersen_ptr: HashBuiltin*,range_check_ptr} (account: felt, operator: felt) -> (res: felt):
-    let (_res) = operator_approvals.read(owner=account, operator)
+func is_approved_for_all{pedersen_ptr: HashBuiltin*,syscall_ptr : felt*, range_check_ptr} (account: felt, operator: felt) -> (res: felt):
+    let (_res) = operator_approvals.read(owner=account, operator=operator)
     return (res=_res)
 end
 
 func _set_approval_for_all{
-    storage_ptr: Storage*,
     pedersen_ptr: HashBuiltin*,
+    syscall_ptr : felt*,
     range_check_ptr
     } (account: felt, operator: felt, approved: felt):
     if account == operator:
         return()
     end
-    operator_approvals.write(owner=account, operator, approved) 
-    return ()
+    operator_approvals.write(account, operator, approved)
+    return()
 end
 
 #

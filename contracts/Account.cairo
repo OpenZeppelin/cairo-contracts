@@ -194,6 +194,7 @@ func execute{
         selector: felt,
         calldata_len: felt,
         calldata: felt*,
+        nonce: felt
     ) -> (response : felt):
     alloc_locals
     assert_initialized()

@@ -69,17 +69,6 @@ end
 #
 
 @external
-func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-    initialized.write(1)
-
-    let (sender) = get_caller_address()
-    _mint(sender, 1, 1000)
-    return ()
-end
-
-@external
 func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         token_id_len : felt, token_id : felt*, amount_len : felt, amount : felt*):
     let (_initialized) = initialized.read()

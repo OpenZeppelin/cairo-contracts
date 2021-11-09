@@ -180,8 +180,8 @@ end
 
 @view
 func is_approved_for_all{pedersen_ptr: HashBuiltin*,syscall_ptr : felt*, range_check_ptr} (account: felt, operator: felt) -> (res: felt):
-    let (_res) = operator_approvals.read(owner=account, operator=operator)
-    return (res=_res)
+    let (res) = operator_approvals.read(owner=account, operator=operator)
+    return (res=res)
 end
 
 @external
@@ -191,9 +191,9 @@ func set_approval_for_all{
     range_check_ptr
     } (operator: felt, approved: felt):
     let (account) = get_caller_address()
-    if account == operator:
-        return()
-    end
+    # if account == operator:
+    #     return()
+    # end
     operator_approvals.write(account, operator, approved)
     return()
 end

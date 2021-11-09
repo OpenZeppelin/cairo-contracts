@@ -47,7 +47,6 @@ end
 #
 #
 #
-@view
 
 #### fonction uri --> after !!!!
 
@@ -132,6 +131,8 @@ func balance_of{
     return (res)
 end
 
+<<<<<<< HEAD
+=======
 # @view
 # func balance_of_batch{
 #         storage_ptr: Storage*,
@@ -155,6 +156,7 @@ func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*,
     return ()
 end
 
+>>>>>>> 6769f41c7e3ef9530b4522a4310d12b16ed28ce9
 @view
 func balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         owner_len : felt, owner : felt*, token_id_len : felt, token_id : felt*) -> (
@@ -190,25 +192,21 @@ func owner_of{
     return (res)
 end
 
-@external
-func set_approval_for_all{
-    storage_ptr: Storage*,
-    pedersen_ptr: HashBuiltin*,
-    range_check_ptr
-    } (operator: felt, approved: felt):
-    _set_approval_for_all(account=get_caller_address(),operator, approved)
-    return ()
-end
+# @external
+# func set_approval_for_all{
+    # storage_ptr: Storage*,
+    # pedersen_ptr: HashBuiltin*,
+    # range_check_ptr
+    # } (operator: felt, approved: felt):
+    # _set_approval_for_all(account=get_caller_address(),operator, approved)
+    # return ()
+# end
 
 
 @view
-func is_approved_for_all{
-    storage_ptr: Storage*,
-    pedersen_ptr: HashBuiltin*,
-    range_check_ptr
-    } (account: felt, operator: felt) -> (res: felt):
-    let (res) = operator_approvals(owner=account, operator).read(res)
-    return (res)
+func is_approved_for_all{storage_ptr: Storage*,pedersen_ptr: HashBuiltin*,range_check_ptr} (account: felt, operator: felt) -> (res: felt):
+    let (_res) = operator_approvals.read(owner=account, operator)
+    return (res=_res)
 end
 
 func _set_approval_for_all{
@@ -219,17 +217,8 @@ func _set_approval_for_all{
     if account == operator:
         return()
     end
-    operator_approvals(owner=account, operator).write(approved) 
+    operator_approvals.write(owner=account, operator, approved) 
     return ()
-end
-
-
-func balances_sum(balance_of_one : felt, size : felt) -> (total_balance : felt):
-    if size == 0:
-        return(total_balance=0)
-    end
-    let (sum_of_rest) = balances_sum(balance_of_one=balance.read(owner=owner, id=size -1), size=size - 1)
-    return (total_balance= balance_of_one + sum_of_rest)
 end
 
 #

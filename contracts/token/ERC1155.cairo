@@ -19,10 +19,6 @@ func balances(owner: felt, token_id: felt) -> (res: felt):
 end
 
 @storage_var
-func token_approvals(token_id: felt, token_no: felt) -> (res: felt):
-end
-
-@storage_var
 func operator_approvals(owner: felt, operator: felt) -> (res: felt):
 end
 
@@ -34,9 +30,13 @@ end
 func total_supply(token_id : felt) -> (res : felt):
 end
 
-@storage_var
-func  max_token_id(token_id: felt) ->  (res: felt):
-end
+# @storage_var
+# func token_approvals(token_id: felt, token_no: felt) -> (res: felt):
+# end
+
+# @storage_var
+# func  max_token_id(token_id: felt) ->  (res: felt):
+# end
 
 ################ Now it's felt  maybe after string will be implemented on cairo
 @storage_var
@@ -122,17 +122,18 @@ end
 #
 
 @view
-func balance_of{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr : felt*, 
-        range_check_ptr
-    } (owner: felt, token_id: felt) -> (res: felt):
+func balance_of{pedersen_ptr: HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        owner: felt, token_id: felt) -> (res: felt):
+    assert_not_zero(owner)
     let (res) = balances.read(owner=owner, token_id=token_id)
     return (res)
 end
 
-func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        owner : felt*, token_id : felt*, rett : felt*, ret_index : felt, max : felt):
+func populate_balance_of_batch{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(owner : felt*, token_id : felt*, rett : felt*, ret_index : felt, max : felt):
     alloc_locals
     if ret_index == max:
         return ()
@@ -179,7 +180,8 @@ func owner_of{
 end
 
 @view
-func is_approved_for_all{pedersen_ptr: HashBuiltin*,syscall_ptr : felt*, range_check_ptr} (account: felt, operator: felt) -> (res: felt):
+func is_approved_for_all{pedersen_ptr: HashBuiltin*,syscall_ptr : felt*, range_check_ptr} (
+        account: felt, operator: felt) -> (res: felt):
     let (res) = operator_approvals.read(owner=account, operator=operator)
     return (res=res)
 end
@@ -191,9 +193,7 @@ func set_approval_for_all{
     range_check_ptr
     } (operator: felt, approved: felt):
     let (account) = get_caller_address()
-    # if account == operator:
-    #     return()
-    # end
+    assert_not_equal(account, operator)
     operator_approvals.write(account, operator, approved)
     return()
 end

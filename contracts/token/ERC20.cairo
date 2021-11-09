@@ -124,9 +124,8 @@ func _transfer{
     local pedersen_ptr: HashBuiltin* = pedersen_ptr
 
     # validates amount <= sender_balance and returns 1 if true
-    let (validate_le) = uint256_le(amount, sender_balance)
-    # fails if validate_le == 0
-    assert_not_zero(validate_le)
+    let (enough_balance) = uint256_le(amount, sender_balance)
+    assert_not_zero(enough_balance)
 
     # subtract from sender
     let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
@@ -178,9 +177,8 @@ func transfer_from{
     local pedersen_ptr: HashBuiltin* = pedersen_ptr
 
     # validates amount <= caller_allowance and returns 1 if true   
-    let (validate_le) = uint256_le(amount, caller_allowance)
-    # fails if validate_le == 0
-    assert_not_zero(validate_le)
+    let (enough_balance) = uint256_le(amount, caller_allowance)
+    assert_not_zero(enough_balance)
 
     _transfer(sender, recipient, amount)
 
@@ -219,9 +217,8 @@ func increase_allowance{
     let (local new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
 
     # validates current_allowance < new_allowance and returns 1 if true   
-    let (validate_lt) = uint256_lt(current_allowance, new_allowance)
-    # fails if validate_lt == 0
-    assert_not_zero(validate_lt)
+    let (allowance_check) = uint256_lt(current_allowance, new_allowance)
+    assert_not_zero(allowance_check)
 
     _approve(caller, spender, new_allowance)
     return()
@@ -244,9 +241,8 @@ func decrease_allowance{
     let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     # validates new_allowance < current_allowance and returns 1 if true   
-    let (validate_lt) = uint256_lt(new_allowance, current_allowance)
-    ## fails if validate_lt == 0
-    assert_not_zero(validate_lt)
+    let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
+    assert_not_zero(enough_allowance)
 
     _approve(caller, spender, new_allowance)
     return()

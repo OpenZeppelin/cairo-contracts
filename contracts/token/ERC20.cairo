@@ -217,8 +217,8 @@ func increase_allowance{
     let (local new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
 
     # validates current_allowance < new_allowance and returns 1 if true   
-    let (allowance_check) = uint256_lt(current_allowance, new_allowance)
-    assert_not_zero(allowance_check)
+    let (enough_allowance) = uint256_lt(current_allowance, new_allowance)
+    assert_not_zero(enough_allowance)
 
     _approve(caller, spender, new_allowance)
     return()

@@ -38,7 +38,7 @@ end
 func  max_token_id(token_id: felt) ->  (res: felt):
 end
 
-################ Now it's felt* maybe after string will be implemented on cairo
+################ Now it's felt  maybe after string will be implemented on cairo
 @storage_var
 func contract_uri() -> (res: felt):
 end
@@ -178,28 +178,19 @@ func owner_of{
     return (res)
 end
 
-# @external
-# func set_approval_for_all{
-    # storage_ptr: Storage*,
-    # pedersen_ptr: HashBuiltin*,
-    # range_check_ptr
-    # } (operator: felt, approved: felt):
-    # _set_approval_for_all(account=get_caller_address(),operator, approved)
-    # return ()
-# end
-
-
 @view
 func is_approved_for_all{pedersen_ptr: HashBuiltin*,syscall_ptr : felt*, range_check_ptr} (account: felt, operator: felt) -> (res: felt):
     let (_res) = operator_approvals.read(owner=account, operator=operator)
     return (res=_res)
 end
 
-func _set_approval_for_all{
+@external
+func set_approval_for_all{
     pedersen_ptr: HashBuiltin*,
     syscall_ptr : felt*,
     range_check_ptr
-    } (account: felt, operator: felt, approved: felt):
+    } (operator: felt, approved: felt):
+    let (account) = get_caller_address()
     if account == operator:
         return()
     end

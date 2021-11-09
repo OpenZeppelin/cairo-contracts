@@ -26,10 +26,6 @@ end
 func initialized() -> (res : felt):
 end
 
-@storage_var
-func total_supply(token_id : felt) -> (res : felt):
-end
-
 # @storage_var
 # func token_approvals(token_id: felt, token_no: felt) -> (res: felt):
 # end
@@ -144,14 +140,6 @@ func balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
     local ret_index = 0
     populate_balance_of_batch(owner, token_id, ret_array, ret_index, max)
     return (max, ret_array)
-end
-
-# function for testing purposes
-@view
-func get_total_supply{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        token_id : felt) -> (res : felt):
-    let (supply) = total_supply.read(token_id=token_id)
-    return (supply)
 end
 
 #

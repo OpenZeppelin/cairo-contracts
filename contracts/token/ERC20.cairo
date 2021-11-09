@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
 #
@@ -98,15 +98,26 @@ func _mint{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
-    
+    alloc_locals
+    assert_not_zero(recipient)
+
     let (balance: Uint256) = balances.read(user=recipient)
     # the underscore is for the 1 bit carry
     let (new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
-    let (supply: Uint256) = total_supply.read()
+    let (local supply: Uint256) = total_supply.read()
     # the underscore is for the 1 bit carry
-    let (new_supply, _: Uint256) = uint256_add(supply, amount)
+    let (local new_supply, _: Uint256) = uint256_add(supply, amount)
+
+    # reassign syscall_ptr and pedersen_ptr to avoid revocation
+    local syscall_ptr: felt* = syscall_ptr
+    local pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+    # overflow check
+    let (enough_balance) = uint256_lt(supply, new_supply)
+    assert_not_zero(enough_balance)
+
     total_supply.write(new_supply)
     return ()
 end
@@ -117,6 +128,9 @@ func _transfer{
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
+    assert_not_zero(sender)
+    assert_not_zero(recipient)
+
     let (local sender_balance: Uint256) = balances.read(user=sender)
 
     # reassign syscall_ptr and pedersen_ptr to avoid revocation
@@ -143,6 +157,8 @@ func _approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(caller: felt, spender: felt, amount: Uint256):
+    assert_not_zero(caller)
+    assert_not_zero(spender)
     allowances.write(caller, spender, amount)
     return ()
 end
@@ -194,6 +210,8 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256):
+    alloc_locals
+    uint256_check(amount)
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
     return ()
@@ -248,3 +266,16 @@ func decrease_allowance{
     return()
 end
 
+#
+# Test function — will remove once extensibility is resolved
+#
+
+@external
+func mint{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(recipient: felt, amount: Uint256):
+    _mint(recipient, amount)
+    return()
+end

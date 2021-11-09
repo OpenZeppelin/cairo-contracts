@@ -250,3 +250,53 @@ async def test_overflow_increase_allowance(erc20_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_transfer_to_zero_address(erc20_factory):
+    _, erc20, account = erc20_factory
+    recipient = 0
+    amount = uint(1)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_approve_spender_zero_address(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 0
+    amount = uint(1)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_mint_overflow_check(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 789
+    # fetching the previously minted total_supply and verifying the overflow check
+    # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
+    execution_info = await erc20.get_total_supply().call()
+    previous_supply = execution_info.result.res
+    fail_amount = (2**128 - previous_supply[0], 2**128 - 1)
+    pass_amount = (fail_amount[0] - 1, fail_amount[1])
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'mint', [spender, *fail_amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+    # should pass
+    await signer.send_transaction(account, erc20.contract_address, 'mint', [spender, *pass_amount])

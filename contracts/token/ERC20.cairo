@@ -173,6 +173,8 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
+    # ensures amount does not overflow
+    uint256_check(amount)
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
     return ()
@@ -185,6 +187,8 @@ func transfer_from{
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
+    # ensures amount does not overflow
+    uint256_check(amount)
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
 
@@ -211,6 +215,7 @@ func approve{
         range_check_ptr
     }(spender: felt, amount: Uint256):
     alloc_locals
+    # ensures amount does not overflow
     uint256_check(amount)
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
@@ -224,6 +229,8 @@ func increase_allowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256):
     alloc_locals
+    # ensures added_value does not overflow
+    uint256_check(added_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(caller, spender)
 
@@ -249,6 +256,8 @@ func decrease_allowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256):
     alloc_locals
+    # ensures subtracted_value does not overflow
+    uint256_check(subtracted_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
     

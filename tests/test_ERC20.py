@@ -4,6 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
+from unittest.mock import MagicMock, patch
 
 signer = Signer(123456789987654321)
 
@@ -240,12 +241,13 @@ async def test_overflow_increase_allowance(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 234
-    amount = uint(2**200)
+    amount = (2**128 - 1, 2**128 - 1)
+    overflow_amount = uint(1)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
 
     try:
         # overflow check will revert the transaction
-        await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, *amount])
+        await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, *overflow_amount])
         assert False
     except StarkException as err:
         _, error = err.args
@@ -267,6 +269,22 @@ async def test_transfer_to_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
+async def test_transfer_from_zero_address(erc20_factory):
+    _, erc20, _ = erc20_factory
+    recipient = 123
+    amount = uint(1)
+
+    # Without using an account abstraction, the caller address
+    # (get_caller_address) is zero
+    try:
+        await erc20.transfer(recipient, amount).invoke()
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
 async def test_approve_spender_zero_address(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 0
@@ -281,7 +299,23 @@ async def test_approve_spender_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_mint_overflow_check(erc20_factory):
+async def test_approve_caller_zero_address(erc20_factory):
+    _, erc20, _ = erc20_factory
+    spender = 123
+    amount = uint(345)
+
+    # Without using an account abstraction, the caller address
+    # (get_caller_address) is zero
+    try:
+        await erc20.approve(spender, amount).invoke()
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_overflow_mint(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 789
     # fetching the previously minted total_supply and verifying the overflow check

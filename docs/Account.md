@@ -6,34 +6,34 @@ OpenZepplin Cairo Contracts Account Contract provides a mechanism to account aut
 
 The general workflow is three simple steps: 
 1. Acccount contract is deployed to Starknet; 
-1. Account is iitialized with a public key; and
-1. Transactions are executed on the account via the Signer with each validated that the account is authenticated to perform the transaction and that the transaction is not subject to a replay attack.
+1. Account is initialized with a public key; and
+1. Transactions are executed on the Account via a Signer utility.
 
-### Signer
+Each transaction is validated for whether the Public Key is authenticated to perform the transaction and whether the transaction is subject to a replay attack.
 
-Signer is used to perform transactions on an account. To use Signer, first register a public address with the signer object.
+## Signer
+
+Signer is used to perform transactions on an account. To use Signer, first make s Signer object with an initial parameter representing a public address.
 
     from utils.Signer import Signer
 
     signer = Signer(123456789987654321)
 
-Then send transactions with the signer object that need to be authenticated by StarkNet.
+Then send transactions with the Signer object that need to be authenticated by StarkNet.
 
     await signer.send_transaction(account, contract_address, 'account_command', [])
 
-## Core
-
-### Account
+## Account
 
     account = await starknet.deploy("contracts/Account.cairo")
     
 An account initialized with a public key. Accounts are transferable.
 
-Execution of the account proof on StarkNet will validate the signature of the Account.
+Execution of the account proof on StarkNet will validate the signature of the Account and whether the transaction is subject to a replay attack.
 
-#### Functions
+### Functions
 
-##### initialize
+#### initialize
 
     $ Cairo
     func initialize (_public_key: felt, _address: felt)
@@ -43,13 +43,13 @@ Execution of the account proof on StarkNet will validate the signature of the Ac
 
 Provide the initial settings for the Account to be validatied.
 
-###### Parameters:
+##### Parameters:
 
-_public key: felt - Pointer to Accounter Holder Public Key
+    _public key: felt - Pointer to Accounter Holder Public Key
 
-_address: felt - Pointer to Account Contract Address
+    _address: felt - Pointer to Account Contract Address
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -59,17 +59,17 @@ _address: felt - Pointer to Account Contract Address
     $ Python
     None
 
-##### get_public_key
+#### get_public_key
 
     assert account.get_public_key() == signer.public_key 
 
 get the public key associated with the Account
 
-###### Paramenters:
+##### Paramenters:
 
     None
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -80,17 +80,17 @@ get the public key associated with the Account
     $ Python
     int: public_key
 
-##### get_address
+#### get_address
 
     assert await account.get_address().call() == (account.contract_address,)
 
 get the contract address associated with the Account
 
-###### Paramenters:
+##### Paramenters:
 
     None
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -101,17 +101,17 @@ get the contract address associated with the Account
     $ Python
     int: contract_address
 
-##### get_nonce
+#### get_nonce
 
     assert await account.get_nonce().call() == (account.nonce)
 
 get the current transaction count or nonce for the account
 
-###### Paramenters:
+##### Paramenters:
 
     None
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -121,7 +121,7 @@ get the current transaction count or nonce for the account
     $ Python
     int: public_key
 
-##### set_public_key
+#### set_public_key
 
     assert await account.get_public_key().call() == (signer.public_key,)
     await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
@@ -129,11 +129,11 @@ get the current transaction count or nonce for the account
 
 transfer the account from one public key to another
 
-###### Paramenters:
+##### Paramenters:
 
     int: public_key
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -143,11 +143,11 @@ transfer the account from one public key to another
     $ Python
     None
 
-##### is_valid_signature
+#### is_valid_signature
 
 *This function is not directly used by clients. See func execute.
 
-##### execute
+#### execute
 
 Note: execute is not called directly in workflows with the Account. Instead, the Signer object is used to send_transaction which calls the execute function. Thus, one can think of send_transaction as a wrapper around execute.
 
@@ -158,7 +158,7 @@ execute takes a Message as its input parameter with a reference to the account. 
 1. increments the nonce
 1. calls the contract per the Message
 
-###### Paramenters:
+##### Paramenters:
 
     $ Cairo
     to: felt,
@@ -174,7 +174,7 @@ execute takes a Message as its input parameter with a reference to the account. 
     list: calldata, 
     list of length 2: [sig_r, sig_s]
 
-###### Return:
+##### Return:
 
     $ Cairo
     (implicit) storage_ptr: Storage*
@@ -185,7 +185,7 @@ execute takes a Message as its input parameter with a reference to the account. 
     int: system_response_return_data_size
 
 
-#### Code Sample
+## Code Sample
 
 Note: Starknet is stil under development and this Cairo Contracts project is still experimental. This example is designed to work in a test environment. Code samples that are more representative of a production implementation will be added when available.
 

@@ -4,7 +4,6 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
-from unittest.mock import MagicMock, patch
 
 signer = Signer(123456789987654321)
 
@@ -318,6 +317,7 @@ async def test_approve_caller_zero_address(erc20_factory):
 async def test_overflow_mint(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 789
+
     # fetching the previously minted total_supply and verifying the overflow check
     # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
     execution_info = await erc20.get_total_supply().call()

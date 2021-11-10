@@ -2,6 +2,25 @@
 
 This set of contracts and utilities implement an Account on [Starknet](https://www.cairo-lang.org/docs/hello_starknet/intro.html) using [Cairo](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo).
 
+OpenZepplin Cairo Contracts Account Contract provides a mechanism to account authentication and replay attack protection.
+
+The general workflow is three simple steps: 
+1. Acccount contract is deployed to Starknet; 
+1. Account is iitialized with a public key; and
+1. Transactions are executed on the account via the Signer with each validated that the account is authenticated to perform the transaction and that the transaction is not subject to a replay attack.
+
+### Signer
+
+Signer is used to perform transactions on an account. To use Signer, first register a public address with the signer object.
+
+    from utils.Signer import Signer
+
+    signer = Signer(123456789987654321)
+
+Then send transactions with the signer object that need to be authenticated by StarkNet.
+
+    await signer.send_transaction(account, contract_address, 'account_command', [])
+
 ## Core
 
 ### Account
@@ -77,11 +96,16 @@ get the contract address associated with the Account
     (implicit) storage_ptr: Storage*
     (implicit) pedersen_ptr: HashBuiltin*
     (implicit) range_check_ptr
+    contract_address : felt
 
     $ Python
-    int: public_key
+    int: contract_address
 
 ##### get_nonce
+
+    assert await account.get_nonce().call() == (account.nonce)
+
+get the current transaction count or nonce for the account
 
 ###### Paramenters:
 
@@ -99,9 +123,15 @@ get the contract address associated with the Account
 
 ##### set_public_key
 
+    assert await account.get_public_key().call() == (signer.public_key,)
+    await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+    assert await account.get_public_key().call() == (other.public_key,)
+
+transfer the account from one public key to another
+
 ###### Paramenters:
 
-    None
+    int: public_key
 
 ###### Return:
 
@@ -111,29 +141,38 @@ get the contract address associated with the Account
     (implicit) range_check_ptr
 
     $ Python
-    int: public_key
+    None
 
 ##### is_valid_signature
 
-###### Paramenters:
-
-    None
-
-###### Return:
-
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
-
-    $ Python
-    int: public_key
+*This function is not directly used by clients. See func execute.
 
 ##### execute
 
+Note: execute is not called directly in workflows with the Account. Instead, the Signer object is used to send_transaction which calls the execute function. Thus, one can think of send_transaction as a wrapper around execute.
+
+execute takes a Message as its input parameter with a reference to the account. execute then:
+1. confirms that the Account has been initialized
+1. hashes the Message
+1. sends it to Starknet to validate the signature
+1. increments the nonce
+1. calls the contract per the Message
+
 ###### Paramenters:
 
-    None
+    $ Cairo
+    to: felt,
+    selector: felt,
+    calldata_len: felt,
+    calldata: felt*,
+    signature_len: felt,
+    signature: felt*
+
+    $ Python
+    int: to_contract_address, 
+    str: selector_name, 
+    list: calldata, 
+    list of length 2: [sig_r, sig_s]
 
 ###### Return:
 
@@ -143,10 +182,12 @@ get the contract address associated with the Account
     (implicit) range_check_ptr
 
     $ Python
-    int: public_key
+    int: system_response_return_data_size
 
 
 #### Code Sample
+
+Note: Starknet is stil under development and this Cairo Contracts project is still experimental. This example is designed to work in a test environment. Code samples that are more representative of a production implementation will be added when available.
 
     starknet = await Starknet.empty()
     account = await starknet.[deploy("contracts/Account.cairo")
@@ -155,17 +196,3 @@ get the contract address associated with the Account
     # transfer account
     assert await account.get_public_key().call() == (signer.public_key,)
     await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
-
-## Extensions
-
-### Initializable
-
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
-
-An account that can have an initialized state that is set once
-
-#### Functions
-
-initialized
-
-initialize

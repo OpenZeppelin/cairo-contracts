@@ -39,13 +39,13 @@ end
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         recipient: felt,
-         token_id_len: felt,
-          token_id: felt*,
-           amount_len: felt,
-            amount: felt*):
+        tokens_id_len: felt,
+        tokens_id: felt*,
+        amounts_len: felt,
+        amounts: felt*):
     # get_caller_address() returns '0' in the constructor;
     # therefore, recipient parameter is included
-    _mint_batch(recipient, token_id_len, token_id, amount_len, amount)
+    _mint_batch(recipient, tokens_id_len, tokens_id, amounts_len, amounts)
     return ()
 end
 
@@ -56,16 +56,15 @@ end
 
 @external
 func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        token_id_len: felt,
-        token_id: felt*,
-        amount_len: felt,
-        amount: felt*):
+        tokens_id_len: felt,
+        tokens_id: felt*,
+        amounts_len: felt,
+        amounts: felt*):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
-
     let (sender) = get_caller_address()
-    _mint_batch(sender, token_id_len, token_id, amount_len, amount)
+    _mint_batch(sender, tokens_id_len, tokens_id, amounts_len, amounts)
     return ()
 end
 
@@ -81,23 +80,23 @@ end
 
 func _mint_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         to: felt,
-        token_id_len: felt,
-        token_id: felt*,
-        amount_len: felt,
-        amount : felt*) -> ():
+        tokens_id_len: felt,
+        tokens_id: felt*,
+        amounts_len: felt,
+        amounts: felt*) -> ():
     assert_not_zero(to)
-    assert token_id_len = amount_len
+    assert tokens_id_len = amounts_len
 
-    if token_id_len == 0:
+    if tokens_id_len == 0:
         return ()
     end
-    _mint(to, token_id[0], amount[0])
+    _mint(to, tokens_id[0], amounts[0])
     return _mint_batch(
         to=to,
-        token_id_len=token_id_len - 1,
-        token_id=token_id + 1,
-        amount_len=amount_len - 1,
-        amount=amount + 1)
+        tokens_id_len=tokens_id_len - 1,
+        tokens_id=tokens_id + 1,
+        amounts_len=amounts_len - 1,
+        amounts=amounts + 1)
 end
 
 #
@@ -115,22 +114,22 @@ end
 
 @view
 func balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        owner_len:felt,
-        owner: felt*,
-        token_id_len: felt,
-        token_id: felt*) -> (res_len : felt, res : felt*):
-    assert owner_len = token_id_len
+        owners_len:felt,
+        owners: felt*,
+        tokens_id_len: felt,
+        tokens_id: felt*) -> (res_len : felt, res : felt*):
+    assert owners_len = tokens_id_len
     alloc_locals
-    local max = owner_len
+    local max = owners_len
     let (local ret_array : felt*) = alloc()
     local ret_index = 0
-    populate_balance_of_batch(owner, token_id, ret_array, ret_index, max)
+    populate_balance_of_batch(owners, tokens_id, ret_array, ret_index, max)
     return (max, ret_array)
 end
 
 func populate_balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    owner: felt*,
-    token_id: felt*,
+    owners: felt*,
+    tokens_id: felt*,
     rett: felt*,
     ret_index: felt,
     max: felt):
@@ -138,9 +137,9 @@ func populate_balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, r
     if ret_index == max:
         return ()
     end
-    let (local retval0 : felt) = balances.read(owner=owner[0], token_id=token_id[0])
+    let (local retval0 : felt) = balances.read(owner=owners[0], token_id=tokens_id[0])
     rett[0] = retval0
-    populate_balance_of_batch(owner + 1, token_id + 1, rett + 1, ret_index + 1, max)
+    populate_balance_of_batch(owners + 1, tokens_id + 1, rett + 1, ret_index + 1, max)
     return ()
 end
 
@@ -183,99 +182,20 @@ end
 @external
 func transfer_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         recipient: felt,
-        token_id_len: felt,
-        token_id: felt*,
-        amount_len: felt,
-        amount: felt*):
-    let (sender) = get_caller_address()
-    assert token_id_len = amount_len
-    if token_id_len == 0:
-        return ()
-    end
-    _transfer(sender, recipient, token_id[0], amount[0])
-    return transfer_batch(
-        recipient=recipient,
-        token_id_len=token_id_len - 1,
-        token_id=token_id + 1,
-        amount_len=amount_len - 1,
-        amount=amount + 1)
-end
-
-
-# Transfer from
-#
-
-@external
-func safe_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        _from: felt,
-        to: felt,
-        token_id: felt,
-        token_no: felt):
-    # alloc_locals
-    # local pedersen_ptr2 : HashBuiltin* = pedersen_ptr
-    # local syscall_ptr2 : felt* = syscall_ptr
-    # local range_check_ptr2 = range_check_ptr
-    let (_sender) = get_caller_address()
-    if _from != _sender:
-        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
-        assert_not_zero(_approved)
-        tempvar pedersen_ptr  = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
-    else:
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
-    end
-    # local pedersen_ptr : HashBuiltin* = pedersen_ptr2
-    # local syscall_ptr : felt* = syscall_ptr2
-    # local range_check_ptr = range_check_ptr2
-    _transfer(_from, to, token_id, token_no)
-    return ()
-end
-
-@external
-func safe_batch_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        _from: felt,
-        to: felt,
-        token_id_len: felt,
-        token_id: felt*,
+        tokens_id_len: felt,
+        tokens_id: felt*,
         amounts_len: felt,
         amounts: felt*):
-        
-    let (_sender) = get_caller_address()
-    if _from != _sender:
-        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
-        assert_not_zero(_approved)
-        tempvar pedersen_ptr  = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
-    else:
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
-    end
-    _batch_transfer_from(_from, to, token_id_len, token_id, amounts_len, amounts)
-    return()
-end
-
-
-func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt,
-    to: felt,
-    token_id_len: felt,
-    token_id: felt*,
-    amounts_len: felt,
-    amounts: felt*):
-    if token_id_len == 0:
+    let (sender) = get_caller_address()
+    assert tokens_id_len = amounts_len
+    if tokens_id_len == 0:
         return ()
     end
-    # _transfer(_from, to, [token_id], [amounts])
-    return _batch_transfer_from(
-        _from=_from,
-        to=to,
-        token_id_len=token_id_len - 1,
-        token_id=token_id + 1,
+    _transfer(sender, recipient, tokens_id[0], amounts[0])
+    return transfer_batch(
+        recipient=recipient,
+        tokens_id_len=tokens_id_len - 1,
+        tokens_id=tokens_id + 1,
         amounts_len=amounts_len - 1,
         amounts=amounts + 1)
 end
@@ -298,12 +218,78 @@ func _transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     return ()
 end
 
+#
+# Transfer from
+#
 
-###BURN
+@external
+func safe_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _from: felt,
+        to: felt,
+        token_id: felt,
+        amount: felt):
+    # alloc_locals
+    # local pedersen_ptr2 : HashBuiltin* = pedersen_ptr
+    # local syscall_ptr2 : felt* = syscall_ptr
+    # local range_check_ptr2 = range_check_ptr
+    let (_sender) = get_caller_address()
+    if _from != _sender:
+        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
+        assert_not_zero(_approved)
+        tempvar pedersen_ptr  = pedersen_ptr
+        tempvar syscall_ptr  = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr 
+    else:
+        tempvar pedersen_ptr = pedersen_ptr
+        tempvar syscall_ptr  = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr 
+    end
+    _transfer(_from, to, token_id, amount)
+    return ()
+end
 
-# func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-#     token_id: felt,
-#     amount: felt):
-#     assert_not_zero(_from)
-#     asser
-#     _transfer(
+@external
+func safe_batch_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _from: felt,
+        to: felt,
+        tokens_id_len: felt,
+        tokens_id: felt*,
+        amounts_len: felt,
+        amounts: felt*):
+        
+    let (_sender) = get_caller_address()
+    if _from != _sender:
+        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
+        assert_not_zero(_approved)
+        tempvar pedersen_ptr  = pedersen_ptr
+        tempvar syscall_ptr  = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr 
+    else:
+        tempvar pedersen_ptr = pedersen_ptr
+        tempvar syscall_ptr  = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr 
+    end
+    _batch_transfer_from(_from, to, tokens_id_len, tokens_id, amounts_len, amounts)
+    return()
+end
+
+
+func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    _from: felt,
+    to: felt,
+    tokens_id_len: felt,
+    tokens_id: felt*,
+    amounts_len: felt,
+    amounts: felt*):
+    if tokens_id_len == 0:
+        return ()
+    end
+    _transfer(_from, to, [tokens_id], [amounts])
+    return _batch_transfer_from(
+        _from=_from,
+        to=to,
+        tokens_id_len=tokens_id_len - 1,
+        tokens_id=tokens_id + 1,
+        amounts_len=amounts_len - 1,
+        amounts=amounts + 1)
+end

@@ -13,7 +13,7 @@ Each transaction is validated for whether the Public Key is authenticated to per
 
 ## Signer
 
-Signer is used to perform transactions on an account. To use Signer, first make s Signer object with an initial parameter representing a public address.
+Signer is used to perform transactions on an account. To use Signer, first make a Signer object with a public address.
 
     from utils.Signer import Signer
 
@@ -119,7 +119,7 @@ get the current transaction count or nonce for the account
     (implicit) range_check_ptr
 
     $ Python
-    int: public_key
+    int: current_nonce
 
 #### set_public_key
 
@@ -151,12 +151,19 @@ transfer the account from one public key to another
 
 Note: execute is not called directly in workflows with the Account. Instead, the Signer object is used to send_transaction which calls the execute function. Thus, one can think of send_transaction as a wrapper around execute.
 
-execute takes a Message as its input parameter with a reference to the account. execute then:
+execute takes a transaction as its input parameters. 
+
+A transaction is composed of:
+1. a contract address;
+1. a string with the contract function selector name;
+1. a list of calldata - calldata are the parameters fed to the contract; and
+1. a list of length 2 with a signed response and the response size as the two elements.
+
+execute then:
 1. confirms that the Account has been initialized
-1. hashes the Message
-1. sends it to Starknet to validate the signature
+1. sends the transaction signatures to Starknet for validation
 1. increments the nonce
-1. calls the contract per the Message
+1. calls the contract per the transaction
 
 ##### Paramenters:
 
@@ -187,7 +194,7 @@ execute takes a Message as its input parameter with a reference to the account. 
 
 ## Code Sample
 
-Note: Starknet is stil under development and this Cairo Contracts project is still experimental. This example is designed to work in a test environment. Code samples that are more representative of a production implementation will be added when available.
+Note: Starknet is stil under development and this Cairo Contracts project is still experimental. This example is designed to work in a test environment. Code samples that are more representative of a production implementation may be added in the future.
 
     starknet = await Starknet.empty()
     account = await starknet.[deploy("contracts/Account.cairo")

@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
 )
 
 #
@@ -210,7 +210,6 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256):
-    alloc_locals
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
     return ()

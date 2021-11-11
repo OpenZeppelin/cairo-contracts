@@ -1,205 +1,331 @@
 # Accounts
+Unlike Ethereum where accounts are directly derived from a private address, there's no native account concept on StarkNet.
 
-This set of contracts and utilities implement an Account on [Starknet](https://www.cairo-lang.org/docs/hello_starknet/intro.html) using [Cairo](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo).
+Instead, signature validation has to be done at the contract level. To relief smart contract applications such as ERC20 tokens or AMMs from this responsibility, we make use of Account contracts to deal with transaction authentication.
 
-OpenZepplin Cairo Contracts Account Contract provides a mechanism to account authentication and replay attack protection.
+A more detailed writeup on the topic can be found on [Perama's blogpost](https://perama-v.github.io/cairo/account-abstraction/).
+
+## Table of Contents
+
+* [Quickstart](#quickstart)
+* [Standard Interface](#standard-interface)
+* [Keys, signatures and signers](#keys--signatures-and-signers)
+    + [Signer utility](#signer-utility)
+* [Message format](#message-format)
+* [API Specification](#api-specification)
+    - [`get_public_key`](#-get-public-key-)
+    - [`get_address`](#-get-address-)
+    - [`get_nonce`](#-get-nonce-)
+    - [`set_public_key`](#-set-public-key-)
+    - [`is_valid_signature`](#-is-valid-signature-)
+    - [`execute`](#-execute-)
+* [Extending the Account contract](#extending-the-account-contract)
+* [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
+* [Paying for gas](#paying-for-gas)
+* [Future work](#future-work)
+
+## Quickstart
 
 The general workflow is three simple steps: 
-1. Acccount contract is deployed to Starknet; 
-1. Account is initialized with a public key; and
-1. Transactions are executed on the Account via a Signer utility.
+1. Account contract is deployed to StarkNet
+2. Account is initialized with its own address (_temporary until `this.address` is available_)
+3. Signed transactions are sent to the Account contract which validates and executes them
 
-Each transaction is validated for whether the Public Key is authenticated to perform the transaction and whether the transaction is subject to a replay attack.
+This is how it looks today in Python:
 
-## Signer
+```python
+from starkware.starknet.testing.starknet import Starknet
+signer = Signer(123456789987654321)
 
-Signer is used to perform transactions on an account. To use Signer, first make a Signer object with a public address.
+# 1. Deploy Account
+starknet = await Starknet.empty()
+account = await starknet.deploy(
+    "contracts/Account.cairo",
+    constructor_calldata=[signer.public_key]
+)
 
-    from utils.Signer import Signer
+# 2. Initialize Account
+await account.initialize(account.contract_address).invoke()
 
-    signer = Signer(123456789987654321)
+# 3. Send transaction to Account
+await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+```
 
-Then send transactions with the Signer object that need to be authenticated by StarkNet.
+## Standard Interface
 
-    await signer.send_transaction(account, contract_address, 'account_command', [])
+The [`IAccount.cairo`](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/contracts/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
 
-## Account
+```c#
+@contract_interface
+namespace IAccount:
+    #
+    # Getters
+    #
 
-    account = await starknet.deploy("contracts/Account.cairo")
-    
-An account initialized with a public key. Accounts are transferable.
+    func get_nonce() -> (res : felt):
+    end
 
-Execution of the account proof on StarkNet will validate the signature of the Account and whether the transaction is subject to a replay attack.
+    #
+    # Business logic
+    #
 
-### Functions
+    func is_valid_signature(
+            hash: felt,
+            signature_len: felt,
+            signature: felt*
+        ):
+    end
 
-#### initialize
+    func execute(
+            to: felt,
+            selector: felt,
+            calldata_len: felt,
+            calldata: felt*,
+            nonce: felt
+        ) -> (response: felt):
+    end
+end
+```
 
-    $ Cairo
-    func initialize (_public_key: felt, _address: felt)
+## Keys, signatures and signers
 
-    $ Python
-    await account.initialize(signer.public_key, account.contract_address).invoke()
+While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account. That's why the `constructor` function expects a `public_key` parameter to set it. Since there's also a `set_public_key()` method, accounts can be effectively transferred.
 
-Provide the initial settings for the Account to be validatied.
+Notice that although the current implementation works only with StarkKeys, support for Ethereum ECDSA algorithm is expected to be supported in the future.
+
+### Signer utility
+
+[Signer.py](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/tests/utils/Signer.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+
+It exposes two functions:
+
+- `def sign(message_hash)` receives a hash and returns a signed message of it
+- `def send_transaction(account, to, selector_name, calldata, nonce=None)` returns a promise of a signed transaction, ready to be sent.
+
+To use Signer, pass a private key when instantiating the class:
+
+```python
+from utils.Signer import Signer
+
+signer = Signer(123456789987654321)
+```
+
+Then send transactions with `send_transaction` method.
+
+```python
+await signer.send_transaction(account, contract_address, 'method_name', [])
+```
+
+
+## Message format
+
+The idea is for all user intent to be encoded into a `Message` as follows:
+
+```c#
+struct Message:
+    member sender: felt
+    member to: felt
+    member selector: felt
+    member calldata: felt*
+    member calldata_size: felt
+    member nonce: felt
+end
+```
+
+Where:
+
+- `sender` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys.
+- `to` address of the target contract of the message
+- `selector` is the selector of the function to be called on the target contract
+- `calldata` is an array representing the function parameters
+- `nonce` is an unique identifier of this message to prevent transaction replays
+
+This message is consumed by the `execute` method, which acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
+
+```python
+await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
+```
+
+Notice that Signer's `send_transaction` calls `execute` under the hood.
+
+Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would 
+
+```python
+await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
+```
+
+You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24).
+
+
+## API Specification
+
+This in a nutshell is the Account contract public API:
+
+```cairo
+func get_public_key() -> (res: felt)
+func get_address() -> (res: felt)
+func get_nonce() -> (res: felt)
+
+func set_public_key(new_public_key: felt)
+func initialize(_address: felt)
+
+func is_valid_signature(hash: felt,
+        signature_len: felt,
+        signature: felt*
+    )
+
+func execute(
+        to: felt,
+        selector: felt,
+        calldata_len: felt,
+        calldata: felt*,
+        nonce: felt
+    ) -> (response : felt):
+```
+
+> Notice we're omitting `initialize` from the API spec since we consider it a temporary artifact of the lack of `this.address` and we hope to remove it as soon as possible.
+
+#### `get_public_key`
+
+Returns the public key associated with the Account contract.
 
 ##### Parameters:
 
-    _public key: felt - Pointer to Accounter Holder Public Key
+```
+None
+```
 
-    _address: felt - Pointer to Account Contract Address
+##### Returns:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
 
-##### Return:
+public_key: felt
+```
 
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
+#### `get_address`
 
-    $ Python
-    None
+Returns the contract address of the Account.
 
-#### get_public_key
-
-    assert account.get_public_key() == signer.public_key 
-
-get the public key associated with the Account
-
-##### Paramenters:
+##### Parameters:
 
     None
 
-##### Return:
+##### Returns:
 
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
-    public_key: int
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
 
-    $ Python
-    int: public_key
+contract_address: felt
+```
 
-#### get_address
+#### `get_nonce`
 
-    assert await account.get_address().call() == (account.contract_address,)
+Returns the current transaction nonce for the Account.
 
-get the contract address associated with the Account
+##### Parameters:
+```
+None
+```
+##### Returns:
 
-##### Paramenters:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
+```
 
-    None
+#### `set_public_key`
 
-##### Return:
+Sets the public key that will control this Account. It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
 
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
-    contract_address : felt
+##### Parameters:
+```
+public_key: felt
+```
 
-    $ Python
-    int: contract_address
+##### Returns:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
+```
 
-#### get_nonce
+#### `is_valid_signature`
 
-    assert await account.get_nonce().call() == (account.nonce)
+This function is inspired in [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
 
-get the current transaction count or nonce for the account
+##### Parameters:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr : HashBuiltin*
+(implicit) range_check_ptr
+(implicit) ecdsa_ptr: SignatureBuiltin*
 
-##### Paramenters:
+hash: felt
+signature_len: felt
+signature: felt*
+```
 
-    None
+##### Returns:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
+(implicit) ecdsa_ptr: SignatureBuiltin*
+```
 
-##### Return:
+#### `execute`
 
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
+This is the main an sole entrypoint to interact with the Account contract. It:
 
-    $ Python
-    int: current_nonce
+1. Confirms that the Account has been initialized
+2. Takes the input and builds a [Message](#message-format) with it
+3. Validates the transaction signature
+4. Increments the nonce
+5. Calls the target contract with the intended function selector and calldata parameters
+6. Forwards the contract call response data as return value
 
-#### set_public_key
+##### Parameters:
+```
+to: felt
+selector: felt
+calldata_len: felt
+calldata: felt*
+signature_len: felt
+signature: felt*
+```
 
-    assert await account.get_public_key().call() == (signer.public_key,)
-    await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
-    assert await account.get_public_key().call() == (other.public_key,)
-
-transfer the account from one public key to another
-
-##### Paramenters:
-
-    int: public_key
-
-##### Return:
-
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
-
-    $ Python
-    None
-
-#### is_valid_signature
-
-*This function is not directly used by clients. See func execute.
-
-#### execute
-
-Note: execute is not called directly in workflows with the Account. Instead, the Signer object is used to send_transaction which calls the execute function. Thus, one can think of send_transaction as a wrapper around execute.
-
-execute takes a transaction as its input parameters. 
-
-A transaction is composed of:
-1. a contract address;
-1. a string with the contract function selector name;
-1. a list of calldata - calldata are the parameters fed to the contract; and
-1. a list of length 2 with a signed response and the response size as the two elements.
-
-execute then:
-1. confirms that the Account has been initialized
-1. sends the transaction signatures to Starknet for validation
-1. increments the nonce
-1. calls the contract per the transaction
-
-##### Paramenters:
-
-    $ Cairo
-    to: felt,
-    selector: felt,
-    calldata_len: felt,
-    calldata: felt*,
-    signature_len: felt,
-    signature: felt*
-
-    $ Python
-    int: to_contract_address, 
-    str: selector_name, 
-    list: calldata, 
-    list of length 2: [sig_r, sig_s]
-
-##### Return:
-
-    $ Cairo
-    (implicit) storage_ptr: Storage*
-    (implicit) pedersen_ptr: HashBuiltin*
-    (implicit) range_check_ptr
-
-    $ Python
-    int: system_response_return_data_size
+> Notice that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
 
-## Code Sample
+##### Returns:
+```
+(implicit) syscall_ptr : felt*
+(implicit) pedersen_ptr: HashBuiltin*
+(implicit) range_check_ptr
+response: felt
+```
 
-Note: Starknet is stil under development and this Cairo Contracts project is still experimental. This example is designed to work in a test environment. Code samples that are more representative of a production implementation may be added in the future.
+## Extending the Account contract
 
-    starknet = await Starknet.empty()
-    account = await starknet.[deploy("contracts/Account.cairo")
-    await account.initialize({public_key}, account.contract_address).invoke()
+There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk. Since `execute` relies on it, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, or some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo).
 
-    # transfer account
-    assert await account.get_public_key().call() == (signer.public_key,)
-    await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+
+## L1 scape hatch mechanism
+
+*[unknown, to be defined]*
+
+
+## Paying for gas
+
+*[unknown, to be defined]*
+
+
+## Future work
+
+- More Account flavors such as multi-signature or guardian-protected
+- `Multicall` method to batch multiple messages in one transaction

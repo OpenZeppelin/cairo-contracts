@@ -186,7 +186,7 @@ async def test_decrease_allowance(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_decrease_allowance_below_zero(erc20_factory):
+async def test_decrease_allowance_underflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 987
@@ -284,7 +284,7 @@ async def test_transfer_from_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_approve_spender_zero_address(erc20_factory):
+async def test_approve_zero_address_spender(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 0
     amount = uint(1)
@@ -298,7 +298,7 @@ async def test_approve_spender_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_approve_caller_zero_address(erc20_factory):
+async def test_approve_zero_address_caller(erc20_factory):
     _, erc20, _ = erc20_factory
     spender = 123
     amount = uint(345)
@@ -314,10 +314,23 @@ async def test_approve_caller_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_overflow_mint(erc20_factory):
+async def test_mint_to_zero_address(erc20_factory):
     _, erc20, account = erc20_factory
-    spender = 789
+    zero_address = 0
+    amount = uint(1)
 
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'mint', [zero_address, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_mint_overflow(erc20_factory):
+    _, erc20, account = erc20_factory
+    recipient = 789
     # fetching the previously minted total_supply and verifying the overflow check
     # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
     execution_info = await erc20.get_total_supply().call()
@@ -326,11 +339,96 @@ async def test_overflow_mint(erc20_factory):
     pass_amount = (fail_amount[0] - 1, fail_amount[1])
 
     try:
-        await signer.send_transaction(account, erc20.contract_address, 'mint', [spender, *fail_amount])
+        await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *fail_amount])
         assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
     # should pass
-    await signer.send_transaction(account, erc20.contract_address, 'mint', [spender, *pass_amount])
+    await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
+
+
+#
+# Uint256 Checks
+#
+
+
+@pytest.mark.asyncio
+async def test_transfer_uint_check(erc20_factory):
+    _, erc20, account = erc20_factory
+    recipient = 123
+    # without uint_check(), this will be interpreted as (1, 0)
+    amount = (2**128 + 1, 2**128)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_transfer_from_uint_check(erc20_factory):
+    starknet, erc20, account = erc20_factory
+    spender = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+    await spender.initialize(spender.contract_address).invoke()
+    recipient = 123
+    # without uint_check(), this will be interpreted as (1, 0)
+    amount = (2**128 + 1, 2**128)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer_from', [recipient, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_approve_uint_check(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 123
+    # without uint_check(), this will be interpreted as (1, 0)
+    amount = (2**128 + 1, 2**128)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_increase_allowance_uint_check(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 123
+    # without uint_check(), this will be interpreted as (1, 0)
+    amount = (2**128 + 1, 2**128)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_decrease_allowance_uint_check(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 123
+    # without uint_check(), this will be interpreted as (1, 0)
+    amount = (2**128 + 1, 2**128)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

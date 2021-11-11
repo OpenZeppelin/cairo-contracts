@@ -150,26 +150,19 @@ end
 @external
 func safe_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, to : felt, token_id : felt, amount : felt):
-    # > De mon côté j'ai introduit les vérifications dans une autre fonction appelée _is_owner_or_approved_operator(_from)
-    #           (cf dernière fonction dans le document qui vérifie require(from == _msgSender() || isApprovedForAll(from, _msgSender()) )
-    #   si on utilise cette autre fonction le code de safe_transfer_from deviendrait :
-    #       _is_owner_or_approved_operator(_from)
-    #       _transfer(_from, to, token_id, amount)
-    let (_sender) = get_caller_address()
-    if _from != _sender:
-        # > En solidity la fonction appelée est is_approved_for_all
-        #       je propose de modifier ainsi : let (_approved) = is_approved_for_all(account=_from, operator=_sender)
-        let (_approved) = is_approved_for_all(account=_from, operator=_sender)
-        assert_not_zero(_approved)
-        # si on garde la logique de vérification dans la fonction on peut déplacer les tempvar après la boucle if pour éviter d'avoir deux fois les mêmes lignes de code ?
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr
-    else:
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr
-    end
+    # let (_sender) = get_caller_address()
+    # if _from != _sender:
+    #     let (_approved) = is_approved_for_all(account=_from, operator=_sender)
+    #     assert_not_zero(_approved)
+    #     tempvar pedersen_ptr = pedersen_ptr
+    #     tempvar syscall_ptr = syscall_ptr
+    #     tempvar range_check_ptr = range_check_ptr
+    # else:
+    #     tempvar pedersen_ptr = pedersen_ptr
+    #     tempvar syscall_ptr = syscall_ptr
+    #     tempvar range_check_ptr = range_check_ptr
+    # end
+    _is_owner_or_approved_operator(_from)
     _transfer_from(_from, to, token_id, amount)
     return ()
 end
@@ -178,21 +171,19 @@ end
 func safe_batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
         amounts : felt*):
-    # > Idem que pour safe_transfer_from on peut utiliser _is_owner_or_approved_operator(_from) pour
-    #       vérifier les conditions : require(from == _msgSender() || isApprovedForAll(from, _msgSender())
-    let (_sender) = get_caller_address()
-    if _from != _sender:
-        # > En solidity la fonction appelée est is_approved_for_all
-        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
-        assert_not_zero(_approved)
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr
-    else:
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr
-    end
+    # let (_sender) = get_caller_address()
+    # if _from != _sender:
+    #     let (_approved) = is_approved_for_all(account=_from, operator=_sender)
+    #     assert_not_zero(_approved)
+    #     tempvar pedersen_ptr = pedersen_ptr
+    #     tempvar syscall_ptr = syscall_ptr
+    #     tempvar range_check_ptr = range_check_ptr
+    # else:
+    #     tempvar pedersen_ptr = pedersen_ptr
+    #     tempvar syscall_ptr = syscall_ptr
+    #     tempvar range_check_ptr = range_check_ptr
+    # end
+    _is_owner_or_approved_operator(_from)
     _batch_transfer_from(_from, to, tokens_id_len, tokens_id, amounts_len, amounts)
     return ()
 end
@@ -218,7 +209,6 @@ end
 func _batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
         amounts : felt*):
-    # J'ai ajouté ces conditions pour que ce soit similaire au code en Solidity
     assert tokens_id_len = amounts_len
     assert_not_zero(to)
 
@@ -254,7 +244,6 @@ end
 # Burn
 #
 
-# external for testing purpose only
 func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, token_id : felt, amount : felt):
     assert_not_zero(_from)
@@ -265,7 +254,6 @@ func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     return ()
 end
 
-# external for testing purpose only
 func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):
     assert_not_zero(_from)

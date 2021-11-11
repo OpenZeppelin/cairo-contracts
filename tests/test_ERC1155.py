@@ -65,12 +65,12 @@ async def test_is_approved(erc1155_factory):
 
     operator = 123
     approval = 1
+
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, approval])
-    execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
-    assert execution_info.result.res == 1
+    assert(await erc1155.is_approved_for_all(account.contract_address, operator).call()).result == (1,)
+
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, 0])
-    execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
-    assert execution_info.result.res == 0
+    assert(await erc1155.is_approved_for_all(account.contract_address, operator).call()).result == (0,)
 
 
 @pytest.mark.asyncio
@@ -81,17 +81,17 @@ async def test_transfer_from(erc1155_factory):
     balance_1_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
     assert balance_1_of_other.result.res == 0
 
-    # TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
+    # Test if Other transfers 1 from Account without approval
     try:
         await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, 1])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-    # SETTING APPROVAL
+    # Setting approval
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
 
-    # OTHER TAKE 1 FROM ACCOUNT
+    # Test Other transfers 1 from Account after approval
     await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, 1])
 
     balance_2_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
@@ -99,18 +99,14 @@ async def test_transfer_from(erc1155_factory):
     balance_2_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
     assert balance_2_of_from_address.result.res == balance_1_of_from_address.result.res - 1
 
-    # # OTHER TAKE THE REST
-    # await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
-    # assert (await erc1155.balance_of(operator.contract_address, 1).call()).result == (1000,)
-    # assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (0,)
-
-    # OTHER TAKE TOO MUCH
+    # Test Other transfers more tokens than current balance
     try:
         await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-    # unsetting approval
+
+    # Unsetting approval
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 0])
 
 
@@ -146,23 +142,21 @@ async def test_transfer_batch_from(erc1155_factory):
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-# To test this function ensure function _burn in contract is set to @external
-
-
+# To test this function ensure _burn function in contract is set to @external
 @pytest.mark.asyncio
 async def test_burn(erc1155_factory):
     _, erc1155, account, _, = erc1155_factory
     token_id = 1
+    amount_to_burn = 10
 
     # burn 10 tokens
     balance_before = (await erc1155.balance_of(account.contract_address, token_id).call()).result.res
-    await signer.send_transaction(account, erc1155.contract_address, '_burn', [account.contract_address, token_id, 10])
-    assert (await erc1155.balance_of(account.contract_address, token_id).call()).result.res == balance_before - 10
+    await signer.send_transaction(account, erc1155.contract_address, '_burn', [account.contract_address, token_id, amount_to_burn])
+    assert (await erc1155.balance_of(account.contract_address, token_id).call()).result.res == balance_before - amount_to_burn
 
     # try burning too much tokens
     try:
         await signer.send_transaction(account, erc1155.contract_address, '_burn', [account.contract_address, token_id, 5000])
-        assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
@@ -186,9 +180,10 @@ async def test_burn_batch(erc1155_factory):
     # Balance 2 = balance 1 with operations made
     assert balances_2 == [x+y for x, y in zip(balances_1, operations)]
 
-    # # OTHER TAKE TOO MUCH
-    # try:
-    #     await other.send_transaction(operator, erc1155.contract_address, '_burn_batch', [account.contract_address, 2, 1, 2, 2, 1000, 1000])
-    # except StarkException as err:
-    #     _, error = err.args
-    #     assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    # Other burns more tokens than current balance
+    try:
+        await other.send_transaction(account, erc1155.contract_address, '_burn_batch', [account.contract_address, 2, 1, 2, 2, 1000, 1000])
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+

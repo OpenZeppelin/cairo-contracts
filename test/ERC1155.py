@@ -137,3 +137,22 @@ async def test_transfer_batch_from(erc1155_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+## To test this function ensure function _burn in contract is set to @external
+@pytest.mark.asyncio
+async def test_burn(erc1155_factory):
+    _, erc1155, account, _, = erc1155_factory
+    token_id = 1
+
+    # burn 100 tokens
+    assert (await erc1155.balance_of(account.contract_address, token_id).call()).result == (1000,)
+    await signer.send_transaction(account, erc1155.contract_address, '_burn', [account.contract_address, token_id, 100])
+    assert (await erc1155.balance_of(account.contract_address, token_id).call()).result == (900,)
+
+    # try burning too much tokens
+    try:
+        await signer.send_transaction(account, erc1155.contract_address, '_burn', [account.contract_address, token_id, 5000])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

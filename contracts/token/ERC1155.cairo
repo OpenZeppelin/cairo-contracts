@@ -287,3 +287,19 @@ func _is_owner_or_approved_operator{
     assert operator_is_approved = 1
     return (operator_is_approved)
 end
+
+#
+# Burn
+#
+
+func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, token_id : felt, amount : felt):
+    assert_not_zero(_from)
+
+    let (caller) = get_caller_address()
+
+    let (from_balance) = balance_of(caller, token_id)
+    assert_le(amount, from_balance)
+    balances.write(caller, token_id, from_balance - amount)
+    return ()
+end

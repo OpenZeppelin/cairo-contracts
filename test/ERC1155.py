@@ -133,36 +133,43 @@ async def test_is_approved(erc1155_factory):
     assert execution_info.result.res == 0
 
 
-# @pytest.mark.asyncio
-# async def test_transfert_from(erc1155_factory):
-#     _, erc1155, account, operator = erc1155_factory
+@pytest.mark.asyncio
+async def test_transfert_from(erc1155_factory):
+    _, erc1155, account, operator = erc1155_factory
 
-#     balance_1_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
-#     balance_1_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
-#     assert balance_1_of_other.result.res == 0
+    balance_1_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
+    balance_1_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
+    assert balance_1_of_other.result.res == 0
 
-# # TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
-#     # try:
-#     # await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
-#     # except StarkException as err:
-#     # _, error = err.args
-#     # assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    # TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
+    try:
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-#     # SETTING APPROVAL
-#     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
+    # SETTING APPROVAL
+    await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
 
-#     # OTHER TAKE 1 FROM ACCOUNT
-#     await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
+    # OTHER TAKE 1 FROM ACCOUNT
+    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
 
-#     balance_2_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
-#     assert balance_2_of_other.result.res == balance_1_of_other.result.res + 1
-#     balance_2_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
-#     assert balance_2_of_from_address.result.res == balance_1_of_from_address.result.res - 1
+    balance_2_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
+    assert balance_2_of_other.result.res == balance_1_of_other.result.res + 1
+    balance_2_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
+    assert balance_2_of_from_address.result.res == balance_1_of_from_address.result.res - 1
 
-#     # OTHER TAKE THE REST
-#     await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
-#     # OTHER TAKE TOO MUCH
-    # await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
+    # OTHER TAKE THE REST
+    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
+    assert (await erc1155.balance_of(operator.contract_address, 1).call()).result == (1000,)
+    assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (0,)
+
+    # OTHER TAKE TOO MUCH
+    try:
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
 # @pytest.mark.asyncio

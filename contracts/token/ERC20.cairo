@@ -3,31 +3,46 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.starknet.common.storage import Storage
-from starkware.cairo.common.math import assert_nn_le
+from starkware.cairo.common.math import assert_not_zero
+from starkware.cairo.common.uint256 import (
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
+)
 
 #
 # Storage
 #
 
 @storage_var
-func balances(user: felt) -> (res: felt):
+func balances(user: felt) -> (res: Uint256):
 end
 
 @storage_var
-func allowances(owner: felt, spender: felt) -> (res: felt):
+func allowances(owner: felt, spender: felt) -> (res: Uint256):
 end
 
 @storage_var
-func total_supply() -> (res: felt):
+func total_supply() -> (res: Uint256):
 end
 
 @storage_var
 func decimals() -> (res: felt):
 end
 
-@storage_var
-func initialized() -> (res: felt):
+#
+# Constructor
+#
+
+@constructor
+func constructor{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(recipient: felt):
+    # get_caller_address() returns '0' in the constructor;
+    # therefore, recipient parameter is included
+    decimals.write(18)
+    _mint(recipient, Uint256(1000, 0))
+    return ()
 end
 
 #
@@ -36,114 +51,112 @@ end
 
 @view
 func get_total_supply{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } () -> (res: felt):
-    let (res) = total_supply.read()
+    }() -> (res: Uint256):
+    let (res: Uint256) = total_supply.read()
     return (res)
 end
 
 @view
 func get_decimals{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } () -> (res: felt):
+    }() -> (res: felt):
     let (res) = decimals.read()
     return (res)
 end
 
 @view
 func balance_of{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (user: felt) -> (res: felt):
-    let (res) = balances.read(user=user)
+    }(user: felt) -> (res: Uint256):
+    let (res: Uint256) = balances.read(user=user)
     return (res)
 end
 
 @view
 func allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (owner: felt, spender: felt) -> (res: felt):
-    let (res) = allowances.read(owner=owner, spender=spender)
+    }(owner: felt, spender: felt) -> (res: Uint256):
+    let (res: Uint256) = allowances.read(owner=owner, spender=spender)
     return (res)
 end
 
 #
-# Initializer
+# Internals
 #
 
-@external
-func initialize{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    } ():
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-    initialized.write(1)
-    decimals.write(18)
-
-    let (sender) = get_caller_address()
-    _mint(sender, 1000)
-    return ()
-end
-
 func _mint{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (recipient: felt, amount: felt):
-    let (res) = balances.read(user=recipient)
-    balances.write(recipient, res + amount)
+    }(recipient: felt, amount: Uint256):
+    
+    let (balance: Uint256) = balances.read(user=recipient)
+    # the underscore is for the 1 bit carry
+    let (new_balance, _: Uint256) = uint256_add(balance, amount)
+    balances.write(recipient, new_balance)
 
-    let (supply) = total_supply.read()
-    total_supply.write(supply + amount)
+    let (supply: Uint256) = total_supply.read()
+    # the underscore is for the 1 bit carry
+    let (new_supply, _: Uint256) = uint256_add(supply, amount)
+    total_supply.write(new_supply)
     return ()
 end
 
 func _transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
-    # validate sender has enough funds
-    let (sender_balance) = balances.read(user=sender)
-    assert_nn_le(amount, sender_balance)
+    }(sender: felt, recipient: felt, amount: Uint256):
+    alloc_locals
+    let (local sender_balance: Uint256) = balances.read(user=sender)
 
-    # substract from sender
-    balances.write(sender, sender_balance - amount)
+    # reassign syscall_ptr and pedersen_ptr to avoid revocation
+    local syscall_ptr: felt* = syscall_ptr
+    local pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+    # validates amount <= sender_balance and returns 1 if true
+    let (enough_balance) = uint256_le(amount, sender_balance)
+    assert_not_zero(enough_balance)
+
+    # subtract from sender
+    let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
+    balances.write(sender, new_sender_balance)
 
     # add to recipient
-    let (res) = balances.read(user=recipient)
-    balances.write(recipient, res + amount)
+    let (recipient_balance: Uint256) = balances.read(user=recipient)
+    let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
+    balances.write(recipient, new_recipient_balance)
     return ()
 end
 
 func _approve{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (caller: felt, spender: felt, amount: felt):
+    }(caller: felt, spender: felt, amount: Uint256):
     allowances.write(caller, spender, amount)
     return ()
 end
 
+#
+# Externals
+#
+
 @external
 func transfer{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (recipient: felt, amount: felt):
+    }(recipient: felt, amount: Uint256):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
     return ()
@@ -151,26 +164,36 @@ end
 
 @external
 func transfer_from{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (sender: felt, recipient: felt, amount: felt):
-    let (caller) = get_caller_address()
-    let (caller_allowance) = allowances.read(owner=sender, spender=caller)
-    assert_nn_le(amount, caller_allowance)
+    }(sender: felt, recipient: felt, amount: Uint256):
+    alloc_locals
+    let (local caller) = get_caller_address()
+    let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
+
+    # reassign syscall_ptr and pedersen_ptr to avoid revocation
+    local syscall_ptr: felt* = syscall_ptr
+    local pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+    # validates amount <= caller_allowance and returns 1 if true   
+    let (enough_balance) = uint256_le(amount, caller_allowance)
+    assert_not_zero(enough_balance)
+
     _transfer(sender, recipient, amount)
-    allowances.write(sender, caller, caller_allowance - amount)
+
+    # subtract allowance
+    let (new_allowance: Uint256) = uint256_sub(caller_allowance, amount)
+    allowances.write(sender, caller, new_allowance)
     return ()
 end
 
 @external
 func approve{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (spender: felt, amount: felt):
+    }(spender: felt, amount: Uint256):
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
     return ()
@@ -178,33 +201,50 @@ end
 
 @external
 func increase_allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (spender: felt, added_value: felt):
-    let (caller) = get_caller_address()
-    let (current_allowance) = allowances.read(caller, spender)
-    # using a tempvar for internal check
-    tempvar res = current_allowance + added_value
-    # overflow check
-    assert_nn_le(current_allowance + added_value, res)
-    _approve(caller, spender, res)
+    }(spender: felt, added_value: Uint256):
+    alloc_locals
+    let (local caller) = get_caller_address()
+    let (local current_allowance: Uint256) = allowances.read(caller, spender)
+
+    # reassign syscall_ptr and pedersen_ptr to avoid revocation
+    local syscall_ptr: felt* = syscall_ptr
+    local pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+    # add allowance
+    let (local new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
+
+    # validates current_allowance < new_allowance and returns 1 if true   
+    let (enough_allowance) = uint256_lt(current_allowance, new_allowance)
+    assert_not_zero(enough_allowance)
+
+    _approve(caller, spender, new_allowance)
     return()
 end
 
 @external
 func decrease_allowance{
-        storage_ptr: Storage*,
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    } (spender: felt, subtracted_value: felt):
-    let (caller) = get_caller_address()
-    let (current_allowance) = allowances.read(owner=caller, spender=spender)
-    # checks that the decreased balance isn't below zero
-    assert_nn_le(subtracted_value, current_allowance)
-    _approve(caller, spender, current_allowance - subtracted_value)
+    }(spender: felt, subtracted_value: Uint256):
+    alloc_locals
+    let (local caller) = get_caller_address()
+    let (local current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
+    
+    # reassign syscall_ptr and pedersen_ptr to avoid revocation
+    local syscall_ptr: felt* = syscall_ptr
+    local pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+    let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
+
+    # validates new_allowance < current_allowance and returns 1 if true   
+    let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
+    assert_not_zero(enough_allowance)
+
+    _approve(caller, spender, new_allowance)
     return()
 end
 

@@ -38,28 +38,24 @@ async def erc1155_factory():
     return starknet, erc1155, account, operator
 
 
-# @pytest.mark.asyncio
-# async def test_constructor(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
+@pytest.mark.asyncio
+async def test_constructor(erc1155_factory):
+    _, erc1155, account, _, = erc1155_factory
 
-#     assert (await erc1155.get_total_supply(1).call()).result == (1000,)
-#     assert (await erc1155.get_total_supply(2).call()).result == (500,)
-
-#     assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (1000,)
-#     assert (await erc1155.balance_of(account.contract_address, 2).call()).result == (500,)
+    assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (1000,)
+    assert (await erc1155.balance_of(account.contract_address, 2).call()).result == (500,)
 
 
-# @pytest.mark.asyncio
-# async def test_balance_of_batch(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
+@pytest.mark.asyncio
+async def test_balance_of_batch(erc1155_factory):
+    _, erc1155, account, _, = erc1155_factory
 
-#     accounts = [account.contract_address,
-#                 account.contract_address, account.contract_address]
-#     token_ids = [2, 1, 1]
+    accounts = [account.contract_address,account.contract_address, account.contract_address]
+    token_ids = [2, 1, 1]
 
-#     execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
-#     assert execution_info.result.res == [500, 1000, 1000]
-#     assert len(execution_info.result.res) == len(token_ids)
+    execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
+    assert execution_info.result.res == [500, 1000, 1000]
+    assert len(execution_info.result.res) == len(token_ids)
 
 
 # @pytest.mark.asyncio
@@ -123,18 +119,18 @@ async def erc1155_factory():
 #         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
-# @pytest.mark.asyncio
-# async def test_is_approved(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
+@pytest.mark.asyncio
+async def test_is_approved(erc1155_factory):
+    _, erc1155, account, _, = erc1155_factory
 
-#     operator = 123
-#     approval = 1
-#     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, approval])
-#     execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
-#     assert execution_info.result.res == 1
-#     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, 0])
-#     execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
-#     assert execution_info.result.res == 0
+    operator = 123
+    approval = 1
+    await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, approval])
+    execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
+    assert execution_info.result.res == 1
+    await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, 0])
+    execution_info = await erc1155.is_approved_for_all(account.contract_address, operator).call()
+    assert execution_info.result.res == 0
 
 
 # @pytest.mark.asyncio

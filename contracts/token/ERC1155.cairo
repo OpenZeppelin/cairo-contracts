@@ -166,76 +166,28 @@ func set_approval_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_
 end
 
 #
-# Transfer
-#
-
-@external
-func transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        recipient: felt,
-        token_id: felt,
-        amount: felt):
-    let (sender) = get_caller_address()
-    _transfer(sender, recipient, token_id, amount)
-    return ()
-end
-
-@external
-func transfer_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        recipient: felt,
-        tokens_id_len: felt,
-        tokens_id: felt*,
-        amounts_len: felt,
-        amounts: felt*):
-    let (sender) = get_caller_address()
-    assert tokens_id_len = amounts_len
-    if tokens_id_len == 0:
-        return ()
-    end
-    _transfer(sender, recipient, tokens_id[0], amounts[0])
-    return transfer_batch(
-        recipient=recipient,
-        tokens_id_len=tokens_id_len - 1,
-        tokens_id=tokens_id + 1,
-        amounts_len=amounts_len - 1,
-        amounts=amounts + 1)
-end
-
-func _transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        sender: felt,
-        recipient: felt,
-        token_id: felt,
-        amount: felt):
-    # validate sender has enough funds
-    let (sender_balance) = balances.read(owner=sender, token_id=token_id)
-    assert_nn_le(amount, sender_balance)
-
-    # substract from sender
-    balances.write(sender, token_id, sender_balance - amount)
-
-    # add to recipient
-    let (res) = balances.read(owner=recipient, token_id=token_id)
-    balances.write(recipient, token_id, res + amount)
-    return ()
-end
-
-#
 # Transfer from
 #
 
 @external
-func safe_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         _from: felt,
         to: felt,
         token_id: felt,
         amount: felt):
-    # alloc_locals
-    # local pedersen_ptr2 : HashBuiltin* = pedersen_ptr
-    # local syscall_ptr2 : felt* = syscall_ptr
-    # local range_check_ptr2 = range_check_ptr
+    
+    # > De mon côté j'ai introduit les vérifications dans une autre fonction appelée _is_owner_or_approved_operator(_from) 
+    #           (cf dernière fonction dans le document qui vérifie require(from == _msgSender() || isApprovedForAll(from, _msgSender()) )
+    #   si on utilise cette autre fonction le code de safe_transfer_from deviendrait : 
+    #       _is_owner_or_approved_operator(_from)
+    #       _transfer(_from, to, token_id, amount)
     let (_sender) = get_caller_address()
     if _from != _sender:
+        # > En solidity la fonction appelée est is_approved_for_all 
+        #       je propose de modifier ainsi : let (_approved) = is_approved_for_all(account=_from, operator=_sender)
         let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
         assert_not_zero(_approved)
+        # si on garde la logique de vérification dans la fonction on peut déplacer les tempvar après la boucle if pour éviter d'avoir deux fois les mêmes lignes de code ?
         tempvar pedersen_ptr  = pedersen_ptr
         tempvar syscall_ptr  = syscall_ptr
         tempvar range_check_ptr = range_check_ptr 
@@ -244,21 +196,24 @@ func safe_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_c
         tempvar syscall_ptr  = syscall_ptr
         tempvar range_check_ptr = range_check_ptr 
     end
-    _transfer(_from, to, token_id, amount)
+    _transfer_from(_from, to, token_id, amount)
     return ()
 end
 
 @external
-func safe_batch_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func safe_batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         _from: felt,
         to: felt,
         tokens_id_len: felt,
         tokens_id: felt*,
         amounts_len: felt,
         amounts: felt*):
-        
+    
+    # > Idem que pour safe_transfer_from on peut utiliser _is_owner_or_approved_operator(_from) pour
+    #       vérifier les conditions : require(from == _msgSender() || isApprovedForAll(from, _msgSender())
     let (_sender) = get_caller_address()
     if _from != _sender:
+        # > En solidity la fonction appelée est is_approved_for_all 
         let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
         assert_not_zero(_approved)
         tempvar pedersen_ptr  = pedersen_ptr
@@ -273,6 +228,26 @@ func safe_batch_transfert_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, r
     return()
 end
 
+func _transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        sender: felt,
+        recipient: felt,
+        token_id: felt,
+        amount: felt):
+    # check recipient != 0
+    assert_not_zero(recipient)
+
+    # validate sender has enough funds
+    let (sender_balance) = balances.read(owner=sender, token_id=token_id)
+    assert_nn_le(amount, sender_balance)
+
+    # substract from sender
+    balances.write(sender, token_id, sender_balance - amount)
+
+    # add to recipient
+    let (res) = balances.read(owner=recipient, token_id=token_id)
+    balances.write(recipient, token_id, res + amount)
+    return ()
+end
 
 func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     _from: felt,
@@ -281,10 +256,14 @@ func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_
     tokens_id: felt*,
     amounts_len: felt,
     amounts: felt*):
+    # J'ai ajouté ces conditions pour que ce soit similaire au code en Solidity
+    assert tokens_id_len = amounts_len
+    assert_not_zero(to)
+
     if tokens_id_len == 0:
         return ()
     end
-    _transfer(_from, to, [tokens_id], [amounts])
+    _transfer_from(_from, to, [tokens_id], [amounts])
     return _batch_transfer_from(
         _from=_from,
         to=to,
@@ -292,4 +271,19 @@ func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_
         tokens_id=tokens_id + 1,
         amounts_len=amounts_len - 1,
         amounts=amounts + 1)
+end
+
+# function to test ERC1155 requirement : require(from == _msgSender() || isApprovedForAll(from, _msgSender())
+func _is_owner_or_approved_operator{
+        pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(address : felt) -> (
+        res : felt):
+    let (caller) = get_caller_address()
+
+    if caller == address:
+        return (1)
+    end
+
+    let (operator_is_approved) = is_approved_for_all(account=address, operator=caller)
+    assert operator_is_approved = 1
+    return (operator_is_approved)
 end

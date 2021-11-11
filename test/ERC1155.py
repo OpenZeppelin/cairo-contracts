@@ -57,68 +57,6 @@ async def test_balance_of_batch(erc1155_factory):
     assert execution_info.result.res == [500, 1000, 1000]
     assert len(execution_info.result.res) == len(token_ids)
 
-
-# @pytest.mark.asyncio
-# async def test_transfer(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
-#     recipient = 123
-#     token_id = 1
-#     amount = 100
-
-#     execution_info = await erc1155.get_total_supply(token_id).call()
-#     previous_supply = execution_info.result
-
-#     assert (await erc1155.balance_of(account.contract_address, token_id).call()).result == (1000,)
-#     assert (await erc1155.balance_of(recipient, token_id).call()).result == (0,)
-
-#     await signer.send_transaction(account, erc1155.contract_address, 'transfer', [recipient, token_id, amount])
-#     assert (await erc1155.balance_of(account.contract_address, token_id).call()).result == (900,)
-#     assert (await erc1155.balance_of(recipient, token_id).call()).result == (100,)
-
-#     assert (await erc1155.get_total_supply(token_id).call()).result == previous_supply
-
-
-# @pytest.mark.asyncio
-# async def test_transfer_batch(erc1155_factory):
-#     _, erc1155, account. _ = erc1155_factory
-#     recipient = 123
-#     token_id = [1, 2]
-
-#     supply1 = await erc1155.get_total_supply(token_id[0]).call()
-#     supply2 = await erc1155.get_total_supply(token_id[1]).call()
-#     previous_supply = [supply1.result, supply2.result]
-
-#     assert (await erc1155.balance_of(account.contract_address, token_id[0]).call()).result == (1000,)
-#     assert (await erc1155.balance_of(recipient, token_id[0]).call()).result == (0,)
-
-#     assert (await erc1155.balance_of(account.contract_address, token_id[1]).call()).result == (500,)
-#     assert (await erc1155.balance_of(recipient, token_id[1]).call()).result == (0,)
-
-#     await signer.send_transaction(account, erc1155.contract_address, 'transfer_batch', [recipient, 2, 1, 2, 2, 100, 50])
-
-#     assert (await erc1155.balance_of(account.contract_address, token_id[0]).call()).result == (900,)
-#     assert (await erc1155.balance_of(recipient, token_id[0]).call()).result == (100,)
-
-#     assert (await erc1155.balance_of(account.contract_address, token_id[1]).call()).result == (450,)
-#     assert (await erc1155.balance_of(recipient, token_id[1]).call()).result == (50,)
-
-#     assert (await erc1155.get_total_supply(token_id[0]).call()).result == previous_supply[0]
-#     assert (await erc1155.get_total_supply(token_id[1]).call()).result == previous_supply[1]
-
-
-# @pytest.mark.asyncio
-# async def test_insufficient_sender_balance(erc1155_factory):
-#     _, erc1155, account = erc1155_factory
-#     recipient = 123
-
-#     try:
-#         await signer.send_transaction(account, erc1155.contract_address, 'transfer_batch', [recipient, 2, 1, 2, 2, 1001, 50])
-#         assert False
-#     except StarkException as err:
-#         _, error = err.args
-#         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
-
 @pytest.mark.asyncio
 async def test_is_approved(erc1155_factory):
     _, erc1155, account, _, = erc1155_factory
@@ -134,7 +72,7 @@ async def test_is_approved(erc1155_factory):
 
 
 @pytest.mark.asyncio
-async def test_transfert_from(erc1155_factory):
+async def test_transfer_from(erc1155_factory):
     _, erc1155, account, operator = erc1155_factory
 
     balance_1_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
@@ -143,7 +81,7 @@ async def test_transfert_from(erc1155_factory):
 
     # TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
     try:
-        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, 1])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
@@ -152,7 +90,7 @@ async def test_transfert_from(erc1155_factory):
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
 
     # OTHER TAKE 1 FROM ACCOUNT
-    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
+    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, 1])
 
     balance_2_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
     assert balance_2_of_other.result.res == balance_1_of_other.result.res + 1
@@ -160,51 +98,42 @@ async def test_transfert_from(erc1155_factory):
     assert balance_2_of_from_address.result.res == balance_1_of_from_address.result.res - 1
 
     # OTHER TAKE THE REST
-    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
+    await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
     assert (await erc1155.balance_of(operator.contract_address, 1).call()).result == (1000,)
     assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (0,)
 
     # OTHER TAKE TOO MUCH
     try:
-        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_transfer_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
-# @pytest.mark.asyncio
-# async def test_transfert_batch_from(erc1155_factory):
-#     _, erc1155, account, operator = erc1155_factory
+@pytest.mark.asyncio
+async def test_transfer_batch_from(erc1155_factory):
+    _, erc1155, account, operator = erc1155_factory
 
-#     all_balances_1 = await erc1155.balance_of_batch([account.contract_address, account.contract_address, operator.contract_address, operator.contract_address], [1, 2, 1, 2]).call()
-#     assert all_balances_1.result.res == [1000, 500, 0, 0]
-#     # SETTING APPROVAL
-#     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
-#     await other.send_transaction(operator, erc1155.contract_address, 'safe_batch_transfert_from', [account.contract_address, operator.contract_address, 2, 1, 2, 2, 500, 250])
+    all_balances_1 = await erc1155.balance_of_batch([account.contract_address, account.contract_address, operator.contract_address, operator.contract_address], [1, 2, 1, 2]).call()
+    assert all_balances_1.result.res == [1000, 500, 0, 0]
 
-#     all_balances_2 = await erc1155.balance_of_batch([account.contract_address, account.contract_address, operator.contract_address, operator.contract_address], [1, 2, 1, 2]).call()
-#     assert all_balances_2.result.res == [500, 250, 500, 250]
+    #  TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
+    try:
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_batch_transfer_from', [account.contract_address, operator.contract_address, 2, 1, 2, 2, 500, 250])
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
+    # SETTING APPROVAL
+    await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
+    await other.send_transaction(operator, erc1155.contract_address, 'safe_batch_transfer_from', [account.contract_address, operator.contract_address, 2, 1, 2, 2, 500, 250])
 
-# # TEST IF OTHER TOOK 1 FROM ACCOUNT WITHOUT APPROVAL
-#     # try:
-#     # await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
-#     # except StarkException as err:
-#     # _, error = err.args
-#     # assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    all_balances_2 = await erc1155.balance_of_batch([account.contract_address, account.contract_address, operator.contract_address, operator.contract_address], [1, 2, 1, 2]).call()
+    assert all_balances_2.result.res == [500, 250, 500, 250]
 
-#     # SETTING APPROVAL
-#     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator.contract_address, 1])
-
-#     # OTHER TAKE 1 FROM ACCOUNT
-#     await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, 1])
-
-#     balance_2_of_other = await erc1155.balance_of(operator.contract_address, 1).call()
-#     assert balance_2_of_other.result.res == balance_1_of_other.result.res + 1
-#     balance_2_of_from_address = await erc1155.balance_of(account.contract_address, 1).call()
-#     assert balance_2_of_from_address.result.res == balance_1_of_from_address.result.res - 1
-
-#     # OTHER TAKE THE REST
-#     await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res - 1])
-#     # OTHER TAKE TOO MUCH
-#     # await other.send_transaction(operator, erc1155.contract_address, 'safe_transfert_from', [account.contract_address, operator.contract_address, 1, balance_1_of_from_address.result.res])
+    # OTHER TAKE TOO MUCH
+    try:
+        await other.send_transaction(operator, erc1155.contract_address, 'safe_batch_transfer_from', [account.contract_address, operator.contract_address, 2, 1, 2, 2, 1000, 1000])
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

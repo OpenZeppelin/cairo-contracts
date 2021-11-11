@@ -26,11 +26,6 @@ end
 # func contract_uri() -> (res: felt):
 # end
 
-# Support interface !!
-#
-#
-#
-
 #
 # Constructor
 #
@@ -152,19 +147,7 @@ end
 @external
 func safe_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, to : felt, token_id : felt, amount : felt):
-    # let (_sender) = get_caller_address()
-    # if _from != _sender:
-    #     let (_approved) = is_approved_for_all(account=_from, operator=_sender)
-    #     assert_not_zero(_approved)
-    #     tempvar pedersen_ptr = pedersen_ptr
-    #     tempvar syscall_ptr = syscall_ptr
-    #     tempvar range_check_ptr = range_check_ptr
-    # else:
-    #     tempvar pedersen_ptr = pedersen_ptr
-    #     tempvar syscall_ptr = syscall_ptr
-    #     tempvar range_check_ptr = range_check_ptr
-    # end
-    _is_owner_or_approved_operator(_from)
+    _assert_is_owner_or_approved(_from)
     _transfer_from(_from, to, token_id, amount)
     return ()
 end
@@ -173,19 +156,7 @@ end
 func safe_batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
         amounts : felt*):
-    # let (_sender) = get_caller_address()
-    # if _from != _sender:
-    #     let (_approved) = is_approved_for_all(account=_from, operator=_sender)
-    #     assert_not_zero(_approved)
-    #     tempvar pedersen_ptr = pedersen_ptr
-    #     tempvar syscall_ptr = syscall_ptr
-    #     tempvar range_check_ptr = range_check_ptr
-    # else:
-    #     tempvar pedersen_ptr = pedersen_ptr
-    #     tempvar syscall_ptr = syscall_ptr
-    #     tempvar range_check_ptr = range_check_ptr
-    # end
-    _is_owner_or_approved_operator(_from)
+    _assert_is_owner_or_approved(_from)
     _batch_transfer_from(_from, to, tokens_id_len, tokens_id, amounts_len, amounts)
     return ()
 end
@@ -228,24 +199,23 @@ func _batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, rang
 end
 
 # function to test ERC1155 requirement : require(from == _msgSender() || isApprovedForAll(from, _msgSender())
-func _is_owner_or_approved_operator{
-        pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(address : felt) -> (
-        res : felt):
+func _assert_is_owner_or_approved{
+        pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(address : felt):
     let (caller) = get_caller_address()
 
     if caller == address:
-        return (1)
+        return ()
     end
 
     let (operator_is_approved) = is_approved_for_all(account=address, operator=caller)
     assert operator_is_approved = 1
-    return (operator_is_approved)
+    return ()
 end
 
 #
 # Burn
 #
-
+@external
 func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, token_id : felt, amount : felt):
     assert_not_zero(_from)
@@ -255,7 +225,7 @@ func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     balances.write(_from, token_id, from_balance - amount)
     return ()
 end
-
+@external
 func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):
     assert_not_zero(_from)
@@ -264,9 +234,7 @@ func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_p
     if tokens_id_len == 0:
         return ()
     end
-    let (from_balance) = balance_of(_from, [tokens_id])
-    assert_le([amounts], from_balance)
-    balances.write(_from, [tokens_id], from_balance - [amounts])
+    _burn(_from, [tokens_id], [amounts])
     return _burn_batch(
         _from=_from,
         tokens_id_len=tokens_id_len - 1,

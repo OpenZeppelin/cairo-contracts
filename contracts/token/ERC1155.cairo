@@ -3,7 +3,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.math import assert_nn_le, assert_not_equal, assert_not_zero
+from starkware.cairo.common.math import assert_nn_le, assert_not_equal, assert_not_zero, assert_le
 from starkware.cairo.common.alloc import alloc
 
 #
@@ -185,7 +185,7 @@ func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_ch
     if _from != _sender:
         # > En solidity la fonction appelée est is_approved_for_all 
         #       je propose de modifier ainsi : let (_approved) = is_approved_for_all(account=_from, operator=_sender)
-        let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
+        let (_approved) = is_approved_for_all(account=_from, operator=_sender)
         assert_not_zero(_approved)
         # si on garde la logique de vérification dans la fonction on peut déplacer les tempvar après la boucle if pour éviter d'avoir deux fois les mêmes lignes de code ?
         tempvar pedersen_ptr  = pedersen_ptr
@@ -292,14 +292,35 @@ end
 # Burn
 #
 
+#external for testing purpose only
+@external
 func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, token_id : felt, amount : felt):
     assert_not_zero(_from)
 
-    let (caller) = get_caller_address()
-
-    let (from_balance) = balance_of(caller, token_id)
+    let (from_balance) = balance_of(_from, token_id)
     assert_le(amount, from_balance)
-    balances.write(caller, token_id, from_balance - amount)
+    balances.write(_from, token_id, from_balance - amount)
     return ()
+end
+
+#external for testing purpose only
+@external
+func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, tokens_id_len : felt ,tokens_id : felt*, amounts_len : felt, amounts : felt*):
+    assert_not_zero(_from)
+
+    assert tokens_id_len = amounts_len
+    if tokens_id_len == 0:
+        return ()
+    end
+    let (from_balance) = balance_of(_from, [tokens_id])
+    assert_le([amounts], from_balance)
+    balances.write(_from, [tokens_id], from_balance - [amounts])
+    return _burn_batch(
+        _from=_from,
+        tokens_id_len=tokens_id_len - 1,
+        tokens_id=tokens_id +1,
+        amounts_len=amounts_len -1,
+        amounts=amounts + 1)
 end

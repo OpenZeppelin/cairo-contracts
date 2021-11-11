@@ -4,7 +4,6 @@
 %builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.storage import Storage
 
 # Define a storage variable.
 @storage_var
@@ -14,8 +13,10 @@ end
 # Increases the balance by the given amount.
 @external
 func increase_balance{
-        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(amount : felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(amount : felt):
     let (res) = balance.read()
     balance.write(res + amount)
     return ()
@@ -24,8 +25,10 @@ end
 # Returns the current balance.
 @view
 func get_balance{
-        storage_ptr : Storage*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}() -> (res : felt):
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res : felt):
     let (res) = balance.read()
     return (res)
 end

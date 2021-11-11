@@ -11,26 +11,25 @@ from starkware.cairo.common.alloc import alloc
 #
 
 @storage_var
-func balances(owner: felt, token_id: felt) -> (res: felt):
+func balances(owner : felt, token_id : felt) -> (res : felt):
 end
 
 @storage_var
-func operator_approvals(owner: felt, operator: felt) -> (res: felt):
+func operator_approvals(owner : felt, operator : felt) -> (res : felt):
 end
 
 @storage_var
-func initialized() -> (res: felt):
+func initialized() -> (res : felt):
 end
 
 # @storage_var
 # func contract_uri() -> (res: felt):
 # end
 
-#Support interface !!
+# Support interface !!
 #
 #
 #
-
 
 #
 # Constructor
@@ -38,17 +37,13 @@ end
 
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        recipient: felt,
-        tokens_id_len: felt,
-        tokens_id: felt*,
-        amounts_len: felt,
-        amounts: felt*):
+        recipient : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
+        amounts : felt*):
     # get_caller_address() returns '0' in the constructor;
     # therefore, recipient parameter is included
     _mint_batch(recipient, tokens_id_len, tokens_id, amounts_len, amounts)
     return ()
 end
-
 
 #
 # Initializer
@@ -56,10 +51,7 @@ end
 
 @external
 func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        tokens_id_len: felt,
-        tokens_id: felt*,
-        amounts_len: felt,
-        amounts: felt*):
+        tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
@@ -69,9 +61,7 @@ func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
 end
 
 func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        to: felt,
-        token_id: felt,
-        amount: felt) -> ():
+        to : felt, token_id : felt, amount : felt) -> ():
     assert_not_zero(to)
     let (res) = balances.read(owner=to, token_id=token_id)
     balances.write(to, token_id, res + amount)
@@ -79,11 +69,8 @@ func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
 end
 
 func _mint_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        to: felt,
-        tokens_id_len: felt,
-        tokens_id: felt*,
-        amounts_len: felt,
-        amounts: felt*) -> ():
+        to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
+        amounts : felt*) -> ():
     assert_not_zero(to)
     assert tokens_id_len = amounts_len
 
@@ -104,20 +91,17 @@ end
 #
 
 @view
-func balance_of{pedersen_ptr: HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        owner: felt,
-        token_id: felt) -> (res: felt):
+func balance_of{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        owner : felt, token_id : felt) -> (res : felt):
     assert_not_zero(owner)
     let (res) = balances.read(owner=owner, token_id=token_id)
     return (res)
 end
 
 @view
-func balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        owners_len:felt,
-        owners: felt*,
-        tokens_id_len: felt,
-        tokens_id: felt*) -> (res_len : felt, res : felt*):
+func balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        owners_len : felt, owners : felt*, tokens_id_len : felt, tokens_id : felt*) -> (
+        res_len : felt, res : felt*):
     assert owners_len = tokens_id_len
     alloc_locals
     local max = owners_len
@@ -127,12 +111,8 @@ func balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     return (max, ret_array)
 end
 
-func populate_balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    owners: felt*,
-    tokens_id: felt*,
-    rett: felt*,
-    ret_index: felt,
-    max: felt):
+func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        owners : felt*, tokens_id : felt*, rett : felt*, ret_index : felt, max : felt):
     alloc_locals
     if ret_index == max:
         return ()
@@ -148,21 +128,19 @@ end
 #
 
 @view
-func is_approved_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr} (
-        account: felt,
-        operator: felt) -> (res: felt):
+func is_approved_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        account : felt, operator : felt) -> (res : felt):
     let (res) = operator_approvals.read(owner=account, operator=operator)
     return (res=res)
 end
 
 @external
-func set_approval_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr} (
-    operator: felt,
-    approved: felt):
+func set_approval_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        operator : felt, approved : felt):
     let (account) = get_caller_address()
     assert_not_equal(account, operator)
     operator_approvals.write(account, operator, approved)
-    return()
+    return ()
 end
 
 #
@@ -170,69 +148,57 @@ end
 #
 
 @external
-func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        _from: felt,
-        to: felt,
-        token_id: felt,
-        amount: felt):
-    
-    # > De mon côté j'ai introduit les vérifications dans une autre fonction appelée _is_owner_or_approved_operator(_from) 
+func safe_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, to : felt, token_id : felt, amount : felt):
+    # > De mon côté j'ai introduit les vérifications dans une autre fonction appelée _is_owner_or_approved_operator(_from)
     #           (cf dernière fonction dans le document qui vérifie require(from == _msgSender() || isApprovedForAll(from, _msgSender()) )
-    #   si on utilise cette autre fonction le code de safe_transfer_from deviendrait : 
+    #   si on utilise cette autre fonction le code de safe_transfer_from deviendrait :
     #       _is_owner_or_approved_operator(_from)
     #       _transfer(_from, to, token_id, amount)
     let (_sender) = get_caller_address()
     if _from != _sender:
-        # > En solidity la fonction appelée est is_approved_for_all 
+        # > En solidity la fonction appelée est is_approved_for_all
         #       je propose de modifier ainsi : let (_approved) = is_approved_for_all(account=_from, operator=_sender)
         let (_approved) = is_approved_for_all(account=_from, operator=_sender)
         assert_not_zero(_approved)
         # si on garde la logique de vérification dans la fonction on peut déplacer les tempvar après la boucle if pour éviter d'avoir deux fois les mêmes lignes de code ?
-        tempvar pedersen_ptr  = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
+        tempvar pedersen_ptr = pedersen_ptr
+        tempvar syscall_ptr = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr
     else:
         tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
+        tempvar syscall_ptr = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr
     end
     _transfer_from(_from, to, token_id, amount)
     return ()
 end
 
 @external
-func safe_batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        _from: felt,
-        to: felt,
-        tokens_id_len: felt,
-        tokens_id: felt*,
-        amounts_len: felt,
-        amounts: felt*):
-    
+func safe_batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
+        amounts : felt*):
     # > Idem que pour safe_transfer_from on peut utiliser _is_owner_or_approved_operator(_from) pour
     #       vérifier les conditions : require(from == _msgSender() || isApprovedForAll(from, _msgSender())
     let (_sender) = get_caller_address()
     if _from != _sender:
-        # > En solidity la fonction appelée est is_approved_for_all 
+        # > En solidity la fonction appelée est is_approved_for_all
         let (_approved) = operator_approvals.read(owner=_from, operator=_sender)
         assert_not_zero(_approved)
-        tempvar pedersen_ptr  = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
+        tempvar pedersen_ptr = pedersen_ptr
+        tempvar syscall_ptr = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr
     else:
         tempvar pedersen_ptr = pedersen_ptr
-        tempvar syscall_ptr  = syscall_ptr
-        tempvar range_check_ptr = range_check_ptr 
+        tempvar syscall_ptr = syscall_ptr
+        tempvar range_check_ptr = range_check_ptr
     end
     _batch_transfer_from(_from, to, tokens_id_len, tokens_id, amounts_len, amounts)
-    return()
+    return ()
 end
 
-func _transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        sender: felt,
-        recipient: felt,
-        token_id: felt,
-        amount: felt):
+func _transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        sender : felt, recipient : felt, token_id : felt, amount : felt):
     # check recipient != 0
     assert_not_zero(recipient)
 
@@ -249,13 +215,9 @@ func _transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     return ()
 end
 
-func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt,
-    to: felt,
-    tokens_id_len: felt,
-    tokens_id: felt*,
-    amounts_len: felt,
-    amounts: felt*):
+func _batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        _from : felt, to : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
+        amounts : felt*):
     # J'ai ajouté ces conditions pour que ce soit similaire au code en Solidity
     assert tokens_id_len = amounts_len
     assert_not_zero(to)
@@ -292,8 +254,7 @@ end
 # Burn
 #
 
-#external for testing purpose only
-@external
+# external for testing purpose only
 func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, token_id : felt, amount : felt):
     assert_not_zero(_from)
@@ -304,10 +265,9 @@ func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     return ()
 end
 
-#external for testing purpose only
-@external
+# external for testing purpose only
 func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        _from : felt, tokens_id_len : felt ,tokens_id : felt*, amounts_len : felt, amounts : felt*):
+        _from : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):
     assert_not_zero(_from)
 
     assert tokens_id_len = amounts_len
@@ -320,7 +280,7 @@ func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_p
     return _burn_batch(
         _from=_from,
         tokens_id_len=tokens_id_len - 1,
-        tokens_id=tokens_id +1,
-        amounts_len=amounts_len -1,
+        tokens_id=tokens_id + 1,
+        amounts_len=amounts_len - 1,
         amounts=amounts + 1)
 end

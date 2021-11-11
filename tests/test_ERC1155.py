@@ -65,6 +65,15 @@ async def test_is_approved(erc1155_factory):
 
     operator = 123
     approval = 1
+    not_boolean_approval = 15
+
+    # test set_approval_for_all with value that is not a boolean
+    try:
+        await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, not_boolean_approval])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
     await signer.send_transaction(account, erc1155.contract_address, 'set_approval_for_all', [operator, approval])
     assert(await erc1155.is_approved_for_all(account.contract_address, operator).call()).result == (1,)

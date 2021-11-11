@@ -139,6 +139,8 @@ func set_approval_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, rang
         operator : felt, approved : felt):
     let (account) = get_caller_address()
     assert_not_equal(account, operator)
+    # ensure approved is a boolean (0 or 1)
+    assert approved * (1 - approved) = 0
     operator_approvals.write(account, operator, approved)
     return ()
 end

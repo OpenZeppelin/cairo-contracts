@@ -51,7 +51,6 @@ nile compile
 🔨 Compiling contracts/Account.cairo
 🔨 Compiling contracts/AddressRegistry.cairo
 🔨 Compiling contracts/Initializable.cairo
-🔨 Compiling contracts/contract.cairo
 🔨 Compiling contracts/Ownable.cairo
 🔨 Compiling contracts/token/ERC721.cairo
 🔨 Compiling contracts/token/ERC20.cairo

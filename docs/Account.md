@@ -147,7 +147,7 @@ This message is consumed by the `execute` method, which acts as a single entrypo
 await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
 
-Notice that Signer's `send_transaction` calls `execute` under the hood.
+Note that Signer's `send_transaction` calls `execute` under the hood.
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would 
 
@@ -184,7 +184,7 @@ func execute(
     ) -> (response : felt):
 ```
 
-> Notice we're omitting `initialize` from the API spec since we consider it a temporary artifact of the lack of `this.address` and we hope to remove it as soon as possible.
+> Note we're omitting `initialize` from the API spec since we consider it a temporary artifact of the lack of `this.address` and we hope to remove it as soon as possible.
 
 #### `get_public_key`
 
@@ -276,7 +276,7 @@ signature_len: felt
 signature: felt*
 ```
 
-> Notice that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
+> Note that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
 
 ##### Returns:

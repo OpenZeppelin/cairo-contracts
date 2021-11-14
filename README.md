@@ -8,109 +8,103 @@
 > Expect rapid iteration.
 > **Do not use in production.**
 
-## Quickstart
+## Installation
 
-A mashup between [Cairo's quickstart](https://www.cairo-lang.org/docs/quickstart.html#) and [StarkWare's intro](https://www.cairo-lang.org/docs/hello_starknet/intro.html).
+### First time?
 
-### 0. Install Cairo
-We recommend working inside a python virtual environment, but you can also install the Cairo package directly. To create and enter the virtual environment, type:
-
+Before installing Cairo on your machine, you need to install `gmp`:
 ```bash
-python3.7 -m venv ~/cairo_venv
-source ~/cairo_venv/bin/activate
+sudo apt install -y libgmp3-dev # linux
+brew install gmp # mac
 ```
+> If you have any troubles installing gmp on your Apple M1 computer, [here’s a list of potential solutions](https://github.com/OpenZeppelin/nile/issues/22).
 
-Make sure the venv is activated – you should see (cairo_venv) in the command line prompt.
-
-Make sure you can install the following pip packages: `ecdsa`, `fastecdsa`, `sympy` (using `pip3 install ecdsa fastecdsa sympy`). On Ubuntu, for example, you will have to first run:
-
-```bash
-sudo apt install -y libgmp3-dev
-```
-
-On Mac, you can use brew:
-
-```bash
-brew install gmp
-```
-
-Download the python package (cairo-lang-0.3.1.zip) from https://github.com/starkware-libs/cairo-lang/releases/tag/v0.3.1. To install it using `pip`, run:
-
-```bash
-pip3 install cairo-lang-0.3.1.zip
-```
-
-Cairo was tested with python3.7. To make it work with python3.6, you will have to install `contextvars`:
-
-```bash
-pip3 install contextvars
-```
-
-### 1. Clone the repo
+### Set up the project
+Clone the repository
 
 ```bash
 git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
-Then `cd` into it and create a `build` directory:
+`cd` into it and create a Python virtual environment:
 
 ```bash
-cd cairo-contracts/
-mkdir build
+cd cairo-contracts
+python3 -m venv env
+source env/bin/activate
 ```
 
-### 2. Compile the contracts
+Install the [Nile](https://github.com/OpenZeppelin/nile) dev environment and then run `install` to get [the Cairo language](https://www.cairo-lang.org/docs/quickstart.html), a [local network](https://github.com/Shard-Labs/starknet-devnet/), and a [testing framework](https://docs.pytest.org/en/6.2.x/).
 ```bash
-starknet-compile contracts/contract.cairo \
-    --output build/contract_compiled.json \
-    --abi build/contract_abi.json
+pip install cairo-nile
+nile install
 ```
 
-### 3. Deploy to testnet
+## Usage
 
+### Compile the contracts
 ```bash
-export STARKNET_NETWORK=alpha
-starknet deploy --contract build/contract_compiled.json
+nile compile
+
+🤖 Compiling all Cairo contracts in the contracts directory
+🔨 Compiling contracts/IAccount.cairo
+🔨 Compiling contracts/Account.cairo
+🔨 Compiling contracts/AddressRegistry.cairo
+🔨 Compiling contracts/Initializable.cairo
+🔨 Compiling contracts/contract.cairo
+🔨 Compiling contracts/Ownable.cairo
+🔨 Compiling contracts/token/ERC721.cairo
+🔨 Compiling contracts/token/ERC20.cairo
+🔨 Compiling contracts/token/IERC20.cairo
+✅ Done
 ```
 
-### 4. Interact with it
-
-```bash
-starknet invoke \
-    --address CONTRACT_ADDRESS \
-    --abi build/contract_abi.json \
-    --function increase_balance \
-    --inputs 1234
-```
-The result should look like:
-
-```
-Invoke transaction was sent.
-Contract address: 0x039564c4f6d9f45a963a6dc8cf32737f0d51a08e446304626173fd838bd70e1c
-Transaction ID: 1
-```
-
-The following command allows you to query the transaction status based on the transaction ID that you got (here you’ll have to replace `TRANSACTION_ID` with the transaction ID printed by starknet invoke):
+### Run tests
 
 ```bash
-starknet tx_status --id TRANSACTION_ID
+pytest
+
+====================== test session starts ======================
+platform linux -- Python 3.7.2, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
+rootdir: /home/readme/cairo-contracts
+plugins: asyncio-0.16.0, web3-5.24.0, typeguard-2.13.0
+collected 19 items                                                                                               
+
+tests/test_Account.py ....                                 [ 21%]
+tests/test_AddressRegistry.py ..                           [ 31%]
+tests/test_ERC20.py ..........                             [ 84%]
+tests/test_Initializable.py .                              [ 89%]
+tests/test_Ownable.py ..                                   [100%]
 ```
-The possible statuses are:
 
-- `NOT_RECEIVED`: The transaction has not been received yet (i.e., not written to storage).
-- `RECEIVED`: The transaction was received by the operator.
-- `PENDING`: The transaction passed the validation and is waiting to be sent on-chain.
-- `REJECTED`: The transaction failed validation and thus was skipped.
-- `ACCEPTED_ONCHAIN`: The transaction was accepted on-chain.
+### Extending Cairo contracts
 
-Then we can query the balance:
+There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk. Remember this contracts are still under development and they have not gone through any audit or security review whatsoever.
 
-```bash
-starknet call \
-    --address CONTRACT_ADDRESS \
-    --abi build/contract_abi.json \
-    --function get_balance
-```
+- For Accounts, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, or some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo).
+- For ERC20 tokens we suggest removing or protecting the `mint` method, temporarily in place for testing purposes. You can customize token name, symbol, and may be worth exploring pre/post transfer checks.
+
+
+## Learn
+
+### Contracts documentation
+* Account
+* ERC20
+* ERC721
+### Cairo
+* [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
+* [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)
+* Perama's [Cairo by example](https://perama-v.github.io/cairo/by-example/)
+* [Cairo 101 workshops](https://www.youtube.com/playlist?list=PLcIyXLwiPilV5RBZj43AX1FY4FJMWHFTY)
+### Nile
+* [Getting started with StarkNet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
+* [How to manage smart contract deployments with Nile](https://medium.com/@martriay/manage-your-starknet-deployments-with-nile-%EF%B8%8F-e849d40546dd)
+
+## Security
+
+This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+
+Please report any security issues you find to security@openzeppelin.org.
 
 ## License
 

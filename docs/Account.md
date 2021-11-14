@@ -1,7 +1,7 @@
 # Accounts
-Unlike Ethereum where accounts are directly derived from a private address, there's no native account concept on StarkNet.
+Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
-Instead, signature validation has to be done at the contract level. To relief smart contract applications such as ERC20 tokens or AMMs from this responsibility, we make use of Account contracts to deal with transaction authentication.
+Instead, signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
 
 A more detailed writeup on the topic can be found on [Perama's blogpost](https://perama-v.github.io/cairo/account-abstraction/).
 
@@ -29,16 +29,16 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 The general workflow is three simple steps: 
 1. Account contract is deployed to StarkNet
 2. Account is initialized with its own address (_temporary until `this.address` is available_)
-3. Signed transactions are sent to the Account contract which validates and executes them
+3. Signed transactions can now be sent to the Account contract which validates and executes them
 
-This is how it looks today in Python:
+In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
 signer = Signer(123456789987654321)
+starknet = await Starknet.empty()
 
 # 1. Deploy Account
-starknet = await Starknet.empty()
 account = await starknet.deploy(
     "contracts/Account.cairo",
     constructor_calldata=[signer.public_key]
@@ -91,7 +91,7 @@ end
 
 While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account. That's why the `constructor` function expects a `public_key` parameter to set it. Since there's also a `set_public_key()` method, accounts can be effectively transferred.
 
-Notice that although the current implementation works only with StarkKeys, support for Ethereum ECDSA algorithm is expected to be supported in the future.
+Note that although the current implementation works only with StarkKeys, Ethereum's ECDSA algorithm is expected to be supported in the future.
 
 ### Signer utility
 
@@ -100,7 +100,7 @@ Notice that although the current implementation works only with StarkKeys, suppo
 It exposes two functions:
 
 - `def sign(message_hash)` receives a hash and returns a signed message of it
-- `def send_transaction(account, to, selector_name, calldata, nonce=None)` returns a promise of a signed transaction, ready to be sent.
+- `def send_transaction(account, to, selector_name, calldata, nonce=None)` returns a future of a signed transaction, ready to be sent.
 
 To use Signer, pass a private key when instantiating the class:
 
@@ -256,7 +256,7 @@ public_key: felt
 
 #### `is_valid_signature`
 
-This function is inspired in [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
+This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
 
 ##### Parameters:
 ```
@@ -280,7 +280,7 @@ signature: felt*
 
 #### `execute`
 
-This is the main an sole entrypoint to interact with the Account contract. It:
+This is the only external entrypoint to interact with the Account contract. It:
 
 1. Confirms that the Account has been initialized
 2. Takes the input and builds a [Message](#message-format) with it

@@ -7,6 +7,8 @@ from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
 
+MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
+
 
 def uint(a):
     return(a, 0)
@@ -240,7 +242,8 @@ async def test_increase_allowance_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 234
-    amount = (2**128 - 1, 2**128 - 1)
+    amount = (MAX_AMOUNT)
+    # overflow_amount adds (1, 0) to (2**128 - 1, 2**128 - 1)
     overflow_amount = uint(1)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
 
@@ -277,6 +280,63 @@ async def test_transfer_from_zero_address(erc20_factory):
     # (get_caller_address) is zero
     try:
         await erc20.transfer(recipient, amount).invoke()
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_transfer_from_func_to_zero_address(erc20_factory):
+    starknet, erc20, account = erc20_factory
+    spender = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+    # we use the same signer to control the main and the spender accounts
+    # this is ok since they're still two different accounts
+    await spender.initialize(spender.contract_address).invoke()
+    amount = uint(1)
+    zero_address = 0
+
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
+
+    try:
+        await signer.send_transaction(
+            spender, erc20.contract_address, 'transfer_from',
+            [
+                account.contract_address,
+                zero_address,
+                *amount
+            ])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_transfer_from_func_from_zero_address(erc20_factory):
+    starknet, erc20, account = erc20_factory
+    spender = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+    # we use the same signer to control the main and the spender accounts
+    # this is ok since they're still two different accounts
+    await spender.initialize(spender.contract_address).invoke()
+    zero_address = 0
+    recipient = 123
+    amount = uint(1)
+
+    try:
+        await signer.send_transaction(
+            spender, erc20.contract_address, 'transfer_from',
+            [
+                zero_address,
+                recipient,
+                *amount
+            ])
         assert False
     except StarkException as err:
         _, error = err.args
@@ -335,8 +395,21 @@ async def test_mint_overflow(erc20_factory):
     # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
     execution_info = await erc20.get_total_supply().call()
     previous_supply = execution_info.result.res
-    fail_amount = (2**128 - previous_supply[0], 2**128 - 1)
-    pass_amount = (fail_amount[0] - 1, fail_amount[1])
+
+    # pass_amount subtracts the already minted supply from MAX_AMOUNT in order for
+    # the minted supply to equal MAX_AMOUNT
+    # (2**128 - 1, 2**128 - 1)
+    pass_amount = (
+        MAX_AMOUNT[0] - previous_supply[0],  # 2**128 - 1
+        MAX_AMOUNT[1] - previous_supply[1]  # 2**128 - 1
+    )
+
+    # fail_amount displays the edge case where any addition over MAX_SUPPLY
+    # should result in a failing tx
+    fail_amount = (
+        pass_amount[0] + 1,  # 2**128 (will overflow)
+        pass_amount[1]   # 2**128 - 1
+    )
 
     try:
         await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *fail_amount])

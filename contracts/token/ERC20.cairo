@@ -107,16 +107,8 @@ func _mint{
     balances.write(recipient, new_balance)
 
     let (local supply: Uint256) = total_supply.read()
-    # the underscore is for the 1 bit carry
-    let (local new_supply, _: Uint256) = uint256_add(supply, amount)
-
-    # reassign syscall_ptr and pedersen_ptr to avoid revocation
-    local syscall_ptr: felt* = syscall_ptr
-    local pedersen_ptr: HashBuiltin* = pedersen_ptr
-
-    # overflow check
-    let (enough_balance) = uint256_lt(supply, new_supply)
-    assert_not_zero(enough_balance)
+    let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
+    assert (is_overflow) = 0
 
     total_supply.write(new_supply)
     return ()
@@ -132,10 +124,6 @@ func _transfer{
     assert_not_zero(recipient)
 
     let (local sender_balance: Uint256) = balances.read(user=sender)
-
-    # reassign syscall_ptr and pedersen_ptr to avoid revocation
-    local syscall_ptr: felt* = syscall_ptr
-    local pedersen_ptr: HashBuiltin* = pedersen_ptr
 
     # validates amount <= sender_balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, sender_balance)
@@ -188,10 +176,6 @@ func transfer_from{
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
 
-    # reassign syscall_ptr and pedersen_ptr to avoid revocation
-    local syscall_ptr: felt* = syscall_ptr
-    local pedersen_ptr: HashBuiltin* = pedersen_ptr
-
     # validates amount <= caller_allowance and returns 1 if true   
     let (enough_balance) = uint256_le(amount, caller_allowance)
     assert_not_zero(enough_balance)
@@ -225,16 +209,9 @@ func increase_allowance{
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(caller, spender)
 
-    # reassign syscall_ptr and pedersen_ptr to avoid revocation
-    local syscall_ptr: felt* = syscall_ptr
-    local pedersen_ptr: HashBuiltin* = pedersen_ptr
-
     # add allowance
-    let (local new_allowance, _: Uint256) = uint256_add(current_allowance, added_value)
-
-    # validates current_allowance < new_allowance and returns 1 if true   
-    let (enough_allowance) = uint256_lt(current_allowance, new_allowance)
-    assert_not_zero(enough_allowance)
+    let (local new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
+    assert (is_overflow) = 0
 
     _approve(caller, spender, new_allowance)
     return()
@@ -249,11 +226,6 @@ func decrease_allowance{
     alloc_locals
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
-    
-    # reassign syscall_ptr and pedersen_ptr to avoid revocation
-    local syscall_ptr: felt* = syscall_ptr
-    local pedersen_ptr: HashBuiltin* = pedersen_ptr
-
     let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     # validates new_allowance < current_allowance and returns 1 if true   

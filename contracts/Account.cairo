@@ -201,7 +201,7 @@ func execute{
 
     let (__fp__, _) = get_fp_and_pc()
     let (_address) = address.read()
-    let (local _current_nonce) = current_nonce.read()
+    let (_current_nonce) = current_nonce.read()
 
     local message: Message = Message(
         _address,

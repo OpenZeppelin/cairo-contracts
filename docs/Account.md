@@ -26,7 +26,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 
 ## Quickstart
 
-The general workflow is three simple steps: 
+The general workflow consists of three simple steps: 
 1. Account contract is deployed to StarkNet
 2. Account is initialized with its own address (_temporary until `this.address` is available_)
 3. Signed transactions can now be sent to the Account contract which validates and executes them
@@ -136,7 +136,7 @@ end
 Where:
 
 - `sender` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys.
-- `to` address of the target contract of the message
+- `to` is the address of the target contract of the message
 - `selector` is the selector of the function to be called on the target contract
 - `calldata` is an array representing the function parameters
 - `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental.
@@ -289,7 +289,7 @@ response: felt
 There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk. Since `execute` relies on it, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, or some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo).
 
 
-## L1 scape hatch mechanism
+## L1 escape hatch mechanism
 
 *[unknown, to be defined]*
 

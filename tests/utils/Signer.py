@@ -1,9 +1,36 @@
+"""Utility for sending signed transactions to an Account on Starknet."""
+
+
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 
 
 class Signer():
+    """
+    Utility for sending signed transactions to an Account on Starknet.
+
+    Parameters
+    ----------
+
+    private_key : int
+
+    Examples
+    ---------
+    Constructing a Singer object
+
+    >>> signer = Signer(1234)
+
+    Sending a transaction
+
+    >>> await signer.send_transaction(account, 
+                                      account.contract_address, 
+                                      'set_public_key', 
+                                      [other.public_key]
+                                     )
+
+    """
+
     def __init__(self, private_key):
         self.private_key = private_key
         self.public_key = private_to_stark_key(private_key)

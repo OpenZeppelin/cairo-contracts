@@ -91,7 +91,7 @@ end
 
 While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account. That's why the `constructor` function expects a `public_key` parameter to set it. Since there's also a `set_public_key()` method, accounts can be effectively transferred.
 
-Note that although the current implementation works only with StarkKeys, Ethereum's ECDSA algorithm is expected to be supported in the future.
+Note that although the current implementation works only with StarkKeys, support for Ethereum's ECDSA algorithm will be added in the future.
 
 ### Signer utility
 
@@ -107,7 +107,8 @@ To use Signer, pass a private key when instantiating the class:
 ```python
 from utils.Signer import Signer
 
-signer = Signer(123456789987654321)
+PRIVATE_KEY = 123456789987654321
+signer = Signer(PRIVATE_KEY)
 ```
 
 Then send transactions with `send_transaction` method.
@@ -119,7 +120,7 @@ await signer.send_transaction(account, contract_address, 'method_name', [])
 
 ## Message format
 
-The idea is for all user intent to be encoded into a `Message` as follows:
+The idea is for all user intent to be encoded into a `Message` representing a smart contract call. Currently the Account contract can only process one message per transaction, but support for batching multiple messages will be added in the future. Messages are structured as follows:
 
 ```c#
 struct Message:
@@ -138,7 +139,7 @@ Where:
 - `to` address of the target contract of the message
 - `selector` is the selector of the function to be called on the target contract
 - `calldata` is an array representing the function parameters
-- `nonce` is an unique identifier of this message to prevent transaction replays
+- `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental.
 
 This message is consumed by the `execute` method, which acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
 
@@ -191,16 +192,10 @@ Returns the public key associated with the Account contract.
 
 ##### Parameters:
 
-```
-None
-```
+None.
 
 ##### Returns:
 ```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
-
 public_key: felt
 ```
 
@@ -210,15 +205,11 @@ Returns the contract address of the Account.
 
 ##### Parameters:
 
-    None
+None.
 
 ##### Returns:
 
 ```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
-
 contract_address: felt
 ```
 
@@ -227,15 +218,13 @@ contract_address: felt
 Returns the current transaction nonce for the Account.
 
 ##### Parameters:
-```
-None
-```
+
+None.
+
 ##### Returns:
 
 ```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
+nonce: felt
 ```
 
 #### `set_public_key`
@@ -248,11 +237,8 @@ public_key: felt
 ```
 
 ##### Returns:
-```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
-```
+
+None.
 
 #### `is_valid_signature`
 
@@ -260,23 +246,14 @@ This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271)
 
 ##### Parameters:
 ```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr : HashBuiltin*
-(implicit) range_check_ptr
-(implicit) ecdsa_ptr: SignatureBuiltin*
-
 hash: felt
 signature_len: felt
 signature: felt*
 ```
 
 ##### Returns:
-```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
-(implicit) ecdsa_ptr: SignatureBuiltin*
-```
+
+None.
 
 #### `execute`
 
@@ -284,7 +261,7 @@ This is the only external entrypoint to interact with the Account contract. It:
 
 1. Confirms that the Account has been initialized
 2. Takes the input and builds a [Message](#message-format) with it
-3. Validates the transaction signature
+3. Validates the transaction signature matches the message (including the nonce)
 4. Increments the nonce
 5. Calls the target contract with the intended function selector and calldata parameters
 6. Forwards the contract call response data as return value
@@ -304,9 +281,6 @@ signature: felt*
 
 ##### Returns:
 ```
-(implicit) syscall_ptr : felt*
-(implicit) pedersen_ptr: HashBuiltin*
-(implicit) range_check_ptr
 response: felt
 ```
 
@@ -323,9 +297,3 @@ There's no clear contract extensibility pattern for Cairo smart contracts yet. I
 ## Paying for gas
 
 *[unknown, to be defined]*
-
-
-## Future work
-
-- More Account flavors such as multi-signature or guardian-protected
-- `Multicall` method to batch multiple messages in one transaction

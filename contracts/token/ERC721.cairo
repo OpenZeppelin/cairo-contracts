@@ -39,25 +39,64 @@ end
 func symbol_() -> (res : felt):
 end
 
-@storage_var
-func token_uri_() -> (res : felt):
+struct BlockchainNamespace:
+    member a : felt
 end
 
-# eip155:chainID/erc721:contract/tokenID
-# eip155:chainID/erc1155:contract/tokenID
-# felt    felt   felt     2 felt   3 felt
+# aka ChainID. Chain Agnostic specifies that the length can go up to 32 nines (i.e. 9999999....) but we will only support 31 nines.
+struct BlockchainReference:
+    member a : felt
+end
+
+struct AssetNamespace:
+    member a : felt
+end
+
+# aka contract Address on L1. An address is represented using 20 bytes. Those bytes are written in the `felt`.
+struct AssetReference:
+    member a : felt
+end
+
+# A tokenId is a u256. u256::MAX() is ~1e77 meaning we need 78 characters to store it. Given a felt can represent
+# 31 characters, we need 3 felts to store it.
+struct TokenId:
+    member a : felt
+    member b : felt
+    member c : felt
+end
+
+# As defined by Chain Agnostics (CAIP-22 and CAIP-29):
+# {blockchain_namespace}:{blockchain_reference}/{asset_namespace}:{asset_reference}/{token_id}
+struct TokenUri:
+    member blockchain_namespace : BlockchainNamespace
+    member blockchain_reference : BlockchainReference
+    member asset_namespace : AssetNamespace
+    member asset_reference : AssetReference
+    member token_id : TokenId
+end
+
+@storage_var
+func token_uri_() -> (res : TokenUri):
+end
 
 @external
-func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
+func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        name : felt, symbol : felt, tokenURI : TokenUri):
     let (_initialized) = initialized.read()
     assert _initialized = 0
+
+    name_.write(name)
+    symbol_.write(name)
+    token_uri_.write(tokenURI)
+
     initialized.write(1)
 
     return ()
 end
 
 @view
-func balance_of{pedersen_ptr : HashBuiltin*, range_check_ptr}(owner : felt) -> (res : felt):
+func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        owner : felt) -> (res : felt):
     assert_not_zero(owner)
 
     let (res) = balances.read(owner=owner)
@@ -65,9 +104,31 @@ func balance_of{pedersen_ptr : HashBuiltin*, range_check_ptr}(owner : felt) -> (
 end
 
 @view
-func owner_of{pedersen_ptr : HashBuiltin*, range_check_ptr}(token_id : felt) -> (res : felt):
+func owner_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        token_id : felt) -> (res : felt):
     let (res) = owners.read(token_id=token_id)
     assert_not_zero(res)
+
+    return (res)
+end
+
+@view
+func name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res : felt):
+    let (res) = name_.read()
+    return (res)
+end
+
+@view
+func symbol{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res : felt):
+    let (res) = symbol_.read()
+
+    return (res)
+end
+
+@view
+func token_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        token_id : felt) -> (res : TokenUri):
+    let (res) = token_uri_.read()
 
     return (res)
 end
@@ -111,7 +172,7 @@ func _is_approved_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, ran
     let (exists) = _exists(token_id)
     assert exists = 1
 
-    let (local owner) = owner_of(token_id)
+    let (owner) = owner_of(token_id)
     if owner == spender:
         return (1)
     end
@@ -129,7 +190,8 @@ func _is_approved_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, ran
     return (0)
 end
 
-func _exists{pedersen_ptr : HashBuiltin*, range_check_ptr}(token_id : felt) -> (res : felt):
+func _exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        token_id : felt) -> (res : felt):
     let (res) = owners.read(token_id)
 
     if res == 0:
@@ -140,7 +202,8 @@ func _exists{pedersen_ptr : HashBuiltin*, range_check_ptr}(token_id : felt) -> (
 end
 
 @view
-func get_approved{pedersen_ptr : HashBuiltin*, range_check_ptr}(token_id : felt) -> (res : felt):
+func get_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        token_id : felt) -> (res : felt):
     let (exists) = _exists(token_id)
     assert exists = 1
 
@@ -149,7 +212,7 @@ func get_approved{pedersen_ptr : HashBuiltin*, range_check_ptr}(token_id : felt)
 end
 
 @view
-func is_approved_for_all{pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func is_approved_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         owner : felt, operator : felt) -> (res : felt):
     let (res) = operator_approvals.read(owner=owner, operator=operator)
     return (res)
@@ -212,7 +275,7 @@ func _transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     return ()
 end
 
-func _set_approval_for_all{pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         owner : felt, operator : felt, approved : felt):
     assert_not_equal(owner, operator)
 

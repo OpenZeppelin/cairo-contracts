@@ -102,7 +102,8 @@ func _mint{
     assert_not_zero(recipient)
 
     let (balance: Uint256) = balances.read(account=recipient)
-    # the underscore is for the 1 bit carry
+    # overflow is not possible because sum is guaranteed to be less than total supply
+    # which we check for overflow below
     let (new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
@@ -135,6 +136,7 @@ func _transfer{
 
     # add to recipient
     let (recipient_balance: Uint256) = balances.read(account=recipient)
+    # overflow is not possible because sum is guaranteed by mint to be less than total supply
     let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
     balances.write(recipient, new_recipient_balance)
     return ()

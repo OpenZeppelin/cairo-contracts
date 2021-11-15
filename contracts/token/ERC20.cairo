@@ -151,6 +151,32 @@ func _approve{
     return ()
 end
 
+func _burn{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(account: felt, amount: Uint256):
+    alloc_locals
+    assert_not_zero(account)
+
+    let (balance: Uint256) = balances.read(account)
+    let (local new_balance: Uint256) = uint256_sub(balance, amount)
+
+    # validates new_balance < balance and returns 1 if true   
+    let (enough_balance) = uint256_lt(new_balance, balance)
+    assert_not_zero(enough_balance)
+    balances.write(account, new_balance)
+
+    let (supply: Uint256) = total_supply.read()
+    let (local new_supply: Uint256) = uint256_sub(supply, amount)
+
+    # underflow check
+    let (is_underflow) = uint256_lt(new_supply, supply)
+    assert_not_zero(is_underflow)
+    total_supply.write(new_supply)
+    return ()
+end
+
 #
 # Externals
 #
@@ -237,7 +263,7 @@ func decrease_allowance{
 end
 
 #
-# Test function — will remove once extensibility is resolved
+# Test functions — will remove once extensibility is resolved
 #
 
 @external
@@ -247,5 +273,15 @@ func mint{
         range_check_ptr
     }(recipient: felt, amount: Uint256):
     _mint(recipient, amount)
+    return()
+end
+
+@external
+func burn{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(user: felt, amount: Uint256):
+    _burn(user, amount)
     return()
 end

@@ -422,31 +422,6 @@ async def test_mint_overflow(erc20_factory):
     await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('break_vals', [
-    (MAX_AMOUNT[0], MAX_AMOUNT[1] + 1),
-    (MAX_AMOUNT[0] + 1, MAX_AMOUNT[0]),
-    (0, MAX_AMOUNT[1] + 1),
-    (MAX_AMOUNT[0] + 1, 0)
-])
-async def test_break_decrease_allowance(erc20_factory, break_vals):
-    _, erc20, account = erc20_factory
-    spender = 321
-    init_amount = (MAX_AMOUNT)
-
-    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *init_amount])
-
-    execution_info = await erc20.allowance(account.contract_address, spender).call()
-    assert execution_info.result.res == init_amount
-
-    try:
-        await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *break_vals])
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
-
 #
 # The following tests were attempts to break the current ERC20 implementation; whereby,
 # the function arguments exceed one of the uint's 128 bit-limit values.

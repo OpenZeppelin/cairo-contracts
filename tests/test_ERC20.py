@@ -435,12 +435,14 @@ async def test_burn(erc20_factory):
 
     await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
 
+    # total supply should reflect the burned amount
     execution_info = await erc20.get_total_supply().call()
     assert execution_info.result.res == (
         previous_supply[0] - burn_amount[0],
         previous_supply[1] - burn_amount[1]
     )
 
+    # user balance should reflect the burned amount
     execution_info = await erc20.balance_of(user).call()
     assert execution_info.result.res == (
         previous_balance[0] - burn_amount[0],

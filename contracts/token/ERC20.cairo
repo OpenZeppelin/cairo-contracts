@@ -13,7 +13,7 @@ from starkware.cairo.common.uint256 import (
 #
 
 @storage_var
-func balances(user: felt) -> (res: Uint256):
+func balances(account: felt) -> (res: Uint256):
 end
 
 @storage_var
@@ -74,8 +74,8 @@ func balance_of{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(user: felt) -> (res: Uint256):
-    let (res: Uint256) = balances.read(user=user)
+    }(account: felt) -> (res: Uint256):
+    let (res: Uint256) = balances.read(account=account)
     return (res)
 end
 
@@ -101,8 +101,9 @@ func _mint{
     alloc_locals
     assert_not_zero(recipient)
 
-    let (balance: Uint256) = balances.read(user=recipient)
-    # the underscore is for the 1 bit carry
+    let (balance: Uint256) = balances.read(account=recipient)
+    # overflow is not possible because sum is guaranteed to be less than total supply
+    # which we check for overflow below
     let (new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
@@ -123,7 +124,7 @@ func _transfer{
     assert_not_zero(sender)
     assert_not_zero(recipient)
 
-    let (local sender_balance: Uint256) = balances.read(user=sender)
+    let (local sender_balance: Uint256) = balances.read(account=sender)
 
     # validates amount <= sender_balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, sender_balance)
@@ -134,7 +135,8 @@ func _transfer{
     balances.write(sender, new_sender_balance)
 
     # add to recipient
-    let (recipient_balance: Uint256) = balances.read(user=recipient)
+    let (recipient_balance: Uint256) = balances.read(account=recipient)
+    # overflow is not possible because sum is guaranteed by mint to be less than total supply
     let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
     balances.write(recipient, new_recipient_balance)
     return ()

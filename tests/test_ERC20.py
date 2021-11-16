@@ -390,7 +390,7 @@ async def test_mint_to_zero_address(erc20_factory):
 @pytest.mark.asyncio
 async def test_mint_overflow(erc20_factory):
     _, erc20, account = erc20_factory
-    recipient = 789
+    recipient = account.contract_address
     # fetching the previously minted total_supply and verifying the overflow check
     # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
     execution_info = await erc20.get_total_supply().call()
@@ -420,3 +420,107 @@ async def test_mint_overflow(erc20_factory):
 
     # should pass
     await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('break_vals', [
+    (MAX_AMOUNT[0], MAX_AMOUNT[1] + 1),
+    (MAX_AMOUNT[0] + 1, MAX_AMOUNT[0]),
+    (0, MAX_AMOUNT[1] + 1),
+    (MAX_AMOUNT[0] + 1, 0)
+])
+async def test_break_decrease_allowance(erc20_factory, break_vals):
+    _, erc20, account = erc20_factory
+    spender = 321
+    init_amount = (MAX_AMOUNT)
+
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *init_amount])
+
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result.res == init_amount
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *break_vals])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+#
+# The following tests were attempts to break the current ERC20 implementation; whereby,
+# the function arguments exceed one of the uint's 128 bit-limit values.
+#
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('break_vals', [
+    (MAX_AMOUNT[0], MAX_AMOUNT[1] + 1),  # (2**128 - 1, 0)
+    (MAX_AMOUNT[0] + 1, MAX_AMOUNT[0]),  # (0, 2**128 - 1)
+    (0, MAX_AMOUNT[1] + 2),  # (0, 1)
+    (MAX_AMOUNT[0] + 2, 0)  # (1, 0)
+])
+async def test_break_transfer(erc20_factory, break_vals):
+    _, erc20, account = erc20_factory
+    recipient = 123
+
+    # approving MAX_AMOUNT in order to see if any combination of 'break_vals' will not result in
+    # a failed tx. '_transfer()' already checks that the amount is less than the sender's balance.
+    # This test displays that the overflowed amounts return an error
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *break_vals])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('break_vals', [
+    (MAX_AMOUNT[0], MAX_AMOUNT[1] + 1),  # (2**128 - 1, 0)
+    (MAX_AMOUNT[0] + 1, MAX_AMOUNT[0]),  # (0, 2**128 - 1)
+    (0, MAX_AMOUNT[1] + 2),  # (0, 1)
+    (MAX_AMOUNT[0] + 2, 0)  # (1, 0)
+])
+async def test_break_transfer_from(erc20_factory, break_vals):
+    _, erc20, account = erc20_factory
+    sender = account.contract_address
+    recipient = 123
+
+    # approving MAX_AMOUNT in order to see if any combination of 'break_vals' will not result in
+    # a failed tx. 'transfer_from()' already checks that the amount <= caller_allowance and invokes
+    # 'transfer()' thereafter. This test displays that the overflowed amounts return an error
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [sender, *MAX_AMOUNT])
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'transfer_from', [sender, recipient, *break_vals])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('break_vals', [
+    (MAX_AMOUNT[0], MAX_AMOUNT[1] + 1),  # (2**128 - 1, 0)
+    (MAX_AMOUNT[0] + 1, MAX_AMOUNT[0]),  # (0, 2**128 - 1)
+    (0, MAX_AMOUNT[1] + 2),  # (0, 1)
+    (MAX_AMOUNT[0] + 2, 0)  # (1, 0)
+])
+async def test_break_decrease_allowance(erc20_factory, break_vals):
+    _, erc20, account = erc20_factory
+    spender = 321
+
+    # approving MAX_AMOUNT in order to see if any combination of 'break_vals' will break invariants
+    # since 'decrease_allowance' enforces underflow checks after subtraction.
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *MAX_AMOUNT])
+
+    # ensuring allowance == MAX_AMOUNT for spender
+    execution_info = await erc20.allowance(account.contract_address, spender).call()
+    assert execution_info.result.res == MAX_AMOUNT
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *break_vals])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

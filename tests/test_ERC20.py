@@ -451,11 +451,11 @@ async def test_burn(erc20_factory):
 @pytest.mark.asyncio
 async def test_burn_zero_address(erc20_factory):
     _, erc20, account = erc20_factory
-    user = 0
+    zero_address = 0
     burn_amount = uint(1)
 
     try:
-        await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
+        await signer.send_transaction(account, erc20.contract_address, 'burn', [zero_address, *burn_amount])
         assert False
     except StarkException as err:
         _, error = err.args

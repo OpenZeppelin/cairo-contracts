@@ -203,10 +203,6 @@ func execute{
     let (_address) = address.read()
     let (_current_nonce) = current_nonce.read()
 
-    local syscall_ptr : felt* = syscall_ptr
-    local range_check_ptr = range_check_ptr
-    local _current_nonce = _current_nonce
-
     local message: Message = Message(
         _address,
         to,

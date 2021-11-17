@@ -32,8 +32,14 @@ async def erc1155_factory():
 
     erc1155 = await starknet.deploy(
         "contracts/token/ERC1155.cairo",
-        # token_id: token_no => 1 : 1000 / 2 : 500
-        constructor_calldata=[account.contract_address, 2, 1, 2, 2, 1000, 500]
+        constructor_calldata=[
+            account.contract_address, 
+            # Initialize with 1000 of token_id = 1 and 500 of token_id = 2
+            2, 1, 2, 2, 1000, 500, 
+            # Initialize URI : cairo:1/erc1155:12345678912345678912/{id}
+            # As defined in CAIP-29 : {blockchain_namespace}:{blockchain_reference}/{asset_namespace}:{asset_reference}/{token_id}
+            int.from_bytes("eip155".encode("ascii"), 'big'), 1, int.from_bytes("erc1155".encode("ascii"), 'big'), 0x056bfe4139dd88d0a9ff44e3166cb781e002f052b4884e6f56e51b11bebee599, int.from_bytes("{id}".encode("ascii"), 'big')
+        ]
     )
     return starknet, erc1155, account, operator
 
@@ -45,6 +51,19 @@ async def test_constructor(erc1155_factory):
     assert (await erc1155.balance_of(account.contract_address, 1).call()).result == (1000,)
     assert (await erc1155.balance_of(account.contract_address, 2).call()).result == (500,)
 
+    # Test URI has been stored when contract was initialized
+    blockchain_namespace = int.from_bytes("eip155".encode("ascii"), 'big')
+    blockchain_reference = 1
+    asset_namespace = int.from_bytes("erc1155".encode("ascii"), 'big')
+    asset_reference = 0x056bfe4139dd88d0a9ff44e3166cb781e002f052b4884e6f56e51b11bebee599
+    token_id = int.from_bytes("{id}".encode("ascii"), 'big')
+
+    execution_info = await erc1155.uri().call()
+    assert execution_info.result.res.blockchain_namespace == (blockchain_namespace,)
+    assert execution_info.result.res.blockchain_reference == (blockchain_reference,)
+    assert execution_info.result.res.asset_namespace == (asset_namespace,)
+    assert execution_info.result.res.asset_reference == (asset_reference,)
+    assert execution_info.result.res.token_id == (token_id,)
 
 @pytest.mark.asyncio
 async def test_balance_of_batch(erc1155_factory):
@@ -57,7 +76,6 @@ async def test_balance_of_batch(erc1155_factory):
     execution_info = await erc1155.balance_of_batch(accounts, token_ids).call()
     assert execution_info.result.res == [500, 1000, 1000]
     assert len(execution_info.result.res) == len(token_ids)
-
 
 @pytest.mark.asyncio
 async def test_is_approved(erc1155_factory):

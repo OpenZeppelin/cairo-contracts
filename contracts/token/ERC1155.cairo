@@ -22,9 +22,45 @@ end
 func initialized() -> (res : felt):
 end
 
-# @storage_var
-# func contract_uri() -> (res: felt):
-# end
+struct BlockchainNamespace:
+    member a : felt
+end
+
+# ChainID. Chain Agnostic specifies that the length can go up to 32 nines (i.e. 9999999....) but we will only support 31 nines.
+struct BlockchainReference:
+    member a : felt
+end
+
+struct AssetNamespace:
+    member a : felt
+end
+
+# Contract Address on L1. An address is represented using 20 bytes. Those bytes are written in the `felt`.
+struct AssetReference:
+    member a : felt
+end
+
+# ERC1155 returns the same URI for all token types.
+# TokenId will be represented by the substring '{id}' and so stored in a felt
+# Client calling the function must replace the '{id}' substring with the actual token type ID
+struct TokenId:
+    member a : felt
+end
+
+# As defined by Chain Agnostics (CAIP-29 and CAIP-19):
+# {blockchain_namespace}:{blockchain_reference}/{asset_namespace}:{asset_reference}/{token_id}
+# tokenId will be represented by the substring '{id}'
+struct TokenUri:
+    member blockchain_namespace : BlockchainNamespace
+    member blockchain_reference : BlockchainReference
+    member asset_namespace : AssetNamespace
+    member asset_reference : AssetReference
+    member token_id : TokenId
+end
+
+@storage_var
+func _uri() -> (res: TokenUri):
+end
 
 #
 # Constructor
@@ -33,11 +69,20 @@ end
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         recipient : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt,
-        amounts : felt*):
+        amounts : felt*, uri_ : TokenUri):
     # get_caller_address() returns '0' in the constructor;
     # therefore, recipient parameter is included
     _mint_batch(recipient, tokens_id_len, tokens_id, amounts_len, amounts)
+
+    # Set uri
+    _set_uri(uri_)
+
     return ()
+end
+
+func _set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(uri_ : TokenUri):
+    _uri.write(uri_)
+    return()
 end
 
 #
@@ -46,12 +91,14 @@ end
 
 @external
 func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):
+        tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*, uri_ : TokenUri):
     let (_initialized) = initialized.read()
     assert _initialized = 0
     initialized.write(1)
     let (sender) = get_caller_address()
     _mint_batch(sender, tokens_id_len, tokens_id, amounts_len, amounts)
+    # Set uri
+    _set_uri(uri_)
     return ()
 end
 
@@ -84,6 +131,14 @@ end
 #
 # Getters
 #
+
+# Returns the same URI for all tokens type ID
+# Client calling the function must replace the {id} substring with the actual token type ID
+@view
+func uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res : TokenUri):
+    let (res) = _uri.read()
+    return (res)
+end
 
 @view
 func balance_of{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
@@ -215,6 +270,7 @@ end
 #
 # Burn
 #
+
 @external
 func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, token_id : felt, amount : felt):
@@ -225,6 +281,7 @@ func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     balances.write(_from, token_id, from_balance - amount)
     return ()
 end
+
 @external
 func _burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         _from : felt, tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*):

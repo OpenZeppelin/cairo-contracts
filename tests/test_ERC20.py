@@ -36,8 +36,8 @@ async def erc20_factory():
     erc20 = await starknet.deploy(
         "contracts/token/ERC20.cairo",
         constructor_calldata=[
-            str_to_felt('Token'),  # name
-            str_to_felt('TKN'),  # symbol
+            str_to_felt("Token"),  # name
+            str_to_felt("TKN"),  # symbol
             account.contract_address
         ]
     )

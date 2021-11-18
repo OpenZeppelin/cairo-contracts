@@ -19,11 +19,6 @@ def str_to_felt(text):
     return int.from_bytes(b_text, "big")
 
 
-tmp_name = 12345
-
-tmp_symbol = 54321
-
-
 @pytest.fixture(scope='module')
 def event_loop():
     return asyncio.new_event_loop()

@@ -79,6 +79,17 @@ end
 func token_uri_() -> (res : TokenUri):
 end
 
+@constsructor
+func constructor{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(recipient: felt):
+    let (recipient) = get_caller_address()
+    _mint(recipient, 1000)
+    return()
+end
+
 @external
 func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         name : felt, symbol : felt, tokenURI : TokenUri):
@@ -90,7 +101,6 @@ func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_pt
     token_uri_.write(tokenURI)
 
     initialized.write(1)
-
     return ()
 end
 

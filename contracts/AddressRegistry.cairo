@@ -2,29 +2,29 @@
 %builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.starknet.common.syscalls import get_caller_address
 
 @storage_var
-func _initialized() -> (res: felt):
+func L1_address(L2_address: felt) -> (res: felt):
 end
 
 @external
-func initialized{ 
+func get_L1_address{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = _initialized.read()
+    }(L2_address: felt) -> (res: felt):
+    let (res) = L1_address.read(L2_address)
     return (res=res)
 end
 
 @external
-func initialize{
+func set_L1_address{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }():
-    let (initialized) = _initialized.read()
-    assert initialized = 0
-    _initialized.write(1)
+    }(new_L1_address: felt):
+    let (caller) = get_caller_address()
+    L1_address.write(caller, new_L1_address)
     return ()
 end

@@ -3,6 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from test_ERC20 import uint
 from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
@@ -42,56 +43,59 @@ async def test_initializer(account_factory):
 @pytest.mark.asyncio
 async def test_execute(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    erc20 = await starknet.deploy(
+        "contracts/token/ERC20.cairo",
+        constructor_calldata=[account.contract_address]
+    )
 
-    execution_info = await initializable.initialized().call()
-    assert execution_info.result == (0,)
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result.res == uint(1000)
 
     # initialize
-    await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
+    await signer.send_transaction(account, erc20.contract_address, 'transfer', [999, *uint(20)])
 
-    execution_info = await initializable.initialized().call()
-    assert execution_info.result == (1,)
-
-
-@pytest.mark.asyncio
-async def test_nonce(account_factory):
-    starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
-    execution_info = await account.get_nonce().call()
-    current_nonce = execution_info.result.res
-
-    # lower nonce
-    try:
-        await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce - 1)
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
-    # higher nonce
-    try:
-        await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce + 1)
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-    # right nonce
-    await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce)
-
-    execution_info = await initializable.initialized().call()
-    assert execution_info.result == (1,)
+    execution_info = await erc20.balance_of(account.contract_address).call()
+    assert execution_info.result.res == (960,)
 
 
-@pytest.mark.asyncio
-async def test_public_key_setter(account_factory):
-    _, account = account_factory
+# @pytest.mark.asyncio
+# async def test_nonce(account_factory):
+#     starknet, account = account_factory
+#     initializable = await starknet.deploy("contracts/Initializable.cairo")
+#     execution_info = await account.get_nonce().call()
+#     current_nonce = execution_info.result.res
 
-    execution_info = await account.get_public_key().call()
-    assert execution_info.result == (signer.public_key,)
+#     # lower nonce
+#     try:
+#         await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce - 1)
+#         assert False
+#     except StarkException as err:
+#         _, error = err.args
+#         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-    # set new pubkey
-    await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+#     # higher nonce
+#     try:
+#         await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce + 1)
+#         assert False
+#     except StarkException as err:
+#         _, error = err.args
+#         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+#     # right nonce
+#     await signer.send_transaction(account, initializable.contract_address, 'initialize', [], current_nonce)
 
-    execution_info = await account.get_public_key().call()
-    assert execution_info.result == (other.public_key,)
+#     execution_info = await initializable.initialized().call()
+#     assert execution_info.result == (1,)
+
+
+# @pytest.mark.asyncio
+# async def test_public_key_setter(account_factory):
+#     _, account = account_factory
+
+#     execution_info = await account.get_public_key().call()
+#     assert execution_info.result == (signer.public_key,)
+
+#     # set new pubkey
+#     await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+
+#     execution_info = await account.get_public_key().call()
+#     assert execution_info.result == (other.public_key,)

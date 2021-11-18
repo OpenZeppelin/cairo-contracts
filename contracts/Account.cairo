@@ -1,6 +1,8 @@
 %lang starknet
 %builtins pedersen range_check ecdsa
 
+from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
@@ -14,13 +16,14 @@ from starkware.cairo.common.hash_state import (
 #
 
 struct Message:
-    member sender: felt
     member to: felt
     member selector: felt
     member calldata: felt*
     member calldata_size: felt
     member nonce: felt
 end
+
+const MESSAGE_SIZE = 5
 
 #
 # Storage
@@ -136,7 +139,6 @@ end
 # Initializer (will remove once this.address is available for the constructor)
 #             
 
-
 @external
 func initialize{
         syscall_ptr : felt*, 
@@ -190,49 +192,97 @@ func execute{
         range_check_ptr, 
         ecdsa_ptr: SignatureBuiltin*
     }(
-        to: felt,
-        selector: felt,
-        calldata_len: felt,
-        calldata: felt*,
-        nonce: felt
-    ) -> (response : felt):
+        messages_len: felt,
+        messages: felt*
+    ) -> (
+        responses_len: felt,
+        responses: felt*
+    ):
     alloc_locals
     assert_initialized()
-
-    let (__fp__, _) = get_fp_and_pc()
-    let (_address) = address.read()
-    let (_current_nonce) = current_nonce.read()
-
-    local syscall_ptr : felt* = syscall_ptr
-    local range_check_ptr = range_check_ptr
-    local _current_nonce = _current_nonce
-
-    local message: Message = Message(
-        _address,
-        to,
-        selector,
-        calldata,
-        calldata_size=calldata_len,
-        _current_nonce
-    )
+    assert_not_zero(messages_len)
 
     # validate transaction
-    let (hash) = hash_message(&message)
-    let (signature_len, signature) = get_tx_signature()
-    is_valid_signature(hash, signature_len, signature)
+    let (hash) = hash_message_array(messages_len, messages)
+    assert hash = 3
+    # let (signature_len, signature) = get_tx_signature()
+    # is_valid_signature(hash, signature_len, signature)
+
+    # execute transaction
+    let (res_len, res) = execute_list(messages_len, messages)
+    return (res_len, res)
+end
+
+func execute_list{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr, 
+        ecdsa_ptr: SignatureBuiltin*
+    }(
+        messages_len: felt,
+        messages: felt*
+    ) -> (
+        responses_len: felt,
+        responses: felt*
+    ):
+    alloc_locals
+    let (__fp__, _) = get_fp_and_pc()
+
+    if messages_len == 1:
+        let (res_ptr : felt*) = alloc()
+        let (res) = _call(&messages[0])
+        assert [res_ptr] = res
+        return (1, res_ptr)
+    end
+
+    let (res) = _call(&messages[0])
+    let (res_len, res_ptr) = execute_list(messages_len - 1, messages + MESSAGE_SIZE)
+    assert [res_ptr + 1] = res
+    return (res_len + 1, &res + 1)
+end
+
+func _call{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr, 
+        ecdsa_ptr: SignatureBuiltin*
+    }(message: felt*) -> (response : felt):
+    alloc_locals
+    let (__fp__, _) = get_fp_and_pc()
+    let (_address) = address.read()
+
+    local _message: Message = Message(
+        [message],      # to
+        [message + 1],  # selector
+        &[message + 2], # calldata
+        [message + 3],  # calldata_size
+        [message + 4]   # nonce
+    )
+
+    # check nonce
+    let (_current_nonce) = current_nonce.read()
+    assert _current_nonce = _message.nonce
 
     # bump nonce
     current_nonce.write(_current_nonce + 1)
 
     # execute call
     let response = call_contract(
-        contract_address=message.to,
-        function_selector=message.selector,
-        calldata_size=message.calldata_size,
-        calldata=message.calldata
+        contract_address=_message.to,
+        function_selector=_message.selector,
+        calldata_size=_message.calldata_size,
+        calldata=_message.calldata
     )
 
     return (response=response.retdata_size)
+end
+
+func hash_message_array{pedersen_ptr : HashBuiltin*}(
+        messages_len: felt,
+        messages: felt*
+    ) -> (res: felt):
+    # to do
+    return (3)
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
@@ -243,11 +293,11 @@ func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt)
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         let (hash_state_ptr) = hash_init()
-        # first three iterations are 'sender', 'to', and 'selector'
+        # first two iterations are 'to', and 'selector'
         let (hash_state_ptr) = hash_update(
             hash_state_ptr, 
             message, 
-            3
+            2
         )
         let (hash_state_ptr) = hash_update_single(
             hash_state_ptr, res_calldata)

@@ -88,7 +88,6 @@ func constructor{
     }(_name: felt, _symbol: felt, recipient: felt):
     name_.write(_name)
     symbol_.write(_symbol)
-    _mint(recipient, Uint256(5042, 0))
     return()
 end
 

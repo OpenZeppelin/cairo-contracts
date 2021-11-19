@@ -7,7 +7,19 @@ from utils.Signer import Signer
 
 signer = Signer(123456789987654321)
 
+
 MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
+
+user1 = 123
+user2 = 234
+user3 = 345
+user4 = 456
+user5 = 567
+
+first_token_id = (5042, 0)
+second_token_id = (7921, 1)
+third_token_id = (0, 13)
+fourth_token_id = (2**128 - 1, 2**128 - 1)
 
 
 def str_to_felt(text):
@@ -46,12 +58,23 @@ async def erc721_factory():
 
 @pytest.mark.asyncio
 async def test_constructor(erc721_factory):
-    _, erc721, account = erc721_factory
+    _, erc721, _ = erc721_factory
     execution_info = await erc721.name().call()
     assert execution_info.result == (str_to_felt("Non Fungible Token"),)
 
     execution_info = await erc721.symbol().call()
     assert execution_info.result == (str_to_felt("NFT"),)
 
-    execution_info = await erc721.balance_of(account.contract_address).call()
-    assert execution_info.result.res == uint(1)
+
+@pytest.mark.asyncio
+async def test_mint(erc721_factory):
+    _, erc721, account = erc721_factory
+    await signer.send_transaction(account, erc721.contract_address, 'mint', [user1, *first_token_id])
+
+    # check balance of user
+    execution_info = await erc721.balance_of(user1).call()
+    assert execution_info.result == (uint(1),)
+
+    # check user owns token
+    execution_info = await erc721.owner_of(first_token_id).call()
+    assert execution_info.result == (user1,)

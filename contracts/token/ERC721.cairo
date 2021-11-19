@@ -4,31 +4,28 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_equal, assert_not_zero
+from starkware.cairo.common.uint256 import (
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
+)
 
-# Missing:
-# symbol
-# name
-# tokenURI
-# _baseURI
+#
+# Storage
+#
 
 @storage_var
-func owners(token_id : felt) -> (res : felt):
+func owners(token_id_low : felt, token_id_high: felt) -> (res : felt):
 end
 
 @storage_var
-func balances(owner : felt) -> (res : felt):
+func balances(owner : felt) -> (res : Uint256):
 end
 
 @storage_var
-func token_approvals(token_id : felt) -> (res : felt):
+func token_approvals(token_id_low : felt, token_id_high: felt) -> (res : felt):
 end
 
 @storage_var
 func operator_approvals(owner : felt, operator : felt) -> (res : felt):
-end
-
-@storage_var
-func initialized() -> (res : felt):
 end
 
 @storage_var
@@ -79,92 +76,123 @@ end
 func token_uri_() -> (res : TokenUri):
 end
 
-@constsructor
+#
+# Constructor
+#
+
+@constructor
 func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(recipient: felt):
-    let (recipient) = get_caller_address()
-    _mint(recipient, 1000)
+    }(_name: felt, _symbol: felt, recipient: felt):
+    name_.write(_name)
+    symbol_.write(_symbol)
+    _mint(recipient, Uint256(5042, 0))
     return()
 end
 
-@external
-func initialize{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        name : felt, symbol : felt, tokenURI : TokenUri):
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-
-    name_.write(name)
-    symbol_.write(name)
-    token_uri_.write(tokenURI)
-
-    initialized.write(1)
-    return ()
-end
+#
+# Getters
+#
 
 @view
-func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        owner : felt) -> (res : felt):
+func balance_of{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(owner : felt) -> (res : Uint256):
+    # checks that query is not for zero address
     assert_not_zero(owner)
 
-    let (res) = balances.read(owner=owner)
+    let (res: Uint256) = balances.read(owner=owner)
     return (res)
 end
 
 @view
-func owner_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        token_id : felt) -> (res : felt):
-    let (res) = owners.read(token_id=token_id)
+func owner_of{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(token_id : Uint256) -> (res : felt):
+    let (res) = owners.read(token_id.low, token_id.high)
+    # ensuring the query is not for nonexistent token
     assert_not_zero(res)
 
     return (res)
 end
 
 @view
-func name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res : felt):
+func name{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }() -> (res : felt):
     let (res) = name_.read()
     return (res)
 end
 
 @view
-func symbol{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res : felt):
+func symbol{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }() -> (res : felt):
     let (res) = symbol_.read()
-
     return (res)
 end
 
 @view
-func token_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        token_id : felt) -> (res : TokenUri):
+func token_uri{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(token_id : felt) -> (res : TokenUri):
     let (res) = token_uri_.read()
-
     return (res)
 end
 
-func _approve{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        to : felt, token_id : felt):
-    token_approvals.write(token_id=token_id, value=to)
+@view
+func get_approved{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(token_id : Uint256) -> (res : felt):
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    let (res) = token_approvals.read(token_id.low, token_id.high)
+    return (res)
+end
+
+@view
+func is_approved_for_all{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(owner : felt, operator : felt) -> (res : felt):
+    let (res) = operator_approvals.read(owner=owner, operator=operator)
+    return (res)
+end
+
+#
+# Internals
+#
+
+func _approve{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(to : felt, token_id : Uint256):
+    token_approvals.write(token_id.low, token_id.high, to)
     return ()
 end
 
-@external
-func approve{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        to : felt, token_id : felt):
-    let (owner) = owners.read(token_id)
-
-    assert_not_equal(owner, to)
-
-    let (is_operator_or_owner) = _is_operator_or_owner(owner)
-    assert_not_zero(is_operator_or_owner)
-
-    _approve(to, token_id)
-    return ()
-end
-
-func _is_operator_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        address : felt) -> (res : felt):
+func _is_operator_or_owner{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(address : felt) -> (res : felt):
     let (caller) = get_caller_address()
 
     if caller == address:
@@ -175,8 +203,11 @@ func _is_operator_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, ran
     return (is_approved_for_all)
 end
 
-func _is_approved_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        spender : felt, token_id : felt) -> (res : felt):
+func _is_approved_or_owner{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(spender : felt, token_id : Uint256) -> (res : felt):
     alloc_locals
 
     let (exists) = _exists(token_id)
@@ -200,9 +231,12 @@ func _is_approved_or_owner{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, ran
     return (0)
 end
 
-func _exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        token_id : felt) -> (res : felt):
-    let (res) = owners.read(token_id)
+func _exists{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(token_id : Uint256) -> (res : felt):
+    let (res) = owners.read(token_id.low, token_id.high)
 
     if res == 0:
         return (0)
@@ -211,58 +245,52 @@ func _exists{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     end
 end
 
-@view
-func get_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        token_id : felt) -> (res : felt):
-    let (exists) = _exists(token_id)
-    assert exists = 1
-
-    let (res) = token_approvals.read(token_id=token_id)
-    return (res)
-end
-
-@view
-func is_approved_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        owner : felt, operator : felt) -> (res : felt):
-    let (res) = operator_approvals.read(owner=owner, operator=operator)
-    return (res)
-end
-
-func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        to : felt, token_id : felt):
+func _mint{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(to : felt, token_id : Uint256):
     assert_not_zero(to)
 
     let (exists) = _exists(token_id)
     assert exists = 0
 
-    let (balance) = balances.read(to)
-    balances.write(to, balance + 1)
+    let (balance: Uint256) = balances.read(to)
+    let (new_balance: Uint256, is_overflow) = uint256_add(balance, Uint256(1, 0))
+    assert (is_overflow) = 0
+    balances.write(to, new_balance)
 
-    owners.write(token_id, to)
-
+    # low + high felts = uint256
+    owners.write(token_id.low, token_id.high, to)
     return ()
 end
 
-func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(token_id : felt):
+func _burn{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(token_id : Uint256):
     alloc_locals
-
     let (local owner) = owner_of(token_id)
 
     # Clear approvals
     _approve(0, token_id)
 
     # Decrease owner balance
-    let (balance) = balances.read(owner)
-    balances.write(owner, balance - 1)
+    let (balance: Uint256) = balances.read(owner)
+    let (new_balance) = uint256_sub(balance, Uint256(1, 0))
+    balances.write(owner, new_balance)
 
     # Delete owner
-    owners.write(token_id, 0)
-
+    owners.write(token_id.low, token_id.high, 0)
     return ()
 end
 
-func _transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        _from : felt, to : felt, token_id : felt):
+func _transfer{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(_from : felt, to : felt, token_id : Uint256):
     let (_owner_of) = owner_of(token_id)
     assert _owner_of = _from
 
@@ -273,20 +301,26 @@ func _transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
 
     # Decrease owner balance
     let (owner_bal) = balances.read(_from)
-    balances.write(owner=_from, value=(owner_bal - 1))
+    let (new_balance) = uint256_sub(owner_bal, Uint256(1, 0))
+    balances.write(_from, new_balance)
 
     # Increase receiver balance
     let (receiver_bal) = balances.read(to)
-    balances.write(owner=to, value=(receiver_bal + 1))
+    let (new_balance: Uint256, is_overflow) = uint256_add(receiver_bal, Uint256(1, 0))
+    assert_not_zero(is_overflow)
+    balances.write(to, new_balance)
 
     # Update token_id owner
-    owners.write(token_id=token_id, value=to)
+    owners.write(token_id.low, token_id.high, to)
 
     return ()
 end
 
-func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        owner : felt, operator : felt, approved : felt):
+func _set_approval_for_all{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(owner : felt, operator : felt, approved : felt):
     assert_not_equal(owner, operator)
 
     # Make sure `approved` is a boolean (0 or 1)
@@ -296,9 +330,33 @@ func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ran
     return ()
 end
 
+#
+# Externals
+#
+
 @external
-func set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        operator : felt, approved : felt):
+func approve{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(to : felt, token_id : Uint256):
+    let (owner) = owners.read(token_id.low, token_id.high)
+
+    assert_not_equal(owner, to)
+
+    let (is_operator_or_owner) = _is_operator_or_owner(owner)
+    assert_not_zero(is_operator_or_owner)
+
+    _approve(to, token_id)
+    return ()
+end
+
+@external
+func set_approval_for_all{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(operator : felt, approved : felt):
     let (caller) = get_caller_address()
 
     _set_approval_for_all(caller, operator, approved)
@@ -306,11 +364,28 @@ func set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
 end
 
 @external
-func transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        _from : felt, to : felt, token_id : felt):
+func transfer_from{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(_from : felt, to : felt, token_id : Uint256):
     let (caller) = get_caller_address()
-    _is_approved_or_owner(caller, token_id=token_id)
+    _is_approved_or_owner(caller, token_id)
 
     _transfer(_from, to, token_id)
+    return ()
+end
+
+#
+# Test functions — will remove once extensibility is resolved
+#
+
+@external
+func mint{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(to : felt, token_id : Uint256):
+    _mint(to, token_id)
     return ()
 end

@@ -339,10 +339,11 @@ func approve{
         syscall_ptr : felt*, 
         range_check_ptr
     }(to : felt, token_id : Uint256):
+    # ensures 'owner' does not equal 'to'
     let (owner) = owners.read(token_id.low, token_id.high)
-
     assert_not_equal(owner, to)
 
+    # ensures the owner/operator is not the zero address
     let (is_operator_or_owner) = _is_operator_or_owner(owner)
     assert_not_zero(is_operator_or_owner)
 

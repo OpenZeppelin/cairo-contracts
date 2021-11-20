@@ -19,7 +19,8 @@ user5 = 567
 first_token_id = (5042, 0)
 second_token_id = (7921, 1)
 third_token_id = (0, 13)
-fourth_token_id = (2**128 - 1, 2**128 - 1)
+fourth_token_id = (MAX_AMOUNT, MAX_AMOUNT)
+overflow_token_id = (MAX_AMOUNT[0] + 1, MAX_AMOUNT)
 
 
 def str_to_felt(text):
@@ -69,12 +70,55 @@ async def test_constructor(erc721_factory):
 @pytest.mark.asyncio
 async def test_mint(erc721_factory):
     _, erc721, account = erc721_factory
-    await signer.send_transaction(account, erc721.contract_address, 'mint', [user1, *first_token_id])
 
-    # check balance of user
-    execution_info = await erc721.balance_of(user1).call()
-    assert execution_info.result == (uint(1),)
+    # mint three tokens to account
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *first_token_id]
+    )
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *second_token_id]
+    )
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *third_token_id]
+    )
 
-    # check user owns token
+    # checks balance
+    execution_info = await erc721.balance_of(account.contract_address).call()
+    assert execution_info.result == (uint(3),)
+
+    # checks that account owns correct tokens
     execution_info = await erc721.owner_of(first_token_id).call()
+    assert execution_info.result == (account.contract_address,)
+
+    execution_info = await erc721.owner_of(second_token_id).call()
+    assert execution_info.result == (account.contract_address,)
+
+    execution_info = await erc721.owner_of(third_token_id).call()
+    assert execution_info.result == (account.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_approve(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'approve', [user1, *first_token_id]
+    )
+
+    execution_info = await erc721.get_approved(first_token_id).call()
     assert execution_info.result == (user1,)
+
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'set_approval_for_all', [user2, 1]
+    )
+
+    execution_info = await erc721.is_approved_for_all(account.contract_address, user2).call()
+    assert execution_info.result == (1,)

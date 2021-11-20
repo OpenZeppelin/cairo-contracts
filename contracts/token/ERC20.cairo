@@ -45,7 +45,11 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt, recipient: felt):
+    }(
+        name: felt,
+        symbol: felt,
+        recipient: felt
+    ):
     # get_caller_address() returns '0' in the constructor;
     # therefore, recipient parameter is included
     _name.write(name)

@@ -26,7 +26,6 @@ async def erc20_factory():
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
-    await account.initialize(account.contract_address).invoke()
 
     erc20 = await starknet.deploy(
         "contracts/token/ERC20.cairo",
@@ -114,7 +113,6 @@ async def test_transfer_from(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     amount = uint(345)
     recipient = 987
     execution_info = await erc20.balance_of(account.contract_address).call()
@@ -219,7 +217,6 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     recipient = 222
     allowance = uint(111)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *allowance])
@@ -295,7 +292,6 @@ async def test_transfer_from_func_to_zero_address(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     amount = uint(1)
     zero_address = 0
 
@@ -324,7 +320,6 @@ async def test_transfer_from_func_from_zero_address(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     zero_address = 0
     recipient = 123
     amount = uint(1)

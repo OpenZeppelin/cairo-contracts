@@ -14,6 +14,11 @@ def uint(a):
     return(a, 0)
 
 
+def str_to_felt(text):
+    b_text = bytes(text, 'UTF-8')
+    return int.from_bytes(b_text, "big")
+
+
 @pytest.fixture(scope='module')
 def event_loop():
     return asyncio.new_event_loop()
@@ -26,11 +31,14 @@ async def erc20_factory():
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
-    await account.initialize(account.contract_address).invoke()
 
     erc20 = await starknet.deploy(
         "contracts/token/ERC20.cairo",
-        constructor_calldata=[account.contract_address]
+        constructor_calldata=[
+            str_to_felt("Token"),  # name
+            str_to_felt("TKN"),  # symbol
+            account.contract_address
+        ]
     )
     return starknet, erc20, account
 
@@ -43,6 +51,20 @@ async def test_constructor(erc20_factory):
 
     execution_info = await erc20.get_total_supply().call()
     assert execution_info.result.res == uint(1000)
+
+
+@pytest.mark.asyncio
+async def test_name(erc20_factory):
+    _, erc20, _ = erc20_factory
+    execution_info = await erc20.name().call()
+    assert execution_info.result == (str_to_felt("Token"),)
+
+
+@pytest.mark.asyncio
+async def test_symbol(erc20_factory):
+    _, erc20, _ = erc20_factory
+    execution_info = await erc20.symbol().call()
+    assert execution_info.result == (str_to_felt("TKN"),)
 
 
 @pytest.mark.asyncio
@@ -114,7 +136,6 @@ async def test_transfer_from(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     amount = uint(345)
     recipient = 987
     execution_info = await erc20.balance_of(account.contract_address).call()
@@ -219,7 +240,6 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     recipient = 222
     allowance = uint(111)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *allowance])
@@ -295,7 +315,6 @@ async def test_transfer_from_func_to_zero_address(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     amount = uint(1)
     zero_address = 0
 
@@ -324,7 +343,6 @@ async def test_transfer_from_func_from_zero_address(erc20_factory):
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
-    await spender.initialize(spender.contract_address).invoke()
     zero_address = 0
     recipient = 123
     amount = uint(1)
@@ -420,3 +438,63 @@ async def test_mint_overflow(erc20_factory):
 
     # should pass
     await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
+
+
+@pytest.mark.asyncio
+async def test_burn(erc20_factory):
+    _, erc20, account = erc20_factory
+    user = 789
+    burn_amount = uint(500)
+    execution_info = await erc20.get_total_supply().call()
+    previous_supply = execution_info.result.res
+
+    execution_info = await erc20.balance_of(user).call()
+    previous_balance = execution_info.result.res
+
+    await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
+
+    # total supply should reflect the burned amount
+    execution_info = await erc20.get_total_supply().call()
+    assert execution_info.result.res == (
+        previous_supply[0] - burn_amount[0],
+        previous_supply[1] - burn_amount[1]
+    )
+
+    # user balance should reflect the burned amount
+    execution_info = await erc20.balance_of(user).call()
+    assert execution_info.result.res == (
+        previous_balance[0] - burn_amount[0],
+        previous_balance[1] - burn_amount[1]
+    )
+
+
+@pytest.mark.asyncio
+async def test_burn_zero_address(erc20_factory):
+    _, erc20, account = erc20_factory
+    zero_address = 0
+    burn_amount = uint(1)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'burn', [zero_address, *burn_amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_burn_overflow(erc20_factory):
+    _, erc20, account = erc20_factory
+    user = 789
+    execution_info = await erc20.balance_of(user).call()
+    previous_balance = execution_info.result.res
+    # increasing the burn amount to more than the user's balance
+    # should make the tx fail
+    burn_amount = (previous_balance[0] + 1, previous_balance[1])
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

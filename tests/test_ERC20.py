@@ -438,3 +438,63 @@ async def test_mint_overflow(erc20_factory):
 
     # should pass
     await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
+
+
+@pytest.mark.asyncio
+async def test_burn(erc20_factory):
+    _, erc20, account = erc20_factory
+    user = 789
+    burn_amount = uint(500)
+    execution_info = await erc20.get_total_supply().call()
+    previous_supply = execution_info.result.res
+
+    execution_info = await erc20.balance_of(user).call()
+    previous_balance = execution_info.result.res
+
+    await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
+
+    # total supply should reflect the burned amount
+    execution_info = await erc20.get_total_supply().call()
+    assert execution_info.result.res == (
+        previous_supply[0] - burn_amount[0],
+        previous_supply[1] - burn_amount[1]
+    )
+
+    # user balance should reflect the burned amount
+    execution_info = await erc20.balance_of(user).call()
+    assert execution_info.result.res == (
+        previous_balance[0] - burn_amount[0],
+        previous_balance[1] - burn_amount[1]
+    )
+
+
+@pytest.mark.asyncio
+async def test_burn_zero_address(erc20_factory):
+    _, erc20, account = erc20_factory
+    zero_address = 0
+    burn_amount = uint(1)
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'burn', [zero_address, *burn_amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_burn_overflow(erc20_factory):
+    _, erc20, account = erc20_factory
+    user = 789
+    execution_info = await erc20.balance_of(user).call()
+    previous_balance = execution_info.result.res
+    # increasing the burn amount to more than the user's balance
+    # should make the tx fail
+    burn_amount = (previous_balance[0] + 1, previous_balance[1])
+
+    try:
+        await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

@@ -2,6 +2,7 @@
 %builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.registers import get_fp_and_pc
+from starkware.starknet.common.syscalls import get_contract_address
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_signature
@@ -34,14 +35,6 @@ end
 func public_key() -> (res: felt):
 end
 
-@storage_var
-func initialized() -> (res: felt):
-end
-
-@storage_var
-func address() -> (res: felt):
-end
-
 #
 # Guards
 #
@@ -52,20 +45,9 @@ func assert_only_self{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    let (self) = address.read()
+    let (self) = get_contract_address()
     let (caller) = get_caller_address()
     assert self = caller
-    return ()
-end
-
-@view
-func assert_initialized{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    let (_initialized) = initialized.read()
-    assert _initialized = 1
     return ()
 end
 
@@ -80,16 +62,6 @@ func get_public_key{
         range_check_ptr
     }() -> (res: felt):
     let (res) = public_key.read()
-    return (res=res)
-end
-
-@view
-func get_address{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res) = address.read()
     return (res=res)
 end
 
@@ -133,24 +105,6 @@ func constructor{
 end
 
 #
-# Initializer (will remove once this.address is available for the constructor)
-#             
-
-
-@external
-func initialize{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(_address: felt):
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-    initialized.write(1)
-    address.write(_address)
-    return ()
-end
-
-#
 # Business logic
 #
 
@@ -165,7 +119,6 @@ func is_valid_signature{
         signature_len: felt,
         signature: felt*
     ) -> ():
-    assert_initialized()
     let (_public_key) = public_key.read()
 
     # This interface expects a signature pointer and length to make
@@ -197,10 +150,9 @@ func execute{
         nonce: felt
     ) -> (response : felt):
     alloc_locals
-    assert_initialized()
 
     let (__fp__, _) = get_fp_and_pc()
-    let (_address) = address.read()
+    let (_address) = get_contract_address()
     let (_current_nonce) = current_nonce.read()
 
     local message: Message = Message(

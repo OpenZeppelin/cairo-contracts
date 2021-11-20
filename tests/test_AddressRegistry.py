@@ -22,7 +22,6 @@ async def account_factory():
         constructor_calldata=[signer.public_key]
     )
 
-    await account.initialize(account.contract_address).invoke()
     return starknet, account, registry
 
 

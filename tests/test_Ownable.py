@@ -18,7 +18,6 @@ async def ownable_factory():
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
-    await owner.initialize(owner.contract_address).invoke()
 
     ownable = await starknet.deploy(
         "contracts/Ownable.cairo",

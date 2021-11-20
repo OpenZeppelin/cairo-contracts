@@ -14,7 +14,6 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Message format](#message-format)
 * [API Specification](#api-specification)
     - [`get_public_key`](#-get-public-key-)
-    - [`get_address`](#-get-address-)
     - [`get_nonce`](#-get-nonce-)
     - [`set_public_key`](#-set-public-key-)
     - [`is_valid_signature`](#-is-valid-signature-)
@@ -26,10 +25,9 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 
 ## Quickstart
 
-The general workflow consists of three simple steps: 
+The general workflow is: 
 1. Account contract is deployed to StarkNet
-2. Account is initialized with its own address (_temporary until `this.address` is available_)
-3. Signed transactions can now be sent to the Account contract which validates and executes them
+2. Signed transactions can now be sent to the Account contract which validates and executes them
 
 In Python, this would look as follows:
 
@@ -44,11 +42,8 @@ account = await starknet.deploy(
     constructor_calldata=[signer.public_key]
 )
 
-# 2. Initialize Account
-await account.initialize(account.contract_address).invoke()
-
-# 3. Send transaction to Account
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [other.public_key])
+# 2. Send transaction through Account
+await signer.send_transaction(account, some_contract_address, 'some_function', [some_parameter])
 ```
 
 ## Standard Interface
@@ -164,11 +159,9 @@ This in a nutshell is the Account contract public API:
 
 ```cairo
 func get_public_key() -> (res: felt)
-func get_address() -> (res: felt)
 func get_nonce() -> (res: felt)
 
 func set_public_key(new_public_key: felt)
-func initialize(_address: felt)
 
 func is_valid_signature(hash: felt,
         signature_len: felt,
@@ -184,8 +177,6 @@ func execute(
     ) -> (response : felt):
 ```
 
-> Note we're omitting `initialize` from the API spec since we consider it a temporary artifact of the lack of `this.address` and we hope to remove it as soon as possible.
-
 #### `get_public_key`
 
 Returns the public key associated with the Account contract.
@@ -197,20 +188,6 @@ None.
 ##### Returns:
 ```
 public_key: felt
-```
-
-#### `get_address`
-
-Returns the contract address of the Account.
-
-##### Parameters:
-
-None.
-
-##### Returns:
-
-```
-contract_address: felt
 ```
 
 #### `get_nonce`
@@ -259,12 +236,11 @@ None.
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Confirms that the Account has been initialized
-2. Takes the input and builds a [Message](#message-format) with it
-3. Validates the transaction signature matches the message (including the nonce)
-4. Increments the nonce
-5. Calls the target contract with the intended function selector and calldata parameters
-6. Forwards the contract call response data as return value
+1. Takes the input and builds a [Message](#message-format) with it
+2. Validates the transaction signature matches the message (including the nonce)
+3. Increments the nonce
+4. Calls the target contract with the intended function selector and calldata parameters
+5. Forwards the contract call response data as return value
 
 ##### Parameters:
 ```

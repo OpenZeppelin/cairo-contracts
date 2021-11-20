@@ -159,20 +159,16 @@ func _burn{
     alloc_locals
     assert_not_zero(account)
 
-    let (local balance: Uint256) = balances.read(account)
+    let (balance: Uint256) = balances.read(account)
     # validates amount <= balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, balance)
     assert_not_zero(enough_balance)
     
-    let (local new_balance: Uint256) = uint256_sub(balance, amount)
+    let (new_balance: Uint256) = uint256_sub(balance, amount)
     balances.write(account, new_balance)
 
-    let (local supply: Uint256) = total_supply.read()
-    # validates amount <= supply and returns 1 if true
-    let (enough_supply) = uint256_le(amount, supply)
-    assert_not_zero(enough_supply)
-
-    let (local new_supply: Uint256) = uint256_sub(supply, amount)
+    let (supply: Uint256) = total_supply.read()
+    let (new_supply: Uint256) = uint256_sub(supply, amount)
     total_supply.write(new_supply)
     return ()
 end

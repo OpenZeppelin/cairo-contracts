@@ -465,7 +465,7 @@ async def test_burn_zero_address(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_burn_underflow(erc20_factory):
+async def test_burn_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     user = 789
     execution_info = await erc20.balance_of(user).call()

@@ -486,7 +486,7 @@ async def test_break_decrease_allowance(erc20_factory, break_vals):
     spender = 321
 
     # approving MAX_AMOUNT in order to see if any combination of 'break_vals' will break invariants
-    # since 'decrease_allowance' enforces underflow checks after subtraction.
+    # since 'decrease_allowance' enforces overflow checks after subtraction.
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *MAX_AMOUNT])
 
     # ensuring allowance == MAX_AMOUNT for spender

@@ -13,6 +13,14 @@ from starkware.cairo.common.uint256 import (
 #
 
 @storage_var
+func _name() -> (res: felt):
+end
+
+@storage_var
+func _symbol() -> (res: felt):
+end
+
+@storage_var
 func balances(account: felt) -> (res: Uint256):
 end
 
@@ -37,9 +45,15 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(recipient: felt):
+    }(
+        name: felt,
+        symbol: felt,
+        recipient: felt
+    ):
     # get_caller_address() returns '0' in the constructor;
     # therefore, recipient parameter is included
+    _name.write(name)
+    _symbol.write(symbol)
     decimals.write(18)
     _mint(recipient, Uint256(1000, 0))
     return ()
@@ -48,6 +62,26 @@ end
 #
 # Getters
 #
+
+@view
+func name{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
+    let (res) = _name.read()
+    return (res)
+end
+
+@view
+func symbol{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
+    let (res) = _symbol.read()
+    return (res)
+end
 
 @view
 func get_total_supply{

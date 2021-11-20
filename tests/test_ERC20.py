@@ -14,6 +14,11 @@ def uint(a):
     return(a, 0)
 
 
+def str_to_felt(text):
+    b_text = bytes(text, 'UTF-8')
+    return int.from_bytes(b_text, "big")
+
+
 @pytest.fixture(scope='module')
 def event_loop():
     return asyncio.new_event_loop()
@@ -29,7 +34,11 @@ async def erc20_factory():
 
     erc20 = await starknet.deploy(
         "contracts/token/ERC20.cairo",
-        constructor_calldata=[account.contract_address]
+        constructor_calldata=[
+            str_to_felt("Token"),  # name
+            str_to_felt("TKN"),  # symbol
+            account.contract_address
+        ]
     )
     return starknet, erc20, account
 
@@ -42,6 +51,20 @@ async def test_constructor(erc20_factory):
 
     execution_info = await erc20.get_total_supply().call()
     assert execution_info.result.res == uint(1000)
+
+
+@pytest.mark.asyncio
+async def test_name(erc20_factory):
+    _, erc20, _ = erc20_factory
+    execution_info = await erc20.name().call()
+    assert execution_info.result == (str_to_felt("Token"),)
+
+
+@pytest.mark.asyncio
+async def test_symbol(erc20_factory):
+    _, erc20, _ = erc20_factory
+    execution_info = await erc20.symbol().call()
+    assert execution_info.result == (str_to_felt("TKN"),)
 
 
 @pytest.mark.asyncio

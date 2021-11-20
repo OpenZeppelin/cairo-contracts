@@ -22,21 +22,15 @@ async def account_factory():
         constructor_calldata=[signer.public_key]
     )
 
-    # Keeping the initialize function to set the contract_address
-    # until `this.address` is available
-    await account.initialize(account.contract_address).invoke()
     return starknet, account
 
 
 @pytest.mark.asyncio
-async def test_initializer(account_factory):
+async def test_constructor(account_factory):
     _, account = account_factory
 
     execution_info = await account.get_public_key().call()
     assert execution_info.result == (signer.public_key,)
-
-    execution_info = await account.get_address().call()
-    assert execution_info.result == (account.contract_address,)
 
 
 @pytest.mark.asyncio
@@ -47,7 +41,6 @@ async def test_execute(account_factory):
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
 
-    # initialize
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
 
     execution_info = await initializable.initialized().call()

@@ -13,7 +13,7 @@ from starkware.cairo.common.uint256 import (
 #
 
 @storage_var
-func owners(token_id_low : felt, token_id_high: felt) -> (res : felt):
+func owners(token_id_low : felt, token_id_high : felt) -> (res : felt):
 end
 
 @storage_var
@@ -21,7 +21,7 @@ func balances(owner : felt) -> (res : Uint256):
 end
 
 @storage_var
-func token_approvals(token_id_low : felt, token_id_high: felt) -> (res : felt):
+func token_approvals(token_id_low : felt, token_id_high : felt) -> (res : felt):
 end
 
 @storage_var
@@ -255,8 +255,9 @@ func _mint{
     assert exists = 0
 
     let (balance: Uint256) = balances.read(to)
-    let (new_balance: Uint256, is_overflow) = uint256_add(balance, Uint256(1, 0))
-    assert (is_overflow) = 0
+    # overflow is not possible because token_id is guaranteed to be
+    # a unique uint256
+    let (new_balance: Uint256, _) = uint256_add(balance, Uint256(1, 0))
     balances.write(to, new_balance)
 
     # low + high felts = uint256
@@ -306,12 +307,11 @@ func _transfer{
     # Increase receiver balance
     let (receiver_bal) = balances.read(to)
     let (new_balance: Uint256, is_overflow) = uint256_add(receiver_bal, Uint256(1, 0))
-    assert_not_zero(is_overflow)
+    assert is_overflow = 0
     balances.write(to, new_balance)
 
     # Update token_id owner
     owners.write(token_id.low, token_id.high, to)
-
     return ()
 end
 
@@ -339,16 +339,25 @@ func approve{
         syscall_ptr : felt*, 
         range_check_ptr
     }(to : felt, token_id : Uint256):
+    # checks caller is not zero address
+    let (caller) = get_caller_address()
+    assert_not_zero(caller)
+
     # ensures 'owner' does not equal 'to'
     let (owner) = owners.read(token_id.low, token_id.high)
     assert_not_equal(owner, to)
 
-    # ensures the owner/operator is not the zero address
-    let (is_operator_or_owner) = _is_operator_or_owner(owner)
-    assert_not_zero(is_operator_or_owner)
-
-    _approve(to, token_id)
-    return ()
+    # checks that either caller equals owner or
+    # caller is_approved_for_all on behalf of owner
+    if caller == owner:
+        _approve(to, token_id)
+        return()
+    else:
+        let (is_approved) = is_approved_for_all(owner, caller)
+        assert_not_zero(is_approved)
+        _approve(to, token_id)
+        return()
+    end
 end
 
 @external
@@ -356,10 +365,10 @@ func set_approval_for_all{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(operator : felt, approved : felt):
+    }(operator : felt, is_approved : felt):
     let (caller) = get_caller_address()
 
-    _set_approval_for_all(caller, operator, approved)
+    _set_approval_for_all(caller, operator, is_approved)
     return ()
 end
 
@@ -387,5 +396,15 @@ func mint{
         range_check_ptr
     }(to : felt, token_id : Uint256):
     _mint(to, token_id)
+    return ()
+end
+
+@external
+func burn{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(token_id : Uint256):
+    _burn(token_id)
     return ()
 end

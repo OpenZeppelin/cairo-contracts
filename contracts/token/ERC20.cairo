@@ -221,6 +221,7 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (is_success: felt):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
+    
     tempvar is_success = 1
     return (is_success)
 end
@@ -257,6 +258,7 @@ func approve{
     }(spender: felt, amount: Uint256) -> (is_success: felt):
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
+
     tempvar is_success = 1
     return (is_success)
 end
@@ -276,6 +278,7 @@ func increase_allowance{
     assert (is_overflow) = 0
 
     _approve(caller, spender, new_allowance)
+
     tempvar is_success = 1
     return(is_success)
 end
@@ -296,6 +299,7 @@ func decrease_allowance{
     assert_not_zero(enough_allowance)
 
     _approve(caller, spender, new_allowance)
+
     tempvar is_success = 1
     return(is_success)
 end

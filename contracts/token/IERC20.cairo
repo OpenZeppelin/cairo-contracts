@@ -16,12 +16,16 @@ namespace IERC20:
     func allowance(owner: felt, spender: felt) -> (res: Uint256):
     end
 
-    func transfer(recipient: felt, amount: Uint256):
+    func transfer(recipient: felt, amount: Uint256) -> (is_success: felt):
     end
 
-    func transfer_from(sender: felt, recipient: felt, amount: Uint256):
+    func transfer_from(
+            sender: felt, 
+            recipient: felt, 
+            amount: Uint256
+        ) -> (is_success: felt):
     end
 
-    func approve(spender: felt, amount: Uint256):
+    func approve(spender: felt, amount: Uint256) -> (is_success: felt):
     end
 end

@@ -187,20 +187,20 @@ func _approve{
     return ()
 end
 
-func _is_operator_or_owner{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
-        range_check_ptr
-    }(address : felt) -> (res : felt):
-    let (caller) = get_caller_address()
-
-    if caller == address:
-        return (1)
-    end
-
-    let (is_approved_for_all) = operator_approvals.read(owner=caller, operator=address)
-    return (is_approved_for_all)
-end
+#func _is_operator_or_owner{
+#        pedersen_ptr : HashBuiltin*, 
+#        syscall_ptr : felt*, 
+#        range_check_ptr
+#    }(address : felt) -> (res : felt):
+#    let (caller) = get_caller_address()
+#
+#    if caller == address:
+#        return (1)
+#    end
+#
+#    let (is_approved_for_all) = operator_approvals.read(owner=caller, operator=address)
+#    return (is_approved_for_all)
+#end
 
 func _is_approved_or_owner{
         pedersen_ptr : HashBuiltin*, 
@@ -270,8 +270,7 @@ func _burn{
         syscall_ptr : felt*, 
         range_check_ptr
     }(token_id : Uint256):
-    alloc_locals
-    let (local owner) = owner_of(token_id)
+    let (owner) = owner_of(token_id)
 
     # Clear approvals
     _approve(0, token_id)

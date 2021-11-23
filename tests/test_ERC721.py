@@ -184,6 +184,23 @@ async def test_burn(erc721_factory):
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
+
+@pytest.mark.asyncio
+async def test_burn_nonexistent_token(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    # 'token_to_burn' is already burned; therefore,
+    # should fail
+    try:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'burn', [*token_to_burn]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
 #
 # Approve
 #
@@ -199,19 +216,6 @@ async def test_approve(erc721_factory):
 
     execution_info = await erc721.get_approved(first_token_id).call()
     assert execution_info.result == (user1,)
-
-
-@pytest.mark.asyncio
-async def test_set_approval_for_all(erc721_factory):
-    _, erc721, account = erc721_factory
-
-    # the second argument (1) equates to true
-    await signer.send_transaction(
-        account, erc721.contract_address, 'set_approval_for_all', [user2, 1]
-    )
-
-    execution_info = await erc721.is_approved_for_all(account.contract_address, user2).call()
-    assert execution_info.result == (1,)
 
 
 @pytest.mark.asyncio
@@ -236,6 +240,106 @@ async def test_approve_on_set_approval_for_all(erc721_factory):
 
     execution_info = await erc721.get_approved(first_token_id).call()
     assert execution_info.result == (user1,)
+
+
+@pytest.mark.asyncio
+async def test_approve_from_zero_address(erc721_factory):
+    _, erc721, _ = erc721_factory
+
+    # Without using an account abstraction, the caller address
+    # (get_caller_address) is zero
+    try:
+        await erc721.approve(user1, third_token_id).invoke()
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_approve_owner_equals_to(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    try:
+        # should fail when owner is the same as address-to-be-approved
+        await signer.send_transaction(
+            account, erc721.contract_address, 'approve', [
+                account.contract_address, *third_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_approve_not_owner_or_operator(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    try:
+        # should fail since user1 now owns 'first_token_id'
+        await signer.send_transaction(
+            account, erc721.contract_address, 'approve', [
+                account.contract_address, *first_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+#
+# Set_approval_for_all
+#
+
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    true = 1
+    await signer.send_transaction(
+        account, erc721.contract_address, 'set_approval_for_all', [user2, true]
+    )
+
+    execution_info = await erc721.is_approved_for_all(account.contract_address, user2).call()
+    assert execution_info.result == (true,)
+
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all_with_invalid_bool_arg(erc721_factory):
+    _, erc721, account = erc721_factory
+    not_bool = 2
+
+    try:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'set_approval_for_all', [
+                user2, not_bool]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all_owner_is_operator(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    try:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'set_approval_for_all', [
+                account.contract_address, 1]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+#
+# Transfer_from
+#
 
 
 @pytest.mark.asyncio
@@ -290,49 +394,3 @@ async def test_transfer_from_approved_user(erc721_factory):
     # checks user balance
     execution_info = await erc721.balance_of(recipient).call()
     assert execution_info.result == (uint(1),)
-
-
-@pytest.mark.asyncio
-async def test_approve_from_zero_address(erc721_factory):
-    _, erc721, _ = erc721_factory
-
-    # Without using an account abstraction, the caller address
-    # (get_caller_address) is zero
-    try:
-        await erc721.approve(user1, third_token_id).invoke()
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
-
-@pytest.mark.asyncio
-async def test_approve_owner_equals_to(erc721_factory):
-    _, erc721, account = erc721_factory
-
-    try:
-        # should fail when owner is the same as address-to-be-approved
-        await signer.send_transaction(
-            account, erc721.contract_address, 'approve', [
-                account.contract_address, *third_token_id]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
-
-
-@pytest.mark.asyncio
-async def test_approve_not_owner_or_operator(erc721_factory):
-    _, erc721, account = erc721_factory
-
-    try:
-        # should fail since user1 now owns 'first_token_id'
-        await signer.send_transaction(
-            account, erc721.contract_address, 'approve', [
-                account.contract_address, *first_token_id]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

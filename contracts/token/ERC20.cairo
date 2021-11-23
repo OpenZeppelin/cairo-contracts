@@ -221,7 +221,7 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (is_success: felt):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
-    
+
     tempvar is_success = 1
     return (is_success)
 end
@@ -231,7 +231,11 @@ func transfer_from{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(sender: felt, recipient: felt, amount: Uint256) -> (is_success: felt):
+    }(
+        sender: felt, 
+        recipient: felt, 
+        amount: Uint256
+    ) -> (is_success: felt):
     alloc_locals
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)

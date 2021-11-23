@@ -21,7 +21,6 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
 * [Paying for gas](#paying-for-gas)
-* [Future work](#future-work)
 
 ## Quickstart
 

@@ -218,12 +218,12 @@ func transfer{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(recipient: felt, amount: Uint256) -> (is_success: felt):
+    }(recipient: felt, amount: Uint256) -> (success: felt):
     let (sender) = get_caller_address()
     _transfer(sender, recipient, amount)
 
-    tempvar is_success = 1
-    return (is_success)
+    # Cairo equivalent to 'return (true)'
+    return (1)
 end
 
 @external
@@ -235,7 +235,7 @@ func transfer_from{
         sender: felt, 
         recipient: felt, 
         amount: Uint256
-    ) -> (is_success: felt):
+    ) -> (success: felt):
     alloc_locals
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = allowances.read(owner=sender, spender=caller)
@@ -250,8 +250,8 @@ func transfer_from{
     let (new_allowance: Uint256) = uint256_sub(caller_allowance, amount)
     allowances.write(sender, caller, new_allowance)
 
-    tempvar is_success = 1
-    return (is_success)
+    # Cairo equivalent to 'return (true)'
+    return (1)
 end
 
 @external
@@ -259,12 +259,12 @@ func approve{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(spender: felt, amount: Uint256) -> (is_success: felt):
+    }(spender: felt, amount: Uint256) -> (success: felt):
     let (caller) = get_caller_address()
     _approve(caller, spender, amount)
 
-    tempvar is_success = 1
-    return (is_success)
+    # Cairo equivalent to 'return (true)'
+    return (1)
 end
 
 @external
@@ -272,7 +272,7 @@ func increase_allowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(spender: felt, added_value: Uint256) -> (is_success: felt):
+    }(spender: felt, added_value: Uint256) -> (success: felt):
     alloc_locals
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(caller, spender)
@@ -283,8 +283,8 @@ func increase_allowance{
 
     _approve(caller, spender, new_allowance)
 
-    tempvar is_success = 1
-    return(is_success)
+    # Cairo equivalent to 'return (true)'
+    return(1)
 end
 
 @external
@@ -292,7 +292,7 @@ func decrease_allowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(spender: felt, subtracted_value: Uint256) -> (is_success: felt):
+    }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     alloc_locals
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
@@ -304,8 +304,8 @@ func decrease_allowance{
 
     _approve(caller, spender, new_allowance)
 
-    tempvar is_success = 1
-    return(is_success)
+    # Cairo equivalent to 'return (true)'
+    return(1)
 end
 
 #

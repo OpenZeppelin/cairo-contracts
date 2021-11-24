@@ -284,7 +284,7 @@ func increase_allowance{
     _approve(caller, spender, new_allowance)
 
     # Cairo equivalent to 'return (true)'
-    return(1)
+    return (1)
 end
 
 @external
@@ -305,7 +305,7 @@ func decrease_allowance{
     _approve(caller, spender, new_allowance)
 
     # Cairo equivalent to 'return (true)'
-    return(1)
+    return (1)
 end
 
 #
@@ -319,7 +319,7 @@ func mint{
         range_check_ptr
     }(recipient: felt, amount: Uint256):
     _mint(recipient, amount)
-    return()
+    return ()
 end
 
 @external
@@ -329,5 +329,5 @@ func burn{
         range_check_ptr
     }(user: felt, amount: Uint256):
     _burn(user, amount)
-    return()
+    return ()
 end

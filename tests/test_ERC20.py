@@ -82,9 +82,7 @@ async def test_transfer(erc20_factory):
     assert execution_info.result.res == uint(0)
 
     # transfer
-    return_bool = await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
-    # check return boolean
-    assert return_bool.result == (1,)
+    await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
 
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result.res == uint(900)
@@ -124,9 +122,7 @@ async def test_approve(erc20_factory):
     assert execution_info.result.res == uint(0)
 
     # set approval
-    return_bool = await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
-    # check return boolean
-    assert return_bool.result == (1,)
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
 
     execution_info = await erc20.allowance(account.contract_address, spender).call()
     assert execution_info.result.res == amount
@@ -149,11 +145,9 @@ async def test_transfer_from(erc20_factory):
     # approve
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
     # transfer_from
-    return_bool = await signer.send_transaction(
+    await signer.send_transaction(
         spender, erc20.contract_address, 'transfer_from', [
             account.contract_address, recipient, *amount])
-    # check return boolean
-    assert return_bool.result == (1,)
 
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result.res == (
@@ -184,9 +178,7 @@ async def test_increase_allowance(erc20_factory):
     assert execution_info.result.res == amount
 
     # increase allowance
-    return_bool = await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, *amount])
-    # check return boolean
-    assert return_bool.result == (1,)
+    await signer.send_transaction(account, erc20.contract_address, 'increase_allowance', [spender, *amount])
 
     execution_info = await erc20.allowance(account.contract_address, spender).call()
     assert execution_info.result.res == (
@@ -212,9 +204,7 @@ async def test_decrease_allowance(erc20_factory):
     assert execution_info.result.res == init_amount
 
     # decrease allowance
-    return_bool = await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *subtract_amount])
-    # check return boolean
-    assert return_bool.result == (1,)
+    await signer.send_transaction(account, erc20.contract_address, 'decrease_allowance', [spender, *subtract_amount])
 
     execution_info = await erc20.allowance(account.contract_address, spender).call()
     assert execution_info.result.res == (

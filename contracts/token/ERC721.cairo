@@ -337,24 +337,24 @@ func approve{
         pedersen_ptr : HashBuiltin*, 
         syscall_ptr : felt*, 
         range_check_ptr
-    }(to : felt, token_id : Uint256):
+    }(approved : felt, token_id : Uint256):
     # checks caller is not zero address
     let (caller) = get_caller_address()
     assert_not_zero(caller)
 
     # ensures 'owner' does not equal 'to'
     let (owner) = owners.read(token_id.low, token_id.high)
-    assert_not_equal(owner, to)
+    assert_not_equal(owner, approved)
 
     # checks that either caller equals owner or
     # caller is_approved_for_all on behalf of owner
     if caller == owner:
-        _approve(to, token_id)
+        _approve(approved, token_id)
         return()
     else:
         let (is_approved) = is_approved_for_all(owner, caller)
         assert_not_zero(is_approved)
-        _approve(to, token_id)
+        _approve(approved, token_id)
         return()
     end
 end
@@ -364,10 +364,10 @@ func set_approval_for_all{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(operator : felt, is_approved : felt):
+    }(operator : felt, approved : felt):
     let (caller) = get_caller_address()
 
-    _set_approval_for_all(caller, operator, is_approved)
+    _set_approval_for_all(caller, operator, approved)
     return ()
 end
 

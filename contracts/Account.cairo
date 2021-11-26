@@ -149,6 +149,7 @@ func execute{
         calldata: felt*,
         nonce: felt
     ) -> (response_len: felt, response: felt*):
+
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()

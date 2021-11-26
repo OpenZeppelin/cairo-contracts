@@ -21,7 +21,6 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
 * [Paying for gas](#paying-for-gas)
-* [Future work](#future-work)
 
 ## Quickstart
 
@@ -77,7 +76,7 @@ namespace IAccount:
             calldata_len: felt,
             calldata: felt*,
             nonce: felt
-        ) -> (response: felt):
+        ) -> (response_len: felt, response: felt*):
     end
 end
 ```
@@ -174,7 +173,7 @@ func execute(
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
-    ) -> (response : felt):
+    ) -> (response_len: felt, response: felt*):
 ```
 
 #### `get_public_key`
@@ -257,7 +256,8 @@ signature: felt*
 
 ##### Returns:
 ```
-response: felt
+response_len: felt
+response: felt*
 ```
 
 ## Extending the Account contract

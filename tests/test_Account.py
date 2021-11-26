@@ -48,6 +48,20 @@ async def test_execute(account_factory):
 
 
 @pytest.mark.asyncio
+async def test_return_value(account_factory):
+    starknet, account = account_factory
+    initializable = await starknet.deploy("contracts/Initializable.cairo")
+
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result == (0,)
+
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
+
+    read_info = await signer.send_transaction(account, initializable.contract_address, 'initialized', [])
+    assert [1] == read_info.result.response
+
+
+@ pytest.mark.asyncio
 async def test_nonce(account_factory):
     starknet, account = account_factory
     initializable = await starknet.deploy("contracts/Initializable.cairo")

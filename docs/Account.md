@@ -173,7 +173,7 @@ func execute(
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
-    ) -> (response : felt):
+    ) -> (response_len: felt, response: felt*):
 ```
 
 #### `get_public_key`

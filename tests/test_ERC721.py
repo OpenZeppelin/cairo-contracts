@@ -10,6 +10,7 @@ signer2 = Signer(234567899876543211)
 signer3 = Signer(345678998765432112)
 
 MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
+ZERO_ADDRESS = 0
 
 user1 = 123
 user2 = 234
@@ -424,3 +425,56 @@ async def test_transfer_from_operator(erc721_factory):
     # checks user balance
     execution_info = await erc721.balance_of(recipient).call()
     assert execution_info.result == (uint(1),)
+
+
+@pytest.mark.asyncio
+async def test_transfer_from_when_not_approved_or_owner(erc721_factory):
+    starknet, erc721, account = erc721_factory
+    spender = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+    recipient = user3
+
+    # set_approval_for_all to false ('0')
+    await signer.send_transaction(
+        account, erc721.contract_address, 'set_approval_for_all', [
+            spender.contract_address, 0]
+    )
+
+    try:
+        # should be rejected
+        await signer.send_transaction(
+            spender, erc721.contract_address, 'transfer_from', [
+                account.contract_address, recipient, *fourth_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_transfer_from_to_zero_address(erc721_factory):
+    starknet, erc721, account = erc721_factory
+    spender = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    # set_approval_for_all
+    await signer.send_transaction(
+        account, erc721.contract_address, 'set_approval_for_all', [
+            spender.contract_address, 1]
+    )
+
+    try:
+        # to zero address should be rejected
+        await signer.send_transaction(
+            spender, erc721.contract_address, 'transfer_from', [
+                account.contract_address, ZERO_ADDRESS, *fourth_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

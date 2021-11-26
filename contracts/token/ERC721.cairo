@@ -36,46 +36,6 @@ end
 func symbol_() -> (res : felt):
 end
 
-struct BlockchainNamespace:
-    member a : felt
-end
-
-# aka ChainID. Chain Agnostic specifies that the length can go up to 32 nines (i.e. 9999999....) but we will only support 31 nines.
-struct BlockchainReference:
-    member a : felt
-end
-
-struct AssetNamespace:
-    member a : felt
-end
-
-# aka contract Address on L1. An address is represented using 20 bytes. Those bytes are written in the `felt`.
-struct AssetReference:
-    member a : felt
-end
-
-# A tokenId is a u256. u256::MAX() is ~1e77 meaning we need 78 characters to store it. Given a felt can represent
-# 31 characters, we need 3 felts to store it.
-struct TokenId:
-    member a : felt
-    member b : felt
-    member c : felt
-end
-
-# As defined by Chain Agnostics (CAIP-22 and CAIP-29):
-# {blockchain_namespace}:{blockchain_reference}/{asset_namespace}:{asset_reference}/{token_id}
-struct TokenUri:
-    member blockchain_namespace : BlockchainNamespace
-    member blockchain_reference : BlockchainReference
-    member asset_namespace : AssetNamespace
-    member asset_reference : AssetReference
-    member token_id : TokenId
-end
-
-@storage_var
-func token_uri_() -> (res : TokenUri):
-end
-
 #
 # Constructor
 #
@@ -141,15 +101,15 @@ func symbol{
     return (res)
 end
 
-@view
-func token_uri{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
-        range_check_ptr
-    }(token_id : felt) -> (res : TokenUri):
-    let (res) = token_uri_.read()
-    return (res)
-end
+#@view
+#func token_uri{
+#        syscall_ptr : felt*, 
+#        pedersen_ptr : HashBuiltin*, 
+#        range_check_ptr
+#    }(token_id : felt) -> (res : TokenUri):
+#    let (res) = token_uri_.read()
+#    return (res)
+#end
 
 @view
 func get_approved{
@@ -305,8 +265,8 @@ func _transfer{
 
     # Increase receiver balance
     let (receiver_bal) = balances.read(to)
-    let (new_balance: Uint256, is_overflow) = uint256_add(receiver_bal, Uint256(1, 0))
-    assert is_overflow = 0
+    # overflow not possible because token_id must be unique
+    let (new_balance: Uint256, _) = uint256_add(receiver_bal, Uint256(1, 0))
     balances.write(to, new_balance)
 
     # Update token_id owner

@@ -49,7 +49,7 @@ async def test_constructor(erc20_factory):
     execution_info = await erc20.balance_of(account.contract_address).call()
     assert execution_info.result.res == uint(1000)
 
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     assert execution_info.result.res == uint(1000)
 
 
@@ -72,7 +72,7 @@ async def test_transfer(erc20_factory):
     _, erc20, account = erc20_factory
     recipient = 123
     amount = uint(100)
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     previous_supply = execution_info.result.res
 
     execution_info = await erc20.balance_of(account.contract_address).call()
@@ -89,7 +89,7 @@ async def test_transfer(erc20_factory):
     execution_info = await erc20.balance_of(recipient).call()
     assert execution_info.result.res == uint(100)
 
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     assert execution_info.result.res == previous_supply
 
 
@@ -411,7 +411,7 @@ async def test_mint_overflow(erc20_factory):
     recipient = 789
     # fetching the previously minted total_supply and verifying the overflow check
     # (total_supply >= 2**256) should fail, (total_supply < 2**256) should pass
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     previous_supply = execution_info.result.res
 
     # pass_amount subtracts the already minted supply from MAX_AMOUNT in order for
@@ -445,7 +445,7 @@ async def test_burn(erc20_factory):
     _, erc20, account = erc20_factory
     user = 789
     burn_amount = uint(500)
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     previous_supply = execution_info.result.res
 
     execution_info = await erc20.balance_of(user).call()
@@ -454,7 +454,7 @@ async def test_burn(erc20_factory):
     await signer.send_transaction(account, erc20.contract_address, 'burn', [user, *burn_amount])
 
     # total supply should reflect the burned amount
-    execution_info = await erc20.get_total_supply().call()
+    execution_info = await erc20.total_supply().call()
     assert execution_info.result.res == (
         previous_supply[0] - burn_amount[0],
         previous_supply[1] - burn_amount[1]

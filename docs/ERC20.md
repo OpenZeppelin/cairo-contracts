@@ -1,0 +1,294 @@
+# ERC20
+
+The ERC20 token standard is a specification for [fungible tokens](https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens), a type of token where all the units are exactly equal between them. The `ERC20.cairo` contract implements an approximation of [EIP-20](https://eips.ethereum.org/EIPS/eip-20) in Cairo for StarkNet.
+
+## Table of Contents
+
+- [Interface](#interface)
+  * [ERC20 compatibility](#erc20-compatibility)
+- [Usage](#usage)
+- [Extensibility](#extensibility)
+- [API Specification](#api-specification)
+  * [`name`](#-name-)
+  * [`symbol`](#-symbol-)
+  * [`decimals`](#-decimals-)
+  * [`total_supply`](#-total-supply-)
+  * [`balance_of`](#-balance-of-)
+  * [`allowance`](#-allowance-)
+  * [`transfer`](#-transfer-)
+  * [`transfer_from`](#-transfer-from-)
+  * [`approve`](#-approve-)
+
+## Interface
+
+```jsx
+@contract_interface
+namespace IERC20:
+		func name() -> (res: felt):
+    end
+
+    func symbol() -> (res: felt):
+    end
+
+    func decimals() -> (res: felt):
+    end
+
+    func total_supply() -> (res: Uint256):
+    end
+
+    func balance_of(account: felt) -> (res: Uint256):
+    end
+
+    func allowance(owner: felt, spender: felt) -> (res: Uint256):
+    end
+
+    func transfer(recipient: felt, amount: Uint256) -> (success: felt):
+    end
+
+    func transfer_from(
+            sender: felt, 
+            recipient: felt, 
+            amount: Uint256
+        ) -> (success: felt):
+    end
+
+    func approve(spender: felt, amount: Uint256) -> (success: felt):
+    end
+end
+```
+
+### ERC20 compatibility
+
+Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard. This is why:
+
+- it uses Cairo's `uint256` instead of `felt`
+- it returns `1` as success to imitate a `bool`
+- it makes use of Cairo's short strings to simulate `name` and `symbol`
+- it will emit events once they're implemented on StarkNet.
+
+Notice that `get_decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8` and this could potentially affect bridging tokens.
+
+## Usage
+
+Use cases go from medium of exchange currency to voting rights, staking, and more.
+
+Considering that the constructor method looks like this:
+
+```python
+func constructor(
+    name: felt,     # Token name as Cairo short string
+    symbol: felt,   # Token symbol as Cairo short string
+    recipient: felt # Address where to send initial supply to
+):
+```
+
+To create a token your need to deploy it like this:
+
+```python
+erc20 = await starknet.deploy(
+    "contracts/token/ERC20.cairo",
+    constructor_calldata=[
+        str_to_felt("Token"),    # name
+        str_to_felt("TKN"),      # symbol
+        account.contract_address # initial supply recipient
+    ]
+)
+```
+
+> Note that we haven't specified the initial supply. This is because it's fixed at `1000`, as well as `decimals` which is fixed at `18`. If you wish to change any of these values, you should modify the constructor.
+> 
+
+As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `msg.this`). This is why we need an Account contract to interact with it. For example:
+
+```python
+signer = Signer(123456789987654321)
+recipient = 123 # some address
+amount = uint(100)
+
+account = await starknet.deploy(
+    "contracts/Account.cairo",
+    constructor_calldata=[signer.public_key]
+)
+
+await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
+```
+
+## Extensibility
+
+There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk.
+
+For example, you could:
+
+- Implement a pausing mechanism
+- Add roles such as owner or minter
+- Modify the `_transfer` function to perform actions [before](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol#L229) or after [transfers](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol#L240)
+
+## API Specification
+
+```jsx
+func name() -> (res: felt):
+end
+
+func symbol() -> (res: felt):
+end
+
+func decimals() -> (res: felt):
+end
+
+func total_supply() -> (res: Uint256):
+end
+
+func balance_of(account: felt) -> (res: Uint256):
+end
+
+func allowance(owner: felt, spender: felt) -> (res: Uint256):
+end
+
+func transfer(recipient: felt, amount: Uint256) -> (success: felt):
+end
+
+func transfer_from(
+        sender: felt, 
+        recipient: felt, 
+        amount: Uint256
+    ) -> (success: felt):
+end
+
+func approve(spender: felt, amount: Uint256) -> (success: felt):
+end
+```
+
+### `name`
+
+Returns the name of the token.
+
+Parameters: None.
+
+Returns:
+
+```jsx
+name: felt
+```
+
+### `symbol`
+
+Returns the symbol of the token.
+
+Parameters: None.
+
+Returns:
+
+```jsx
+symbol: felt
+```
+
+### `decimals`
+
+Returns the decimals places of the token.
+
+Parameters: None.
+
+Returns:
+
+```jsx
+decimals: felt
+```
+
+### `total_supply`
+
+Returns the amount of tokens in existence.
+
+Parameters: None.
+
+Returns:
+
+```jsx
+total_supply: Uint256
+```
+
+### `balance_of`
+
+Returns the amount of tokens owned by `account`.
+
+Parameters:
+
+```jsx
+account: felt
+```
+
+Returns:
+
+```jsx
+res: Uint256
+```
+
+### `allowance`
+
+Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`. This is zero by default.
+
+This value changes when `approve` or `transfer_from` are called.
+
+Parameters:
+
+```jsx
+owner: felt
+spender: felt
+```
+
+Returns:
+
+```jsx
+res: Uint256
+```
+
+### `transfer`
+
+Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if succeeds.
+
+Parameters:
+
+```jsx
+recipient: felt
+amount: Uint256
+```
+
+Returns:
+
+```jsx
+success: felt
+```
+
+### `transfer_from`
+
+Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if succeeds.
+
+Parameters:
+
+```jsx
+sender: felt
+recipient: felt
+amount: Uint256
+```
+
+Returns:
+
+```jsx
+success: felt
+```
+
+### `approve`
+
+Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if succeeds.
+
+Parameters:
+
+```jsx
+spender: felt
+amount: Uint256
+```
+
+Returns:
+
+```jsx
+success: felt
+```

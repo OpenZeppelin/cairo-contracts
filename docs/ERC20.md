@@ -1,6 +1,6 @@
 # ERC20
 
-The ERC20 token standard is a specification for [fungible tokens](https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens), a type of token where all the units are exactly equal between them. The `ERC20.cairo` contract implements an approximation of [EIP-20](https://eips.ethereum.org/EIPS/eip-20) in Cairo for StarkNet.
+The ERC20 token standard is a specification for [fungible tokens](https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens), a type of token where all the units are exactly equal to each other. The `ERC20.cairo` contract implements an approximation of [EIP-20](https://eips.ethereum.org/EIPS/eip-20) in Cairo for StarkNet.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 ```jsx
 @contract_interface
 namespace IERC20:
-		func name() -> (res: felt):
+    func name() -> (res: felt):
     end
 
     func symbol() -> (res: felt):
@@ -59,7 +59,7 @@ end
 
 ### ERC20 compatibility
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard. This is why:
+Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 - it uses Cairo's `uint256` instead of `felt`
 - it returns `1` as success to imitate a `bool`
@@ -82,7 +82,7 @@ func constructor(
 ):
 ```
 
-To create a token your need to deploy it like this:
+To create a token you need to deploy it like this:
 
 ```python
 erc20 = await starknet.deploy(
@@ -172,7 +172,7 @@ name: felt
 
 ### `symbol`
 
-Returns the symbol of the token.
+Returns the ticker symbol of the token.
 
 Parameters: None.
 
@@ -184,7 +184,7 @@ symbol: felt
 
 ### `decimals`
 
-Returns the decimals places of the token.
+Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
 
 Parameters: None.
 
@@ -243,7 +243,7 @@ res: Uint256
 
 ### `transfer`
 
-Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if succeeds.
+Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if it succeeds.
 
 Parameters:
 
@@ -260,7 +260,7 @@ success: felt
 
 ### `transfer_from`
 
-Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if succeeds.
+Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if it succeeds.
 
 Parameters:
 

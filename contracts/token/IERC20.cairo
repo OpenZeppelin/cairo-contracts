@@ -4,10 +4,16 @@ from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace IERC20:
-    func get_total_supply() -> (res: Uint256):
+    func name() -> (res: felt):
     end
 
-    func get_decimals() -> (res: felt):
+    func symbol() -> (res: felt):
+    end
+
+    func decimals() -> (res: felt):
+    end
+
+    func total_supply() -> (res: Uint256):
     end
 
     func balance_of(account: felt) -> (res: Uint256):

@@ -66,7 +66,11 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
 - it will emit events once they're implemented on StarkNet.
 
-Notice that `get_decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8` and this could potentially affect bridging tokens.
+But some differences can still be found, such as:
+
+- `decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8`. However, compliant implementations should not return a value that is not representable in `uint8`.
+- `transfer`, `transferFrom` and `approve` will never return anything different from true (`1`) because they will revert on any error
+- function selectors are calculated differently between [Cairo](https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25) and [Solidity](https://solidity-by-example.org/function-selector/)
 
 ## Usage
 
@@ -101,8 +105,7 @@ erc20 = await starknet.deploy(
 As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `msg.this`). This is why we need an Account contract to interact with it. For example:
 
 ```python
-signer = Signer(123456789987654321)
-recipient = 123 # some address
+signer = Signer(PRIVATE_KEY)
 amount = uint(100)
 
 account = await starknet.deploy(
@@ -110,7 +113,7 @@ account = await starknet.deploy(
     constructor_calldata=[signer.public_key]
 )
 
-await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient, *amount])
+await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient_address, *amount])
 ```
 
 ## Extensibility
@@ -278,7 +281,7 @@ success: felt
 
 ### `approve`
 
-Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if succeeds.
+Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if it succeeds.
 
 Parameters:
 

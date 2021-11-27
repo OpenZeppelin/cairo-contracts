@@ -149,10 +149,6 @@ func execute{
         calldata: felt*,
         nonce: felt
     ) -> (response_len: felt, response: felt*):
-<<<<<<< HEAD
-
-=======
->>>>>>> OpenZeppelin-main
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()

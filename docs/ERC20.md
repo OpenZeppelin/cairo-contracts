@@ -69,7 +69,7 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 But some differences can still be found, such as:
 
 - `decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8`. However, compliant implementations should not return a value that is not representable in `uint8`.
-- `transfer`, `transferFrom` and `approve` will never return anything different from true (`1`) because they will revert on any error
+- `transfer`, `transfer_from` and `approve` will never return anything different from true (`1`) because they will revert on any error
 - function selectors are calculated differently between [Cairo](https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25) and [Solidity](https://solidity-by-example.org/function-selector/)
 
 ## Usage

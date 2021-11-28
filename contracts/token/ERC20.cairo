@@ -25,7 +25,7 @@ func _decimals() -> (res: felt):
 end
 
 @storage_var
-func _total_supply() -> (res: Uint256):
+func total_supply() -> (res: Uint256):
 end
 
 @storage_var
@@ -68,9 +68,9 @@ func name{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = _name.read()
-    return (res)
+    }() -> (name: felt):
+    let (name) = _name.read()
+    return (name)
 end
 
 @view
@@ -78,19 +78,19 @@ func symbol{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = _symbol.read()
-    return (res)
+    }() -> (symbol: felt):
+    let (symbol) = _symbol.read()
+    return (symbol)
 end
 
 @view
-func total_supply{
+func totalSupply{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: Uint256):
-    let (res: Uint256) = _total_supply.read()
-    return (res)
+    }() -> (totalSupply: Uint256):
+    let (totalSupply: Uint256) = total_supply.read()
+    return (totalSupply)
 end
 
 @view
@@ -98,19 +98,19 @@ func decimals{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = _decimals.read()
-    return (res)
+    }() -> (decimals: felt):
+    let (decimals) = _decimals.read()
+    return (decimals)
 end
 
 @view
-func balance_of{
+func balanceOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(account: felt) -> (res: Uint256):
-    let (res: Uint256) = balances.read(account=account)
-    return (res)
+    }(account: felt) -> (balance: Uint256):
+    let (balance: Uint256) = balances.read(account=account)
+    return (balance)
 end
 
 @view
@@ -118,9 +118,9 @@ func allowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(owner: felt, spender: felt) -> (res: Uint256):
-    let (res: Uint256) = allowances.read(owner=owner, spender=spender)
-    return (res)
+    }(owner: felt, spender: felt) -> (remaining: Uint256):
+    let (remaining: Uint256) = allowances.read(owner=owner, spender=spender)
+    return (remaining)
 end
 
 #
@@ -141,11 +141,11 @@ func _mint{
     let (new_balance, _: Uint256) = uint256_add(balance, amount)
     balances.write(recipient, new_balance)
 
-    let (local supply: Uint256) = _total_supply.read()
+    let (local supply: Uint256) = total_supply.read()
     let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
     assert (is_overflow) = 0
 
-    _total_supply.write(new_supply)
+    total_supply.write(new_supply)
     return ()
 end
 
@@ -203,9 +203,9 @@ func _burn{
     let (new_balance: Uint256) = uint256_sub(balance, amount)
     balances.write(account, new_balance)
 
-    let (supply: Uint256) = _total_supply.read()
+    let (supply: Uint256) = total_supply.read()
     let (new_supply: Uint256) = uint256_sub(supply, amount)
-    _total_supply.write(new_supply)
+    total_supply.write(new_supply)
     return ()
 end
 
@@ -227,7 +227,7 @@ func transfer{
 end
 
 @external
-func transfer_from{
+func transferFrom{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -268,7 +268,7 @@ func approve{
 end
 
 @external
-func increase_allowance{
+func increaseAllowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -288,7 +288,7 @@ func increase_allowance{
 end
 
 @external
-func decrease_allowance{
+func decreaseAllowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr

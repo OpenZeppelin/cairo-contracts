@@ -4,28 +4,28 @@ from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace IERC20:
-    func name() -> (res: felt):
+    func name() -> (name: felt):
     end
 
-    func symbol() -> (res: felt):
+    func symbol() -> (symbol: felt):
     end
 
-    func decimals() -> (res: felt):
+    func decimals() -> (decimals: felt):
     end
 
-    func total_supply() -> (res: Uint256):
+    func totalSupply() -> (totalSupply: Uint256):
     end
 
-    func balance_of(account: felt) -> (res: Uint256):
+    func balanceOf(account: felt) -> (balance: Uint256):
     end
 
-    func allowance(owner: felt, spender: felt) -> (res: Uint256):
+    func allowance(owner: felt, spender: felt) -> (remaining: Uint256):
     end
 
     func transfer(recipient: felt, amount: Uint256) -> (success: felt):
     end
 
-    func transfer_from(
+    func transferFrom(
             sender: felt, 
             recipient: felt, 
             amount: Uint256
@@ -35,3 +35,4 @@ namespace IERC20:
     func approve(spender: felt, amount: Uint256) -> (success: felt):
     end
 end
+

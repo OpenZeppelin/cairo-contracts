@@ -12,11 +12,11 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
   * [`name`](#-name-)
   * [`symbol`](#-symbol-)
   * [`decimals`](#-decimals-)
-  * [`total_supply`](#-total-supply-)
-  * [`balance_of`](#-balance-of-)
+  * [`totalSupply`](#-total-supply-)
+  * [`balanceOf`](#-balance-of-)
   * [`allowance`](#-allowance-)
   * [`transfer`](#-transfer-)
-  * [`transfer_from`](#-transfer-from-)
+  * [`transferFrom`](#-transfer-from-)
   * [`approve`](#-approve-)
 
 ## Interface
@@ -24,28 +24,28 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 ```jsx
 @contract_interface
 namespace IERC20:
-    func name() -> (res: felt):
+    func name() -> (name: felt):
     end
 
-    func symbol() -> (res: felt):
+    func symbol() -> (symbol: felt):
     end
 
-    func decimals() -> (res: felt):
+    func decimals() -> (decimals: felt):
     end
 
-    func total_supply() -> (res: Uint256):
+    func totalSupply() -> (totalSupply: Uint256):
     end
 
-    func balance_of(account: felt) -> (res: Uint256):
+    func balanceOf(account: felt) -> (balance: Uint256):
     end
 
-    func allowance(owner: felt, spender: felt) -> (res: Uint256):
+    func allowance(owner: felt, spender: felt) -> (remaining: Uint256):
     end
 
     func transfer(recipient: felt, amount: Uint256) -> (success: felt):
     end
 
-    func transfer_from(
+    func transferFrom(
             sender: felt, 
             recipient: felt, 
             amount: Uint256
@@ -69,7 +69,7 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 But some differences can still be found, such as:
 
 - `decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8`. However, compliant implementations should not return a value that is not representable in `uint8`.
-- `transfer`, `transfer_from` and `approve` will never return anything different from true (`1`) because they will revert on any error
+- `transfer`, `transferFrom` and `approve` will never return anything different from true (`1`) because they will revert on any error
 - function selectors are calculated differently between [Cairo](https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25) and [Solidity](https://solidity-by-example.org/function-selector/)
 
 ## Usage
@@ -129,28 +129,28 @@ For example, you could:
 ## API Specification
 
 ```jsx
-func name() -> (res: felt):
+func name() -> (name: felt):
 end
 
-func symbol() -> (res: felt):
+func symbol() -> (symbol: felt):
 end
 
-func decimals() -> (res: felt):
+func decimals() -> (decimals: felt):
 end
 
-func total_supply() -> (res: Uint256):
+func totalSupply() -> (totalSupply: Uint256):
 end
 
-func balance_of(account: felt) -> (res: Uint256):
+func balanceOf(account: felt) -> (balance: Uint256):
 end
 
-func allowance(owner: felt, spender: felt) -> (res: Uint256):
+func allowance(owner: felt, spender: felt) -> (remaining: Uint256):
 end
 
 func transfer(recipient: felt, amount: Uint256) -> (success: felt):
 end
 
-func transfer_from(
+func transferFrom(
         sender: felt, 
         recipient: felt, 
         amount: Uint256
@@ -197,7 +197,7 @@ Returns:
 decimals: felt
 ```
 
-### `total_supply`
+### `totalSupply`
 
 Returns the amount of tokens in existence.
 
@@ -206,10 +206,10 @@ Parameters: None.
 Returns:
 
 ```jsx
-total_supply: Uint256
+totalSupply: Uint256
 ```
 
-### `balance_of`
+### `balanceOf`
 
 Returns the amount of tokens owned by `account`.
 
@@ -222,14 +222,14 @@ account: felt
 Returns:
 
 ```jsx
-res: Uint256
+balance: Uint256
 ```
 
 ### `allowance`
 
-Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`. This is zero by default.
+Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom`. This is zero by default.
 
-This value changes when `approve` or `transfer_from` are called.
+This value changes when `approve` or `transferFrom` are called.
 
 Parameters:
 
@@ -241,7 +241,7 @@ spender: felt
 Returns:
 
 ```jsx
-res: Uint256
+remaining: Uint256
 ```
 
 ### `transfer`
@@ -261,7 +261,7 @@ Returns:
 success: felt
 ```
 
-### `transfer_from`
+### `transferFrom`
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if it succeeds.
 

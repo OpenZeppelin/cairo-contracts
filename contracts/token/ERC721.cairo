@@ -112,7 +112,7 @@ end
 #end
 
 @view
-func get_approved{
+func getApproved{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
@@ -177,7 +177,7 @@ func _is_approved_or_owner{
         return (1)
     end
 
-    let (approved_addr) = get_approved(token_id)
+    let (approved_addr) = getApproved(token_id)
     if approved_addr == spender:
         return (1)
     end

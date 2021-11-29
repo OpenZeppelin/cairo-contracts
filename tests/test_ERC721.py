@@ -168,9 +168,9 @@ async def test_burn(erc721_factory):
             ) == execution_info.result.res
 
     # approve should be cleared to zero, therefore,
-    # 'get_approved()' call should fail
+    # 'getApproved()' call should fail
     try:
-        await erc721.get_approved(token_to_burn).call()
+        await erc721.getApproved(token_to_burn).call()
         assert False
     except StarkException as err:
         _, error = err.args
@@ -215,7 +215,7 @@ async def test_approve(erc721_factory):
         account, erc721.contract_address, 'approve', [user1, *first_token_id]
     )
 
-    execution_info = await erc721.get_approved(first_token_id).call()
+    execution_info = await erc721.getApproved(first_token_id).call()
     assert execution_info.result == (user1,)
 
 
@@ -239,7 +239,7 @@ async def test_approve_on_set_approval_for_all(erc721_factory):
             user1, *first_token_id]
     )
 
-    execution_info = await erc721.get_approved(first_token_id).call()
+    execution_info = await erc721.getApproved(first_token_id).call()
     assert execution_info.result == (user1,)
 
 
@@ -371,7 +371,7 @@ async def test_transfer_from_owner(erc721_factory):
     assert execution_info.result == (user1,)
 
     # checks approval is cleared for token_id
-    execution_info = await erc721.get_approved(first_token_id).call()
+    execution_info = await erc721.getApproved(first_token_id).call()
     assert execution_info.result == (0,)
 
 

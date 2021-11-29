@@ -203,7 +203,7 @@ func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt)
             hash_state_ptr, message.nonce)
         let (res) = hash_finalize(hash_state_ptr)
         let pedersen_ptr = hash_ptr
-    return (res=res)
+        return (res=res)
     end
 end
 

@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
 #
@@ -134,6 +134,7 @@ func _mint{
     }(recipient: felt, amount: Uint256):
     alloc_locals
     assert_not_zero(recipient)
+    uint256_check(amount)
 
     let (balance: Uint256) = balances.read(account=recipient)
     # overflow is not possible because sum is guaranteed to be less than total supply
@@ -157,6 +158,7 @@ func _transfer{
     alloc_locals
     assert_not_zero(sender)
     assert_not_zero(recipient)
+    uint256_check(amount) # almost surely not needed, might remove after confirmation
 
     let (local sender_balance: Uint256) = balances.read(account=sender)
 
@@ -183,6 +185,7 @@ func _approve{
     }(caller: felt, spender: felt, amount: Uint256):
     assert_not_zero(caller)
     assert_not_zero(spender)
+    uint256_check(amount)
     allowances.write(caller, spender, amount)
     return ()
 end
@@ -194,6 +197,7 @@ func _burn{
     }(account: felt, amount: Uint256):
     alloc_locals
     assert_not_zero(account)
+    uint256_check(amount)
 
     let (balance: Uint256) = balances.read(account)
     # validates amount <= balance and returns 1 if true
@@ -274,6 +278,7 @@ func increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
     alloc_locals
+    uint256_check(added_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(caller, spender)
 
@@ -294,6 +299,7 @@ func decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     alloc_locals
+    uint256_check(subtracted_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = allowances.read(owner=caller, spender=spender)
     let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)

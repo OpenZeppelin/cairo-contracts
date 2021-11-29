@@ -124,96 +124,6 @@ func allowance{
 end
 
 #
-# Internals
-#
-
-func _mint{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256):
-    alloc_locals
-    assert_not_zero(recipient)
-    uint256_check(amount)
-
-    let (balance: Uint256) = balances.read(account=recipient)
-    # overflow is not possible because sum is guaranteed to be less than total supply
-    # which we check for overflow below
-    let (new_balance, _: Uint256) = uint256_add(balance, amount)
-    balances.write(recipient, new_balance)
-
-    let (local supply: Uint256) = total_supply.read()
-    let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
-    assert (is_overflow) = 0
-
-    total_supply.write(new_supply)
-    return ()
-end
-
-func _transfer{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(sender: felt, recipient: felt, amount: Uint256):
-    alloc_locals
-    assert_not_zero(sender)
-    assert_not_zero(recipient)
-    uint256_check(amount) # almost surely not needed, might remove after confirmation
-
-    let (local sender_balance: Uint256) = balances.read(account=sender)
-
-    # validates amount <= sender_balance and returns 1 if true
-    let (enough_balance) = uint256_le(amount, sender_balance)
-    assert_not_zero(enough_balance)
-
-    # subtract from sender
-    let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
-    balances.write(sender, new_sender_balance)
-
-    # add to recipient
-    let (recipient_balance: Uint256) = balances.read(account=recipient)
-    # overflow is not possible because sum is guaranteed by mint to be less than total supply
-    let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
-    balances.write(recipient, new_recipient_balance)
-    return ()
-end
-
-func _approve{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(caller: felt, spender: felt, amount: Uint256):
-    assert_not_zero(caller)
-    assert_not_zero(spender)
-    uint256_check(amount)
-    allowances.write(caller, spender, amount)
-    return ()
-end
-
-func _burn{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(account: felt, amount: Uint256):
-    alloc_locals
-    assert_not_zero(account)
-    uint256_check(amount)
-
-    let (balance: Uint256) = balances.read(account)
-    # validates amount <= balance and returns 1 if true
-    let (enough_balance) = uint256_le(amount, balance)
-    assert_not_zero(enough_balance)
-    
-    let (new_balance: Uint256) = uint256_sub(balance, amount)
-    balances.write(account, new_balance)
-
-    let (supply: Uint256) = total_supply.read()
-    let (new_supply: Uint256) = uint256_sub(supply, amount)
-    total_supply.write(new_supply)
-    return ()
-end
-
-#
 # Externals
 #
 
@@ -335,5 +245,96 @@ func burn{
         range_check_ptr
     }(user: felt, amount: Uint256):
     _burn(user, amount)
+    return ()
+end
+
+
+#
+# Internals
+#
+
+func _mint{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(recipient: felt, amount: Uint256):
+    alloc_locals
+    assert_not_zero(recipient)
+    uint256_check(amount)
+
+    let (balance: Uint256) = balances.read(account=recipient)
+    # overflow is not possible because sum is guaranteed to be less than total supply
+    # which we check for overflow below
+    let (new_balance, _: Uint256) = uint256_add(balance, amount)
+    balances.write(recipient, new_balance)
+
+    let (local supply: Uint256) = total_supply.read()
+    let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
+    assert (is_overflow) = 0
+
+    total_supply.write(new_supply)
+    return ()
+end
+
+func _transfer{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(sender: felt, recipient: felt, amount: Uint256):
+    alloc_locals
+    assert_not_zero(sender)
+    assert_not_zero(recipient)
+    uint256_check(amount) # almost surely not needed, might remove after confirmation
+
+    let (local sender_balance: Uint256) = balances.read(account=sender)
+
+    # validates amount <= sender_balance and returns 1 if true
+    let (enough_balance) = uint256_le(amount, sender_balance)
+    assert_not_zero(enough_balance)
+
+    # subtract from sender
+    let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
+    balances.write(sender, new_sender_balance)
+
+    # add to recipient
+    let (recipient_balance: Uint256) = balances.read(account=recipient)
+    # overflow is not possible because sum is guaranteed by mint to be less than total supply
+    let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
+    balances.write(recipient, new_recipient_balance)
+    return ()
+end
+
+func _approve{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(caller: felt, spender: felt, amount: Uint256):
+    assert_not_zero(caller)
+    assert_not_zero(spender)
+    uint256_check(amount)
+    allowances.write(caller, spender, amount)
+    return ()
+end
+
+func _burn{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(account: felt, amount: Uint256):
+    alloc_locals
+    assert_not_zero(account)
+    uint256_check(amount)
+
+    let (balance: Uint256) = balances.read(account)
+    # validates amount <= balance and returns 1 if true
+    let (enough_balance) = uint256_le(amount, balance)
+    assert_not_zero(enough_balance)
+    
+    let (new_balance: Uint256) = uint256_sub(balance, amount)
+    balances.write(account, new_balance)
+
+    let (supply: Uint256) = total_supply.read()
+    let (new_supply: Uint256) = uint256_sub(supply, amount)
+    total_supply.write(new_supply)
     return ()
 end

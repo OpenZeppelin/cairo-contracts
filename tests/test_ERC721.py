@@ -12,6 +12,11 @@ signer3 = Signer(345678998765432112)
 MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
 
+# bools (for readability)
+false = 0
+true = 1
+not_bool = 2
+
 user1 = 123
 user2 = 234
 user3 = 345
@@ -22,7 +27,8 @@ first_token_id = (5042, 0)
 second_token_id = (7921, 1)
 third_token_id = (0, 13)
 fourth_token_id = MAX_AMOUNT
-user5_owned_token = (123, 321)
+fifth_token_id = (234, 345)
+other_owned_token = (123, 321)
 nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
 
@@ -119,13 +125,12 @@ async def test_mint_duplicate_token_id(erc721_factory):
 @pytest.mark.asyncio
 async def test_mint_to_zero_address(erc721_factory):
     _, erc721, account = erc721_factory
-    zero_address = 0
 
     try:
         # minting to zero address should fail
         await signer.send_transaction(
             account, erc721.contract_address, 'mint', [
-                zero_address, *nonexistent_token]
+                ZERO_ADDRESS, *nonexistent_token]
         )
         assert False
     except StarkException as err:
@@ -133,9 +138,23 @@ async def test_mint_to_zero_address(erc721_factory):
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
+@pytest.mark.asyncio
+async def test_mint_approve_should_be_zero_address(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *fifth_token_id]
+    )
+
+    # approved address should be zero for newly minted tokens
+    execution_info = await erc721.getApproved(fifth_token_id).call()
+    assert execution_info.result == (0,)
+
 #
 # Burn
 #
+
 
 @pytest.mark.asyncio
 async def test_burn(erc721_factory):
@@ -148,7 +167,7 @@ async def test_burn(erc721_factory):
     )
 
     execution_info = await erc721.balanceOf(account.contract_address).call()
-    previous_balance = execution_info.result.res
+    previous_balance = execution_info.result.balance
 
     # burn token
     await signer.send_transaction(
@@ -158,7 +177,7 @@ async def test_burn(erc721_factory):
     # account balance should subtract one
     execution_info = await erc721.balanceOf(account.contract_address).call()
     assert (previous_balance[0] - 1, previous_balance[1]
-            ) == execution_info.result.res
+            ) == execution_info.result.balance
 
     # approve should be cleared to zero, therefore,
     # 'getApproved()' call should fail
@@ -223,7 +242,7 @@ async def test_approve_on_setApprovalForAll(erc721_factory):
     # set approval_for_all from account to spender
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, 1]
+            spender.contract_address, true]
     )
 
     # approve spender to spend account's 'first_token_id' to user1
@@ -277,14 +296,14 @@ async def test_approve_not_owner_or_operator(erc721_factory):
     # mint to user5 — NOT account
     await signer.send_transaction(
         account, erc721.contract_address, 'mint', [
-            user5, *user5_owned_token]
+            user5, *other_owned_token]
     )
 
     try:
-        # should fail since user5 owns 'user5_owned_token'
+        # should fail since user5 owns 'other_owned_token'
         await signer.send_transaction(
             account, erc721.contract_address, 'approve', [
-                spender.contract_address, *user5_owned_token]
+                spender.contract_address, *other_owned_token]
         )
         assert False
     except StarkException as err:
@@ -300,7 +319,22 @@ async def test_approve_not_owner_or_operator(erc721_factory):
 @pytest.mark.asyncio
 async def test_setApprovalForAll(erc721_factory):
     _, erc721, account = erc721_factory
-    true = 1
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setApprovalForAll', [user2, true]
+    )
+
+    execution_info = await erc721.isApprovedForAll(account.contract_address, user2).call()
+    assert execution_info.result == (true,)
+
+
+@pytest.mark.asyncio
+async def test_setApprovalForAll_when_operator_was_set_as_not_approved(erc721_factory):
+    _, erc721, account = erc721_factory
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setApprovalForAll', [user2, false]
+    )
 
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [user2, true]
@@ -313,7 +347,6 @@ async def test_setApprovalForAll(erc721_factory):
 @pytest.mark.asyncio
 async def test_setApprovalForAll_with_invalid_bool_arg(erc721_factory):
     _, erc721, account = erc721_factory
-    not_bool = 2
 
     try:
         await signer.send_transaction(
@@ -333,7 +366,7 @@ async def test_setApprovalForAll_owner_is_operator(erc721_factory):
     try:
         await signer.send_transaction(
             account, erc721.contract_address, 'setApprovalForAll', [
-                account.contract_address, 1]
+                account.contract_address, true]
         )
         assert False
     except StarkException as err:
@@ -352,7 +385,7 @@ async def test_transferFrom_owner(erc721_factory):
 
     # get account's previous balance
     execution_info = await erc721.balanceOf(account.contract_address).call()
-    previous_balance = execution_info.result.res
+    previous_balance = execution_info.result.balance
 
     # transfers token from owner to recipient
     await signer.send_transaction(
@@ -385,7 +418,6 @@ async def test_transferFrom_approved_user(erc721_factory):
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
-    recipient = user2
 
     # approve spender
     await signer.send_transaction(
@@ -396,11 +428,11 @@ async def test_transferFrom_approved_user(erc721_factory):
     # spender transfers token from account to recipient
     await signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
-            account.contract_address, recipient, *second_token_id]
+            account.contract_address, user2, *second_token_id]
     )
 
     # checks user balance
-    execution_info = await erc721.balanceOf(recipient).call()
+    execution_info = await erc721.balanceOf(user2).call()
     assert execution_info.result == (uint(1),)
 
 
@@ -416,7 +448,7 @@ async def test_transferFrom_operator(erc721_factory):
     # setApprovalForAll
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, 1]
+            spender.contract_address, true]
     )
 
     # spender transfers token from account to recipient
@@ -439,14 +471,14 @@ async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
     )
     recipient = user3
 
-    # setApprovalForAll to false ('0')
+    # setApprovalForAll to false
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, 0]
+            spender.contract_address, false]
     )
 
     try:
-        # should be rejected
+        # should be rejected when not approved
         await signer.send_transaction(
             spender, erc721.contract_address, 'transferFrom', [
                 account.contract_address, recipient, *nonexistent_token]
@@ -468,7 +500,7 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     # setApprovalForAll
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, 1]
+            spender.contract_address, true]
     )
 
     try:

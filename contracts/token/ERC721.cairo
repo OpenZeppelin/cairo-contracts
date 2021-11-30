@@ -45,7 +45,7 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt, recipient: felt):
+    }(name : felt, symbol : felt, recipient : felt):
     _name.write(name)
     _symbol.write(symbol)
     return()
@@ -60,12 +60,12 @@ func balanceOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(owner : felt) -> (res : Uint256):
+    }(owner : felt) -> (balance : Uint256):
     # checks that query is not for zero address
     assert_not_zero(owner)
 
-    let (res: Uint256) = balances.read(owner=owner)
-    return (res)
+    let (balance: Uint256) = balances.read(owner=owner)
+    return (balance)
 end
 
 @view
@@ -73,12 +73,12 @@ func ownerOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (res : felt):
-    let (res) = owners.read(token_id.low, token_id.high)
+    }(token_id : Uint256) -> (owner : felt):
+    let (owner) = owners.read(token_id.low, token_id.high)
     # ensuring the query is not for nonexistent token
-    assert_not_zero(res)
+    assert_not_zero(owner)
 
-    return (res)
+    return (owner)
 end
 
 @view
@@ -86,9 +86,9 @@ func name{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }() -> (res : felt):
-    let (res) = _name.read()
-    return (res)
+    }() -> (name : felt):
+    let (name) = _name.read()
+    return (name)
 end
 
 @view
@@ -96,32 +96,22 @@ func symbol{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }() -> (res : felt):
-    let (res) = _symbol.read()
-    return (res)
+    }() -> (symbol : felt):
+    let (symbol) = _symbol.read()
+    return (symbol)
 end
-
-#@view
-#func token_uri{
-#        syscall_ptr : felt*, 
-#        pedersen_ptr : HashBuiltin*, 
-#        range_check_ptr
-#    }(token_id : felt) -> (res : TokenUri):
-#    let (res) = token_uri_.read()
-#    return (res)
-#end
 
 @view
 func getApproved{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (res : felt):
+    }(token_id : Uint256) -> (approved : felt):
     let (exists) = _exists(token_id)
     assert exists = 1
 
-    let (res) = token_approvals.read(token_id.low, token_id.high)
-    return (res)
+    let (approved) = token_approvals.read(token_id.low, token_id.high)
+    return (approved)
 end
 
 @view
@@ -129,9 +119,9 @@ func isApprovedForAll{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(owner : felt, operator : felt) -> (res : felt):
-    let (res) = operator_approvals.read(owner=owner, operator=operator)
-    return (res)
+    }(owner : felt, operator : felt) -> (is_approved : felt):
+    let (is_approved) = operator_approvals.read(owner=owner, operator=operator)
+    return (is_approved)
 end
 
 #

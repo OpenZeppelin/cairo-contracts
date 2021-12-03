@@ -48,6 +48,7 @@ func constructor{
     }(
         name: felt,
         symbol: felt,
+        initial_supply: Uint256,
         recipient: felt
     ):
     # get_caller_address() returns '0' in the constructor;
@@ -55,7 +56,7 @@ func constructor{
     _name.write(name)
     _symbol.write(symbol)
     _decimals.write(18)
-    _mint(recipient, Uint256(1000, 0))
+    _mint(recipient, initial_supply)
     return ()
 end
 
@@ -223,31 +224,6 @@ func decreaseAllowance{
     # Cairo equivalent to 'return (true)'
     return (1)
 end
-
-#
-# Test functions — will remove once extensibility is resolved
-#
-
-@external
-func mint{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256):
-    _mint(recipient, amount)
-    return ()
-end
-
-@external
-func burn{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(user: felt, amount: Uint256):
-    _burn(user, amount)
-    return ()
-end
-
 
 #
 # Internals

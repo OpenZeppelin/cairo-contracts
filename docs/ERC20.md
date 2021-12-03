@@ -80,9 +80,10 @@ Considering that the constructor method looks like this:
 
 ```python
 func constructor(
-    name: felt,     # Token name as Cairo short string
-    symbol: felt,   # Token symbol as Cairo short string
-    recipient: felt # Address where to send initial supply to
+    name: felt,               # Token name as Cairo short string
+    symbol: felt,             # Token symbol as Cairo short string
+    initial_supply: Uint256,  # Amount to be minted
+    recipient: felt           # Address where to send initial supply to
 ):
 ```
 
@@ -92,17 +93,17 @@ To create a token you need to deploy it like this:
 erc20 = await starknet.deploy(
     "contracts/token/ERC20.cairo",
     constructor_calldata=[
-        str_to_felt("Token"),    # name
-        str_to_felt("TKN"),      # symbol
-        account.contract_address # initial supply recipient
+        str_to_felt("Token"),     # name
+        str_to_felt("TKN"),       # symbol
+        (1000, 0),                # initial supply
+        account.contract_address  # recipient
     ]
 )
 ```
 
-> Note that we haven't specified the initial supply. This is because it's fixed at `1000`, as well as `decimals` which is fixed at `18`. If you wish to change any of these values, you should modify the constructor.
-> 
+> Note that we haven't specified decimals. This is because it's fixed at `18`. If you wish to change this value, you should modify the constructor. Bear in mind it should not exceed `2^8` to be ERC20 compatible.
 
-As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `msg.this`). This is why we need an Account contract to interact with it. For example:
+As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`). This is why we need an Account contract to interact with it. For example:
 
 ```python
 signer = Signer(PRIVATE_KEY)

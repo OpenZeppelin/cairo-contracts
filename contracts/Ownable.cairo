@@ -5,18 +5,17 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 
 @storage_var
-func _owner() -> (res: felt):
+func _owner() -> (owner: felt):
 end
-
 
 @view
 func get_owner{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = _owner.read()
-    return (res=res)
+    }() -> (owner: felt):
+    let (owner) = _owner.read()
+    return (owner=owner)
 end
 
 @view
@@ -31,13 +30,12 @@ func only_owner{
     return ()
 end
 
-@constructor
-func constructor{
+func ownable_initializer{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(initial_owner: felt):
-    _owner.write(initial_owner)
+    }(owner: felt):
+    _owner.write(owner)
     return ()
 end
 

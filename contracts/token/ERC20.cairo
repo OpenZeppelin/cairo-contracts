@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
@@ -13,35 +12,34 @@ from starkware.cairo.common.uint256 import (
 #
 
 @storage_var
-func _name() -> (res: felt):
+func _name() -> (name: felt):
 end
 
 @storage_var
-func _symbol() -> (res: felt):
+func _symbol() -> (symbol: felt):
 end
 
 @storage_var
-func _decimals() -> (res: felt):
+func _decimals() -> (decimals: felt):
 end
 
 @storage_var
-func total_supply() -> (res: Uint256):
+func total_supply() -> (total_supply: Uint256):
 end
 
 @storage_var
-func balances(account: felt) -> (res: Uint256):
+func balances(account: felt) -> (balance: Uint256):
 end
 
 @storage_var
-func allowances(owner: felt, spender: felt) -> (res: Uint256):
+func allowances(owner: felt, spender: felt) -> (allowance: Uint256):
 end
 
 #
 # Constructor
 #
 
-@constructor
-func constructor{
+func erc20_initializer{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr

@@ -226,31 +226,6 @@ func decreaseAllowance{
 end
 
 #
-# Test functions — will remove once extensibility is resolved
-#
-
-@external
-func mint{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256):
-    _mint(recipient, amount)
-    return ()
-end
-
-@external
-func burn{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(user: felt, amount: Uint256):
-    _burn(user, amount)
-    return ()
-end
-
-
-#
 # Internals
 #
 

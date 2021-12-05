@@ -5,10 +5,21 @@ from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils.Signer import Signer
 
+
+def str_to_felt(text):
+    b_text = bytes(text, 'UTF-8')
+    return int.from_bytes(b_text, "big")
+
+
+def uint(a):
+    return(a, 0)
+
+
 signer = Signer(123456789987654321)
 
 MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
+BASE_URI = str_to_felt('https://api.example.com/v1/')
 
 # bools (for readability)
 false = 0
@@ -32,15 +43,6 @@ seventh_token_id = (987, 654)
 other_owned_token = (123, 321)
 nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
-
-
-def str_to_felt(text):
-    b_text = bytes(text, 'UTF-8')
-    return int.from_bytes(b_text, "big")
-
-
-def uint(a):
-    return(a, 0)
 
 
 @pytest.fixture(scope='module')
@@ -691,3 +693,64 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     # balance reflects unsafe transfer
     execution_info = await erc721.balanceOf(unsupported_account.contract_address).call()
     assert execution_info.result == (uint(1),)
+
+
+#
+# tokenURI
+#
+
+
+@pytest.mark.asyncio
+async def test_tokenURI(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    # tokenURI
+    execution_info = await erc721.tokenURI(first_token_id).call()
+    assert execution_info.result.uri[0] == first_token_id[0]
+    assert execution_info.result.uri[1] == first_token_id[1]
+
+
+@pytest.mark.asyncio
+async def test_tokenURI_with_nonexistent_token(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    try:
+        # nonexistent token should make this call fail
+        await erc721.tokenURI(nonexistent_token).call()
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_tokenURI_baseURI_can_be_set(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # setBaseURI
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setBaseURI', [BASE_URI]
+    )
+
+    # tokenURI
+    execution_info = await erc721.tokenURI(second_token_id).call()
+    assert execution_info.result.uri[0] == BASE_URI
+    assert execution_info.result.uri[1] == second_token_id[0]
+    assert execution_info.result.uri[2] == second_token_id[1]
+
+
+@pytest.mark.asyncio
+async def test_baseURI_can_be_reset(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+    new_base_uri = str_to_felt('https://api.example.com/v2/')
+
+    # setBaseURI
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setBaseURI', [new_base_uri]
+    )
+
+    # tokenURI
+    execution_info = await erc721.tokenURI(second_token_id).call()
+    assert execution_info.result.uri[0] == new_base_uri
+    assert execution_info.result.uri[1] == second_token_id[0]
+    assert execution_info.result.uri[2] == second_token_id[1]

@@ -3,6 +3,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.math import assert_not_equal, assert_not_zero
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
@@ -58,6 +59,10 @@ end
 
 @storage_var
 func operator_approvals(owner : felt, operator : felt) -> (res : felt):
+end
+
+@storage_var
+func base_uri() -> (res : felt):
 end
 
 #
@@ -173,6 +178,32 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+@view
+func tokenURI{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(token_id : Uint256) -> (uri_len : felt, uri : felt*):
+    alloc_locals
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    let (local base) = base_uri.read()
+    let (local uri) = alloc()
+    # without baseURI
+    if base == 0:
+        assert [uri] = token_id.low
+        assert [uri + 1] = token_id.high
+        return (2, uri)
+    end
+    
+    # with baseURI
+    assert [uri] = base
+    assert [uri + 1] = token_id.low
+    assert [uri + 2] = token_id.high
+    return (3, uri)
+end
+
 #
 # Externals
 #
@@ -269,6 +300,16 @@ func burn{
         range_check_ptr
     }(token_id : Uint256):
     _burn(token_id)
+    return ()
+end
+
+@external
+func setBaseURI{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(uri : felt):
+    base_uri.write(uri)
     return ()
 end
 
@@ -428,6 +469,15 @@ func _safe_transfer{
     let (success) = _check_onERC721Received(_from, to, token_id, data)
     assert_not_zero(success)
     return ()
+end
+
+func _base_uri{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }() -> (res : felt):
+    let (res) = base_uri.read()
+    return (res)
 end
 
 func _check_onERC721Received{

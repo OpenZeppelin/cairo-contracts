@@ -9,6 +9,30 @@ from starkware.cairo.common.uint256 import (
 )
 
 #
+# Receiver Interface
+#
+
+@contract_interface
+namespace IERC721Receiver:
+    func onERC721Received(
+        operator : felt,
+        _from : felt,
+        token_id : Uint256,
+        data : felt
+    ) -> (ret_val : felt):
+    end
+end
+
+#
+# InterfaceIds
+#
+
+const ERC165_ID = '0x01ffc9a7'
+const ERC721_RECEIVER_ID = '0x150b7a02'
+const ERC721_ID = '0x80ac58cd'
+const INVALID_ID = '0xffffffff'
+
+#
 # Storage
 #
 
@@ -56,12 +80,37 @@ end
 #
 
 @view
+func supportsInterface{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    } (interface_id : felt) -> (success : felt):
+    # 721
+    if interface_id == ERC721_ID:
+        return (1)
+    end
+
+    # 165
+    if interface_id == ERC165_ID:
+        return (1)
+    end
+
+    # The INVALID_ID must explicitly return false ('0')
+    # according to EIP721
+    if interface_id == INVALID_ID:
+        return (0)
+    end
+
+    return (0)
+end
+
+@view
 func balanceOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
     }(owner : felt) -> (balance : Uint256):
-    # checks that query is not for zero address
+    # Checks that query is not for zero address
     assert_not_zero(owner)
 
     let (balance: Uint256) = balances.read(owner=owner)
@@ -75,7 +124,7 @@ func ownerOf{
         range_check_ptr
     }(token_id : Uint256) -> (owner : felt):
     let (owner) = owners.read(token_id.low, token_id.high)
-    # ensuring the query is not for nonexistent token
+    # Ensuring the query is not for nonexistent token
     assert_not_zero(owner)
 
     return (owner)
@@ -134,15 +183,15 @@ func approve{
         syscall_ptr : felt*, 
         range_check_ptr
     }(approved : felt, token_id : Uint256):
-    # checks caller is not zero address
+    # Checks caller is not zero address
     let (caller) = get_caller_address()
     assert_not_zero(caller)
 
-    # ensures 'owner' does not equal 'to'
+    # Ensures 'owner' does not equal 'to'
     let (owner) = owners.read(token_id.low, token_id.high)
     assert_not_equal(owner, approved)
 
-    # checks that either caller equals owner or
+    # Checks that either caller equals owner or
     # caller isApprovedForAll on behalf of owner
     if caller == owner:
         _approve(approved, token_id)
@@ -180,8 +229,27 @@ func transferFrom{
     return ()
 end
 
+@external
+func safeTransferFrom{
+        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr : felt*, 
+        range_check_ptr
+    }(
+        _from : felt, 
+        to : felt, 
+        token_id : Uint256, 
+        data : felt
+    ):
+    let (caller) = get_caller_address()
+    _is_approved_or_owner(caller, token_id)
+
+    _safe_transfer(_from, to, token_id, data)
+    return ()
+end
+
+
 #
-# Test functions — will remove once extensibility is resolved
+# Test functions — remove for production
 #
 
 @external
@@ -221,7 +289,7 @@ func _is_approved_or_owner{
         pedersen_ptr : HashBuiltin*, 
         syscall_ptr : felt*, 
         range_check_ptr
-    }(spender : felt, token_id : Uint256) -> (res : felt):
+    }(spender : felt, token_id: Uint256) -> (res: felt):
     alloc_locals
 
     let (exists) = _exists(token_id)
@@ -266,12 +334,13 @@ func _mint{
     }(to : felt, token_id : Uint256):
     assert_not_zero(to)
 
+    # Ensures token_id is unique
     let (exists) = _exists(token_id)
     assert exists = 0
 
     let (balance: Uint256) = balances.read(to)
-    # overflow is not possible because token_id is guaranteed to be
-    # a unique uint256
+    # Overflow is not possible because token_ids are checked for duplicate ids with `_exists()`
+    # thus, each token is guaranteed to be a unique uint256
     let (new_balance: Uint256, _) = uint256_add(balance, Uint256(1, 0))
     balances.write(to, new_balance)
 
@@ -342,4 +411,49 @@ func _set_approval_for_all{
 
     operator_approvals.write(owner=owner, operator=operator, value=approved)
     return ()
+end
+
+func _safe_transfer{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(
+        _from : felt, 
+        to : felt, 
+        token_id : Uint256,
+        data : felt
+    ):
+    _transfer(_from, to, token_id)
+
+    let (success) = _check_onERC721Received(_from, to, token_id, data)
+    assert_not_zero(success)
+    return ()
+end
+
+func _check_onERC721Received{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }(
+        _from : felt, 
+        to : felt, 
+        token_id : Uint256,
+        data : felt
+    ) -> (success : felt):
+    # We need to consider how to differentiate between EOA and contracts
+    # and insert a conditional to know when to use the proceeding check
+    let (caller) = get_caller_address()
+    # The first parameter in an imported interface is the contract
+    # address of the interface being called
+    let (ret_val) = IERC721Receiver.onERC721Received(
+        to, 
+        caller, 
+        _from, 
+        token_id, 
+        data
+    )
+
+    assert (ret_val) = ERC721_RECEIVER_ID
+    # Cairo equivalent to 'return (true)'
+    return (1)
 end

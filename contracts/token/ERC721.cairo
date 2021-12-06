@@ -16,11 +16,11 @@ from starkware.cairo.common.uint256 import (
 @contract_interface
 namespace IERC721Receiver:
     func onERC721Received(
-        operator : felt,
-        _from : felt,
-        token_id : Uint256,
-        data : felt
-    ) -> (ret_val : felt):
+        operator: felt,
+        _from: felt,
+        token_id: Uint256,
+        data: felt
+    ) -> (ret_val: felt):
     end
 end
 
@@ -38,31 +38,31 @@ const INVALID_ID = '0xffffffff'
 #
 
 @storage_var
-func _name() -> (res : felt):
+func _name() -> (res: felt):
 end
 
 @storage_var
-func _symbol() -> (res : felt):
+func _symbol() -> (res: felt):
 end
 
 @storage_var
-func owners(token_id_low : felt, token_id_high : felt) -> (res : felt):
+func owners(token_id_low: felt, token_id_high: felt) -> (res: felt):
 end
 
 @storage_var
-func balances(owner : felt) -> (res : Uint256):
+func balances(owner: felt) -> (res: Uint256):
 end
 
 @storage_var
-func token_approvals(token_id_low : felt, token_id_high : felt) -> (res : felt):
+func token_approvals(token_id_low: felt, token_id_high: felt) -> (res: felt):
 end
 
 @storage_var
-func operator_approvals(owner : felt, operator : felt) -> (res : felt):
+func operator_approvals(owner: felt, operator: felt) -> (res: felt):
 end
 
 @storage_var
-func base_uri() -> (res : felt):
+func base_uri() -> (res: felt):
 end
 
 #
@@ -71,12 +71,21 @@ end
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(name : felt, symbol : felt, recipient : felt):
+    }(
+        name: felt, 
+        symbol: felt, 
+        _owner: felt,
+        _base_uri: felt
+    ):
     _name.write(name)
     _symbol.write(symbol)
+    base_uri.write(_base_uri)
+
+    # Setting contract owner for testing
+    contract_owner.write(_owner)
     return()
 end
 
@@ -86,10 +95,10 @@ end
 
 @view
 func supportsInterface{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    } (interface_id : felt) -> (success : felt):
+    } (interface_id: felt) -> (success: felt):
     # 721
     if interface_id == ERC721_ID:
         return (1)
@@ -111,10 +120,10 @@ end
 
 @view
 func balanceOf{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(owner : felt) -> (balance : Uint256):
+    }(owner: felt) -> (balance: Uint256):
     # Checks that query is not for zero address
     assert_not_zero(owner)
 
@@ -124,10 +133,10 @@ end
 
 @view
 func ownerOf{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (owner : felt):
+    }(token_id: Uint256) -> (owner: felt):
     let (owner) = owners.read(token_id.low, token_id.high)
     # Ensuring the query is not for nonexistent token
     assert_not_zero(owner)
@@ -137,30 +146,30 @@ end
 
 @view
 func name{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }() -> (name : felt):
+    }() -> (name: felt):
     let (name) = _name.read()
     return (name)
 end
 
 @view
 func symbol{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }() -> (symbol : felt):
+    }() -> (symbol: felt):
     let (symbol) = _symbol.read()
     return (symbol)
 end
 
 @view
 func getApproved{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (approved : felt):
+    }(token_id: Uint256) -> (approved: felt):
     let (exists) = _exists(token_id)
     assert exists = 1
 
@@ -170,20 +179,20 @@ end
 
 @view
 func isApprovedForAll{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(owner : felt, operator : felt) -> (is_approved : felt):
+    }(owner: felt, operator: felt) -> (is_approved: felt):
     let (is_approved) = operator_approvals.read(owner=owner, operator=operator)
     return (is_approved)
 end
 
 @view
 func tokenURI{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (uri_len : felt, uri : felt*):
+    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
     alloc_locals
     let (exists) = _exists(token_id)
     assert exists = 1
@@ -210,10 +219,10 @@ end
 
 @external
 func approve{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
-    }(approved : felt, token_id : Uint256):
+    }(approved: felt, token_id: Uint256):
     # Checks caller is not zero address
     let (caller) = get_caller_address()
     assert_not_zero(caller)
@@ -237,10 +246,10 @@ end
 
 @external
 func setApprovalForAll{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(operator : felt, approved : felt):
+    }(operator: felt, approved: felt):
     let (caller) = get_caller_address()
 
     _set_approval_for_all(caller, operator, approved)
@@ -249,10 +258,10 @@ end
 
 @external
 func transferFrom{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
-    }(_from : felt, to : felt, token_id : Uint256):
+    }(_from: felt, to: felt, token_id: Uint256):
     let (caller) = get_caller_address()
     _is_approved_or_owner(caller, token_id)
 
@@ -262,14 +271,14 @@ end
 
 @external
 func safeTransferFrom{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
     }(
-        _from : felt, 
-        to : felt, 
-        token_id : Uint256, 
-        data : felt
+        _from: felt, 
+        to: felt, 
+        token_id: Uint256, 
+        data: felt
     ):
     let (caller) = get_caller_address()
     _is_approved_or_owner(caller, token_id)
@@ -278,59 +287,24 @@ func safeTransferFrom{
     return ()
 end
 
-
-#
-# Test functions — remove for production
-#
-
-@external
-func mint{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
-        range_check_ptr
-    }(to : felt, token_id : Uint256):
-    _mint(to, token_id)
-    return ()
-end
-
-@external
-func burn{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
-        range_check_ptr
-    }(token_id : Uint256):
-    _burn(token_id)
-    return ()
-end
-
-@external
-func setBaseURI{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
-        range_check_ptr
-    }(uri : felt):
-    base_uri.write(uri)
-    return ()
-end
-
 #
 # Internals
 #
 
 func _approve{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(to : felt, token_id : Uint256):
+    }(to: felt, token_id: Uint256):
     token_approvals.write(token_id.low, token_id.high, to)
     return ()
 end
 
 func _is_approved_or_owner{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
-    }(spender : felt, token_id: Uint256) -> (res: felt):
+    }(spender: felt, token_id: Uint256) -> (res: felt):
     alloc_locals
 
     let (exists) = _exists(token_id)
@@ -355,10 +329,10 @@ func _is_approved_or_owner{
 end
 
 func _exists{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(token_id : Uint256) -> (res : felt):
+    }(token_id: Uint256) -> (res: felt):
     let (res) = owners.read(token_id.low, token_id.high)
 
     if res == 0:
@@ -369,10 +343,10 @@ func _exists{
 end
 
 func _mint{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
-    }(to : felt, token_id : Uint256):
+    }(to: felt, token_id: Uint256):
     assert_not_zero(to)
 
     # Ensures token_id is unique
@@ -391,10 +365,10 @@ func _mint{
 end
 
 func _burn{
-        pedersen_ptr : HashBuiltin*, 
-        syscall_ptr : felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
         range_check_ptr
-    }(token_id : Uint256):
+    }(token_id: Uint256):
     let (owner) = ownerOf(token_id)
 
     # Clear approvals
@@ -411,10 +385,10 @@ func _burn{
 end
 
 func _transfer{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(_from : felt, to : felt, token_id : Uint256):
+    }(_from: felt, to: felt, token_id: Uint256):
     # ownerOf ensures '_from' is not the zero address
     let (_ownerOf) = ownerOf(token_id)
     assert _ownerOf = _from
@@ -441,10 +415,10 @@ func _transfer{
 end
 
 func _set_approval_for_all{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }(owner : felt, operator : felt, approved : felt):
+    }(owner: felt, operator: felt, approved: felt):
     assert_not_equal(owner, operator)
 
     # Make sure `approved` is a boolean (0 or 1)
@@ -455,14 +429,14 @@ func _set_approval_for_all{
 end
 
 func _safe_transfer{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(
-        _from : felt, 
-        to : felt, 
-        token_id : Uint256,
-        data : felt
+        _from: felt, 
+        to: felt, 
+        token_id: Uint256,
+        data: felt
     ):
     _transfer(_from, to, token_id)
 
@@ -472,24 +446,24 @@ func _safe_transfer{
 end
 
 func _base_uri{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    }() -> (res : felt):
+    }() -> (res: felt):
     let (res) = base_uri.read()
     return (res)
 end
 
 func _check_onERC721Received{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(
-        _from : felt, 
-        to : felt, 
-        token_id : Uint256,
-        data : felt
-    ) -> (success : felt):
+        _from: felt, 
+        to: felt, 
+        token_id: Uint256,
+        data: felt
+    ) -> (success: felt):
     # We need to consider how to differentiate between EOA and contracts
     # and insert a conditional to know when to use the proceeding check
     let (caller) = get_caller_address()
@@ -507,3 +481,53 @@ func _check_onERC721Received{
     # Cairo equivalent to 'return (true)'
     return (1)
 end
+
+#
+# Exposed methods with _only_owner() assertion for testing
+#
+
+@storage_var
+func contract_owner() -> (res: felt):
+end
+
+func _only_owner{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(account: felt):
+    let (owner) = contract_owner.read()
+    assert account = owner
+    return ()
+end
+
+@external
+func mint{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(to: felt, token_id: Uint256):
+    let (caller) = get_caller_address()
+    _only_owner(caller)
+
+    _mint(to, token_id)
+    return ()
+end
+
+@external
+func burn{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(token_id: Uint256):
+    alloc_locals
+    let (local caller) = get_caller_address()
+    let (local token_owner) = ownerOf(token_id)
+    _only_owner(caller)
+    # Contract owner can only burn their own tokens
+    # for testing and safety in production
+    assert caller = token_owner
+
+    _burn(token_id)
+    return ()
+end
+

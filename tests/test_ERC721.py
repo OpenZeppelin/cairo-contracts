@@ -61,9 +61,10 @@ async def erc721_factory():
     erc721 = await starknet.deploy(
         "contracts/token/ERC721.cairo",
         constructor_calldata=[
-            str_to_felt("Non Fungible Token"),
-            str_to_felt("NFT"),
-            account.contract_address
+            str_to_felt("Non Fungible Token"),  # name
+            str_to_felt("NFT"),                 # ticker
+            account.contract_address,           # contract_owner
+            BASE_URI                            # base_uri
         ]
     )
 
@@ -158,6 +159,27 @@ async def test_mint_approve_should_be_zero_address(erc721_factory):
     execution_info = await erc721.getApproved(seventh_token_id).call()
     assert execution_info.result == (0,)
 
+
+@pytest.mark.asyncio
+async def test_mint_by_not_owner(erc721_factory):
+    starknet, erc721, _, _ = erc721_factory
+    not_owner = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    try:
+        # minting from not_owner should fail
+        await signer.send_transaction(
+            not_owner, erc721.contract_address, 'mint', [
+                not_owner.contract_address, *eighth_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
 #
 # Burn
 #
@@ -219,6 +241,61 @@ async def test_burn_nonexistent_token(erc721_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_burn_contract_owner_token_by_different_account(erc721_factory):
+    starknet, erc721, _, _ = erc721_factory
+    not_owner = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    try:
+        # not_owner should not be able to burn tokens
+        await signer.send_transaction(
+            not_owner, erc721.contract_address, 'burn', [*first_token_id]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+@pytest.mark.asyncio
+async def test_burn_token_not_owned_by_contract_owner(erc721_factory):
+    starknet, erc721, account, _ = erc721_factory
+    not_owner = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    # mint token to non_contract_owner
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            not_owner.contract_address, *token_to_burn]
+    )
+
+    try:
+        # should fail because contract owner does not own token
+        await signer.send_transaction(
+            account, erc721.contract_address, 'burn', [*token_to_burn]
+        )
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+    # send token to owner
+    await signer.send_transaction(
+        not_owner, erc721.contract_address, 'transferFrom', [
+            not_owner.contract_address, account.contract_address, *token_to_burn]
+    )
+
+    # burn token
+    await signer.send_transaction(
+        account, erc721.contract_address, 'burn', [*token_to_burn]
+    )
 
 
 #
@@ -706,8 +783,9 @@ async def test_tokenURI(erc721_factory):
 
     # tokenURI
     execution_info = await erc721.tokenURI(first_token_id).call()
-    assert execution_info.result.uri[0] == first_token_id[0]
-    assert execution_info.result.uri[1] == first_token_id[1]
+    assert execution_info.result.uri[0] == BASE_URI
+    assert execution_info.result.uri[1] == first_token_id[0]
+    assert execution_info.result.uri[2] == first_token_id[1]
 
 
 @pytest.mark.asyncio
@@ -724,33 +802,28 @@ async def test_tokenURI_with_nonexistent_token(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_tokenURI_baseURI_can_be_set(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_tokenURI_with_no_base_uri(erc721_factory):
+    starknet, _, account, _ = erc721_factory
 
-    # setBaseURI
+    # creating a new contract instance to set the base_uri
+    # to zero
+    new_erc721 = await starknet.deploy(
+        "contracts/token/ERC721.cairo",
+        constructor_calldata=[
+            str_to_felt("Non Fungible Token"),  # name
+            str_to_felt("NFT"),                 # ticker
+            account.contract_address,           # contract_owner
+            0                                   # base_uri
+        ]
+    )
+
+    # mint
     await signer.send_transaction(
-        account, erc721.contract_address, 'setBaseURI', [BASE_URI]
+        account, new_erc721.contract_address, 'mint', [
+            account.contract_address, *first_token_id]
     )
 
     # tokenURI
-    execution_info = await erc721.tokenURI(second_token_id).call()
-    assert execution_info.result.uri[0] == BASE_URI
-    assert execution_info.result.uri[1] == second_token_id[0]
-    assert execution_info.result.uri[2] == second_token_id[1]
-
-
-@pytest.mark.asyncio
-async def test_baseURI_can_be_reset(erc721_factory):
-    _, erc721, account, _ = erc721_factory
-    new_base_uri = str_to_felt('https://api.example.com/v2/')
-
-    # setBaseURI
-    await signer.send_transaction(
-        account, erc721.contract_address, 'setBaseURI', [new_base_uri]
-    )
-
-    # tokenURI
-    execution_info = await erc721.tokenURI(second_token_id).call()
-    assert execution_info.result.uri[0] == new_base_uri
-    assert execution_info.result.uri[1] == second_token_id[0]
-    assert execution_info.result.uri[2] == second_token_id[1]
+    execution_info = await new_erc721.tokenURI(first_token_id).call()
+    assert execution_info.result.uri[0] == first_token_id[0]
+    assert execution_info.result.uri[1] == first_token_id[1]

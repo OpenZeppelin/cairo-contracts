@@ -521,10 +521,10 @@ func burn{
     }(token_id: Uint256):
     alloc_locals
     let (local caller) = get_caller_address()
-    let (local token_owner) = ownerOf(token_id)
     _only_owner(caller)
     # Contract owner can only burn their own tokens
     # for testing and safety in production
+    let (token_owner) = ownerOf(token_id)
     assert caller = token_owner
 
     _burn(token_id)

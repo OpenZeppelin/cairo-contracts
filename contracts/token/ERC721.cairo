@@ -74,7 +74,7 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name : felt, symbol : felt, recipient : felt):
+    }(name : felt, symbol : felt):
     _name.write(name)
     _symbol.write(symbol)
     return()

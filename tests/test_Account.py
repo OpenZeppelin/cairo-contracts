@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils.Signer import Signer
+from utils import Signer
 
 signer = Signer(123456789987654321)
 other = Signer(987654321123456789)

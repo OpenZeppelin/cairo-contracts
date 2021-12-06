@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils.Signer import Signer
+from utils import Signer
 
 signer = Signer(123456789987654321)
 

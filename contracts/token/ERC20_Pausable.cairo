@@ -15,6 +15,14 @@ from contracts.token.ERC20_base import (
     ERC20_transfer
 )
 
+from contracts.Ownable import Ownable_initializer
+from contracts.Pausable import (
+    Pausable_paused,
+    Pausable_pause,
+    Pausable_unpause,
+    Pausable_when_not_paused
+)
+
 @constructor
 func constructor{
         syscall_ptr: felt*, 
@@ -24,9 +32,12 @@ func constructor{
         name: felt,
         symbol: felt,
         initial_supply: Uint256,
-        recipient: felt
+        recipient: felt,
+        owner: felt
     ):
+    # huge to do: prevent initializer to be called twice
     ERC20_initializer(name, symbol, initial_supply, recipient)
+    Ownable_initializer(owner)
     return ()
 end
 
@@ -40,6 +51,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     let (sender) = get_caller_address()
     ERC20_transfer(sender, recipient, amount)
 
@@ -58,6 +70,7 @@ func transferFrom{
         amount: Uint256
     ) -> (success: felt):
     alloc_locals
+    Pausable_when_not_paused()
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
 
@@ -81,6 +94,7 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     let (caller) = get_caller_address()
     ERC20_approve(caller, spender, amount)
 
@@ -95,6 +109,7 @@ func increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
     alloc_locals
+    Pausable_when_not_paused()
     uint256_check(added_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
@@ -116,6 +131,7 @@ func decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     alloc_locals
+    Pausable_when_not_paused()
     uint256_check(subtracted_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
@@ -129,4 +145,34 @@ func decreaseAllowance{
 
     # Cairo equivalent to 'return (true)'
     return (1)
+end
+
+@external
+func paused{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (paused: felt):
+    let (paused) = Pausable_paused.read()
+    return (paused)
+end
+
+@external
+func pause{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Pausable_pause()
+    return ()
+end
+
+@external
+func unpause{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Pausable_unpause()
+    return ()
 end

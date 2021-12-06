@@ -1,9 +1,20 @@
-"""Utility for sending signed transactions to an Account on Starknet."""
+"""Utilities for testing Cairo contracts."""
 
 
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.cairo.common.hash_state import compute_hash_on_elements
+
+MAX_UINT256 = (2**128 - 1, 2**128 - 1)
+
+
+def str_to_felt(text):
+    b_text = bytes(text, 'UTF-8')
+    return int.from_bytes(b_text, "big")
+
+
+def uint(a):
+    return(a, 0)
 
 
 class Signer():

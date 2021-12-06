@@ -3,20 +3,9 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils.Signer import Signer
+from utils import Signer, uint, str_to_felt, MAX_UINT256
 
 signer = Signer(123456789987654321)
-
-MAX_AMOUNT = (2**128 - 1, 2**128 - 1)
-
-
-def uint(a):
-    return(a, 0)
-
-
-def str_to_felt(text):
-    b_text = bytes(text, 'UTF-8')
-    return int.from_bytes(b_text, "big")
 
 
 @pytest.fixture(scope='module')
@@ -277,7 +266,7 @@ async def test_increaseAllowance_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 234
-    amount = (MAX_AMOUNT)
+    amount = MAX_UINT256
     # overflow_amount adds (1, 0) to (2**128 - 1, 2**128 - 1)
     overflow_amount = uint(1)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])

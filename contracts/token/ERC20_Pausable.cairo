@@ -20,7 +20,7 @@ from contracts.Ownable_base import (
     Ownable_only_owner
 )
 
-from contracts.Pausable import (
+from contracts.Pausable_base import (
     Pausable_paused,
     Pausable_pause,
     Pausable_unpause,
@@ -39,7 +39,6 @@ func constructor{
         recipient: felt,
         owner: felt
     ):
-    # huge to do: prevent initializer to be called twice
     ERC20_initializer(name, symbol, initial_supply, recipient)
     Ownable_initializer(owner)
     return ()

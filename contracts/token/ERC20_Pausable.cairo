@@ -15,7 +15,11 @@ from contracts.token.ERC20_base import (
     ERC20_transfer
 )
 
-from contracts.Ownable_base import Ownable_initializer
+from contracts.Ownable_base import (
+    Ownable_initializer,
+    Ownable_only_owner
+)
+
 from contracts.Pausable import (
     Pausable_paused,
     Pausable_pause,
@@ -163,6 +167,7 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
+    Ownable_only_owner()
     Pausable_pause()
     return ()
 end
@@ -173,6 +178,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
+    Ownable_only_owner()
     Pausable_unpause()
     return ()
 end

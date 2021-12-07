@@ -2,7 +2,6 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from contracts.Ownable_base import Ownable_only_owner
 
 @storage_var
 func Pausable_paused() -> (paused: felt):
@@ -33,7 +32,6 @@ func Pausable_pause{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
     Pausable_when_not_paused()
     Pausable_paused.write(1)
     return ()
@@ -44,7 +42,6 @@ func Pausable_unpause{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
     Pausable_when_paused()
     Pausable_paused.write(0)
     return ()

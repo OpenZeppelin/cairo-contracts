@@ -1,9 +1,10 @@
 """Utilities for testing Cairo contracts."""
 
-
-from starkware.crypto.signature.signature import private_to_stark_key, sign
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.cairo.common.hash_state import compute_hash_on_elements
+from starkware.crypto.signature.signature import private_to_stark_key, sign
+from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 
@@ -15,6 +16,15 @@ def str_to_felt(text):
 
 def uint(a):
     return(a, 0)
+
+
+async def assert_revert(fun):
+    try:
+        await fun
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
 
 class Signer():

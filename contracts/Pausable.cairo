@@ -2,7 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from contracts.Ownable import Ownable_only_owner
+from contracts.Ownable_base import Ownable_only_owner
 
 @storage_var
 func Pausable_paused() -> (paused: felt):

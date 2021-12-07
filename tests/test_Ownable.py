@@ -30,7 +30,7 @@ async def ownable_factory():
 async def test_constructor(ownable_factory):
     _, ownable, owner = ownable_factory
     expected = await ownable.get_owner().call()
-    assert expected.result.res == owner.contract_address
+    assert expected.result.owner == owner.contract_address
 
 
 @pytest.mark.asyncio

@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer, uint, str_to_felt
+from utils import Signer, uint, str_to_felt, assert_revert
 
 signer = Signer(123456789987654321)
 
@@ -66,65 +66,40 @@ async def test_pause(token_factory):
     execution_info = await token.paused().call()
     assert execution_info.result.paused == 1
 
-    try:
-        await signer.send_transaction(
-            owner,
-            token.contract_address,
-            'transfer',
-            [other.contract_address, *amount]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        owner,
+        token.contract_address,
+        'transfer',
+        [other.contract_address, *amount]
+    ))
 
-    try:
-        await signer.send_transaction(
-            owner,
-            token.contract_address,
-            'transferFrom',
-            [other.contract_address, other.contract_address, *amount]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        owner,
+        token.contract_address,
+        'transferFrom',
+        [other.contract_address, other.contract_address, *amount]
+    ))
 
-    try:
-        await signer.send_transaction(
-            owner,
-            token.contract_address,
-            'approve',
-            [other.contract_address, *amount]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        owner,
+        token.contract_address,
+        'approve',
+        [other.contract_address, *amount]
+    ))
 
-    try:
-        await signer.send_transaction(
-            owner,
-            token.contract_address,
-            'increaseAllowance',
-            [other.contract_address, *amount]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        owner,
+        token.contract_address,
+        'increaseAllowance',
+        [other.contract_address, *amount]
+    ))
 
-    try:
-        await signer.send_transaction(
-            owner,
-            token.contract_address,
-            'decreaseAllowance',
-            [other.contract_address, *amount]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        owner,
+        token.contract_address,
+        'decreaseAllowance',
+        [other.contract_address, *amount]
+    ))
 
 
 @pytest.mark.asyncio
@@ -181,16 +156,8 @@ async def test_unpause(token_factory):
 async def test_only_owner(token_factory):
     _, token, _, other = token_factory
 
-    try:
-        await signer.send_transaction(other, token.contract_address, 'pause', [])
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        other, token.contract_address, 'pause', []))
 
-    try:
-        await signer.send_transaction(other, token.contract_address, 'unpause', [])
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        other, token.contract_address, 'unpause', []))

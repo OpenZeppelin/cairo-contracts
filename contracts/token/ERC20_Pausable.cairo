@@ -15,7 +15,7 @@ from contracts.token.ERC20_base import (
     ERC20_transfer
 )
 
-from contracts.Ownable import Ownable_initializer
+from contracts.Ownable_base import Ownable_initializer
 from contracts.Pausable import (
     Pausable_paused,
     Pausable_pause,

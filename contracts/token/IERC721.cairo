@@ -7,10 +7,17 @@ from starkware.cairo.common.uint256 import Uint256
 namespace IERC165:
     func supportsInterface(interface_id: felt) -> (success: felt):
     end
+end
 
 
 @contract_interface
 namespace IERC721:
+    func name() -> (name: felt):
+    end
+
+    func symbol() -> (symbol: felt):
+    end
+
     func balanceOf(owner: felt) -> (balance: Uint256):
     end
 
@@ -18,11 +25,12 @@ namespace IERC721:
     end
 
     func safeTransferFrom(
-        _from: felt, 
-        to: felt, 
-        token_id: Uint256, 
-        data: felt
-    ):
+            _from: felt, 
+            to: felt, 
+            token_id: Uint256, 
+            data: felt
+        ):
+    end
 
     func transferFrom(_from: felt, to: felt, token_id: Uint256):
     end
@@ -38,3 +46,4 @@ namespace IERC721:
 
     func isApprovedForAll(owner: felt, operator: felt) -> (is_approved: felt):
     end
+end

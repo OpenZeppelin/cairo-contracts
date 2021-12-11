@@ -31,6 +31,7 @@ end
 const ERC165_ID = '0x01ffc9a7'
 const ERC721_RECEIVER_ID = '0x150b7a02'
 const ERC721_ID = '0x80ac58cd'
+const METADATA_ID = '0x5b5e139f'
 const INVALID_ID = '0xffffffff'
 
 #

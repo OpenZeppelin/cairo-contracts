@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils.Signer import Signer
+from utils import Signer
 
 signer = Signer(123456789987654321)
 
@@ -30,7 +30,7 @@ async def ownable_factory():
 async def test_constructor(ownable_factory):
     _, ownable, owner = ownable_factory
     expected = await ownable.get_owner().call()
-    assert expected.result.res == owner.contract_address
+    assert expected.result.owner == owner.contract_address
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils.Signer import Signer
+from utils import Signer
 
 signer = Signer(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984

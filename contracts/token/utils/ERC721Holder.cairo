@@ -4,11 +4,6 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-#
-# InterfaceId
-#
-const ERC721_RECEIVER_ID = '0x150b7a02'
-
 @view
 func onERC721Received{
         syscall_ptr : felt*, 
@@ -20,5 +15,6 @@ func onERC721Received{
         token_id: Uint256,
         data: felt
     ) -> (ret_val : felt): 
-    return (ERC721_RECEIVER_ID)
+    # ERC721_RECEIVER_ID
+    return ('0x150b7a02')
 end

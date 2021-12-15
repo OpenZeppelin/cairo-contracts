@@ -86,9 +86,9 @@ There's no clear contract extensibility pattern for Cairo smart contracts yet. I
 
 ## Learn
 
-### Contracts documentation
+### Contract documentation
 * [Account](docs/Account.md)
-* ERC20
+* [ERC20](docs/ERC20.md)
 * ERC721
 ### Cairo
 * [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)

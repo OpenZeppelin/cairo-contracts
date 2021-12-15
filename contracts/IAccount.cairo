@@ -26,6 +26,6 @@ namespace IAccount:
             calldata_len: felt,
             calldata: felt*,
             nonce: felt
-        ) -> (response: felt):
+        ) -> (response_len: felt, response: felt*):
     end
 end

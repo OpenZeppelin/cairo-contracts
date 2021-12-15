@@ -9,7 +9,6 @@ from starkware.starknet.definitions.error_codes import StarknetErrorCode
 signer = Signer(123456789987654321)
 
 ZERO_ADDRESS = 0
-BASE_URI = str_to_felt('https://api.example.com/v1/')
 
 # bools (for readability)
 false = 0

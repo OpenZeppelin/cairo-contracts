@@ -25,7 +25,7 @@ end
 func initialized() -> (res: felt):
 end
 
-@constsructor
+@constructor
 func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,

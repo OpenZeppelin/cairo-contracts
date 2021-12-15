@@ -38,6 +38,10 @@ func constructor{
     return ()
 end
 
+#
+# Externals
+#
+
 @external
 func approve{
         pedersen_ptr: HashBuiltin*, 

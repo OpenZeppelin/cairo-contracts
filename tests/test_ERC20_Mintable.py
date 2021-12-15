@@ -49,6 +49,19 @@ async def test_constructor(token_factory):
 
 
 @pytest.mark.asyncio
+async def test_mint(token_factory):
+    _, erc20, account = token_factory
+    amount = uint(1)
+
+    await signer.send_transaction(account, erc20.contract_address, 'mint', [account.contract_address, *amount])
+
+    # check new supply
+    execution_info = await erc20.totalSupply().call()
+    new_supply = execution_info.result.totalSupply
+    assert new_supply == uint(1001)
+
+
+@pytest.mark.asyncio
 async def test_mint_to_zero_address(token_factory):
     _, erc20, account = token_factory
     zero_address = 0
@@ -80,11 +93,6 @@ async def test_mint_overflow(token_factory):
     )
 
     await signer.send_transaction(account, erc20.contract_address, 'mint', [recipient, *pass_amount])
-
-    # check new supply
-    execution_info = await erc20.totalSupply().call()
-    new_supply = execution_info.result.totalSupply
-    assert new_supply == MAX_UINT256
 
     # fail_amount displays the edge case where any addition over MAX_SUPPLY
     # should result in a failing tx

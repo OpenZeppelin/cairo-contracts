@@ -56,7 +56,7 @@ async def erc721_factory():
         ]
     )
 
-    erc721_holder = await starknet.deploy("contracts/token/utils/ERC721Holder.cairo")
+    erc721_holder = await starknet.deploy("contracts/token/utils/ERC721_Holder.cairo")
     return starknet, erc721, account, erc721_holder
 
 
@@ -196,14 +196,10 @@ async def test_burn(erc721_factory):
 async def test_burn_nonexistent_token(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
-    try:
-        await signer.send_transaction(
-            account, erc721.contract_address, 'burn', [*nonexistent_token]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    assert_revert(lambda: signer.send_transaction(
+        account, erc721.contract_address, 'burn', [
+            *nonexistent_token
+        ]))
 
 
 @pytest.mark.asyncio

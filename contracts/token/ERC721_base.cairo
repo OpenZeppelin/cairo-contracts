@@ -16,7 +16,7 @@ from contracts.ERC165 import (
 #
 
 @contract_interface
-namespace IERC721Receiver:
+namespace IERC721_Receiver:
     func onERC721Received(
         operator: felt,
         _from: felt,
@@ -409,7 +409,7 @@ func _check_onERC721Received{
     let (caller) = get_caller_address()
     # The first parameter in an imported interface is the contract
     # address of the interface being called
-    let (ret_val) = IERC721Receiver.onERC721Received(
+    let (ret_val) = IERC721_Receiver.onERC721Received(
         to, 
         caller, 
         _from, 

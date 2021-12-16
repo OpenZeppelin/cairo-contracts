@@ -67,7 +67,11 @@ func transferFrom{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(_from: felt, to: felt, token_id: Uint256):
+    }(
+        _from: felt, 
+        to: felt, 
+        token_id: Uint256
+    ):
     ERC721_transferFrom(_from, to, token_id)
     return ()
 end

@@ -2,6 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
+from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub
@@ -52,6 +53,10 @@ end
 
 @storage_var
 func ERC721_operator_approvals(owner: felt, operator: felt) -> (res: felt):
+end
+
+@storage_var
+func ERC721_base_uri() -> (res: felt):
 end
 
 #
@@ -290,6 +295,40 @@ func ERC721_safe_mint{
     )
     assert_not_zero(success)
     return ()
+end
+
+func ERC721_set_base_uri{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(base: felt):
+    ERC721_base_uri.write(base) 
+    return ()
+end
+
+# Not a view function to prevent clashes with URI storage
+func ERC721_token_uri{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
+    alloc_locals
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    let (local base) = ERC721_base_uri.read()
+    let (local uri) = alloc()
+    # without baseURI, should return [0]
+    if base == 0:
+        assert [uri] = 0
+        return (1, uri)
+    end
+    
+    # with baseURI
+    assert [uri] = base
+    assert [uri + 1] = token_id.low
+    assert [uri + 2] = token_id.high
+    return (3, uri)
 end
 
 #

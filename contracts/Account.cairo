@@ -164,13 +164,15 @@ func execute{
         _current_nonce
     )
 
+    # bump nonce before signature validation
+    # prevents StarkNet from locking you out of your transaction
+    # see: https://www.cairo-lang.org/docs/hello_starknet/user_auth.html#what-if-we-have-an-invalid-signature
+    current_nonce.write(_current_nonce + 1)
+
     # validate transaction
     let (hash) = hash_message(&message)
     let (signature_len, signature) = get_tx_signature()
     is_valid_signature(hash, signature_len, signature)
-
-    # bump nonce
-    current_nonce.write(_current_nonce + 1)
 
     # execute call
     let response = call_contract(

@@ -12,7 +12,6 @@ from contracts.token.ERC721_base import (
     ERC721_safeTransferFrom,
     ERC721_mint,
     ERC721_burn,
-    ERC721_token_uri,
     ERC721_base_uri
 )
 
@@ -105,19 +104,3 @@ func mint{
     ERC721_mint(to, token_id)
     return ()
 end
-
-#
-# Metadata Method
-#
-
-@view
-func tokenURI{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
-    # If baseURI is set to zero, this will return '[0]'
-    let (uri_len, uri: felt*) = ERC721_token_uri(token_id)
-    return (uri_len, uri)
-end
-

@@ -164,6 +164,31 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+@view
+func tokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
+    alloc_locals
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    let (local base) = ERC721_base_uri.read()
+    let (local uri) = alloc()
+    # without baseURI, should return [0]
+    if base == 0:
+        assert [uri] = 0
+        return (1, uri)
+    end
+    
+    # with baseURI
+    assert [uri] = base
+    assert [uri + 1] = token_id.low
+    assert [uri + 2] = token_id.high
+    return (3, uri)
+end
+
 #
 # Externals
 #
@@ -304,31 +329,6 @@ func ERC721_set_base_uri{
     }(base: felt):
     ERC721_base_uri.write(base) 
     return ()
-end
-
-# Not a view function to prevent clashes with URI storage
-func ERC721_token_uri{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
-    alloc_locals
-    let (exists) = _exists(token_id)
-    assert exists = 1
-
-    let (local base) = ERC721_base_uri.read()
-    let (local uri) = alloc()
-    # without baseURI, should return [0]
-    if base == 0:
-        assert [uri] = 0
-        return (1, uri)
-    end
-    
-    # with baseURI
-    assert [uri] = base
-    assert [uri + 1] = token_id.low
-    assert [uri + 2] = token_id.high
-    return (3, uri)
 end
 
 #

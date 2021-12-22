@@ -27,7 +27,7 @@ async def ERC1155_factory():
     )
 
     erc1155 = await starknet.deploy(
-        "contracts/token/ERC1155_base.cairo",
+        "contracts/token/ERC1155/ERC1155_base.cairo",
         constructor_calldata=[
             account.contract_address,   # recipient
             2,
@@ -60,7 +60,7 @@ async def test_balanceOfBatch(ERC1155_factory):
     assert execution_info.result.balance == [1000, 5000]
     assert len(execution_info.result.balance) == len(tokenIds)
 
-
+# TestApprovalForAll
 @pytest.mark.asyncio
 async def test_is_approved_for_all(ERC1155_factory):
     _, erc1155, account, operator = ERC1155_factory
@@ -78,12 +78,12 @@ async def test_is_approved_for_all(ERC1155_factory):
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
     await signer.send_transaction(account, erc1155.contract_address, 'setApprovalForAll', [operator.contract_address, approval])
-    assert(await erc1155.is_approved_for_all(account.contract_address, operator.contract_address).call()).result == (1,)
+    assert(await erc1155.isApprovedForAll(account.contract_address, operator.contract_address).call()).result == (1,)
 
     await signer.send_transaction(account, erc1155.contract_address, 'setApprovalForAll', [operator.contract_address, 0])
-    assert(await erc1155.is_approved_for_all(account.contract_address, operator.contract_address).call()).result == (0,)
+    assert(await erc1155.isApprovedForAll(account.contract_address, operator.contract_address).call()).result == (0,)
 
-
+# TestTransferFrom
 @pytest.mark.asyncio
 async def test_transfer_from(ERC1155_factory):
     _, erc1155, account, operator = ERC1155_factory
@@ -120,7 +120,7 @@ async def test_transfer_from(ERC1155_factory):
     # Unsetting approval
     await signer.send_transaction(account, erc1155.contract_address, 'setApprovalForAll', [operator.contract_address, 0])
 
-
+# TestBatchTransferFrom
 @pytest.mark.asyncio
 async def test_transfer_batch_from(ERC1155_factory):
     _, erc1155, account, operator = ERC1155_factory
@@ -153,7 +153,7 @@ async def test_transfer_batch_from(ERC1155_factory):
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-# # To test this function ensure _burn function in contract is set to @external
+# TestBurn
 @pytest.mark.asyncio
 async def test_burn(ERC1155_factory):
     _, erc1155, account, _, = ERC1155_factory
@@ -172,7 +172,7 @@ async def test_burn(ERC1155_factory):
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-
+# TestBatchBurn
 @pytest.mark.asyncio
 async def test_burn_batch(ERC1155_factory):
 

@@ -136,7 +136,7 @@ end
 #
 
 @view
-func is_approved_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func isApprovedForAll{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         account : felt, operator : felt) -> (res : felt):
     let (res) = operator_approvals.read(owner=account, operator=operator)
     return (res=res)
@@ -312,7 +312,7 @@ func assert_is_owner_or_approved{pedersen_ptr : HashBuiltin*, syscall_ptr : felt
         return ()
     end
 
-    let (operator_is_approved) = is_approved_for_all(account=address, operator=caller)
+    let (operator_is_approved) = isApprovedForAll(account=address, operator=caller)
     assert operator_is_approved = 1
     return ()
 end

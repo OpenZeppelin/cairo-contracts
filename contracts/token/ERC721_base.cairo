@@ -322,15 +322,6 @@ func ERC721_safe_mint{
     return ()
 end
 
-func ERC721_set_base_uri{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(base: felt):
-    ERC721_base_uri.write(base) 
-    return ()
-end
-
 #
 # Internals
 #

@@ -109,17 +109,17 @@ end
 @view
 func balanceOfBatch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         owners_len : felt, owners : felt*, tokens_id_len : felt, tokens_id : felt*) -> (
-        res_len : felt, res : felt*):
+        balance_len : felt, balance : felt*):
     assert owners_len = tokens_id_len
     alloc_locals
     local max = owners_len
     let (local ret_array : felt*) = alloc()
     local ret_index = 0
-    populate_balance_of_batch(owners, tokens_id, ret_array, ret_index, max)
+    populateBalanceOfBatch(owners, tokens_id, ret_array, ret_index, max)
     return (max, ret_array)
 end
 
-func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func populateBalanceOfBatch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         owners : felt*, tokens_id : felt*, rett : felt*, ret_index : felt, max : felt):
     alloc_locals
     if ret_index == max:
@@ -127,7 +127,7 @@ func populate_balance_of_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*,
     end
     let (local retval0 : felt) = balances.read(owner=owners[0], token_id=tokens_id[0])
     rett[0] = retval0
-    populate_balance_of_batch(owners + 1, tokens_id + 1, rett + 1, ret_index + 1, max)
+    populateBalanceOfBatch(owners + 1, tokens_id + 1, rett + 1, ret_index + 1, max)
     return ()
 end
 
@@ -143,7 +143,7 @@ func is_approved_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range
 end
 
 @external
-func set_approval_for_all{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func setApprovalForAll{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         operator : felt, approved : felt):
     let (account) = get_caller_address()
     assert_not_equal(account, operator)

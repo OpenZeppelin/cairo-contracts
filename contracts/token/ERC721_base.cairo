@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import (
 )
 
 from contracts.ERC165 import (
-    ERC165_supportsInterface
+    ERC165_register_interface
 )
 
 #
@@ -68,31 +68,14 @@ func ERC721_initializer{
     ):
     ERC721_name.write(name)
     ERC721_symbol.write(symbol)
+    # register IERC721
+    ERC165_register_interface('0x80ac58cd')
     return ()
 end
 
 #
 # Getters
 #
-
-@view
-func supportsInterface{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    } (interface_id: felt) -> (success: felt):
-    # 721
-    if interface_id == '0x80ac58cd':
-        return (1)
-    end
-
-    # 165
-    let (is_165) = ERC165_supportsInterface(interface_id)
-    if is_165 == 1:
-        return (1)
-    end
-    return (0)
-end
 
 @view
 func name{

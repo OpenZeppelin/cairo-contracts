@@ -162,12 +162,12 @@ async def test_burn(ERC1155_factory):
 
     # burn 10 tokens
     balance_before = (await erc1155.balanceOf(account.contract_address, token_id).call()).result.balance
-    await signer.send_transaction(account, erc1155.contract_address, 'ERC1155_burn', [account.contract_address, token_id, amount_to_burn])
+    await signer.send_transaction(account, erc1155.contract_address, 'burn', [account.contract_address, token_id, amount_to_burn])
     assert (await erc1155.balanceOf(account.contract_address, token_id).call()).result.balance == balance_before - amount_to_burn
 
     # try burning too much tokens
     try:
-        await signer.send_transaction(account, erc1155.contract_address, 'ERC1155_burn', [account.contract_address, token_id, 5000])
+        await signer.send_transaction(account, erc1155.contract_address, 'burn', [account.contract_address, token_id, 5000])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
@@ -185,7 +185,7 @@ async def test_burn_batch(ERC1155_factory):
 
     operations = [-amount1, -amount2]
 
-    await signer.send_transaction(account, erc1155.contract_address, 'ERC1155_burn_batch', [account.contract_address, 2, 1, 2, 2, amount1, amount2])
+    await signer.send_transaction(account, erc1155.contract_address, 'burn_batch', [account.contract_address, 2, 1, 2, 2, amount1, amount2])
 
     balances_2 = (await erc1155.balanceOfBatch([account.contract_address, account.contract_address], [1, 2]).call()).result.balance
     # Balance 2 = balance 1 with operations made
@@ -193,7 +193,7 @@ async def test_burn_batch(ERC1155_factory):
 
     # Other burns more tokens than current balance
     try:
-        await other.send_transaction(account, erc1155.contract_address, 'ERC1155_burn_batch', [account.contract_address, 2, 1, 2, 2, 1000, 1000])
+        await other.send_transaction(account, erc1155.contract_address, 'burn_batch', [account.contract_address, 2, 1, 2, 2, 1000, 1000])
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED

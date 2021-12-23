@@ -6,9 +6,7 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_nn_le, assert_not_equal, assert_not_zero, assert_le
 from starkware.cairo.common.alloc import alloc
 
-#
-# Storage
-#
+from contracts.token.ERC1155.ERC1155_struct import TokenUri
 
 @storage_var
 func balances(owner : felt, token_id : felt) -> (balance : felt):
@@ -20,42 +18,6 @@ end
 
 @storage_var
 func initialized() -> (res : felt):
-end
-
-struct BlockchainNamespace:
-    member a : felt
-end
-
-# ChainID. Chain Agnostic specifies that the length can go up to 32 nines (i.e. 9999999....) but we will only support 31 nines.
-struct BlockchainReference:
-    member a : felt
-end
-
-struct AssetNamespace:
-    member a : felt
-end
-
-# Contract Address on L1. An address is represented using 20 bytes. Those bytes are written in the `felt`.
-struct AssetReference:
-    member a : felt
-end
-
-# ERC1155 returns the same URI for all token types.
-# TokenId will be represented by the substring '{id}' and so stored in a felt
-# Client calling the function must replace the '{id}' substring with the actual token type ID
-struct TokenId:
-    member a : felt
-end
-
-# As defined by Chain Agnostics (CAIP-29 and CAIP-19):
-# {blockchain_namespace}:{blockchain_reference}/{asset_namespace}:{asset_reference}/{token_id}
-# tokenId will be represented by the substring '{id}'
-struct TokenUri:
-    member blockchain_namespace : BlockchainNamespace
-    member blockchain_reference : BlockchainReference
-    member asset_namespace : AssetNamespace
-    member asset_reference : AssetReference
-    member token_id : TokenId
 end
 
 @storage_var
@@ -89,8 +51,6 @@ end
 # Getters
 #
 
-# Returns the same URI for all tokens type ID
-# Client calling the function must replace the {id} substring with the actual token type ID
 @view
 func get_URI{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
         res : TokenUri):
@@ -213,24 +173,43 @@ func ERC1155_batch_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt
         amounts=amounts + 1)
 end
 
-@external
-func initialize_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        tokens_id_len : felt, tokens_id : felt*, amounts_len : felt, amounts : felt*,
-        uri_ : TokenUri):
-    let (_initialized) = initialized.read()
-    assert _initialized = 0
-    initialized.write(1)
+#
+# INTERNALS
+#
 
-    let (sender) = get_caller_address()
-    ERC1155_mint_batch(sender, tokens_id_len, tokens_id, amounts_len, amounts)
-    SetURI(uri_)
+@external
+func mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, token_id : felt, amount : felt) -> ():
+    ERC1155_mint(recipient, token_id, amount)
 
     return ()
 end
 
-#
-# BURN
-#
+@external
+func mint_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        recipient : felt, token_ids_len : felt, token_ids : felt*, amounts_len : felt,
+        amounts : felt*) -> ():
+    ERC1155_mint_batch(recipient, token_ids_len, token_ids, amounts_len, amounts)
+
+    return ()
+end
+
+@external
+func burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        account : felt, token_id : felt, amount : felt):
+    ERC1155_burn(account, token_id, amount)
+
+    return ()
+end
+
+@external
+func burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+        account : felt, token_ids_len : felt, token_ids : felt*, amounts_len : felt,
+        amounts : felt*):
+    ERC1155_burn_batch(account, token_ids_len, token_ids, amounts_len, amounts)
+
+    return ()
+end
 
 func ERC1155_mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         recipient : felt, token_id : felt, amount : felt) -> ():
@@ -268,7 +247,6 @@ end
 # BURN
 #
 
-@external
 func ERC1155_burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         account : felt, token_id : felt, amount : felt):
     assert_not_zero(account)
@@ -281,7 +259,6 @@ func ERC1155_burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_
     return ()
 end
 
-@external
 func ERC1155_burn_batch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
         account : felt, token_ids_len : felt, token_ids : felt*, amounts_len : felt,
         amounts : felt*):

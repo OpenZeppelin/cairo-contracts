@@ -98,3 +98,12 @@ async def test_tokenURI_baseURI_not_set(erc721_factory):
     # should return an array with '0' since baseURI is not set
     execution_info = await erc721_without_baseURI.tokenURI(first_token_id).call()
     assert execution_info.result == ([0],)
+
+
+@pytest.mark.asyncio
+async def test_supportsInterface(erc721_factory):
+    _, erc721, _ = erc721_factory
+
+    IERC721_Metadata = str_to_felt('0x5b5e139f')
+    execution_info = await erc721.supportsInterface(IERC721_Metadata).call()
+    assert execution_info.result == (1,)

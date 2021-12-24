@@ -15,6 +15,10 @@ from contracts.token.ERC721_base import (
     ERC721_base_uri
 )
 
+from contracts.ERC165 import (
+    ERC165_register_interface
+)
+
 from contracts.Ownable_base import (
     Ownable_initializer,
     Ownable_only_owner
@@ -38,6 +42,8 @@ func constructor{
     ERC721_initializer(name, symbol)
     Ownable_initializer(owner)
     ERC721_base_uri.write(baseURI)
+    # register IERC721_Metadata
+    ERC165_register_interface('0x5b5e139f')
     return ()
 end
 

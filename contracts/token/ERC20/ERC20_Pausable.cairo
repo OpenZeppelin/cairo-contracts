@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
-from contracts.token.ERC20_base import (
+from contracts.token.ERC20.ERC20_base import (
     ERC20_initializer,
     ERC20_allowances,
     ERC20_approve,

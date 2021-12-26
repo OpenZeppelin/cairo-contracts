@@ -4,7 +4,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256 
 
-from contracts.token.ERC721_base import (
+from contracts.token.ERC721.ERC721_base import (
     ERC721_initializer,
     ERC721_approve, 
     ERC721_set_approval_for_all, 

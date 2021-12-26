@@ -37,18 +37,6 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 
-func populateBalanceOfBatch{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-        owners : felt*, tokens_id : felt*, rett : felt*, ret_index : felt, max : felt):
-    alloc_locals
-    if ret_index == max:
-        return ()
-    end
-    let (local retval0 : felt) = ERC1155_balances.read(owner=owners[0], token_id=tokens_id[0])
-    rett[0] = retval0
-    populateBalanceOfBatch(owners + 1, tokens_id + 1, rett + 1, ret_index + 1, max)
-    return ()
-end
-
 #
 # Externals
 #

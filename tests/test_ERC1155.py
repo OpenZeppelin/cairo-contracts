@@ -27,7 +27,7 @@ async def ERC1155_factory():
     )
 
     erc1155 = await starknet.deploy(
-        "contracts/token/ERC1155/ERC1155_base.cairo",
+        "contracts/token/ERC1155/ERC1155_Mintable.cairo",
         constructor_calldata=[
             account.contract_address,   # recipient
             2,
@@ -197,3 +197,36 @@ async def test_burn_batch(ERC1155_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+# Mint
+@pytest.mark.asyncio
+async def test_mint(ERC1155_factory):
+    _, erc1155, account, operator = ERC1155_factory
+    tokenId = 1
+    amount = 100
+
+    execution_info = await erc1155.balanceOf(account.contract_address, tokenId).call()
+    prev_balance = execution_info.result.balance
+
+    await signer.send_transaction(account, erc1155.contract_address, 'mint', [account.contract_address, tokenId, amount])
+    execution_info = await erc1155.balanceOf(account.contract_address, tokenId).call()
+
+    assert execution_info.result.balance - prev_balance == amount
+
+# Batch int
+@pytest.mark.asyncio
+async def test_mint_batch(ERC1155_factory):
+    _, erc1155, account, operator = ERC1155_factory
+
+    accounts = [account.contract_address, account.contract_address]
+
+    tokenIds = [1,2]
+
+    execution_info = await erc1155.balanceOfBatch(accounts,tokenIds).call()
+    prev_balances = execution_info.result.balance
+
+    await signer.send_transaction(account, erc1155.contract_address, 'mint_batch', [account.contract_address,2,1,2,2,100,200])
+    execution_info = await erc1155.balanceOfBatch(accounts,tokenIds).call()
+
+    assert execution_info.result.balance[0] - prev_balances[0] == 100
+    assert execution_info.result.balance[1] - prev_balances[1] == 200

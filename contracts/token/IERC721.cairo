@@ -16,7 +16,8 @@ namespace IERC721:
             _from: felt, 
             to: felt, 
             token_id: Uint256, 
-            data: felt
+            data_len: felt,
+            data: felt*
         ):
     end
 

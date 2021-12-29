@@ -11,20 +11,7 @@ from contracts.ERC165 import (
     ERC165_register_interface
 )
 
-#
-# Receiver Interface
-#
-
-@contract_interface
-namespace IERC721_Receiver:
-    func onERC721Received(
-        operator: felt,
-        _from: felt,
-        token_id: Uint256,
-        data: felt
-    ) -> (ret_val: felt):
-    end
-end
+from contracts.token.IERC721_Receiver import IERC721_Receiver
 
 #
 # Storage
@@ -77,8 +64,7 @@ end
 # Getters
 #
 
-@view
-func name{
+func ERC721_name_{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -87,8 +73,7 @@ func name{
     return (name)
 end
 
-@view
-func symbol{
+func ERC721_symbol_{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -97,18 +82,17 @@ func symbol{
     return (symbol)
 end
 
-@view
-func balanceOf{
+func ERC721_balanceOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(account: felt) -> (balance: Uint256):
-    let (balance: Uint256) = ERC721_balances.read(account=account)
+    }(owner: felt) -> (balance: Uint256):
+    let (balance: Uint256) = ERC721_balances.read(owner)
+    assert_not_zero(owner)
     return (balance)
 end
 
-@view
-func ownerOf{
+func ERC721_ownerOf{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -119,8 +103,7 @@ func ownerOf{
     return (owner)
 end
 
-@view
-func getApproved{
+func ERC721_getApproved{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -132,8 +115,7 @@ func getApproved{
     return (approved)
 end
 
-@view
-func isApprovedForAll{
+func ERC721_isApprovedForAll{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -163,16 +145,16 @@ func ERC721_approve{
     # caller isApprovedForAll on behalf of owner
     if caller == owner:
         _approve(to, token_id)
-        return()
+        return ()
     else:
         let (is_approved) = ERC721_operator_approvals.read(owner, caller)
         assert_not_zero(is_approved)
         _approve(to, token_id)
-        return()
+        return ()
     end
 end
 
-func ERC721_set_approval_for_all{
+func ERC721_setApprovalForAll{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -195,7 +177,9 @@ func ERC721_transferFrom{
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
     let (caller) = get_caller_address()
-    _is_approved_or_owner(caller, token_id)
+    let (is_approved) = _is_approved_or_owner(caller, token_id)
+    assert is_approved = 1
+
     _transfer(_from, to, token_id)
     return ()
 end
@@ -208,11 +192,14 @@ func ERC721_safeTransferFrom{
         _from: felt, 
         to: felt, 
         token_id: Uint256, 
-        data: felt
+        data_len: felt,
+        data: felt*
     ):
     let (caller) = get_caller_address()
-    _is_approved_or_owner(caller, token_id)
-    _safe_transfer(_from, to, token_id, data)
+    let (is_approved) = _is_approved_or_owner(caller, token_id)
+    assert is_approved = 1    
+
+    _safe_transfer(_from, to, token_id, data_len, data)
     return ()
 end
 
@@ -244,7 +231,7 @@ func ERC721_burn{
         range_check_ptr
     }(token_id: Uint256):
     alloc_locals
-    let (local owner) = ownerOf(token_id)
+    let (local owner) = ERC721_ownerOf(token_id)
 
     # Clear approvals
     _approve(0, token_id)
@@ -259,19 +246,24 @@ func ERC721_burn{
     return ()
 end
 
-func ERC721_safe_mint{
+func ERC721_safeMint{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(to: felt, token_id: Uint256, data: felt):
+    }(
+        to: felt, 
+        token_id: Uint256, 
+        data_len: felt, 
+        data: felt*
+    ):
     ERC721_mint(to, token_id)
-    let (success) = _check_onERC721Received(
+    _check_onERC721Received(
         0,
         to,
         token_id,
+        data_len, 
         data
     )
-    assert_not_zero(success)
     return ()
 end
 
@@ -298,17 +290,17 @@ func _is_approved_or_owner{
     let (exists) = _exists(token_id)
     assert exists = 1
 
-    let (owner) = ownerOf(token_id)
+    let (owner) = ERC721_ownerOf(token_id)
     if owner == spender:
         return (1)
     end
 
-    let (approved_addr) = getApproved(token_id)
+    let (approved_addr) = ERC721_getApproved(token_id)
     if approved_addr == spender:
         return (1)
     end
 
-    let (is_operator) = isApprovedForAll(owner, spender)
+    let (is_operator) = ERC721_isApprovedForAll(owner, spender)
     if is_operator == 1:
         return (1)
     end
@@ -336,7 +328,7 @@ func _transfer{
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
     # ownerOf ensures '_from' is not the zero address
-    let (_ownerOf) = ownerOf(token_id)
+    let (_ownerOf) = ERC721_ownerOf(token_id)
     assert _ownerOf = _from
 
     assert_not_zero(to)
@@ -368,11 +360,12 @@ func _safe_transfer{
         _from: felt, 
         to: felt, 
         token_id: Uint256,
-        data: felt
+        data_len: felt,
+        data: felt*
     ):
     _transfer(_from, to, token_id)
 
-    let (success) = _check_onERC721Received(_from, to, token_id, data)
+    let (success) = _check_onERC721Received(_from, to, token_id, data_len, data)
     assert_not_zero(success)
     return ()
 end
@@ -385,23 +378,25 @@ func _check_onERC721Received{
         _from: felt, 
         to: felt, 
         token_id: Uint256,
-        data: felt
+        data_len: felt, 
+        data: felt*
     ) -> (success: felt):
     # We need to consider how to differentiate between EOA and contracts
     # and insert a conditional to know when to use the proceeding check
     let (caller) = get_caller_address()
     # The first parameter in an imported interface is the contract
     # address of the interface being called
-    let (ret_val) = IERC721_Receiver.onERC721Received(
+    let (selector) = IERC721_Receiver.onERC721Received(
         to, 
         caller, 
         _from, 
         token_id, 
+        data_len, 
         data
     )
 
     # ERC721_RECEIVER_ID
-    assert (ret_val) = '0x150b7a02'
+    assert (selector) = '0x150b7a02'
 
     # Cairo equivalent to 'return (true)'
     return (1)

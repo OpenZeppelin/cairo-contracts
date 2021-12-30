@@ -2,22 +2,10 @@
 
 from starkware.cairo.common.uint256 import Uint256
 
-
-@contract_interface
-namespace IERC165:
-    func supportsInterface(interface_id: felt) -> (success: felt):
-    end
-end
-
+from contracts.IERC165 import IERC165
 
 @contract_interface
 namespace IERC721:
-    func name() -> (name: felt):
-    end
-
-    func symbol() -> (symbol: felt):
-    end
-
     func balanceOf(owner: felt) -> (balance: Uint256):
     end
 
@@ -28,7 +16,8 @@ namespace IERC721:
             _from: felt, 
             to: felt, 
             token_id: Uint256, 
-            data: felt
+            data_len: felt,
+            data: felt*
         ):
     end
 

@@ -13,8 +13,9 @@ func onERC721Received{
         operator: felt,
         _from: felt,
         token_id: Uint256,
-        data: felt
-    ) -> (ret_val : felt): 
+        data_len: felt,
+        data: felt*
+    ) -> (selector: felt): 
     # ERC721_RECEIVER_ID
     return ('0x150b7a02')
 end

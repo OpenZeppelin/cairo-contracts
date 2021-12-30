@@ -7,8 +7,7 @@ from starkware.cairo.common.math import assert_not_equal
 func ERC165_supported_interfaces(interface_id: felt) -> (is_supported: felt):
 end 
 
-@view
-func supportsInterface{
+func ERC165_supports_interface{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -21,7 +20,7 @@ func supportsInterface{
     # Checks interface registry
     let (is_supported) = ERC165_supported_interfaces.read(interface_id)
     if is_supported == 1:
-        return(1)
+        return (1)
     end
 
     return (0)

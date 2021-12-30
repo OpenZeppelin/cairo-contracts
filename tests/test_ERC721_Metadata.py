@@ -69,7 +69,7 @@ async def test_tokenURI_should_revert_for_nonexistent_token(erc721_factory):
     _, erc721, _ = erc721_factory
 
     # should revert for nonexistent token
-    assert_revert(lambda: erc721.tokenURI(nonexistent_token).call())
+    await assert_revert(erc721.tokenURI(nonexistent_token).call())
 
 
 @pytest.mark.asyncio

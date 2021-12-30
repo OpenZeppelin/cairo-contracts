@@ -129,8 +129,7 @@ func ERC721_isApprovedForAll{
     return (is_approved)
 end
 
-@view
-func tokenURI{
+func ERC721_tokenURI{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
@@ -294,6 +293,15 @@ func ERC721_safeMint{
         data_len, 
         data
     )
+    return ()
+end
+
+func ERC721_set_baseURI{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(base_uri: felt):
+    ERC721_base_uri.write(base_uri)
     return ()
 end
 

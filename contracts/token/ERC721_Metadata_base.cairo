@@ -33,8 +33,7 @@ func ERC721_Metadata_initializer{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt, base_uri: felt):
-    ERC721_initializer(name, symbol)
+    }(base_uri: felt):
     # register IERC721_Metadata
     ERC165_register_interface('0x5b5e139f')
     ERC721_set_baseURI(base_uri)

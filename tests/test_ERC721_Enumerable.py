@@ -2,8 +2,6 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
 
 
 signer = Signer(123456789987654321)
@@ -43,6 +41,20 @@ async def erc721_factory():
     return starknet, erc721, account
 
 #
+# supportsInterface
+#
+
+
+@pytest.mark.asyncio
+async def test_supportsInterface(erc721_factory):
+    _, erc721, _ = erc721_factory
+
+    enum_interface_id = str_to_felt('0x780e9d63')
+
+    execution_info = await erc721.supportsInterface(enum_interface_id).call()
+    assert execution_info.result == (1,)
+
+#
 # totalSupply
 #
 
@@ -75,7 +87,7 @@ async def test_tokenOfOwnerByIndex(erc721_factory):
 
     # check index
     tokens = [first_token_id, second_token_id]
-    for i, t in zip(range(1, 3), range(0, 2)):
+    for i, t in zip(range(0, 2), range(0, 2)):
         execution_info = await erc721.tokenOfOwnerByIndex(account.contract_address, uint(i)).call()
         assert execution_info.result == (tokens[t],)
 
@@ -85,7 +97,7 @@ async def test_tokenOfOwnerByIndex_greater_than_supply(erc721_factory):
     _, erc721, account = erc721_factory
 
     # should fail since index number is greater than supply
-    assert_revert(lambda: erc721.tokenOfOwnerByIndex(
+    await assert_revert(erc721.tokenOfOwnerByIndex(
         account.contract_address, uint(3)).call())
 
 
@@ -94,8 +106,7 @@ async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_factory):
     _, erc721, _ = erc721_factory
 
     # should fail since index number is greater than supply
-    assert_revert(lambda: erc721.tokenOfOwnerByIndex(
-        user1, uint(1)).call())
+    await assert_revert(erc721.tokenOfOwnerByIndex(user1, uint(1)).call())
 
 
 @pytest.mark.asyncio
@@ -118,7 +129,7 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_factory):
     assert execution_info.result == (uint(2),)
 
     # checks index is updated with user1
-    for i, t in zip(range(1, 3), range(0, 2)):
+    for i, t in zip(range(0, 2), range(0, 2)):
         execution_info = await erc721.tokenOfOwnerByIndex(user1, uint(i)).call()
         assert execution_info.result == (tokens[t],)
 
@@ -126,9 +137,11 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_factory):
     execution_info = await erc721.balanceOf(account.contract_address).call()
     assert execution_info.result == (uint(0),)
 
-    # zero balance should revert
-    assert_revert(lambda: erc721.tokenOfOwnerByIndex(uint(0).call()))
-
+    # check that queries to old owner's token ownership reverts since index is less
+    # than the target's balance
+    await assert_revert(erc721.tokenOfOwnerByIndex(
+        account.contract_address, uint(0)).call()
+    )
 
 #
 # tokenByIndex
@@ -141,7 +154,7 @@ async def test_tokenByIndex(erc721_factory):
 
     # checks index
     tokens = [first_token_id, second_token_id]
-    for i, t in zip(range(1, 3), range(0, 2)):
+    for i, t in zip(range(0, 2), range(0, 2)):
         execution_info = await erc721.tokenByIndex(uint(i)).call()
         assert execution_info.result == (tokens[t],)
 
@@ -151,7 +164,7 @@ async def test_tokenByIndex_greater_than_supply(erc721_factory):
     _, erc721, _ = erc721_factory
 
     # token index does not exist therefore should revert
-    assert_revert(lambda: erc721.tokenByIndex(uint(3).call()))
+    await assert_revert(erc721.tokenByIndex(uint(3)).call())
 
 
 @pytest.mark.asyncio
@@ -163,7 +176,7 @@ async def test_tokenByIndex_burn_and_mint(erc721_factory):
     for token in tokens:
         await signer.send_transaction(
             account, erc721.contract_address, 'burn', [
-                user1, *token]
+                *token]
         )
 
     # mint new tokens to new owner
@@ -179,19 +192,6 @@ async def test_tokenByIndex_burn_and_mint(erc721_factory):
     assert execution_info.result == (uint(3),)
 
     # check indexing
-    for i, t in zip(range(1, 4), range(0, 3)):
+    for i, t in zip(range(0, 3), range(0, 3)):
         execution_info = await erc721.tokenByIndex(uint(i)).call()
         assert execution_info.result == (new_tokens[t],)
-
-#
-# supportsInterface
-#
-
-
-@pytest.mark.asyncio
-async def test_supportsInterface(erc721_factory):
-    _, erc721, _ = erc721_factory
-
-    IERC721_Enumerable = str_to_felt('0x780e9d63')
-    execution_info = await erc721.supportsInterface(IERC721_Enumerable).call()
-    assert execution_info.result == (1,)

@@ -57,11 +57,10 @@ func ERC20_initializer{
 end
 
 #
-# Getters
+# Importables
 #
 
-@view
-func name{
+func ERC20_name_{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -70,8 +69,7 @@ func name{
     return (name)
 end
 
-@view
-func symbol{
+func ERC20_symbol_{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -80,8 +78,7 @@ func symbol{
     return (symbol)
 end
 
-@view
-func totalSupply{
+func ERC20_totalSupply{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -90,8 +87,7 @@ func totalSupply{
     return (totalSupply)
 end
 
-@view
-func decimals{
+func ERC20_decimals_{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -100,8 +96,7 @@ func decimals{
     return (decimals)
 end
 
-@view
-func balanceOf{
+func ERC20_balanceOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -110,8 +105,7 @@ func balanceOf{
     return (balance)
 end
 
-@view
-func allowance{
+func ERC20_allowance{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -119,10 +113,6 @@ func allowance{
     let (remaining: Uint256) = ERC20_allowances.read(owner=owner, spender=spender)
     return (remaining)
 end
-
-#
-# Importables
-#
 
 func ERC20_transfer{
         syscall_ptr : felt*, 

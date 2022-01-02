@@ -31,8 +31,8 @@ async def erc721_factory():
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account.contract_address,           # owner
-            BASE_URI                            # baseURI
+            BASE_URI,                           # baseURI
+            account.contract_address            # owner
         ]
     )
 
@@ -82,8 +82,8 @@ async def test_tokenURI_baseURI_not_set(erc721_factory):
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account.contract_address,           # owner
-            0                                   # baseURI
+            0,                                  # baseURI
+            account.contract_address            # owner
         ]
     )
 

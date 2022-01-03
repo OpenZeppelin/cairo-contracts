@@ -213,10 +213,6 @@ func safeTransferFrom{
     return ()
 end
 
-#
-# Mintable Methods
-#
-
 @external
 func mint{
         pedersen_ptr: HashBuiltin*, 

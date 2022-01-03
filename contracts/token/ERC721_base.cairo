@@ -35,7 +35,7 @@ func ERC721_balances(account: felt) -> (balance: Uint256):
 end
 
 @storage_var
-func ERC721_token_approvals(token_id_low: felt, token_id_high: felt) -> (res: felt):
+func ERC721_token_approvals(token_id: Uint256) -> (res: felt):
 end
 
 @storage_var
@@ -116,7 +116,7 @@ func ERC721_getApproved{
     let (exists) = _exists(token_id)
     assert exists = 1
 
-    let (approved) = ERC721_token_approvals.read(token_id.low, token_id.high)
+    let (approved) = ERC721_token_approvals.read(token_id)
     return (approved)
 end
 
@@ -314,7 +314,7 @@ func _approve{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    ERC721_token_approvals.write(token_id.low, token_id.high, to)
+    ERC721_token_approvals.write(token_id, to)
     return ()
 end
 

@@ -27,7 +27,7 @@ func ERC721_symbol() -> (symbol: felt):
 end
 
 @storage_var
-func ERC721_owners(token_id_low: felt, token_id_high: felt) -> (owner: felt):
+func ERC721_owners(token_id: Uint256) -> (owner: felt):
 end
 
 @storage_var
@@ -102,7 +102,7 @@ func ERC721_ownerOf{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(token_id: Uint256) -> (owner: felt):
-    let (owner) = ERC721_owners.read(token_id.low, token_id.high)
+    let (owner) = ERC721_owners.read(token_id)
     # Ensuring the query is not for nonexistent token
     assert_not_zero(owner)
     return (owner)
@@ -167,7 +167,7 @@ func ERC721_approve{
     assert_not_zero(caller)
 
     # Ensures 'owner' does not equal 'to'
-    let (owner) = ERC721_owners.read(token_id.low, token_id.high)
+    let (owner) = ERC721_owners.read(token_id)
     assert_not_equal(owner, to)
 
     # Checks that either caller equals owner or
@@ -250,7 +250,7 @@ func ERC721_mint{
     ERC721_balances.write(to, new_balance)
 
     # low + high felts = uint256
-    ERC721_owners.write(token_id.low, token_id.high, to)
+    ERC721_owners.write(token_id, to)
     return ()
 end
 
@@ -271,7 +271,7 @@ func ERC721_burn{
     ERC721_balances.write(owner, new_balance)
 
     # Delete owner
-    ERC721_owners.write(token_id.low, token_id.high, 0)
+    ERC721_owners.write(token_id, 0)
     return ()
 end
 
@@ -351,7 +351,7 @@ func _exists{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(token_id: Uint256) -> (res: felt):
-    let (res) = ERC721_owners.read(token_id.low, token_id.high)
+    let (res) = ERC721_owners.read(token_id)
 
     if res == 0:
         return (0)
@@ -386,7 +386,7 @@ func _transfer{
     ERC721_balances.write(to, new_balance)
 
     # Update token_id owner
-    ERC721_owners.write(token_id.low, token_id.high, to)
+    ERC721_owners.write(token_id, to)
     return ()
 end
 

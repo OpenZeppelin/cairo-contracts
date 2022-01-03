@@ -2,7 +2,6 @@
 
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.IERC165 import IERC165
 from contracts.token.IERC721 import IERC721
 
 

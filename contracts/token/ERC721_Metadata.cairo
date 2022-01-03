@@ -12,7 +12,8 @@ from contracts.token.ERC721_Metadata_base import (
     ERC721_getApproved,
     ERC721_isApprovedForAll,
     ERC721_tokenURI,
-
+    
+    ERC721_initializer,
     ERC721_Metadata_initializer,
     ERC721_approve, 
     ERC721_setApprovalForAll, 
@@ -45,7 +46,8 @@ func constructor{
         base_uri: felt,
         owner: felt
     ):
-    ERC721_Metadata_initializer(name, symbol, base_uri)
+    ERC721_initializer(name, symbol)
+    ERC721_Metadata_initializer(base_uri)
     Ownable_initializer(owner)
     return ()
 end

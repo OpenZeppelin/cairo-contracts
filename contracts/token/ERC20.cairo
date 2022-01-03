@@ -161,4 +161,3 @@ func decreaseAllowance{
     # Cairo equivalent to 'return (true)'
     return (1)
 end
-

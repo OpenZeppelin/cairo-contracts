@@ -278,4 +278,3 @@ func _transfer{
     ERC20_balances.write(recipient, new_recipient_balance)
     return ()
 end
-

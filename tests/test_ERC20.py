@@ -91,10 +91,12 @@ async def test_insufficient_sender_funds(erc20_factory):
     execution_info = await erc20.balanceOf(account.contract_address).call()
     balance = execution_info.result.balance
 
-    assert_revert(lambda: signer.send_transaction(account, erc20.contract_address, 'transfer', [
-        recipient,
-        *uint(balance[0] + 1)
-    ]))
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'transfer', [
+            recipient,
+            *uint(balance[0] + 1)
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -217,10 +219,12 @@ async def test_decreaseAllowance_underflow(erc20_factory):
     assert execution_info.result.remaining == init_amount
 
     # increasing the decreased allowance amount by more than the user's allowance
-    assert_revert(lambda: signer.send_transaction(account, erc20.contract_address, 'decreaseAllowance', [
-        spender,
-        *uint(init_amount[0] + 1)
-    ]))
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'decreaseAllowance', [
+            spender,
+            *uint(init_amount[0] + 1)
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -237,11 +241,13 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *allowance])
 
     # increasing the transfer amount above allowance
-    assert_revert(lambda: signer.send_transaction(spender, erc20.contract_address, 'transferFrom', [
-        account.contract_address,
-        recipient,
-        *uint(allowance[0] + 1)
-    ]))
+    await assert_revert(signer.send_transaction(
+        spender, erc20.contract_address, 'transferFrom', [
+            account.contract_address,
+            recipient,
+            *uint(allowance[0] + 1)
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -254,8 +260,11 @@ async def test_increaseAllowance_overflow(erc20_factory):
     overflow_amount = uint(1)
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender, *amount])
 
-    assert_revert(lambda: signer.send_transaction(
-        account, erc20.contract_address, 'increaseAllowance', [spender, *overflow_amount]))
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'increaseAllowance', [
+            spender, *overflow_amount
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -264,8 +273,11 @@ async def test_transfer_to_zero_address(erc20_factory):
     recipient = 0
     amount = uint(1)
 
-    assert_revert(lambda: signer.send_transaction(
-        account, erc20.contract_address, 'transfer', [recipient, *amount]))
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'transfer', [
+            recipient, *amount
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -276,7 +288,7 @@ async def test_transferFrom_zero_address(erc20_factory):
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    assert_revert(lambda: erc20.transfer(recipient, amount).invoke())
+    await assert_revert(erc20.transfer(recipient, amount).invoke())
 
 
 @pytest.mark.asyncio
@@ -293,13 +305,13 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
 
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
 
-    assert_revert(lambda: signer.send_transaction(
-        spender, erc20.contract_address, 'transferFrom',
-        [
+    await assert_revert(signer.send_transaction(
+        spender, erc20.contract_address, 'transferFrom', [
             account.contract_address,
             zero_address,
             *amount
-        ]))
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -315,13 +327,13 @@ async def test_transferFrom_func_from_zero_address(erc20_factory):
     recipient = 123
     amount = uint(1)
 
-    assert_revert(lambda: signer.send_transaction(
-        spender, erc20.contract_address, 'transferFrom',
-        [
+    await assert_revert(signer.send_transaction(
+        spender, erc20.contract_address, 'transferFrom', [
             zero_address,
             recipient,
             *amount
-        ]))
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -329,8 +341,12 @@ async def test_approve_zero_address_spender(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 0
     amount = uint(1)
-    assert_revert(lambda: signer.send_transaction(
-        account, erc20.contract_address, 'approve', [spender, *amount]))
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'approve', [
+            spender,
+            *amount
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -341,4 +357,4 @@ async def test_approve_zero_address_caller(erc20_factory):
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    assert_revert(lambda: erc20.approve(spender, amount).invoke())
+    await assert_revert(erc20.approve(spender, amount).invoke())

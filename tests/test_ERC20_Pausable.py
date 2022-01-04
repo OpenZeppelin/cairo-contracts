@@ -66,35 +66,35 @@ async def test_pause(token_factory):
     execution_info = await token.paused().call()
     assert execution_info.result.paused == 1
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'transfer',
         [other.contract_address, *amount]
     ))
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'transferFrom',
         [other.contract_address, other.contract_address, *amount]
     ))
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'approve',
         [other.contract_address, *amount]
     ))
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'increaseAllowance',
         [other.contract_address, *amount]
     ))
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'decreaseAllowance',
@@ -156,8 +156,8 @@ async def test_unpause(token_factory):
 async def test_only_owner(token_factory):
     _, token, _, other = token_factory
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         other, token.contract_address, 'pause', []))
 
-    assert_revert(lambda: signer.send_transaction(
+    assert assert_revert(signer.send_transaction(
         other, token.contract_address, 'unpause', []))

@@ -33,6 +33,8 @@ other_owned_token = (123, 321)
 nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
 
+data = [str_to_felt('0x42'), str_to_felt('0x89'), str_to_felt('0x55')]
+
 
 @pytest.fixture(scope='module')
 def event_loop():
@@ -70,14 +72,67 @@ async def test_constructor(erc721_factory):
     assert execution_info.result == (str_to_felt("NFT"),)
 
 #
+# balanceOf
+#
+
+
+@pytest.mark.asyncio
+async def test_balanceOf(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # mint tokens to account
+    tokens = [first_token_id, second_token_id]
+    for token in tokens:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'mint', [
+                account.contract_address, *token]
+        )
+
+    # account should have two tokens
+    execution_info = await erc721.balanceOf(account.contract_address).call()
+    assert execution_info.result == (uint(2),)
+
+    # user1 should have zero tokens
+    execution_info = await erc721.balanceOf(user1).call()
+    assert execution_info.result == (uint(0),)
+
+
+@pytest.mark.asyncio
+async def test_balanceOf_zero_address(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    # should revert when querying zero address
+    await assert_revert(erc721.balanceOf(ZERO_ADDRESS).call())
+
+
+#
+# ownerOf
+#
+
+@pytest.mark.asyncio
+async def test_ownerOf(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # should return account's address
+    execution_info = await erc721.ownerOf(first_token_id).call()
+    assert execution_info.result == (account.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_ownerOf_nonexistent_token(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    # should revert when querying zero address
+    await assert_revert(erc721.ownerOf(nonexistent_token).call())
+
+
+#
 # Mint
 #
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('tokens, number_of_tokens', [
-    [first_token_id, 1],
-    [second_token_id, 2],
     [third_token_id, 3],
     [fourth_token_id, 4],
     [fifth_token_id, 5],
@@ -106,26 +161,27 @@ async def test_mint_duplicate_token_id(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
     # minting duplicate token_id should fail
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'mint', [
-            account.contract_address,
-            *first_token_id
-        ]))
+            account.contract_address, *first_token_id
+        ]
+    ))
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_mint_to_zero_address(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
     # minting to zero address should fail
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'mint', [
             ZERO_ADDRESS,
             *nonexistent_token
-        ]))
+        ]
+    ))
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_mint_approve_should_be_zero_address(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
@@ -148,11 +204,12 @@ async def test_mint_by_not_owner(erc721_factory):
     )
 
     # minting from not_owner should fail
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         not_owner, erc721.contract_address, 'mint', [
-            not_owner,
+            not_owner.contract_address,
             *eighth_token_id
-        ]))
+        ]
+    ))
 
 
 #
@@ -185,21 +242,22 @@ async def test_burn(erc721_factory):
 
     # approve should be cleared to zero, therefore,
     # 'getApproved()' call should fail
-    assert_revert(lambda: erc721.getApproved(token_to_burn).call())
+    await assert_revert(erc721.getApproved(token_to_burn).call())
 
     # 'token_to_burn' owner should be zero; therefore,
     # 'ownerOf()' call should fail
-    assert_revert(lambda: erc721.ownerOf(token_to_burn).call())
+    await assert_revert(erc721.ownerOf(token_to_burn).call())
 
 
 @pytest.mark.asyncio
 async def test_burn_nonexistent_token(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'burn', [
             *nonexistent_token
-        ]))
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -211,10 +269,11 @@ async def test_burn_contract_owner_token_by_different_account(erc721_factory):
     )
 
     # not_owner should not be able to burn tokens
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         not_owner, erc721.contract_address, 'burn', [
             *first_token_id
-        ]))
+        ]
+    ))
 
 #
 # Approve
@@ -263,7 +322,7 @@ async def test_approve_from_zero_address(erc721_factory):
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    assert_revert(lambda: erc721.approve(user1, third_token_id).invoke())
+    await assert_revert(erc721.approve(user1, third_token_id).invoke())
 
 
 @pytest.mark.asyncio
@@ -271,11 +330,12 @@ async def test_approve_owner_is_recipient(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
     # should fail when owner is the same as address-to-be-approved
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'approve', [
             account.contract_address,
             *third_token_id
-        ]))
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -293,11 +353,33 @@ async def test_approve_not_owner_or_operator(erc721_factory):
     )
 
     # 'approve' should fail since user5 owns 'other_owned_token'
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'approve', [
             spender.contract_address,
             *other_owned_token
-        ]))
+        ]
+    ))
+
+
+@pytest.mark.asyncio
+async def test_approve_on_already_approved(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # first approval
+    await signer.send_transaction(
+        account, erc721.contract_address, 'approve', [
+            user1, *first_token_id]
+    )
+
+    # repeat approval
+    await signer.send_transaction(
+        account, erc721.contract_address, 'approve', [
+            user1, *first_token_id]
+    )
+
+    # check that approval does not change
+    execution_info = await erc721.getApproved(first_token_id).call()
+    assert execution_info.result == (user1,)
 
 
 #
@@ -337,22 +419,24 @@ async def test_setApprovalForAll_when_operator_was_set_as_not_approved(erc721_fa
 async def test_setApprovalForAll_with_invalid_bool_arg(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
             user2,
             not_bool
-        ]))
+        ]
+    ))
 
 
 @pytest.mark.asyncio
 async def test_setApprovalForAll_owner_is_operator(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
             account.contract_address,
             true
-        ]))
+        ]
+    ))
 
 
 #
@@ -459,12 +543,13 @@ async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
     )
 
     # should be rejected when not approved
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
             recipient,
-            *nonexistent_token
-        ]))
+            *fourth_token_id
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -482,12 +567,13 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     )
 
     # to zero address should be rejected
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
             ZERO_ADDRESS,
-            *fourth_token_id
-        ]))
+            *fifth_token_id
+        ]
+    ))
 
 
 #
@@ -515,7 +601,12 @@ async def test_safeTransferFrom(erc721_factory):
 
     await signer.send_transaction(
         account, erc721.contract_address, 'safeTransferFrom', [
-            account.contract_address, erc721_holder.contract_address, *fourth_token_id, 0]
+            account.contract_address,
+            erc721_holder.contract_address,
+            *fifth_token_id,
+            len(data),
+            *data
+        ]
     )
 
     # check balance
@@ -523,7 +614,7 @@ async def test_safeTransferFrom(erc721_factory):
     assert execution_info.result == (uint(1),)
 
     # check owner
-    execution_info = await erc721.ownerOf(fourth_token_id).call()
+    execution_info = await erc721.ownerOf(fifth_token_id).call()
     assert execution_info.result == (erc721_holder.contract_address,)
 
 
@@ -541,13 +632,18 @@ async def test_safeTransferFrom_from_approved(erc721_factory):
     # approve spender
     await signer.send_transaction(
         account, erc721.contract_address, 'approve', [
-            spender.contract_address, *fifth_token_id]
+            spender.contract_address, *sixth_token_id]
     )
 
     # spender transfers token from account to erc721_holder
     await signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
-            account.contract_address, erc721_holder.contract_address, *fifth_token_id, 0]
+            account.contract_address,
+            erc721_holder.contract_address,
+            *sixth_token_id,
+            len(data),
+            *data
+        ]
     )
 
     # erc721_holder balance check
@@ -576,7 +672,12 @@ async def test_safeTransferFrom_from_operator(erc721_factory):
     # spender transfers token from account to erc721_holder
     await signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
-            account.contract_address, erc721_holder.contract_address, *seventh_token_id, 0]
+            account.contract_address,
+            erc721_holder.contract_address,
+            *seventh_token_id,
+            len(data),
+            *data
+        ]
     )
 
     # erc721_holder balance check
@@ -593,13 +694,16 @@ async def test_safeTransferFrom_when_not_approved_or_owner(erc721_factory):
         constructor_calldata=[signer.public_key]
     )
 
-    assert_revert(lambda: signer.send_transaction(
+    # should fail when not approved or owner
+    await assert_revert(signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
             *seventh_token_id,
-            0
-        ]))
+            len(data),
+            *data
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -613,13 +717,15 @@ async def test_safeTransferFrom_to_zero_address(erc721_factory):
     )
 
     # to zero address should be rejected
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             ZERO_ADDRESS,
             *eighth_token_id,
-            0
-        ]))
+            len(data),
+            *data
+        ]
+    ))
 
 
 @pytest.mark.asyncio
@@ -640,7 +746,12 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
         # issues once differentiating EOA from contracts is resolved
         await signer.send_transaction(
             account, erc721.contract_address, 'safeTransferFrom', [
-                account.contract_address, unsupported_account.contract_address, *eighth_token_id, 0]
+                account.contract_address,
+                unsupported_account.contract_address,
+                *eighth_token_id,
+                len(data),
+                *data
+            ]
         )
         assert False
     except StarkException as err:

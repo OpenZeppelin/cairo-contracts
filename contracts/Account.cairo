@@ -155,6 +155,9 @@ func execute{
     let (_address) = get_contract_address()
     let (_current_nonce) = current_nonce.read()
 
+    # validate nonce
+    assert _current_nonce = nonce
+
     local message: Message = Message(
         _address,
         to,

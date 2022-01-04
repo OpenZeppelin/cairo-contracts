@@ -8,7 +8,8 @@ namespace IERC721_Receiver:
         operator: felt,
         _from: felt,
         token_id: Uint256,
-        data: felt
-    ) -> (ret_val : felt): 
+        data_len: felt,
+        data: felt*
+    ) -> (selector: felt): 
     end
 end

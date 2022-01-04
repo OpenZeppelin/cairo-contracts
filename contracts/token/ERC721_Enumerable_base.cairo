@@ -35,19 +35,19 @@ func all_tokens_len() -> (res: Uint256):
 end
 
 @storage_var
-func all_tokens_list(index_low: felt, index_high: felt) -> (token_id: Uint256):
+func all_tokens_list(index: Uint256) -> (token_id: Uint256):
 end
 
 @storage_var
-func all_tokens_index(token_id_low: felt, token_id_high: felt) -> (index: Uint256):
+func all_tokens_index(token_id: Uint256) -> (index: Uint256):
 end
 
 @storage_var
-func owned_tokens(owner: felt, index_low: felt, index_high: felt) -> (token_id: Uint256):
+func owned_tokens(owner: felt, index: Uint256) -> (token_id: Uint256):
 end
 
 @storage_var
-func owned_tokens_index(token_id_low: felt, token_id_high: felt) -> (index: Uint256):
+func owned_tokens_index(token_id: Uint256) -> (index: Uint256):
 end
 
 #
@@ -89,7 +89,7 @@ func ERC721_Enumerable_tokenByIndex{
     let (is_lt) = uint256_lt(index, len)
     assert is_lt = 1
 
-    let (token_id: Uint256) = all_tokens_list.read(index.low, index.high)
+    let (token_id: Uint256) = all_tokens_list.read(index)
     return (token_id)
 end
 
@@ -104,7 +104,7 @@ func ERC721_Enumerable_tokenOfOwnerByIndex{
     let (is_lt) = uint256_lt(index, len)
     assert_not_zero(is_lt)
 
-    let (token_id: Uint256) = owned_tokens.read(owner, index.low, index.high)
+    let (token_id: Uint256) = owned_tokens.read(owner, index)
     return (token_id)
 end
 
@@ -175,10 +175,10 @@ func _add_token_to_all_tokens_enumeration{
     alloc_locals
     let (supply: Uint256) = all_tokens_len.read()
     # Update all_tokens_list
-    all_tokens_list.write(supply.low, supply.high, token_id)
+    all_tokens_list.write(supply, token_id)
 
     # Update all_tokens_index
-    all_tokens_index.write(token_id.low, token_id.high, supply)
+    all_tokens_index.write(token_id, supply)
 
     # Update all_tokens_len
     let (local new_supply: Uint256, _) = uint256_add(supply, Uint256(1, 0))
@@ -193,14 +193,14 @@ func _remove_token_from_all_tokens_enumeration{
     }(token_id: Uint256):
     alloc_locals
     let (supply: Uint256) = all_tokens_len.read()
-    let (local index_from_id: Uint256) = all_tokens_index.read(token_id.low, token_id.high)
-    let (local last_token_id: Uint256) = all_tokens_list.read(supply.low, supply.high)
+    let (local index_from_id: Uint256) = all_tokens_index.read(token_id)
+    let (local last_token_id: Uint256) = all_tokens_list.read(supply)
 
     # Update all_tokens_list i.e. index n => token_id
-    all_tokens_list.write(index_from_id.low, index_from_id.high, last_token_id)
+    all_tokens_list.write(index_from_id, last_token_id)
 
     # Update all_tokens_index i.e. token_id => index n
-    all_tokens_index.write(last_token_id.low, last_token_id.high, index_from_id)
+    all_tokens_index.write(last_token_id, index_from_id)
 
     # Update totalSupply
     let (local new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
@@ -215,8 +215,8 @@ func _add_token_to_owner_enumeration{
     }(to: felt, token_id: Uint256):
     alloc_locals
     let (local length: Uint256) = ERC721_balanceOf(to) 
-    owned_tokens.write(to, length.low, length.high, token_id)
-    owned_tokens_index.write(token_id.low, token_id.high, length)
+    owned_tokens.write(to, length, token_id)
+    owned_tokens_index.write(token_id, length)
     return ()
 end
 
@@ -229,19 +229,19 @@ func _remove_token_from_owner_enumeration{
     let (local last_token_index: Uint256) = ERC721_balanceOf(_from)
     # the index starts at zero therefore the user's last token index is their balance minus one
     let (last_token_index) = uint256_sub(last_token_index, Uint256(1, 0))
-    let (local token_index: Uint256) = owned_tokens_index.read(token_id.low, token_id.high)
+    let (local token_index: Uint256) = owned_tokens_index.read(token_id)
 
     # If index is last, we can just set the return values to zero
     let (is_equal) = uint256_eq(token_index, last_token_index)
     if is_equal == 1:
-        owned_tokens_index.write(token_id.low, token_id.high, Uint256(0, 0))
-        owned_tokens.write(_from, last_token_index.low, last_token_index.high, Uint256(0, 0))
+        owned_tokens_index.write(token_id, Uint256(0, 0))
+        owned_tokens.write(_from, last_token_index, Uint256(0, 0))
         return ()
     end
 
     # If index is not last, reposition owner's last token to the removed token's index
-    let (last_token_id: Uint256) = owned_tokens.read(_from, last_token_index.low, last_token_index.high)
-    owned_tokens.write(_from, token_index.low, token_index.high, last_token_id)
-    owned_tokens_index.write(last_token_id.low, last_token_id.high, token_index)
+    let (last_token_id: Uint256) = owned_tokens.read(_from, last_token_index)
+    owned_tokens.write(_from, token_index, last_token_id)
+    owned_tokens_index.write(last_token_id, token_index)
     return ()
 end

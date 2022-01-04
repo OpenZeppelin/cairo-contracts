@@ -67,7 +67,7 @@ async def test_mint_to_zero_address(token_factory):
     zero_address = 0
     amount = uint(1)
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account,
         erc20.contract_address,
         'mint',
@@ -101,7 +101,7 @@ async def test_mint_overflow(token_factory):
         pass_amount[1]       # 2**128 - 1
     )
 
-    assert_revert(lambda: signer.send_transaction(
+    await assert_revert(signer.send_transaction(
         account,
         erc20.contract_address,
         'mint',

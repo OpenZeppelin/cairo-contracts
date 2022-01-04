@@ -2,7 +2,7 @@
 %builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.uint256 import Uint256 
+from starkware.cairo.common.uint256 import Uint256
 
 from contracts.token.ERC721_base import (
     ERC721_name_,
@@ -16,11 +16,18 @@ from contracts.token.ERC721_base import (
     ERC721_approve, 
     ERC721_setApprovalForAll, 
     ERC721_transferFrom,
-    ERC721_safeTransferFrom
+    ERC721_safeTransferFrom,
+    ERC721_mint,
+    ERC721_burn
 )
 
 from contracts.ERC165 import (
     ERC165_supports_interface
+)
+
+from contracts.Ownable_base import (
+    Ownable_initializer,
+    Ownable_only_owner
 )
 
 #
@@ -32,8 +39,13 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt):
+    }(
+        name: felt,
+        symbol: felt,
+        owner: felt
+    ):
     ERC721_initializer(name, symbol)
+    Ownable_initializer(owner)
     return ()
 end
 
@@ -111,6 +123,7 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+
 #
 # Externals
 #
@@ -140,7 +153,11 @@ func transferFrom{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(_from: felt, to: felt, token_id: Uint256):
+    }(
+        _from: felt, 
+        to: felt, 
+        token_id: Uint256
+    ):
     ERC721_transferFrom(_from, to, token_id)
     return ()
 end
@@ -153,10 +170,32 @@ func safeTransferFrom{
     }(
         _from: felt, 
         to: felt, 
-        token_id: Uint256, 
-        data_len: felt,
+        token_id: Uint256,
+        data_len: felt, 
         data: felt*
     ):
     ERC721_safeTransferFrom(_from, to, token_id, data_len, data)
+    return ()
+end
+
+@external
+func mint{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(to: felt, token_id: Uint256):
+    Ownable_only_owner()
+    ERC721_mint(to, token_id)
+    return ()
+end
+
+@external
+func burn{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(token_id: Uint256):
+    Ownable_only_owner()
+    ERC721_burn(token_id)
     return ()
 end

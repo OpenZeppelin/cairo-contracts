@@ -17,8 +17,7 @@ from contracts.token.ERC721_base import (
     ERC721_setApprovalForAll, 
     ERC721_transferFrom,
     ERC721_safeTransferFrom,
-    ERC721_mint,
-    ERC721_burn
+    ERC721_mint
 )
 
 from contracts.ERC165 import (

@@ -15,12 +15,14 @@ false = 0
 true = 1
 not_bool = 2
 
+# random user addresses
 user1 = 123
 user2 = 234
 user3 = 345
 user4 = 456
 user5 = 567
 
+# random uint256 tokenIDs
 first_token_id = (5042, 0)
 second_token_id = (7921, 1)
 third_token_id = (0, 13)
@@ -33,6 +35,7 @@ other_owned_token = (123, 321)
 nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
 
+# random data (mimicking bytes in Solidity)
 data = [str_to_felt('0x42'), str_to_felt('0x89'), str_to_felt('0x55')]
 
 
@@ -585,6 +588,7 @@ async def test_transferFrom_to_zero_address(erc721_factory):
 @pytest.mark.parametrize('interface_id, result', [
     [str_to_felt('0x01ffc9a7'), true],      # IERC165 id
     [str_to_felt('0x80ac58cd'), true],      # IERC721 id
+    [str_to_felt('0x5b5e139f'), true],      # IERC721_Metadata id
     [str_to_felt('0xffffffff'), false],     # id explicitly not supported
     [str_to_felt('0xabcd1234'), false],     # id implicitly not supported
 ])
@@ -757,3 +761,45 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
+
+
+#
+# tokenURI
+#
+
+
+@pytest.mark.asyncio
+async def test_tokenURI(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    sample_uri = str_to_felt('mock://mytoken')
+
+    # should be zero when tokenURI is not set
+    execution_info = await erc721.tokenURI(first_token_id).call()
+    assert execution_info.result == (0,)
+
+    # setTokenURI for first_token_id
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setTokenURI', [
+            *first_token_id, sample_uri]
+    )
+
+    execution_info = await erc721.tokenURI(first_token_id).call()
+    assert execution_info.result == (sample_uri,)
+
+    # setTokenURI for second_token_id
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setTokenURI', [
+            *second_token_id, sample_uri]
+    )
+
+    execution_info = await erc721.tokenURI(second_token_id).call()
+    assert execution_info.result == (sample_uri,)
+
+
+@pytest.mark.asyncio
+async def test_tokenURI_should_revert_for_nonexistent_token(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    # should revert for nonexistent token
+    await assert_revert(erc721.tokenURI(nonexistent_token).call())

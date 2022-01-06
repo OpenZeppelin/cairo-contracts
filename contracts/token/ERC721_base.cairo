@@ -42,10 +42,6 @@ end
 func ERC721_operator_approvals(owner: felt, operator: felt) -> (res: felt):
 end
 
-@storage_var
-func ERC721_base_uri() -> (res: felt):
-end
-
 #
 # Constructor
 #
@@ -127,30 +123,6 @@ func ERC721_isApprovedForAll{
     }(owner: felt, operator: felt) -> (is_approved: felt):
     let (is_approved) = ERC721_operator_approvals.read(owner=owner, operator=operator)
     return (is_approved)
-end
-
-func ERC721_tokenURI{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }(token_id: Uint256) -> (uri_len: felt, uri: felt*):
-    alloc_locals
-    let (exists) = _exists(token_id)
-    assert exists = 1
-
-    let (local base) = ERC721_base_uri.read()
-    let (local uri) = alloc()
-    # without baseURI, should return [0]
-    if base == 0:
-        assert [uri] = 0
-        return (1, uri)
-    end
-    
-    # with baseURI
-    assert [uri] = base
-    assert [uri + 1] = token_id.low
-    assert [uri + 2] = token_id.high
-    return (3, uri)
 end
 
 #
@@ -293,15 +265,6 @@ func ERC721_safeMint{
         data_len, 
         data
     )
-    return ()
-end
-
-func ERC721_set_baseURI{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(base_uri: felt):
-    ERC721_base_uri.write(base_uri)
     return ()
 end
 

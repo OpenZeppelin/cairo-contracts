@@ -2,6 +2,8 @@
 
 from starkware.cairo.common.uint256 import Uint256
 
+from contracts.IERC165 import IERC165
+
 @contract_interface
 namespace IERC721:
     func balanceOf(owner: felt) -> (balance: Uint256):
@@ -32,8 +34,5 @@ namespace IERC721:
     end
 
     func isApprovedForAll(owner: felt, operator: felt) -> (is_approved: felt):
-    end
-
-    func supportsInterface(interface_id: felt) -> (success: felt):
     end
 end

@@ -21,7 +21,7 @@ from contracts.token.ERC721_base import (
     ERC721_burn
 )
 
-from contracts.ERC165 import (
+from contracts.ERC165_base import (
     ERC165_supports_interface
 )
 

@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub
 )
 
-from contracts.ERC165 import (
+from contracts.ERC165_base import (
     ERC165_register_interface
 )
 

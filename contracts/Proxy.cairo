@@ -21,7 +21,7 @@ end
 
 
 #
-# Falback functions
+# Fallback functions
 #
 
 @external

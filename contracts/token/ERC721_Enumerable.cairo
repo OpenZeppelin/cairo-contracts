@@ -4,9 +4,9 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.token.ERC721_Enumerable_base import (
-    ERC721_name_,
-    ERC721_symbol_,
+from contracts.token.ERC721_base import (
+    ERC721_name,
+    ERC721_symbol,
     ERC721_balanceOf,
     ERC721_ownerOf,
     ERC721_getApproved,
@@ -15,7 +15,9 @@ from contracts.token.ERC721_Enumerable_base import (
     ERC721_initializer,
     ERC721_approve, 
     ERC721_setApprovalForAll,
+)
 
+from contracts.token.ERC721_Enumerable_base import (
     ERC721_Enumerable_initializer,
     ERC721_Enumerable_totalSupply,
     ERC721_Enumerable_tokenByIndex,
@@ -26,7 +28,7 @@ from contracts.token.ERC721_Enumerable_base import (
     ERC721_Enumerable_safeTransferFrom
 )
 
-from contracts.ERC165 import (
+from contracts.ERC165_base import (
     ERC165_supports_interface
 )
 
@@ -105,7 +107,7 @@ func name{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (name: felt):
-    let (name) = ERC721_name_()
+    let (name) = ERC721_name()
     return (name)
 end
 
@@ -115,7 +117,7 @@ func symbol{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (symbol: felt):
-    let (symbol) = ERC721_symbol_()
+    let (symbol) = ERC721_symbol()
     return (symbol)
 end
 

@@ -8,23 +8,18 @@ from starkware.cairo.common.uint256 import (
 )
 
 from contracts.token.ERC721_base import (
-    ERC721_name_,
-    ERC721_symbol_,
     ERC721_balanceOf,
     ERC721_ownerOf,
-    ERC721_getApproved,
-    ERC721_isApprovedForAll,
 
-    ERC721_initializer,
-    ERC721_approve, 
-    ERC721_setApprovalForAll, 
     ERC721_transferFrom,
     ERC721_safeTransferFrom,
     ERC721_mint,
     ERC721_burn
 )
 
-from contracts.ERC165 import ERC165_register_interface
+from contracts.ERC165_base import (
+    ERC165_register_interface
+)
 
 #
 # Storage
@@ -102,7 +97,7 @@ func ERC721_Enumerable_tokenOfOwnerByIndex{
     # Ensures index argument is less than owner's balance 
     let (len: Uint256) = ERC721_balanceOf(owner)
     let (is_lt) = uint256_lt(index, len)
-    assert_not_zero(is_lt)
+    assert is_lt = 1
 
     let (token_id: Uint256) = owned_tokens.read(owner, index)
     return (token_id)
@@ -186,23 +181,43 @@ func _add_token_to_all_tokens_enumeration{
     return ()
 end
 
+#func _remove_token_from_all_tokens_enumeration{
+#        pedersen_ptr: HashBuiltin*, 
+#        syscall_ptr: felt*, 
+#        range_check_ptr
+#    }(token_id: Uint256):
+#    alloc_locals
+#    let (supply: Uint256) = all_tokens_len.read()
+#    let (local index_from_id: Uint256) = all_tokens_index.read(token_id)
+#    let (local last_token_id: Uint256) = all_tokens_list.read(supply)
+#
+#    # Update all_tokens_list i.e. index n => token_id
+#    all_tokens_list.write(index_from_id, last_token_id)
+#
+#    # Update all_tokens_index i.e. token_id => index n
+#    all_tokens_index.write(last_token_id, index_from_id)
+#
+#    # Update totalSupply
+#    let (local new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
+#    all_tokens_len.write(new_supply)
+#    return ()
+#end
+
 func _remove_token_from_all_tokens_enumeration{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
     }(token_id: Uint256):
     alloc_locals
-    let (supply: Uint256) = all_tokens_len.read()
-    let (local index_from_id: Uint256) = all_tokens_index.read(token_id)
-    let (local last_token_id: Uint256) = all_tokens_list.read(supply)
+    let (local supply: Uint256) = all_tokens_len.read() # supply
+    let (local last_token_index) = uint256_sub(supply, Uint256(1, 0)) #supply - 1
+    let (local token_index: Uint256) = all_tokens_index.read(token_id) #index of token_id
 
-    # Update all_tokens_list i.e. index n => token_id
-    all_tokens_list.write(index_from_id, last_token_id)
+    let (last_token_id: Uint256) = all_tokens_list.read(last_token_index)
+    all_tokens_list.write(token_index, last_token_id) #index => id
+    all_tokens_index.write(last_token_id, token_index) #id => index
 
-    # Update all_tokens_index i.e. token_id => index n
-    all_tokens_index.write(last_token_id, index_from_id)
-
-    # Update totalSupply
+    ## Update totalSupply
     let (local new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
     all_tokens_len.write(new_supply)
     return ()

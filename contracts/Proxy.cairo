@@ -5,14 +5,16 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import delegate_call
 
 @storage_var
-func impl_address() -> (address : felt):
+func implementation_address() -> (implementation_address: felt):
 end
 
 @external
 func constructor{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(impl_address_ : felt):
-    impl_address.write(value=impl_address_)
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(_implementation_address: felt):
+    implementation_address.write(_implementation_address)
     return ()
 end
 
@@ -29,7 +31,7 @@ func __default__{
         retdata_len: felt,
         retdata: felt*
     ):
-    let (address) = impl_address.read()
+    let (address) = implementation_address.read()
 
     let (retdata_size: felt, retdata: felt*) = delegate_call(
         contract_address=address,

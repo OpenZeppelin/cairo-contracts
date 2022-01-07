@@ -19,6 +19,12 @@ from contracts.token.ERC721_base import (
     ERC721_safeTransferFrom
 )
 
+from contracts.token.ERC721_Metadata_base import (
+    ERC721_Metadata_initializer,
+    ERC721_Metadata_tokenURI,
+    ERC721_Metadata_setTokenURI,
+)
+
 from contracts.ERC165_base import (
     ERC165_supports_interface
 )
@@ -34,6 +40,7 @@ func constructor{
         range_check_ptr
     }(name: felt, symbol: felt):
     ERC721_initializer(name, symbol)
+    ERC721_Metadata_initializer()
     return ()
 end
 
@@ -111,6 +118,16 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+@view
+func tokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(token_id: Uint256) -> (token_uri: felt):
+    let (token_uri: felt) = ERC721_Metadata_tokenURI(token_id)
+    return (token_uri)
+end
+
 #
 # Externals
 #
@@ -158,5 +175,15 @@ func safeTransferFrom{
         data: felt*
     ):
     ERC721_safeTransferFrom(_from, to, token_id, data_len, data)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(token_id: Uint256, token_uri: felt):
+    ERC721_Metadata_setTokenURI(token_id, token_uri)
     return ()
 end

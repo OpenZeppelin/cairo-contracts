@@ -7,10 +7,10 @@ from starkware.cairo.common.uint256 import Uint256
 from contracts.token.ERC20_base import (
     ERC20_name,
     ERC20_symbol,
-    ERC20_total_supply,
+    ERC20_totalSupply,
     ERC20_decimals,
-    ERC20_balances,
-    ERC20_allowances,
+    ERC20_balanceOf,
+    ERC20_allowance,
 
     ERC20_initializer,
     ERC20_approve,
@@ -53,7 +53,7 @@ func name{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (name: felt):
-    let (name) = ERC20_name.read()
+    let (name) = ERC20_name()
     return (name)
 end
 
@@ -63,7 +63,7 @@ func symbol{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (symbol: felt):
-    let (symbol) = ERC20_symbol.read()
+    let (symbol) = ERC20_symbol()
     return (symbol)
 end
 
@@ -73,7 +73,7 @@ func totalSupply{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (totalSupply: Uint256):
-    let (totalSupply: Uint256) = ERC20_total_supply.read()
+    let (totalSupply: Uint256) = ERC20_totalSupply()
     return (totalSupply)
 end
 
@@ -83,7 +83,7 @@ func decimals{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (decimals: felt):
-    let (decimals) = ERC20_decimals.read()
+    let (decimals) = ERC20_decimals()
     return (decimals)
 end
 
@@ -93,7 +93,7 @@ func balanceOf{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(account: felt) -> (balance: Uint256):
-    let (balance: Uint256) = ERC20_balances.read(account)
+    let (balance: Uint256) = ERC20_balanceOf(account)
     return (balance)
 end
 
@@ -103,7 +103,7 @@ func allowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt, spender: felt) -> (remaining: Uint256):
-    let (remaining: Uint256) = ERC20_allowances.read(owner, spender)
+    let (remaining: Uint256) = ERC20_allowance(owner, spender)
     return (remaining)
 end
 

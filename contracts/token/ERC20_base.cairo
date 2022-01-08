@@ -12,15 +12,15 @@ from starkware.cairo.common.uint256 import (
 #
 
 @storage_var
-func ERC20_name() -> (name: felt):
+func ERC20_name_() -> (name: felt):
 end
 
 @storage_var
-func ERC20_symbol() -> (symbol: felt):
+func ERC20_symbol_() -> (symbol: felt):
 end
 
 @storage_var
-func ERC20_decimals() -> (decimals: felt):
+func ERC20_decimals_() -> (decimals: felt):
 end
 
 @storage_var
@@ -49,11 +49,65 @@ func ERC20_initializer{
         initial_supply: Uint256,
         recipient: felt
     ):
-    ERC20_name.write(name)
-    ERC20_symbol.write(symbol)
-    ERC20_decimals.write(18)
+    ERC20_name_.write(name)
+    ERC20_symbol_.write(symbol)
+    ERC20_decimals_.write(18)
     ERC20_mint(recipient, initial_supply)
     return ()
+end
+
+func ERC20_name{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (name: felt):
+    let (name) = ERC20_name_.read()
+    return (name)
+end
+
+func ERC20_symbol{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (symbol: felt):
+    let (symbol) = ERC20_symbol_.read()
+    return (symbol)
+end
+
+func ERC20_totalSupply{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (totalSupply: Uint256):
+    let (totalSupply: Uint256) = ERC20_total_supply.read()
+    return (totalSupply)
+end
+
+func ERC20_decimals{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (decimals: felt):
+    let (decimals) = ERC20_decimals_.read()
+    return (decimals)
+end
+
+func ERC20_balanceOf{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(account: felt) -> (balance: Uint256):
+    let (balance: Uint256) = ERC20_balances.read(account)
+    return (balance)
+end
+
+func ERC20_allowance{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner: felt, spender: felt) -> (remaining: Uint256):
+    let (remaining: Uint256) = ERC20_allowances.read(owner, spender)
+    return (remaining)
 end
 
 func ERC20_transfer{

@@ -57,26 +57,8 @@ func ERC20_initializer{
 end
 
 #
-# Importables
+# Getters
 #
-
-func ERC20_name_{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (name: felt):
-    let (name) = ERC20_name.read()
-    return (name)
-end
-
-func ERC20_symbol_{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (symbol: felt):
-    let (symbol) = ERC20_symbol.read()
-    return (symbol)
-end
 
 func ERC20_totalSupply{
         syscall_ptr : felt*, 
@@ -176,7 +158,6 @@ func ERC20_increaseAllowance{
     let (local new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
     assert (is_overflow) = 0
 
-    #ERC20_approve(caller, spender, new_allowance)
     ERC20_approve(spender, new_allowance)
     return ()
 end
@@ -196,7 +177,6 @@ func ERC20_decreaseAllowance{
     let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
     assert_not_zero(enough_allowance)
 
-    #ERC20_approve(caller, spender, new_allowance)
     ERC20_approve(spender, new_allowance)
     return ()
 end

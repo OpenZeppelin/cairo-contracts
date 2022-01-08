@@ -5,8 +5,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from contracts.token.ERC20_base import (
-    ERC20_name_,
-    ERC20_symbol_,
+    ERC20_name,
+    ERC20_symbol,
     ERC20_totalSupply,
     ERC20_decimals_,
     ERC20_balanceOf,
@@ -45,7 +45,7 @@ func name{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (name: felt):
-    let (name) = ERC20_name_()
+    let (name) = ERC20_name.read()
     return (name)
 end
 
@@ -55,7 +55,7 @@ func symbol{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (symbol: felt):
-    let (symbol) = ERC20_symbol_()
+    let (symbol) = ERC20_symbol.read()
     return (symbol)
 end
 

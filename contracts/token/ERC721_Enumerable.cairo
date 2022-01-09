@@ -76,9 +76,9 @@ func tokenByIndex{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(index: Uint256) -> (token_id: Uint256):
-    let (token_id: Uint256) = ERC721_Enumerable_tokenByIndex(index)
-    return (token_id)
+    }(index: Uint256) -> (tokenId: Uint256):
+    let (tokenId: Uint256) = ERC721_Enumerable_tokenByIndex(index)
+    return (tokenId)
 end
 
 @view
@@ -86,9 +86,9 @@ func tokenOfOwnerByIndex{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(owner: felt, index: Uint256) -> (token_id: Uint256):
-    let (token_id: Uint256) = ERC721_Enumerable_tokenOfOwnerByIndex(owner, index)
-    return (token_id)
+    }(owner: felt, index: Uint256) -> (tokenId: Uint256):
+    let (tokenId: Uint256) = ERC721_Enumerable_tokenOfOwnerByIndex(owner, index)
+    return (tokenId)
 end
 
 @view
@@ -96,8 +96,8 @@ func supportsInterface{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(interface_id: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interface_id)
+    }(interfaceId: felt) -> (success: felt):
+    let (success) = ERC165_supports_interface(interfaceId)
     return (success)
 end
 
@@ -136,8 +136,8 @@ func ownerOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(token_id: Uint256) -> (owner: felt):
-    let (owner: felt) = ERC721_ownerOf(token_id)
+    }(tokenId: Uint256) -> (owner: felt):
+    let (owner: felt) = ERC721_ownerOf(tokenId)
     return (owner)
 end
 
@@ -146,8 +146,8 @@ func getApproved{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(token_id: Uint256) -> (approved: felt):
-    let (approved: felt) = ERC721_getApproved(token_id)
+    }(tokenId: Uint256) -> (approved: felt):
+    let (approved: felt) = ERC721_getApproved(tokenId)
     return (approved)
 end
 
@@ -156,9 +156,9 @@ func isApprovedForAll{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(owner: felt, operator: felt) -> (is_approved: felt):
-    let (is_approved: felt) = ERC721_isApprovedForAll(owner, operator)
-    return (is_approved)
+    }(owner: felt, operator: felt) -> (isApproved: felt):
+    let (isApproved: felt) = ERC721_isApprovedForAll(owner, operator)
+    return (isApproved)
 end
 
 #
@@ -170,8 +170,8 @@ func approve{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(to: felt, token_id: Uint256):
-    ERC721_approve(to, token_id)
+    }(to: felt, tokenId: Uint256):
+    ERC721_approve(to, tokenId)
     return ()
 end
 
@@ -193,9 +193,9 @@ func transferFrom{
     }(
         _from: felt, 
         to: felt, 
-        token_id: Uint256
+        tokenId: Uint256
     ):
-    ERC721_Enumerable_transferFrom(_from, to, token_id)
+    ERC721_Enumerable_transferFrom(_from, to, tokenId)
     return ()
 end
 
@@ -207,11 +207,11 @@ func safeTransferFrom{
     }(
         _from: felt, 
         to: felt, 
-        token_id: Uint256, 
+        tokenId: Uint256, 
         data_len: felt,
         data: felt*
     ):
-    ERC721_Enumerable_safeTransferFrom(_from, to, token_id, data_len, data)
+    ERC721_Enumerable_safeTransferFrom(_from, to, tokenId, data_len, data)
     return ()
 end
 
@@ -220,9 +220,9 @@ func mint{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(to: felt, token_id: Uint256):
+    }(to: felt, tokenId: Uint256):
     Ownable_only_owner()
-    ERC721_Enumerable_mint(to, token_id)
+    ERC721_Enumerable_mint(to, tokenId)
     return ()
 end
 
@@ -231,8 +231,8 @@ func burn{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(token_id: Uint256):
+    }(tokenId: Uint256):
     Ownable_only_owner()
-    ERC721_Enumerable_burn(token_id)
+    ERC721_Enumerable_burn(tokenId)
     return ()
 end

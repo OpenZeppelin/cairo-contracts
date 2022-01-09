@@ -9,9 +9,9 @@ namespace IERC721_Enumerable:
     func totalSupply() -> (totalSupply: Uint256):
     end
 
-    func tokenByIndex(index: Uint256) -> (token_id: Uint256):
+    func tokenByIndex(index: Uint256) -> (tokenId: Uint256):
     end
 
-    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (token_id: Uint256):
+    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256):
     end
 end

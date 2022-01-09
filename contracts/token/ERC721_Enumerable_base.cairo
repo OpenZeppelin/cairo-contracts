@@ -4,7 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_lt, uint256_eq
+    Uint256, uint256_add, uint256_sub, uint256_lt, uint256_eq, uint256_check
 )
 
 from contracts.token.ERC721_base import (
@@ -79,6 +79,7 @@ func ERC721_Enumerable_tokenByIndex{
         range_check_ptr
     }(index: Uint256) -> (token_id: Uint256):
     alloc_locals
+    uint256_check(index)
     # Ensures index argument is less than total_supply 
     let (len: Uint256) = ERC721_Enumerable_totalSupply()
     let (is_lt) = uint256_lt(index, len)
@@ -94,6 +95,7 @@ func ERC721_Enumerable_tokenOfOwnerByIndex{
         range_check_ptr
     }(owner: felt, index: Uint256) -> (token_id: Uint256):
     alloc_locals
+    uint256_check(index)
     # Ensures index argument is less than owner's balance 
     let (len: Uint256) = ERC721_balanceOf(owner)
     let (is_lt) = uint256_lt(index, len)
@@ -189,8 +191,8 @@ func _remove_token_from_all_tokens_enumeration{
     let (local token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
 
     # When the token to delete is the last token, the swap operation is unnecessary. However,
-    # since this occurs so rarely (when the last minted token is burnt) that we still do the 
-    # swap here to avoid the gas cost of adding an 'if' statement (like in _remove_token_from_owner_enumeration)
+    # since this occurs so rarely (when the last minted token is burnt), we still do the swap
+    # here to avoid the gas cost of adding an 'if' statement (like in _remove_token_from_owner_enumeration)
     let (local last_token_id: Uint256) = ERC721_Enumerable_all_tokens.read(last_token_index)
 
     ERC721_Enumerable_all_tokens.write(last_token_index, Uint256(0, 0))

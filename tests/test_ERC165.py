@@ -1,0 +1,59 @@
+import pytest
+import asyncio
+from starkware.starknet.testing.starknet import Starknet
+from utils import str_to_felt, assert_revert
+
+ERC165_ID = str_to_felt('0x01ffc9a7')
+INVALID_ID = str_to_felt('0xffffffff')
+OTHER_ID = str_to_felt('0x12345678')
+
+
+@pytest.fixture(scope='module')
+def event_loop():
+    return asyncio.new_event_loop()
+
+
+@pytest.fixture(scope='module')
+async def erc165_factory():
+    starknet = await Starknet.empty()
+    contract = await starknet.deploy("contracts/ERC165.cairo")
+    return contract
+
+
+@pytest.mark.asyncio
+async def test_165_interface(erc165_factory):
+    contract = erc165_factory
+
+    execution_info = await contract.supportsInterface(ERC165_ID).call()
+    assert execution_info.result == (1,)
+
+
+@pytest.mark.asyncio
+async def test_invalid_id(erc165_factory):
+    contract = erc165_factory
+
+    execution_info = await contract.supportsInterface(INVALID_ID).call()
+    assert execution_info.result == (0,)
+
+
+@pytest.mark.asyncio
+async def test_register_interface(erc165_factory):
+    contract = erc165_factory
+
+    execution_info = await contract.supportsInterface(OTHER_ID).call()
+    assert execution_info.result == (0,)
+
+    # register interface
+    await contract.register_interface(OTHER_ID).invoke()
+
+    execution_info = await contract.supportsInterface(OTHER_ID).call()
+    assert execution_info.result == (1,)
+
+
+@pytest.mark.asyncio
+async def test_register_invalid_interface(erc165_factory):
+    contract = erc165_factory
+
+    await assert_revert(
+        contract.register_interface(INVALID_ID).invoke()
+    )

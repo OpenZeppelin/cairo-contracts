@@ -208,7 +208,7 @@ async def test_decreaseAllowance(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_decreaseAllowance_underflow(erc20_factory):
+async def test_decreaseAllowance_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 987

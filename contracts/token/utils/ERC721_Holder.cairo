@@ -19,3 +19,13 @@ func onERC721Received{
     # ERC721_RECEIVER_ID
     return ('0x150b7a02')
 end
+
+#tmp method
+@view
+func is_account{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*, 
+        range_check_ptr
+    }() -> (res: felt):
+    return (0)
+end

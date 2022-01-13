@@ -12,4 +12,8 @@ namespace IERC721_Receiver:
         data: felt*
     ) -> (selector: felt): 
     end
+
+    # tmp method
+    func is_account() -> (res: felt):
+    end
 end

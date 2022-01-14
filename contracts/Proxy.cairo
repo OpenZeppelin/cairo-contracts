@@ -19,6 +19,15 @@ func constructor{
     return ()
 end
 
+@external
+func upgrade{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check
+    }(new_implementation: felt):
+    implementation_address.write(new_implementation)
+    return ()
+end
 
 #
 # Fallback functions

@@ -35,10 +35,6 @@ end
 func public_key() -> (res: felt):
 end
 
-@storage_var
-func _is_account() -> (res: felt):
-end
-
 #
 # Guards
 #
@@ -85,8 +81,7 @@ func is_account{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
-    let (res) = _is_account.read()
-    return (res)
+    return (1)
 end
 
 #
@@ -115,7 +110,6 @@ func constructor{
         range_check_ptr
     }(_public_key: felt):
     public_key.write(_public_key)
-    _is_account.write(1)
     return()
 end
 

@@ -106,7 +106,16 @@ async def test_public_key_setter(account_factory):
 
 @pytest.mark.asyncio
 async def test_is_account(account_factory):
-    _, account = account_factory
+    starknet, account = account_factory
 
+    # account contract
     execution_info = await account.is_account().call()
     assert execution_info.result == (1,)
+
+    other = await starknet.deploy(
+        "contracts/token/utils/ERC721_Holder.cairo"
+    )
+
+    # non-account contract
+    execution_info = await other.is_account().call()
+    assert execution_info.result == (0,)

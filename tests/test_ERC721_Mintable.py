@@ -764,7 +764,7 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_to_eoa(erc721_factory):
+async def test_safeTransferFrom_to_account(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
 
     account2 = await starknet.deploy(

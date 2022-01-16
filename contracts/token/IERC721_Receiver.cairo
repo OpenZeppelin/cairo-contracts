@@ -18,7 +18,7 @@ namespace IERC721_Receiver:
     # non-account contracts. Currently, StarkNet does not support error handling from the
     # contract level; therefore, this ERC721 implementation requires that all contracts that
     # support safe ERC721 transfers (both accounts and non-accounts) include the `is_account` 
-    # method. This method should return `0` here since it's NOT an account.
+    # method. This method should return `0` since it's NOT an account.
     func is_account() -> (res: felt):
     end
 end

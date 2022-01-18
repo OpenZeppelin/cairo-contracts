@@ -3,12 +3,12 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from contracts.Account_base import (
-    Account_get_public_key,
+    Account_execute,
     Account_get_nonce,
-    Account_set_public_key,
     Account_initializer,
-    Account_is_valid_signature,
-    Account_execute
+    Account_get_public_key,
+    Account_set_public_key,
+    Account_is_valid_signature
 )
 
 #
@@ -68,7 +68,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(public_key: felt):
-    Account_set_public_key(public_key)
+    Account_initializer(public_key)
     return()
 end
 

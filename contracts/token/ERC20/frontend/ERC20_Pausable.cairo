@@ -4,7 +4,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.token.ERC20_base import (
+from contracts.token.ERC20.base.ERC20_base import (
     ERC20_name,
     ERC20_symbol,
     ERC20_totalSupply,
@@ -24,6 +24,13 @@ from contracts.token.ERC20_base import (
 from contracts.Ownable_base import (
     Ownable_initializer,
     Ownable_only_owner
+)
+
+from contracts.Pausable_base import (
+    Pausable_paused,
+    Pausable_pause,
+    Pausable_unpause,
+    Pausable_when_not_paused
 )
 
 @constructor
@@ -117,6 +124,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_transfer(recipient, amount)
     # Cairo equivalent to 'return (true)'
     return (1)
@@ -132,8 +140,8 @@ func transferFrom{
         recipient: felt, 
         amount: Uint256
     ) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_transferFrom(sender, recipient, amount)
-    # Cairo equivalent to 'return (true)'
     return (1)
 end
 
@@ -143,6 +151,7 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_approve(spender, amount)
     # Cairo equivalent to 'return (true)'
     return (1)
@@ -154,6 +163,7 @@ func increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_increaseAllowance(spender, added_value)
     # Cairo equivalent to 'return (true)'
     return (1)
@@ -165,18 +175,30 @@ func decreaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_decreaseAllowance(spender, subtracted_value)
     # Cairo equivalent to 'return (true)'
     return (1)
 end
 
 @external
-func mint{
+func pause{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(to: felt, amount: Uint256):
+    }():
     Ownable_only_owner()
-    ERC20_mint(to, amount)
+    Pausable_pause()
+    return ()
+end
+
+@external
+func unpause{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable_only_owner()
+    Pausable_unpause()
     return ()
 end

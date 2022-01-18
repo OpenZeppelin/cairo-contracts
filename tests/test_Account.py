@@ -102,3 +102,12 @@ async def test_public_key_setter(account_factory):
 
     execution_info = await account.get_public_key().call()
     assert execution_info.result == (other.public_key,)
+
+
+@pytest.mark.asyncio
+async def test_is_account(account_factory):
+    _, account = account_factory
+
+    # account contract
+    execution_info = await account.is_account().call()
+    assert execution_info.result == (1,)

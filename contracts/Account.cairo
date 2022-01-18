@@ -75,6 +75,15 @@ func get_nonce{
     return (res=res)
 end
 
+@view
+func is_account{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
+    return (1)
+end
+
 #
 # Setters
 #

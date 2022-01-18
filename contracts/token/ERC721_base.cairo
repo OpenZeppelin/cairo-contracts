@@ -14,6 +14,8 @@ from contracts.ERC165_base import (
 
 from contracts.token.IERC721_Receiver import IERC721_Receiver
 
+from contracts.IAccount import IAccount
+
 #
 # Storage
 #
@@ -382,9 +384,12 @@ func _check_onERC721Received{
         data_len: felt, 
         data: felt*
     ) -> (success: felt):
-    # We need to consider how to differentiate between EOA and contracts
-    # and insert a conditional to know when to use the proceeding check
     let (caller) = get_caller_address()
+    let (is_account) = IAccount.is_account(to)
+    if is_account == 1:
+        return (1)
+    end
+
     # The first parameter in an imported interface is the contract
     # address of the interface being called
     let (selector) = IERC721_Receiver.onERC721Received(

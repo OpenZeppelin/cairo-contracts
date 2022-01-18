@@ -763,6 +763,33 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
         assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
 
 
+@pytest.mark.asyncio
+async def test_safeTransferFrom_to_account(erc721_factory):
+    starknet, erc721, account, _ = erc721_factory
+
+    account2 = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    await signer.send_transaction(
+        account, erc721.contract_address, 'safeTransferFrom', [
+            account.contract_address,
+            account2.contract_address,
+            *eighth_token_id,
+            len(data),
+            *data
+        ]
+    )
+
+    # check balance
+    execution_info = await erc721.balanceOf(account2.contract_address).call()
+    assert execution_info.result == (uint(1),)
+
+    # check owner
+    execution_info = await erc721.ownerOf(eighth_token_id).call()
+    assert execution_info.result == (account2.contract_address,)
+
 #
 # tokenURI
 #

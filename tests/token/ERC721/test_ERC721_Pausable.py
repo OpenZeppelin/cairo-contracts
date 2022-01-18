@@ -38,7 +38,7 @@ async def erc721_factory():
     )
 
     erc721 = await starknet.deploy(
-        "contracts/token/ERC721_Pausable.cairo",
+        "contracts/token/ERC721/frontend/ERC721_Pausable.cairo",
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
@@ -46,7 +46,7 @@ async def erc721_factory():
         ]
     )
 
-    erc721_holder = await starknet.deploy("contracts/token/utils/ERC721_Holder.cairo")
+    erc721_holder = await starknet.deploy("contracts/token/ERC721/frontend/utils/ERC721_Holder.cairo")
 
     # mint tokens to owner
     tokens = [first_token_id, second_token_id]

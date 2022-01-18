@@ -20,7 +20,7 @@ async def token_factory():
     )
 
     token = await starknet.deploy(
-        "contracts/token/ERC20_Mintable.cairo",
+        "contracts/token/ERC20/frontend/ERC20_Mintable.cairo",
         constructor_calldata=[
             str_to_felt("Mintable Token"),
             str_to_felt("MTKN"),

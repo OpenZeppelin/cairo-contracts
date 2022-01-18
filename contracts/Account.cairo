@@ -69,7 +69,7 @@ func constructor{
         range_check_ptr
     }(public_key: felt):
     Account_initializer(public_key)
-    return()
+    return ()
 end
 
 #

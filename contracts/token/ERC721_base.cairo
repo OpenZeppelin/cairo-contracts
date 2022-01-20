@@ -164,7 +164,7 @@ func ERC721_setApprovalForAll{
     }(operator: felt, approved: felt):
     # Ensures caller is neither zero address nor operator
     let (caller) = get_caller_address()
-    assert_not_zero(caller)
+    assert_not_zero(caller * operator)
     assert_not_equal(caller, operator)
 
     # Make sure `approved` is a boolean (0 or 1)

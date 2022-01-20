@@ -11,19 +11,19 @@
 
 ## The extensibility problem
 
-Smart contract development is a critical task. As all software development, is error prone; but unlike most scenarios a bug can result in major losses for organizations as well as individuals. Therefore writing complex smart contracts is a delicate task.
+Smart contract development is a critical task. As with all software development, it is error prone; but unlike most scenarios, a bug can result in major losses for organizations as well as individuals. Therefore writing complex smart contracts is a delicate task.
 
 One of the best approaches to minimize introducing bugs is to reuse existing, battle-tested code, a.k.a. using libraries. But code reutilization in StarkNet’s smart contracts is not easy:
 
 - Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
-- There’s no function overloading nor aliasing, making function selector collisions very likely – more so considering selectors do not take function arguments into account
+- There’s no function overloading nor aliasing which makes function selector collisions very likely – more so considering selectors do not take function arguments into account
 - Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
 
-To overcome these problems, this library builds on the following guidelines™.
+To overcome these problems, this project builds on the following guidelines™.
 
 ## The pattern
 
-The idea is to have two types of cairo files: libraries and contracts. The flow then is for libraries to define reusable logic and storage variables which can then be extended and exposed by contracts. Contracts can be deployed, libraries cannot.
+The idea is to have two types of Cairo modules: libraries and contracts. The flow then is for libraries to define reusable logic and storage variables which can then be extended and exposed by contracts. Contracts can be deployed, libraries cannot.
 
 To minimize risk, boilerplate, and avoid semantic clashes, we follow these rules:
 
@@ -38,7 +38,7 @@ To minimize risk, boilerplate, and avoid semantic clashes, we follow these rules
 ### Contracts
 
 - Can import from libraries
-- Should implement external functions if needed
+- Should implement `@external` functions if needed
 - Should implement a constructor that calls initializers
 - Must not call initializers on any function aside the constructor
 
@@ -64,7 +64,7 @@ Some presets are:
 
 Unlike the Solidity version of [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts), this library does not implement [hooks](https://docs.openzeppelin.com/contracts/4.x/extending-contracts#using-hooks). The main reason being that Cairo does not support overriding functions.
 
-This is how a hook looks like in Solidity:
+This is what a hook looks like in Solidity:
 
 ```js
 abstract contract ERC20Pausable is ERC20, Pausable {
@@ -87,7 +87,7 @@ abstract contract ERC20Pausable is ERC20, Pausable {
 }
 ```
 
-Instead, using the extensibility pattern we can simply extend the library implementation of a function (namely `transfer`) by adding lines before or after calling it. This way, we can get away with:
+Instead, the extensibility pattern allows us to simply extend the library implementation of a function (namely `transfer`) by adding lines before or after calling it. This way, we can get away with:
 
 ```python
 @external

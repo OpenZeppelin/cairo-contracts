@@ -16,16 +16,16 @@ Smart contract development is a critical task. As with all software development,
 One of the best approaches to minimize introducing bugs is to reuse existing, battle-tested code, a.k.a. using libraries. But code reutilization in StarkNet’s smart contracts is not easy:
 
 - Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
-- There’s no function overloading nor aliasing which makes function selector collisions very likely – more so considering selectors do not take function arguments into account
+- Using imports for modularity can result in clashes (more so given that arguments are not part of the selector), and lack of overrides or aliasing leaves no way to resolve them
 - Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
 
 To overcome these problems, this project builds on the following guidelines™.
 
 ## The pattern
 
-The idea is to have two types of Cairo modules: libraries and contracts. The flow then is for libraries to define reusable logic and storage variables which can then be extended and exposed by contracts. Contracts can be deployed, libraries cannot.
+The idea is to have two types of Cairo modules: libraries and contracts. Libraries define reusable logic and storage variables which can then be extended and exposed by contracts. Contracts can be deployed, libraries cannot.
 
-To minimize risk, boilerplate, and avoid semantic clashes, we follow these rules:
+To minimize risk, boilerplate, and avoid function naming clashes, we follow these rules:
 
 ### Libraries
 
@@ -33,16 +33,16 @@ To minimize risk, boilerplate, and avoid semantic clashes, we follow these rules
 - Must not implement any `@external` or `@view` functions
 - Must not implement constructors
 - Must not call initializers on any function
-- Should implement initializers if needed (as any other library function, never as `@external`)
+- Should implement initializer functions to mimic construction logic if needed (as any other library function, never as `@external`)
 
 ### Contracts
 
 - Can import from libraries
 - Should implement `@external` functions if needed
 - Should implement a constructor that calls initializers
-- Must not call initializers on any function aside the constructor
+- Must not call initializers in any function beside the constructor
 
-Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the contract constructor, there’s no risk of double-initialization. It’s up to the library developers not to make initializers inter-dependent to avoid weird dependency paths.
+Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the contract constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double initialization of libraries.
 
 ## Presets
 
@@ -68,18 +68,7 @@ This is what a hook looks like in Solidity:
 
 ```js
 abstract contract ERC20Pausable is ERC20, Pausable {
-    /**
-     * @dev See {ERC20-_beforeTokenTransfer}.
-     *
-     * Requirements:
-     *
-     * - the contract must not be paused.
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
 
         require(!paused(), "ERC20Pausable: token transfer while paused");

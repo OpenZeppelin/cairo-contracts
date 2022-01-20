@@ -164,7 +164,13 @@ func ERC721_setApprovalForAll{
     }(operator: felt, approved: felt):
     # Ensures caller is neither zero address nor operator
     let (caller) = get_caller_address()
-    assert_not_zero(caller * operator)
+    assert_not_zero(caller * operator) 
+    # note this pattern as we'll frequently use it: 
+    #   instead of making an `assert_not_zero` call for each address
+    #   we can always briefly write `assert_not_zero(a0 * a1 * ... * aN)`.
+    #   This is because these addresses are field elements,
+    #   meaning that a*0==0 for all a in the field, 
+    #   and a*b==0 implies that at least one of a,b are zero in the field
     assert_not_equal(caller, operator)
 
     # Make sure `approved` is a boolean (0 or 1)

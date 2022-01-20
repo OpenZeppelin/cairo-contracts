@@ -129,6 +129,16 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+@view
+func paused{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (paused: felt):
+    let (paused) = Pausable_paused.read()
+    return (paused)
+end
+
 
 #
 # Externals

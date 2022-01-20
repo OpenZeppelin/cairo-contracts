@@ -2,7 +2,7 @@
 
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.token.IERC721 import IERC721
+from contracts.token.ERC721.interfaces.IERC721 import IERC721
 
 @contract_interface
 namespace IERC721_Enumerable:

@@ -53,7 +53,7 @@ async def erc721_factory():
     )
 
     erc721 = await starknet.deploy(
-        "contracts/token/ERC721/frontend/ERC721_Mintable.cairo",
+        "contracts/token/ERC721/contracts/ERC721_Mintable.cairo",
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
@@ -61,7 +61,7 @@ async def erc721_factory():
         ]
     )
 
-    erc721_holder = await starknet.deploy("contracts/token/ERC721/frontend/utils/ERC721_Holder.cairo")
+    erc721_holder = await starknet.deploy("contracts/token/ERC721/contracts/utils/ERC721_Holder.cairo")
     return starknet, erc721, account, erc721_holder
 
 
@@ -736,7 +736,7 @@ async def test_safeTransferFrom_to_zero_address(erc721_factory):
 async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     unsupported_account = await starknet.deploy(
-        "contracts/token/ERC20/frontend/ERC20.cairo",
+        "contracts/token/ERC20/contracts/ERC20.cairo",
         constructor_calldata=[
             str_to_felt("Token"),
             str_to_felt("TKN"),

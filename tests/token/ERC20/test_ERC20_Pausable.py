@@ -25,7 +25,7 @@ async def token_factory():
     )
 
     token = await starknet.deploy(
-        "contracts/token/ERC20/frontend/ERC20_Pausable.cairo",
+        "contracts/token/ERC20/contracts/ERC20_Pausable.cairo",
         constructor_calldata=[
             str_to_felt("Pausable Token"),
             str_to_felt("PTKN"),

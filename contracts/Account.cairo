@@ -115,7 +115,7 @@ func constructor{
         range_check_ptr
     }(_public_key: felt):
     public_key.write(_public_key)
-    # Account magic value derived from ERC165 calculation of IAccount
+    # Magic value derived from ERC165 calculation of IAccount
     ERC165_register_interface('0x50b70dcb')
     return()
 end

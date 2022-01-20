@@ -9,9 +9,6 @@ namespace IAccount:
     func get_nonce() -> (res : felt):
     end
 
-    func is_account() -> (res: felt):
-    end
-
     #
     # Business logic
     #

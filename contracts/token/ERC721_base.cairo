@@ -14,7 +14,9 @@ from contracts.ERC165_base import (
 
 from contracts.token.IERC721_Receiver import IERC721_Receiver
 
-from contracts.IAccount import IAccount
+from contracts.IERC165 import (
+    IERC165
+)
 
 #
 # Storage
@@ -385,7 +387,8 @@ func _check_onERC721Received{
         data: felt*
     ) -> (success: felt):
     let (caller) = get_caller_address()
-    let (is_account) = IAccount.is_account(to)
+    # IAccount_ID = 0x50b70dcb
+    let (is_account) = IERC165.supportsInterface(to, '0x50b70dcb') 
     if is_account == 1:
         return (1)
     end

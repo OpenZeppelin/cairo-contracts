@@ -3,6 +3,11 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
+from contracts.ERC165_base import (
+    ERC165_supports_interface,
+    ERC165_register_interface
+)
+
 @view
 func onERC721Received{
         syscall_ptr : felt*, 
@@ -19,16 +24,22 @@ func onERC721Received{
     return ('0x150b7a02')
 end
 
-# ERC721's `safeTransferFrom` requires a means of differentiating between account and
-# non-account contracts. Currently, StarkNet does not support error handling from the
-# contract level; therefore, this ERC721 implementation requires that all contracts that
-# support safe ERC721 transfers (both accounts and non-accounts) include the `is_account` 
-# method. This method should return `0` since this contract is NOT an account.
 @view
-func is_account{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
+func supportsInterface{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    return (0)
+    }(interfaceId: felt) -> (success: felt):
+    let (success) = ERC165_supports_interface('0x150b7a02')
+    return (success)
+end
+
+@constructor
+func constructor{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    ERC165_register_interface('0x150b7a02')
+    return ()
 end

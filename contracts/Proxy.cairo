@@ -6,19 +6,17 @@ from starkware.starknet.common.syscalls import (
     delegate_call,
     get_caller_address
 )
-from contracts.Ownable_base import (
-    Ownable_initializer,
-    Ownable_get_owner,
-    Ownable_transfer_ownership,
-    Ownable_only_owner
-)
 
 #
 # Storage variables
 #
 
 @storage_var
-func implementation_address() -> (implementation_address: felt):
+func Proxy_implementation_address() -> (implementation_address: felt):
+end
+
+@storage_var
+func Proxy_admin_address() -> (admin_address: felt):
 end
 
 #
@@ -31,11 +29,11 @@ func constructor{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
-        _implementation_address: felt,
-        owner: felt
+        implementation_address: felt,
+        admin_address: felt
     ):
-    implementation_address.write(_implementation_address)
-    Ownable_initializer(owner)
+    Proxy_implementation_address.write(implementation_address)
+    Proxy_admin_address.write(admin_address)
     return ()
 end
 
@@ -49,8 +47,10 @@ func upgrade{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(new_implementation: felt):
-    Ownable_only_owner()
-    implementation_address.write(new_implementation)
+    let (caller) = get_caller_address()
+    let (admin) = Proxy_admin_address.read()
+    assert caller = admin
+    Proxy_implementation_address.write(new_implementation)
     return ()
 end
 
@@ -73,7 +73,7 @@ func __default__{
         retdata_size: felt,
         retdata: felt*
     ):
-    let (address) = implementation_address.read()
+    let (address) = Proxy_implementation_address.read()
 
     let (retdata_size: felt, retdata: felt*) = delegate_call(
         contract_address=address,
@@ -96,7 +96,7 @@ func __l1_default__{
         calldata_size: felt,
         calldata: felt*
     ):
-    let (address) = implementation_address.read()
+    let (address) = Proxy_implementation_address.read()
 
     delegate_l1_handler(
         contract_address=address,

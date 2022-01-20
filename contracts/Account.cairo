@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from contracts.Account_base import (

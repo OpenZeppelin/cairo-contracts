@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
@@ -127,6 +126,16 @@ func isApprovedForAll{
     }(owner: felt, operator: felt) -> (is_approved: felt):
     let (is_approved: felt) = ERC721_isApprovedForAll(owner, operator)
     return (is_approved)
+end
+
+@view
+func paused{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (paused: felt):
+    let (paused) = Pausable_paused.read()
+    return (paused)
 end
 
 

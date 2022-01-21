@@ -579,6 +579,20 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     ))
 
 
+@pytest.mark.asyncio
+async def test_transferFrom_from_zero_address(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # Caller address is `0` when not using an account contract
+    await assert_revert(
+        erc721.transferFrom(
+            account.contract_address,
+            user1,
+            fifth_token_id
+        ).invoke()
+    )
+
+
 #
 # supportsInterface
 #
@@ -733,6 +747,21 @@ async def test_safeTransferFrom_to_zero_address(erc721_factory):
 
 
 @pytest.mark.asyncio
+async def test_safeTransferFrom_from_zero_address(erc721_factory):
+    _, erc721, account, erc721_holder = erc721_factory
+
+    # Caller address is `0` when not using an account contract
+    await assert_revert(
+        erc721.safeTransferFrom(
+            account.contract_address,
+            erc721_holder.contract_address,
+            eighth_token_id,
+            data
+        ).invoke()
+    )
+
+
+@ pytest.mark.asyncio
 async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     unsupported_account = await starknet.deploy(

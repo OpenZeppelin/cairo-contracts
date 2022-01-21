@@ -189,6 +189,11 @@ func ERC721_transferFrom{
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
     assert_not_zero(caller * is_approved)
+    # Note that if either `is_approved` or `caller` equals `0`,
+    # this tx should revert.
+    # The `caller` address and `is_approved` boolean are both field elements
+    # meaning that a*0==0 for all a in the field, 
+    # therefore a*b==0 implies that at least one of a,b is zero in the field  
 
     _transfer(_from, to, token_id)
     return ()
@@ -209,6 +214,11 @@ func ERC721_safeTransferFrom{
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
     assert_not_zero(caller * is_approved)
+    # Note that if either `is_approved` or `caller` equals `0`,
+    # this tx should revert.
+    # The `caller` address and `is_approved` boolean are both field elements
+    # meaning that a*0==0 for all a in the field, 
+    # therefore a*b==0 implies that at least one of a,b is zero in the field
 
     _safe_transfer(_from, to, token_id, data_len, data)
     return ()

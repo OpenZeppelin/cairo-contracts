@@ -36,7 +36,7 @@ nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
 
 # random data (mimicking bytes in Solidity)
-data = [str_to_felt('0x42'), str_to_felt('0x89'), str_to_felt('0x55')]
+data = [0x42, 0x89, 0x55]
 
 
 @pytest.fixture(scope='module')
@@ -586,11 +586,11 @@ async def test_transferFrom_to_zero_address(erc721_factory):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('interface_id, result', [
-    [str_to_felt('0x01ffc9a7'), true],      # IERC165 id
-    [str_to_felt('0x80ac58cd'), true],      # IERC721 id
-    [str_to_felt('0x5b5e139f'), true],      # IERC721_Metadata id
-    [str_to_felt('0xffffffff'), false],     # id explicitly not supported
-    [str_to_felt('0xabcd1234'), false],     # id implicitly not supported
+    [0x01ffc9a7, true],      # IERC165 id
+    [0x80ac58cd, true],      # IERC721 id
+    [0x5b5e139f, true],      # IERC721_Metadata id
+    [0xffffffff, false],     # id explicitly not supported
+    [0xabcd1234, false],     # id implicitly not supported
 ])
 async def test_supportsInterface(erc721_factory, interface_id, result):
     _, erc721, _, _ = erc721_factory

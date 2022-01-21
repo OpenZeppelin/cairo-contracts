@@ -29,7 +29,7 @@ func ERC721_Metadata_initializer{
         range_check_ptr
     }():
     # register IERC721_Metadata
-    ERC165_register_interface('0x5b5e139f')
+    ERC165_register_interface(0x5b5e139f)
     return ()
 end
 

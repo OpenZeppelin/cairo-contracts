@@ -59,7 +59,7 @@ func ERC721_initializer{
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
     # register IERC721
-    ERC165_register_interface('0x80ac58cd')
+    ERC165_register_interface(0x80ac58cd)
     return ()
 end
 
@@ -408,7 +408,7 @@ func _check_onERC721Received{
     )
 
     # ERC721_RECEIVER_ID
-    assert (selector) = '0x150b7a02'
+    assert (selector) = 0x150b7a02
 
     # Cairo equivalent to 'return (true)'
     return (1)

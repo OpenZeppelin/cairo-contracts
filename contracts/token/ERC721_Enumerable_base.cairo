@@ -55,7 +55,7 @@ func ERC721_Enumerable_initializer{
         range_check_ptr
     }():
     # register IERC721_Enumerable
-    ERC165_register_interface('0x780e9d63')
+    ERC165_register_interface(0x780e9d63)
     return ()
 end
 

@@ -13,17 +13,13 @@ func ERC165_supports_interface{
         range_check_ptr
     } (interface_id: felt) -> (success: felt):
     # 165
-    if interface_id == '0x01ffc9a7':
+    if interface_id == 0x01ffc9a7:
         return (1)
     end
 
     # Checks interface registry
     let (is_supported) = ERC165_supported_interfaces.read(interface_id)
-    if is_supported == 1:
-        return (1)
-    end
-
-    return (0)
+    return (is_supported)
 end
 
 func ERC165_register_interface{
@@ -32,7 +28,7 @@ func ERC165_register_interface{
         range_check_ptr
     } (interface_id: felt):
     # Ensures interface_id is not the invalid interface_id
-    assert_not_equal(interface_id, '0xffffffff')
+    assert_not_equal(interface_id, 0xffffffff)
     ERC165_supported_interfaces.write(interface_id, 1)
     return ()
 end

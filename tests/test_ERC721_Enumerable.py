@@ -52,7 +52,7 @@ async def erc721_factory():
 async def test_supportsInterface(erc721_factory):
     _, erc721, _ = erc721_factory
 
-    enum_interface_id = str_to_felt('0x780e9d63')
+    enum_interface_id = 0x780e9d63
 
     execution_info = await erc721.supportsInterface(enum_interface_id).call()
     assert execution_info.result == (1,)

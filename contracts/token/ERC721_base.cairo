@@ -185,9 +185,10 @@ func ERC721_transferFrom{
         syscall_ptr: felt*, 
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
+    alloc_locals
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert is_approved = 1
+    assert_not_zero(caller * is_approved)
 
     _transfer(_from, to, token_id)
     return ()
@@ -204,9 +205,10 @@ func ERC721_safeTransferFrom{
         data_len: felt,
         data: felt*
     ):
+    alloc_locals
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert is_approved = 1    
+    assert_not_zero(caller * is_approved)
 
     _safe_transfer(_from, to, token_id, data_len, data)
     return ()

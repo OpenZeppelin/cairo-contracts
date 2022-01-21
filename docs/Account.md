@@ -18,6 +18,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
     - [`set_public_key`](#-set-public-key-)
     - [`is_valid_signature`](#-is-valid-signature-)
     - [`execute`](#-execute-)
+* [Contract differentiation](#account-differentiation)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
 * [Paying for gas](#paying-for-gas)
@@ -259,6 +260,10 @@ signature: felt*
 response_len: felt
 response: felt*
 ```
+
+## Account differentiation with ERC165
+
+Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. 
 
 ## Extending the Account contract
 

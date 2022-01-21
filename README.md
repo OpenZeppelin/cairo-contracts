@@ -76,20 +76,13 @@ tests/test_Initializable.py .                              [ 89%]
 tests/test_Ownable.py ..                                   [100%]
 ```
 
-### Extending Cairo contracts
-
-There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk. Remember this contracts are still under development and they have not gone through any audit or security review whatsoever.
-
-- For Accounts, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, or some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo).
-- For ERC20 tokens we suggest removing or protecting the `mint` method, temporarily in place for testing purposes. You can customize token name, symbol, and may be worth exploring pre/post transfer checks.
-
-
 ## Learn
 
 ### Contract documentation
 * [Account](docs/Account.md)
 * [ERC20](docs/ERC20.md)
 * [ERC721](docs/ERC721.md)
+* [Contract extensibility pattern](docs/Extensibility.md)
 ### Cairo
 * [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
 * [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)

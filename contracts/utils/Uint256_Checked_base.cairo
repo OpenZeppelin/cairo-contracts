@@ -6,7 +6,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt
 )
 
-# Returns the addition of two unsigned integers. 
+# Adds two integers. 
 # Reverts if the sum overflows.
 func Uint256_Checked_add{
         syscall_ptr: felt*, 
@@ -18,7 +18,7 @@ func Uint256_Checked_add{
     return (c)
 end
 
-# Returns the subtraction of two unsigned integers.
+# Subtracts two integers.
 # Reverts if the difference is greater than minuend.
 func Uint256_Checked_sub_le{
         syscall_ptr: felt*, 
@@ -32,7 +32,7 @@ func Uint256_Checked_sub_le{
     return (c)
 end
 
-# Returns the subtraction of two unsigned integers.
+# Subtracts two integers.
 # Reverts if the difference is greater than or equal to minuend.
 func Uint256_Checked_sub_lt{
         syscall_ptr: felt*, 

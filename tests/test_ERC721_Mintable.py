@@ -291,6 +291,16 @@ async def test_burn_unowned_token(erc721_factory):
         other, erc721.contract_address, 'burn', [*token_to_burn]
     )
 
+
+@pytest.mark.asyncio
+async def test_burn_from_zero_address(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    await assert_revert(
+        erc721.burn(first_token_id).invoke()
+    )
+
+
 #
 # Approve
 #

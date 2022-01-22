@@ -28,6 +28,11 @@ from contracts.ERC165_base import (
     ERC165_supports_interface
 )
 
+from contracts.Ownable_base import (
+    Ownable_initializer,
+    Ownable_only_owner
+)
+
 #
 # Constructor
 #
@@ -37,9 +42,14 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt):
+    }(
+        name: felt, 
+        symbol: felt,
+        owner: felt
+    ):
     ERC721_initializer(name, symbol)
     ERC721_Metadata_initializer()
+    Ownable_initializer(owner)
     return ()
 end
 
@@ -183,6 +193,7 @@ func setTokenURI{
         syscall_ptr: felt*, 
         range_check_ptr
     }(token_id: Uint256, token_uri: felt):
+    Ownable_only_owner()
     ERC721_Metadata_setTokenURI(token_id, token_uri)
     return ()
 end

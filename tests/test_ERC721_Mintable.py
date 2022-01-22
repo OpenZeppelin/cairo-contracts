@@ -264,19 +264,42 @@ async def test_burn_nonexistent_token(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_burn_contract_owner_token_by_different_account(erc721_factory):
-    starknet, erc721, _, _ = erc721_factory
-    not_owner = await starknet.deploy(
+async def test_burn_unowned_token(erc721_factory):
+    starknet, erc721, account, _ = erc721_factory
+    other = await starknet.deploy(
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
-    # not_owner should not be able to burn tokens
-    await assert_revert(signer.send_transaction(
-        not_owner, erc721.contract_address, 'burn', [
-            *first_token_id
+    # mint 'token_to_burn' to other account
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            other.contract_address,
+            *token_to_burn
         ]
-    ))
+    )
+
+    # contract owner (account) should not be able to burn other's token
+    await assert_revert(
+        signer.send_transaction(
+            account, erc721.contract_address, 'burn', [*token_to_burn]
+        )
+    )
+
+    # other can burn their own token
+    await signer.send_transaction(
+        other, erc721.contract_address, 'burn', [*token_to_burn]
+    )
+
+
+@pytest.mark.asyncio
+async def test_burn_from_zero_address(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    await assert_revert(
+        erc721.burn(first_token_id).invoke()
+    )
+
 
 #
 # Approve

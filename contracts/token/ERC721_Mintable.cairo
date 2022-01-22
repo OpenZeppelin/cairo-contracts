@@ -17,7 +17,8 @@ from contracts.token.ERC721_base import (
     ERC721_transferFrom,
     ERC721_safeTransferFrom,
     ERC721_mint,
-    ERC721_burn
+    ERC721_burn,
+    ERC721_only_token_owner
 )
 
 from contracts.token.ERC721_Metadata_base import (
@@ -222,7 +223,7 @@ func burn{
         syscall_ptr: felt*, 
         range_check_ptr
     }(tokenId: Uint256):
-    Ownable_only_owner()
+    ERC721_only_token_owner(tokenId)
     ERC721_burn(tokenId)
     return ()
 end

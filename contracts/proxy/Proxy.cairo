@@ -1,23 +1,11 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import (
-    delegate_l1_handler,
-    delegate_call,
-    get_caller_address
+from starkware.starknet.common.syscalls import delegate_l1_handler, delegate_call
+from contracts.proxy.library import (
+    Proxy_implementation_address,
+    Proxy_set_implementation
 )
-
-#
-# Storage variables
-#
-
-@storage_var
-func Proxy_implementation_address() -> (implementation_address: felt):
-end
-
-@storage_var
-func Proxy_admin_address() -> (admin_address: felt):
-end
 
 #
 # Constructor
@@ -28,29 +16,8 @@ func constructor{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(
-        implementation_address: felt,
-        admin_address: felt
-    ):
-    Proxy_implementation_address.write(implementation_address)
-    Proxy_admin_address.write(admin_address)
-    return ()
-end
-
-#
-# Upgrade
-#
-
-@external
-func upgrade{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(new_implementation: felt):
-    let (caller) = get_caller_address()
-    let (admin) = Proxy_admin_address.read()
-    assert caller = admin
-    Proxy_implementation_address.write(new_implementation)
+    }(implementation_address: felt):
+    Proxy_set_implementation(implementation_address)
     return ()
 end
 

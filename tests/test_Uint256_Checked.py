@@ -71,7 +71,7 @@ async def test_sub_le(uint256_checked_factory):
     b = (123, 4)
     c = sub_uint(a, b)
 
-    execution_info = await uint256_checked.test_sub_lt(a, b).invoke()
+    execution_info = await uint256_checked.test_sub_le(a, b).invoke()
     assert execution_info.result == (c,)
 
 
@@ -83,7 +83,7 @@ async def test_sub_le_equal(uint256_checked_factory):
     b = MAX_UINT256
     c = sub_uint(a, b)
 
-    execution_info = await uint256_checked.test_sub_lt(a, b).invoke()
+    execution_info = await uint256_checked.test_sub_le(a, b).invoke()
     assert execution_info.result == (c,)
 
 

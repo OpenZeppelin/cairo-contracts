@@ -18,6 +18,28 @@ def uint(a):
     return(a, 0)
 
 
+def to_uint(a):
+    return (a & ((1 << 128) - 1), a >> 128)
+
+
+def from_uint(a, b):
+    return a + (b << 128)
+
+
+def add_uint(a, b):
+    a = from_uint(a[0], a[1])
+    b = from_uint(b[0], b[1])
+    c = a + b
+    return to_uint(c)
+
+
+def sub_uint(a, b):
+    a = from_uint(a[0], a[1])
+    b = from_uint(b[0], b[1])
+    c = a - b
+    return to_uint(c)
+
+
 async def assert_revert(fun):
     try:
         await fun

@@ -15,7 +15,8 @@ from contracts.token.ERC721_base import (
     ERC721_approve, 
     ERC721_setApprovalForAll, 
     ERC721_transferFrom,
-    ERC721_safeTransferFrom
+    ERC721_safeTransferFrom,
+    ERC721_only_token_owner
 )
 
 from contracts.token.ERC721_Metadata_base import (
@@ -177,5 +178,16 @@ func safeTransferFrom{
         data: felt*
     ):
     ERC721_safeTransferFrom(_from, to, token_id, data_len, data)
+    return ()
+end
+
+@external
+func burn{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(tokenId: Uint256):
+    ERC721_only_token_owner(token_id)
+    ERC721_burn(tokenId)
     return ()
 end

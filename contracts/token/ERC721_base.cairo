@@ -288,6 +288,18 @@ func ERC721_safeMint{
     return ()
 end
 
+func ERC721_only_token_owner{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(token_id: Uint256):
+    let (caller) = get_caller_address()
+    let (owner) = ERC721_ownerOf(token_id)
+    # Note `ERC721_ownerOf` checks that the owner is not the zero address
+    assert caller = owner
+    return ()
+end
+
 #
 # Internals
 #

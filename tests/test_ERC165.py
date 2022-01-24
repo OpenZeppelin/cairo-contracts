@@ -1,11 +1,11 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import str_to_felt, assert_revert
+from utils import assert_revert
 
-ERC165_ID = str_to_felt('0x01ffc9a7')
-INVALID_ID = str_to_felt('0xffffffff')
-OTHER_ID = str_to_felt('0x12345678')
+ERC165_ID = 0x01ffc9a7
+INVALID_ID = 0xffffffff
+OTHER_ID = 0x12345678
 
 
 @pytest.fixture(scope='module')

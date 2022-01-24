@@ -21,7 +21,7 @@ func onERC721Received{
         data: felt*
     ) -> (selector: felt): 
     # ERC721_RECEIVER_ID
-    return ('0x150b7a02')
+    return (0x150b7a02)
 end
 
 @view

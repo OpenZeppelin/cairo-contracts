@@ -36,7 +36,7 @@ nonexistent_token = (111, 222)
 token_to_burn = (12345, 6789)
 
 # random data (mimicking bytes in Solidity)
-data = [str_to_felt('0x42'), str_to_felt('0x89'), str_to_felt('0x55')]
+data = [0x42, 0x89, 0x55]
 
 
 @pytest.fixture(scope='module')
@@ -264,19 +264,42 @@ async def test_burn_nonexistent_token(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_burn_contract_owner_token_by_different_account(erc721_factory):
-    starknet, erc721, _, _ = erc721_factory
-    not_owner = await starknet.deploy(
+async def test_burn_unowned_token(erc721_factory):
+    starknet, erc721, account, _ = erc721_factory
+    other = await starknet.deploy(
         "contracts/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
-    # not_owner should not be able to burn tokens
-    await assert_revert(signer.send_transaction(
-        not_owner, erc721.contract_address, 'burn', [
-            *first_token_id
+    # mint 'token_to_burn' to other account
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            other.contract_address,
+            *token_to_burn
         ]
-    ))
+    )
+
+    # contract owner (account) should not be able to burn other's token
+    await assert_revert(
+        signer.send_transaction(
+            account, erc721.contract_address, 'burn', [*token_to_burn]
+        )
+    )
+
+    # other can burn their own token
+    await signer.send_transaction(
+        other, erc721.contract_address, 'burn', [*token_to_burn]
+    )
+
+
+@pytest.mark.asyncio
+async def test_burn_from_zero_address(erc721_factory):
+    _, erc721, _, _ = erc721_factory
+
+    await assert_revert(
+        erc721.burn(first_token_id).invoke()
+    )
+
 
 #
 # Approve
@@ -579,6 +602,20 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     ))
 
 
+@pytest.mark.asyncio
+async def test_transferFrom_from_zero_address(erc721_factory):
+    _, erc721, account, _ = erc721_factory
+
+    # Caller address is `0` when not using an account contract
+    await assert_revert(
+        erc721.transferFrom(
+            account.contract_address,
+            user1,
+            fifth_token_id
+        ).invoke()
+    )
+
+
 #
 # supportsInterface
 #
@@ -586,11 +623,11 @@ async def test_transferFrom_to_zero_address(erc721_factory):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('interface_id, result', [
-    [str_to_felt('0x01ffc9a7'), true],      # IERC165 id
-    [str_to_felt('0x80ac58cd'), true],      # IERC721 id
-    [str_to_felt('0x5b5e139f'), true],      # IERC721_Metadata id
-    [str_to_felt('0xffffffff'), false],     # id explicitly not supported
-    [str_to_felt('0xabcd1234'), false],     # id implicitly not supported
+    [0x01ffc9a7, true],      # IERC165 id
+    [0x80ac58cd, true],      # IERC721 id
+    [0x5b5e139f, true],      # IERC721_Metadata id
+    [0xffffffff, false],     # id explicitly not supported
+    [0xabcd1234, false],     # id implicitly not supported
 ])
 async def test_supportsInterface(erc721_factory, interface_id, result):
     _, erc721, _, _ = erc721_factory
@@ -733,6 +770,21 @@ async def test_safeTransferFrom_to_zero_address(erc721_factory):
 
 
 @pytest.mark.asyncio
+async def test_safeTransferFrom_from_zero_address(erc721_factory):
+    _, erc721, account, erc721_holder = erc721_factory
+
+    # Caller address is `0` when not using an account contract
+    await assert_revert(
+        erc721.safeTransferFrom(
+            account.contract_address,
+            erc721_holder.contract_address,
+            eighth_token_id,
+            data
+        ).invoke()
+    )
+
+
+@ pytest.mark.asyncio
 async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     unsupported_account = await starknet.deploy(

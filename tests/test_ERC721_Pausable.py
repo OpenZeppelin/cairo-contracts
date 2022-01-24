@@ -16,7 +16,7 @@ second_token_id = (7921, 1)
 third_token_id = (0, 13)
 
 # random data (mimicking bytes in Solidity)
-data = [str_to_felt('0x42'), str_to_felt('0x89'), str_to_felt('0x55')]
+data = [0x42, 0x89, 0x55]
 
 
 @pytest.fixture(scope='module')

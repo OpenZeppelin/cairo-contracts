@@ -10,10 +10,13 @@ from contracts.token.ERC721_base import (
     ERC721_ownerOf,
     ERC721_getApproved,
     ERC721_isApprovedForAll,
+    ERC721_tokenURI,
 
     ERC721_initializer,
     ERC721_approve, 
     ERC721_setApprovalForAll,
+    ERC721_only_token_owner,
+    ERC721_setTokenURI
 )
 
 from contracts.token.ERC721_Enumerable_base import (
@@ -160,6 +163,16 @@ func isApprovedForAll{
     return (isApproved)
 end
 
+@view
+func tokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(tokenId: Uint256) -> (tokenURI: felt):
+    let (tokenURI: felt) = ERC721_tokenURI(tokenId)
+    return (tokenURI)
+end
+
 #
 # Externals
 #
@@ -231,7 +244,18 @@ func burn{
         syscall_ptr: felt*, 
         range_check_ptr
     }(tokenId: Uint256):
-    Ownable_only_owner()
+    ERC721_only_token_owner(tokenId)
     ERC721_Enumerable_burn(tokenId)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(tokenId: Uint256, tokenURI: felt):
+    Ownable_only_owner()
+    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

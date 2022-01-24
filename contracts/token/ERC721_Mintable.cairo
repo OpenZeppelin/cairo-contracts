@@ -10,6 +10,7 @@ from contracts.token.ERC721_base import (
     ERC721_ownerOf,
     ERC721_getApproved,
     ERC721_isApprovedForAll,
+    ERC721_tokenURI,
 
     ERC721_initializer,
     ERC721_approve, 
@@ -18,13 +19,8 @@ from contracts.token.ERC721_base import (
     ERC721_safeTransferFrom,
     ERC721_mint,
     ERC721_burn,
-    ERC721_only_token_owner
-)
-
-from contracts.token.ERC721_Metadata_base import (
-    ERC721_Metadata_initializer,
-    ERC721_Metadata_tokenURI,
-    ERC721_Metadata_setTokenURI,
+    ERC721_only_token_owner,
+    ERC721_setTokenURI
 )
 
 from contracts.ERC165_base import (
@@ -51,7 +47,6 @@ func constructor{
         owner: felt
     ):
     ERC721_initializer(name, symbol)
-    ERC721_Metadata_initializer()
     Ownable_initializer(owner)
     return ()
 end
@@ -105,8 +100,8 @@ func ownerOf{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(token_id: Uint256) -> (owner: felt):
-    let (owner: felt) = ERC721_ownerOf(token_id)
+    }(tokenId: Uint256) -> (owner: felt):
+    let (owner: felt) = ERC721_ownerOf(tokenId)
     return (owner)
 end
 
@@ -136,7 +131,7 @@ func tokenURI{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     }(tokenId: Uint256) -> (tokenURI: felt):
-    let (tokenURI: felt) = ERC721_Metadata_tokenURI(tokenId)
+    let (tokenURI: felt) = ERC721_tokenURI(tokenId)
     return (tokenURI)
 end
 
@@ -202,7 +197,7 @@ func setTokenURI{
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
     Ownable_only_owner()
-    ERC721_Metadata_setTokenURI(tokenId, tokenURI)
+    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
 

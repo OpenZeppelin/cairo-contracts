@@ -418,7 +418,7 @@ func _check_onERC721Received{
     ) -> (success: felt):
     let (caller) = get_caller_address()
     # IAccount_ID = 0x50b70dcb
-    let (is_account) = IERC165.supportsInterface(to, '0x50b70dcb') 
+    let (is_account) = IERC165.supportsInterface(to, 0x50b70dcb) 
     if is_account == 1:
         return (1)
     end

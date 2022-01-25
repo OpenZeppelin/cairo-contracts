@@ -13,7 +13,7 @@ def event_loop():
 async def uint256_checked_factory():
     starknet = await Starknet.empty()
     uint256_checked = await starknet.deploy(
-        "contracts/utils/Uint256_Checked.cairo"
+        "contracts/utils/uint256_checked_test.cairo"
     )
 
     return uint256_checked

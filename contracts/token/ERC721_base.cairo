@@ -6,9 +6,9 @@ from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256, uint256_check 
 
-from contracts.utils.Uint256_Checked_base import (
-    Uint256_Checked_add,
-    Uint256_Checked_sub_lt
+from contracts.utils.uint256_checked import (
+    uint256_checked_add,
+    uint256_checked_sub_lt
 )
 
 from contracts.ERC165_base import (
@@ -245,7 +245,7 @@ func ERC721_mint{
     assert exists = 0
 
     let (balance: Uint256) = ERC721_balances.read(to)
-    let (new_balance: Uint256) = Uint256_Checked_add(balance, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_add(balance, Uint256(1, 0))
     ERC721_balances.write(to, new_balance)
     ERC721_owners.write(token_id, to)
     return ()
@@ -265,7 +265,7 @@ func ERC721_burn{
 
     # Decrease owner balance
     let (balance: Uint256) = ERC721_balances.read(owner)
-    let (new_balance: Uint256) = Uint256_Checked_sub_lt(balance, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_sub_lt(balance, Uint256(1, 0))
     ERC721_balances.write(owner, new_balance)
 
     # Delete owner
@@ -379,12 +379,12 @@ func _transfer{
 
     # Decrease owner balance
     let (owner_bal) = ERC721_balances.read(_from)
-    let (new_balance: Uint256) = Uint256_Checked_sub_lt(owner_bal, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_sub_lt(owner_bal, Uint256(1, 0))
     ERC721_balances.write(_from, new_balance)
 
     # Increase receiver balance
     let (receiver_bal) = ERC721_balances.read(to)
-    let (new_balance: Uint256) = Uint256_Checked_add(receiver_bal, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_add(receiver_bal, Uint256(1, 0))
     ERC721_balances.write(to, new_balance)
 
     # Update token_id owner

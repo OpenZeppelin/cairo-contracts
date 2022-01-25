@@ -38,7 +38,10 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt):
+    }(
+        name: felt, 
+        symbol: felt
+    ):
     ERC721_initializer(name, symbol)
     ERC721_Metadata_initializer()
     return ()
@@ -175,16 +178,6 @@ func safeTransferFrom{
         data: felt*
     ):
     ERC721_safeTransferFrom(_from, to, token_id, data_len, data)
-    return ()
-end
-
-@external
-func setTokenURI{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(token_id: Uint256, token_uri: felt):
-    ERC721_Metadata_setTokenURI(token_id, token_uri)
     return ()
 end
 

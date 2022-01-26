@@ -3,11 +3,11 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.token.ERC721.libraries.ERC721_base import (
+from openzeppelin.token.erc721.library.ERC721_base import (
     _exists
 )
 
-from contracts.ERC165_base import (
+from openzeppelin.ERC165_base import (
     ERC165_register_interface
 )
 

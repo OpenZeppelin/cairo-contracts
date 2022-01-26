@@ -3,7 +3,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.token.ERC20.libraries.ERC20_base import (
+from openzeppelin.token.erc20.library.ERC20_base import (
     ERC20_name,
     ERC20_symbol,
     ERC20_totalSupply,
@@ -16,13 +16,7 @@ from contracts.token.ERC20.libraries.ERC20_base import (
     ERC20_increaseAllowance,
     ERC20_decreaseAllowance,
     ERC20_transfer,
-    ERC20_transferFrom,
-    ERC20_mint
-)
-
-from contracts.Ownable_base import (
-    Ownable_initializer,
-    Ownable_only_owner
+    ERC20_transferFrom
 )
 
 @constructor
@@ -34,11 +28,9 @@ func constructor{
         name: felt,
         symbol: felt,
         initial_supply: Uint256,
-        recipient: felt,
-        owner: felt
+        recipient: felt
     ):
     ERC20_initializer(name, symbol, initial_supply, recipient)
-    Ownable_initializer(owner)
     return ()
 end
 
@@ -167,15 +159,4 @@ func decreaseAllowance{
     ERC20_decreaseAllowance(spender, subtracted_value)
     # Cairo equivalent to 'return (true)'
     return (1)
-end
-
-@external
-func mint{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(to: felt, amount: Uint256):
-    Ownable_only_owner()
-    ERC20_mint(to, amount)
-    return ()
 end

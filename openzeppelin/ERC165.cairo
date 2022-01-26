@@ -2,7 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
-from contracts.ERC165_base import (
+from openzeppelin.ERC165_base import (
     ERC165_supports_interface, 
     ERC165_register_interface
 )

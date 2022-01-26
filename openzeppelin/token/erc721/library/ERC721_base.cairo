@@ -8,13 +8,13 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub
 )
 
-from contracts.ERC165_base import (
+from openzeppelin.ERC165_base import (
     ERC165_register_interface
 )
 
-from contracts.token.ERC721.interfaces.IERC721_Receiver import IERC721_Receiver
+from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from contracts.IAccount import IAccount
+from openzeppelin.IAccount import IAccount
 
 #
 # Storage

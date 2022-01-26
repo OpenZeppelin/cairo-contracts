@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256 
@@ -16,7 +15,8 @@ from contracts.token.ERC721.libraries.ERC721_base import (
     ERC721_approve, 
     ERC721_setApprovalForAll, 
     ERC721_transferFrom,
-    ERC721_safeTransferFrom
+    ERC721_safeTransferFrom,
+    ERC721_only_token_owner
 )
 
 from contracts.token.ERC721.libraries.ERC721_Metadata_base import (
@@ -38,7 +38,10 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(name: felt, symbol: felt):
+    }(
+        name: felt, 
+        symbol: felt
+    ):
     ERC721_initializer(name, symbol)
     ERC721_Metadata_initializer()
     return ()
@@ -179,11 +182,12 @@ func safeTransferFrom{
 end
 
 @external
-func setTokenURI{
+func burn{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(token_id: Uint256, token_uri: felt):
-    ERC721_Metadata_setTokenURI(token_id, token_uri)
+    }(tokenId: Uint256):
+    ERC721_only_token_owner(token_id)
+    ERC721_burn(tokenId)
     return ()
 end

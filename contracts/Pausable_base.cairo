@@ -7,16 +7,6 @@ from starkware.starknet.common.syscalls import get_caller_address
 func Pausable_paused() -> (paused: felt):
 end
 
-@view
-func paused{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (paused: felt):
-    let (paused) = Pausable_paused.read()
-    return (paused)
-end
-
 func Pausable_when_not_paused{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,

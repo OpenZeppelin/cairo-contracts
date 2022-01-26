@@ -59,7 +59,7 @@ func ERC721_initializer{
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
     # register IERC721
-    ERC165_register_interface('0x80ac58cd')
+    ERC165_register_interface(0x80ac58cd)
     return ()
 end
 
@@ -164,7 +164,13 @@ func ERC721_setApprovalForAll{
     }(operator: felt, approved: felt):
     # Ensures caller is neither zero address nor operator
     let (caller) = get_caller_address()
-    assert_not_zero(caller)
+    assert_not_zero(caller * operator) 
+    # note this pattern as we'll frequently use it: 
+    #   instead of making an `assert_not_zero` call for each address
+    #   we can always briefly write `assert_not_zero(a0 * a1 * ... * aN)`.
+    #   This is because these addresses are field elements,
+    #   meaning that a*0==0 for all a in the field, 
+    #   and a*b==0 implies that at least one of a,b are zero in the field
     assert_not_equal(caller, operator)
 
     # Make sure `approved` is a boolean (0 or 1)
@@ -179,9 +185,15 @@ func ERC721_transferFrom{
         syscall_ptr: felt*, 
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
+    alloc_locals
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert is_approved = 1
+    assert_not_zero(caller * is_approved)
+    # Note that if either `is_approved` or `caller` equals `0`,
+    # then this method should fail.
+    # The `caller` address and `is_approved` boolean are both field elements
+    # meaning that a*0==0 for all a in the field, 
+    # therefore a*b==0 implies that at least one of a,b is zero in the field  
 
     _transfer(_from, to, token_id)
     return ()
@@ -198,9 +210,15 @@ func ERC721_safeTransferFrom{
         data_len: felt,
         data: felt*
     ):
+    alloc_locals
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert is_approved = 1    
+    assert_not_zero(caller * is_approved)
+    # Note that if either `is_approved` or `caller` equals `0`,
+    # then this method should fail.
+    # The `caller` address and `is_approved` boolean are both field elements
+    # meaning that a*0==0 for all a in the field, 
+    # therefore a*b==0 implies that at least one of a,b is zero in the field
 
     _safe_transfer(_from, to, token_id, data_len, data)
     return ()
@@ -267,6 +285,18 @@ func ERC721_safeMint{
         data_len, 
         data
     )
+    return ()
+end
+
+func ERC721_only_token_owner{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(token_id: Uint256):
+    let (caller) = get_caller_address()
+    let (owner) = ERC721_ownerOf(token_id)
+    # Note `ERC721_ownerOf` checks that the owner is not the zero address
+    assert caller = owner
     return ()
 end
 
@@ -402,7 +432,7 @@ func _check_onERC721Received{
     )
 
     # ERC721_RECEIVER_ID
-    assert (selector) = '0x150b7a02'
+    assert (selector) = 0x150b7a02
 
     # Cairo equivalent to 'return (true)'
     return (1)

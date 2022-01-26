@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check ecdsa
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
@@ -17,7 +16,7 @@ func onERC721Received{
         data: felt*
     ) -> (selector: felt): 
     # ERC721_RECEIVER_ID
-    return ('0x150b7a02')
+    return (0x150b7a02)
 end
 
 # ERC721's `safeTransferFrom` requires a means of differentiating between account and

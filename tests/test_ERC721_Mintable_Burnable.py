@@ -38,6 +38,12 @@ token_to_burn = (12345, 6789)
 # random data (mimicking bytes in Solidity)
 data = [0x42, 0x89, 0x55]
 
+# random URIs
+sample_uri = [
+    str_to_felt('mock://mytoken.v1'),
+    str_to_felt('mock://mytoken.v2')
+]
+
 
 @pytest.fixture(scope='module')
 def event_loop():
@@ -171,7 +177,7 @@ async def test_mint_duplicate_token_id(erc721_factory):
     ))
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_mint_to_zero_address(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
@@ -184,7 +190,7 @@ async def test_mint_to_zero_address(erc721_factory):
     ))
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_mint_approve_should_be_zero_address(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
@@ -784,7 +790,7 @@ async def test_safeTransferFrom_from_zero_address(erc721_factory):
     )
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     unsupported_account = await starknet.deploy(
@@ -851,8 +857,6 @@ async def test_safeTransferFrom_to_account(erc721_factory):
 async def test_tokenURI(erc721_factory):
     _, erc721, account, _ = erc721_factory
 
-    sample_uri = str_to_felt('mock://mytoken')
-
     # should be zero when tokenURI is not set
     execution_info = await erc721.tokenURI(first_token_id).call()
     assert execution_info.result == (0,)
@@ -860,20 +864,24 @@ async def test_tokenURI(erc721_factory):
     # setTokenURI for first_token_id
     await signer.send_transaction(
         account, erc721.contract_address, 'setTokenURI', [
-            *first_token_id, sample_uri]
+            *first_token_id,
+            sample_uri[0]
+        ]
     )
 
     execution_info = await erc721.tokenURI(first_token_id).call()
-    assert execution_info.result == (sample_uri,)
+    assert execution_info.result == (sample_uri[0],)
 
     # setTokenURI for second_token_id
     await signer.send_transaction(
         account, erc721.contract_address, 'setTokenURI', [
-            *second_token_id, sample_uri]
+            *second_token_id,
+            sample_uri[0]
+        ]
     )
 
     execution_info = await erc721.tokenURI(second_token_id).call()
-    assert execution_info.result == (sample_uri,)
+    assert execution_info.result == (sample_uri[0],)
 
 
 @pytest.mark.asyncio
@@ -882,3 +890,21 @@ async def test_tokenURI_should_revert_for_nonexistent_token(erc721_factory):
 
     # should revert for nonexistent token
     await assert_revert(erc721.tokenURI(nonexistent_token).call())
+
+
+@pytest.mark.asyncio
+async def test_setTokenURI_from_not_owner(erc721_factory):
+    starknet, erc721, _, _ = erc721_factory
+    not_owner = await starknet.deploy(
+        "contracts/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
+
+    await assert_revert(
+        signer.send_transaction(
+            not_owner, erc721.contract_address, 'setTokenURI', [
+                *second_token_id,
+                sample_uri[1]
+            ]
+        )
+    )

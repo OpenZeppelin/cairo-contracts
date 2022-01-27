@@ -219,6 +219,9 @@ func _set_public_key{
         signature_len: felt,
         signature: felt*
     ):
+    # first we set it so `is_valid_signature` can pick it up
+    public_key.write(new_public_key)
+
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         # check key ownership of the key to prevent spoofing
@@ -227,8 +230,6 @@ func _set_public_key{
         let (identity_hash) = hash2(self, 0)
         is_valid_signature(identity_hash, signature_len, signature)
     end
-
-    public_key.write(new_public_key)
     return ()
 end
 

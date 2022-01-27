@@ -2,7 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from contracts.utils.uint256_checked import (
+from contracts.utils.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le,
     uint256_checked_sub_lt
@@ -10,7 +10,7 @@ from contracts.utils.uint256_checked import (
 
 #
 # Note the follow exposed functions are meant for testing.
-# Contracts should import from the `uint256_checked.cairo` library.
+# Contracts should import from the `safemath.cairo` library.
 #
 
 @view

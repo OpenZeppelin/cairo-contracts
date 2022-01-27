@@ -20,7 +20,7 @@ func onERC721Received{
         data_len: felt,
         data: felt*
     ) -> (selector: felt): 
-    # ERC721_RECEIVER_ID
+    # ERC721_RECEIVER_ID = 0x150b7a02
     return (0x150b7a02)
 end
 
@@ -40,6 +40,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    ERC165_register_interface('0x150b7a02')
+    # ERC721_RECEIVER_ID = 0x150b7a02
+    ERC165_register_interface(0x150b7a02)
     return ()
 end

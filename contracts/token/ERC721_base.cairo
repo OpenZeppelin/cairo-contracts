@@ -4,11 +4,11 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.uint256 import Uint256, uint256_check 
+from starkware.cairo.common.uint256 import Uint256, uint256_check
 
 from contracts.utils.safemath import (
     uint256_checked_add,
-    uint256_checked_sub_lt
+    uint256_checked_sub_le
 )
 
 from contracts.ERC165_base import (
@@ -265,7 +265,7 @@ func ERC721_burn{
 
     # Decrease owner balance
     let (balance: Uint256) = ERC721_balances.read(owner)
-    let (new_balance: Uint256) = uint256_checked_sub_lt(balance, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_sub_le(balance, Uint256(1, 0))
     ERC721_balances.write(owner, new_balance)
 
     # Delete owner
@@ -379,7 +379,7 @@ func _transfer{
 
     # Decrease owner balance
     let (owner_bal) = ERC721_balances.read(_from)
-    let (new_balance: Uint256) = uint256_checked_sub_lt(owner_bal, Uint256(1, 0))
+    let (new_balance: Uint256) = uint256_checked_sub_le(owner_bal, Uint256(1, 0))
     ERC721_balances.write(_from, new_balance)
 
     # Increase receiver balance

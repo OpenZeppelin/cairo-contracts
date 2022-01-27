@@ -21,7 +21,7 @@ func uint256_checked_add{
 end
 
 # Subtracts two integers.
-# Reverts if the difference is greater than minuend.
+# Reverts if minuend (`b`) is greater than subtrahend (`a`).
 func uint256_checked_sub_le{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
@@ -37,7 +37,7 @@ func uint256_checked_sub_le{
 end
 
 # Subtracts two integers.
-# Reverts if the difference is greater than or equal to minuend.
+# Reverts if minuend (`b`) is greater than or equal to subtrahend (`a`).
 func uint256_checked_sub_lt{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
@@ -46,6 +46,7 @@ func uint256_checked_sub_lt{
     alloc_locals
     uint256_check(a)
     uint256_check(b)
+
     let (is_lt) = uint256_lt(b, a)
     assert_not_zero(is_lt)
     let (c: Uint256) = uint256_sub(a, b)

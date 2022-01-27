@@ -37,7 +37,7 @@ def add_uint(a, b):
 
 
 def sub_uint(a, b):
-    """Subtract the difference between two uint256-ish tuples."""
+    """Returns the difference of two uint256-ish tuples."""
     a = from_uint(a)
     b = from_uint(b)
     c = a - b

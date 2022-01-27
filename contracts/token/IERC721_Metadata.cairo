@@ -13,6 +13,6 @@ namespace IERC721_Metadata:
     func symbol() -> (symbol: felt):
     end
 
-    func tokenURI(token_id: Uint256) -> (token_uri: felt):
+    func tokenURI(tokenId: Uint256) -> (tokenURI: felt):
     end
 end

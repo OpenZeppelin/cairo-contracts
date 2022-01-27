@@ -85,7 +85,7 @@ func supportsInterface{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interface_id)
+    let (success) = ERC165_supports_interface(interfaceId)
     return (success)
 end
 

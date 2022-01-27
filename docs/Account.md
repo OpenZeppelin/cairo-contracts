@@ -263,7 +263,9 @@ response: felt*
 
 ## Account differentiation with ERC165
 
-Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. 
+Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). The idea is to calculate the XOR of `IAccount`'s function selectors which equates to 0x50b70dcb.
+
+Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces which the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the IAccount magic value should return true.
 
 ## Extending the Account contract
 

@@ -14,9 +14,7 @@ from contracts.ERC165_base import (
 
 from contracts.token.IERC721_Receiver import IERC721_Receiver
 
-from contracts.IERC165 import (
-    IERC165
-)
+from contracts.IERC165 import IERC165
 
 #
 # Storage

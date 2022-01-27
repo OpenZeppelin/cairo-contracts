@@ -19,23 +19,27 @@ def uint(a):
 
 
 def to_uint(a):
+    """Takes in value, returns uint256-ish tuple."""
     return (a & ((1 << 128) - 1), a >> 128)
 
 
 def from_uint(uint):
+    """Takes in uint256-ish tuple, returns value."""
     return uint[0] + (uint[1] << 128)
 
 
 def add_uint(a, b):
-    a = from_uint(a[0], a[1])
-    b = from_uint(b[0], b[1])
+    """Returns the sum of two uint256-ish tuples."""
+    a = from_uint(a)
+    b = from_uint(b)
     c = a + b
     return to_uint(c)
 
 
 def sub_uint(a, b):
-    a = from_uint(a[0], a[1])
-    b = from_uint(b[0], b[1])
+    """Subtract the difference between two uint256-ish tuples."""
+    a = from_uint(a)
+    b = from_uint(b)
     c = a - b
     return to_uint(c)
 

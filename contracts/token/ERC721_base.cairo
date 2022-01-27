@@ -417,26 +417,24 @@ func _check_onERC721Received{
         data: felt*
     ) -> (success: felt):
     let (caller) = get_caller_address()
-    # IAccount_ID = 0x50b70dcb
-    let (is_account) = IERC165.supportsInterface(to, 0x50b70dcb) 
-    if is_account == 1:
+    # ERC721_RECEIVER_ID = 0x150b7a02
+    let (is_supported) = IERC165.supportsInterface(to, 0x150b7a02)
+    if is_supported == 1:
+        let (selector) = IERC721_Receiver.onERC721Received(
+            to, 
+            caller, 
+            _from, 
+            token_id, 
+            data_len, 
+            data
+        )
+
+        # ERC721_RECEIVER_ID
+        assert (selector) = 0x150b7a02
         return (1)
     end
 
-    # The first parameter in an imported interface is the contract
-    # address of the interface being called
-    let (selector) = IERC721_Receiver.onERC721Received(
-        to, 
-        caller, 
-        _from, 
-        token_id, 
-        data_len, 
-        data
-    )
-
-    # ERC721_RECEIVER_ID
-    assert (selector) = 0x150b7a02
-
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    # IAccount_ID = 0x50b70dcb
+    let (is_account) = IERC165.supportsInterface(to, 0x50b70dcb)
+    return (is_account)
 end

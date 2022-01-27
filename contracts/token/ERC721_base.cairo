@@ -6,7 +6,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256, uint256_check 
 
-from contracts.utils.uint256_checked import (
+from contracts.utils.safemath import (
     uint256_checked_add,
     uint256_checked_sub_lt
 )

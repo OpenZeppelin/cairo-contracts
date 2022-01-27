@@ -44,7 +44,7 @@ async def test_register_interface(erc165_factory):
     assert execution_info.result == (0,)
 
     # register interface
-    await contract.register_interface(OTHER_ID).invoke()
+    await contract.registerInterface(OTHER_ID).invoke()
 
     execution_info = await contract.supportsInterface(OTHER_ID).call()
     assert execution_info.result == (1,)
@@ -55,5 +55,5 @@ async def test_register_invalid_interface(erc165_factory):
     contract = erc165_factory
 
     await assert_revert(
-        contract.register_interface(INVALID_ID).invoke()
+        contract.registerInterface(INVALID_ID).invoke()
     )

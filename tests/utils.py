@@ -22,8 +22,8 @@ def to_uint(a):
     return (a & ((1 << 128) - 1), a >> 128)
 
 
-def from_uint(a, b):
-    return a + (b << 128)
+def from_uint(uint):
+    return uint[0] + (uint[1] << 128)
 
 
 def add_uint(a, b):

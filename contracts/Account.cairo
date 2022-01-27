@@ -229,8 +229,8 @@ func _set_public_key{
         let (self) = get_contract_address()
         let (identity_hash) = hash2(self, 0)
         is_valid_signature(identity_hash, signature_len, signature)
+        return ()
     end
-    return ()
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):

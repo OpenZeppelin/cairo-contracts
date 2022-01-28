@@ -9,6 +9,11 @@ from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
 
+from contracts.ERC165_base import (
+    ERC165_supports_interface, 
+    ERC165_register_interface
+) 
+
 #
 # Structs
 #
@@ -75,12 +80,13 @@ func get_nonce{
 end
 
 @view
-func is_account{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
+func supportsInterface{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    return (1)
+    } (interfaceId: felt) -> (success: felt):
+    let (success) = ERC165_supports_interface(interfaceId)
+    return (success)
 end
 
 #
@@ -109,6 +115,8 @@ func constructor{
         range_check_ptr
     }(_public_key: felt):
     public_key.write(_public_key)
+    # Account magic value derived from ERC165 calculation of IAccount
+    ERC165_register_interface(0x50b70dcb)
     return()
 end
 

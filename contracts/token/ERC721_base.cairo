@@ -16,6 +16,9 @@ from contracts.token.IERC721_Receiver import IERC721_Receiver
 
 from contracts.IERC165 import IERC165
 
+const TRUE = 1
+const FALSE = 0
+
 #
 # Storage
 #
@@ -118,7 +121,7 @@ func ERC721_getApproved{
         range_check_ptr
     }(token_id: Uint256) -> (approved: felt):
     let (exists) = _exists(token_id)
-    assert exists = 1
+    assert exists = TRUE
 
     let (approved) = ERC721_token_approvals.read(token_id)
     return (approved)
@@ -139,7 +142,7 @@ func ERC721_tokenURI{
         range_check_ptr
     }(token_id: Uint256) -> (token_uri: felt):
     let (exists) = _exists(token_id)
-    assert exists = 1
+    assert exists = TRUE
 
     # if tokenURI is not set, it will return 0
     let (token_uri) = ERC721_token_uri.read(token_id)
@@ -252,7 +255,7 @@ func ERC721_mint{
 
     # Ensures token_id is unique
     let (exists) = _exists(token_id)
-    assert exists = 0
+    assert exists = FALSE
 
     let (balance: Uint256) = ERC721_balances.read(to)
     # Overflow is not possible because token_ids are checked for duplicate ids with `_exists()`
@@ -326,7 +329,7 @@ func ERC721_setTokenURI{
     }(token_id: Uint256, token_uri: felt):
     uint256_check(token_id)
     let (exists) = _exists(token_id)
-    assert exists = 1
+    assert exists = TRUE
 
     ERC721_token_uri.write(token_id, token_uri)
     return ()
@@ -353,24 +356,24 @@ func _is_approved_or_owner{
     alloc_locals
 
     let (exists) = _exists(token_id)
-    assert exists = 1
+    assert exists = TRUE
 
     let (owner) = ERC721_ownerOf(token_id)
     if owner == spender:
-        return (1)
+        return (TRUE)
     end
 
     let (approved_addr) = ERC721_getApproved(token_id)
     if approved_addr == spender:
-        return (1)
+        return (TRUE)
     end
 
     let (is_operator) = ERC721_isApprovedForAll(owner, spender)
-    if is_operator == 1:
-        return (1)
+    if is_operator == TRUE:
+        return (TRUE)
     end
 
-    return (0)
+    return (FALSE)
 end
 
 func _exists{
@@ -381,9 +384,9 @@ func _exists{
     let (res) = ERC721_owners.read(token_id)
 
     if res == 0:
-        return (0)
+        return (FALSE)
     else:
-        return (1)
+        return (TRUE)
     end
 end
 
@@ -449,7 +452,7 @@ func _check_onERC721Received{
     let (caller) = get_caller_address()
     # ERC721_RECEIVER_ID = 0x150b7a02
     let (is_supported) = IERC165.supportsInterface(to, 0x150b7a02)
-    if is_supported == 1:
+    if is_supported == TRUE:
         let (selector) = IERC721_Receiver.onERC721Received(
             to, 
             caller, 
@@ -460,8 +463,8 @@ func _check_onERC721Received{
         )
 
         # ERC721_RECEIVER_ID
-        assert (selector) = 0x150b7a02
-        return (1)
+        assert selector = 0x150b7a02
+        return (TRUE)
     end
 
     # IAccount_ID = 0x50b70dcb

@@ -18,7 +18,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
     - [`set_public_key`](#-set-public-key-)
     - [`is_valid_signature`](#-is-valid-signature-)
     - [`execute`](#-execute-)
-* [Contract differentiation](#account-differentiation)
+* [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
 * [Paying for gas](#paying-for-gas)
@@ -263,9 +263,9 @@ response: felt*
 
 ## Account differentiation with ERC165
 
-Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). The idea is to calculate the XOR of `IAccount`'s function selectors which equates to 0x50b70dcb.
+Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
 
-Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces which the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the IAccount magic value should return true.
+Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces that the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return true (meaning `1` in Cairo).
 
 ## Extending the Account contract
 

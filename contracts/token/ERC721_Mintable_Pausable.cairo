@@ -21,9 +21,7 @@ from contracts.token.ERC721_base import (
     ERC721_setTokenURI
 )
 
-from contracts.ERC165_base import (
-    ERC165_supports_interface
-)
+from contracts.ERC165_base import ERC165_supports_interface
 
 from contracts.Pausable_base import (
     Pausable_paused,

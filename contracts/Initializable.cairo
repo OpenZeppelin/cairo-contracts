@@ -2,6 +2,9 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
+const TRUE = 1
+const FALSE = 0
+
 @storage_var
 func _initialized() -> (res: felt):
 end
@@ -23,7 +26,7 @@ func initialize{
         range_check_ptr
     }():
     let (initialized) = _initialized.read()
-    assert initialized = 0
-    _initialized.write(1)
+    assert initialized = FALSE
+    _initialized.write(TRUE)
     return ()
 end

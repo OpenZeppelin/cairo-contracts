@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
+from utils import str_to_felt, Signer, uint, MAX_UINT256, assert_revert
 
 
 signer = Signer(123456789987654321)
@@ -21,21 +21,17 @@ def event_loop():
 async def erc721_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
     other = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
     erc721 = await starknet.deploy(
-<<<<<<< HEAD:tests/token/ERC721/test_ERC721_Enumerable.py
-        "contracts/token/ERC721/contracts/ERC721_Enumerable.cairo",
-=======
-        "contracts/token/ERC721_Enumerable_Mintable_Burnable.cairo",
->>>>>>> 2e2e690054a1c29083a617eb9fe8f5b62a88575e:tests/test_ERC721_Enumerable_Mintable_Burnable.py
+        "openzeppelin/token/erc721/ERC721_Enumerable_Mintable_Burnable.cairo",
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker

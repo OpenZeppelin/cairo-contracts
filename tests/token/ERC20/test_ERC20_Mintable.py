@@ -15,12 +15,12 @@ def event_loop():
 async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
     token = await starknet.deploy(
-        "contracts/token/ERC20/contracts/ERC20_Mintable.cairo",
+        "openzeppelin/token/erc20/ERC20_Mintable.cairo",
         constructor_calldata=[
             str_to_felt("Mintable Token"),
             str_to_felt("MTKN"),

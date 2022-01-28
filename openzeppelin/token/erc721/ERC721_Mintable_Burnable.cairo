@@ -19,18 +19,8 @@ from openzeppelin.token.erc721.library.ERC721_base import (
     ERC721_safeTransferFrom,
     ERC721_mint,
     ERC721_burn,
-<<<<<<< HEAD:openzeppelin/token/erc721/ERC721_Mintable.cairo
-    ERC721_only_token_owner
-)
-
-from openzeppelin.token.erc721.library.ERC721_Metadata_base import (
-    ERC721_Metadata_initializer,
-    ERC721_Metadata_tokenURI,
-    ERC721_Metadata_setTokenURI,
-=======
     ERC721_only_token_owner,
     ERC721_setTokenURI
->>>>>>> 2e2e690054a1c29083a617eb9fe8f5b62a88575e:openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
 )
 
 from openzeppelin.ERC165_base import (

@@ -18,7 +18,7 @@ def event_loop():
 async def account_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -36,7 +36,7 @@ async def test_constructor(account_factory):
 @pytest.mark.asyncio
 async def test_execute(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    initializable = await starknet.deploy("openzeppelin/Initializable.cairo")
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
@@ -50,7 +50,7 @@ async def test_execute(account_factory):
 @pytest.mark.asyncio
 async def test_return_value(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    initializable = await starknet.deploy("openzeppelin/Initializable.cairo")
 
     # initialize, set `initialized = 1`
     await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
@@ -64,7 +64,7 @@ async def test_return_value(account_factory):
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
     starknet, account = account_factory
-    initializable = await starknet.deploy("contracts/Initializable.cairo")
+    initializable = await starknet.deploy("openzeppelin/Initializable.cairo")
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res
 

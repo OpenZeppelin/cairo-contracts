@@ -20,12 +20,12 @@ from openzeppelin.token.erc20.library.ERC20_base import (
     ERC20_mint
 )
 
-from contracts.Ownable_base import (
+from openzeppelin.Ownable_base import (
     Ownable_initializer,
     Ownable_only_owner
 )
 
-from contracts.Pausable_base import (
+from openzeppelin.Pausable_base import (
     Pausable_paused,
     Pausable_pause,
     Pausable_unpause,

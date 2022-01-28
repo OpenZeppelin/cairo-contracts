@@ -16,9 +16,9 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await Starknet.empty()
-    registry = await starknet.deploy("contracts/AddressRegistry.cairo")
+    registry = await starknet.deploy("openzeppelin/AddressRegistry.cairo")
     account = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

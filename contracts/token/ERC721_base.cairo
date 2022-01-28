@@ -11,9 +11,7 @@ from contracts.utils.safemath import (
     uint256_checked_sub_le
 )
 
-from contracts.ERC165_base import (
-    ERC165_register_interface
-)
+from contracts.ERC165_base import ERC165_register_interface
 
 from contracts.token.IERC721_Receiver import IERC721_Receiver
 
@@ -47,6 +45,10 @@ end
 func ERC721_operator_approvals(owner: felt, operator: felt) -> (res: felt):
 end
 
+@storage_var
+func ERC721_token_uri(token_id: Uint256) -> (token_uri: felt):
+end
+
 #
 # Constructor
 #
@@ -63,6 +65,8 @@ func ERC721_initializer{
     ERC721_symbol_.write(symbol)
     # register IERC721
     ERC165_register_interface(0x80ac58cd)
+    # register IERC721_Metadata
+    ERC165_register_interface(0x5b5e139f)
     return ()
 end
 
@@ -130,6 +134,19 @@ func ERC721_isApprovedForAll{
     }(owner: felt, operator: felt) -> (is_approved: felt):
     let (is_approved) = ERC721_operator_approvals.read(owner=owner, operator=operator)
     return (is_approved)
+end
+
+func ERC721_tokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(token_id: Uint256) -> (token_uri: felt):
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    # if tokenURI is not set, it will return 0
+    let (token_uri) = ERC721_token_uri.read(token_id)
+    return (token_uri)
 end
 
 #
@@ -305,6 +322,19 @@ func ERC721_only_token_owner{
     let (owner) = ERC721_ownerOf(token_id)
     # Note `ERC721_ownerOf` checks that the owner is not the zero address
     assert caller = owner
+    return ()
+end
+
+func ERC721_setTokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(token_id: Uint256, token_uri: felt):
+    uint256_check(token_id)
+    let (exists) = _exists(token_id)
+    assert exists = 1
+
+    ERC721_token_uri.write(token_id, token_uri)
     return ()
 end
 

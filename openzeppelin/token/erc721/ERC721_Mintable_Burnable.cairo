@@ -23,13 +23,7 @@ from openzeppelin.token.erc721.library.ERC721_base import (
     ERC721_setTokenURI
 )
 
-<<<<<<< HEAD:openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
-from openzeppelin.ERC165_base import (
-    ERC165_supports_interface
-)
-=======
-from contracts.ERC165_base import ERC165_supports_interface
->>>>>>> 021c17ac45c1d868c02381e36886235c17501268:contracts/token/ERC721_Mintable_Burnable.cairo
+from openzeppelin.ERC165_base import ERC165_supports_interface
 
 from openzeppelin.Ownable_base import (
     Ownable_initializer,

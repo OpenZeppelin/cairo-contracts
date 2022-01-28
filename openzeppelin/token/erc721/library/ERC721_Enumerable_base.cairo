@@ -17,9 +17,7 @@ from openzeppelin.token.erc721.library.ERC721_base import (
     ERC721_burn
 )
 
-from openzeppelin.ERC165_base import (
-    ERC165_register_interface
-)
+from openzeppelin.ERC165_base import ERC165_register_interface
 
 #
 # Storage

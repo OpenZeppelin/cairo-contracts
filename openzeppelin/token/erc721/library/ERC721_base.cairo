@@ -6,29 +6,19 @@ from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
-<<<<<<< HEAD:openzeppelin/token/erc721/library/ERC721_base.cairo
-from openzeppelin.ERC165_base import (
-    ERC165_register_interface
-)
-
-from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
-
-from openzeppelin.IAccount import IAccount
-=======
-from contracts.utils.safemath import (
+from openzeppelin.utils.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le
 )
 
-from contracts.ERC165_base import ERC165_register_interface
+from openzeppelin.ERC165_base import ERC165_register_interface
 
-from contracts.token.IERC721_Receiver import IERC721_Receiver
+from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from contracts.IERC165 import IERC165
+from openzeppelin.IERC165 import IERC165
 
 const TRUE = 1
 const FALSE = 0
->>>>>>> 021c17ac45c1d868c02381e36886235c17501268:contracts/token/ERC721_base.cairo
 
 #
 # Storage

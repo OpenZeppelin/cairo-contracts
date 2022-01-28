@@ -18,11 +18,11 @@ func supportsInterface{
 end
 
 @external
-func register_interface{
+func registerInterface{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    } (interface_id: felt):
-    ERC165_register_interface(interface_id)
+    } (interfaceId: felt):
+    ERC165_register_interface(interfaceId)
     return ()
 end

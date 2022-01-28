@@ -10,21 +10,17 @@ from contracts.token.ERC721_base import (
     ERC721_ownerOf,
     ERC721_getApproved,
     ERC721_isApprovedForAll,
+    ERC721_tokenURI,
 
     ERC721_initializer,
     ERC721_approve, 
-    ERC721_setApprovalForAll,
-)
-
-from contracts.token.ERC721_Enumerable_base import (
-    ERC721_Enumerable_initializer,
-    ERC721_Enumerable_totalSupply,
-    ERC721_Enumerable_tokenByIndex,
-    ERC721_Enumerable_tokenOfOwnerByIndex,
-    ERC721_Enumerable_mint,
-    ERC721_Enumerable_burn,
-    ERC721_Enumerable_transferFrom,
-    ERC721_Enumerable_safeTransferFrom
+    ERC721_setApprovalForAll, 
+    ERC721_transferFrom,
+    ERC721_safeTransferFrom,
+    ERC721_mint,
+    ERC721_burn,
+    ERC721_only_token_owner,
+    ERC721_setTokenURI
 )
 
 from contracts.ERC165_base import (
@@ -51,7 +47,6 @@ func constructor{
         owner: felt
     ):
     ERC721_initializer(name, symbol)
-    ERC721_Enumerable_initializer()
     Ownable_initializer(owner)
     return ()
 end
@@ -59,36 +54,6 @@ end
 #
 # Getters
 #
-
-@view
-func totalSupply{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }() -> (totalSupply: Uint256):
-    let (totalSupply: Uint256) = ERC721_Enumerable_totalSupply()
-    return (totalSupply)
-end
-
-@view
-func tokenByIndex{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable_tokenByIndex(index)
-    return (tokenId)
-end
-
-@view
-func tokenOfOwnerByIndex{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(owner: felt, index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable_tokenOfOwnerByIndex(owner, index)
-    return (tokenId)
-end
 
 @view
 func supportsInterface{
@@ -160,6 +125,17 @@ func isApprovedForAll{
     return (isApproved)
 end
 
+@view
+func tokenURI{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    }(tokenId: Uint256) -> (tokenURI: felt):
+    let (tokenURI: felt) = ERC721_tokenURI(tokenId)
+    return (tokenURI)
+end
+
+
 #
 # Externals
 #
@@ -194,7 +170,7 @@ func transferFrom{
         to: felt, 
         tokenId: Uint256
     ):
-    ERC721_Enumerable_transferFrom(_from, to, tokenId)
+    ERC721_transferFrom(_from, to, tokenId)
     return ()
 end
 
@@ -206,11 +182,22 @@ func safeTransferFrom{
     }(
         _from: felt, 
         to: felt, 
-        tokenId: Uint256, 
-        data_len: felt,
+        tokenId: Uint256,
+        data_len: felt, 
         data: felt*
     ):
-    ERC721_Enumerable_safeTransferFrom(_from, to, tokenId, data_len, data)
+    ERC721_safeTransferFrom(_from, to, tokenId, data_len, data)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(tokenId: Uint256, tokenURI: felt):
+    Ownable_only_owner()
+    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
 
@@ -221,7 +208,7 @@ func mint{
         range_check_ptr
     }(to: felt, tokenId: Uint256):
     Ownable_only_owner()
-    ERC721_Enumerable_mint(to, tokenId)
+    ERC721_mint(to, tokenId)
     return ()
 end
 
@@ -231,7 +218,7 @@ func burn{
         syscall_ptr: felt*, 
         range_check_ptr
     }(tokenId: Uint256):
-    Ownable_only_owner()
-    ERC721_Enumerable_burn(tokenId)
+    ERC721_only_token_owner(tokenId)
+    ERC721_burn(tokenId)
     return ()
 end

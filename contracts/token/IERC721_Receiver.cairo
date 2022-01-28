@@ -7,7 +7,7 @@ namespace IERC721_Receiver:
     func onERC721Received(
         operator: felt,
         _from: felt,
-        token_id: Uint256,
+        tokenId: Uint256,
         data_len: felt,
         data: felt*
     ) -> (selector: felt): 

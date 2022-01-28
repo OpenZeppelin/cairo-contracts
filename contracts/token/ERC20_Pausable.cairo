@@ -32,7 +32,7 @@ from contracts.Pausable_base import (
     Pausable_when_not_paused
 )
 
-const TRUE = 1
+from contracts.utils.constants import TRUE
 
 @constructor
 func constructor{

@@ -21,7 +21,7 @@ from contracts.ERC165_base import (
     ERC165_register_interface
 )
 
-const TRUE = 1
+from contracts.utils.constants import TRUE
 
 #
 # Storage

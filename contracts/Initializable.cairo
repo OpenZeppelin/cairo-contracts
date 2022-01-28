@@ -2,8 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-const TRUE = 1
-const FALSE = 0
+from contracts.utils.constants import TRUE, FALSE
 
 @storage_var
 func _initialized() -> (res: felt):

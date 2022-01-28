@@ -3,8 +3,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 
-const TRUE = 1
-const FALSE = 0
+from contracts.utils.constants import TRUE, FALSE
 
 @storage_var
 func Pausable_paused() -> (paused: felt):

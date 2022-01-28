@@ -19,7 +19,7 @@ from contracts.token.ERC20_base import (
     ERC20_transferFrom
 )
 
-const TRUE = 1
+from contracts.utils.constants import TRUE
 
 @constructor
 func constructor{

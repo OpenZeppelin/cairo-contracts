@@ -3,7 +3,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_equal
 
-const TRUE = 1
+from contracts.utils.constants import TRUE
 
 @storage_var
 func ERC165_supported_interfaces(interface_id: felt) -> (is_supported: felt):

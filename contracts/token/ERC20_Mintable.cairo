@@ -25,7 +25,7 @@ from contracts.Ownable_base import (
     Ownable_only_owner
 )
 
-const TRUE = 1
+from contracts.utils.constants import TRUE
 
 @constructor
 func constructor{

@@ -130,8 +130,8 @@ func ERC20_transferFrom{
         amount: Uint256
     ) -> ():
     alloc_locals
-    let (local caller) = get_caller_address()
-    let (local caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
+    let (caller) = get_caller_address()
+    let (caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
 
     # validates amount <= caller_allowance and returns 1 if true   
     let (enough_allowance) = uint256_le(amount, caller_allowance)
@@ -163,13 +163,12 @@ func ERC20_increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> ():
-    alloc_locals
     uint256_check(added_value)
-    let (local caller) = get_caller_address()
-    let (local current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
+    let (caller) = get_caller_address()
+    let (current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
 
     # add allowance
-    let (local new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
+    let (new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
     assert (is_overflow) = 0
 
     ERC20_approve(spender, new_allowance)
@@ -183,9 +182,9 @@ func ERC20_decreaseAllowance{
     }(spender: felt, subtracted_value: Uint256) -> ():
     alloc_locals
     uint256_check(subtracted_value)
-    let (local caller) = get_caller_address()
-    let (local current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
-    let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
+    let (caller) = get_caller_address()
+    let (current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
+    let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     # validates new_allowance < current_allowance and returns 1 if true   
     let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
@@ -200,7 +199,6 @@ func ERC20_mint{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
-    alloc_locals
     assert_not_zero(recipient)
     uint256_check(amount)
 
@@ -210,8 +208,8 @@ func ERC20_mint{
     let (new_balance, _: Uint256) = uint256_add(balance, amount)
     ERC20_balances.write(recipient, new_balance)
 
-    let (local supply: Uint256) = ERC20_total_supply.read()
-    let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
+    let (supply: Uint256) = ERC20_total_supply.read()
+    let (new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
     assert (is_overflow) = 0
 
     ERC20_total_supply.write(new_supply)
@@ -255,7 +253,7 @@ func _transfer{
     assert_not_zero(recipient)
     uint256_check(amount) # almost surely not needed, might remove after confirmation
 
-    let (local sender_balance: Uint256) = ERC20_balances.read(account=sender)
+    let (sender_balance: Uint256) = ERC20_balances.read(account=sender)
 
     # validates amount <= sender_balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, sender_balance)
@@ -272,3 +270,4 @@ func _transfer{
     ERC20_balances.write(recipient, new_recipient_balance)
     return ()
 end
+

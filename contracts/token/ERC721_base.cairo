@@ -277,7 +277,7 @@ func ERC721_burn{
     }(token_id: Uint256):
     alloc_locals
     uint256_check(token_id)
-    let (local owner) = ERC721_ownerOf(token_id)
+    let (owner) = ERC721_ownerOf(token_id)
 
     # Clear approvals
     _approve(0, token_id)

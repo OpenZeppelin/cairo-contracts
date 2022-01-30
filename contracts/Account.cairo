@@ -204,8 +204,6 @@ end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
     alloc_locals
-    # we need to make `res_calldata` local
-    # to prevent the reference from being revoked
     let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
     let hash_ptr = pedersen_ptr
     with hash_ptr:

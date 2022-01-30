@@ -17,8 +17,7 @@ from contracts.token.IERC721_Receiver import IERC721_Receiver
 
 from contracts.IERC165 import IERC165
 
-const TRUE = 1
-const FALSE = 0
+from contracts.utils.constants import TRUE, FALSE
 
 #
 # Storage

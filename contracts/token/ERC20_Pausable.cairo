@@ -32,6 +32,8 @@ from contracts.Pausable_base import (
     Pausable_when_not_paused
 )
 
+from contracts.utils.constants import TRUE
+
 @constructor
 func constructor{
         syscall_ptr: felt*, 
@@ -135,8 +137,7 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_transfer(recipient, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -151,7 +152,7 @@ func transferFrom{
     ) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_transferFrom(sender, recipient, amount)
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -162,8 +163,7 @@ func approve{
     }(spender: felt, amount: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_approve(spender, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -174,8 +174,7 @@ func increaseAllowance{
     }(spender: felt, added_value: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_increaseAllowance(spender, added_value)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -186,8 +185,7 @@ func decreaseAllowance{
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_decreaseAllowance(spender, subtracted_value)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external

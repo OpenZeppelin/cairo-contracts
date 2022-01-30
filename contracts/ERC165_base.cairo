@@ -3,6 +3,8 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_equal
 
+from contracts.utils.constants import TRUE
+
 @storage_var
 func ERC165_supported_interfaces(interface_id: felt) -> (is_supported: felt):
 end 
@@ -14,7 +16,7 @@ func ERC165_supports_interface{
     } (interface_id: felt) -> (success: felt):
     # 165
     if interface_id == 0x01ffc9a7:
-        return (1)
+        return (TRUE)
     end
 
     # Checks interface registry
@@ -29,6 +31,6 @@ func ERC165_register_interface{
     } (interface_id: felt):
     # Ensures interface_id is not the invalid interface_id
     assert_not_equal(interface_id, 0xffffffff)
-    ERC165_supported_interfaces.write(interface_id, 1)
+    ERC165_supported_interfaces.write(interface_id, TRUE)
     return ()
 end

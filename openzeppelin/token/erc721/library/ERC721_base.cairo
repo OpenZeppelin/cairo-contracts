@@ -17,8 +17,7 @@ from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiv
 
 from openzeppelin.IERC165 import IERC165
 
-const TRUE = 1
-const FALSE = 0
+from openzeppelin.utils.constants import TRUE, FALSE
 
 #
 # Storage

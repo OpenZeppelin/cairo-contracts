@@ -19,6 +19,8 @@ from openzeppelin.token.erc721.library.ERC721_base import (
 
 from openzeppelin.ERC165_base import ERC165_register_interface
 
+from openzeppelin.utils.constants import TRUE
+
 #
 # Storage
 #
@@ -229,7 +231,7 @@ func _remove_token_from_owner_enumeration{
 
     # If index is last, we can just set the return values to zero
     let (is_equal) = uint256_eq(token_index, last_token_index)
-    if is_equal == 1:
+    if is_equal == TRUE:
         ERC721_Enumerable_owned_tokens_index.write(token_id, Uint256(0, 0))
         ERC721_Enumerable_owned_tokens.write(_from, last_token_index, Uint256(0, 0))
         return ()

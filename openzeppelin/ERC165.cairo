@@ -12,8 +12,8 @@ func supportsInterface{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
-    } (interface_id: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interface_id)
+    } (interfaceId: felt) -> (success: felt):
+    let (success) = ERC165_supports_interface(interfaceId)
     return (success)
 end
 

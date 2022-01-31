@@ -8,6 +8,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
+TRUE = 1
+FALSE = 0
 
 
 def str_to_felt(text):

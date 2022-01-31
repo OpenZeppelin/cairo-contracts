@@ -20,6 +20,8 @@ TOKENS = [
 TOTAL_TOKENS = to_uint(len(TOKENS))
 # random user address
 RECIPIENT = 555
+# random data (mimicking bytes in Solidity)
+DATA = [0x42, 0x89, 0x55]
 # selector id
 ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
@@ -200,6 +202,40 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
     await assert_revert(erc721.tokenOfOwnerByIndex(
         account.contract_address, to_uint(0)).invoke()
     )
+
+
+@ pytest.mark.asyncio
+async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
+    erc721, account, other = erc721_minted
+
+    # safe transfer all tokens
+    for token in TOKENS:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'safeTransferFrom', [
+                account.contract_address,
+                other.contract_address,
+                *token,
+                len(DATA),
+                *DATA
+            ]
+        )
+
+    execution_info = await erc721.balanceOf(other.contract_address).invoke()
+    assert execution_info.result == (TOTAL_TOKENS,)
+
+    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+        execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[t],)
+
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result == (to_uint(0),)
+
+    # check that queries to old owner's token ownership reverts since index is less
+    # than the target's balance
+    await assert_revert(erc721.tokenOfOwnerByIndex(
+        account.contract_address, to_uint(0)).invoke()
+    )
+
 
 #
 # tokenByIndex

@@ -195,6 +195,20 @@ async def test_safeMint_from_zero_address(erc721_factory):
 
 
 @pytest.mark.asyncio
+async def test_safeMint_from_not_owner(erc721_factory):
+    erc721, _, other, erc721_holder, _ = erc721_factory
+
+    await assert_revert(signer.send_transaction(
+        other, erc721.contract_address, 'safeMint', [
+            erc721_holder.contract_address,
+            *TOKEN,
+            len(DATA),
+            *DATA
+        ])
+    )
+
+
+@pytest.mark.asyncio
 async def test_safeMint_to_unsupported_contract(erc721_factory):
     erc721, account, _, _, unsupported = erc721_factory
 

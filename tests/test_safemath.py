@@ -105,3 +105,14 @@ async def test_sub_le_overflow(safemath_mock):
     b = to_uint(56789)
 
     await assert_revert(safemath.test_sub_le(a, b).invoke())
+
+
+@pytest.mark.asyncio
+async def test_mul(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(1234)
+    b = to_uint(56789)
+
+    execution_info = await safemath.test_mul(a, b).invoke()
+    print(execution_info)

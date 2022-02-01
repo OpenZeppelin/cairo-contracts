@@ -3,7 +3,8 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_check, uint256_add, uint256_sub, uint256_le, uint256_lt
+    Uint256, uint256_check, uint256_add, uint256_sub, uint256_mul, 
+    uint256_unsigned_div_rem, uint256_le, uint256_lt
 )
 
 # Adds two integers. 
@@ -51,4 +52,30 @@ func uint256_checked_sub_lt{
     assert_not_zero(is_lt)
     let (c: Uint256) = uint256_sub(a, b)
     return (c)
+end
+
+# Multiplies two integers.
+func uint256_checked_mul{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    } (a: Uint256, b: Uint256) -> (c_low: Uint256, c_high: Uint256):
+    alloc_locals
+    uint256_check(a)
+    uint256_check(b)
+    let (c_low: Uint256, c_high: Uint256) = uint256_mul(a, b)
+    return (c_low, c_high)
+end
+
+# Integer division of two numbers.
+func uint256_checked_div{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    } (a: Uint256, div: Uint256) -> (q: Uint256, rem: Uint256):
+    alloc_locals
+    uint256_check(a)
+    uint256_check(div)
+    let (q: Uint256, rem: Uint256) = uint256_unsigned_div_rem(a, div)
+    return (q, rem)
 end

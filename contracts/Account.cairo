@@ -44,11 +44,7 @@ end
 #
 
 @view
-func assert_only_self{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
+func assert_only_self{syscall_ptr : felt*}():
     let (self) = get_contract_address()
     let (caller) = get_caller_address()
     assert self = caller

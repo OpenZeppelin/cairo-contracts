@@ -164,7 +164,7 @@ async def test_tokenOfOwnerByIndex_greater_than_supply(erc721_minted):
     )
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_minted):
     erc721, _, _ = erc721_minted
 
@@ -173,7 +173,7 @@ async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_minted):
     )
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
     erc721, account, other = erc721_minted
 
@@ -204,7 +204,7 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
     )
 
 
-@ pytest.mark.asyncio
+@pytest.mark.asyncio
 async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
     erc721, account, other = erc721_minted
 

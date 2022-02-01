@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
+    Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, assert_event_emitted,
     assert_revert, sub_uint, add_uint
 )
 
@@ -94,20 +94,22 @@ async def test_transfer_emit_event(erc20_factory):
     recipient = 123
     amount = uint(100)
 
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'transfer', [
             recipient,
             *amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Transfer')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        recipient,
-        *amount
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            recipient,
+            *amount
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -149,20 +151,22 @@ async def test_approve_emit_event(erc20_factory):
     spender = 123
     amount = uint(345)
 
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'approve', [
             spender,
             *amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Approval')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        spender,
-        *amount
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            spender,
+            *amount
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -213,21 +217,23 @@ async def test_transferFrom_emit_event(erc20_factory):
     # approve
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
     # transferFrom
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         spender, erc20.contract_address, 'transferFrom', [
             account.contract_address,
             recipient,
             *amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Transfer')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        recipient,
-        *amount
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            recipient,
+            *amount
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -271,20 +277,22 @@ async def test_increaseAllowance_emit_event(erc20_factory):
         ])
 
     # increase allowance
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'increaseAllowance', [
             spender,
             *amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Approval')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        spender,
-        *add_uint(amount, amount)
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            spender,
+            *add_uint(amount, amount)
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -331,20 +339,22 @@ async def test_decreaseAllowance_emit_event(erc20_factory):
         ])
 
     # decrease allowance
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'decreaseAllowance', [
             spender,
             *subtract_amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Approval')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        spender,
-        *sub_uint(init_amount, subtract_amount)
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            spender,
+            *sub_uint(init_amount, subtract_amount)
+        ]
+    )
 
 
 @pytest.mark.asyncio

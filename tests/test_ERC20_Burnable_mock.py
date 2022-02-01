@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, to_uint, str_to_felt, ZERO_ADDRESS,
+    Signer, to_uint, str_to_felt, ZERO_ADDRESS, assert_event_emitted,
     assert_revert, sub_uint, add_uint
 )
 
@@ -59,19 +59,21 @@ async def test_burn_emit_event(erc20_factory):
     _, erc20, account = erc20_factory
     amount = to_uint(100)
 
-    execution_info = await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'burn', [
             *amount
         ])
 
-    assert execution_info.raw_events[0].from_address == erc20.contract_address
-    assert execution_info.raw_events[0].keys[0] == get_selector_from_name(
-        'Transfer')
-    assert execution_info.raw_events[0].data == [
-        account.contract_address,
-        ZERO_ADDRESS,
-        *amount
-    ]
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            ZERO_ADDRESS,
+            *amount
+        ]
+    )
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,10 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import MAX_UINT256, assert_revert, add_uint, sub_uint, to_uint
+from utils import (
+    MAX_UINT256, assert_revert, add_uint, sub_uint,
+    mul_uint, div_rem_uint, to_uint
+)
 
 
 @pytest.fixture(scope='module')
@@ -113,6 +116,90 @@ async def test_mul(safemath_mock):
 
     a = to_uint(1234)
     b = to_uint(56789)
+    c = mul_uint(a, b)
 
     execution_info = await safemath.test_mul(a, b).invoke()
-    print(execution_info)
+    assert execution_info.result == (c,)
+
+
+@pytest.mark.asyncio
+async def test_mul_zero(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(0)
+    b = to_uint(56789)
+    c = to_uint(0)
+
+    execution_info = await safemath.test_mul(a, b).invoke()
+    assert execution_info.result == (c,)
+
+
+@pytest.mark.asyncio
+async def test_mul_zero(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(0)
+    b = to_uint(56789)
+    c = to_uint(0)
+
+    execution_info = await safemath.test_mul(a, b).invoke()
+    assert execution_info.result == (c,)
+
+    execution_info = await safemath.test_mul(b, a).invoke()
+    assert execution_info.result == (c,)
+
+
+@pytest.mark.asyncio
+async def test_mul_overflow(safemath_mock):
+    safemath = safemath_mock
+
+    a = MAX_UINT256
+    b = to_uint(2)
+
+    await assert_revert(safemath.test_mul(a, b).invoke())
+
+
+@pytest.mark.asyncio
+async def test_div(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(56789)
+    b = to_uint(56789)
+    (c, r) = div_rem_uint(a, b)
+
+    execution_info = await safemath.test_div(a, b).invoke()
+    assert execution_info.result == (c, r)
+
+
+@pytest.mark.asyncio
+async def test_div_zero_dividend(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(0)
+    b = to_uint(56789)
+    (c, r) = div_rem_uint(a, b)
+
+    execution_info = await safemath.test_div(a, b).invoke()
+    assert execution_info.result == (c, r)
+
+
+@pytest.mark.asyncio
+async def test_div_zero_divisor(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(56789)
+    b = to_uint(0)
+
+    await assert_revert(safemath.test_div(a, b).invoke())
+
+
+@pytest.mark.asyncio
+async def test_div_noneven_division(safemath_mock):
+    safemath = safemath_mock
+
+    a = to_uint(7000)
+    b = to_uint(5678)
+    (c, r) = div_rem_uint(a, b)
+
+    execution_info = await safemath.test_div(a, b).invoke()
+    assert execution_info.result == (c, r)

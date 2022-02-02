@@ -73,7 +73,7 @@ func uint256_checked_mul{
     let (c: Uint256, overflow: Uint256) = uint256_mul(a, b)
     assert overflow = Uint256(0, 0)
 
-    let (div_check: Uint256, rem: Uint256) = uint256_unsigned_div_rem(c, a)
+    let (div_check: Uint256, _) = uint256_unsigned_div_rem(c, a)
     let (is_eq) = uint256_eq(div_check, b)
     assert_not_zero(is_eq)
 
@@ -94,8 +94,8 @@ func uint256_checked_div_rem{
     assert is_zero = FALSE
 
     let (c: Uint256, rem: Uint256) = uint256_unsigned_div_rem(a, b)
-    let (mul_bc: Uint256) = uint256_checked_mul(b, c)
-    let (add_rem: Uint256) = uint256_checked_add(mul_bc, rem)
+    let (mul_check: Uint256) = uint256_checked_mul(b, c)
+    let (add_rem: Uint256) = uint256_checked_add(mul_check, rem)
 
     let (is_eq) = uint256_eq(add_rem, a)
     assert_not_zero(is_eq)

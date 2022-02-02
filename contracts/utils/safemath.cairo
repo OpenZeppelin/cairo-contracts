@@ -33,7 +33,7 @@ func uint256_checked_sub_le{
     uint256_check(a)
     uint256_check(b)
     let (is_le) = uint256_le(b, a)
-    assert_not_zero(is_le)
+    assert is_le = TRUE
     let (c: Uint256) = uint256_sub(a, b)
     return (c)
 end
@@ -50,7 +50,7 @@ func uint256_checked_sub_lt{
     uint256_check(b)
 
     let (is_lt) = uint256_lt(b, a)
-    assert_not_zero(is_lt)
+    assert is_lt = TRUE
     let (c: Uint256) = uint256_sub(a, b)
     return (c)
 end
@@ -75,12 +75,16 @@ func uint256_checked_mul{
 
     let (div_check: Uint256, _) = uint256_unsigned_div_rem(c, a)
     let (is_eq) = uint256_eq(div_check, b)
-    assert_not_zero(is_eq)
+    assert is_eq = TRUE
 
     return (c)
 end
 
 # Integer division of two numbers. Returns uint256 quotient and remainder.
+# Reverts if divisor is zero as per OpenZeppelin's Solidity implementation.
+# Cairo's `uint256_unsigned_div_rem` already checks:
+#    remainder < divisor
+#    quotient * divisor + remainder == dividend
 func uint256_checked_div_rem{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*, 
@@ -89,16 +93,10 @@ func uint256_checked_div_rem{
     alloc_locals
     uint256_check(a)
     uint256_check(b)
-    # checks b != (0, 0)
+    
     let (is_zero) = uint256_eq(b, Uint256(0, 0))
     assert is_zero = FALSE
 
     let (c: Uint256, rem: Uint256) = uint256_unsigned_div_rem(a, b)
-    let (mul_check: Uint256) = uint256_checked_mul(b, c)
-    let (add_rem: Uint256) = uint256_checked_add(mul_check, rem)
-
-    let (is_eq) = uint256_eq(add_rem, a)
-    assert_not_zero(is_eq)
-
     return (c, rem)
 end

@@ -133,18 +133,6 @@ async def test_mul_zero(safemath_mock):
     execution_info = await safemath.test_mul(a, b).invoke()
     assert execution_info.result == (c,)
 
-
-@pytest.mark.asyncio
-async def test_mul_zero(safemath_mock):
-    safemath = safemath_mock
-
-    a = to_uint(0)
-    b = to_uint(56789)
-    c = to_uint(0)
-
-    execution_info = await safemath.test_mul(a, b).invoke()
-    assert execution_info.result == (c,)
-
     execution_info = await safemath.test_mul(b, a).invoke()
     assert execution_info.result == (c,)
 
@@ -194,7 +182,7 @@ async def test_div_zero_divisor(safemath_mock):
 
 
 @pytest.mark.asyncio
-async def test_div_noneven_division(safemath_mock):
+async def test_div_uneven_division(safemath_mock):
     safemath = safemath_mock
 
     a = to_uint(7000)

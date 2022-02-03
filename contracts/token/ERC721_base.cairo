@@ -2,7 +2,6 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
-from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
@@ -176,7 +175,7 @@ func ERC721_approve{
         return ()
     else:
         let (is_approved) = ERC721_operator_approvals.read(owner, caller)
-        assert_not_zero(is_approved)
+        assert is_approved = TRUE
         _approve(to, token_id)
         return ()
     end
@@ -440,7 +439,7 @@ func _safe_transfer{
     _transfer(_from, to, token_id)
 
     let (success) = _check_onERC721Received(_from, to, token_id, data_len, data)
-    assert_not_zero(success)
+    assert success = TRUE
     return ()
 end
 

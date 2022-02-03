@@ -3,8 +3,12 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
-from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
+from starkware.cairo.common.uint256 import Uint256, uint256_check
+
+from contracts.utils.safemath import (
+    uint256_checked_add,
+    uint256_checked_sub_le,
+    uint256_checked_sub_lt
 )
 
 #
@@ -133,14 +137,11 @@ func ERC20_transferFrom{
     let (local caller) = get_caller_address()
     let (local caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
 
-    # validates amount <= caller_allowance and returns 1 if true   
-    let (enough_allowance) = uint256_le(amount, caller_allowance)
-    assert_not_zero(enough_allowance)
-
     _transfer(sender, recipient, amount)
 
     # subtract allowance
-    let (new_allowance: Uint256) = uint256_sub(caller_allowance, amount)
+    # safemath validates amount <= caller_allowance  
+    let (new_allowance: Uint256) = uint256_checked_sub_le(caller_allowance, amount)
     ERC20_allowances.write(sender, caller, new_allowance)
     return ()
 end
@@ -169,8 +170,8 @@ func ERC20_increaseAllowance{
     let (local current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
 
     # add allowance
-    let (local new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
-    assert (is_overflow) = 0
+    # safemath checks for overflow
+    let (local new_allowance: Uint256) = uint256_checked_add(current_allowance, added_value)
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -185,11 +186,8 @@ func ERC20_decreaseAllowance{
     uint256_check(subtracted_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
-    let (local new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
-
-    # validates new_allowance < current_allowance and returns 1 if true   
-    let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
-    assert_not_zero(enough_allowance)
+    # safemath validates new_allowance < current_allowance   
+    let (local new_allowance: Uint256) = uint256_checked_sub_lt(current_allowance, subtracted_value)
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -207,12 +205,11 @@ func ERC20_mint{
     let (balance: Uint256) = ERC20_balances.read(account=recipient)
     # overflow is not possible because sum is guaranteed to be less than total supply
     # which we check for overflow below
-    let (new_balance, _: Uint256) = uint256_add(balance, amount)
+    let (new_balance) = uint256_checked_add(balance, amount)
     ERC20_balances.write(recipient, new_balance)
 
     let (local supply: Uint256) = ERC20_total_supply.read()
-    let (local new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
-    assert (is_overflow) = 0
+    let (local new_supply: Uint256) = uint256_checked_add(supply, amount)
 
     ERC20_total_supply.write(new_supply)
     return ()
@@ -228,15 +225,13 @@ func ERC20_burn{
     uint256_check(amount)
 
     let (balance: Uint256) = ERC20_balances.read(account)
-    # validates amount <= balance and returns 1 if true
-    let (enough_balance) = uint256_le(amount, balance)
-    assert_not_zero(enough_balance)
     
-    let (new_balance: Uint256) = uint256_sub(balance, amount)
+    # safemath validates amount <= balance
+    let (new_balance: Uint256) = uint256_checked_sub_le(balance, amount)
     ERC20_balances.write(account, new_balance)
 
     let (supply: Uint256) = ERC20_total_supply.read()
-    let (new_supply: Uint256) = uint256_sub(supply, amount)
+    let (new_supply: Uint256) = uint256_checked_sub_le(supply, amount)
     ERC20_total_supply.write(new_supply)
     return ()
 end
@@ -257,18 +252,15 @@ func _transfer{
 
     let (local sender_balance: Uint256) = ERC20_balances.read(account=sender)
 
-    # validates amount <= sender_balance and returns 1 if true
-    let (enough_balance) = uint256_le(amount, sender_balance)
-    assert_not_zero(enough_balance)
-
     # subtract from sender
-    let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
+    # safemath validates amount <= sender_balance
+    let (new_sender_balance: Uint256) = uint256_checked_sub_le(sender_balance, amount)
     ERC20_balances.write(sender, new_sender_balance)
 
     # add to recipient
     let (recipient_balance: Uint256) = ERC20_balances.read(account=recipient)
     # overflow is not possible because sum is guaranteed by mint to be less than total supply
-    let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
+    let (new_recipient_balance) = uint256_checked_add(recipient_balance, amount)
     ERC20_balances.write(recipient, new_recipient_balance)
     return ()
 end

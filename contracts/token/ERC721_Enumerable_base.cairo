@@ -1,10 +1,9 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_lt, uint256_eq, uint256_check
+    Uint256, uint256_lt, uint256_eq, uint256_check
 )
 
 from contracts.token.ERC721_base import (
@@ -19,6 +18,11 @@ from contracts.token.ERC721_base import (
 
 from contracts.ERC165_base import (
     ERC165_register_interface
+)
+
+from contracts.utils.safemath import (
+    uint256_checked_add,
+    uint256_checked_sub_le
 )
 
 from contracts.utils.constants import TRUE
@@ -85,7 +89,7 @@ func ERC721_Enumerable_tokenByIndex{
     # Ensures index argument is less than total_supply 
     let (len: Uint256) = ERC721_Enumerable_totalSupply()
     let (is_lt) = uint256_lt(index, len)
-    assert is_lt = 1
+    assert is_lt = TRUE
 
     let (token_id: Uint256) = ERC721_Enumerable_all_tokens.read(index)
     return (token_id)
@@ -101,7 +105,7 @@ func ERC721_Enumerable_tokenOfOwnerByIndex{
     # Ensures index argument is less than owner's balance 
     let (len: Uint256) = ERC721_balanceOf(owner)
     let (is_lt) = uint256_lt(index, len)
-    assert is_lt = 1
+    assert is_lt = TRUE
 
     let (token_id: Uint256) = ERC721_Enumerable_owned_tokens.read(owner, index)
     return (token_id)
@@ -176,7 +180,7 @@ func _add_token_to_all_tokens_enumeration{
     ERC721_Enumerable_all_tokens.write(supply, token_id)
     ERC721_Enumerable_all_tokens_index.write(token_id, supply)
     
-    let (local new_supply: Uint256, _) = uint256_add(supply, Uint256(1, 0))
+    let (local new_supply: Uint256) = uint256_checked_add(supply, Uint256(1, 0))
     ERC721_Enumerable_all_tokens_len.write(new_supply)
     return ()
 end
@@ -189,7 +193,7 @@ func _remove_token_from_all_tokens_enumeration{
     }(token_id: Uint256):
     alloc_locals
     let (local supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
-    let (local last_token_index: Uint256) = uint256_sub(supply, Uint256(1, 0))
+    let (local last_token_index: Uint256) = uint256_checked_sub_le(supply, Uint256(1, 0))
     let (local token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
 
     # When the token to delete is the last token, the swap operation is unnecessary. However,
@@ -203,7 +207,7 @@ func _remove_token_from_all_tokens_enumeration{
     ERC721_Enumerable_all_tokens_index.write(last_token_id, token_index)
     ERC721_Enumerable_all_tokens_index.write(token_id, Uint256(0, 0))
 
-    let (local new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
+    let (local new_supply: Uint256) = uint256_checked_sub_le(supply, Uint256(1, 0))
     ERC721_Enumerable_all_tokens_len.write(new_supply)
     return ()
 end
@@ -228,7 +232,7 @@ func _remove_token_from_owner_enumeration{
     alloc_locals
     let (local last_token_index: Uint256) = ERC721_balanceOf(_from)
     # the index starts at zero therefore the user's last token index is their balance minus one
-    let (last_token_index) = uint256_sub(last_token_index, Uint256(1, 0))
+    let (last_token_index) = uint256_checked_sub_le(last_token_index, Uint256(1, 0))
     let (local token_index: Uint256) = ERC721_Enumerable_owned_tokens_index.read(token_id)
 
     # If index is last, we can just set the return values to zero

@@ -7,8 +7,7 @@ from starkware.cairo.common.uint256 import Uint256, uint256_check
 
 from contracts.utils.safemath import (
     uint256_checked_add,
-    uint256_checked_sub_le,
-    uint256_checked_sub_lt
+    uint256_checked_sub_le
 )
 
 #
@@ -187,7 +186,7 @@ func ERC20_decreaseAllowance{
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
     # safemath validates new_allowance < current_allowance   
-    let (local new_allowance: Uint256) = uint256_checked_sub_lt(current_allowance, subtracted_value)
+    let (local new_allowance: Uint256) = uint256_checked_sub_le(current_allowance, subtracted_value)
 
     ERC20_approve(spender, new_allowance)
     return ()

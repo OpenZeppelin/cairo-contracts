@@ -148,10 +148,10 @@ func ERC721_tokenURI{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(token_id: Uint256) -> (token_uri: felt):
+    let (exists) = _exists(token_id)
     with_attr error_message("ERC721_base: URI query for nonexistent token"):
-        let (exists) = _exists(token_id)
+        assert exists = TRUE
     end
-    assert exists = TRUE
 
     # if tokenURI is not set, it will return 0
     let (token_uri) = ERC721_token_uri.read(token_id)
@@ -176,7 +176,7 @@ func ERC721_approve{
 
     # Ensures 'owner' does not equal 'to'
     let (owner) = ERC721_owners.read(token_id)
-    with_attr error_message("ERC721_base: approve to current owner"):
+    with_attr error_message("ERC721_base: approval to current owner"):
         assert_not_equal(owner, to)
     end
 

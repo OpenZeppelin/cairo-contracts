@@ -139,8 +139,11 @@ func ERC20_transferFrom{
     _transfer(sender, recipient, amount)
 
     # subtract allowance
-    # safemath validates amount <= caller_allowance  
-    let (new_allowance: Uint256) = uint256_checked_sub_le(caller_allowance, amount)
+    # safemath validates amount <= caller_allowance 
+    with_attr error_message("ERC20_base: transfer amount exceeds balance"):
+        let (new_allowance: Uint256) = uint256_checked_sub_le(caller_allowance, amount)
+    end
+
     ERC20_allowances.write(sender, caller, new_allowance)
     return ()
 end
@@ -151,9 +154,18 @@ func ERC20_approve{
         range_check_ptr
     }(spender: felt, amount: Uint256):
     let (caller) = get_caller_address()
-    assert_not_zero(caller)
-    assert_not_zero(spender)
-    uint256_check(amount)
+    with_attr error_message("ERC20_base: transfer from the zero address"):
+        assert_not_zero(caller)
+    end
+
+    with_attr error_message("ERC20_base: transfer to the zero address"):
+        assert_not_zero(spender)
+    end
+
+    with_attr error_message("ERC20_base: invalid uint256 transfer amount"):
+        uint256_check(amount)
+    end
+
     ERC20_allowances.write(caller, spender, amount)
     return ()
 end
@@ -164,13 +176,18 @@ func ERC20_increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> ():
     alloc_locals
-    uint256_check(added_value)
+    with_attr error_message("ERC20_base: invalid uint256 amount"):
+        uint256_check(added_value)
+    end
+
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
 
     # add allowance
     # safemath checks for overflow
-    let (local new_allowance: Uint256) = uint256_checked_add(current_allowance, added_value)
+    with_attr error_message("ERC20_base: increase allowance overflow"):
+        let (local new_allowance: Uint256) = uint256_checked_add(current_allowance, added_value)
+    end
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -185,8 +202,11 @@ func ERC20_decreaseAllowance{
     uint256_check(subtracted_value)
     let (local caller) = get_caller_address()
     let (local current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
-    # safemath validates new_allowance < current_allowance   
-    let (local new_allowance: Uint256) = uint256_checked_sub_le(current_allowance, subtracted_value)
+    # safemath validates new_allowance < current_allowance  
+
+    with_attr error_message("ERC20_base: decreased allowance under zero"):
+        let (local new_allowance: Uint256) = uint256_checked_sub_le(current_allowance, subtracted_value)
+    end
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -198,17 +218,28 @@ func ERC20_mint{
         range_check_ptr
     }(recipient: felt, amount: Uint256):
     alloc_locals
-    assert_not_zero(recipient)
-    uint256_check(amount)
+    with_attr error_message("ERC20_base: transfer to the zero address"):
+        assert_not_zero(recipient)
+    end
+
+    with_attr error_message("ERC20_base: invalid uint256 amount"):
+        uint256_check(amount)
+    end
 
     let (balance: Uint256) = ERC20_balances.read(account=recipient)
     # overflow is not possible because sum is guaranteed to be less than total supply
     # which we check for overflow below
-    let (new_balance) = uint256_checked_add(balance, amount)
+    with_attr error_message("ERC20_base: user balance overflow"):
+        let (new_balance) = uint256_checked_add(balance, amount)
+    end
+
     ERC20_balances.write(recipient, new_balance)
 
     let (local supply: Uint256) = ERC20_total_supply.read()
-    let (local new_supply: Uint256) = uint256_checked_add(supply, amount)
+
+    with_attr error_message("ERC20_base: mint amount overflow"):
+        let (local new_supply: Uint256) = uint256_checked_add(supply, amount)
+    end
 
     ERC20_total_supply.write(new_supply)
     return ()
@@ -220,17 +251,26 @@ func ERC20_burn{
         range_check_ptr
     }(account: felt, amount: Uint256):
     alloc_locals
-    assert_not_zero(account)
-    uint256_check(amount)
+    with_attr error_message("ERC20_base: burn from the zero address"):
+        assert_not_zero(account)
+    end
+
+    with_attr error_message("ERC20_base: invalid uint256 burn amount"):
+        uint256_check(amount)
+    end
 
     let (balance: Uint256) = ERC20_balances.read(account)
     
     # safemath validates amount <= balance
-    let (new_balance: Uint256) = uint256_checked_sub_le(balance, amount)
+    with_attr error_message("ERC20_base: burn amount exceeds balance"):
+        let (new_balance: Uint256) = uint256_checked_sub_le(balance, amount)
+    end
+
     ERC20_balances.write(account, new_balance)
 
     let (supply: Uint256) = ERC20_total_supply.read()
     let (new_supply: Uint256) = uint256_checked_sub_le(supply, amount)
+
     ERC20_total_supply.write(new_supply)
     return ()
 end
@@ -245,15 +285,26 @@ func _transfer{
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
-    assert_not_zero(sender)
-    assert_not_zero(recipient)
-    uint256_check(amount) # almost surely not needed, might remove after confirmation
+    with_attr error_message("ERC20_base: transfer from the zero address"):
+        assert_not_zero(sender)
+    end
+
+    with_attr error_message("ERC20_base: transfer to the zero address"):
+        assert_not_zero(recipient)
+    end
+
+    with_attr error_message("ERC20_base: invalid uint256 transfer amount"):
+        uint256_check(amount) # almost surely not needed, might remove after confirmation
+    end
 
     let (local sender_balance: Uint256) = ERC20_balances.read(account=sender)
 
     # subtract from sender
     # safemath validates amount <= sender_balance
-    let (new_sender_balance: Uint256) = uint256_checked_sub_le(sender_balance, amount)
+    with_attr error_message("ERC20_base: transfer amount exceeds balance"):
+        let (new_sender_balance: Uint256) = uint256_checked_sub_le(sender_balance, amount)
+    end
+    
     ERC20_balances.write(sender, new_sender_balance)
 
     # add to recipient

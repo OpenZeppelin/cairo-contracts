@@ -1,5 +1,7 @@
 # Utilities
 
+The following documentation provides context, reasoning, and examples for methods and variables found in `tests/utils.py`.  
+
 > Expect this module to evolve (as it has already done).
 
 ## Table of Contents
@@ -33,7 +35,7 @@ The maximum value in a 256-bit integer represented in a tuple of two 128-bit int
 
 ### `ZERO_ADDRESS`
 
-When a user calls a contract directly, the sender of the transaction is `0`. Copious tests go toward checking that users cannot send transactions as address `0`. Using the `ZERO_ADDRESS` constant enhances the readability of tests.
+When a user calls a contract directly, the sender of the transaction is `0`. Copious tests go toward checking that users cannot send transactions to/from address `0`. Using the `ZERO_ADDRESS` constant enhances the readability of tests.
 
 ### `TRUE`
 

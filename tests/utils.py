@@ -7,6 +7,9 @@ from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
+ZERO_ADDRESS = 0
+TRUE = 1
+FALSE = 0
 
 
 def str_to_felt(text):
@@ -49,13 +52,16 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
-async def assert_revert(fun):
+async def assert_revert(fun, reverted_with=None):
     try:
         await fun
         assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+        if reverted_with is not None:
+            assert reverted_with in error['message']
 
 
 class Signer():

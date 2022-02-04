@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts (token/IERC721_Metadata.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.uint256 import Uint256

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts (Account.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.registers import get_fp_and_pc

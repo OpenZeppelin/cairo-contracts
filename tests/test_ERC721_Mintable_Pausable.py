@@ -1,22 +1,20 @@
 import pytest
 import asyncio
-from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, str_to_felt, assert_revert
-
+from starkware.starknet.compiler.compile import compile_starknet_files
+from starkware.starknet.testing.starknet import Starknet, StarknetContract
+from utils import Signer, str_to_felt, TRUE, FALSE, assert_revert, to_uint
 
 signer = Signer(123456789987654321)
 
-# bools (for readability)
-false = 0
-true = 1
+account_path = 'contracts/Account.cairo'
+erc721_path = 'contracts/token/ERC721_Mintable_Pausable.cairo'
+erc721_holder_path = 'contracts/token/utils/ERC721_Holder.cairo'
 
-# random uint256 tokenIDs
-first_token_id = (5042, 0)
-second_token_id = (7921, 1)
-third_token_id = (0, 13)
-
+# random token IDs
+TOKENS = [to_uint(5042), to_uint(793)]
+TOKEN_TO_MINT = to_uint(33)
 # random data (mimicking bytes in Solidity)
-data = [0x42, 0x89, 0x55]
+DATA = [0x42, 0x89, 0x55]
 
 
 @pytest.fixture(scope='module')
@@ -24,94 +22,160 @@ def event_loop():
     return asyncio.new_event_loop()
 
 
-@pytest.fixture(scope='function')
-async def erc721_factory():
+@pytest.fixture(scope='module')
+def contract_defs():
+    account_def = compile_starknet_files(
+        files=[account_path],
+        debug_info=True
+    )
+    erc721_def = compile_starknet_files(
+        files=[erc721_path],
+        debug_info=True
+    )
+    erc721_holder_def = compile_starknet_files(
+        files=[erc721_holder_path],
+        debug_info=True
+    )
+    return account_def, erc721_def, erc721_holder_def
+
+
+@pytest.fixture(scope='module')
+async def erc721_init(contract_defs):
+    account_def, erc721_def, erc721_holder_def = contract_defs
     starknet = await Starknet.empty()
-    owner = await starknet.deploy(
-        "contracts/Account.cairo",
+    account1 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
-    other = await starknet.deploy(
-        "contracts/Account.cairo",
+    account2 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
     erc721 = await starknet.deploy(
-        "contracts/token/ERC721_Mintable_Pausable.cairo",
+        contract_def=erc721_def,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            owner.contract_address              # owner
+            account1.contract_address
         ]
     )
+    erc721_holder = await starknet.deploy(
+        contract_def=erc721_holder_def,
+        constructor_calldata=[]
+    )
+    return (
+        starknet.state,
+        account1,
+        account2,
+        erc721,
+        erc721_holder
+    )
 
-    erc721_holder = await starknet.deploy("contracts/token/utils/ERC721_Holder.cairo")
 
-    # mint tokens to owner
-    tokens = [first_token_id, second_token_id]
-    for token in tokens:
+@pytest.fixture
+def erc721_factory(contract_defs, erc721_init):
+    account_def, erc721_def, erc721_holder_def = contract_defs
+    state, account1, account2, erc721, erc721_holder = erc721_init
+    _state = state.copy()
+    account1 = StarknetContract(
+        state=_state,
+        abi=account_def.abi,
+        contract_address=account1.contract_address,
+        deploy_execution_info=account1.deploy_execution_info
+    )
+    account2 = StarknetContract(
+        state=_state,
+        abi=account_def.abi,
+        contract_address=account2.contract_address,
+        deploy_execution_info=account2.deploy_execution_info
+    )
+    erc721 = StarknetContract(
+        state=_state,
+        abi=erc721_def.abi,
+        contract_address=erc721.contract_address,
+        deploy_execution_info=erc721.deploy_execution_info
+    )
+    erc721_holder = StarknetContract(
+        state=_state,
+        abi=erc721_holder_def.abi,
+        contract_address=erc721_holder.contract_address,
+        deploy_execution_info=erc721_holder.deploy_execution_info
+    )
+    return erc721, account1, account2, erc721_holder
+
+
+@pytest.fixture
+async def erc721_minted(erc721_factory):
+    erc721, account, account2, erc721_holder = erc721_factory
+    # mint tokens to account
+    for token in TOKENS:
         await signer.send_transaction(
-            owner, erc721.contract_address, 'mint', [
-                owner.contract_address, *token]
+            account, erc721.contract_address, 'mint', [
+                account.contract_address, *token]
         )
 
-    return starknet, erc721, owner, other, erc721_holder
+    return erc721, account, account2, erc721_holder
 
 
 @pytest.mark.asyncio
-async def test_pause(erc721_factory):
-    _, erc721, owner, other, erc721_holder = erc721_factory
+async def test_pause(erc721_minted):
+    erc721, owner, other, erc721_holder = erc721_minted
 
     # pause
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
 
-    execution_info = await erc721.paused().call()
-    assert execution_info.result.paused == 1
+    execution_info = await erc721.paused().invoke()
+    assert execution_info.result.paused == TRUE
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'approve', [
             other.contract_address,
-            *first_token_id
-        ])
+            *TOKENS[0]
+        ]),
+        reverted_with='Pausable_base: contract is paused'
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'setApprovalForAll', [
             other.contract_address,
-            true
-        ])
+            TRUE
+        ]),
+        reverted_with='Pausable_base: contract is paused'
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'transferFrom', [
             owner.contract_address,
             other.contract_address,
-            *first_token_id
-        ])
+            *TOKENS[0]
+        ]),
+        reverted_with='Pausable_base: contract is paused'
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'safeTransferFrom', [
             owner.contract_address,
             erc721_holder.contract_address,
-            *first_token_id,
-            len(data),
-            *data
-        ])
+            *TOKENS[1],
+            len(DATA),
+            *DATA
+        ]),
+        reverted_with='Pausable_base: contract is paused'
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'mint', [
             other.contract_address,
-            *third_token_id
-        ])
+            *TOKEN_TO_MINT
+        ]),
+        reverted_with='Pausable_base: contract is paused'
+
     )
 
 
 @pytest.mark.asyncio
-async def test_unpause(erc721_factory):
-    _, erc721, owner, other, erc721_holder = erc721_factory
+async def test_unpause(erc721_minted):
+    erc721, owner, other, erc721_holder = erc721_minted
 
     # pause
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
@@ -119,20 +183,20 @@ async def test_unpause(erc721_factory):
     # unpause
     await signer.send_transaction(owner, erc721.contract_address, 'unpause', [])
 
-    execution_info = await erc721.paused().call()
-    assert execution_info.result.paused == 0
+    execution_info = await erc721.paused().invoke()
+    assert execution_info.result.paused == FALSE
 
     await signer.send_transaction(
         owner, erc721.contract_address, 'approve', [
             other.contract_address,
-            *first_token_id
+            *TOKENS[0]
         ]
     )
 
     await signer.send_transaction(
         owner, erc721.contract_address, 'setApprovalForAll', [
             other.contract_address,
-            true
+            TRUE
         ]
     )
 
@@ -140,7 +204,7 @@ async def test_unpause(erc721_factory):
         owner, erc721.contract_address, 'transferFrom', [
             owner.contract_address,
             other.contract_address,
-            *first_token_id
+            *TOKENS[0]
         ]
     )
 
@@ -148,34 +212,38 @@ async def test_unpause(erc721_factory):
         other, erc721.contract_address, 'safeTransferFrom', [
             owner.contract_address,
             erc721_holder.contract_address,
-            *second_token_id,
-            len(data),
-            *data
+            *TOKENS[1],
+            len(DATA),
+            *DATA
         ]
     )
 
     await signer.send_transaction(
         owner, erc721.contract_address, 'mint', [
             other.contract_address,
-            *third_token_id
+            *TOKEN_TO_MINT
         ]
     )
 
 
 @pytest.mark.asyncio
-async def test_only_owner(erc721_factory):
-    _, erc721, owner, other, _ = erc721_factory
+async def test_only_owner(erc721_minted):
+    erc721, owner, other, _ = erc721_minted
 
     # not-owner pause should revert
     await assert_revert(signer.send_transaction(
-        other, erc721.contract_address, 'pause', []))
+        other, erc721.contract_address, 'pause', []),
+        reverted_with='Ownable_base: caller is not the owner'
+    )
 
     # owner pause
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
 
     # not-owner unpause should revert
     await assert_revert(signer.send_transaction(
-        other, erc721.contract_address, 'unpause', []))
+        other, erc721.contract_address, 'unpause', []),
+        reverted_with='Ownable_base: caller is not the owner'
+    )
 
     # owner unpause
     await signer.send_transaction(owner, erc721.contract_address, 'unpause', [])

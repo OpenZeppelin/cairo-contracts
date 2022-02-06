@@ -60,7 +60,7 @@ Takes an integer and converts it to an ASCII string by trimming the null bytes a
 
 ## Uint256
 
-Cairo's native data type is a field element (felt). Felts equate to 252 bits which poses a problem regarding 256-bit integer integrationg. To resolve the bit discrepancy, Cairo represents 256-bit integers as a struct of two 128-bit integers. Further, the low bits precede the high bits e.g.
+Cairo's native data type is a field element (felt). Felts equate to 252 bits which poses a problem regarding 256-bit integer integration. To resolve the bit discrepancy, Cairo represents 256-bit integers as a struct of two 128-bit integers. Further, the low bits precede the high bits e.g.
 
 ```
 1 = (1, 0)
@@ -139,7 +139,7 @@ await assert_revert(signer.send_transaction(
 
 ### `assert_event_emitted`
 
-A helper method that checks a transaction receipt for the contract emitting the event (`from_address`), the emitted event (`name`), and the arguments emitted (`data`). To use `assert_event_emitted`:
+A helper method that checks a transaction receipt for the contract emitting the event (`from_address`), the emitted event itself (`name`), and the arguments emitted (`data`). To use `assert_event_emitted`:
 
 ```python
 # capture the tx receipt

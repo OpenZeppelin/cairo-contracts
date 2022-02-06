@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts (token/ERC20_Mintable.cairo)
+# OpenZeppelin Cairo Contracts v0.1.0 (token/ERC20_Mintable.cairo)
 
 %lang starknet
 

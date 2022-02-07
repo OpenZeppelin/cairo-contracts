@@ -162,7 +162,6 @@ assert_event_emitted(
 )
 ```
 
-
 ## Signer
 
 `Signer` is used to perform transactions on a given Account, crafting the tx and managing nonces. See the [Account documentation](../docs/Account.md#signer-utility) for in-depth information.

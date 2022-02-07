@@ -81,7 +81,7 @@ class Signer():
 
     Examples
     ---------
-    Constructing a Singer object
+    Constructing a Signer object
 
     >>> signer = Signer(1234)
 

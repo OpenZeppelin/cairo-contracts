@@ -27,7 +27,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-The Cairo programming language includes myriad quirks relative to other programming languages. To ease the readability of Cairo Contract tests, this project includes reusable constant variables. 
+The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo Contract tests, this project includes reusable constant variables. 
 
 ### `MAX_UINT256`
 

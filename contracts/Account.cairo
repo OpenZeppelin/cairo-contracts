@@ -10,10 +10,7 @@ from contracts.Account_base import (
     Account_is_valid_signature
 )
 
-from contracts.ERC165_base import (
-    ERC165_supports_interface, 
-    ERC165_register_interface
-) 
+from contracts.ERC165_base import ERC165_supports_interface 
 
 #
 # Getters

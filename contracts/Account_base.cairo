@@ -9,6 +9,8 @@ from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
 
+from contracts.ERC165_base import ERC165_register_interface
+
 #
 # Structs
 #
@@ -95,6 +97,8 @@ func Account_initializer{
         range_check_ptr
     }(public_key: felt):
     Account_public_key.write(public_key)
+    # Account magic value derived from ERC165 calculation of IAccount
+    ERC165_register_interface(0x50b70dcb)
     return()
 end
 

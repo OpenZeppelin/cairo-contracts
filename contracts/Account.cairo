@@ -126,6 +126,8 @@ func constructor{
         signature: felt*
     ):
     _set_public_key(_public_key, signature_len, signature)
+    # Account magic value derived from ERC165 calculation of IAccount
+    ERC165_register_interface(0x50b70dcb)
     return ()
 end
 
@@ -227,16 +229,9 @@ func _set_public_key{
     ):
     # first we set it so `is_valid_signature` can pick it up
     public_key.write(new_public_key)
-
-    let hash_ptr = pedersen_ptr
-    with hash_ptr:
-        # check key ownership of the key to prevent spoofing
-        # validate a signature on this contract address to prevent replays
-        let (self) = get_contract_address()
-        let (identity_hash) = hash2(self, 0)
-        is_valid_signature(identity_hash, signature_len, signature)
-        return ()
-    end
+    let (identity_hash) = hash2{hash_ptr=pedersen_ptr}(new_public_key, 0)
+    is_valid_signature(identity_hash, signature_len, signature)
+    return ()
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):

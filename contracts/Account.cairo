@@ -5,6 +5,7 @@ from starkware.starknet.common.syscalls import get_contract_address
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_signature
+from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
@@ -97,10 +98,15 @@ end
 func set_public_key{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
         range_check_ptr
-    }(new_public_key: felt):
+    }(
+        new_public_key: felt,
+        signature_len: felt,
+        signature: felt*
+    ):
     assert_only_self()
-    public_key.write(new_public_key)
+    _set_public_key(new_public_key, signature_len, signature)
     return ()
 end
 
@@ -112,16 +118,19 @@ end
 func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
         range_check_ptr
-    }(_public_key: felt):
-    public_key.write(_public_key)
-    # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0x50b70dcb)
-    return()
+    }(
+        _public_key: felt,
+        signature_len: felt,
+        signature: felt*
+    ):
+    _set_public_key(_public_key, signature_len, signature)
+    return ()
 end
 
 #
-# Business logic
+# Public functions
 #
 
 @view
@@ -156,8 +165,8 @@ end
 func execute{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr, 
-        ecdsa_ptr: SignatureBuiltin*
+        ecdsa_ptr: SignatureBuiltin*,
+        range_check_ptr
     }(
         to: felt,
         selector: felt,
@@ -200,6 +209,34 @@ func execute{
     )
 
     return (response_len=response.retdata_size, response=response.retdata)
+end
+
+#
+# Private functions
+#
+
+func _set_public_key{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        ecdsa_ptr: SignatureBuiltin*,
+        range_check_ptr
+    }(
+        new_public_key: felt,
+        signature_len: felt,
+        signature: felt*
+    ):
+    # first we set it so `is_valid_signature` can pick it up
+    public_key.write(new_public_key)
+
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        # check key ownership of the key to prevent spoofing
+        # validate a signature on this contract address to prevent replays
+        let (self) = get_contract_address()
+        let (identity_hash) = hash2(self, 0)
+        is_valid_signature(identity_hash, signature_len, signature)
+        return ()
+    end
 end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):

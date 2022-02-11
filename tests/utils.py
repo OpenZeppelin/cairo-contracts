@@ -1,7 +1,7 @@
 """Utilities for testing Cairo contracts."""
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
-from starkware.crypto.signature.signature import private_to_stark_key, sign
+from starkware.crypto.signature.signature import private_to_stark_key, sign, pedersen_hash
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.public.abi import get_selector_from_name
@@ -112,3 +112,11 @@ def hash_message(sender, to, selector, calldata, nonce):
         nonce
     ]
     return compute_hash_on_elements(message)
+
+
+def account_calldata(private_key):
+    public_key = private_to_stark_key(private_key)
+    message_hash = pedersen_hash(public_key)
+    signature = sign(
+        msg_hash=message_hash, priv_key=private_key)
+    return public_key, len(signature), signature[0], signature[1]

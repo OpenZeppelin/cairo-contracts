@@ -6,6 +6,12 @@ from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.public.abi import get_selector_from_name
 
+# random private keys for testing
+PRIVATE_KEYS = [
+    123456789987654321,
+    987654321123456789
+]
+
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 
 

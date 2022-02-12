@@ -1,9 +1,13 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, assert_revert
+from utils import (
+    Signer, uint, str_to_felt, assert_revert,
+    PRIVATE_KEYS, account_calldata
+)
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
+other_signer = Signer(PRIVATE_KEYS[1])
 
 
 @pytest.fixture(scope='module')
@@ -16,12 +20,16 @@ async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     other = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     token = await starknet.deploy(
@@ -125,7 +133,7 @@ async def test_unpause(token_factory):
     )
     assert success.result.response == [1]  # [1] means true
 
-    success = await signer.send_transaction(
+    success = await other_signer.send_transaction(
         other,
         token.contract_address,
         'transferFrom',
@@ -154,8 +162,8 @@ async def test_unpause(token_factory):
 async def test_only_owner(token_factory):
     _, token, _, other = token_factory
 
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         other, token.contract_address, 'pause', []))
 
-    assert assert_revert(signer.send_transaction(
+    assert assert_revert(other_signer.send_transaction(
         other, token.contract_address, 'unpause', []))

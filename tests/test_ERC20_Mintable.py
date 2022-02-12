@@ -1,9 +1,11 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
+from utils import (
+    Signer, uint, str_to_felt, MAX_UINT256, assert_revert, PRIVATE_KEYS, account_calldata
+)
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
 
 
 @pytest.fixture(scope='module')
@@ -16,7 +18,9 @@ async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     token = await starknet.deploy(

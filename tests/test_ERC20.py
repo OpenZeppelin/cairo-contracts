@@ -1,9 +1,13 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
+from utils import (
+    Signer, PRIVATE_KEYS, uint, str_to_felt,
+    MAX_UINT256, assert_revert, account_calldata
+)
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
+other_signer = Signer(PRIVATE_KEYS[1])
 
 
 @pytest.fixture(scope='module')
@@ -16,7 +20,9 @@ async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     erc20 = await starknet.deploy(
@@ -122,7 +128,9 @@ async def test_transferFrom(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
@@ -134,7 +142,7 @@ async def test_transferFrom(erc20_factory):
     # approve
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
     # transferFrom
-    return_bool = await signer.send_transaction(
+    return_bool = await other_signer.send_transaction(
         spender, erc20.contract_address, 'transferFrom', [
             account.contract_address, recipient, *amount])
     # check return value equals true ('1')
@@ -232,7 +240,9 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
@@ -241,7 +251,7 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *allowance])
 
     # increasing the transfer amount above allowance
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc20.contract_address, 'transferFrom', [
             account.contract_address,
             recipient,
@@ -296,7 +306,9 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
@@ -305,7 +317,7 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
 
     await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *amount])
 
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc20.contract_address, 'transferFrom', [
             account.contract_address,
             zero_address,
@@ -319,7 +331,9 @@ async def test_transferFrom_func_from_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     # we use the same signer to control the main and the spender accounts
     # this is ok since they're still two different accounts
@@ -327,7 +341,7 @@ async def test_transferFrom_func_from_zero_address(erc20_factory):
     recipient = 123
     amount = uint(1)
 
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc20.contract_address, 'transferFrom', [
             zero_address,
             recipient,

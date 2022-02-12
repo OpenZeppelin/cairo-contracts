@@ -1,12 +1,17 @@
 import pytest
 import asyncio
+from starkware.crypto.signature.signature import sign
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from utils import (
+    Signer, uint, str_to_felt, MAX_UINT256,
+    PRIVATE_KEYS, assert_revert, account_calldata
+)
 
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
+other_signer = Signer(PRIVATE_KEYS[1])
 
 ZERO_ADDRESS = 0
 
@@ -55,7 +60,9 @@ async def erc721_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     erc721 = await starknet.deploy(
@@ -209,11 +216,13 @@ async def test_mint_by_not_owner(erc721_factory):
     starknet, erc721, _, _ = erc721_factory
     not_owner = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # minting from not_owner should fail
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         not_owner, erc721.contract_address, 'mint', [
             not_owner.contract_address,
             *eighth_token_id
@@ -274,7 +283,9 @@ async def test_burn_unowned_token(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     other = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # mint 'token_to_burn' to other account
@@ -293,7 +304,7 @@ async def test_burn_unowned_token(erc721_factory):
     )
 
     # other can burn their own token
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         other, erc721.contract_address, 'burn', [*token_to_burn]
     )
 
@@ -329,7 +340,9 @@ async def test_approve_on_setApprovalForAll(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # set approval_for_all from account to spender
@@ -338,8 +351,8 @@ async def test_approve_on_setApprovalForAll(erc721_factory):
             spender.contract_address, true]
     )
 
-    # approve spender to spend account's 'first_token_id' to user1
-    await signer.send_transaction(
+    # approve spender to spend account's 'first_token_id' to user1 !!!!
+    await other_signer.send_transaction(
         spender, erc721.contract_address, 'approve', [
             user1, *first_token_id]
     )
@@ -375,7 +388,9 @@ async def test_approve_not_owner_or_operator(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # mint to user5 — NOT account
@@ -513,7 +528,9 @@ async def test_transferFrom_approved_user(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # approve spender
@@ -523,7 +540,7 @@ async def test_transferFrom_approved_user(erc721_factory):
     )
 
     # spender transfers token from account to recipient
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address, user2, *second_token_id]
     )
@@ -538,7 +555,9 @@ async def test_transferFrom_operator(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     recipient = user3
 
@@ -549,7 +568,7 @@ async def test_transferFrom_operator(erc721_factory):
     )
 
     # spender transfers token from account to recipient
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address, recipient, *third_token_id]
     )
@@ -564,7 +583,9 @@ async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
     recipient = user3
 
@@ -575,7 +596,7 @@ async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
     )
 
     # should be rejected when not approved
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
             recipient,
@@ -589,7 +610,9 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # setApprovalForAll
@@ -599,7 +622,7 @@ async def test_transferFrom_to_zero_address(erc721_factory):
     )
 
     # to zero address should be rejected
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
             ZERO_ADDRESS,
@@ -670,7 +693,9 @@ async def test_safeTransferFrom_from_approved(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
@@ -683,7 +708,7 @@ async def test_safeTransferFrom_from_approved(erc721_factory):
     )
 
     # spender transfers token from account to erc721_holder
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
@@ -704,7 +729,9 @@ async def test_safeTransferFrom_from_operator(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
@@ -717,7 +744,7 @@ async def test_safeTransferFrom_from_operator(erc721_factory):
     )
 
     # spender transfers token from account to erc721_holder
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
@@ -738,11 +765,13 @@ async def test_safeTransferFrom_when_not_approved_or_owner(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     # should fail when not approved or owner
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
@@ -827,7 +856,9 @@ async def test_safeTransferFrom_to_account(erc721_factory):
 
     account2 = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     await signer.send_transaction(
@@ -897,11 +928,13 @@ async def test_setTokenURI_from_not_owner(erc721_factory):
     starknet, erc721, _, _ = erc721_factory
     not_owner = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     await assert_revert(
-        signer.send_transaction(
+        other_signer.send_transaction(
             not_owner, erc721.contract_address, 'setTokenURI', [
                 *second_token_id,
                 sample_uri[1]

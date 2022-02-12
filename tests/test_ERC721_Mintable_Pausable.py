@@ -1,10 +1,11 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, str_to_felt, assert_revert
+from utils import Signer, str_to_felt, assert_revert, PRIVATE_KEYS, account_calldata
 
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
+other_signer = Signer(PRIVATE_KEYS[1])
 
 # bools (for readability)
 false = 0
@@ -29,12 +30,16 @@ async def erc721_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     other = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     erc721 = await starknet.deploy(
@@ -144,7 +149,7 @@ async def test_unpause(erc721_factory):
         ]
     )
 
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         other, erc721.contract_address, 'safeTransferFrom', [
             owner.contract_address,
             erc721_holder.contract_address,
@@ -167,14 +172,14 @@ async def test_only_owner(erc721_factory):
     _, erc721, owner, other, _ = erc721_factory
 
     # not-owner pause should revert
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         other, erc721.contract_address, 'pause', []))
 
     # owner pause
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
 
     # not-owner unpause should revert
-    await assert_revert(signer.send_transaction(
+    await assert_revert(other_signer.send_transaction(
         other, erc721.contract_address, 'unpause', []))
 
     # owner unpause

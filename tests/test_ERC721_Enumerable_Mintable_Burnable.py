@@ -1,10 +1,14 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
+from utils import (
+    Signer, uint, str_to_felt, MAX_UINT256,
+    PRIVATE_KEYS, assert_revert, account_calldata
+)
 
 
-signer = Signer(123456789987654321)
+signer = Signer(PRIVATE_KEYS[0])
+other_signer = Signer(PRIVATE_KEYS[1])
 
 # random user address
 user = 123
@@ -22,12 +26,16 @@ async def erc721_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[0])
+        ]
     )
 
     other = await starknet.deploy(
         "contracts/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        constructor_calldata=[
+            *account_calldata(PRIVATE_KEYS[1])
+        ]
     )
 
     erc721 = await starknet.deploy(
@@ -163,10 +171,10 @@ async def test_tokenByIndex_greater_than_supply(erc721_factory):
 
 @pytest.mark.asyncio
 async def test_tokenByIndex_burn_last_token(erc721_factory):
-    _, erc721, account, other = erc721_factory
+    _, erc721, _, other = erc721_factory
 
     # burn last token
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         other, erc721.contract_address, 'burn', [
             *tokens[4]]
     )
@@ -188,7 +196,7 @@ async def test_tokenByIndex_burn_first_token(erc721_factory):
     _, erc721, _, other = erc721_factory
 
     # burn first token
-    await signer.send_transaction(
+    await other_signer.send_transaction(
         other, erc721.contract_address, 'burn', [
             *tokens[0]]
     )
@@ -207,7 +215,7 @@ async def test_tokenByIndex_burn_and_mint(erc721_factory):
 
     new_token_order = [tokens[3], tokens[1], tokens[2]]
     for token in new_token_order:
-        await signer.send_transaction(
+        await other_signer.send_transaction(
             other, erc721.contract_address, 'burn', [
                 *token]
         )

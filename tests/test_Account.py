@@ -3,16 +3,14 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer, account_calldata
+from utils import Signer, account_calldata, PRIVATE_KEYS
 
 
-PRIVATE_KEY = 123456789987654321
-OTHER_KEY = 987654321123456789
 IACCOUNT_ID = 0x50b70dcb
 TRUE = 1
 
-signer = Signer(PRIVATE_KEY)
-other = Signer(OTHER_KEY)
+signer = Signer(PRIVATE_KEYS[0])
+other = Signer(PRIVATE_KEYS[1])
 
 
 @pytest.fixture(scope='module')
@@ -26,7 +24,7 @@ async def account_factory():
     account = await starknet.deploy(
         "contracts/Account.cairo",
         constructor_calldata=[
-            *account_calldata(PRIVATE_KEY),
+            *account_calldata(PRIVATE_KEYS[0]),
         ]
     )
 
@@ -110,7 +108,7 @@ async def test_public_key_setter(account_factory):
 
     # set new pubkey
     await signer.send_transaction(account, account.contract_address, 'set_public_key', [
-        *account_calldata(OTHER_KEY)
+        *account_calldata(PRIVATE_KEYS[1])
     ])
 
     execution_info = await account.get_public_key().call()

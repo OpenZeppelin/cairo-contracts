@@ -29,7 +29,7 @@ func Proxy_initialized() -> (initialized: felt):
 end
 
 #
-# Initialize
+# Initializer
 #
 
 func Proxy_initializer{

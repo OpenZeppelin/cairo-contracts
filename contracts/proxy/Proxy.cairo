@@ -11,7 +11,7 @@ from contracts.proxy.library import (
 # Constructor
 #
 
-@external
+@constructor
 func constructor{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,

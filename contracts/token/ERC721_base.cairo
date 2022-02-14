@@ -370,7 +370,7 @@ func _approve{
     }(to: felt, token_id: Uint256):
     ERC721_token_approvals.write(token_id, to)
     let (owner) = ERC721_ownerOf(token_id)
-    Approve.emit(owner, to, token_id)
+    Approval.emit(owner, to, token_id)
     return ()
 end
 

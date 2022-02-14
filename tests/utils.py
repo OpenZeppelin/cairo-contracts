@@ -4,6 +4,7 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.business_logic.transaction_execution_objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
@@ -50,6 +51,14 @@ def sub_uint(a, b):
     b = from_uint(b)
     c = a - b
     return to_uint(c)
+
+
+def assert_event_emitted(tx_exec_info, from_address, name, data):
+    assert Event(
+        from_address=from_address,
+        keys=[get_selector_from_name(name)],
+        data=data,
+    ) in tx_exec_info.raw_events
 
 
 async def assert_revert(fun):

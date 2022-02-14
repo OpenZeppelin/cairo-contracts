@@ -6,7 +6,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import (
     Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE,
-    assert_revert, to_uint, sub_uint, add_uint
+    assert_revert, assert_event_emitted, to_uint, sub_uint, add_uint
 )
 
 signer = Signer(123456789987654321)
@@ -275,6 +275,28 @@ async def test_mint(erc721_minted):
 
 
 @pytest.mark.asyncio
+async def test_mint_event(erc721_factory):
+    erc721, account, _, _, _ = erc721_factory
+
+    # mint token to account
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *TOKEN]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Transfer',
+        data=[
+            ZERO_ADDRESS,
+            account.contract_address,
+            *TOKEN
+        ]
+    )
+
+
+@pytest.mark.asyncio
 async def test_mint_duplicate_token_id(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
@@ -356,6 +378,29 @@ async def test_burn(erc721_minted):
 
 
 @pytest.mark.asyncio
+async def test_burn_event(erc721_minted):
+    erc721, account, _, _ = erc721_minted
+
+    # mint token to account
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'burn', [
+            *TOKEN
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            ZERO_ADDRESS,
+            *TOKEN
+        ]
+    )
+
+
+@pytest.mark.asyncio
 async def test_burn_nonexistent_token(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
@@ -408,6 +453,30 @@ async def test_approve(erc721_minted):
 
     execution_info = await erc721.getApproved(TOKEN).invoke()
     assert execution_info.result == (spender.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_approve_event(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
+
+    # mint token to account
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'approve', [
+            spender.contract_address,
+            *TOKEN
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            spender.contract_address,
+            *TOKEN
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -509,6 +578,27 @@ async def test_setApprovalForAll(erc721_minted):
     execution_info = await erc721.isApprovedForAll(
         account.contract_address, spender.contract_address).invoke()
     assert execution_info.result == (TRUE,)
+
+
+@pytest.mark.asyncio
+async def test_setApprovalForAll_event(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
+
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'setApprovalForAll', [
+            spender.contract_address, TRUE]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='ApprovalForAll',
+        data=[
+            account.contract_address,
+            spender.contract_address,
+            TRUE
+        ]
+    )
 
 
 @pytest.mark.asyncio
@@ -633,6 +723,48 @@ async def test_transferFrom_operator(erc721_minted):
     # checks user balance
     execution_info = await erc721.balanceOf(RECIPIENT).invoke()
     assert execution_info.result == (to_uint(1),)
+
+
+@pytest.mark.asyncio
+async def test_transfer_and_approval_event(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
+
+    # setApprovalForAll
+    await signer.send_transaction(
+        account, erc721.contract_address, 'setApprovalForAll', [
+            spender.contract_address, TRUE]
+    )
+
+    # spender transfers token from account to recipient
+    tx_exec_info = await signer.send_transaction(
+        spender, erc721.contract_address, 'transferFrom', [
+            account.contract_address,
+            RECIPIENT,
+            *TOKEN
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            RECIPIENT,
+            *TOKEN
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            ZERO_ADDRESS,
+            *TOKEN
+        ]
+    )
 
 
 @pytest.mark.asyncio

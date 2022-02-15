@@ -3,7 +3,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.token.erc721.library.ERC721_base import (
+from openzeppelin.token.erc721.library import (
     ERC721_name,
     ERC721_symbol,
     ERC721_balanceOf,
@@ -23,14 +23,14 @@ from openzeppelin.token.erc721.library.ERC721_base import (
 
 from openzeppelin.ERC165_base import ERC165_supports_interface
 
-from openzeppelin.Pausable_base import (
+from openzeppelin.security.pausable import (
     Pausable_paused,
     Pausable_pause,
     Pausable_unpause,
     Pausable_when_not_paused
 )
 
-from openzeppelin.Ownable_base import (
+from openzeppelin.access.ownable import (
     Ownable_initializer,
     Ownable_only_owner
 )

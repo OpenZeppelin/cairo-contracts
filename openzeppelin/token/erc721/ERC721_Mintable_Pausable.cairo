@@ -21,7 +21,7 @@ from openzeppelin.token.erc721.library import (
     ERC721_setTokenURI
 )
 
-from openzeppelin.ERC165_base import ERC165_supports_interface
+from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
 from openzeppelin.security.pausable import (
     Pausable_paused,

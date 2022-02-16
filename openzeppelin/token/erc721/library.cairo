@@ -6,16 +6,16 @@ from starkware.cairo.common.alloc import alloc
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
-from openzeppelin.utils.safemath import (
+from openzeppelin.security.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le
 )
 
-from openzeppelin.ERC165_base import ERC165_register_interface
+from openzeppelin.introspection.ERC165 import ERC165_register_interface
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from openzeppelin.IERC165 import IERC165
+from openzeppelin.introspection.interfaces.IERC165 import IERC165
 
 from openzeppelin.utils.constants import TRUE, FALSE
 

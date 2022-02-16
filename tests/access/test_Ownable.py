@@ -20,7 +20,7 @@ async def ownable_factory():
     )
 
     ownable = await starknet.deploy(
-        "openzeppelin/Ownable.cairo",
+        "tests/mocks/Ownable.cairo",
         constructor_calldata=[owner.contract_address]
     )
     return starknet, ownable, owner

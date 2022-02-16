@@ -7,7 +7,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_lt, uint256_eq, uint256_check
 )
 
-from openzeppelin.token.erc721.library.ERC721_base import (
+from openzeppelin.token.erc721.library import (
     ERC721_balanceOf,
     ERC721_ownerOf,
 

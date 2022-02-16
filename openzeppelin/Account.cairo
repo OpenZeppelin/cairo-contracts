@@ -44,11 +44,7 @@ end
 #
 
 @view
-func assert_only_self{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
+func assert_only_self{syscall_ptr : felt*}():
     let (self) = get_contract_address()
     let (caller) = get_caller_address()
     assert self = caller
@@ -204,9 +200,7 @@ end
 
 func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
     alloc_locals
-    # we need to make `res_calldata` local
-    # to prevent the reference from being revoked
-    let (local res_calldata) = hash_calldata(message.calldata, message.calldata_size)
+    let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         let (hash_state_ptr) = hash_init()
@@ -243,3 +237,4 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
         return (res=res)
     end
 end
+

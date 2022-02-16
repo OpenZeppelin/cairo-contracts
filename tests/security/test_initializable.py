@@ -5,7 +5,7 @@ from starkware.starknet.testing.starknet import Starknet
 @pytest.mark.asyncio
 async def test_initializer():
     starknet = await Starknet.empty()
-    initializable = await starknet.deploy("openzeppelin/Initializable.cairo")
+    initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
     expected = await initializable.initialized().call()
     assert expected.result == (0,)
 

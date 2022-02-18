@@ -268,9 +268,11 @@ func hash_call_array{pedersen_ptr: HashBuiltin*}(
     ) -> (res: felt):
     alloc_locals
 
+    # convert [call] to [Hash(call)]
     let (hash_array : felt*) = alloc()
     hash_call_loop(calls_len, calls, hash_array)
 
+    # hash [Hash(call)]
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         let (hash_state_ptr) = hash_init()

@@ -8,6 +8,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 
+TRANSACTION_VERSION = 0
+
 
 def str_to_felt(text):
     b_text = bytes(text, 'ascii')
@@ -90,25 +92,42 @@ class Signer():
     def sign(self, message_hash):
         return sign(msg_hash=message_hash, priv_key=self.private_key)
 
-    async def send_transaction(self, account, to, selector_name, calldata, nonce=None):
+    async def send_transaction(self, account, calls, nonce=None, max_fee=0):
         if nonce is None:
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        selector = get_selector_from_name(selector_name)
-        message_hash = hash_message(
-            account.contract_address, to, selector, calldata, nonce)
+        mcalls = []
+        calls_with_selector = []
+        calldata = []
+        for i in range(len(calls)):
+            if len(calls[i]) != 3:
+                raise Exception("Invalid call parameters")
+            call = calls[i]
+            mcall = (call[0], get_selector_from_name(call[1]), len(calldata), len(call[2]))
+            mcalls.append(mcall)
+            calldata.extend(call[2])
+            calls_with_selector.append((call[0], get_selector_from_name(call[1]), call[2]))
+
+        message_hash = hash_multicall(
+            account.contract_address, calls_with_selector, nonce, max_fee)
         sig_r, sig_s = self.sign(message_hash)
 
-        return await account.execute(to, selector, calldata, nonce).invoke(signature=[sig_r, sig_s])
+        return await account.__execute__(mcalls, calldata, nonce).invoke(signature=[sig_r, sig_s])
 
 
-def hash_message(sender, to, selector, calldata, nonce):
+def hash_multicall(sender, calls, nonce, max_fee):
+    hash_array = []
+    for call in calls:
+        call_elements = [call[0], call[1], compute_hash_on_elements(call[2])]
+        hash_array.append(compute_hash_on_elements(call_elements))
+
     message = [
+        str_to_felt('StarkNet Transaction'),
         sender,
-        to,
-        selector,
-        compute_hash_on_elements(calldata),
-        nonce
+        compute_hash_on_elements(hash_array),
+        nonce,
+        max_fee,
+        TRANSACTION_VERSION
     ]
     return compute_hash_on_elements(message)

@@ -92,7 +92,10 @@ class Signer():
     def sign(self, message_hash):
         return sign(msg_hash=message_hash, priv_key=self.private_key)
 
-    async def send_transaction(self, account, calls, nonce=None, max_fee=0):
+    async def send_transaction(self, account, to, selector_name, calldata, nonce=None, max_fee=0):
+        return await self.send_transactions(account, [(to, selector_name, calldata)], nonce, max_fee)
+
+    async def send_transactions(self, account, calls, nonce=None, max_fee=0):
         if nonce is None:
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result

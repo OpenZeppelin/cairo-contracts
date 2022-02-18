@@ -325,18 +325,12 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
     end
 end
 
-func from_mcall_to_call{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (
+func from_mcall_to_call{syscall_ptr: felt*}(
         mcalls_len: felt,
         mcalls: MCall*,
         calldata: felt*,
         calls: Call*
     ):
-    alloc_locals
-
     # if no more mcalls
     if mcalls_len == 0:
        return ()

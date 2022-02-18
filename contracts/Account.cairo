@@ -4,7 +4,9 @@ from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.starknet.common.syscalls import get_contract_address
 from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_signature
+from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.memcpy import memcpy
+from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
@@ -12,7 +14,9 @@ from starkware.cairo.common.hash_state import (
 from contracts.ERC165_base import (
     ERC165_supports_interface, 
     ERC165_register_interface
-) 
+)
+
+from contracts.utils.constants import PREFIX_TRANSACTION 
 
 #
 # Structs
@@ -25,6 +29,20 @@ struct Message:
     member calldata: felt*
     member calldata_size: felt
     member nonce: felt
+end
+
+struct MCall:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
+end
+
+struct Call:
+    member to: felt
+    member selector: felt
+    member calldata_len: felt
+    member calldata: felt*
 end
 
 #
@@ -149,14 +167,14 @@ func is_valid_signature{
 end
 
 @external
-func execute{
+func __execute__{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr, 
         ecdsa_ptr: SignatureBuiltin*
     }(
-        to: felt,
-        selector: felt,
+        mcalls_len: felt,
+        mcalls: MCall*,
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
@@ -164,65 +182,132 @@ func execute{
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()
-    let (_address) = get_contract_address()
+    let (tx_info) = get_tx_info()
     let (_current_nonce) = current_nonce.read()
 
     # validate nonce
     assert _current_nonce = nonce
 
-    local message: Message = Message(
-        _address,
-        to,
-        selector,
-        calldata,
-        calldata_size=calldata_len,
-        _current_nonce
-    )
+    # TMP: convert `MCall` to 'Call'
+    let (calls : Call*) = alloc()
+    from_mcall_to_call(mcalls_len, mcalls, calldata, calls)
+    let calls_len = mcalls_len
 
     # validate transaction
-    let (hash) = hash_message(&message)
-    let (signature_len, signature) = get_tx_signature()
-    is_valid_signature(hash, signature_len, signature)
+    let (hash) = hash_message(tx_info.account_contract_address, calls_len, calls, nonce, tx_info.max_fee, tx_info.version)
+    is_valid_signature(hash, tx_info.signature_len, tx_info.signature)
 
     # bump nonce
     current_nonce.write(_current_nonce + 1)
 
     # execute call
-    let response = call_contract(
-        contract_address=message.to,
-        function_selector=message.selector,
-        calldata_size=message.calldata_size,
-        calldata=message.calldata
-    )
+    let (response : felt*) = alloc()
+    let (response_len) = execute_list(calls_len, calls, response)
 
-    return (response_len=response.retdata_size, response=response.retdata)
+    return (response_len=response_len, response=response)
 end
 
-func hash_message{pedersen_ptr : HashBuiltin*}(message: Message*) -> (res: felt):
+func execute_list{syscall_ptr: felt*}(
+        calls_len: felt,
+        calls: Call*,
+        reponse: felt*
+    ) -> (response_len: felt):
     alloc_locals
-    let (res_calldata) = hash_calldata(message.calldata, message.calldata_size)
+
+    # if no more calls
+    if calls_len == 0:
+       return (0)
+    end
+    
+    # do the current call
+    let this_call: Call = [calls]
+    let res = call_contract(
+        contract_address=this_call.to,
+        function_selector=this_call.selector,
+        calldata_size=this_call.calldata_len,
+        calldata=this_call.calldata
+    )
+    # copy the result in response
+    memcpy(reponse, res.retdata, res.retdata_size)
+    # do the next calls recursively
+    let (response_len) = execute_list(calls_len - 1, calls + Call.SIZE, reponse + res.retdata_size)
+    return (response_len + res.retdata_size)
+end
+
+func hash_message{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*
+    } (
+        account: felt,
+        calls_len: felt,
+        calls: Call*,
+        nonce: felt,
+        max_fee: felt,
+        version: felt
+    ) -> (res: felt):
+    alloc_locals
+    let (calls_hash) = hash_call_array(calls_len, calls)
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         let (hash_state_ptr) = hash_init()
-        # first three iterations are 'sender', 'to', and 'selector'
-        let (hash_state_ptr) = hash_update(
-            hash_state_ptr, 
-            message, 
-            3
-        )
-        let (hash_state_ptr) = hash_update_single(
-            hash_state_ptr, res_calldata)
-        let (hash_state_ptr) = hash_update_single(
-            hash_state_ptr, message.nonce)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, PREFIX_TRANSACTION)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, account)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, calls_hash)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, nonce)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, max_fee)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, version)
         let (res) = hash_finalize(hash_state_ptr)
         let pedersen_ptr = hash_ptr
         return (res=res)
     end
 end
 
+func hash_call_array{pedersen_ptr: HashBuiltin*}(
+        calls_len: felt,
+        calls: Call*
+    ) -> (res: felt):
+    alloc_locals
+
+    let (hash_array : felt*) = alloc()
+    hash_call_loop(calls_len, calls, hash_array)
+
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        let (hash_state_ptr) = hash_update(hash_state_ptr, hash_array, calls_len)
+        let (res) = hash_finalize(hash_state_ptr)
+        let pedersen_ptr = hash_ptr
+        return (res=res)
+    end
+end
+
+func hash_call_loop{pedersen_ptr: HashBuiltin*}(
+        calls_len: felt,
+        calls: Call*,
+        hash_array: felt*
+    ):
+    if calls_len == 0:
+        return ()
+    end
+    let this_call = [calls]
+    let (calldata_hash) = hash_calldata(this_call.calldata_len, this_call.calldata)
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.to)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.selector)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, calldata_hash)
+        let (res) = hash_finalize(hash_state_ptr)
+        let pedersen_ptr = hash_ptr
+        assert [hash_array] = res
+    end
+    hash_call_loop(calls_len - 1, calls + Call.SIZE, hash_array + 1)
+    return()
+end
+
 func hash_calldata{pedersen_ptr: HashBuiltin*}(
-        calldata: felt*,
-        calldata_size: felt
+        calldata_len: felt,
+        calldata: felt*
     ) -> (res: felt):
     let hash_ptr = pedersen_ptr
     with hash_ptr:
@@ -230,7 +315,7 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
         let (hash_state_ptr) = hash_update(
             hash_state_ptr,
             calldata,
-            calldata_size
+            calldata_len
         )
         let (res) = hash_finalize(hash_state_ptr)
         let pedersen_ptr = hash_ptr
@@ -238,3 +323,31 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
     end
 end
 
+func from_mcall_to_call{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    } (
+        mcalls_len: felt,
+        mcalls: MCall*,
+        calldata: felt*,
+        calls: Call*
+    ):
+    alloc_locals
+
+    # if no more mcalls
+    if mcalls_len == 0:
+       return ()
+    end
+    
+    # parse the first mcall
+    assert [calls] = Call(
+            to=[mcalls].to,
+            selector=[mcalls].selector,
+            calldata_len=[mcalls].data_len,
+            calldata=calldata + [mcalls].data_offset)
+    
+    # parse the other mcalls recursively
+    from_mcall_to_call(mcalls_len - 1, mcalls + MCall.SIZE, calldata, calls + Call.SIZE)
+    return ()
+end

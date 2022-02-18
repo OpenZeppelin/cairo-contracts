@@ -130,7 +130,7 @@ func constructor{
     }(_public_key: felt):
     public_key.write(_public_key)
     # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0x50b70dcb)
+    ERC165_register_interface(0xbd73c577)
     return()
 end
 

@@ -1,5 +1,7 @@
 # Proxy
 
+> Expect rapid iteration as this pattern adds much more complexity and is in an experimental phase. 
+
 ## Table of Contents
 * [The immutability problem](#the-immutability-problem)
 * [Using proxies](#using-proxies)
@@ -16,13 +18,15 @@ One of the best approaches to the immutability problem lies in utilizing proxy c
 
 ## Using proxies
 
-A proxy contract is a contract that delegates function calls to another contract. This type of pattern compartmentalizes state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. With this pattern, implementation contracts can change but the proxy contract (and thus the state) do not. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application. 
+A proxy contract is a contract that delegates function calls to another contract. This type of pattern compartmentalizes state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. With this pattern, implementation contracts can change but the proxy contract (and thus the state) do not. Upgradeability is then achieved by simply changing the reference to the implementation contract in the proxy contract. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application. 
 
 ### Proxy contract
 
-The Proxy contract includes two core methods: `__default__` and `__l1_default__`. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract. 
+The Proxy contract includes two core methods:  
 
-The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
+1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract. 
+
+2. The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
 
 Deploying a Proxy contract requires only that the implementation contract is first deployed. The Proxy contract accepts the implementation contract's address in the constructor. When interacting with the contract, function calls should be sent by the user to the Proxy. The Proxy's fallback function redirects the function call to the implementation contract to execute. For example:
 
@@ -41,7 +45,7 @@ Deploying a Proxy contract requires only that the implementation contract is fir
         ]
     )
 
-    # transactions should be sent to the proxy contract address
+    # users should interact with the proxy contract
     await signer.send_transaction(
         account, PROXY.contract_address, 'foo', [
             arg_1,
@@ -52,4 +56,9 @@ Deploying a Proxy contract requires only that the implementation contract is fir
 
 ### Proxy library
 
+The Proxy library stores the requisite methods to enable upgradeable contracts. Implementation contracts, also known as logic contracts, should follow the [extensibility pattern](../docs/Extensibility.md#the-pattern) and be imported directly from the Proxy library.
 
+
+### Implementation contract
+
+The implementation contract, also known as the logic contract, receives the redirected function calls from the Proxy contract. 

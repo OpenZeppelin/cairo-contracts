@@ -38,7 +38,10 @@ func Proxy_initializer{
         range_check_ptr
     }(proxy_admin: felt):
     let (initialized) = Proxy_initialized.read()
-    assert initialized = FALSE
+    with_attr error_message("Proxy: contract already initialized"):
+        assert initialized = FALSE
+    end
+
     Proxy_initialized.write(TRUE)
     Proxy_admin.write(proxy_admin)
     return ()
@@ -69,7 +72,9 @@ func Proxy_only_admin{
     }():
     let (caller) = get_caller_address()
     let (admin) = Proxy_admin.read()
-    assert admin = caller
+    with_attr error_message("Proxy: caller is not admin"):
+        assert admin = caller
+    end
     return ()
 end
 

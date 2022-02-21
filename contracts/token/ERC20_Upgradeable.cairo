@@ -26,6 +26,8 @@ from contracts.proxy.library import (
     Proxy_set_implementation
 )
 
+from contract.utils.constants import TRUE
+
 #
 # Initializer
 #
@@ -134,7 +136,7 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (success: felt):
     ERC20_transfer(recipient, amount)
     # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -149,7 +151,7 @@ func transferFrom{
     ) -> (success: felt):
     ERC20_transferFrom(sender, recipient, amount)
     # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -160,7 +162,7 @@ func approve{
     }(spender: felt, amount: Uint256) -> (success: felt):
     ERC20_approve(spender, amount)
     # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -171,7 +173,7 @@ func increaseAllowance{
     }(spender: felt, added_value: Uint256) -> (success: felt):
     ERC20_increaseAllowance(spender, added_value)
     # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -182,5 +184,5 @@ func decreaseAllowance{
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     ERC20_decreaseAllowance(spender, subtracted_value)
     # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end

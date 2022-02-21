@@ -9,11 +9,7 @@ from contracts.ERC165_base import (
 )
 
 @view
-func onERC721Received{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*, 
-        range_check_ptr
-    }(
+func onERC721Received(
         operator: felt,
         _from: felt,
         tokenId: Uint256,

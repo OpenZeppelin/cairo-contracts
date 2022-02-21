@@ -1,12 +1,11 @@
 import pytest
 import asyncio
-from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.testing.starknet import Starknet, StarknetContract
+from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import (
-    Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE,
-    assert_revert, to_uint, sub_uint, add_uint
+    Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert,
+    get_contract_def, cached_contract, to_uint, sub_uint, add_uint
 )
 
 signer = Signer(123456789987654321)
@@ -44,22 +43,11 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = compile_starknet_files(
-        files=[account_path],
-        debug_info=True
-    )
-    erc721_def = compile_starknet_files(
-        files=[erc721_path],
-        debug_info=True
-    )
-    erc721_holder_def = compile_starknet_files(
-        files=[erc721_holder_path],
-        debug_info=True
-    )
-    unsupported_def = compile_starknet_files(
-        files=[unsupported_path],
-        debug_info=True
-    )
+    account_def = get_contract_def(account_path)
+    erc721_def = get_contract_def(erc721_path)
+    erc721_holder_def = get_contract_def(erc721_holder_path)
+    unsupported_def = get_contract_def(unsupported_path)
+
     return account_def, erc721_def, erc721_holder_def, unsupported_def
 
 
@@ -106,36 +94,12 @@ def erc721_factory(contract_defs, erc721_init):
     account_def, erc721_def, erc721_holder_def, unsupported_def = contract_defs
     state, account1, account2, erc721, erc721_holder, unsupported = erc721_init
     _state = state.copy()
-    account1 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account1.contract_address,
-        deploy_execution_info=account1.deploy_execution_info
-    )
-    account2 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account2.contract_address,
-        deploy_execution_info=account2.deploy_execution_info
-    )
-    erc721 = StarknetContract(
-        state=_state,
-        abi=erc721_def.abi,
-        contract_address=erc721.contract_address,
-        deploy_execution_info=erc721.deploy_execution_info
-    )
-    erc721_holder = StarknetContract(
-        state=_state,
-        abi=erc721_holder_def.abi,
-        contract_address=erc721_holder.contract_address,
-        deploy_execution_info=erc721_holder.deploy_execution_info
-    )
-    unsupported = StarknetContract(
-        state=_state,
-        abi=unsupported_def.abi,
-        contract_address=unsupported.contract_address,
-        deploy_execution_info=unsupported.deploy_execution_info
-    )
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
+    erc721 = cached_contract(_state, erc721_def, erc721)
+    erc721_holder = cached_contract(_state, erc721_holder_def, erc721_holder)
+    unsupported = cached_contract(_state, unsupported_def, unsupported)
+
     return erc721, account1, account2, erc721_holder, unsupported
 
 

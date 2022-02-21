@@ -1,8 +1,9 @@
 import pytest
 import asyncio
-from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.testing.starknet import Starknet, StarknetContract
-from utils import Signer, str_to_felt, TRUE, FALSE, assert_revert, to_uint
+from starkware.starknet.testing.starknet import Starknet
+from utils import (
+    Signer, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, assert_revert, to_uint
+)
 
 signer = Signer(123456789987654321)
 
@@ -24,18 +25,10 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = compile_starknet_files(
-        files=[account_path],
-        debug_info=True
-    )
-    erc721_def = compile_starknet_files(
-        files=[erc721_path],
-        debug_info=True
-    )
-    erc721_holder_def = compile_starknet_files(
-        files=[erc721_holder_path],
-        debug_info=True
-    )
+    account_def = get_contract_def(account_path)
+    erc721_def = get_contract_def(erc721_path)
+    erc721_holder_def = get_contract_def(erc721_holder_path)
+
     return account_def, erc721_def, erc721_holder_def
 
 
@@ -77,30 +70,11 @@ def erc721_factory(contract_defs, erc721_init):
     account_def, erc721_def, erc721_holder_def = contract_defs
     state, account1, account2, erc721, erc721_holder = erc721_init
     _state = state.copy()
-    account1 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account1.contract_address,
-        deploy_execution_info=account1.deploy_execution_info
-    )
-    account2 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account2.contract_address,
-        deploy_execution_info=account2.deploy_execution_info
-    )
-    erc721 = StarknetContract(
-        state=_state,
-        abi=erc721_def.abi,
-        contract_address=erc721.contract_address,
-        deploy_execution_info=erc721.deploy_execution_info
-    )
-    erc721_holder = StarknetContract(
-        state=_state,
-        abi=erc721_holder_def.abi,
-        contract_address=erc721_holder.contract_address,
-        deploy_execution_info=erc721_holder.deploy_execution_info
-    )
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
+    erc721 = cached_contract(_state, erc721_def, erc721)
+    erc721_holder = cached_contract(_state, erc721_holder_def, erc721_holder)
+
     return erc721, account1, account2, erc721_holder
 
 

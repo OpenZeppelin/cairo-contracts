@@ -171,12 +171,11 @@ func _add_token_to_all_tokens_enumeration{
         syscall_ptr: felt*, 
         range_check_ptr
     }(token_id: Uint256):
-    alloc_locals
     let (supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
     ERC721_Enumerable_all_tokens.write(supply, token_id)
     ERC721_Enumerable_all_tokens_index.write(token_id, supply)
     
-    let (local new_supply: Uint256, _) = uint256_add(supply, Uint256(1, 0))
+    let (new_supply: Uint256, _) = uint256_add(supply, Uint256(1, 0))
     ERC721_Enumerable_all_tokens_len.write(new_supply)
     return ()
 end
@@ -187,15 +186,14 @@ func _remove_token_from_all_tokens_enumeration{
         syscall_ptr: felt*, 
         range_check_ptr
     }(token_id: Uint256):
-    alloc_locals
-    let (local supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
-    let (local last_token_index: Uint256) = uint256_sub(supply, Uint256(1, 0))
-    let (local token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
+    let (supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
+    let (last_token_index: Uint256) = uint256_sub(supply, Uint256(1, 0))
+    let (token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
 
     # When the token to delete is the last token, the swap operation is unnecessary. However,
     # since this occurs so rarely (when the last minted token is burnt), we still do the swap
     # here to avoid the gas cost of adding an 'if' statement (like in _remove_token_from_owner_enumeration)
-    let (local last_token_id: Uint256) = ERC721_Enumerable_all_tokens.read(last_token_index)
+    let (last_token_id: Uint256) = ERC721_Enumerable_all_tokens.read(last_token_index)
 
     ERC721_Enumerable_all_tokens.write(last_token_index, Uint256(0, 0))
     ERC721_Enumerable_all_tokens.write(token_index, last_token_id)
@@ -203,7 +201,7 @@ func _remove_token_from_all_tokens_enumeration{
     ERC721_Enumerable_all_tokens_index.write(last_token_id, token_index)
     ERC721_Enumerable_all_tokens_index.write(token_id, Uint256(0, 0))
 
-    let (local new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
+    let (new_supply: Uint256) = uint256_sub(supply, Uint256(1, 0))
     ERC721_Enumerable_all_tokens_len.write(new_supply)
     return ()
 end
@@ -213,8 +211,7 @@ func _add_token_to_owner_enumeration{
         syscall_ptr: felt*, 
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    alloc_locals
-    let (local length: Uint256) = ERC721_balanceOf(to) 
+    let (length: Uint256) = ERC721_balanceOf(to) 
     ERC721_Enumerable_owned_tokens.write(to, length, token_id)
     ERC721_Enumerable_owned_tokens_index.write(token_id, length)
     return ()
@@ -226,10 +223,10 @@ func _remove_token_from_owner_enumeration{
         range_check_ptr
     }(_from: felt, token_id: Uint256):
     alloc_locals
-    let (local last_token_index: Uint256) = ERC721_balanceOf(_from)
+    let (last_token_index: Uint256) = ERC721_balanceOf(_from)
     # the index starts at zero therefore the user's last token index is their balance minus one
     let (last_token_index) = uint256_sub(last_token_index, Uint256(1, 0))
-    let (local token_index: Uint256) = ERC721_Enumerable_owned_tokens_index.read(token_id)
+    let (token_index: Uint256) = ERC721_Enumerable_owned_tokens_index.read(token_id)
 
     # If index is last, we can just set the return values to zero
     let (is_equal) = uint256_eq(token_index, last_token_index)

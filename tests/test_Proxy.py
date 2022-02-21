@@ -1,9 +1,8 @@
 import pytest
 import asyncio
-from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.testing.starknet import Starknet, StarknetContract
+from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, assert_revert, assert_event_emitted
+    Signer, assert_revert, assert_event_emitted, get_contract_def, cached_contract
 )
 
 # contract paths
@@ -27,22 +26,11 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = compile_starknet_files(
-        files=[account_path],
-        debug_info=True
-    )
-    dummy_v1_def = compile_starknet_files(
-        files=[dummy_path],
-        debug_info=True
-    )
-    dummy_v2_def = compile_starknet_files(
-        files=[dummy_path_v2],
-        debug_info=True
-    )
-    proxy_def = compile_starknet_files(
-        files=[proxy_path],
-        debug_info=True
-    )
+    account_def = get_contract_def(account_path)
+    dummy_v1_def = get_contract_def(dummy_path)
+    dummy_v2_def = get_contract_def(dummy_path_v2)
+    proxy_def = get_contract_def(proxy_path)
+
     return account_def, dummy_v1_def, dummy_v2_def, proxy_def
 
 
@@ -90,42 +78,13 @@ def proxy_factory(contract_defs, proxy_init):
     account_def, dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
     state, account1, account2, v1, v2, v3, proxy = proxy_init
     _state = state.copy()
-    account1 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account1.contract_address,
-        deploy_execution_info=account1.deploy_execution_info
-    )
-    account2 = StarknetContract(
-        state=_state,
-        abi=account_def.abi,
-        contract_address=account2.contract_address,
-        deploy_execution_info=account2.deploy_execution_info
-    )
-    v1 = StarknetContract(
-        state=_state,
-        abi=dummy_v1_def.abi,
-        contract_address=v1.contract_address,
-        deploy_execution_info=v1.deploy_execution_info
-    )
-    v2 = StarknetContract(
-        state=_state,
-        abi=dummy_v2_def.abi,
-        contract_address=v2.contract_address,
-        deploy_execution_info=v2.deploy_execution_info
-    )
-    v3 = StarknetContract(
-        state=_state,
-        abi=dummy_v2_def.abi,
-        contract_address=v3.contract_address,
-        deploy_execution_info=v3.deploy_execution_info
-    )
-    proxy = StarknetContract(
-        state=_state,
-        abi=proxy_def.abi,
-        contract_address=proxy.contract_address,
-        deploy_execution_info=proxy.deploy_execution_info
-    )
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
+    v1 = cached_contract(_state, dummy_v1_def, v1)
+    v2 = cached_contract(_state, dummy_v2_def, v2)
+    v3 = cached_contract(_state, dummy_v2_def, v3)
+    proxy = cached_contract(_state, proxy_def, proxy)
+
     return account1, account2, v1, v2, v3, proxy
 
 
@@ -165,6 +124,26 @@ async def test_initializer(proxy_factory):
         admin, proxy.contract_address, 'initializer', [
             admin.contract_address
         ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_initializer_already_initialized(proxy_factory):
+    admin, _, _, _, _, proxy = proxy_factory
+
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'initializer', [
+            admin.contract_address
+        ]
+    )
+
+    await assert_revert(
+        signer.send_transaction(
+            admin, proxy.contract_address, 'initializer', [
+                admin.contract_address
+            ]
+        ),
+        reverted_with='Proxy: contract already initialized'
     )
 
 
@@ -227,7 +206,8 @@ async def test_upgrade_from_non_admin(proxy_factory):
             non_admin, proxy.contract_address, 'upgrade', [
                 v2.contract_address
             ]
-        )
+        ),
+        reverted_with="Proxy: caller is not admin"
     )
 
 

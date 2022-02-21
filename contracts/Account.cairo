@@ -22,20 +22,13 @@ from contracts.utils.constants import PREFIX_TRANSACTION
 # Structs
 #
 
-struct Message:
-    member sender: felt
-    member to: felt
-    member selector: felt
-    member calldata: felt*
-    member calldata_size: felt
+struct MultiCall:
+    member account: felt
+    member calls_len: felt
+    member calls: Call*
     member nonce: felt
-end
-
-struct MCall:
-    member to: felt
-    member selector: felt
-    member data_offset: felt
-    member data_len: felt
+    member max_fee: felt
+    member version: felt
 end
 
 struct Call:
@@ -43,6 +36,13 @@ struct Call:
     member selector: felt
     member calldata_len: felt
     member calldata: felt*
+end
+
+struct MCall:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
 end
 
 #
@@ -188,13 +188,23 @@ func __execute__{
     # validate nonce
     assert _current_nonce = nonce
 
-    # TMP: convert `MCall` to 'Call'
+    # Convert `MCall` to 'Call'.
+    # Temporary solution until Cairo supports passing `[Call]` to __execute__ .
     let (calls : Call*) = alloc()
     from_mcall_to_call(mcalls_len, mcalls, calldata, calls)
     let calls_len = mcalls_len
 
+    local multicall: MultiCall = MultiCall(
+        tx_info.account_contract_address,
+        calls_len,
+        calls,
+        _current_nonce,
+        tx_info.max_fee,
+        tx_info.version
+    )
+
     # validate transaction
-    let (hash) = hash_message(tx_info.account_contract_address, calls_len, calls, nonce, tx_info.max_fee, tx_info.version)
+    let (hash) = hash_multicall(&multicall)
     is_valid_signature(hash, tx_info.signature_len, tx_info.signature)
 
     # bump nonce
@@ -228,34 +238,29 @@ func execute_list{syscall_ptr: felt*}(
         calldata=this_call.calldata
     )
     # copy the result in response
-    memcpy(reponse, res.retdata, res.retdata_size)
+    memcpy(response, res.retdata, res.retdata_size)
     # do the next calls recursively
-    let (response_len) = execute_list(calls_len - 1, calls + Call.SIZE, reponse + res.retdata_size)
+    let (response_len) = execute_list(calls_len - 1, calls + Call.SIZE, response + res.retdata_size)
     return (response_len + res.retdata_size)
 end
 
-func hash_message{
+func hash_multicall{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*
     } (
-        account: felt,
-        calls_len: felt,
-        calls: Call*,
-        nonce: felt,
-        max_fee: felt,
-        version: felt
+        multicall: MultiCall*
     ) -> (res: felt):
     alloc_locals
-    let (calls_hash) = hash_call_array(calls_len, calls)
+    let (calls_hash) = hash_call_array(multicall.calls_len, multicall.calls)
     let hash_ptr = pedersen_ptr
     with hash_ptr:
         let (hash_state_ptr) = hash_init()
         let (hash_state_ptr) = hash_update_single(hash_state_ptr, PREFIX_TRANSACTION)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, account)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.account)
         let (hash_state_ptr) = hash_update_single(hash_state_ptr, calls_hash)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, nonce)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, max_fee)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, version)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.nonce)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.max_fee)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.version)
         let (res) = hash_finalize(hash_state_ptr)
         let pedersen_ptr = hash_ptr
         return (res=res)

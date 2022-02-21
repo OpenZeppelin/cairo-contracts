@@ -100,17 +100,8 @@ class Signer():
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        mcalls = []
-        calls_with_selector = []
-        calldata = []
-        for i in range(len(calls)):
-            if len(calls[i]) != 3:
-                raise Exception("Invalid call parameters")
-            call = calls[i]
-            mcall = (call[0], get_selector_from_name(call[1]), len(calldata), len(call[2]))
-            mcalls.append(mcall)
-            calldata.extend(call[2])
-            calls_with_selector.append((call[0], get_selector_from_name(call[1]), call[2]))
+        calls_with_selector = map(lambda call: (call[0], get_selector_from_name(call[1]), call[2]), calls)
+        (mcalls, calldata) = from_call_to_mcall(calls)
 
         message_hash = hash_multicall(
             account.contract_address, calls_with_selector, nonce, max_fee)
@@ -118,6 +109,17 @@ class Signer():
 
         return await account.__execute__(mcalls, calldata, nonce).invoke(signature=[sig_r, sig_s])
 
+def from_call_to_mcall(calls):
+    mcalls = []
+    calldata = []
+    for i in range(len(calls)):
+        if len(calls[i]) != 3:
+            raise Exception("Invalid call parameters")
+        call = calls[i]
+        mcall = (call[0], get_selector_from_name(call[1]), len(calldata), len(call[2]))
+        mcalls.append(mcall)
+        calldata.extend(call[2])
+    return (mcalls, calldata)
 
 def hash_multicall(sender, calls, nonce, max_fee):
     hash_array = []

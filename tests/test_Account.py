@@ -63,7 +63,13 @@ async def test_multicall(account_factory):
     execution_info = await initializable_2.initialized().call()
     assert execution_info.result == (0,)
 
-    await signer.send_transactions(account, [(initializable_1.contract_address, 'initialize', []), (initializable_2.contract_address, 'initialize', [])])
+    await signer.send_transactions(
+        account,
+        [
+            (initializable_1.contract_address, 'initialize', []),
+            (initializable_2.contract_address, 'initialize', [])
+        ]
+    )
 
     execution_info = await initializable_1.initialized().call()
     assert execution_info.result == (1,)

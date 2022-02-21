@@ -210,7 +210,7 @@ end
 func execute_list{syscall_ptr: felt*}(
         calls_len: felt,
         calls: Call*,
-        reponse: felt*
+        response: felt*
     ) -> (response_len: felt):
     alloc_locals
 
@@ -341,7 +341,8 @@ func from_mcall_to_call{syscall_ptr: felt*}(
             to=[mcalls].to,
             selector=[mcalls].selector,
             calldata_len=[mcalls].data_len,
-            calldata=calldata + [mcalls].data_offset)
+            calldata=calldata + [mcalls].data_offset
+        )
     
     # parse the other mcalls recursively
     from_mcall_to_call(mcalls_len - 1, mcalls + MCall.SIZE, calldata, calls + Call.SIZE)

@@ -4,7 +4,10 @@ from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.testing.starknet import StarknetContract
+from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.public.abi import get_selector_from_name
+
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
@@ -59,6 +62,26 @@ async def assert_revert(fun):
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
+
+def get_contract_def(path):
+    """Returns the contract definition from the contract path"""
+    contract_def = compile_starknet_files(
+        files=[path],
+        debug_info=True
+    )
+    return contract_def
+
+
+def cached_contract(state, definition, deployed):
+    """Returns the cached contract"""
+    contract = StarknetContract(
+        state=state,
+        abi=definition.abi,
+        contract_address=deployed.contract_address,
+        deploy_execution_info=deployed.deploy_execution_info
+    )
+    return contract
 
 
 class Signer():

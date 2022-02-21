@@ -26,7 +26,7 @@ from contracts.proxy.library import (
     Proxy_set_implementation
 )
 
-from contract.utils.constants import TRUE
+from contracts.utils.constants import TRUE
 
 #
 # Initializer

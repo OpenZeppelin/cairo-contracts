@@ -208,7 +208,7 @@ async def test_transferFrom(erc20_factory):
 async def test_transferFrom_emits_event(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     amount = uint(345)

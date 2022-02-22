@@ -19,7 +19,7 @@ def event_loop():
 async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "contracts/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

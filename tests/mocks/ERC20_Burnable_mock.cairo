@@ -4,9 +4,9 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.utils.constants import TRUE
+from openzeppelin.utils.constants import TRUE
 
-from contracts.token.ERC20_base import (
+from openzeppelin.token.erc20.library import (
     ERC20_name,
     ERC20_symbol,
     ERC20_totalSupply,

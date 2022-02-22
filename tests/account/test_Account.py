@@ -52,11 +52,12 @@ async def test_execute(account_factory):
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (1,)
 
+
 @pytest.mark.asyncio
 async def test_multicall(account_factory):
     starknet, account = account_factory
-    initializable_1 = await starknet.deploy("contracts/Initializable.cairo")
-    initializable_2 = await starknet.deploy("contracts/Initializable.cairo")
+    initializable_1 = await starknet.deploy("openzeppelin/security/Initializable.cairo")
+    initializable_2 = await starknet.deploy("openzeppelin/security/Initializable.cairo")
 
     execution_info = await initializable_1.initialized().call()
     assert execution_info.result == (0,)
@@ -75,7 +76,7 @@ async def test_multicall(account_factory):
     assert execution_info.result == (1,)
     execution_info = await initializable_2.initialized().call()
     assert execution_info.result == (1,)
-    
+
 
 @pytest.mark.asyncio
 async def test_return_value(account_factory):

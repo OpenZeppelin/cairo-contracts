@@ -38,7 +38,9 @@ struct Call:
     member calldata: felt*
 end
 
-struct MCall:
+# Tmp struct introduced while we wait for Cairo
+# to support passing `[Call]` to __execute__
+struct CallArray:
     member to: felt
     member selector: felt
     member data_offset: felt
@@ -173,8 +175,8 @@ func __execute__{
         range_check_ptr, 
         ecdsa_ptr: SignatureBuiltin*
     }(
-        mcalls_len: felt,
-        mcalls: MCall*,
+        call_array_len: felt,
+        call_array: CallArray*,
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
@@ -188,11 +190,10 @@ func __execute__{
     # validate nonce
     assert _current_nonce = nonce
 
-    # Convert `MCall` to 'Call'.
-    # Temporary solution until Cairo supports passing `[Call]` to __execute__ .
+    # TMP: Convert `CallArray` to 'Call'.
     let (calls : Call*) = alloc()
-    from_mcall_to_call(mcalls_len, mcalls, calldata, calls)
-    let calls_len = mcalls_len
+    from_call_array_to_call(call_array_len, call_array, calldata, calls)
+    let calls_len = call_array_len
 
     local multicall: MultiCall = MultiCall(
         tx_info.account_contract_address,
@@ -212,7 +213,7 @@ func __execute__{
 
     # execute call
     let (response : felt*) = alloc()
-    let (response_len) = execute_list(calls_len, calls, response)
+    let (response_len) = execute_list(multicall.calls_len, multicall.calls, response)
 
     return (response_len=response_len, response=response)
 end
@@ -330,26 +331,26 @@ func hash_calldata{pedersen_ptr: HashBuiltin*}(
     end
 end
 
-func from_mcall_to_call{syscall_ptr: felt*}(
-        mcalls_len: felt,
-        mcalls: MCall*,
+func from_call_array_to_call{syscall_ptr: felt*}(
+        call_array_len: felt,
+        call_array: CallArray*,
         calldata: felt*,
         calls: Call*
     ):
-    # if no more mcalls
-    if mcalls_len == 0:
+    # if no more calls
+    if call_array_len == 0:
        return ()
     end
     
-    # parse the first mcall
+    # parse the current call
     assert [calls] = Call(
-            to=[mcalls].to,
-            selector=[mcalls].selector,
-            calldata_len=[mcalls].data_len,
-            calldata=calldata + [mcalls].data_offset
+            to=[call_array].to,
+            selector=[call_array].selector,
+            calldata_len=[call_array].data_len,
+            calldata=calldata + [call_array].data_offset
         )
     
-    # parse the other mcalls recursively
-    from_mcall_to_call(mcalls_len - 1, mcalls + MCall.SIZE, calldata, calls + Call.SIZE)
+    # parse the remaining calls recursively
+    from_call_array_to_call(call_array_len - 1, call_array + CallArray.SIZE, calldata, calls + Call.SIZE)
     return ()
 end

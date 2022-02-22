@@ -55,7 +55,7 @@ async def test_burn(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_burn_emit_event(erc20_factory):
+async def test_burn_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     amount = to_uint(100)
 

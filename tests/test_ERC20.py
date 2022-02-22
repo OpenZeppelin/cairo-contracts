@@ -146,7 +146,7 @@ async def test_approve(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_approve_emit_event(erc20_factory):
+async def test_approve_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     spender = 123
     amount = uint(345)
@@ -205,7 +205,7 @@ async def test_transferFrom(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_emit_event(erc20_factory):
+async def test_transferFrom_emits_event(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
         "contracts/Account.cairo",
@@ -264,7 +264,7 @@ async def test_increaseAllowance(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_increaseAllowance_emit_event(erc20_factory):
+async def test_increaseAllowance_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 234
@@ -324,7 +324,7 @@ async def test_decreaseAllowance(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_decreaseAllowance_emit_event(erc20_factory):
+async def test_decreaseAllowance_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
     spender = 321

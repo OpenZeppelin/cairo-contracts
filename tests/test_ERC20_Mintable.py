@@ -63,7 +63,7 @@ async def test_mint(token_factory):
 
 
 @pytest.mark.asyncio
-async def test_mint_emit_event(token_factory):
+async def test_mint_emits_event(token_factory):
     _, erc20, account = token_factory
     amount = uint(1)
 

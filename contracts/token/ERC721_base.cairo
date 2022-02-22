@@ -474,6 +474,6 @@ func _check_onERC721Received{
     end
 
     # IAccount_ID = 0x50b70dcb
-    let (is_account) = IERC165.supportsInterface(to, 0x50b70dcb)
+    let (is_account) = IERC165.supportsInterface(to, 0xbd73c577)
     return (is_account)
 end

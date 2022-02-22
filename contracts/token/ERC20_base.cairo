@@ -8,6 +8,18 @@ from starkware.cairo.common.uint256 import (
 )
 
 #
+# Events
+#
+
+@event
+func Transfer(_from: felt, to: felt, value: Uint256):
+end
+
+@event
+func Approval(owner: felt, spender: felt, value: Uint256):
+end
+
+#
 # Storage
 #
 
@@ -155,6 +167,7 @@ func ERC20_approve{
     assert_not_zero(spender)
     uint256_check(amount)
     ERC20_allowances.write(caller, spender, amount)
+    Approval.emit(caller, spender, amount)
     return ()
 end
 
@@ -213,6 +226,7 @@ func ERC20_mint{
     assert (is_overflow) = 0
 
     ERC20_total_supply.write(new_supply)
+    Transfer.emit(0, recipient, amount)
     return ()
 end
 
@@ -236,6 +250,7 @@ func ERC20_burn{
     let (supply: Uint256) = ERC20_total_supply.read()
     let (new_supply: Uint256) = uint256_sub(supply, amount)
     ERC20_total_supply.write(new_supply)
+    Transfer.emit(account, 0, amount)
     return ()
 end
 
@@ -268,6 +283,7 @@ func _transfer{
     # overflow is not possible because sum is guaranteed by mint to be less than total supply
     let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
     ERC20_balances.write(recipient, new_recipient_balance)
+    Transfer.emit(sender, recipient, amount)
     return ()
 end
 

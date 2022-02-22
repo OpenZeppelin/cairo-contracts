@@ -4,6 +4,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256
 
+from contracts.utils.constants import TRUE
+
 from contracts.token.ERC20_base import (
     ERC20_name,
     ERC20_symbol,
@@ -111,8 +113,7 @@ func transfer{
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
     ERC20_transfer(recipient, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -126,8 +127,7 @@ func transferFrom{
         amount: Uint256
     ) -> (success: felt):
     ERC20_transferFrom(sender, recipient, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -137,8 +137,7 @@ func approve{
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
     ERC20_approve(spender, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -148,8 +147,7 @@ func increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
     ERC20_increaseAllowance(spender, added_value)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external
@@ -159,8 +157,7 @@ func decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     ERC20_decreaseAllowance(spender, subtracted_value)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 
 @external

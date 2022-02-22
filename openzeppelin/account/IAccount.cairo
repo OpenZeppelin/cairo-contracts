@@ -2,6 +2,7 @@
 
 @contract_interface
 namespace IAccount:
+
     #
     # Getters
     #
@@ -20,9 +21,9 @@ namespace IAccount:
         ):
     end
 
-    func execute(
-            to: felt,
-            selector: felt,
+    func __execute__(
+            mcalls_len: felt,
+            mcalls: felt*,
             calldata_len: felt,
             calldata: felt*,
             nonce: felt

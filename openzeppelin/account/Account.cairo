@@ -16,7 +16,7 @@ from openzeppelin.introspection.ERC165 import (
     ERC165_register_interface
 )
 
-from contracts.utils.constants import PREFIX_TRANSACTION 
+from openzeppelin.utils.constants import PREFIX_TRANSACTION 
 
 #
 # Structs

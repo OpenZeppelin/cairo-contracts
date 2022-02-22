@@ -21,7 +21,7 @@ def event_loop():
 async def account_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

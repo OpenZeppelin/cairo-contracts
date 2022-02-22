@@ -54,7 +54,7 @@ def event_loop():
 async def erc721_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -210,7 +210,7 @@ async def test_mint_approve_should_be_zero_address(erc721_factory):
 async def test_mint_by_not_owner(erc721_factory):
     starknet, erc721, _, _ = erc721_factory
     not_owner = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -275,7 +275,7 @@ async def test_burn_nonexistent_token(erc721_factory):
 async def test_burn_unowned_token(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     other = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -330,7 +330,7 @@ async def test_approve(erc721_factory):
 async def test_approve_on_setApprovalForAll(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -376,7 +376,7 @@ async def test_approve_owner_is_recipient(erc721_factory):
 async def test_approve_not_owner_or_operator(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -514,7 +514,7 @@ async def test_transferFrom_owner(erc721_factory):
 async def test_transferFrom_approved_user(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -539,7 +539,7 @@ async def test_transferFrom_approved_user(erc721_factory):
 async def test_transferFrom_operator(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     recipient = user3
@@ -565,7 +565,7 @@ async def test_transferFrom_operator(erc721_factory):
 async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     recipient = user3
@@ -590,7 +590,7 @@ async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
 async def test_transferFrom_to_zero_address(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -671,7 +671,7 @@ async def test_safeTransferFrom(erc721_factory):
 async def test_safeTransferFrom_from_approved(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -705,7 +705,7 @@ async def test_safeTransferFrom_from_approved(erc721_factory):
 async def test_safeTransferFrom_from_operator(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -739,7 +739,7 @@ async def test_safeTransferFrom_from_operator(erc721_factory):
 async def test_safeTransferFrom_when_not_approved_or_owner(erc721_factory):
     starknet, erc721, account, erc721_holder = erc721_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -828,7 +828,7 @@ async def test_safeTransferFrom_to_account(erc721_factory):
     starknet, erc721, account, _ = erc721_factory
 
     account2 = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -898,7 +898,7 @@ async def test_tokenURI_should_revert_for_nonexistent_token(erc721_factory):
 async def test_setTokenURI_from_not_owner(erc721_factory):
     starknet, erc721, _, _ = erc721_factory
     not_owner = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

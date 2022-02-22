@@ -15,7 +15,7 @@ def event_loop():
 async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
@@ -121,7 +121,7 @@ async def test_approve(erc20_factory):
 async def test_transferFrom(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -231,7 +231,7 @@ async def test_decreaseAllowance_overflow(erc20_factory):
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -295,7 +295,7 @@ async def test_transferFrom_zero_address(erc20_factory):
 async def test_transferFrom_func_to_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -318,7 +318,7 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
 async def test_transferFrom_func_from_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts

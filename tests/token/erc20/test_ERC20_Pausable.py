@@ -15,12 +15,12 @@ def event_loop():
 async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 
     other = await starknet.deploy(
-        "openzeppelin/Account.cairo",
+        "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
 

@@ -89,7 +89,7 @@ async def test_transfer(erc20_factory):
 
 
 @pytest.mark.asyncio
-async def test_transfer_emit_event(erc20_factory):
+async def test_transfer_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     recipient = 123
     amount = uint(100)

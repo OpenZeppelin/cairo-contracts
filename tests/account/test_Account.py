@@ -56,8 +56,8 @@ async def test_execute(account_factory):
 @pytest.mark.asyncio
 async def test_multicall(account_factory):
     starknet, account = account_factory
-    initializable_1 = await starknet.deploy("openzeppelin/security/Initializable.cairo")
-    initializable_2 = await starknet.deploy("openzeppelin/security/Initializable.cairo")
+    initializable_1 = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable_2 = await starknet.deploy("openzeppelin/security/initializable.cairo")
 
     execution_info = await initializable_1.initialized().call()
     assert execution_info.result == (0,)

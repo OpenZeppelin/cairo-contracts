@@ -68,7 +68,6 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 - it uses Cairo's `uint256` instead of `felt`
 - it returns `1` as success to imitate a `bool`
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
-- it emits events on StarkNet.
 
 But some differences can still be found, such as:
 

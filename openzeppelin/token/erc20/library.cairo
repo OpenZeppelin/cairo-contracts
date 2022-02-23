@@ -2,7 +2,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.math import assert_not_zero
+from starkware.cairo.common.math import assert_not_zero, assert_lt
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
@@ -58,13 +58,11 @@ func ERC20_initializer{
     }(
         name: felt,
         symbol: felt,
-        initial_supply: Uint256,
-        recipient: felt
+        decimals: felt
     ):
     ERC20_name_.write(name)
     ERC20_symbol_.write(symbol)
-    ERC20_decimals_.write(18)
-    ERC20_mint(recipient, initial_supply)
+    _setDecimals(decimals)
     return ()
 end
 
@@ -287,3 +285,13 @@ func _transfer{
     return ()
 end
 
+func _setDecimals{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(decimals: felt):
+    assert_not_zero(decimals)
+    assert_lt(decimals, 256) # decimals < 2^8 as specified in EIP-20
+    ERC20_decimals_.write(decimals)
+    return ()
+end

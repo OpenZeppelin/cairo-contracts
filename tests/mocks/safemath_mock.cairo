@@ -2,7 +2,8 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from contracts.utils.safemath import (
+
+from openzeppelin.security.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le,
     uint256_checked_sub_lt

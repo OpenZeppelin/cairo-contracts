@@ -1,10 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256
-
-from openzeppelin.utils.constants import TRUE
 
 from openzeppelin.token.erc20.library import (
     ERC20_name,
@@ -20,8 +17,22 @@ from openzeppelin.token.erc20.library import (
     ERC20_decreaseAllowance,
     ERC20_transfer,
     ERC20_transferFrom,
-    ERC20_burn
+    ERC20_mint
 )
+
+from openzeppelin.access.ownable import (
+    Ownable_initializer,
+    Ownable_only_owner
+)
+
+from openzeppelin.security.pausable import (
+    Pausable_paused,
+    Pausable_pause,
+    Pausable_unpause,
+    Pausable_when_not_paused
+)
+
+from openzeppelin.utils.constants import TRUE
 
 @constructor
 func constructor{
@@ -32,9 +43,11 @@ func constructor{
         name: felt,
         symbol: felt,
         initial_supply: Uint256,
-        recipient: felt
+        recipient: felt,
+        owner: felt
     ):
     ERC20_initializer(name, symbol, initial_supply, recipient)
+    Ownable_initializer(owner)
     return ()
 end
 
@@ -102,6 +115,16 @@ func allowance{
     return (remaining)
 end
 
+@view
+func paused{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (paused: felt):
+    let (paused) = Pausable_paused.read()
+    return (paused)
+end
+
 #
 # Externals
 #
@@ -112,6 +135,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_transfer(recipient, amount)
     return (TRUE)
 end
@@ -126,6 +150,7 @@ func transferFrom{
         recipient: felt, 
         amount: Uint256
     ) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_transferFrom(sender, recipient, amount)
     return (TRUE)
 end
@@ -136,6 +161,7 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_approve(spender, amount)
     return (TRUE)
 end
@@ -146,6 +172,7 @@ func increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_increaseAllowance(spender, added_value)
     return (TRUE)
 end
@@ -156,17 +183,29 @@ func decreaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
+    Pausable_when_not_paused()
     ERC20_decreaseAllowance(spender, subtracted_value)
     return (TRUE)
 end
 
 @external
-func burn{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
+func pause{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(amount: Uint256):
-    let (owner) = get_caller_address()
-    ERC20_burn(owner, amount)
+    }():
+    Ownable_only_owner()
+    Pausable_pause()
+    return ()
+end
+
+@external
+func unpause{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable_only_owner()
+    Pausable_unpause()
     return ()
 end

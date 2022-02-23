@@ -9,15 +9,19 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 - [Usage](#usage)
 - [Extensibility](#extensibility)
 - [API Specification](#api-specification)
-  * [`name`](#-name-)
-  * [`symbol`](#-symbol-)
-  * [`decimals`](#-decimals-)
-  * [`totalSupply`](#-total-supply-)
-  * [`balanceOf`](#-balance-of-)
-  * [`allowance`](#-allowance-)
-  * [`transfer`](#-transfer-)
-  * [`transferFrom`](#-transfer-from-)
-  * [`approve`](#-approve-)
+  * [Methods](#-methods-)
+    * [`name`](#-name-)
+    * [`symbol`](#-symbol-)
+    * [`decimals`](#-decimals-)
+    * [`totalSupply`](#-total-supply-)
+    * [`balanceOf`](#-balance-of-)
+    * [`allowance`](#-allowance-)
+    * [`transfer`](#-transfer-)
+    * [`transferFrom`](#-transferfrom-)
+    * [`approve`](#-approve-)
+  * [Events](#-events-)
+    * [`Transfer (event)`](#-transfer-(event)-)
+    * [`Approval (event)`](#-approval-(event)-)
 
 ## Interface
 
@@ -64,7 +68,6 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 - it uses Cairo's `uint256` instead of `felt`
 - it returns `1` as success to imitate a `bool`
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
-- it will emit events once they're implemented on StarkNet.
 
 But some differences can still be found, such as:
 
@@ -129,6 +132,8 @@ For example, you could:
 
 ## API Specification
 
+### Methods
+
 ```jsx
 func name() -> (name: felt):
 end
@@ -162,7 +167,7 @@ func approve(spender: felt, amount: Uint256) -> (success: felt):
 end
 ```
 
-### `name`
+#### `name`
 
 Returns the name of the token.
 
@@ -174,7 +179,7 @@ Returns:
 name: felt
 ```
 
-### `symbol`
+#### `symbol`
 
 Returns the ticker symbol of the token.
 
@@ -186,7 +191,7 @@ Returns:
 symbol: felt
 ```
 
-### `decimals`
+#### `decimals`
 
 Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
 
@@ -198,7 +203,7 @@ Returns:
 decimals: felt
 ```
 
-### `totalSupply`
+#### `totalSupply`
 
 Returns the amount of tokens in existence.
 
@@ -210,7 +215,7 @@ Returns:
 totalSupply: Uint256
 ```
 
-### `balanceOf`
+#### `balanceOf`
 
 Returns the amount of tokens owned by `account`.
 
@@ -226,7 +231,7 @@ Returns:
 balance: Uint256
 ```
 
-### `allowance`
+#### `allowance`
 
 Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom`. This is zero by default.
 
@@ -245,9 +250,11 @@ Returns:
 remaining: Uint256
 ```
 
-### `transfer`
+#### `transfer`
 
 Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if it succeeds.
+
+Emits a [Transfer](#-transfer-(event)-) event.
 
 Parameters:
 
@@ -262,9 +269,11 @@ Returns:
 success: felt
 ```
 
-### `transferFrom`
+#### `transferFrom`
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if it succeeds.
+
+Emits a [Transfer](#-transfer-(event)-) event.
 
 Parameters:
 
@@ -280,9 +289,11 @@ Returns:
 success: felt
 ```
 
-### `approve`
+#### `approve`
 
 Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if it succeeds.
+
+Emits an [Approval](#-approval-(event)-) event.
 
 Parameters:
 
@@ -295,4 +306,40 @@ Returns:
 
 ```jsx
 success: felt
+```
+
+### Events
+
+```jsx
+func Transfer(_from: felt, to: felt, value: Uint256):
+end
+
+func Approval(owner: felt, spender: felt, value: Uint256):
+end
+```
+
+#### `Transfer (event)`
+
+Emitted when `value` tokens are moved from one account (`_from`) to another (`to`). 
+
+Note that `value` may be zero.
+
+Parameters:
+
+```jsx
+_from: felt
+to: felt
+value: Uint256
+```
+
+#### `Approval (event)`
+
+Emitted when the allowance of a `spender` for an `owner` is set by a call to [approve](#-approve-). `value` is the new allowance.
+
+Parameters:
+
+```jsx
+owner: felt
+spender: felt
+value: Uint256
 ```

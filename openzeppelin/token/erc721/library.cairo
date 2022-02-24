@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721/library.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
@@ -15,7 +18,7 @@ from openzeppelin.introspection.ERC165 import ERC165_register_interface
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from openzeppelin.introspection.interfaces.IERC165 import IERC165
+from openzeppelin.introspection.IERC165 import IERC165
 
 from openzeppelin.utils.constants import TRUE, FALSE
 

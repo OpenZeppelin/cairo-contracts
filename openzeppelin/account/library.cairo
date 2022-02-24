@@ -39,7 +39,7 @@ struct Call:
 end
 
 # Tmp struct introduced while we wait for Cairo
-# to support passing `[Call]` to __execute__
+# to support passing `[AccountCall]` to __execute__
 struct AccountCallArray:
     member to: felt
     member selector: felt

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin

@@ -18,7 +18,7 @@ from openzeppelin.introspection.ERC165 import ERC165_register_interface
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from openzeppelin.introspection.interfaces.IERC165 import IERC165
+from openzeppelin.introspection.IERC165 import IERC165
 
 from openzeppelin.utils.constants import TRUE, FALSE
 

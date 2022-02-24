@@ -102,8 +102,8 @@ func ERC721_balanceOf{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt) -> (balance: Uint256):
-    let (balance: Uint256) = ERC721_balances.read(owner)
     assert_not_zero(owner)
+    let (balance: Uint256) = ERC721_balances.read(owner)
     return (balance)
 end
 

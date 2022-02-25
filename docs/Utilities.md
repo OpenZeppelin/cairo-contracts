@@ -23,6 +23,9 @@ The following documentation provides context, reasoning, and examples for method
 * [Assertions](#assertions)
   * [`assert_revert`](#assert_revert)
   * [`assert_events_emitted`](#assert_events_emitted)
+* [Memoization](#memoization)
+  * [get_contract_def](#get_contract_def)
+  * [cached_contract](#cached_contract)
 * [Signer](#signer)
 
 ## Constants
@@ -161,6 +164,18 @@ assert_event_emitted(
     ]
 )
 ```
+
+## Memoization
+
+Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts. 
+
+### `get_contract_def`
+
+A helper method that returns the contract definition from the given path.
+
+### `cached_contract`
+
+A helper method that returns the cached state of a given contract. The requisite contracts in the testing module should each be instantiated with `cached_contract` in a fixture after the state has been copied.
 
 ## Signer
 

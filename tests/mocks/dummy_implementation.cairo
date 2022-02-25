@@ -4,7 +4,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from contracts.proxy.library import (
+from openzeppelin.upgrades.library import (
     Proxy_initializer,
     Proxy_only_admin,
     Proxy_set_implementation

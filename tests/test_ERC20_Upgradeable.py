@@ -1,12 +1,9 @@
-from utils import (
-    Signer, assert_revert, assert_event_emitted
-)
 from starkware.starknet.testing.starknet import Starknet, StarknetContract
 from starkware.starknet.compiler.compile import compile_starknet_files
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, to_uint, sub_uint, str_to_felt, assert_revert
+from utils import Signer, to_uint, sub_uint, str_to_felt, assert_revert, assert_event_emitted
 
 signer = Signer(123456789987654321)
 

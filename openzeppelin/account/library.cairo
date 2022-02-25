@@ -117,7 +117,7 @@ func Account_initializer{
     }(_public_key: felt):
     Account_public_key.write(_public_key)
     # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0xbd73c577)
+    ERC165_register_interface(0xf10dbd44)
     return()
 end
 

@@ -110,7 +110,7 @@ class Signer():
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        calls_with_selector = map(lambda call: (call[0], get_selector_from_name(call[1]), call[2]), calls)
+        calls_with_selector = [(call[0], get_selector_from_name(call[1]), call[2]) for call in calls]
         (call_array, calldata) = from_call_to_call_array(calls)
 
         message_hash = hash_multicall(
@@ -122,10 +122,8 @@ class Signer():
 def from_call_to_call_array(calls):
     call_array = []
     calldata = []
-    for i in range(len(calls)):
-        if len(calls[i]) != 3:
-            raise Exception("Invalid call parameters")
-        call = calls[i]
+    for i, call in enumerate(calls):
+        assert len(call) == 3, "Invalid call parameters"
         entry = (call[0], get_selector_from_name(call[1]), len(calldata), len(call[2]))
         call_array.append(entry)
         calldata.extend(call[2])

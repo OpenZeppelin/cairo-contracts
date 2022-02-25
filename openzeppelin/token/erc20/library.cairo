@@ -7,6 +7,8 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
+const UINT8_MAX = 256
+
 #
 # Events
 #
@@ -62,7 +64,8 @@ func ERC20_initializer{
     ):
     ERC20_name_.write(name)
     ERC20_symbol_.write(symbol)
-    _setDecimals(decimals)
+    assert_lt(decimals, UINT8_MAX)
+    ERC20_decimals_.write(decimals)
     return ()
 end
 
@@ -282,16 +285,5 @@ func _transfer{
     let (new_recipient_balance, _: Uint256) = uint256_add(recipient_balance, amount)
     ERC20_balances.write(recipient, new_recipient_balance)
     Transfer.emit(sender, recipient, amount)
-    return ()
-end
-
-func _setDecimals{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(decimals: felt):
-    assert_not_zero(decimals)
-    assert_lt(decimals, 256) # decimals < 2^8 as specified in EIP-20
-    ERC20_decimals_.write(decimals)
     return ()
 end

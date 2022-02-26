@@ -29,6 +29,7 @@ async def token_factory():
         constructor_calldata=[
             str_to_felt("Pausable Token"),
             str_to_felt("PTKN"),
+            18,
             *uint(1000),
             owner.contract_address,
             owner.contract_address
@@ -46,6 +47,9 @@ async def test_constructor(token_factory):
 
     execution_info = await token.symbol().call()
     assert execution_info.result == (str_to_felt("PTKN"),)
+
+    execution_info = await token.decimals().call()
+    assert execution_info.result.decimals == 18
 
     execution_info = await token.balanceOf(owner.contract_address).call()
     assert execution_info.result.balance == uint(1000)

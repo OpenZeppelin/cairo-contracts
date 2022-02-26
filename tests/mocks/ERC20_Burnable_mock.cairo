@@ -22,6 +22,7 @@ from openzeppelin.token.erc20.library import (
     ERC20_decreaseAllowance,
     ERC20_transfer,
     ERC20_transferFrom,
+    ERC20_mint,
     ERC20_burn
 )
 
@@ -33,10 +34,12 @@ func constructor{
     }(
         name: felt,
         symbol: felt,
+        decimals: felt,
         initial_supply: Uint256,
         recipient: felt
     ):
-    ERC20_initializer(name, symbol, initial_supply, recipient)
+    ERC20_initializer(name, symbol, decimals)
+    ERC20_mint(recipient, initial_supply)
     return ()
 end
 

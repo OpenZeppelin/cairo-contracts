@@ -28,6 +28,7 @@ async def erc20_factory():
         constructor_calldata=[
             str_to_felt("Token"),      # name
             str_to_felt("TKN"),        # symbol
+            18,                        # decimals
             *uint(1000),               # initial_supply
             account.contract_address   # recipient
         ]
@@ -58,6 +59,11 @@ async def test_symbol(erc20_factory):
     execution_info = await erc20.symbol().call()
     assert execution_info.result == (str_to_felt("TKN"),)
 
+@pytest.mark.asyncio
+async def test_decimals(erc20_factory):
+    _, erc20, _ = erc20_factory
+    execution_info = await erc20.decimals().call()
+    assert execution_info.result.decimals == 18
 
 @pytest.mark.asyncio
 async def test_transfer(erc20_factory):

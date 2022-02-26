@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20_Pausable.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
@@ -42,11 +45,13 @@ func constructor{
     }(
         name: felt,
         symbol: felt,
+        decimals: felt,
         initial_supply: Uint256,
         recipient: felt,
         owner: felt
     ):
-    ERC20_initializer(name, symbol, initial_supply, recipient)
+    ERC20_initializer(name, symbol, decimals)
+    ERC20_mint(recipient, initial_supply)
     Ownable_initializer(owner)
     return ()
 end

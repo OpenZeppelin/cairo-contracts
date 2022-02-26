@@ -82,10 +82,11 @@ async def test_constructor_sets_correct_implementation(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_initializer(proxy_factory):
-    account, implementation, proxy = proxy_factory
+    account, _, proxy = proxy_factory
 
     await signer.send_transaction(
-        account, proxy.contract_address, 'initialize', []
+        account, proxy.contract_address, 'initializer', [
+            account.contract_address]
     )
 
 
@@ -106,7 +107,7 @@ async def test_default_fallback(proxy_factory):
 
 
 @pytest.mark.asyncio
-async def test_delegate_call_when_selector_does_not_exist(proxy_factory):
+async def test_fallback_when_selector_does_not_exist(proxy_factory):
     account, _, proxy = proxy_factory
 
     try:

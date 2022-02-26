@@ -7,7 +7,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
-const UINT8_MAX = 256
+from openzeppelin.utils.constants import UINT8_MAX
 
 #
 # Events

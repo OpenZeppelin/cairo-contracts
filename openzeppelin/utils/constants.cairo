@@ -12,3 +12,9 @@ const FALSE = 0
 #
 
 const PREFIX_TRANSACTION = 'StarkNet Transaction'
+
+#
+# Numbers
+#
+
+const UINT8_MAX = 256

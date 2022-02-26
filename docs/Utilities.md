@@ -1,16 +1,12 @@
 # Utilities
 
-The following documentation provides context, reasoning, and examples for methods and variables found in `tests/utils.py`.  
+The following documentation provides context, reasoning, and examples for methods found in `tests/utils.py`.  
 
 > Expect this module to evolve (as it has already done).
 
 ## Table of Contents
 
 * [Constants](#constants)
-  * [`MAX_UINT256`](#max_uint256)
-  * [`ZERO_ADDRESS`](#zero_address)
-  * [`TRUE`](#-true-)
-  * [`FALSE`](#-false-)
 * [Strings](#strings)
   * [`str_to_felt`](#str_to_felt)
   * [`felt_to_str`](#felt_to_str)
@@ -24,29 +20,13 @@ The following documentation provides context, reasoning, and examples for method
   * [`assert_revert`](#assert_revert)
   * [`assert_events_emitted`](#assert_events_emitted)
 * [Memoization](#memoization)
-  * [get_contract_def](#get_contract_def)
-  * [cached_contract](#cached_contract)
+  * [`get_contract_def`](#get_contract_def)
+  * [`cached_contract`](#cached_contract)
 * [Signer](#signer)
 
 ## Constants
 
 The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo Contract tests, this project includes reusable constant variables. 
-
-### `MAX_UINT256`
-
-The maximum value in a 256-bit integer represented in a tuple of two 128-bit integers to accomodate uint256 structs in Cairo. 
-
-### `ZERO_ADDRESS`
-
-When a user calls a contract directly, the sender of the transaction is `0`. Copious tests go toward checking that users cannot send transactions to/from address `0`. Using the `ZERO_ADDRESS` constant enhances the readability of tests.
-
-### `TRUE`
-
-Booleans are represented as binary in Cairo; therefore, `TRUE` represents `1`.
-
-### `FALSE`
-
-Booleans are represented as binary in Cairo; therefore, `FALSE` represents `0`.
 
 ## Strings
 
@@ -140,6 +120,18 @@ await assert_revert(signer.send_transaction(
 )
 ```
 
+This wrapper also includes the option to check that an error message was included in the reversion. To check that the reversion sends the correct error message, add the `reverted_with` keyword argument outside of the actual transaction (but still inside the wrapper) like this:
+
+```python
+await assert_revert(signer.send_transaction(
+    account, contract.contract_address, 'foo', [
+        recipient,
+        *token
+    ]),
+    reverted_with="insert error message here"
+)
+```
+
 ### `assert_event_emitted`
 
 A helper method that checks a transaction receipt for the contract emitting the event (`from_address`), the emitted event itself (`name`), and the arguments emitted (`data`). To use `assert_event_emitted`:
@@ -171,11 +163,43 @@ Memoizing functions allow for quicker and computationally cheaper calculations w
 
 ### `get_contract_def`
 
-A helper method that returns the contract definition from the given path.
+A helper method that returns the contract definition from the given path. To capture the contract definition, simply add the contracat path as an argument like this:
+
+```python
+contract_definition = get_contract_def('path/to/contract.cairo')
+```
 
 ### `cached_contract`
 
-A helper method that returns the cached state of a given contract. The requisite contracts in the testing module should each be instantiated with `cached_contract` in a fixture after the state has been copied.
+A helper method that returns the cached state of a given contract. It's recommended to first deploy all the relevant contracts before caching the state. The requisite contracts in the testing module should each be instantiated with `cached_contract` in a fixture after the state has been copied. The memoization pattern with `cached_contract` should look something like this:
+
+```python
+# get contract definitions
+@pytest.fixture(scope='module')
+def contract_defs():
+  foo_def = get_contract_def('path/to/foo.cairo')
+  return foo_def
+
+# deploy contracts
+@pytest.fixture(scope='module')
+async def foo_init(contract_defs):
+    foo_def = contract_defs
+    starknet = await Starknet.empty()
+    foo = await starknet.deploy(
+        contract_def=foo_def,
+        constructor_calldata=[]
+    )
+    return starknet.state, foo  # return state and all deployed contracts
+
+# memoization
+@pytest.fixture(scope='module')
+def foo_factory(contract_defs, foo_init):
+    foo_def = contract_defs  # contract definitions
+    state, foo = foo_init  # state and deployed contracts
+    _state = state.copy()  # copy the state
+    cached_foo = cached_contract(_state, foo_def, foo)  # cache contracts
+    return cached_foo  # return cached contracts
+```
 
 ## Signer
 

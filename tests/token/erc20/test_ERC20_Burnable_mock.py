@@ -28,6 +28,7 @@ async def erc20_factory():
         constructor_calldata=[
             str_to_felt("Token"),      # name
             str_to_felt("TKN"),        # symbol
+            18,                        # decimals
             *to_uint(1000),            # initial_supply
             account.contract_address   # recipient
         ]

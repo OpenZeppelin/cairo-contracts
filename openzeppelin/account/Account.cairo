@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (account/Account.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.registers import get_fp_and_pc
@@ -132,7 +135,7 @@ func constructor{
     }(_public_key: felt):
     public_key.write(_public_key)
     # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0xbd73c577)
+    ERC165_register_interface(0xf10dbd44)
     return()
 end
 

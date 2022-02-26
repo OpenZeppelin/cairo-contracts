@@ -81,7 +81,16 @@ async def test_constructor_sets_correct_implementation(proxy_factory):
 
 
 @pytest.mark.asyncio
-async def test_delegate_call(proxy_factory):
+async def test_initializer(proxy_factory):
+    account, implementation, proxy = proxy_factory
+
+    await signer.send_transaction(
+        account, proxy.contract_address, 'initialize', []
+    )
+
+
+@pytest.mark.asyncio
+async def test_default_fallback(proxy_factory):
     account, _, proxy = proxy_factory
 
     # set value through proxy

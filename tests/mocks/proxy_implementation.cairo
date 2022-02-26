@@ -3,16 +3,11 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from starkware.starknet.common.messages import send_message_to_l1
-from starkware.cairo.common.alloc import alloc
 
 from openzeppelin.upgrades.library import (
     Proxy_initializer,
     Proxy_get_implementation
 )
-
-const L1_CONTRACT_ADDRESS = 999
-const MESSAGE = 111
 
 #
 # Storage

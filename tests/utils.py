@@ -63,13 +63,15 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
-async def assert_revert(fun):
+async def assert_revert(fun, reverted_with=None):
     try:
         await fun
         assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+        if reverted_with is not None:
+            assert reverted_with in error['message']
 
 
 def assert_event_emitted(tx_exec_info, from_address, name, data):

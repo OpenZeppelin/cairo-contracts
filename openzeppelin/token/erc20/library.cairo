@@ -5,10 +5,12 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.math import assert_not_zero
+from starkware.cairo.common.math import assert_not_zero, assert_lt
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
+
+from openzeppelin.utils.constants import UINT8_MAX
 
 #
 # Events
@@ -61,13 +63,12 @@ func ERC20_initializer{
     }(
         name: felt,
         symbol: felt,
-        initial_supply: Uint256,
-        recipient: felt
+        decimals: felt
     ):
     ERC20_name_.write(name)
     ERC20_symbol_.write(symbol)
-    ERC20_decimals_.write(18)
-    ERC20_mint(recipient, initial_supply)
+    assert_lt(decimals, UINT8_MAX)
+    ERC20_decimals_.write(decimals)
     return ()
 end
 
@@ -289,4 +290,3 @@ func _transfer{
     Transfer.emit(sender, recipient, amount)
     return ()
 end
-

@@ -10,11 +10,6 @@ from utils import (
 
 signer = Signer(123456789987654321)
 
-account_path = 'openzeppelin/account/Account.cairo'
-erc721_path = 'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo'
-erc721_holder_path = 'openzeppelin/token/erc721/utils/ERC721_Holder.cairo'
-unsupported_path = 'openzeppelin/security/initializable.cairo'
-
 NONEXISTENT_TOKEN = to_uint(999)
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]
@@ -43,10 +38,13 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def(account_path)
-    erc721_def = get_contract_def(erc721_path)
-    erc721_holder_def = get_contract_def(erc721_holder_path)
-    unsupported_def = get_contract_def(unsupported_path)
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc721_def = get_contract_def(
+        'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+    erc721_holder_def = get_contract_def(
+        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+    unsupported_def = get_contract_def(
+        'openzeppelin/security/initializable.cairo')
 
     return account_def, erc721_def, erc721_holder_def, unsupported_def
 

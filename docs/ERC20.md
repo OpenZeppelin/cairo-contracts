@@ -68,7 +68,10 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 - it uses Cairo's `uint256` instead of `felt`
 - it returns `1` as success to imitate a `bool`
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
+<<<<<<< HEAD
 - it emits events on StarkNet.
+=======
+>>>>>>> 352d716972685e0f06c0609238e02d28bff2bab8
 
 But some differences can still be found, such as:
 
@@ -86,6 +89,7 @@ Considering that the constructor method looks like this:
 func constructor(
     name: felt,               # Token name as Cairo short string
     symbol: felt,             # Token symbol as Cairo short string
+    decimals: felt            # Token decimals (usually 18)
     initial_supply: Uint256,  # Amount to be minted
     recipient: felt           # Address where to send initial supply to
 ):
@@ -99,13 +103,14 @@ erc20 = await starknet.deploy(
     constructor_calldata=[
         str_to_felt("Token"),     # name
         str_to_felt("TKN"),       # symbol
+        18,                       # decimals
         (1000, 0),                # initial supply
         account.contract_address  # recipient
     ]
 )
 ```
 
-> Note that we haven't specified decimals. This is because it's fixed at `18`. If you wish to change this value, you should modify the constructor. Bear in mind it should not exceed `2^8` to be ERC20 compatible.
+> Note that decimals should not exceed `2^8` to be ERC20 compatible.
 
 As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`). This is why we need an Account contract to interact with it. For example:
 

@@ -1,12 +1,10 @@
 # SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20.cairo)
 
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.uint256 import Uint256
-
-from openzeppelin.utils.constants import TRUE
 
 from openzeppelin.token.erc20.library import (
     ERC20_name,
@@ -22,9 +20,10 @@ from openzeppelin.token.erc20.library import (
     ERC20_decreaseAllowance,
     ERC20_transfer,
     ERC20_transferFrom,
-    ERC20_mint,
-    ERC20_burn
+    ERC20_mint
 )
+
+from openzeppelin.utils.constants import TRUE
 
 @constructor
 func constructor{
@@ -118,6 +117,7 @@ func transfer{
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
     ERC20_transfer(recipient, amount)
+    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -132,6 +132,7 @@ func transferFrom{
         amount: Uint256
     ) -> (success: felt):
     ERC20_transferFrom(sender, recipient, amount)
+    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -142,6 +143,7 @@ func approve{
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
     ERC20_approve(spender, amount)
+    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -152,6 +154,7 @@ func increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
     ERC20_increaseAllowance(spender, added_value)
+    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -162,16 +165,6 @@ func decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     ERC20_decreaseAllowance(spender, subtracted_value)
+    # Cairo equivalent to 'return (true)'
     return (TRUE)
-end
-
-@external
-func burn{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(amount: Uint256):
-    let (owner) = get_caller_address()
-    ERC20_burn(owner, amount)
-    return ()
 end

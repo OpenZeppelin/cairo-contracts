@@ -3,7 +3,7 @@
 
 %lang starknet
 
-from openzeppelin.account.Account import CallArray
+from openzeppelin.account.Account import AccountCallArray
 
 @contract_interface
 namespace IAccount:
@@ -28,7 +28,7 @@ namespace IAccount:
 
     func __execute__(
             call_array_len: felt,
-            call_array: CallArray*,
+            call_array: AccountCallArray*,
             calldata_len: felt,
             calldata: felt*,
             nonce: felt

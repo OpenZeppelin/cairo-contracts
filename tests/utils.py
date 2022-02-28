@@ -9,12 +9,14 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
+TRUE = 1
+FALSE = 0
 
 TRANSACTION_VERSION = 0
 
 
 def str_to_felt(text):
-    b_text = bytes(text, 'ascii')
+    b_text = bytes(text, "ascii")
     return int.from_bytes(b_text, "big")
 
 
@@ -61,13 +63,23 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
-async def assert_revert(fun):
+async def assert_revert(fun, reverted_with=None):
     try:
         await fun
         assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+        if reverted_with is not None:
+            assert reverted_with in error['message']
+
+
+def assert_event_emitted(tx_exec_info, from_address, name, data):
+    assert Event(
+        from_address=from_address,
+        keys=[get_selector_from_name(name)],
+        data=data,
+    ) in tx_exec_info.raw_events
 
 
 class Signer():
@@ -81,7 +93,7 @@ class Signer():
 
     Examples
     ---------
-    Constructing a Singer object
+    Constructing a Signer object
 
     >>> signer = Signer(1234)
 
@@ -110,7 +122,8 @@ class Signer():
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        calls_with_selector = [(call[0], get_selector_from_name(call[1]), call[2]) for call in calls]
+        calls_with_selector = [
+            (call[0], get_selector_from_name(call[1]), call[2]) for call in calls]
         (call_array, calldata) = from_call_to_call_array(calls)
 
         message_hash = hash_multicall(
@@ -119,15 +132,18 @@ class Signer():
 
         return await account.__execute__(call_array, calldata, nonce).invoke(signature=[sig_r, sig_s])
 
+
 def from_call_to_call_array(calls):
     call_array = []
     calldata = []
     for i, call in enumerate(calls):
         assert len(call) == 3, "Invalid call parameters"
-        entry = (call[0], get_selector_from_name(call[1]), len(calldata), len(call[2]))
+        entry = (call[0], get_selector_from_name(
+            call[1]), len(calldata), len(call[2]))
         call_array.append(entry)
         calldata.extend(call[2])
     return (call_array, calldata)
+
 
 def hash_multicall(sender, calls, nonce, max_fee):
     hash_array = []

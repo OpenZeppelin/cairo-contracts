@@ -1,6 +1,6 @@
 # Utilities
 
-The following documentation provides context, reasoning, and examples for methods found in `tests/utils.py`.  
+The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.  
 
 > Expect this module to evolve (as it has already done).
 
@@ -26,7 +26,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo Contract tests, this project includes reusable constant variables. 
+The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo contracts, this project includes reusable constant variables like `TRUE`, `FALSE`, or `ZERO_ADDRESS`.
 
 ## Strings
 

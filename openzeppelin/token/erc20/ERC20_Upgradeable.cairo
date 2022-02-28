@@ -135,7 +135,6 @@ func transfer{
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
     ERC20_transfer(recipient, amount)
-    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -150,7 +149,6 @@ func transferFrom{
         amount: Uint256
     ) -> (success: felt):
     ERC20_transferFrom(sender, recipient, amount)
-    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -161,7 +159,6 @@ func approve{
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
     ERC20_approve(spender, amount)
-    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -172,7 +169,6 @@ func increaseAllowance{
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
     ERC20_increaseAllowance(spender, added_value)
-    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end
 
@@ -183,6 +179,5 @@ func decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
     ERC20_decreaseAllowance(spender, subtracted_value)
-    # Cairo equivalent to 'return (true)'
     return (TRUE)
 end

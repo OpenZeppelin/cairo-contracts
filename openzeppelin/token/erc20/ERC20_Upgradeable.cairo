@@ -17,7 +17,8 @@ from openzeppelin.token.erc20.library import (
     ERC20_increaseAllowance,
     ERC20_decreaseAllowance,
     ERC20_transfer,
-    ERC20_transferFrom
+    ERC20_transferFrom,
+    ERC20_mint
 )
 
 from openzeppelin.upgrades.library import (
@@ -40,12 +41,14 @@ func initializer{
     }(
         name: felt,
         symbol: felt,
+        decimals: felt,
         initial_supply: Uint256,
         recipient: felt,
         proxy_admin: felt
     ):
+    ERC20_initializer(name, symbol, decimals)
+    ERC20_mint(recipient, initial_supply)
     Proxy_initializer(proxy_admin)
-    ERC20_initializer(name, symbol, initial_supply, recipient)
     return ()
 end
 

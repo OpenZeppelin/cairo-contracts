@@ -18,7 +18,7 @@ TRANSACTION_VERSION = 0
 
 
 def str_to_felt(text):
-    b_text = bytes(text, 'ascii')
+    b_text = bytes(text, "ascii")
     return int.from_bytes(b_text, "big")
 
 
@@ -65,13 +65,42 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
-async def assert_revert(fun):
+async def assert_revert(fun, reverted_with=None):
     try:
         await fun
         assert False
     except StarkException as err:
         _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+        if reverted_with is not None:
+            assert reverted_with in error['message']
+
+
+def assert_event_emitted(tx_exec_info, from_address, name, data):
+    assert Event(
+        from_address=from_address,
+        keys=[get_selector_from_name(name)],
+        data=data,
+    ) in tx_exec_info.raw_events
+
+
+def get_contract_def(path):
+    """Returns the contract definition from the contract path"""
+    contract_def = compile_starknet_files(
+        files=[path],
+        debug_info=True
+    )
+    return contract_def
+
+
+def cached_contract(state, definition, deployed):
+    """Returns the cached contract"""
+    contract = StarknetContract(
+        state=state,
+        abi=definition.abi,
+        contract_address=deployed.contract_address,
+        deploy_execution_info=deployed.deploy_execution_info
+    )
+    return contract
 
 
 def get_contract_def(path):
@@ -105,7 +134,7 @@ class Signer():
 
     Examples
     ---------
-    Constructing a Singer object
+    Constructing a Signer object
 
     >>> signer = Signer(1234)
 
@@ -134,8 +163,8 @@ class Signer():
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        calls_with_selector = map(lambda call: (
-            call[0], get_selector_from_name(call[1]), call[2]), calls)
+        calls_with_selector = [
+            (call[0], get_selector_from_name(call[1]), call[2]) for call in calls]
         (call_array, calldata) = from_call_to_call_array(calls)
 
         message_hash = hash_multicall(
@@ -148,10 +177,8 @@ class Signer():
 def from_call_to_call_array(calls):
     call_array = []
     calldata = []
-    for i in range(len(calls)):
-        if len(calls[i]) != 3:
-            raise Exception("Invalid call parameters")
-        call = calls[i]
+    for i, call in enumerate(calls):
+        assert len(call) == 3, "Invalid call parameters"
         entry = (call[0], get_selector_from_name(
             call[1]), len(calldata), len(call[2]))
         call_array.append(entry)

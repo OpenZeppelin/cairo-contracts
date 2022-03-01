@@ -1,6 +1,3 @@
-# SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721/ERC721_Mintable_Burnable.cairo)
-
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
@@ -21,8 +18,7 @@ from openzeppelin.token.erc721.library import (
     ERC721_transferFrom,
     ERC721_safeTransferFrom,
     ERC721_mint,
-    ERC721_burn,
-    ERC721_only_token_owner,
+    ERC721_safeMint,
     ERC721_setTokenURI
 )
 
@@ -136,7 +132,6 @@ func tokenURI{
     return (tokenURI)
 end
 
-
 #
 # Externals
 #
@@ -192,34 +187,45 @@ func safeTransferFrom{
 end
 
 @external
-func setTokenURI{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
-    ERC721_setTokenURI(tokenId, tokenURI)
-    return ()
-end
-
-@external
 func mint{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_only_owner()
+    with_attr error_message("ERC721: caller is not the owner"):
+        Ownable_only_owner()
+    end
     ERC721_mint(to, tokenId)
     return ()
 end
 
 @external
-func burn{
+func safeMint{
         pedersen_ptr: HashBuiltin*, 
         syscall_ptr: felt*, 
         range_check_ptr
-    }(tokenId: Uint256):
-    ERC721_only_token_owner(tokenId)
-    ERC721_burn(tokenId)
+    }(
+        to: felt,
+        tokenId: Uint256,
+        data_len: felt,
+        data: felt*
+    ):
+    with_attr error_message("ERC721: caller is not the owner"):
+        Ownable_only_owner()
+    end
+    ERC721_safeMint(to, tokenId, data_len, data)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*, 
+        range_check_ptr
+    }(tokenId: Uint256, tokenURI: felt):
+    with_attr error_message("ERC721: caller is not the owner"):
+        Ownable_only_owner()
+    end
+    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

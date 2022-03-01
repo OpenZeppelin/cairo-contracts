@@ -48,10 +48,6 @@ async def proxy_init(contract_defs):
         contract_def=dummy_v2_def,
         constructor_calldata=[]
     )
-    v3 = await starknet.deploy(
-        contract_def=dummy_v2_def,
-        constructor_calldata=[]
-    )
     proxy = await starknet.deploy(
         contract_def=proxy_def,
         constructor_calldata=[v1.contract_address]
@@ -62,7 +58,6 @@ async def proxy_init(contract_defs):
         account2,
         v1,
         v2,
-        v3,
         proxy
     )
 
@@ -70,21 +65,20 @@ async def proxy_init(contract_defs):
 @pytest.fixture
 def proxy_factory(contract_defs, proxy_init):
     account_def, dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
-    state, account1, account2, v1, v2, v3, proxy = proxy_init
+    state, account1, account2, v1, v2, proxy = proxy_init
     _state = state.copy()
     account1 = cached_contract(_state, account_def, account1)
     account2 = cached_contract(_state, account_def, account2)
     v1 = cached_contract(_state, dummy_v1_def, v1)
     v2 = cached_contract(_state, dummy_v2_def, v2)
-    v3 = cached_contract(_state, dummy_v2_def, v3)
     proxy = cached_contract(_state, proxy_def, proxy)
 
-    return account1, account2, v1, v2, v3, proxy
+    return account1, account2, v1, v2, proxy
 
 
 @pytest.fixture
 async def after_upgrade(proxy_factory):
-    admin, other, v1, v2, v3, proxy = proxy_factory
+    admin, other, v1, v2, proxy = proxy_factory
 
     # initialize
     await signer.send_transaction(
@@ -107,12 +101,12 @@ async def after_upgrade(proxy_factory):
         ]
     )
 
-    return admin, other, v1, v2, v3, proxy
+    return admin, other, v1, v2, proxy
 
 
 @pytest.mark.asyncio
 async def test_initializer(proxy_factory):
-    admin, _, _, _, _, proxy = proxy_factory
+    admin, _, _, _, proxy = proxy_factory
 
     await signer.send_transaction(
         admin, proxy.contract_address, 'initializer', [
@@ -123,7 +117,7 @@ async def test_initializer(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_initializer_already_initialized(proxy_factory):
-    admin, _, _, _, _, proxy = proxy_factory
+    admin, _, _, _, proxy = proxy_factory
 
     await signer.send_transaction(
         admin, proxy.contract_address, 'initializer', [
@@ -143,7 +137,7 @@ async def test_initializer_already_initialized(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_upgrade(proxy_factory):
-    admin, _, _, v2, _, proxy = proxy_factory
+    admin, _, _, v2, proxy = proxy_factory
 
     # initialize implementation
     await signer.send_transaction(
@@ -181,7 +175,7 @@ async def test_upgrade(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_upgrade_event(proxy_factory):
-    admin, _, _, v2, _, proxy = proxy_factory
+    admin, _, _, v2, proxy = proxy_factory
 
     # initialize implementation
     await signer.send_transaction(
@@ -210,7 +204,7 @@ async def test_upgrade_event(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_upgrade_from_non_admin(proxy_factory):
-    admin, non_admin, _, v2, _, proxy = proxy_factory
+    admin, non_admin, _, v2, proxy = proxy_factory
 
     # initialize implementation
     await signer.send_transaction(
@@ -233,7 +227,7 @@ async def test_upgrade_from_non_admin(proxy_factory):
 @pytest.mark.asyncio
 # Using `after_upgrade` fixture henceforth
 async def test_implementation_v2(after_upgrade):
-    admin, _, _, v2, _, proxy = after_upgrade
+    admin, _, _, v2, proxy = after_upgrade
 
     # check implementation address
     execution_info = await signer.send_transaction(
@@ -256,7 +250,7 @@ async def test_implementation_v2(after_upgrade):
 
 @pytest.mark.asyncio
 async def test_set_admin(after_upgrade):
-    admin, new_admin, _, _, _, proxy = after_upgrade
+    admin, new_admin, _, _, proxy = after_upgrade
 
     # change admin
     await signer.send_transaction(
@@ -274,7 +268,7 @@ async def test_set_admin(after_upgrade):
 
 @pytest.mark.asyncio
 async def test_set_admin_from_non_admin(after_upgrade):
-    _, non_admin, _, _, _, proxy = after_upgrade
+    _, non_admin, _, _, proxy = after_upgrade
 
     # change admin should revert
     await assert_revert(
@@ -284,42 +278,3 @@ async def test_set_admin_from_non_admin(after_upgrade):
             ]
         )
     )
-
-
-@pytest.mark.asyncio
-async def test_implementation_v3(after_upgrade):
-    admin, _, _, _, v3, proxy = after_upgrade
-    # The v3 implementation sets a new variable in storage in v2
-    # and this tests that both v1 and v2's storage carries over to v3
-
-    # set value_2
-    await signer.send_transaction(
-        admin, proxy.contract_address, 'set_value_2', [
-            VALUE_2
-        ]
-    )
-
-    # check value_2
-    execution_info = await signer.send_transaction(
-        admin, proxy.contract_address, 'get_value_2', []
-    )
-    assert execution_info.result.response == [VALUE_2, ]
-
-    # upgrade to v3
-    await signer.send_transaction(
-        admin, proxy.contract_address, 'upgrade', [
-            v3.contract_address
-        ]
-    )
-
-    # check value in v3
-    execution_info = await signer.send_transaction(
-        admin, proxy.contract_address, 'get_value_1', []
-    )
-    assert execution_info.result.response == [VALUE_1, ]
-
-    # check value_2 in v3
-    execution_info = await signer.send_transaction(
-        admin, proxy.contract_address, 'get_value_2', []
-    )
-    assert execution_info.result.response == [VALUE_2, ]

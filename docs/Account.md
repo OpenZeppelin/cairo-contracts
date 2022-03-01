@@ -20,7 +20,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
     - [`execute`](#-execute-)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
-* [L1 scape hatch mechanism](#l1-scape-hatch-mechanism)
+* [L1 escape hatch mechanism](#l1-escape-hatch-mechanism)
 * [Paying for gas](#paying-for-gas)
 
 ## Quickstart

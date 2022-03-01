@@ -800,6 +800,7 @@ async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
         constructor_calldata=[
             str_to_felt("Token"),
             str_to_felt("TKN"),
+            18,
             *uint(1),
             account.contract_address
         ]

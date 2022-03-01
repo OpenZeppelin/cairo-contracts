@@ -1,8 +1,11 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721/interfaces/IERC721.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.introspection.interfaces.IERC165 import IERC165
+from openzeppelin.introspection.IERC165 import IERC165
 
 @contract_interface
 namespace IERC721:

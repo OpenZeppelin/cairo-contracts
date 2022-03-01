@@ -71,7 +71,6 @@ async def assert_revert(fun, reverted_with=None):
         assert False
     except StarkException as err:
         _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
         if reverted_with is not None:
             assert reverted_with in error['message']
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 %lang starknet
 %builtins pedersen range_check
 

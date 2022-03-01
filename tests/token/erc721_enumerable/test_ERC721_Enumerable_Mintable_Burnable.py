@@ -8,9 +8,6 @@ from utils import (
 
 signer = Signer(123456789987654321)
 
-account_path = 'openzeppelin/account/Account.cairo'
-erc721_path = 'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo'
-
 # random token IDs
 TOKENS = [
     to_uint(5042), to_uint(793), to_uint(321), MAX_UINT256, to_uint(8)
@@ -32,8 +29,9 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def(account_path)
-    erc721_def = get_contract_def(erc721_path)
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc721_def = get_contract_def(
+        'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
 
     return account_def, erc721_def
 
@@ -126,10 +124,10 @@ async def test_tokenOfOwnerByIndex(erc721_minted):
     erc721, account, _ = erc721_minted
 
     # check index
-    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+    for i in range(0, len(TOKENS)):
         execution_info = await erc721.tokenOfOwnerByIndex(
             account.contract_address, to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)
 
 
 @pytest.mark.asyncio
@@ -170,9 +168,9 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
     execution_info = await erc721.balanceOf(other.contract_address).invoke()
     assert execution_info.result == (TOTAL_TOKENS,)
 
-    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+    for i in range(0, len(TOKENS)):
         execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)
 
     execution_info = await erc721.balanceOf(account.contract_address).invoke()
     assert execution_info.result == (to_uint(0),)
@@ -203,9 +201,9 @@ async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
     execution_info = await erc721.balanceOf(other.contract_address).invoke()
     assert execution_info.result == (TOTAL_TOKENS,)
 
-    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+    for i in range(0, len(TOKENS)):
         execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)
 
     execution_info = await erc721.balanceOf(account.contract_address).invoke()
     assert execution_info.result == (to_uint(0),)
@@ -226,9 +224,9 @@ async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
 async def test_tokenByIndex(erc721_minted):
     erc721, _, _ = erc721_minted
 
-    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+    for i in range(0, len(TOKENS)):
         execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)
 
 
 @pytest.mark.asyncio
@@ -255,9 +253,9 @@ async def test_tokenByIndex_burn_last_token(erc721_minted):
     execution_info = await erc721.totalSupply().invoke()
     assert execution_info.result == (tokens_minus_one,)
 
-    for i, t in zip(range(0, 4), range(0, 4)):
+    for i in range(0, 4):
         execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)
 
     await assert_revert(
         erc721.tokenByIndex(tokens_minus_one).invoke()
@@ -277,9 +275,9 @@ async def test_tokenByIndex_burn_first_token(erc721_minted):
     # TOKEN[0] should be burnt and TOKEN[4] should be swapped
     # to TOKEN[0]'s index
     new_token_order = [TOKENS[4], TOKENS[1], TOKENS[2], TOKENS[3]]
-    for i, t in zip(range(0, 3), range(0, 3)):
+    for i in range(0, 3):
         execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
-        assert execution_info.result == (new_token_order[t],)
+        assert execution_info.result == (new_token_order[i],)
 
 
 @pytest.mark.asyncio
@@ -306,6 +304,6 @@ async def test_tokenByIndex_burn_and_mint(erc721_minted):
                 account.contract_address, *token]
         )
 
-    for i, t in zip(range(0, len(TOKENS)), range(0, len(TOKENS))):
+    for i in range(0, len(TOKENS)):
         execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
-        assert execution_info.result == (TOKENS[t],)
+        assert execution_info.result == (TOKENS[i],)

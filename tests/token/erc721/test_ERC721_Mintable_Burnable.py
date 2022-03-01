@@ -66,7 +66,7 @@ async def erc721_init(contract_defs):
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account1.contract_address
+            account1.contract_address           # owner
         ]
     )
     erc721_holder = await starknet.deploy(
@@ -101,9 +101,9 @@ def erc721_factory(contract_defs, erc721_init):
     return erc721, account1, account2, erc721_holder, unsupported
 
 
-@pytest.fixture
 # Note that depending on what's being tested, test cases alternate between
 # accepting `erc721_minted`, `erc721_factory`, and `erc721_unsupported` fixtures
+@pytest.fixture
 async def erc721_minted(erc721_factory):
     erc721, account, account2, erc721_holder, _ = erc721_factory
     # mint tokens to account
@@ -116,8 +116,8 @@ async def erc721_minted(erc721_factory):
     return erc721, account, account2, erc721_holder
 
 
-@pytest.fixture
 # Fixture for testing contracts that do not accept safe ERC721 transfers
+@pytest.fixture
 async def erc721_unsupported(erc721_factory):
     erc721, account, account2, erc721_holder, unsupported = erc721_factory
     for token in TOKENS:

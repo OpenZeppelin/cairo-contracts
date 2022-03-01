@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20_Upgradeable.cairo)
+
 %lang starknet
 %builtins pedersen range_check
 

@@ -143,6 +143,12 @@ async def test_constructor(token_factory):
     )
     assert execution_info.result.response == [SYMBOL]
 
+    # check decimals
+    execution_info = await signer.send_transaction(
+        admin, proxy.contract_address, 'decimals', []
+    )
+    assert execution_info.result.response == [DECIMALS]
+
     # check total supply
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'totalSupply', []

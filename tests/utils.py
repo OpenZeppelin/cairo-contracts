@@ -103,26 +103,6 @@ def cached_contract(state, definition, deployed):
     return contract
 
 
-def get_contract_def(path):
-    """Returns the contract definition from the contract path"""
-    contract_def = compile_starknet_files(
-        files=[path],
-        debug_info=True
-    )
-    return contract_def
-
-
-def cached_contract(state, definition, deployed):
-    """Returns the cached contract"""
-    contract = StarknetContract(
-        state=state,
-        abi=definition.abi,
-        contract_address=deployed.contract_address,
-        deploy_execution_info=deployed.deploy_execution_info
-    )
-    return contract
-
-
 class Signer():
     """
     Utility for sending signed transactions to an Account on Starknet.

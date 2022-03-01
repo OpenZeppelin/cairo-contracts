@@ -23,11 +23,6 @@ def event_loop():
     return asyncio.new_event_loop()
 
 
-# contract paths
-account_path = 'openzeppelin/account/Account.cairo'
-proxy_path = 'openzeppelin/proxy/Proxy.cairo'
-token_path = 'openzeppelin/token/ERC20_Upgradeable.cairo'
-
 # random value
 VALUE = 123
 VALUE_2 = 987

@@ -1,48 +1,32 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, MAX_UINT256, assert_revert
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
-
+from utils import (
+    Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert,
+    get_contract_def, cached_contract, to_uint, sub_uint, add_uint
+)
 
 signer = Signer(123456789987654321)
 
-ZERO_ADDRESS = 0
-
-# bools (for readability)
-false = 0
-true = 1
-not_bool = 2
-
-# random user addresses
-user1 = 123
-user2 = 234
-user3 = 345
-user4 = 456
-user5 = 567
-
-# random uint256 tokenIDs
-first_token_id = (5042, 0)
-second_token_id = (7921, 1)
-third_token_id = (0, 13)
-fourth_token_id = MAX_UINT256
-fifth_token_id = (234, 345)
-sixth_token_id = (9999, 9999)
-seventh_token_id = (987, 654)
-eighth_token_id = (445, 101)
-other_owned_token = (123, 321)
-nonexistent_token = (111, 222)
-token_to_burn = (12345, 6789)
-
+NONEXISTENT_TOKEN = to_uint(999)
+# random token IDs
+TOKENS = [to_uint(5042), to_uint(793)]
+# test token
+TOKEN = TOKENS[0]
+# random user address
+RECIPIENT = 555
 # random data (mimicking bytes in Solidity)
-data = [0x42, 0x89, 0x55]
-
+DATA = [0x42, 0x89, 0x55]
 # random URIs
-sample_uri = [
-    str_to_felt('mock://mytoken.v1'),
-    str_to_felt('mock://mytoken.v2')
-]
+SAMPLE_URI_1 = str_to_felt('mock://mytoken.v1')
+SAMPLE_URI_2 = str_to_felt('mock://mytoken.v2')
+
+# selector ids
+IERC165_ID = 0x01ffc9a7
+IERC721_ID = 0x80ac58cd
+IERC721_METADATA_ID = 0x5b5e139f
+INVALID_ID = 0xffffffff
+UNSUPPORTED_ID = 0xabcd1234
 
 
 @pytest.fixture(scope='module')
@@ -51,36 +35,112 @@ def event_loop():
 
 
 @pytest.fixture(scope='module')
-async def erc721_factory():
+def contract_defs():
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc721_def = get_contract_def(
+        'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+    erc721_holder_def = get_contract_def(
+        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+    unsupported_def = get_contract_def(
+        'openzeppelin/security/initializable.cairo')
+
+    return account_def, erc721_def, erc721_holder_def, unsupported_def
+
+
+@pytest.fixture(scope='module')
+async def erc721_init(contract_defs):
+    account_def, erc721_def, erc721_holder_def, unsupported_def = contract_defs
     starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+    account1 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
+    account2 = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
+    )
     erc721 = await starknet.deploy(
-        "openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo",
+        contract_def=erc721_def,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account.contract_address            # owner
+            account1.contract_address           # owner
         ]
     )
-
     erc721_holder = await starknet.deploy(
-        "openzeppelin/token/erc721/utils/ERC721_Holder.cairo"
+        contract_def=erc721_holder_def,
+        constructor_calldata=[]
     )
-    return starknet, erc721, account, erc721_holder
+    unsupported = await starknet.deploy(
+        contract_def=unsupported_def,
+        constructor_calldata=[]
+    )
+    return (
+        starknet.state,
+        account1,
+        account2,
+        erc721,
+        erc721_holder,
+        unsupported
+    )
+
+
+@pytest.fixture
+def erc721_factory(contract_defs, erc721_init):
+    account_def, erc721_def, erc721_holder_def, unsupported_def = contract_defs
+    state, account1, account2, erc721, erc721_holder, unsupported = erc721_init
+    _state = state.copy()
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
+    erc721 = cached_contract(_state, erc721_def, erc721)
+    erc721_holder = cached_contract(_state, erc721_holder_def, erc721_holder)
+    unsupported = cached_contract(_state, unsupported_def, unsupported)
+
+    return erc721, account1, account2, erc721_holder, unsupported
+
+
+# Note that depending on what's being tested, test cases alternate between
+# accepting `erc721_minted`, `erc721_factory`, and `erc721_unsupported` fixtures
+@pytest.fixture
+async def erc721_minted(erc721_factory):
+    erc721, account, account2, erc721_holder, _ = erc721_factory
+    # mint tokens to account
+    for token in TOKENS:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'mint', [
+                account.contract_address, *token]
+        )
+
+    return erc721, account, account2, erc721_holder
+
+
+# Fixture for testing contracts that do not accept safe ERC721 transfers
+@pytest.fixture
+async def erc721_unsupported(erc721_factory):
+    erc721, account, account2, erc721_holder, unsupported = erc721_factory
+    for token in TOKENS:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'mint', [
+                account.contract_address, *token]
+        )
+
+    return erc721, account, account2, erc721_holder, unsupported
+
+
+#
+# Constructor
+#
 
 
 @pytest.mark.asyncio
 async def test_constructor(erc721_factory):
-    _, erc721, _, _ = erc721_factory
-    execution_info = await erc721.name().call()
+    erc721, _, _, _, _ = erc721_factory
+    execution_info = await erc721.name().invoke()
     assert execution_info.result == (str_to_felt("Non Fungible Token"),)
 
-    execution_info = await erc721.symbol().call()
+    execution_info = await erc721.symbol().invoke()
     assert execution_info.result == (str_to_felt("NFT"),)
+
 
 #
 # balanceOf
@@ -89,331 +149,309 @@ async def test_constructor(erc721_factory):
 
 @pytest.mark.asyncio
 async def test_balanceOf(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+    erc721, account, _, _, _ = erc721_factory
 
     # mint tokens to account
-    tokens = [first_token_id, second_token_id]
-    for token in tokens:
+    for token in TOKENS:
         await signer.send_transaction(
             account, erc721.contract_address, 'mint', [
                 account.contract_address, *token]
         )
 
-    # account should have two tokens
-    execution_info = await erc721.balanceOf(account.contract_address).call()
-    assert execution_info.result == (uint(2),)
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    n_tokens = len(TOKENS)
+    assert execution_info.result == (to_uint(n_tokens),)
 
-    # user1 should have zero tokens
-    execution_info = await erc721.balanceOf(user1).call()
-    assert execution_info.result == (uint(0),)
+    # user should have zero tokens
+    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    assert execution_info.result == (to_uint(0),)
 
 
 @pytest.mark.asyncio
 async def test_balanceOf_zero_address(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+    erc721, account, _, _, _ = erc721_factory
+
+    # mint tokens to account
+    await signer.send_transaction(
+        account, erc721.contract_address, 'mint', [
+            account.contract_address, *TOKEN]
+    )
 
     # should revert when querying zero address
-    await assert_revert(erc721.balanceOf(ZERO_ADDRESS).call())
+    await assert_revert(erc721.balanceOf(ZERO_ADDRESS).invoke())
 
 
 #
 # ownerOf
 #
 
+
 @pytest.mark.asyncio
 async def test_ownerOf(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+    erc721, account, _, _, _ = erc721_factory
 
-    # should return account's address
-    execution_info = await erc721.ownerOf(first_token_id).call()
-    assert execution_info.result == (account.contract_address,)
+    # mint tokens to account
+    for token in TOKENS:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'mint', [
+                account.contract_address, *token]
+        )
+
+        # should return account's address
+        execution_info = await erc721.ownerOf(token).invoke()
+        assert execution_info.result == (account.contract_address,)
 
 
 @pytest.mark.asyncio
 async def test_ownerOf_nonexistent_token(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+    erc721, account, _, _, _ = erc721_factory
 
-    # should revert when querying zero address
-    await assert_revert(erc721.ownerOf(nonexistent_token).call())
-
-
-#
-# Mint
-#
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize('tokens, number_of_tokens', [
-    [third_token_id, 3],
-    [fourth_token_id, 4],
-    [fifth_token_id, 5],
-    [sixth_token_id, 6]
-])
-async def test_mint(erc721_factory, tokens, number_of_tokens):
-    _, erc721, account, _ = erc721_factory
-
-    # mint tokens to account
+    # mint token to account
     await signer.send_transaction(
         account, erc721.contract_address, 'mint', [
-            account.contract_address, *tokens]
+            account.contract_address, *TOKEN]
     )
 
-    # checks balance
-    execution_info = await erc721.balanceOf(account.contract_address).call()
-    assert execution_info.result == (uint(number_of_tokens),)
+    # should revert when querying nonexistent token
+    await assert_revert(erc721.ownerOf(NONEXISTENT_TOKEN).invoke())
 
-    # checks that account owns correct tokens
-    execution_info = await erc721.ownerOf(tokens).call()
-    assert execution_info.result == (account.contract_address,)
+
+#
+# mint
+#
 
 
 @pytest.mark.asyncio
-async def test_mint_duplicate_token_id(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+# using fixture with already minted tokens
+async def test_mint(erc721_minted):
+    erc721, account, _, _ = erc721_minted
+
+    # checks balance
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result == (to_uint(2),)
+
+    # checks that account owns correct tokens
+    for token in TOKENS:
+        execution_info = await erc721.ownerOf(token).invoke()
+        assert execution_info.result == (account.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_mint_duplicate_token_id(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     # minting duplicate token_id should fail
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'mint', [
-            account.contract_address, *first_token_id
-        ]
-    ))
+            account.contract_address,
+            *TOKEN
+        ])
+    )
 
 
 @pytest.mark.asyncio
-async def test_mint_to_zero_address(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_mint_to_zero_address(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     # minting to zero address should fail
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'mint', [
             ZERO_ADDRESS,
-            *nonexistent_token
-        ]
-    ))
+            *NONEXISTENT_TOKEN
+        ])
+    )
 
 
 @pytest.mark.asyncio
-async def test_mint_approve_should_be_zero_address(erc721_factory):
-    _, erc721, account, _ = erc721_factory
-
-    await signer.send_transaction(
-        account, erc721.contract_address, 'mint', [
-            account.contract_address, *seventh_token_id]
-    )
+async def test_mint_approve_should_be_zero_address(erc721_minted):
+    erc721, _, _, _ = erc721_minted
 
     # approved address should be zero for newly minted tokens
-    execution_info = await erc721.getApproved(seventh_token_id).call()
-    assert execution_info.result == (0,)
+    for token in TOKENS:
+        execution_info = await erc721.getApproved(token).invoke()
+        assert execution_info.result == (0,)
 
 
 @pytest.mark.asyncio
 async def test_mint_by_not_owner(erc721_factory):
-    starknet, erc721, _, _ = erc721_factory
-    not_owner = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    erc721, _, not_owner, _, _ = erc721_factory
 
     # minting from not_owner should fail
     await assert_revert(signer.send_transaction(
         not_owner, erc721.contract_address, 'mint', [
             not_owner.contract_address,
-            *eighth_token_id
-        ]
-    ))
+            *TOKENS[0]
+        ])
+    )
 
 
 #
-# Burn
+# burn
 #
 
 
 @pytest.mark.asyncio
-async def test_burn(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_burn(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
-    # mint 'token_to_burn' to account
-    await signer.send_transaction(
-        account, erc721.contract_address, 'mint', [
-            account.contract_address, *token_to_burn]
-    )
-
-    execution_info = await erc721.balanceOf(account.contract_address).call()
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
     previous_balance = execution_info.result.balance
 
     # burn token
     await signer.send_transaction(
-        account, erc721.contract_address, 'burn', [*token_to_burn]
+        account, erc721.contract_address, 'burn', [*TOKEN]
     )
 
     # account balance should subtract one
-    execution_info = await erc721.balanceOf(account.contract_address).call()
-    assert (previous_balance[0] - 1, previous_balance[1]
-            ) == execution_info.result.balance
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result.balance == sub_uint(
+        previous_balance, to_uint(1)
+    )
 
     # approve should be cleared to zero, therefore,
     # 'getApproved()' call should fail
-    await assert_revert(erc721.getApproved(token_to_burn).call())
+    await assert_revert(erc721.getApproved(TOKEN).invoke())
 
     # 'token_to_burn' owner should be zero; therefore,
     # 'ownerOf()' call should fail
-    await assert_revert(erc721.ownerOf(token_to_burn).call())
+    await assert_revert(erc721.ownerOf(TOKEN).invoke())
 
 
 @pytest.mark.asyncio
-async def test_burn_nonexistent_token(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_burn_nonexistent_token(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'burn', [
-            *nonexistent_token
+            *NONEXISTENT_TOKEN
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_burn_unowned_token(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    other = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_burn_unowned_token(erc721_minted):
+    erc721, account, other, _ = erc721_minted
 
-    # mint 'token_to_burn' to other account
-    await signer.send_transaction(
-        account, erc721.contract_address, 'mint', [
-            other.contract_address,
-            *token_to_burn
-        ]
-    )
-
-    # contract owner (account) should not be able to burn other's token
+    # other should not be able to burn account's token
     await assert_revert(
         signer.send_transaction(
-            account, erc721.contract_address, 'burn', [*token_to_burn]
+            other, erc721.contract_address, 'burn', [*TOKEN]
         )
     )
 
-    # other can burn their own token
+    # account can burn their own token
     await signer.send_transaction(
-        other, erc721.contract_address, 'burn', [*token_to_burn]
+        account, erc721.contract_address, 'burn', [*TOKEN]
     )
 
 
 @pytest.mark.asyncio
-async def test_burn_from_zero_address(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_burn_from_zero_address(erc721_minted):
+    erc721, _, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.burn(first_token_id).invoke()
+        erc721.burn(TOKEN).invoke()
     )
 
 
 #
-# Approve
+# approve
 #
 
 
 @pytest.mark.asyncio
-async def test_approve(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_approve(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     await signer.send_transaction(
-        account, erc721.contract_address, 'approve', [user1, *first_token_id]
+        account, erc721.contract_address, 'approve', [
+            spender.contract_address, *TOKEN]
     )
 
-    execution_info = await erc721.getApproved(first_token_id).call()
-    assert execution_info.result == (user1,)
+    execution_info = await erc721.getApproved(TOKEN).invoke()
+    assert execution_info.result == (spender.contract_address,)
 
 
 @pytest.mark.asyncio
-async def test_approve_on_setApprovalForAll(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_approve_on_setApprovalForAll(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # set approval_for_all from account to spender
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, true]
+            spender.contract_address, TRUE]
     )
 
-    # approve spender to spend account's 'first_token_id' to user1
+    # approve spender to spend account's token to recipient
     await signer.send_transaction(
         spender, erc721.contract_address, 'approve', [
-            user1, *first_token_id]
+            RECIPIENT, *TOKEN]
     )
 
-    execution_info = await erc721.getApproved(first_token_id).call()
-    assert execution_info.result == (user1,)
+    execution_info = await erc721.getApproved(TOKEN).invoke()
+    assert execution_info.result == (RECIPIENT,)
 
 
 @pytest.mark.asyncio
-async def test_approve_from_zero_address(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_approve_from_zero_address(erc721_minted):
+    erc721, _, spender, _ = erc721_minted
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    await assert_revert(erc721.approve(user1, third_token_id).invoke())
+    await assert_revert(erc721.approve(spender.contract_address, TOKEN).invoke())
 
 
 @pytest.mark.asyncio
-async def test_approve_owner_is_recipient(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_approve_owner_is_recipient(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     # should fail when owner is the same as address-to-be-approved
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'approve', [
             account.contract_address,
-            *third_token_id
+            *TOKEN
         ]
     ))
 
 
 @pytest.mark.asyncio
 async def test_approve_not_owner_or_operator(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+    erc721, account, spender, _, _ = erc721_factory
 
-    # mint to user5 — NOT account
+    # mint to recipient — NOT account
     await signer.send_transaction(
         account, erc721.contract_address, 'mint', [
-            user5, *other_owned_token]
+            RECIPIENT, *TOKEN]
     )
 
-    # 'approve' should fail since user5 owns 'other_owned_token'
+    # 'approve' should fail since recipient owns token
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'approve', [
             spender.contract_address,
-            *other_owned_token
+            *TOKEN
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_approve_on_already_approved(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_approve_on_already_approved(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # first approval
     await signer.send_transaction(
         account, erc721.contract_address, 'approve', [
-            user1, *first_token_id]
+            spender.contract_address, *TOKEN]
     )
 
     # repeat approval
     await signer.send_transaction(
         account, erc721.contract_address, 'approve', [
-            user1, *first_token_id]
+            spender.contract_address, *TOKEN]
     )
 
     # check that approval does not change
-    execution_info = await erc721.getApproved(first_token_id).call()
-    assert execution_info.result == (user1,)
+    execution_info = await erc721.getApproved(TOKEN).invoke()
+    assert execution_info.result == (spender.contract_address,)
 
 
 #
@@ -422,53 +460,60 @@ async def test_approve_on_already_approved(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_setApprovalForAll(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_setApprovalForAll(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     await signer.send_transaction(
-        account, erc721.contract_address, 'setApprovalForAll', [user2, true]
+        account, erc721.contract_address, 'setApprovalForAll', [
+            spender.contract_address, TRUE]
     )
 
-    execution_info = await erc721.isApprovedForAll(account.contract_address, user2).call()
-    assert execution_info.result == (true,)
+    execution_info = await erc721.isApprovedForAll(
+        account.contract_address, spender.contract_address).invoke()
+    assert execution_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
-async def test_setApprovalForAll_when_operator_was_set_as_not_approved(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_setApprovalForAll_when_operator_was_set_as_not_approved(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     await signer.send_transaction(
-        account, erc721.contract_address, 'setApprovalForAll', [user2, false]
+        account, erc721.contract_address, 'setApprovalForAll', [
+            spender.contract_address, FALSE]
     )
 
     await signer.send_transaction(
-        account, erc721.contract_address, 'setApprovalForAll', [user2, true]
+        account, erc721.contract_address, 'setApprovalForAll', [
+            spender.contract_address, TRUE]
     )
 
-    execution_info = await erc721.isApprovedForAll(account.contract_address, user2).call()
-    assert execution_info.result == (true,)
+    execution_info = await erc721.isApprovedForAll(
+        account.contract_address, spender.contract_address).invoke()
+    assert execution_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
-async def test_setApprovalForAll_with_invalid_bool_arg(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_setApprovalForAll_with_invalid_bool_arg(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
+
+    not_bool = 2
 
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            user2,
+            spender.contract_address,
             not_bool
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_setApprovalForAll_owner_is_operator(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_setApprovalForAll_owner_is_operator(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
             account.contract_address,
-            true
+            TRUE
         ]
     ))
 
@@ -479,125 +524,107 @@ async def test_setApprovalForAll_owner_is_operator(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_owner(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_transferFrom_owner(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     # get account's previous balance
-    execution_info = await erc721.balanceOf(account.contract_address).call()
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
     previous_balance = execution_info.result.balance
 
-    # transfers token from owner to recipient
+    # transfers token from account to recipient
     await signer.send_transaction(
         account, erc721.contract_address, 'transferFrom', [
-            account.contract_address, user1, *first_token_id]
+            account.contract_address, RECIPIENT, *TOKEN]
     )
 
-    # checks user balance
-    execution_info = await erc721.balanceOf(user1).call()
-    assert execution_info.result == (uint(1),)
+    # checks recipient balance
+    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    assert execution_info.result == (to_uint(1),)
 
     # checks account balance
-    execution_info = await erc721.balanceOf(account.contract_address).call()
-    assert execution_info.result == (
-        (previous_balance[0] - 1, previous_balance[1]),)
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result.balance == sub_uint(
+        previous_balance, to_uint(1))
 
     # checks token has new owner
-    execution_info = await erc721.ownerOf(first_token_id).call()
-    assert execution_info.result == (user1,)
+    execution_info = await erc721.ownerOf(TOKEN).invoke()
+    assert execution_info.result == (RECIPIENT,)
 
     # checks approval is cleared for token_id
-    execution_info = await erc721.getApproved(first_token_id).call()
+    execution_info = await erc721.getApproved(TOKEN).invoke()
     assert execution_info.result == (0,)
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_approved_user(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_transferFrom_approved_user(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # approve spender
     await signer.send_transaction(
         account, erc721.contract_address, 'approve', [
-            spender.contract_address, *second_token_id]
+            spender.contract_address, *TOKEN]
     )
 
     # spender transfers token from account to recipient
     await signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
-            account.contract_address, user2, *second_token_id]
+            account.contract_address, RECIPIENT, *TOKEN]
     )
 
     # checks user balance
-    execution_info = await erc721.balanceOf(user2).call()
-    assert execution_info.result == (uint(1),)
+    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    assert execution_info.result == (to_uint(1),)
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_operator(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
-    recipient = user3
+async def test_transferFrom_operator(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # setApprovalForAll
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, true]
+            spender.contract_address, TRUE]
     )
 
     # spender transfers token from account to recipient
     await signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
-            account.contract_address, recipient, *third_token_id]
+            account.contract_address, RECIPIENT, *TOKEN]
     )
 
     # checks user balance
-    execution_info = await erc721.balanceOf(recipient).call()
-    assert execution_info.result == (uint(1),)
+    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    assert execution_info.result == (to_uint(1),)
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_when_not_approved_or_owner(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
-    recipient = user3
+async def test_transferFrom_when_not_approved_or_owner(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # setApprovalForAll to false
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, false]
+            spender.contract_address, FALSE]
     )
 
     # should be rejected when not approved
     await assert_revert(signer.send_transaction(
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
-            recipient,
-            *fourth_token_id
+            RECIPIENT,
+            *TOKEN
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_to_zero_address(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_transferFrom_to_zero_address(erc721_minted):
+    erc721, account, spender, _ = erc721_minted
 
     # setApprovalForAll
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, true]
+            spender.contract_address, TRUE]
     )
 
     # to zero address should be rejected
@@ -605,21 +632,21 @@ async def test_transferFrom_to_zero_address(erc721_factory):
         spender, erc721.contract_address, 'transferFrom', [
             account.contract_address,
             ZERO_ADDRESS,
-            *fifth_token_id
+            *TOKEN
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_transferFrom_from_zero_address(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_transferFrom_from_zero_address(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
-    # Caller address is `0` when not using an account contract
+    # caller address is `0` when not using an account contract
     await assert_revert(
         erc721.transferFrom(
             account.contract_address,
-            user1,
-            fifth_token_id
+            RECIPIENT,
+            TOKEN
         ).invoke()
     )
 
@@ -631,57 +658,58 @@ async def test_transferFrom_from_zero_address(erc721_factory):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('interface_id, result', [
-    [0x01ffc9a7, true],      # IERC165 id
-    [0x80ac58cd, true],      # IERC721 id
-    [0x5b5e139f, true],      # IERC721_Metadata id
-    [0xffffffff, false],     # id explicitly not supported
-    [0xabcd1234, false],     # id implicitly not supported
+    [IERC165_ID, TRUE],
+    [IERC721_ID, TRUE],
+    [IERC721_METADATA_ID, TRUE],
+    [INVALID_ID, FALSE],
+    [UNSUPPORTED_ID, FALSE],
 ])
 async def test_supportsInterface(erc721_factory, interface_id, result):
-    _, erc721, _, _ = erc721_factory
+    erc721, _, _, _, _ = erc721_factory
 
-    execution_info = await erc721.supportsInterface(interface_id).call()
+    execution_info = await erc721.supportsInterface(interface_id).invoke()
     assert execution_info.result == (result,)
 
 
+#
+# safeTransferFrom
+#
+
+
 @pytest.mark.asyncio
-async def test_safeTransferFrom(erc721_factory):
-    _, erc721, account, erc721_holder = erc721_factory
+async def test_safeTransferFrom(erc721_minted):
+    erc721, account, _, erc721_holder = erc721_minted
 
     await signer.send_transaction(
         account, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
-            *fifth_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     )
 
     # check balance
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
-    assert execution_info.result == (uint(1),)
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    assert execution_info.result == (to_uint(1),)
 
     # check owner
-    execution_info = await erc721.ownerOf(fifth_token_id).call()
+    execution_info = await erc721.ownerOf(TOKEN).invoke()
     assert execution_info.result == (erc721_holder.contract_address,)
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_from_approved(erc721_factory):
-    starknet, erc721, account, erc721_holder = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_safeTransferFrom_from_approved(erc721_minted):
+    erc721, account, spender, erc721_holder = erc721_minted
 
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
     previous_balance = execution_info.result.balance
 
     # approve spender
     await signer.send_transaction(
         account, erc721.contract_address, 'approve', [
-            spender.contract_address, *sixth_token_id]
+            spender.contract_address, *TOKEN]
     )
 
     # spender transfers token from account to erc721_holder
@@ -689,33 +717,30 @@ async def test_safeTransferFrom_from_approved(erc721_factory):
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
-            *sixth_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     )
 
     # erc721_holder balance check
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
-    assert execution_info.result == (
-        (previous_balance[0] + 1, previous_balance[1]),)
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    assert execution_info.result.balance == add_uint(
+        previous_balance, to_uint(1)
+    )
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_from_operator(erc721_factory):
-    starknet, erc721, account, erc721_holder = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_safeTransferFrom_from_operator(erc721_minted):
+    erc721, account, spender, erc721_holder = erc721_minted
 
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
     previous_balance = execution_info.result.balance
 
     # setApprovalForAll
     await signer.send_transaction(
         account, erc721.contract_address, 'setApprovalForAll', [
-            spender.contract_address, true]
+            spender.contract_address, TRUE]
     )
 
     # spender transfers token from account to erc721_holder
@@ -723,133 +748,104 @@ async def test_safeTransferFrom_from_operator(erc721_factory):
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
-            *seventh_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     )
 
     # erc721_holder balance check
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).call()
-    assert execution_info.result == (
-        (previous_balance[0] + 1, previous_balance[1]),)
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    assert execution_info.result.balance == add_uint(
+        previous_balance, to_uint(1)
+    )
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_when_not_approved_or_owner(erc721_factory):
-    starknet, erc721, account, erc721_holder = erc721_factory
-    spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_safeTransferFrom_when_not_approved_or_owner(erc721_minted):
+    erc721, account, spender, erc721_holder = erc721_minted
 
     # should fail when not approved or owner
     await assert_revert(signer.send_transaction(
         spender, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             erc721_holder.contract_address,
-            *seventh_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_to_zero_address(erc721_factory):
-    _, erc721, account, _ = erc721_factory
-
-    # mint new token
-    await signer.send_transaction(
-        account, erc721.contract_address, 'mint', [
-            account.contract_address, *eighth_token_id]
-    )
+async def test_safeTransferFrom_to_zero_address(erc721_minted):
+    erc721, account, _, _ = erc721_minted
 
     # to zero address should be rejected
     await assert_revert(signer.send_transaction(
         account, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             ZERO_ADDRESS,
-            *eighth_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     ))
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_from_zero_address(erc721_factory):
-    _, erc721, account, erc721_holder = erc721_factory
+async def test_safeTransferFrom_from_zero_address(erc721_minted):
+    erc721, account, _, erc721_holder = erc721_minted
 
-    # Caller address is `0` when not using an account contract
+    # caller address is `0` when not using an account contract
     await assert_revert(
         erc721.safeTransferFrom(
             account.contract_address,
             erc721_holder.contract_address,
-            eighth_token_id,
-            data
+            TOKEN,
+            DATA
         ).invoke()
     )
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_to_unsupported_contract(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-    unsupported_account = await starknet.deploy(
-        "openzeppelin/token/erc20/ERC20.cairo",
-        constructor_calldata=[
-            str_to_felt("Token"),
-            str_to_felt("TKN"),
-            18,
-            *uint(1),
-            account.contract_address
-        ]
-    )
+async def test_safeTransferFrom_to_unsupported_contract(erc721_unsupported):
+    erc721, account, _, _, unsupported = erc721_unsupported
 
-    try:
-        # unsupported_account uses erc20 contract in order to not cause
-        # issues once differentiating EOA from contracts is resolved
-        await signer.send_transaction(
+    await assert_revert(
+        signer.send_transaction(
             account, erc721.contract_address, 'safeTransferFrom', [
                 account.contract_address,
-                unsupported_account.contract_address,
-                *eighth_token_id,
-                len(data),
-                *data
-            ]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
+                unsupported.contract_address,
+                *TOKEN,
+                len(DATA),
+                *DATA,
+            ])
+    )
 
 
 @pytest.mark.asyncio
-async def test_safeTransferFrom_to_account(erc721_factory):
-    starknet, erc721, account, _ = erc721_factory
-
-    account2 = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_safeTransferFrom_to_account(erc721_minted):
+    erc721, account, account2, _ = erc721_minted
 
     await signer.send_transaction(
         account, erc721.contract_address, 'safeTransferFrom', [
             account.contract_address,
             account2.contract_address,
-            *eighth_token_id,
-            len(data),
-            *data
+            *TOKEN,
+            len(DATA),
+            *DATA
         ]
     )
 
     # check balance
-    execution_info = await erc721.balanceOf(account2.contract_address).call()
-    assert execution_info.result == (uint(1),)
+    execution_info = await erc721.balanceOf(account2.contract_address).invoke()
+    assert execution_info.result == (to_uint(1),)
 
     # check owner
-    execution_info = await erc721.ownerOf(eighth_token_id).call()
+    execution_info = await erc721.ownerOf(TOKEN).invoke()
     assert execution_info.result == (account2.contract_address,)
+
 
 #
 # tokenURI
@@ -857,57 +853,54 @@ async def test_safeTransferFrom_to_account(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_tokenURI(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_tokenURI(erc721_minted):
+    erc721, account, _, _ = erc721_minted
+
+    token_1 = TOKENS[0]
+    token_2 = TOKENS[1]
 
     # should be zero when tokenURI is not set
-    execution_info = await erc721.tokenURI(first_token_id).call()
+    execution_info = await erc721.tokenURI(token_1).invoke()
     assert execution_info.result == (0,)
 
-    # setTokenURI for first_token_id
+    # setTokenURI for token_1
     await signer.send_transaction(
         account, erc721.contract_address, 'setTokenURI', [
-            *first_token_id,
-            sample_uri[0]
+            *token_1,
+            SAMPLE_URI_1
         ]
     )
 
-    execution_info = await erc721.tokenURI(first_token_id).call()
-    assert execution_info.result == (sample_uri[0],)
+    execution_info = await erc721.tokenURI(token_1).invoke()
+    assert execution_info.result == (SAMPLE_URI_1,)
 
-    # setTokenURI for second_token_id
+    # setTokenURI for token_2
     await signer.send_transaction(
         account, erc721.contract_address, 'setTokenURI', [
-            *second_token_id,
-            sample_uri[0]
+            *token_2,
+            SAMPLE_URI_2
         ]
     )
 
-    execution_info = await erc721.tokenURI(second_token_id).call()
-    assert execution_info.result == (sample_uri[0],)
+    execution_info = await erc721.tokenURI(token_2).invoke()
+    assert execution_info.result == (SAMPLE_URI_2,)
 
 
 @pytest.mark.asyncio
-async def test_tokenURI_should_revert_for_nonexistent_token(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_tokenURI_should_revert_for_nonexistent_token(erc721_minted):
+    erc721, _, _, _ = erc721_minted
 
     # should revert for nonexistent token
-    await assert_revert(erc721.tokenURI(nonexistent_token).call())
+    await assert_revert(erc721.tokenURI(NONEXISTENT_TOKEN).invoke())
 
 
 @pytest.mark.asyncio
-async def test_setTokenURI_from_not_owner(erc721_factory):
-    starknet, erc721, _, _ = erc721_factory
-    not_owner = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
-    )
+async def test_setTokenURI_from_not_owner(erc721_minted):
+    erc721, _, not_owner, _ = erc721_minted
 
-    await assert_revert(
-        signer.send_transaction(
-            not_owner, erc721.contract_address, 'setTokenURI', [
-                *second_token_id,
-                sample_uri[1]
-            ]
-        )
+    await assert_revert(signer.send_transaction(
+        not_owner, erc721.contract_address, 'setTokenURI', [
+            *TOKEN,
+            SAMPLE_URI_1
+        ])
     )

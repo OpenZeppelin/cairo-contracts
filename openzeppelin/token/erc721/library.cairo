@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721/library.cairo)
+
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
@@ -15,7 +18,7 @@ from openzeppelin.introspection.ERC165 import ERC165_register_interface
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
-from openzeppelin.introspection.interfaces.IERC165 import IERC165
+from openzeppelin.introspection.IERC165 import IERC165
 
 from openzeppelin.utils.constants import TRUE, FALSE
 
@@ -99,8 +102,8 @@ func ERC721_balanceOf{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt) -> (balance: Uint256):
-    let (balance: Uint256) = ERC721_balances.read(owner)
     assert_not_zero(owner)
+    let (balance: Uint256) = ERC721_balances.read(owner)
     return (balance)
 end
 
@@ -473,7 +476,7 @@ func _check_onERC721Received{
         return (TRUE)
     end
 
-    # IAccount_ID = 0x50b70dcb
-    let (is_account) = IERC165.supportsInterface(to, 0xbd73c577)
+    # IAccount_ID = 0xf10dbd44
+    let (is_account) = IERC165.supportsInterface(to, 0xf10dbd44)
     return (is_account)
 end

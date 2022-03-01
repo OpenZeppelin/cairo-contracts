@@ -11,10 +11,6 @@ from utils import (
 
 signer = Signer(123456789987654321)
 
-account_path = 'openzeppelin/account/Account.cairo'
-erc721_path = 'tests/mocks/ERC721_SafeMintable_mock.cairo'
-erc721_holder_path = 'openzeppelin/token/erc721/utils/ERC721_Holder.cairo'
-unsupported_path = 'openzeppelin/security/initializable.cairo'
 
 # random token id
 TOKEN = to_uint(5042)
@@ -29,10 +25,12 @@ def event_loop():
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def(account_path)
-    erc721_def = get_contract_def(erc721_path)
-    erc721_holder_def = get_contract_def(erc721_holder_path)
-    unsupported_def = get_contract_def(unsupported_path)
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc721_def = get_contract_def('tests/mocks/ERC721_SafeMintable_mock.cairo')
+    erc721_holder_def = get_contract_def(
+        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+    unsupported_def = get_contract_def(
+        'openzeppelin/security/initializable.cairo')
 
     return account_def, erc721_def, erc721_holder_def, unsupported_def
 
@@ -180,16 +178,11 @@ async def test_safeMint_from_not_owner(erc721_factory):
 async def test_safeMint_to_unsupported_contract(erc721_factory):
     erc721, account, _, _, unsupported = erc721_factory
 
-    try:
-        await signer.send_transaction(
-            account, erc721.contract_address, 'safeMint', [
-                unsupported.contract_address,
-                *TOKEN,
-                len(DATA),
-                *DATA
-            ]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
+    await assert_revert(signer.send_transaction(
+        account, erc721.contract_address, 'safeMint', [
+            unsupported.contract_address,
+            *TOKEN,
+            len(DATA),
+            *DATA
+        ]
+    ))

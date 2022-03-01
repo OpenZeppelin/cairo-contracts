@@ -1,15 +1,25 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import str_to_felt, Signer, uint, MAX_UINT256, assert_revert
-
+from utils import (
+    Signer, str_to_felt, MAX_UINT256, get_contract_def, cached_contract,
+    TRUE, assert_revert, to_uint, sub_uint, add_uint
+)
 
 signer = Signer(123456789987654321)
 
-# random user address
-user = 123
 # random token IDs
-tokens = [(5042, 0), (7921, 1), (0, 13), MAX_UINT256, (234, 345)]
+TOKENS = [
+    to_uint(5042), to_uint(793), to_uint(321), MAX_UINT256, to_uint(8)
+]
+# total tokens as uint
+TOTAL_TOKENS = to_uint(len(TOKENS))
+# random user address
+RECIPIENT = 555
+# random data (mimicking bytes in Solidity)
+DATA = [0x42, 0x89, 0x55]
+# selector id
+ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 
 @pytest.fixture(scope='module')
@@ -18,35 +28,66 @@ def event_loop():
 
 
 @pytest.fixture(scope='module')
-async def erc721_factory():
+def contract_defs():
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc721_def = get_contract_def(
+        'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
+
+    return account_def, erc721_def
+
+
+@pytest.fixture(scope='module')
+async def erc721_init(contract_defs):
+    account_def, erc721_def = contract_defs
     starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+    account1 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
-    other = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+    account2 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
     erc721 = await starknet.deploy(
-        "openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo",
+        contract_def=erc721_def,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account.contract_address            # owner
+            account1.contract_address           # owner
         ]
     )
+    return (
+        starknet.state,
+        account1,
+        account2,
+        erc721
+    )
 
+
+@pytest.fixture
+def erc721_factory(contract_defs, erc721_init):
+    account_def, erc721_def = contract_defs
+    state, account1, account2, erc721 = erc721_init
+    _state = state.copy()
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
+    erc721 = cached_contract(_state, erc721_def, erc721)
+
+    return erc721, account1, account2
+
+
+@pytest.fixture
+async def erc721_minted(erc721_factory):
+    erc721, account, account2 = erc721_factory
     # mint tokens to account
-    for token in tokens:
+    for token in TOKENS:
         await signer.send_transaction(
             account, erc721.contract_address, 'mint', [
                 account.contract_address, *token]
         )
 
-    return starknet, erc721, account, other
+    return erc721, account, account2
+
 
 #
 # supportsInterface
@@ -55,12 +96,10 @@ async def erc721_factory():
 
 @pytest.mark.asyncio
 async def test_supportsInterface(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+    erc721, _, _ = erc721_factory
 
-    enum_interface_id = 0x780e9d63
-
-    execution_info = await erc721.supportsInterface(enum_interface_id).call()
-    assert execution_info.result == (1,)
+    execution_info = await erc721.supportsInterface(ENUMERABLE_INTERFACE_ID).invoke()
+    assert execution_info.result == (TRUE,)
 
 #
 # totalSupply
@@ -68,11 +107,11 @@ async def test_supportsInterface(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_totalSupply(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_totalSupply(erc721_minted):
+    erc721, _, _ = erc721_minted
 
-    execution_info = await erc721.totalSupply().call()
-    assert execution_info.result == (uint(5),)
+    execution_info = await erc721.totalSupply().invoke()
+    assert execution_info.result == (TOTAL_TOKENS,)
 
 
 #
@@ -81,39 +120,43 @@ async def test_totalSupply(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_tokenOfOwnerByIndex(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_tokenOfOwnerByIndex(erc721_minted):
+    erc721, account, _ = erc721_minted
 
     # check index
-    for i, t in zip(range(0, 5), range(0, 5)):
-        execution_info = await erc721.tokenOfOwnerByIndex(account.contract_address, uint(i)).call()
-        assert execution_info.result == (tokens[t],)
+    for i in range(0, len(TOKENS)):
+        execution_info = await erc721.tokenOfOwnerByIndex(
+            account.contract_address, to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)
 
 
 @pytest.mark.asyncio
-async def test_tokenOfOwnerByIndex_greater_than_supply(erc721_factory):
-    _, erc721, account, _ = erc721_factory
+async def test_tokenOfOwnerByIndex_greater_than_supply(erc721_minted):
+    erc721, account, _ = erc721_minted
+
+    tokens_plus_one = add_uint(TOTAL_TOKENS, to_uint(1))
 
     await assert_revert(
-        erc721.tokenOfOwnerByIndex(account.contract_address, uint(5)).call()
+        erc721.tokenOfOwnerByIndex(
+            account.contract_address, tokens_plus_one).invoke()
     )
 
 
 @pytest.mark.asyncio
-async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_minted):
+    erc721, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.tokenOfOwnerByIndex(user, uint(1)).call()
+        erc721.tokenOfOwnerByIndex(RECIPIENT, to_uint(1)).invoke()
     )
 
 
 @pytest.mark.asyncio
-async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_factory):
-    _, erc721, account, other = erc721_factory
+async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
+    erc721, account, other = erc721_minted
 
     # transfer all tokens
-    for token in tokens:
+    for token in TOKENS:
         await signer.send_transaction(
             account, erc721.contract_address, 'transferFrom', [
                 account.contract_address,
@@ -122,21 +165,55 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_factory):
             ]
         )
 
-    execution_info = await erc721.balanceOf(other.contract_address).call()
-    assert execution_info.result == (uint(5),)
+    execution_info = await erc721.balanceOf(other.contract_address).invoke()
+    assert execution_info.result == (TOTAL_TOKENS,)
 
-    for i, t in zip(range(0, 5), range(0, 5)):
-        execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, uint(i)).call()
-        assert execution_info.result == (tokens[t],)
+    for i in range(0, len(TOKENS)):
+        execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)
 
-    execution_info = await erc721.balanceOf(account.contract_address).call()
-    assert execution_info.result == (uint(0),)
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result == (to_uint(0),)
 
     # check that queries to old owner's token ownership reverts since index is less
     # than the target's balance
     await assert_revert(erc721.tokenOfOwnerByIndex(
-        account.contract_address, uint(0)).call()
+        account.contract_address, to_uint(0)).invoke()
     )
+
+
+@pytest.mark.asyncio
+async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
+    erc721, account, other = erc721_minted
+
+    # safe transfer all tokens
+    for token in TOKENS:
+        await signer.send_transaction(
+            account, erc721.contract_address, 'safeTransferFrom', [
+                account.contract_address,
+                other.contract_address,
+                *token,
+                len(DATA),
+                *DATA
+            ]
+        )
+
+    execution_info = await erc721.balanceOf(other.contract_address).invoke()
+    assert execution_info.result == (TOTAL_TOKENS,)
+
+    for i in range(0, len(TOKENS)):
+        execution_info = await erc721.tokenOfOwnerByIndex(other.contract_address, to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)
+
+    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    assert execution_info.result == (to_uint(0),)
+
+    # check that queries to old owner's token ownership reverts since index is less
+    # than the target's balance
+    await assert_revert(erc721.tokenOfOwnerByIndex(
+        account.contract_address, to_uint(0)).invoke()
+    )
+
 
 #
 # tokenByIndex
@@ -144,88 +221,89 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_factory):
 
 
 @pytest.mark.asyncio
-async def test_tokenByIndex(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_tokenByIndex(erc721_minted):
+    erc721, _, _ = erc721_minted
 
-    for i, t in zip(range(0, 5), range(0, 5)):
-        execution_info = await erc721.tokenByIndex(uint(i)).call()
-        assert execution_info.result == (tokens[t],)
+    for i in range(0, len(TOKENS)):
+        execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)
 
 
 @pytest.mark.asyncio
-async def test_tokenByIndex_greater_than_supply(erc721_factory):
-    _, erc721, _, _ = erc721_factory
+async def test_tokenByIndex_greater_than_supply(erc721_minted):
+    erc721, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.tokenByIndex(uint(5)).call()
+        erc721.tokenByIndex(to_uint(5)).invoke()
     )
 
 
 @pytest.mark.asyncio
-async def test_tokenByIndex_burn_last_token(erc721_factory):
-    _, erc721, account, other = erc721_factory
+async def test_tokenByIndex_burn_last_token(erc721_minted):
+    erc721, account, _ = erc721_minted
+
+    tokens_minus_one = sub_uint(TOTAL_TOKENS, to_uint(1))
 
     # burn last token
     await signer.send_transaction(
-        other, erc721.contract_address, 'burn', [
-            *tokens[4]]
+        account, erc721.contract_address, 'burn', [
+            *TOKENS[4]]
     )
 
-    execution_info = await erc721.totalSupply().call()
-    assert execution_info.result == (uint(4),)
+    execution_info = await erc721.totalSupply().invoke()
+    assert execution_info.result == (tokens_minus_one,)
 
-    for i, t in zip(range(0, 4), range(0, 4)):
-        execution_info = await erc721.tokenByIndex(uint(i)).call()
-        assert execution_info.result == (tokens[t],)
+    for i in range(0, 4):
+        execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)
 
     await assert_revert(
-        erc721.tokenByIndex(uint(4)).call()
+        erc721.tokenByIndex(tokens_minus_one).invoke()
     )
 
 
 @pytest.mark.asyncio
-async def test_tokenByIndex_burn_first_token(erc721_factory):
-    _, erc721, _, other = erc721_factory
+async def test_tokenByIndex_burn_first_token(erc721_minted):
+    erc721, account, _ = erc721_minted
 
     # burn first token
     await signer.send_transaction(
-        other, erc721.contract_address, 'burn', [
-            *tokens[0]]
+        account, erc721.contract_address, 'burn', [
+            *TOKENS[0]]
     )
 
-    # the first token should be burnt and the fourth token should be swapped
-    # to the first token's index
-    new_token_order = [tokens[3], tokens[1], tokens[2]]
-    for i, t in zip(range(0, 3), range(0, 3)):
-        execution_info = await erc721.tokenByIndex(uint(i)).call()
-        assert execution_info.result == (new_token_order[t],)
+    # TOKEN[0] should be burnt and TOKEN[4] should be swapped
+    # to TOKEN[0]'s index
+    new_token_order = [TOKENS[4], TOKENS[1], TOKENS[2], TOKENS[3]]
+    for i in range(0, 3):
+        execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
+        assert execution_info.result == (new_token_order[i],)
 
 
 @pytest.mark.asyncio
-async def test_tokenByIndex_burn_and_mint(erc721_factory):
-    _, erc721, account, other = erc721_factory
+async def test_tokenByIndex_burn_and_mint(erc721_minted):
+    erc721, account, _ = erc721_minted
 
-    new_token_order = [tokens[3], tokens[1], tokens[2]]
-    for token in new_token_order:
+    for token in TOKENS:
         await signer.send_transaction(
-            other, erc721.contract_address, 'burn', [
+            account, erc721.contract_address, 'burn', [
                 *token]
         )
 
-    execution_info = await erc721.totalSupply().call()
-    assert execution_info.result == (uint(0),)
+    execution_info = await erc721.totalSupply().invoke()
+    assert execution_info.result == (to_uint(0),)
 
     await assert_revert(
-        erc721.tokenByIndex(uint(0)).call()
+        erc721.tokenByIndex(to_uint(0)).invoke()
     )
 
     # mint new tokens
-    for token in tokens:
+    for token in TOKENS:
         await signer.send_transaction(
             account, erc721.contract_address, 'mint', [
                 account.contract_address, *token]
         )
 
-    for i, t in zip(range(0, 5), range(0, 5)):
-        execution_info = await erc721.tokenByIndex(uint(i)).call()
-        assert execution_info.result == (tokens[t],)
+    for i in range(0, len(TOKENS)):
+        execution_info = await erc721.tokenByIndex(to_uint(i)).invoke()
+        assert execution_info.result == (TOKENS[i],)

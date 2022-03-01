@@ -1,9 +1,6 @@
 import pytest
 import asyncio
-from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.testing.starknet import Starknet, StarknetContract
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, str_to_felt, ZERO_ADDRESS, assert_revert,
     get_contract_def, cached_contract, to_uint

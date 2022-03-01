@@ -53,7 +53,7 @@ async def erc721_init(contract_defs):
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
-            account1.contract_address
+            account1.contract_address           # owner
         ]
     )
     return (

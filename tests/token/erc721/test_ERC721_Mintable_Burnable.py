@@ -1,8 +1,6 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import (
     Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert,
     get_contract_def, cached_contract, to_uint, sub_uint, add_uint
@@ -814,20 +812,16 @@ async def test_safeTransferFrom_from_zero_address(erc721_minted):
 async def test_safeTransferFrom_to_unsupported_contract(erc721_unsupported):
     erc721, account, _, _, unsupported = erc721_unsupported
 
-    try:
-        await signer.send_transaction(
+    await assert_revert(
+        signer.send_transaction(
             account, erc721.contract_address, 'safeTransferFrom', [
                 account.contract_address,
                 unsupported.contract_address,
                 *TOKEN,
                 len(DATA),
-                *DATA
-            ]
-        )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
+                *DATA,
+            ])
+    )
 
 
 @pytest.mark.asyncio

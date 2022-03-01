@@ -2,21 +2,23 @@
 
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.business_logic.transaction_execution_objects import Event
 from starkware.starknet.testing.starknet import StarknetContract
-from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.business_logic.transaction_execution_objects import Event
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
+TRUE = 1
+FALSE = 0
 
 TRANSACTION_VERSION = 0
 
 
 def str_to_felt(text):
-    b_text = bytes(text, 'ascii')
+    b_text = bytes(text, "ascii")
     return int.from_bytes(b_text, "big")
 
 
@@ -63,14 +65,6 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
-def assert_event_emitted(tx_exec_info, from_address, name, data):
-    assert Event(
-        from_address=from_address,
-        keys=[get_selector_from_name(name)],
-        data=data,
-    ) in tx_exec_info.raw_events
-
-
 async def assert_revert(fun, reverted_with=None):
     try:
         await fun
@@ -79,6 +73,14 @@ async def assert_revert(fun, reverted_with=None):
         _, error = err.args
         if reverted_with is not None:
             assert reverted_with in error['message']
+
+
+def assert_event_emitted(tx_exec_info, from_address, name, data):
+    assert Event(
+        from_address=from_address,
+        keys=[get_selector_from_name(name)],
+        data=data,
+    ) in tx_exec_info.raw_events
 
 
 def get_contract_def(path):
@@ -112,7 +114,7 @@ class Signer():
 
     Examples
     ---------
-    Constructing a Singer object
+    Constructing a Signer object
 
     >>> signer = Signer(1234)
 

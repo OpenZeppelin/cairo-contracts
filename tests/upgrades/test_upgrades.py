@@ -230,8 +230,8 @@ async def test_upgrade_from_non_admin(proxy_factory):
     )
 
 
-@pytest.mark.asyncio
 # Using `after_upgrade` fixture henceforth
+@pytest.mark.asyncio
 async def test_implementation_v2(after_upgrade):
     admin, _, _, v2, _, proxy = after_upgrade
 

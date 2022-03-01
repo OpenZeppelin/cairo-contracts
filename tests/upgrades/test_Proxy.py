@@ -1,15 +1,12 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import (
-    Signer, assert_revert, assert_event_emitted, get_contract_def, cached_contract
+    Signer, assert_revert, get_contract_def, cached_contract
 )
 
 # random value
 VALUE = 123
-
 
 signer = Signer(123456789987654321)
 
@@ -23,7 +20,7 @@ def event_loop():
 def contract_defs():
     account_def = get_contract_def('openzeppelin/account/Account.cairo')
     implementation_def = get_contract_def(
-        'tests/mocks/proxy_implementation.cairo'
+        'tests/mocks/proxiable_implementation.cairo'
     )
     proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
 
@@ -110,11 +107,8 @@ async def test_default_fallback(proxy_factory):
 async def test_fallback_when_selector_does_not_exist(proxy_factory):
     account, _, proxy = proxy_factory
 
-    try:
-        await signer.send_transaction(
+    await assert_revert(
+        signer.send_transaction(
             account, proxy.contract_address, 'bad_selector', []
         )
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.ENTRY_POINT_NOT_FOUND_IN_CONTRACT
+    )

@@ -3,8 +3,8 @@ import asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, assert_event_emitted,
-    assert_revert, sub_uint, add_uint
+    Signer, uint, str_to_felt, MAX_UINT256, INVALID_UINT256, ZERO_ADDRESS,
+    assert_event_emitted, assert_revert, sub_uint, add_uint
 )
 
 signer = Signer(123456789987654321)
@@ -47,6 +47,24 @@ async def test_constructor(erc20_factory):
 
 
 @pytest.mark.asyncio
+async def test_constructor_invalid_decimals(erc20_factory):
+    starknet, _, account = erc20_factory
+    invalid_decimals = 2**8 + 1
+
+    await assert_revert(starknet.deploy(
+        "openzeppelin/token/erc20/ERC20.cairo",
+        constructor_calldata=[
+            str_to_felt("Token"),
+            str_to_felt("TKN"),
+            invalid_decimals,
+            *uint(1000),
+            account.contract_address
+        ]),
+        reverted_with="ERC20: decimals exceeded 2^8"
+    )
+
+
+@pytest.mark.asyncio
 async def test_name(erc20_factory):
     _, erc20, _ = erc20_factory
     execution_info = await erc20.name().call()
@@ -59,11 +77,13 @@ async def test_symbol(erc20_factory):
     execution_info = await erc20.symbol().call()
     assert execution_info.result == (str_to_felt("TKN"),)
 
+
 @pytest.mark.asyncio
 async def test_decimals(erc20_factory):
     _, erc20, _ = erc20_factory
     execution_info = await erc20.decimals().call()
     assert execution_info.result.decimals == 18
+
 
 @pytest.mark.asyncio
 async def test_transfer(erc20_factory):
@@ -129,8 +149,23 @@ async def test_insufficient_sender_funds(erc20_factory):
         account, erc20.contract_address, 'transfer', [
             recipient,
             *uint(balance[0] + 1)
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: transfer amount exceeds balance"
+    )
+
+
+@pytest.mark.asyncio
+async def test_transfer_invalid_uint256(erc20_factory):
+    _, erc20, account = erc20_factory
+    recipient = 123
+
+    await assert_revert(signer.send_transaction(
+        account, erc20.contract_address, 'transfer', [
+            recipient,
+            *INVALID_UINT256
+        ]),
+        reverted_with="ERC20: invalid uint256 transfer amount"
+    )
 
 
 @pytest.mark.asyncio
@@ -176,6 +211,21 @@ async def test_approve_emits_event(erc20_factory):
 
 
 @pytest.mark.asyncio
+async def test_approve_invalid_uint256(erc20_factory):
+    _, erc20, account = erc20_factory
+    spender = 123
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc20.contract_address, 'approve', [
+                spender,
+                *INVALID_UINT256
+            ]),
+        reverted_with="ERC20: invalid uint256 approval amount"
+    )
+
+
+@ pytest.mark.asyncio
 async def test_transferFrom(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
@@ -210,7 +260,7 @@ async def test_transferFrom(erc20_factory):
     assert execution_info.result.remaining == uint(0)
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transferFrom_emits_event(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
@@ -242,7 +292,7 @@ async def test_transferFrom_emits_event(erc20_factory):
     )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_increaseAllowance(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -269,7 +319,7 @@ async def test_increaseAllowance(erc20_factory):
     )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_increaseAllowance_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -301,7 +351,7 @@ async def test_increaseAllowance_emits_event(erc20_factory):
     )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_decreaseAllowance(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -329,7 +379,7 @@ async def test_decreaseAllowance(erc20_factory):
     )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_decreaseAllowance_emits_event(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -363,7 +413,7 @@ async def test_decreaseAllowance_emits_event(erc20_factory):
     )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_decreaseAllowance_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -379,11 +429,12 @@ async def test_decreaseAllowance_overflow(erc20_factory):
         account, erc20.contract_address, 'decreaseAllowance', [
             spender,
             *uint(init_amount[0] + 1)
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: decreased allowance below zero"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
@@ -402,11 +453,12 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
             account.contract_address,
             recipient,
             *uint(allowance[0] + 1)
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: transfer amount exceeds allowance"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_increaseAllowance_overflow(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -419,11 +471,12 @@ async def test_increaseAllowance_overflow(erc20_factory):
     await assert_revert(signer.send_transaction(
         account, erc20.contract_address, 'increaseAllowance', [
             spender, *overflow_amount
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: allowance overflow"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transfer_to_zero_address(erc20_factory):
     _, erc20, account = erc20_factory
     amount = uint(1)
@@ -431,11 +484,12 @@ async def test_transfer_to_zero_address(erc20_factory):
     await assert_revert(signer.send_transaction(
         account, erc20.contract_address, 'transfer', [
             ZERO_ADDRESS, *amount
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: transfer to the zero address"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transferFrom_zero_address(erc20_factory):
     _, erc20, _ = erc20_factory
     recipient = 123
@@ -443,10 +497,13 @@ async def test_transferFrom_zero_address(erc20_factory):
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    await assert_revert(erc20.transfer(recipient, amount).invoke())
+    await assert_revert(
+        erc20.transfer(recipient, amount).invoke(),
+        reverted_with="ERC20: transfer from the zero address"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transferFrom_func_to_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
@@ -464,13 +521,14 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
             account.contract_address,
             ZERO_ADDRESS,
             *amount
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: transfer to the zero address"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_transferFrom_func_from_zero_address(erc20_factory):
-    starknet, erc20, account = erc20_factory
+    starknet, erc20, _ = erc20_factory
     spender = await starknet.deploy(
         "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
@@ -485,11 +543,12 @@ async def test_transferFrom_func_from_zero_address(erc20_factory):
             ZERO_ADDRESS,
             recipient,
             *amount
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: transfer amount exceeds allowance"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_approve_zero_address_spender(erc20_factory):
     _, erc20, account = erc20_factory
     amount = uint(1)
@@ -497,11 +556,12 @@ async def test_approve_zero_address_spender(erc20_factory):
         account, erc20.contract_address, 'approve', [
             ZERO_ADDRESS,
             *amount
-        ]
-    ))
+        ]),
+        reverted_with="ERC20: approve to the zero address"
+    )
 
 
-@pytest.mark.asyncio
+@ pytest.mark.asyncio
 async def test_approve_zero_address_caller(erc20_factory):
     _, erc20, _ = erc20_factory
     spender = 123
@@ -509,4 +569,7 @@ async def test_approve_zero_address_caller(erc20_factory):
 
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
-    await assert_revert(erc20.approve(spender, amount).invoke())
+    await assert_revert(
+        erc20.approve(spender, amount).invoke(),
+        reverted_with="ERC20: approve from the zero address"
+    )

@@ -10,6 +10,8 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
+from openzeppelin.utils.constants import TRUE
+
 from openzeppelin.utils.constants import UINT8_MAX
 
 #
@@ -67,7 +69,9 @@ func ERC20_initializer{
     ):
     ERC20_name_.write(name)
     ERC20_symbol_.write(symbol)
-    assert_lt(decimals, UINT8_MAX)
+    with_attr error_message("ERC20: decimals exceeded 2^8"):
+        assert_lt(decimals, UINT8_MAX)
+    end
     ERC20_decimals_.write(decimals)
     return ()
 end
@@ -149,9 +153,10 @@ func ERC20_transferFrom{
     let (caller) = get_caller_address()
     let (caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
 
-    # validates amount <= caller_allowance and returns 1 if true   
     let (enough_allowance) = uint256_le(amount, caller_allowance)
-    assert_not_zero(enough_allowance)
+    with_attr error_message("ERC20: transfer amount exceeds allowance"):
+        assert enough_allowance = TRUE
+    end
 
     _transfer(sender, recipient, amount)
 
@@ -166,10 +171,19 @@ func ERC20_approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256):
+    with_attr error_message("ERC20: invalid uint256 approval amount"):
+        uint256_check(amount)
+    end
+
     let (caller) = get_caller_address()
-    assert_not_zero(caller)
-    assert_not_zero(spender)
-    uint256_check(amount)
+    with_attr error_message("ERC20: approve from the zero address"):
+        assert_not_zero(caller)
+    end
+
+    with_attr error_message("ERC20: approve to the zero address"):
+        assert_not_zero(spender)
+    end
+
     ERC20_allowances.write(caller, spender, amount)
     Approval.emit(caller, spender, amount)
     return ()
@@ -180,13 +194,18 @@ func ERC20_increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> ():
-    uint256_check(added_value)
+    with_attr error("ERC20: invalid uint256 added_value amount"):
+        uint256_check(added_value)
+    end
+
     let (caller) = get_caller_address()
     let (current_allowance: Uint256) = ERC20_allowances.read(caller, spender)
 
     # add allowance
     let (new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
-    assert (is_overflow) = 0
+    with_attr error_message("ERC20: allowance overflow"):
+        assert (is_overflow) = 0
+    end
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -198,14 +217,18 @@ func ERC20_decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> ():
     alloc_locals
-    uint256_check(subtracted_value)
+    with_attr error_message("ERC20: invalid uint256 subtracted_value amount"):
+        uint256_check(subtracted_value)
+    end
+
     let (caller) = get_caller_address()
     let (current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
     let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
-    # validates new_allowance < current_allowance and returns 1 if true   
     let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
-    assert_not_zero(enough_allowance)
+    with_attr error_message("ERC20: decreased allowance below zero"):
+        assert enough_allowance = TRUE
+    end
 
     ERC20_approve(spender, new_allowance)
     return ()
@@ -216,8 +239,13 @@ func ERC20_mint{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
-    assert_not_zero(recipient)
-    uint256_check(amount)
+    with_attr error_message("ERC20: invalid uint256 amount"):
+        uint256_check(amount)
+    end
+
+    with_attr error_message("ERC20: mint to the zero address"):
+        assert_not_zero(recipient)
+    end
 
     let (balance: Uint256) = ERC20_balances.read(account=recipient)
     # overflow is not possible because sum is guaranteed to be less than total supply
@@ -227,7 +255,9 @@ func ERC20_mint{
 
     let (supply: Uint256) = ERC20_total_supply.read()
     let (new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
-    assert (is_overflow) = 0
+    with_attr error_message("ERC20: mint overflow"):
+        assert (is_overflow) = 0
+    end
 
     ERC20_total_supply.write(new_supply)
     Transfer.emit(0, recipient, amount)
@@ -240,13 +270,19 @@ func ERC20_burn{
         range_check_ptr
     }(account: felt, amount: Uint256):
     alloc_locals
-    assert_not_zero(account)
-    uint256_check(amount)
+    with_attr error_message("ERC20: invalid uint256 burn amount"):
+        uint256_check(amount)
+    end
+
+    with_attr error_message("ERC20: burn from the zero address"):
+        assert_not_zero(account)
+    end
 
     let (balance: Uint256) = ERC20_balances.read(account)
-    # validates amount <= balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, balance)
-    assert_not_zero(enough_balance)
+    with_attr error_message("ERC20: burn amount exceeds balance"):
+        assert enough_balance = TRUE
+    end
     
     let (new_balance: Uint256) = uint256_sub(balance, amount)
     ERC20_balances.write(account, new_balance)
@@ -268,16 +304,26 @@ func _transfer{
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
-    assert_not_zero(sender)
-    assert_not_zero(recipient)
-    uint256_check(amount) # almost surely not needed, might remove after confirmation
+    with_attr error_message("ERC20: invalid uint256 transfer amount"):
+        uint256_check(amount) # almost surely not needed, might remove after confirmation
+    end
+
+    with_attr error_message("ERC20: transfer from the zero address"):
+        assert_not_zero(sender)
+    end
+
+    with_attr error_message("ERC20: transfer to the zero address"):
+        assert_not_zero(recipient)
+    end
 
     let (sender_balance: Uint256) = ERC20_balances.read(account=sender)
 
     # validates amount <= sender_balance and returns 1 if true
     let (enough_balance) = uint256_le(amount, sender_balance)
-    assert_not_zero(enough_balance)
-
+    with_attr error_message("ERC20: transfer amount exceeds balance"):
+        assert_not_zero(enough_balance)
+    end
+    
     # subtract from sender
     let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
     ERC20_balances.write(sender, new_sender_balance)

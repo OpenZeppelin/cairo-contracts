@@ -28,7 +28,9 @@ func initialize{
         range_check_ptr
     }():
     let (initialized) = _initialized.read()
-    assert initialized = FALSE
+    with_attr error_message("Initializable: contract already initialized"):
+        assert initialized = FALSE
+    end
     _initialized.write(TRUE)
     return ()
 end

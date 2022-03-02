@@ -543,7 +543,7 @@ async def test_setApprovalForAll(erc721_minted):
 
 
 @pytest.mark.asyncio
-async def test_setApprovalForAll_event(erc721_minted):
+async def test_setApprovalForAll_emits_event(erc721_minted):
     erc721, account, spender, _ = erc721_minted
 
     tx_exec_info = await signer.send_transaction(
@@ -646,7 +646,7 @@ async def test_transferFrom_owner(erc721_minted):
 
 
 @pytest.mark.asyncio
-async def test_transfer_and_approval_event(erc721_minted):
+async def test_transferFrom_emits_events(erc721_minted):
     erc721, account, spender, _ = erc721_minted
 
     # setApprovalForAll
@@ -829,6 +829,43 @@ async def test_safeTransferFrom(erc721_minted):
     # check owner
     execution_info = await erc721.ownerOf(TOKEN).invoke()
     assert execution_info.result == (erc721_holder.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_safeTransferFrom_emits_events(erc721_minted):
+    erc721, account, _, erc721_holder = erc721_minted
+
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'safeTransferFrom', [
+            account.contract_address,
+            erc721_holder.contract_address,
+            *TOKEN,
+            len(DATA),
+            *DATA
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Transfer',
+        data=[
+            account.contract_address,
+            erc721_holder.contract_address,
+            *TOKEN
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Approval',
+        data=[
+            account.contract_address,
+            ZERO_ADDRESS,
+            *TOKEN
+        ]
+    )
 
 
 @pytest.mark.asyncio

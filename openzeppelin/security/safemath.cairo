@@ -9,7 +9,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_check, uint256_add, uint256_sub, uint256_mul, 
     uint256_unsigned_div_rem, uint256_le, uint256_lt, uint256_eq
 )
-from contracts.utils.constants import TRUE, FALSE
+from openzeppelin.utils.constants import TRUE, FALSE
 
 # Adds two integers. 
 # Reverts if the sum overflows.
@@ -68,17 +68,10 @@ func uint256_checked_mul{
     alloc_locals
     uint256_check(a)
     uint256_check(b)
-    let (is_zero) = uint256_eq(a, Uint256(0, 0))
-    if is_zero == TRUE:
-        return (a)
-    end
-
     let (c: Uint256, overflow: Uint256) = uint256_mul(a, b)
-    assert overflow = Uint256(0, 0)
-
-    let (div_check: Uint256, _) = uint256_unsigned_div_rem(c, a)
-    let (is_eq) = uint256_eq(div_check, b)
-    assert is_eq = TRUE
+    with_attr error_message("Safemath: multiplication overflow"):
+        assert overflow = Uint256(0, 0)
+    end
 
     return (c)
 end
@@ -98,7 +91,9 @@ func uint256_checked_div_rem{
     uint256_check(b)
     
     let (is_zero) = uint256_eq(b, Uint256(0, 0))
-    assert is_zero = FALSE
+    with_attr error_message("Safemath: divisor is zero"):
+        assert is_zero = FALSE
+    end
 
     let (c: Uint256, rem: Uint256) = uint256_unsigned_div_rem(a, b)
     return (c, rem)

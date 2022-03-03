@@ -8,6 +8,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.transaction_execution_objects import Event
 
+
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 ZERO_ADDRESS = 0
 TRUE = 1

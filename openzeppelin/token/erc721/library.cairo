@@ -102,7 +102,9 @@ func ERC721_balanceOf{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt) -> (balance: Uint256):
-    assert_not_zero(owner)
+    with_attr error_message("ERC721: balance query for the zero address"):
+        assert_not_zero(owner)
+    end
     let (balance: Uint256) = ERC721_balances.read(owner)
     return (balance)
 end
@@ -112,10 +114,13 @@ func ERC721_ownerOf{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(token_id: Uint256) -> (owner: felt):
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     let (owner) = ERC721_owners.read(token_id)
-    # Ensuring the query is not for nonexistent token
-    assert_not_zero(owner)
+    with_attr error_message("ERC721: owner query for nonexistent token"):
+        assert_not_zero(owner)
+    end
     return (owner)
 end
 
@@ -124,9 +129,13 @@ func ERC721_getApproved{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(token_id: Uint256) -> (approved: felt):
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     let (exists) = _exists(token_id)
-    assert exists = TRUE
+    with_attr error_message("ERC721: approved query for nonexistent token"):
+        assert exists = TRUE
+    end
 
     let (approved) = ERC721_token_approvals.read(token_id)
     return (approved)
@@ -147,7 +156,9 @@ func ERC721_tokenURI{
         range_check_ptr
     }(token_id: Uint256) -> (token_uri: felt):
     let (exists) = _exists(token_id)
-    assert exists = TRUE
+    with_attr error_message("ERC721_Metadata: URI query for nonexistent token"):
+        assert exists = TRUE
+    end
 
     # if tokenURI is not set, it will return 0
     let (token_uri) = ERC721_token_uri.read(token_id)
@@ -163,14 +174,21 @@ func ERC721_approve{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    uint256_check(token_id)
+    with_attr error_mesage("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
+
     # Checks caller is not zero address
     let (caller) = get_caller_address()
-    assert_not_zero(caller)
+    with_attr error_message("ERC721: approve from the zero address"):
+        assert_not_zero(caller)
+    end
 
     # Ensures 'owner' does not equal 'to'
     let (owner) = ERC721_owners.read(token_id)
-    assert_not_equal(owner, to)
+    with_attr error_message("ERC721: approval to current owner"):
+        assert_not_equal(owner, to)
+    end
 
     # Checks that either caller equals owner or
     # caller isApprovedForAll on behalf of owner
@@ -179,7 +197,9 @@ func ERC721_approve{
         return ()
     else:
         let (is_approved) = ERC721_operator_approvals.read(owner, caller)
-        assert_not_zero(is_approved)
+        with_attr error_message("ERC721: approve caller is not owner nor approved for all"):
+            assert_not_zero(is_approved)
+        end
         _approve(to, token_id)
         return ()
     end
@@ -192,17 +212,23 @@ func ERC721_setApprovalForAll{
     }(operator: felt, approved: felt):
     # Ensures caller is neither zero address nor operator
     let (caller) = get_caller_address()
-    assert_not_zero(caller * operator)
+    with_attr error_message("ERC721: either the caller or operator is the zero address"):
+        assert_not_zero(caller * operator)
+    end
     # note this pattern as we'll frequently use it:
     #   instead of making an `assert_not_zero` call for each address
     #   we can always briefly write `assert_not_zero(a0 * a1 * ... * aN)`.
     #   This is because these addresses are field elements,
     #   meaning that a*0==0 for all a in the field,
     #   and a*b==0 implies that at least one of a,b are zero in the field
-    assert_not_equal(caller, operator)
+    with_attr error_message("ERC721: approve to caller"):
+        assert_not_equal(caller, operator)
+    end
 
     # Make sure `approved` is a boolean (0 or 1)
-    assert approved * (1 - approved) = 0
+    with_attr error_message("ERC721: approved is not a Cairo boolean"):
+        assert approved * (1 - approved) = 0
+    end
 
     ERC721_operator_approvals.write(owner=caller, operator=operator, value=approved)
     return ()
@@ -214,10 +240,14 @@ func ERC721_transferFrom{
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
     alloc_locals
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert_not_zero(caller * is_approved)
+    with_attr error_message("ERC721: either is not approved or the caller is the zero address"):
+        assert_not_zero(caller * is_approved)
+    end
     # Note that if either `is_approved` or `caller` equals `0`,
     # then this method should fail.
     # The `caller` address and `is_approved` boolean are both field elements
@@ -240,10 +270,14 @@ func ERC721_safeTransferFrom{
         data: felt*
     ):
     alloc_locals
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     let (caller) = get_caller_address()
     let (is_approved) = _is_approved_or_owner(caller, token_id)
-    assert_not_zero(caller * is_approved)
+    with_attr error_message("ERC721: either is not approved or the caller is the zero address"):
+        assert_not_zero(caller * is_approved)
+    end
     # Note that if either `is_approved` or `caller` equals `0`,
     # then this method should fail.
     # The `caller` address and `is_approved` boolean are both field elements
@@ -259,12 +293,18 @@ func ERC721_mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    uint256_check(token_id)
-    assert_not_zero(to)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
+    with_attr error_message("ERC721: mint to the zero address"):
+        assert_not_zero(to)
+    end
 
     # Ensures token_id is unique
     let (exists) = _exists(token_id)
-    assert exists = FALSE
+    with_attr error_message("ERC721: token already minted"):
+        assert exists = FALSE
+    end
 
     let (balance: Uint256) = ERC721_balances.read(to)
     let (new_balance: Uint256) = uint256_checked_add(balance, Uint256(1, 0))
@@ -279,7 +319,9 @@ func ERC721_burn{
         range_check_ptr
     }(token_id: Uint256):
     alloc_locals
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     let (owner) = ERC721_ownerOf(token_id)
 
     # Clear approvals
@@ -305,7 +347,9 @@ func ERC721_safeMint{
         data_len: felt,
         data: felt*
     ):
-    uint256_check(token_id)
+    with_attr error_message("ERC721: invalid uint256 token id"):
+        uint256_check(token_id)
+    end
     ERC721_mint(to, token_id)
 
     let (success) = _check_onERC721Received(
@@ -315,7 +359,9 @@ func ERC721_safeMint{
         data_len,
         data
     )
-    assert_not_zero(success)
+    with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
+        assert_not_zero(success)
+    end
     return ()
 end
 
@@ -328,7 +374,9 @@ func ERC721_only_token_owner{
     let (caller) = get_caller_address()
     let (owner) = ERC721_ownerOf(token_id)
     # Note `ERC721_ownerOf` checks that the owner is not the zero address
-    assert caller = owner
+    with_attr error_message("ERC721: caller is not the token owner"):
+        assert caller = owner
+    end
     return ()
 end
 
@@ -339,7 +387,9 @@ func ERC721_setTokenURI{
     }(token_id: Uint256, token_uri: felt):
     uint256_check(token_id)
     let (exists) = _exists(token_id)
-    assert exists = TRUE
+    with_attr error_message("ERC721_Metadata: set token URI for nonexistent token"):
+        assert exists = TRUE
+    end
 
     ERC721_token_uri.write(token_id, token_uri)
     return ()
@@ -366,7 +416,9 @@ func _is_approved_or_owner{
     alloc_locals
 
     let (exists) = _exists(token_id)
-    assert exists = TRUE
+    with_attr error_message("ERC721: token id does not exist"):
+        assert exists = TRUE
+    end
 
     let (owner) = ERC721_ownerOf(token_id)
     if owner == spender:
@@ -407,9 +459,13 @@ func _transfer{
     }(_from: felt, to: felt, token_id: Uint256):
     # ownerOf ensures '_from' is not the zero address
     let (_ownerOf) = ERC721_ownerOf(token_id)
-    assert _ownerOf = _from
+    with_attr error_message("ERC721: transfer from incorrect owner"):
+        assert _ownerOf = _from
+    end
 
-    assert_not_zero(to)
+    with_attr error_message("ERC721: transfer to the zero address"):
+        assert_not_zero(to)
+    end
 
     # Clear approvals
     _approve(0, token_id)
@@ -443,7 +499,9 @@ func _safe_transfer{
     _transfer(_from, to, token_id)
 
     let (success) = _check_onERC721Received(_from, to, token_id, data_len, data)
-    assert_not_zero(success)
+    with_attr error_message("ERC721: transfer caller is not owner nor approved"):
+        assert_not_zero(success)
+    end
     return ()
 end
 
@@ -472,7 +530,9 @@ func _check_onERC721Received{
         )
 
         # ERC721_RECEIVER_ID
-        assert selector = 0x150b7a02
+        with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
+            assert selector = 0x150b7a02
+        end
         return (TRUE)
     end
 

@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, str_to_felt, ZERO_ADDRESS, assert_revert,
+    Signer, str_to_felt, ZERO_ADDRESS, assert_revert, INVALID_UINT256,
     get_contract_def, cached_contract, to_uint
 )
 
@@ -138,8 +138,9 @@ async def test_safeMint_to_zero_address(erc721_factory):
             *TOKEN,
             len(DATA),
             *DATA
-        ]
-    ))
+        ]),
+        reverted_with="ERC721: mint to the zero address"
+    )
 
 
 @pytest.mark.asyncio
@@ -152,7 +153,8 @@ async def test_safeMint_from_zero_address(erc721_factory):
             erc721_holder.contract_address,
             TOKEN,
             DATA
-        ).invoke()
+        ).invoke(),
+        reverted_with="Ownable: caller is not "
     )
 
 
@@ -166,7 +168,8 @@ async def test_safeMint_from_not_owner(erc721_factory):
             *TOKEN,
             len(DATA),
             *DATA
-        ])
+        ]),
+        reverted_with="Ownable: caller is not the owner"
     )
 
 
@@ -180,5 +183,20 @@ async def test_safeMint_to_unsupported_contract(erc721_factory):
             *TOKEN,
             len(DATA),
             *DATA
-        ]
-    ))
+        ])
+    )
+
+
+@pytest.mark.asyncio
+async def test_safeMint_invalid_uint256(erc721_factory):
+    erc721, account, recipient, _, _ = erc721_factory
+
+    await assert_revert(signer.send_transaction(
+        account, erc721.contract_address, 'safeMint', [
+            recipient.contract_address,
+            *INVALID_UINT256,
+            len(DATA),
+            *DATA
+        ]),
+        reverted_with="ERC721: invalid uint256 token id"
+    )

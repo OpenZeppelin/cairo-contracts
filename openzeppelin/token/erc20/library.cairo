@@ -204,7 +204,7 @@ func ERC20_increaseAllowance{
     # add allowance
     let (new_allowance: Uint256, is_overflow) = uint256_add(current_allowance, added_value)
     with_attr error_message("ERC20: allowance overflow"):
-        assert (is_overflow) = 0
+        assert (is_overflow) = FALSE
     end
 
     ERC20_approve(spender, new_allowance)
@@ -256,7 +256,7 @@ func ERC20_mint{
     let (supply: Uint256) = ERC20_total_supply.read()
     let (new_supply: Uint256, is_overflow) = uint256_add(supply, amount)
     with_attr error_message("ERC20: mint overflow"):
-        assert (is_overflow) = 0
+        assert (is_overflow) = FALSE
     end
 
     ERC20_total_supply.write(new_supply)

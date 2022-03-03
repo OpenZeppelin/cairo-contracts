@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer
+from utils import Signer, assert_revert
 
 signer = Signer(123456789987654321)
 other = Signer(987654321123456789)
@@ -24,13 +24,17 @@ async def account_factory():
         "openzeppelin/account/Account.cairo",
         constructor_calldata=[signer.public_key]
     )
+    bad_account = await starknet.deploy(
+        "openzeppelin/account/Account.cairo",
+        constructor_calldata=[signer.public_key]
+    )
 
-    return starknet, account
+    return starknet, account, bad_account
 
 
 @pytest.mark.asyncio
 async def test_constructor(account_factory):
-    _, account = account_factory
+    _, account, _ = account_factory
 
     execution_info = await account.get_public_key().call()
     assert execution_info.result == (signer.public_key,)
@@ -41,7 +45,7 @@ async def test_constructor(account_factory):
 
 @pytest.mark.asyncio
 async def test_execute(account_factory):
-    starknet, account = account_factory
+    starknet, account, _ = account_factory
     initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
 
     execution_info = await initializable.initialized().call()
@@ -55,7 +59,7 @@ async def test_execute(account_factory):
 
 @pytest.mark.asyncio
 async def test_multicall(account_factory):
-    starknet, account = account_factory
+    starknet, account, _ = account_factory
     initializable_1 = await starknet.deploy("openzeppelin/security/initializable.cairo")
     initializable_2 = await starknet.deploy("openzeppelin/security/initializable.cairo")
 
@@ -80,7 +84,7 @@ async def test_multicall(account_factory):
 
 @pytest.mark.asyncio
 async def test_return_value(account_factory):
-    starknet, account = account_factory
+    starknet, account, _ = account_factory
     initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
 
     # initialize, set `initialized = 1`
@@ -94,7 +98,7 @@ async def test_return_value(account_factory):
 
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
-    starknet, account = account_factory
+    starknet, account, _ = account_factory
     initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res
@@ -123,7 +127,7 @@ async def test_nonce(account_factory):
 
 @pytest.mark.asyncio
 async def test_public_key_setter(account_factory):
-    _, account = account_factory
+    _, account, _ = account_factory
 
     execution_info = await account.get_public_key().call()
     assert execution_info.result == (signer.public_key,)
@@ -133,3 +137,17 @@ async def test_public_key_setter(account_factory):
 
     execution_info = await account.get_public_key().call()
     assert execution_info.result == (other.public_key,)
+
+
+@pytest.mark.asyncio
+async def test_public_key_setter_different_account(account_factory):
+    _, account, bad_account = account_factory
+
+    # set new pubkey
+    await assert_revert(
+        signer.send_transactions(
+            bad_account,
+            [(account.contract_address, 'set_public_key', [other.public_key])]
+        ),
+        reverted_with="Account: caller is not this account"
+    )

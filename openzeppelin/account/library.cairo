@@ -66,7 +66,7 @@ end
 func Account_assert_only_self{syscall_ptr : felt*}():
     let (self) = get_contract_address()
     let (caller) = get_caller_address()
-    with_attr error_message("Account: caller is not this contract"):
+    with_attr error_message("Account: caller is not this account"):
         assert self = caller
     end
     return ()

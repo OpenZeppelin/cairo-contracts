@@ -144,7 +144,10 @@ async def test_mul_overflow(safemath_mock):
     a = MAX_UINT256
     b = to_uint(2)
 
-    await assert_revert(safemath.test_mul(a, b).invoke())
+    await assert_revert(
+        safemath.test_mul(a, b).invoke(),
+        reverted_with="Safemath: multiplication overflow"
+    )
 
 
 @pytest.mark.asyncio
@@ -178,7 +181,10 @@ async def test_div_zero_divisor(safemath_mock):
     a = to_uint(56789)
     b = to_uint(0)
 
-    await assert_revert(safemath.test_div(a, b).invoke())
+    await assert_revert(
+        safemath.test_div(a, b).invoke(),
+        reverted_with="Safemath: divisor is zero"
+    )
 
 
 @pytest.mark.asyncio

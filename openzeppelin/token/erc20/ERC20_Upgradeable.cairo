@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20.cairo)
+# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20_Upgradeable.cairo)
 
 %lang starknet
+%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
@@ -23,10 +24,20 @@ from openzeppelin.token.erc20.library import (
     ERC20_mint
 )
 
+from openzeppelin.upgrades.library import (
+    Proxy_initializer,
+    Proxy_only_admin,
+    Proxy_set_implementation
+)
+
 from openzeppelin.utils.constants import TRUE
 
-@constructor
-func constructor{
+#
+# Initializer
+#
+
+@external
+func initializer{
         syscall_ptr: felt*, 
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -35,10 +46,23 @@ func constructor{
         symbol: felt,
         decimals: felt,
         initial_supply: Uint256,
-        recipient: felt
+        recipient: felt,
+        proxy_admin: felt
     ):
     ERC20_initializer(name, symbol, decimals)
     ERC20_mint(recipient, initial_supply)
+    Proxy_initializer(proxy_admin)
+    return ()
+end
+
+@external
+func upgrade{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(new_implementation: felt):
+    Proxy_only_admin()
+    Proxy_set_implementation(new_implementation)
     return ()
 end
 

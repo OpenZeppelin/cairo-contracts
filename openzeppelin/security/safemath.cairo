@@ -36,7 +36,7 @@ func uint256_checked_sub_le{
     uint256_check(a)
     uint256_check(b)
     let (is_le) = uint256_le(b, a)
-    with_attr error_message("Safemath: minuend is greater than subtrahend"):
+    with_attr error_message("Safemath: subtraction overflow"):
         assert_not_zero(is_le)
     end
     let (c: Uint256) = uint256_sub(a, b)
@@ -55,7 +55,7 @@ func uint256_checked_sub_lt{
     uint256_check(b)
 
     let (is_lt) = uint256_lt(b, a)
-    with_attr error_message("Safemath: minuend is greater than or equal to subtrahend"):
+    with_attr error_message("Safemath: subtraction overflow or the difference equals zero"):
         assert_not_zero(is_lt)
     end
     let (c: Uint256) = uint256_sub(a, b)

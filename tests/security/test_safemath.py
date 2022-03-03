@@ -65,7 +65,7 @@ async def test_sub_lt_equal(safemath_mock):
 
     await assert_revert(
         safemath.test_sub_lt(a, b).invoke(),
-        reverted_with="Safemath: minuend is greater than or equal to subtrahend"
+        reverted_with="Safemath: subtraction overflow or the difference equals zero"
     )
 
 
@@ -78,7 +78,7 @@ async def test_sub_lt_overflow(safemath_mock):
 
     await assert_revert(
         safemath.test_sub_lt(a, b).invoke(),
-        reverted_with="Safemath: minuend is greater than or equal to subtrahend"
+        reverted_with="Safemath: subtraction overflow or the difference equals zero"
     )
 
 
@@ -115,5 +115,5 @@ async def test_sub_le_overflow(safemath_mock):
 
     await assert_revert(
         safemath.test_sub_le(a, b).invoke(),
-        reverted_with="Safemath: minuend is greater than subtrahend"
+        reverted_with="Safemath: subtraction overflow"
     )

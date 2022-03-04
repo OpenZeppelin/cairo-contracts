@@ -1,4 +1,4 @@
-# Proxy
+# Proxies
 
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge. 
 
@@ -53,7 +53,7 @@ Another use-case for proxy contracts lies in contract upgrades. Since proxy cont
 
 ### Proxy contract
 
-The [Proxy contract](../contracts/proxy/Proxy.cairo) includes two core methods:  
+The [Proxy contract](../openzeppelin/upgrades/Proxy.cairo) includes two core methods:  
 
 1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract. 
 
@@ -64,7 +64,7 @@ Deploying a proxy contract requires only that the implementation contract is fir
 
 ### Implementation contract
 
-The [implementation contract](../openzeppelin/upgrades/library.cairo), also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../contracts/proxy/library.cairo).
+The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [Extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../openzeppelin/upgrades/library.cairo).
  
 
 The implementation contract should:
@@ -142,5 +142,5 @@ result = await signer.send_transaction(
 Presets are pre-written contracts that extend from our library of contracts. They can be deployed as-is or used as templates for customization. 
 
 Some presets include:
-- [ERC20_Upgradeable](../contracts/token/ERC20_Upgradeable.cairo)
+- [ERC20_Upgradeable](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
 - more to come!

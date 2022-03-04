@@ -183,7 +183,7 @@ async def test_div_zero_divisor(safemath_mock):
 
     await assert_revert(
         safemath.test_div(a, b).invoke(),
-        reverted_with="Safemath: divisor is zero"
+        reverted_with="Safemath: divisor cannot be zero"
     )
 
 

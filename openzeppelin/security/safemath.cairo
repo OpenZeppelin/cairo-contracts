@@ -91,7 +91,7 @@ func uint256_checked_div_rem{
     uint256_check(b)
     
     let (is_zero) = uint256_eq(b, Uint256(0, 0))
-    with_attr error_message("Safemath: divisor is zero"):
+    with_attr error_message("Safemath: divisor cannot be zero"):
         assert is_zero = FALSE
     end
 

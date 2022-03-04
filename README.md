@@ -83,7 +83,8 @@ tests/test_Ownable.py ..                                   [100%]
 * [ERC20](docs/ERC20.md)
 * [ERC721](docs/ERC721.md)
 * [Contract extensibility pattern](docs/Extensibility.md)
-* [Proxy pattern](docs/Proxy.md)
+* [Proxies](docs/Proxy.md)
+* [Utilities](docs/Utilities.md)
 ### Cairo
 * [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
 * [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)

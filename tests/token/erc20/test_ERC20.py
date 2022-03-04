@@ -59,7 +59,7 @@ async def test_constructor_invalid_decimals(erc20_factory):
             *uint(1000),
             account.contract_address
         ]),
-        reverted_with="ERC20: decimals exceeded 2^8"
+        reverted_with="ERC20: decimals exceed 2^8"
     )
 
 

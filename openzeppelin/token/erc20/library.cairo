@@ -69,7 +69,7 @@ func ERC20_initializer{
     ):
     ERC20_name_.write(name)
     ERC20_symbol_.write(symbol)
-    with_attr error_message("ERC20: decimals exceeded 2^8"):
+    with_attr error_message("ERC20: decimals exceed 2^8"):
         assert_lt(decimals, UINT8_MAX)
     end
     ERC20_decimals_.write(decimals)

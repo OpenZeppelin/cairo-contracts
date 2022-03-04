@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, str_to_felt, ZERO_ADDRESS, assert_revert,
+    Signer, str_to_felt, ZERO_ADDRESS, assert_revert, assert_event_emitted,
     get_contract_def, cached_contract, to_uint
 )
 
@@ -103,6 +103,31 @@ async def test_safeMint_to_erc721_supported_contract(erc721_factory):
     # check owner
     execution_info = await erc721.ownerOf(TOKEN).call()
     assert execution_info.result == (erc721_holder.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_safeMint_emits_event(erc721_factory):
+    erc721, account, _, erc721_holder, _ = erc721_factory
+
+    tx_exec_info = await signer.send_transaction(
+        account, erc721.contract_address, 'safeMint', [
+            erc721_holder.contract_address,
+            *TOKEN,
+            len(DATA),
+            *DATA
+        ]
+    )
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc721.contract_address,
+        name='Transfer',
+        data=[
+            ZERO_ADDRESS,
+            erc721_holder.contract_address,
+            *TOKEN
+        ]
+    )
 
 
 @pytest.mark.asyncio

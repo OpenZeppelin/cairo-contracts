@@ -68,11 +68,20 @@ func uint256_checked_mul{
     alloc_locals
     uint256_check(a)
     uint256_check(b)
+    let (a_zero) = uint256_eq(a, Uint256(0, 0))
+    if a_zero == TRUE:
+        return (a)
+    end
+
+    let (b_zero) = uint256_eq(b, Uint256(0, 0))
+    if b_zero == TRUE:
+        return (b)
+    end
+
     let (c: Uint256, overflow: Uint256) = uint256_mul(a, b)
     with_attr error_message("Safemath: multiplication overflow"):
         assert overflow = Uint256(0, 0)
     end
-
     return (c)
 end
 

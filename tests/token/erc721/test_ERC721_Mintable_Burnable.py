@@ -340,7 +340,7 @@ async def test_burn(erc721_minted):
 
 
 @pytest.mark.asyncio
-async def test_burn_event(erc721_minted):
+async def test_burn_emits_event(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
     # mint token to account
@@ -418,7 +418,7 @@ async def test_approve(erc721_minted):
 
 
 @pytest.mark.asyncio
-async def test_approve_event(erc721_minted):
+async def test_approve_emits_event(erc721_minted):
     erc721, account, spender, _ = erc721_minted
 
     # mint token to account

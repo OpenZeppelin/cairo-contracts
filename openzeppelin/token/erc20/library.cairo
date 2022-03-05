@@ -10,9 +10,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
 )
 
-from openzeppelin.utils.constants import TRUE, FALSE
-
-from openzeppelin.utils.constants import UINT8_MAX
+from openzeppelin.utils.constants import TRUE, FALSE, UINT8_MAX
 
 #
 # Events

@@ -99,7 +99,7 @@ async def test_burn_from_zero_address(erc20_factory):
 
     await assert_revert(
         erc20.burn(amount).invoke(),
-        reverted_with="ERC20: burn from the zero address"
+        reverted_with="ERC20: cannot burn from the zero address"
     )
 
 
@@ -109,5 +109,5 @@ async def test_burn_invalid_uint256(erc20_factory):
 
     await assert_revert(
         erc20.burn(INVALID_UINT256).invoke(),
-        reverted_with="ERC20: invalid uint256 burn amount"
+        reverted_with="ERC20: amount is not a valid Uint256"
     )

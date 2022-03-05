@@ -163,7 +163,7 @@ async def test_transfer_invalid_uint256(erc20_factory):
             recipient,
             *INVALID_UINT256
         ]),
-        reverted_with="ERC20: invalid uint256 transfer amount"
+        reverted_with="ERC20: amount is not a valid Uint256"
     )
 
 
@@ -220,7 +220,7 @@ async def test_approve_invalid_uint256(erc20_factory):
                 spender,
                 *INVALID_UINT256
             ]),
-        reverted_with="ERC20: invalid uint256 approval amount"
+        reverted_with="ERC20: amount is not a valid Uint256"
     )
 
 
@@ -424,7 +424,7 @@ async def test_decreaseAllowance_emits_event(erc20_factory):
                 spender,
                 *INVALID_UINT256
             ]),
-        reverted_with="ERC20: invalid uint256 subtracted_value amount"
+        reverted_with="ERC20: subtracted_value is not a valid Uint256"
     )
 
 
@@ -445,7 +445,7 @@ async def test_decreaseAllowance_overflow(erc20_factory):
             spender,
             *uint(init_amount[0] + 1)
         ]),
-        reverted_with="ERC20: decreased allowance below zero"
+        reverted_with="ERC20: allowance below zero"
     )
 
 
@@ -500,7 +500,7 @@ async def test_transfer_to_zero_address(erc20_factory):
         account, erc20.contract_address, 'transfer', [
             ZERO_ADDRESS, *amount
         ]),
-        reverted_with="ERC20: transfer to the zero address"
+        reverted_with="ERC20: cannot transfer to the zero address"
     )
 
 
@@ -514,7 +514,7 @@ async def test_transferFrom_zero_address(erc20_factory):
     # (get_caller_address) is zero
     await assert_revert(
         erc20.transfer(recipient, amount).invoke(),
-        reverted_with="ERC20: transfer from the zero address"
+        reverted_with="ERC20: cannot transfer from the zero address"
     )
 
 
@@ -537,7 +537,7 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
             ZERO_ADDRESS,
             *amount
         ]),
-        reverted_with="ERC20: transfer to the zero address"
+        reverted_with="ERC20: cannot transfer to the zero address"
     )
 
 
@@ -572,7 +572,7 @@ async def test_approve_zero_address_spender(erc20_factory):
             ZERO_ADDRESS,
             *amount
         ]),
-        reverted_with="ERC20: approve to the zero address"
+        reverted_with="ERC20: cannot approve to the zero address"
     )
 
 
@@ -586,5 +586,5 @@ async def test_approve_zero_address_caller(erc20_factory):
     # (get_caller_address) is zero
     await assert_revert(
         erc20.approve(spender, amount).invoke(),
-        reverted_with="ERC20: approve from the zero address"
+        reverted_with="ERC20: zero address cannot approve"
     )

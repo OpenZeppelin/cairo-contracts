@@ -102,7 +102,7 @@ async def test_mint_to_zero_address(token_factory):
         erc20.contract_address,
         'mint',
         [ZERO_ADDRESS, *amount]),
-        reverted_with="ERC20: mint to the zero address"
+        reverted_with="ERC20: cannot mint to the zero address"
     )
 
 
@@ -149,5 +149,5 @@ async def test_mint_invalid_uint256(token_factory):
         erc20.contract_address,
         'mint',
         [RECIPIENT, *INVALID_UINT256]),
-        reverted_with="ERC20: invalid uint256 amount"
+        reverted_with="ERC20: amount is not a valid Uint256"
     )

@@ -171,16 +171,16 @@ func ERC20_approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256):
-    with_attr error_message("ERC20: invalid uint256 approval amount"):
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
     let (caller) = get_caller_address()
-    with_attr error_message("ERC20: approve from the zero address"):
+    with_attr error_message("ERC20: zero address cannot approve"):
         assert_not_zero(caller)
     end
 
-    with_attr error_message("ERC20: approve to the zero address"):
+    with_attr error_message("ERC20: cannot approve to the zero address"):
         assert_not_zero(spender)
     end
 
@@ -194,7 +194,7 @@ func ERC20_increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> ():
-    with_attr error("ERC20: invalid uint256 added_value amount"):
+    with_attr error("ERC20: added_value is not a valid Uint256"):
         uint256_check(added_value)
     end
 
@@ -217,7 +217,7 @@ func ERC20_decreaseAllowance{
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> ():
     alloc_locals
-    with_attr error_message("ERC20: invalid uint256 subtracted_value amount"):
+    with_attr error_message("ERC20: subtracted_value is not a valid Uint256"):
         uint256_check(subtracted_value)
     end
 
@@ -226,7 +226,7 @@ func ERC20_decreaseAllowance{
     let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
-    with_attr error_message("ERC20: decreased allowance below zero"):
+    with_attr error_message("ERC20: allowance below zero"):
         assert enough_allowance = TRUE
     end
 
@@ -239,11 +239,11 @@ func ERC20_mint{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
-    with_attr error_message("ERC20: invalid uint256 amount"):
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
-    with_attr error_message("ERC20: mint to the zero address"):
+    with_attr error_message("ERC20: cannot mint to the zero address"):
         assert_not_zero(recipient)
     end
 
@@ -270,11 +270,11 @@ func ERC20_burn{
         range_check_ptr
     }(account: felt, amount: Uint256):
     alloc_locals
-    with_attr error_message("ERC20: invalid uint256 burn amount"):
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
-    with_attr error_message("ERC20: burn from the zero address"):
+    with_attr error_message("ERC20: cannot burn from the zero address"):
         assert_not_zero(account)
     end
 
@@ -304,15 +304,15 @@ func _transfer{
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
     alloc_locals
-    with_attr error_message("ERC20: invalid uint256 transfer amount"):
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
         uint256_check(amount) # almost surely not needed, might remove after confirmation
     end
 
-    with_attr error_message("ERC20: transfer from the zero address"):
+    with_attr error_message("ERC20: cannot transfer from the zero address"):
         assert_not_zero(sender)
     end
 
-    with_attr error_message("ERC20: transfer to the zero address"):
+    with_attr error_message("ERC20: cannot transfer to the zero address"):
         assert_not_zero(recipient)
     end
 

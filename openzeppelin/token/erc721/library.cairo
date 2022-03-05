@@ -130,7 +130,7 @@ func ERC721_ownerOf{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(token_id: Uint256) -> (owner: felt):
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     let (owner) = ERC721_owners.read(token_id)
@@ -145,7 +145,7 @@ func ERC721_getApproved{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(token_id: Uint256) -> (approved: felt):
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     let (exists) = _exists(token_id)
@@ -190,13 +190,13 @@ func ERC721_approve{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    with_attr error_mesage("ERC721: invalid uint256 token id"):
+    with_attr error_mesage("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
 
     # Checks caller is not zero address
     let (caller) = get_caller_address()
-    with_attr error_message("ERC721: approve from the zero address"):
+    with_attr error_message("ERC721: cannot approve from the zero address"):
         assert_not_zero(caller)
     end
 
@@ -257,7 +257,7 @@ func ERC721_transferFrom{
         range_check_ptr
     }(_from: felt, to: felt, token_id: Uint256):
     alloc_locals
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     let (caller) = get_caller_address()
@@ -287,7 +287,7 @@ func ERC721_safeTransferFrom{
         data: felt*
     ):
     alloc_locals
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     let (caller) = get_caller_address()
@@ -310,10 +310,10 @@ func ERC721_mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
-    with_attr error_message("ERC721: mint to the zero address"):
+    with_attr error_message("ERC721: cannot mint to the zero address"):
         assert_not_zero(to)
     end
 
@@ -337,7 +337,7 @@ func ERC721_burn{
         range_check_ptr
     }(token_id: Uint256):
     alloc_locals
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     let (owner) = ERC721_ownerOf(token_id)
@@ -366,7 +366,7 @@ func ERC721_safeMint{
         data_len: felt,
         data: felt*
     ):
-    with_attr error_message("ERC721: invalid uint256 token id"):
+    with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
     end
     ERC721_mint(to, token_id)
@@ -484,7 +484,7 @@ func _transfer{
         assert _ownerOf = _from
     end
 
-    with_attr error_message("ERC721: transfer to the zero address"):
+    with_attr error_message("ERC721: cannot transfer to the zero address"):
         assert_not_zero(to)
     end
 

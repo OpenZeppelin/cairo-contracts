@@ -229,7 +229,7 @@ async def test_ownerOf_invalid_uint256(erc721_factory):
     # should revert when querying nonexistent token
     await assert_revert(
         erc721.ownerOf(INVALID_UINT256).invoke(),
-        reverted_with="ERC721: invalid uint256 token id"
+        reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
 
@@ -299,7 +299,7 @@ async def test_mint_to_zero_address(erc721_minted):
             ZERO_ADDRESS,
             *NONEXISTENT_TOKEN
         ]),
-        reverted_with="ERC721: mint to the zero address"
+        reverted_with="ERC721: cannot mint to the zero address"
     )
 
 
@@ -499,7 +499,7 @@ async def test_approve_from_zero_address(erc721_minted):
     await assert_revert(
         erc721.approve(
             spender.contract_address, TOKEN).invoke(),
-        reverted_with="ERC721: approve from the zero address"
+        reverted_with="ERC721: cannot approve from the zero address"
     )
 
 
@@ -575,7 +575,7 @@ async def test_getApproved_invalid_uint256(erc721_minted):
 
     await assert_revert(
         erc721.getApproved(INVALID_UINT256).invoke(),
-        reverted_with="ERC721: invalid uint256 token id"
+        reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
 
@@ -850,7 +850,7 @@ async def test_transferFrom_to_zero_address(erc721_minted):
             ZERO_ADDRESS,
             *TOKEN
         ]),
-        reverted_with="ERC721: transfer to the zero address"
+        reverted_with="ERC721: cannot transfer to the zero address"
     )
 
 
@@ -865,7 +865,7 @@ async def test_transferFrom_invalid_uint256(erc721_minted):
                 RECIPIENT,
                 *INVALID_UINT256
             ]),
-        reverted_with="ERC721: invalid uint256 token id"
+        reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
 
@@ -1061,7 +1061,7 @@ async def test_safeTransferFrom_to_zero_address(erc721_minted):
             len(DATA),
             *DATA
         ]),
-        reverted_with="ERC721: transfer to the zero address"
+        reverted_with="ERC721: cannot transfer to the zero address"
     )
 
 
@@ -1133,7 +1133,7 @@ async def test_safeTransferFrom_invalid_uint256(erc721_minted):
                 len(DATA),
                 *DATA
             ]),
-        reverted_with="ERC721: invalid uint256 token id"
+        reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
 

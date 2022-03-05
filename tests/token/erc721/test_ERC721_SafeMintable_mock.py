@@ -164,7 +164,7 @@ async def test_safeMint_to_zero_address(erc721_factory):
             len(DATA),
             *DATA
         ]),
-        reverted_with="ERC721: mint to the zero address"
+        reverted_with="ERC721: cannot mint to the zero address"
     )
 
 
@@ -179,7 +179,7 @@ async def test_safeMint_from_zero_address(erc721_factory):
             TOKEN,
             DATA
         ).invoke(),
-        reverted_with="Ownable: caller is not "
+        reverted_with="Ownable: caller is not the owner"
     )
 
 
@@ -223,5 +223,5 @@ async def test_safeMint_invalid_uint256(erc721_factory):
             len(DATA),
             *DATA
         ]),
-        reverted_with="ERC721: invalid uint256 token id"
+        reverted_with="ERC721: token_id is not a valid Uint256"
     )

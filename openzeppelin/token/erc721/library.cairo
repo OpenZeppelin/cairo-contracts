@@ -23,6 +23,22 @@ from openzeppelin.introspection.IERC165 import IERC165
 from openzeppelin.utils.constants import TRUE, FALSE
 
 #
+# Events
+#
+
+@event
+func Transfer(_from: felt, to: felt, tokenId: Uint256):
+end
+
+@event
+func Approval(owner: felt, approved: felt, tokenId: Uint256):
+end
+
+@event
+func ApprovalForAll(owner: felt, operator: felt, approved: felt):
+end
+
+#
 # Storage
 #
 
@@ -231,6 +247,7 @@ func ERC721_setApprovalForAll{
     end
 
     ERC721_operator_approvals.write(owner=caller, operator=operator, value=approved)
+    ApprovalForAll.emit(caller, operator, approved)
     return ()
 end
 
@@ -310,6 +327,7 @@ func ERC721_mint{
     let (new_balance: Uint256) = uint256_checked_add(balance, Uint256(1, 0))
     ERC721_balances.write(to, new_balance)
     ERC721_owners.write(token_id, to)
+    Transfer.emit(0, to, token_id)
     return ()
 end
 
@@ -334,6 +352,7 @@ func ERC721_burn{
 
     # Delete owner
     ERC721_owners.write(token_id, 0)
+    Transfer.emit(owner, 0, token_id)
     return ()
 end
 
@@ -405,6 +424,8 @@ func _approve{
         range_check_ptr
     }(to: felt, token_id: Uint256):
     ERC721_token_approvals.write(token_id, to)
+    let (owner) = ERC721_ownerOf(token_id)
+    Approval.emit(owner, to, token_id)
     return ()
 end
 
@@ -482,6 +503,7 @@ func _transfer{
 
     # Update token_id owner
     ERC721_owners.write(token_id, to)
+    Transfer.emit(_from, to, token_id)
     return ()
 end
 

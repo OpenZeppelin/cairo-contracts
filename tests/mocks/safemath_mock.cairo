@@ -8,7 +8,9 @@ from starkware.cairo.common.uint256 import Uint256
 from openzeppelin.security.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le,
-    uint256_checked_sub_lt
+    uint256_checked_sub_lt,
+    uint256_checked_mul,
+    uint256_checked_div_rem
 )
 
 #
@@ -44,4 +46,24 @@ func test_sub_lt{
     } (a: Uint256, b: Uint256) -> (c: Uint256):
     let (c: Uint256) = uint256_checked_sub_lt(a, b)
     return (c)
+end
+
+@view
+func test_mul{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    } (a: Uint256, b: Uint256) -> (c: Uint256):
+    let (c: Uint256) = uint256_checked_mul(a, b)
+    return (c)
+end
+
+@view
+func test_div{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*, 
+        range_check_ptr
+    } (a: Uint256, b: Uint256) -> (c: Uint256, rem: Uint256):
+    let (c: Uint256, rem: Uint256) = uint256_checked_div_rem(a, b)
+    return (c, rem)
 end

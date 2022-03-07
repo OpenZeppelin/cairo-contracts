@@ -1,5 +1,6 @@
 """Utilities for testing Cairo contracts."""
 
+import math
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
@@ -65,6 +66,23 @@ def sub_uint(a, b):
     return to_uint(c)
 
 
+def mul_uint(a, b):
+    """Returns the product of two uint256-ish tuples."""
+    a = from_uint(a)
+    b = from_uint(b)
+    c = a * b
+    return to_uint(c)
+
+
+def div_rem_uint(a, b):
+    """Returns the quotient and remainder of two uint256-ish tuples."""
+    a = from_uint(a)
+    b = from_uint(b)
+    c = math.trunc(a / b)
+    m = a % b
+    return (to_uint(c), to_uint(m))
+
+
 async def assert_revert(fun, reverted_with=None):
     try:
         await fun
@@ -120,9 +138,9 @@ class Signer():
 
     Sending a transaction
 
-    >>> await signer.send_transaction(account, 
-                                      account.contract_address, 
-                                      'set_public_key', 
+    >>> await signer.send_transaction(account,
+                                      account.contract_address,
+                                      'set_public_key',
                                       [other.public_key]
                                      )
 

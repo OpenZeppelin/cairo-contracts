@@ -47,9 +47,9 @@ In Python, this would look as follows:
 
 ## Proxies
 
-A proxy contract is a contract that delegates function calls to another contract. This type of pattern compartmentalizes state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. With this pattern, implementation contracts can change but the proxy contract (and thus the state) does not. A simple proxy allows users to deploy many contracts with identical logic but unique initialization data.
+A proxy contract is a contract that delegates function calls to another contract. This type of pattern decouples state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not; as well as deploying multiple proxy instances pointing to the same implementation. This can be useful to deploy many contracts with identical logic but unique initialization data.
 
-Another use-case for proxy contracts lies in contract upgrades. Since proxy contracts store the state and outsource the logic to an implementation contract, upgradeability is achieved by simply changing the reference to the implementation contract within the proxy contract. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application. 
+In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the implementation contract. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application. 
 
 ### Proxy contract
 
@@ -59,7 +59,9 @@ The [Proxy contract](../openzeppelin/upgrades/Proxy.cairo) includes two core met
 
 2. The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
 
-Deploying a proxy contract requires only that the implementation contract is first deployed. The proxy contract accepts the implementation contract's address in the constructor. When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract to execute.
+Since this proxy is designed to work both as an [UUPS-flavored upgrade proxy](https://eips.ethereum.org/EIPS/eip-1822) as well as a non-upgradeable proxy, it does not know how to handle its own state. Therefore it requires the implementation contract to be deployed beforehand, so its address can be passed to the Proxy on construction time.
+
+When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract to execute.
 
 
 ### Implementation contract
@@ -76,7 +78,7 @@ If the implementation is upgradeable, it should:
 - use access control to protect the contract's upgradeability.
 
 The implementation contract should NOT:
-- deploy with a traditional constructor—use an initializer method instead that invokes `Proxy_initializer` and the implementation contract's initializer
+- deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
 
 > Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as `Proxy_only_admin`. 
 
@@ -143,4 +145,4 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets include:
 - [ERC20_Upgradeable](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-- more to come!
+- more to come! have an idea? [open an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose)!

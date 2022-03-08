@@ -1,4 +1,4 @@
-# Proxies
+# Proxies and upgrades
 
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge. 
 
@@ -7,6 +7,9 @@
 * [Proxies](#proxies)
   * [Proxy contract](#proxy-contract) 
   * [Implementation contract](#implementation-contract)
+* [Upgrades library API](#upgrades-library-api)
+  * [Methods](#methods)
+  * [Events](#events)
 * [Using proxies](#using-proxies)
   * [Contract upgrades](#contract-upgrades)
   * [Handling method calls](#handling-method-calls)
@@ -84,6 +87,128 @@ The implementation contract should NOT:
 
 For a full implementation contract example, please see:
 - [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)
+
+## Upgrades library API
+
+### Methods
+```jsx
+
+func Proxy_initializer(proxy_admin: felt):
+end
+
+func Proxy_set_implementation(new_implementation: felt):
+end
+
+func Proxy_only_admin():
+end
+
+func Proxy_get_admin() -> (admin: felt):
+end
+
+func Proxy_get_implementation() -> (implementation: felt):
+end
+
+func Proxy_set_admin(new_admin: felt):
+end
+```
+
+#### `Proxy_initializer`
+
+Initializes the proxy contract with an initial implementation specified by the `proxy_admin` address
+
+Parameters:
+
+```jsx
+proxy_admin: felt
+```
+
+Returns:
+
+None.
+
+#### `Proxy_set_implementation`
+
+Sets the implementation to which the proxy contract will forward methods calls
+
+Parameters:
+
+```jsx
+implementation: felt
+```
+
+Returns:
+
+None.
+
+#### `Proxy_only_admin`
+
+Access control to be included in methods that should only be called by the `proxy_admin`
+
+Parameters:
+
+None.
+
+Returns:
+
+None.
+
+#### `Proxy_get_admin`
+
+Returns the current proxy admin address
+
+Parameters:
+
+None.
+
+Returns:
+
+```jsx
+admin: felt
+```
+
+#### `Proxy_get_implementation`
+
+Returns the current implementation address to which the proxy contract forwards method calls
+
+Parameters:
+
+None.
+
+Returns:
+
+```jsx
+implementation: felt
+```
+
+#### `Proxy_set_admin`
+
+Sets the administrator of the proxy contract
+
+Parameters:
+
+```jsx
+new_admin: felt
+```
+
+Returns:
+
+None.
+
+### Events
+```jsx
+func Upgraded(implementation: felt):
+end
+```
+
+#### `Upgraded`
+
+Emitted when a proxy contract sets a new implementation address
+
+Parameters:
+
+```jsx
+implementation: felt
+```
 
 ## Using proxies 
 

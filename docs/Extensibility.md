@@ -87,7 +87,6 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_transfer(recipient, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 ```

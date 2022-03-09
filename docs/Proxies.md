@@ -1,4 +1,4 @@
-# Proxies and upgrades
+# Proxies
 
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge. 
 
@@ -92,7 +92,6 @@ For a full implementation contract example, please see:
 
 ### Methods
 ```jsx
-
 func Proxy_initializer(proxy_admin: felt):
 end
 
@@ -114,7 +113,7 @@ end
 
 #### `Proxy_initializer`
 
-Initializes the proxy contract with an initial implementation specified by the `proxy_admin` address
+Initializes the proxy contract with an initial implementation specified by the admin.
 
 Parameters:
 
@@ -128,7 +127,7 @@ None.
 
 #### `Proxy_set_implementation`
 
-Sets the implementation to which the proxy contract will forward methods calls
+Sets the implementation contract. This method is included in the proxy contract's constructor and is furthermore used to upgrade contracts.
 
 Parameters:
 
@@ -142,7 +141,7 @@ None.
 
 #### `Proxy_only_admin`
 
-Access control to be included in methods that should only be called by the `proxy_admin`
+Throws if called by any account other than the admin.
 
 Parameters:
 
@@ -154,7 +153,7 @@ None.
 
 #### `Proxy_get_admin`
 
-Returns the current proxy admin address
+Returns the current admin.
 
 Parameters:
 
@@ -168,7 +167,7 @@ admin: felt
 
 #### `Proxy_get_implementation`
 
-Returns the current implementation address to which the proxy contract forwards method calls
+Returns the current implementation address.
 
 Parameters:
 
@@ -182,7 +181,7 @@ implementation: felt
 
 #### `Proxy_set_admin`
 
-Sets the administrator of the proxy contract
+Sets the admin of the proxy contract.
 
 Parameters:
 
@@ -195,6 +194,7 @@ Returns:
 None.
 
 ### Events
+
 ```jsx
 func Upgraded(implementation: felt):
 end
@@ -202,7 +202,7 @@ end
 
 #### `Upgraded`
 
-Emitted when a proxy contract sets a new implementation address
+Emitted when a proxy contract sets a new implementation address.
 
 Parameters:
 
@@ -252,7 +252,7 @@ For a full deployment and upgrade implementation, please see:
 
 ### Handling method calls
 
-As with most StarkNet contracts, interacting with a proxy contract requires an [account abstraction](../docs/Account.md#quickstart). One notable difference with proxy contracts versus other contract implementations is that calling `@view` methods also requires an account abstraction. The differences written in Python, for example, are as follows:
+As with most StarkNet contracts, interacting with a proxy contract requires an [account abstraction](../docs/Account.md#quickstart). One notable difference with proxy contracts versus other contract implementations is that calling `@view` methods also requires an account abstraction. As of now, direct calls to default entrypoints are only supported by StarkNet's `syscalls` from other contracts i.e. account contracts. The differences in getter methods written in Python, for example, are as follows:
 
 ```python
 # standard ERC20 call

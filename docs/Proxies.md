@@ -83,7 +83,7 @@ If the implementation is upgradeable, it should:
 The implementation contract should NOT:
 - deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
 
-> Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as `Proxy_only_admin`. 
+> Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`Proxy_only_admin`](#Proxy_only_admin). 
 
 For a full implementation contract example, please see:
 - [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)

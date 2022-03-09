@@ -113,7 +113,7 @@ end
 
 #### `Proxy_initializer`
 
-Initializes the proxy contract with an initial implementation specified by the admin.
+Initializes the proxy contract with an initial implementation.
 
 Parameters:
 

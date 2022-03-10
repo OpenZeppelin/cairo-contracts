@@ -108,13 +108,13 @@ PRIVATE_KEY = 123456789987654321
 signer = Signer(PRIVATE_KEY)
 ```
 
-Then send single transactions with `send_transaction` method.
+Then send single transactions with the `send_transaction` method.
 
 ```python
 await signer.send_transaction(account, contract_address, 'method_name', [])
 ```
 
-If utilizing multicall, send multiple transactions with `send_transactions` method.
+If utilizing multicall, send multiple transactions with the `send_transactions` method.
 
 ```python
     await signer.send_transactions(
@@ -146,6 +146,7 @@ Where:
 
 - `to` is the address of the target contract of the message
 - `selector` is the selector of the function to be called on the target contract
+- `calldata_len` is the number of calldata parameters
 - `calldata` is an array representing the function parameters
 
 `MultiCall` is structured as:
@@ -270,7 +271,7 @@ None.
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a [Message](#message-format) with it
+1. Takes the input and builds a [Multicall](#message-format) message with it
 2. Validates the transaction signature matches the message (including the nonce)
 3. Increments the nonce
 4. Calls the target contract with the intended function selector and calldata parameters
@@ -299,11 +300,13 @@ response: felt*
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
 
-Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces that the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return true (meaning `1` in Cairo).
+Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces that the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.
 
 ## Extending the Account contract
 
-There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk. Since `__execute__` relies on it, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, or some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo).
+Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite methods from the Account library and incorporate the extended logic thereafter. The Account library is constructed to accomodate the current validation scheme; however, new schemes may require amending or adding methods in the library. 
+
+Since `__execute__` relies on it, we suggest changing how `is_valid_signature` works to explore different signature validation schemes such as multisig, some guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo), or even [Ethereum signatures](https://github.com/OpenZeppelin/cairo-contracts/issues/161).
 
 
 ## L1 escape hatch mechanism

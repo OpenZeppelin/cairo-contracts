@@ -20,7 +20,9 @@ from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiv
 
 from openzeppelin.introspection.IERC165 import IERC165
 
-from openzeppelin.utils.constants import TRUE, FALSE
+from openzeppelin.utils.constants import (
+    TRUE, FALSE, IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
+)
 
 #
 # Events
@@ -84,10 +86,8 @@ func ERC721_initializer{
     ):
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
-    # register IERC721
-    ERC165_register_interface(0x80ac58cd)
-    # register IERC721_Metadata
-    ERC165_register_interface(0x5b5e139f)
+    ERC165_register_interface(IERC721_ID)
+    ERC165_register_interface(IERC721_METADATA_ID)
     return ()
 end
 
@@ -481,8 +481,7 @@ func _check_onERC721Received{
         data: felt*
     ) -> (success: felt):
     let (caller) = get_caller_address()
-    # ERC721_RECEIVER_ID = 0x150b7a02
-    let (is_supported) = IERC165.supportsInterface(to, 0x150b7a02)
+    let (is_supported) = IERC165.supportsInterface(to, IERC721_RECEIVER_ID)
     if is_supported == TRUE:
         let (selector) = IERC721_Receiver.onERC721Received(
             to,
@@ -493,12 +492,10 @@ func _check_onERC721Received{
             data
         )
 
-        # ERC721_RECEIVER_ID
-        assert selector = 0x150b7a02
+        assert selector = IERC721_RECEIVER_ID
         return (TRUE)
     end
 
-    # IAccount_ID = 0xf10dbd44
-    let (is_account) = IERC165.supportsInterface(to, 0xf10dbd44)
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
     return (is_account)
 end

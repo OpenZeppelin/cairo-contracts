@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, to_uint, sub_uint, str_to_felt, assert_revert,
-    get_contract_def, cached_contract, assert_event_emitted
+    get_contract_def, cached_contract
 )
 
 signer = Signer(123456789987654321)

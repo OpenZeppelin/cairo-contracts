@@ -132,7 +132,7 @@ Sets the implementation contract. This method is included in the proxy contract'
 Parameters:
 
 ```jsx
-implementation: felt
+new_implementation: felt
 ```
 
 Returns:

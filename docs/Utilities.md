@@ -133,7 +133,9 @@ In order to abstract away some of the verbosity regarding test assertions on Sta
 
 ### `assert_revert`
 
-An asynchronous wrapper method that executes a try-except pattern for transactions that should fail. To successfully use this wrapper, the transaction method should be wrapped with `assert_revert`; however, `await` should precede the wrapper itself like this:
+An asynchronous wrapper method that executes a try-except pattern for transactions that should fail. Note that this wrapper does not check for a StarkNet error code. This allows for more flexibility in checking that a transaction simply failed. If you wanted to check for an exact error code, you could use StarkNet's [error_codes module](https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/definitions/error_codes.py) and implement additional logic to the `assert_revert` method.
+
+ To successfully use this wrapper, the transaction method should be wrapped with `assert_revert`; however, `await` should precede the wrapper itself like this:
 
 ```python
 await assert_revert(signer.send_transaction(

@@ -104,14 +104,16 @@ async def test_pause(erc721_minted):
         owner, erc721.contract_address, 'approve', [
             other.contract_address,
             *TOKENS[0]
-        ])
+        ]),
+        reverted_with="Pausable: contract is paused"
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'setApprovalForAll', [
             other.contract_address,
             TRUE
-        ])
+        ]),
+        reverted_with="Pausable: contract is paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -119,7 +121,8 @@ async def test_pause(erc721_minted):
             owner.contract_address,
             other.contract_address,
             *TOKENS[0]
-        ])
+        ]),
+        reverted_with="Pausable: contract is paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -129,14 +132,16 @@ async def test_pause(erc721_minted):
             *TOKENS[1],
             len(DATA),
             *DATA
-        ])
+        ]),
+        reverted_with="Pausable: contract is paused"
     )
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'mint', [
             other.contract_address,
             *TOKEN_TO_MINT
-        ])
+        ]),
+        reverted_with="Pausable: contract is paused"
     )
 
 
@@ -198,15 +203,21 @@ async def test_only_owner(erc721_minted):
     erc721, owner, other, _ = erc721_minted
 
     # not-owner pause should revert
-    await assert_revert(signer.send_transaction(
-        other, erc721.contract_address, 'pause', []))
+    await assert_revert(
+        signer.send_transaction(
+            other, erc721.contract_address, 'pause', []),
+        reverted_with="Ownable: caller is not the owner"
+    )
 
     # owner pause
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
 
     # not-owner unpause should revert
-    await assert_revert(signer.send_transaction(
-        other, erc721.contract_address, 'unpause', []))
+    await assert_revert(
+        signer.send_transaction(
+            other, erc721.contract_address, 'unpause', []),
+        reverted_with="Ownable: caller is not the owner"
+    )
 
     # owner unpause
     await signer.send_transaction(owner, erc721.contract_address, 'unpause', [])

@@ -138,7 +138,8 @@ async def test_tokenOfOwnerByIndex_greater_than_supply(erc721_minted):
 
     await assert_revert(
         erc721.tokenOfOwnerByIndex(
-            account.contract_address, tokens_plus_one).invoke()
+            account.contract_address, tokens_plus_one).invoke(),
+        reverted_with="ERC721_Enumerable: owner index out of bounds"
     )
 
 
@@ -147,7 +148,8 @@ async def test_tokenOfOwnerByIndex_owner_with_no_tokens(erc721_minted):
     erc721, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.tokenOfOwnerByIndex(RECIPIENT, to_uint(1)).invoke()
+        erc721.tokenOfOwnerByIndex(RECIPIENT, to_uint(1)).invoke(),
+        reverted_with="ERC721_Enumerable: owner index out of bounds"
     )
 
 
@@ -178,7 +180,8 @@ async def test_tokenOfOwnerByIndex_transfer_all_tokens(erc721_minted):
     # check that queries to old owner's token ownership reverts since index is less
     # than the target's balance
     await assert_revert(erc721.tokenOfOwnerByIndex(
-        account.contract_address, to_uint(0)).invoke()
+        account.contract_address, to_uint(0)).invoke(),
+        reverted_with="ERC721_Enumerable: owner index out of bounds"
     )
 
 
@@ -211,7 +214,8 @@ async def test_tokenOfOwnerByIndex_safe_transfer_all_tokens(erc721_minted):
     # check that queries to old owner's token ownership reverts since index is less
     # than the target's balance
     await assert_revert(erc721.tokenOfOwnerByIndex(
-        account.contract_address, to_uint(0)).invoke()
+        account.contract_address, to_uint(0)).invoke(),
+        reverted_with="ERC721_Enumerable: owner index out of bounds"
     )
 
 
@@ -234,7 +238,8 @@ async def test_tokenByIndex_greater_than_supply(erc721_minted):
     erc721, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.tokenByIndex(to_uint(5)).invoke()
+        erc721.tokenByIndex(to_uint(5)).invoke(),
+        reverted_with="ERC721_Enumerable: global index out of bounds"
     )
 
 
@@ -258,7 +263,8 @@ async def test_tokenByIndex_burn_last_token(erc721_minted):
         assert execution_info.result == (TOKENS[i],)
 
     await assert_revert(
-        erc721.tokenByIndex(tokens_minus_one).invoke()
+        erc721.tokenByIndex(tokens_minus_one).invoke(),
+        reverted_with="ERC721_Enumerable: global index out of bounds"
     )
 
 
@@ -294,7 +300,8 @@ async def test_tokenByIndex_burn_and_mint(erc721_minted):
     assert execution_info.result == (to_uint(0),)
 
     await assert_revert(
-        erc721.tokenByIndex(to_uint(0)).invoke()
+        erc721.tokenByIndex(to_uint(0)).invoke(),
+        reverted_with="ERC721_Enumerable: global index out of bounds"
     )
 
     # mint new tokens

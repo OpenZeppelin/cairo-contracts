@@ -192,9 +192,7 @@ func mint{
         syscall_ptr: felt*, 
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    with_attr error_message("ERC721: caller is not the owner"):
-        Ownable_only_owner()
-    end
+    Ownable_only_owner()
     ERC721_mint(to, tokenId)
     return ()
 end
@@ -210,9 +208,7 @@ func safeMint{
         data_len: felt,
         data: felt*
     ):
-    with_attr error_message("ERC721: caller is not the owner"):
-        Ownable_only_owner()
-    end
+    Ownable_only_owner()
     ERC721_safeMint(to, tokenId, data_len, data)
     return ()
 end
@@ -223,9 +219,7 @@ func setTokenURI{
         syscall_ptr: felt*, 
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    with_attr error_message("ERC721: caller is not the owner"):
-        Ownable_only_owner()
-    end
+    Ownable_only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

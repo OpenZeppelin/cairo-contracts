@@ -1,5 +1,6 @@
 """Utilities for testing Cairo contracts."""
 
+from pathlib import Path
 import math
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
@@ -17,6 +18,16 @@ TRUE = 1
 FALSE = 0
 
 TRANSACTION_VERSION = 0
+
+
+_root = Path(__file__).parent.parent
+
+
+def contract_path(name):
+    if name.startswith("tests/"):
+        return str(_root / name)
+    else:
+        return str(_root / "src" / name)
 
 
 def str_to_felt(text):
@@ -104,6 +115,7 @@ def assert_event_emitted(tx_exec_info, from_address, name, data):
 
 def get_contract_def(path):
     """Returns the contract definition from the contract path"""
+    path = contract_path(path)
     contract_def = compile_starknet_files(
         files=[path],
         debug_info=True

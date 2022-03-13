@@ -3,8 +3,8 @@ import asyncio
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, to_uint, str_to_felt, ZERO_ADDRESS, assert_event_emitted,
-    assert_revert, sub_uint, add_uint
+    Signer, to_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
+    assert_event_emitted, assert_revert, sub_uint, add_uint
 )
 
 signer = Signer(123456789987654321)
@@ -87,7 +87,8 @@ async def test_burn_not_enough_balance(erc20_factory):
     await assert_revert(signer.send_transaction(
         account, erc20.contract_address, 'burn', [
             *add_uint(amount, to_uint(1))
-        ])
+        ]),
+        reverted_with="ERC20: burn amount exceeds balance"
     )
 
 
@@ -96,4 +97,17 @@ async def test_burn_from_zero_address(erc20_factory):
     _, erc20, _ = erc20_factory
     amount = to_uint(1)
 
-    await assert_revert(erc20.burn(amount).invoke())
+    await assert_revert(
+        erc20.burn(amount).invoke(),
+        reverted_with="ERC20: cannot burn from the zero address"
+    )
+
+
+@pytest.mark.asyncio
+async def test_burn_invalid_uint256(erc20_factory):
+    _, erc20, _ = erc20_factory
+
+    await assert_revert(
+        erc20.burn(INVALID_UINT256).invoke(),
+        reverted_with="ERC20: amount is not a valid Uint256"
+    )

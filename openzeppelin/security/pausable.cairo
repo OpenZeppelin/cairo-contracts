@@ -18,7 +18,9 @@ func Pausable_when_not_paused{
         range_check_ptr
     }():
     let (is_paused) = Pausable_paused.read()
-    assert is_paused = FALSE
+    with_attr error_message("Pausable: contract is paused"):
+        assert is_paused = FALSE
+    end
     return ()
 end
 
@@ -28,7 +30,9 @@ func Pausable_when_paused{
         range_check_ptr
     }():
     let (is_paused) = Pausable_paused.read()
-    assert is_paused = TRUE
+    with_attr error_message("Pausable: contract is not paused"):
+        assert is_paused = TRUE
+    end
     return ()
 end
 

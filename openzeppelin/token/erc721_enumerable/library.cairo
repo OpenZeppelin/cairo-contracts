@@ -86,7 +86,9 @@ func ERC721_Enumerable_tokenByIndex{
     # Ensures index argument is less than total_supply 
     let (len: Uint256) = ERC721_Enumerable_totalSupply()
     let (is_lt) = uint256_lt(index, len)
-    assert is_lt = TRUE
+    with_attr error_message("ERC721_Enumerable: global index out of bounds"):
+        assert is_lt = TRUE
+    end
 
     let (token_id: Uint256) = ERC721_Enumerable_all_tokens.read(index)
     return (token_id)
@@ -102,8 +104,10 @@ func ERC721_Enumerable_tokenOfOwnerByIndex{
     # Ensures index argument is less than owner's balance 
     let (len: Uint256) = ERC721_balanceOf(owner)
     let (is_lt) = uint256_lt(index, len)
-    assert is_lt = TRUE
-
+    with_attr error_message("ERC721_Enumerable: owner index out of bounds"):
+        assert is_lt = TRUE
+    end
+    
     let (token_id: Uint256) = ERC721_Enumerable_owned_tokens.read(owner, index)
     return (token_id)
 end

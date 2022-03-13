@@ -21,7 +21,9 @@ func uint256_checked_add{
     uint256_check(a)
     uint256_check(b)
     let (c: Uint256, is_overflow) = uint256_add(a, b)
-    assert is_overflow = FALSE
+    with_attr error_message("Safemath: addition overflow"):
+        assert is_overflow = FALSE
+    end
     return (c)
 end
 
@@ -36,7 +38,9 @@ func uint256_checked_sub_le{
     uint256_check(a)
     uint256_check(b)
     let (is_le) = uint256_le(b, a)
-    assert is_le = TRUE
+    with_attr error_message("Safemath: subtraction overflow"):
+        assert is_le = TRUE
+    end
     let (c: Uint256) = uint256_sub(a, b)
     return (c)
 end
@@ -53,7 +57,9 @@ func uint256_checked_sub_lt{
     uint256_check(b)
 
     let (is_lt) = uint256_lt(b, a)
-    assert is_lt = TRUE
+    with_attr error_message("Safemath: subtraction overflow or the difference equals zero"):
+        assert is_lt = TRUE
+    end
     let (c: Uint256) = uint256_sub(a, b)
     return (c)
 end

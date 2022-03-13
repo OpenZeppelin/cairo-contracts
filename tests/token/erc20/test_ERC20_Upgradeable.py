@@ -1,5 +1,3 @@
-from starkware.starknet.testing.starknet import Starknet, StarknetContract
-from starkware.starknet.compiler.compile import compile_starknet_files
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet

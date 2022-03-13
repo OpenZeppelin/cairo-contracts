@@ -72,36 +72,41 @@ async def test_pause(token_factory):
         owner,
         token.contract_address,
         'transfer',
-        [other.contract_address, *amount]
-    ))
+        [other.contract_address, *amount]),
+        reverted_with="Pausable: contract is paused"
+    )
 
     await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'transferFrom',
-        [other.contract_address, other.contract_address, *amount]
-    ))
+        [other.contract_address, other.contract_address, *amount]),
+        reverted_with="Pausable: contract is paused"
+    )
 
     await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'approve',
-        [other.contract_address, *amount]
-    ))
+        [other.contract_address, *amount]),
+        reverted_with="Pausable: contract is paused"
+    )
 
     await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'increaseAllowance',
-        [other.contract_address, *amount]
-    ))
+        [other.contract_address, *amount]),
+        reverted_with="Pausable: contract is paused"
+    )
 
     await assert_revert(signer.send_transaction(
         owner,
         token.contract_address,
         'decreaseAllowance',
-        [other.contract_address, *amount]
-    ))
+        [other.contract_address, *amount]),
+        reverted_with="Pausable: contract is paused"
+    )
 
 
 @pytest.mark.asyncio
@@ -158,8 +163,14 @@ async def test_unpause(token_factory):
 async def test_only_owner(token_factory):
     _, token, _, other = token_factory
 
-    await assert_revert(signer.send_transaction(
-        other, token.contract_address, 'pause', []))
+    await assert_revert(
+        signer.send_transaction(
+            other, token.contract_address, 'pause', []),
+        reverted_with="Ownable: caller is not the owner"
+    )
 
-    assert assert_revert(signer.send_transaction(
-        other, token.contract_address, 'unpause', []))
+    assert assert_revert(
+        signer.send_transaction(
+            other, token.contract_address, 'unpause', []),
+        reverted_with="Ownable: caller is not the owner"
+    )

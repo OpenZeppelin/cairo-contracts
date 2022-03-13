@@ -55,5 +55,6 @@ async def test_register_invalid_interface(erc165_factory):
     contract = erc165_factory
 
     await assert_revert(
-        contract.registerInterface(INVALID_ID).invoke()
+        contract.registerInterface(INVALID_ID).invoke(),
+        reverted_with="ERC165: invalid interface id"
     )

@@ -41,7 +41,10 @@ async def test_add_overflow(safemath_mock):
     a = MAX_UINT256
     b = to_uint(1)
 
-    await assert_revert(safemath.test_add(a, b).invoke())
+    await assert_revert(
+        safemath.test_add(a, b).invoke(),
+        reverted_with="Safemath: addition overflow"
+    )
 
 
 @pytest.mark.asyncio
@@ -63,7 +66,10 @@ async def test_sub_lt_equal(safemath_mock):
     a = MAX_UINT256
     b = MAX_UINT256
 
-    await assert_revert(safemath.test_sub_lt(a, b).invoke())
+    await assert_revert(
+        safemath.test_sub_lt(a, b).invoke(),
+        reverted_with="Safemath: subtraction overflow or the difference equals zero"
+    )
 
 
 @pytest.mark.asyncio
@@ -73,7 +79,10 @@ async def test_sub_lt_overflow(safemath_mock):
     a = to_uint(1234)
     b = to_uint(56789)
 
-    await assert_revert(safemath.test_sub_lt(a, b).invoke())
+    await assert_revert(
+        safemath.test_sub_lt(a, b).invoke(),
+        reverted_with="Safemath: subtraction overflow or the difference equals zero"
+    )
 
 
 @pytest.mark.asyncio
@@ -107,6 +116,10 @@ async def test_sub_le_overflow(safemath_mock):
     a = to_uint(1234)
     b = to_uint(56789)
 
+    await assert_revert(
+        safemath.test_sub_le(a, b).invoke(),
+        reverted_with="Safemath: subtraction overflow"
+    )
     await assert_revert(safemath.test_sub_le(a, b).invoke())
 
 

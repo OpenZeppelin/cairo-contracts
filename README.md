@@ -44,17 +44,34 @@ nile install
 
 ### Compile the contracts
 ```bash
-nile compile
+nile compile --directory openzeppelin
 
-🤖 Compiling all Cairo contracts in the contracts directory
-🔨 Compiling contracts/IAccount.cairo
-🔨 Compiling contracts/Account.cairo
-🔨 Compiling contracts/AddressRegistry.cairo
-🔨 Compiling contracts/Initializable.cairo
-🔨 Compiling contracts/Ownable.cairo
-🔨 Compiling contracts/token/ERC721.cairo
-🔨 Compiling contracts/token/ERC20.cairo
-🔨 Compiling contracts/token/IERC20.cairo
+🤖 Compiling all Cairo contracts in the openzeppelin directory
+🔨 Compiling openzeppelin/introspection/ERC165.cairo
+🔨 Compiling openzeppelin/introspection/IERC165.cairo
+🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
+🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo
+🔨 Compiling openzeppelin/token/erc721/library.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Metadata.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Receiver.cairo
+🔨 Compiling openzeppelin/token/erc721/utils/ERC721_Holder.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20_Mintable.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20.cairo
+🔨 Compiling openzeppelin/token/erc20/library.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20_Pausable.cairo
+🔨 Compiling openzeppelin/token/erc20/interfaces/IERC20.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/library.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/interfaces/IERC721_Enumerable.cairo
+🔨 Compiling openzeppelin/security/pausable.cairo
+🔨 Compiling openzeppelin/security/safemath.cairo
+🔨 Compiling openzeppelin/security/initializable.cairo
+🔨 Compiling openzeppelin/access/ownable.cairo
+🔨 Compiling openzeppelin/account/IAccount.cairo
+🔨 Compiling openzeppelin/account/Account.cairo
+🔨 Compiling openzeppelin/account/AddressRegistry.cairo
+🔨 Compiling openzeppelin/utils/constants.cairo
 ✅ Done
 ```
 

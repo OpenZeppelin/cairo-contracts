@@ -103,13 +103,39 @@ print(z)
 # prints (340282366920938463463374607431768211455, 0)
 ```
 
+### `mul_uint`
+
+Performs multiplication between two uint256-ish tuples and returns the product as a uint256-ish tuple.
+
+```python
+x = (0, 10)
+y = (2, 0)
+z = mul_uint(x, y)
+print(z)
+# prints (0, 20)
+```
+
+### `div_rem_uint`
+
+Performs division between two uint256-ish tuples and returns both the quotient and remainder as uint256-ish tuples respectively.
+
+```python
+x = (1, 100)
+y = (0, 25)
+z = div_rem_uint(x, y)
+print(z)
+# prints ((4, 0), (1, 0)) 
+```
+
 ## Assertions
 
 In order to abstract away some of the verbosity regarding test assertions on StarkNet transactions, this project includes the following helper methods:
 
 ### `assert_revert`
 
-An asynchronous wrapper method that executes a try-except pattern for transactions that should fail with the StarkNet error code: `TRANSACTION_FAILED`. To successfully use this wrapper, the transaction method should be wrapped with `assert_revert`; however, `await` should precede the wrapper itself like this:
+An asynchronous wrapper method that executes a try-except pattern for transactions that should fail. Note that this wrapper does not check for a StarkNet error code. This allows for more flexibility in checking that a transaction simply failed. If you wanted to check for an exact error code, you could use StarkNet's [error_codes module](https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/definitions/error_codes.py) and implement additional logic to the `assert_revert` method.
+
+ To successfully use this wrapper, the transaction method should be wrapped with `assert_revert`; however, `await` should precede the wrapper itself like this:
 
 ```python
 await assert_revert(signer.send_transaction(

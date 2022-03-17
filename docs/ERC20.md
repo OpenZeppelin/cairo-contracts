@@ -142,7 +142,7 @@ func transfer{
 end
 ```
 
-Some other ways to extend contracts may include:
+Some other ways to extend ERC20 contracts may include:
 - Implementing a minting mechanism
 - Creating a timelock
 - Adding roles such as owner or minter

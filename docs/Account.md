@@ -120,8 +120,8 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     await signer.send_transactions(
         account,
         [
-            (contract_address, 'method_name', []),
-            (contract_address, 'method_name', [])
+            (contract_address, 'method_name', [param1, param2]),
+            (contract_address, 'another_method', [])
         ]
     )
 ```

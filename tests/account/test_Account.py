@@ -3,10 +3,11 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer, assert_revert
+from utilities.SignerWithAccount import SignerWithAccount
+from utilities.utils import assert_revert
 
-signer = Signer(123456789987654321)
-other = Signer(987654321123456789)
+signer = SignerWithAccount(123456789987654321)
+other = SignerWithAccount(987654321123456789)
 
 IACCOUNT_ID = 0xf10dbd44
 TRUE = 1

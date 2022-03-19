@@ -1,11 +1,12 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import (
-    Signer, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, assert_revert, to_uint
+from utilities.SignerWithAccount import SignerWithAccount
+from utilities.utils import (
+    str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, assert_revert, to_uint
 )
 
-signer = Signer(123456789987654321)
+signer = SignerWithAccount(123456789987654321)
 
 
 # random token IDs

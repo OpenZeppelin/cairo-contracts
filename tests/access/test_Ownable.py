@@ -1,9 +1,9 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer
+from utilities.SignerWithAccount import SignerWithAccount
 
-signer = Signer(123456789987654321)
+signer = SignerWithAccount(123456789987654321)
 
 
 @pytest.fixture(scope='module')

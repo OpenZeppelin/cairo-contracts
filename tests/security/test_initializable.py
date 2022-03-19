@@ -1,6 +1,6 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
-from utils import TRUE, FALSE, assert_revert
+from utilities.utils import TRUE, FALSE, assert_revert
 
 
 @pytest.mark.asyncio

@@ -1,12 +1,13 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import (
-    Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
+from utilities.SignerWithAccount import SignerWithAccount
+from utilities.utils import (
+    uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
     assert_revert, assert_event_emitted
 )
 
-signer = Signer(123456789987654321)
+signer = SignerWithAccount(123456789987654321)
 
 # random address
 RECIPIENT = 789

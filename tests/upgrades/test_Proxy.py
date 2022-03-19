@@ -1,14 +1,15 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import (
-    Signer, assert_revert, get_contract_def, cached_contract
+from utilities.SignerWithAccount import SignerWithAccount
+from utilities.utils import (
+    assert_revert, get_contract_def, cached_contract
 )
 
 # random value
 VALUE = 123
 
-signer = Signer(123456789987654321)
+signer = SignerWithAccount(123456789987654321)
 
 
 @pytest.fixture(scope='module')

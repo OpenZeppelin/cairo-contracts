@@ -1,12 +1,13 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import (
-    Signer, to_uint, sub_uint, str_to_felt, assert_revert,
+from utilities.SignerWithAccount import SignerWithAccount
+from utilities.utils import (
+    to_uint, sub_uint, str_to_felt, assert_revert,
     get_contract_def, cached_contract, assert_event_emitted
 )
 
-signer = Signer(123456789987654321)
+signer = SignerWithAccount(123456789987654321)
 
 USER = 999
 INIT_SUPPLY = to_uint(1000)
@@ -15,19 +16,9 @@ NAME = str_to_felt('Upgradeable Token')
 SYMBOL = str_to_felt('UTKN')
 DECIMALS = 18
 
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
-
-
 # random value
 VALUE = 123
 VALUE_2 = 987
-
-
-signer = Signer(123456789987654321)
-
 
 @pytest.fixture(scope='module')
 def event_loop():

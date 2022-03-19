@@ -27,7 +27,7 @@ from openzeppelin.utils.constants import TRUE, FALSE
 #
 
 @event
-func Transfer(_from: felt, to: felt, tokenId: Uint256):
+func Transfer(from_: felt, to: felt, tokenId: Uint256):
 end
 
 @event

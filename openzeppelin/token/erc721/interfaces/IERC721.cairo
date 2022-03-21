@@ -16,7 +16,7 @@ namespace IERC721:
     end
 
     func safeTransferFrom(
-            _from: felt, 
+            from_: felt, 
             to: felt, 
             tokenId: Uint256, 
             data_len: felt,
@@ -24,7 +24,7 @@ namespace IERC721:
         ):
     end
 
-    func transferFrom(_from: felt, to: felt, tokenId: Uint256):
+    func transferFrom(from_: felt, to: felt, tokenId: Uint256):
     end
 
     func approve(approved: felt, tokenId: Uint256):

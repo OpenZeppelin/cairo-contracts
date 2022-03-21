@@ -14,7 +14,7 @@ from openzeppelin.introspection.ERC165 import (
 @view
 func onERC721Received(
         operator: felt,
-        _from: felt,
+        from_: felt,
         tokenId: Uint256,
         data_len: felt,
         data: felt*

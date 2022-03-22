@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, uint, str_to_felt, assert_revert
+from utils import Signer, uint, str_to_felt, assert_revert, contract_path
 
 signer = Signer(123456789987654321)
 
@@ -15,17 +15,17 @@ def event_loop():
 async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     other = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     token = await starknet.deploy(
-        "openzeppelin/token/erc20/ERC20_Pausable.cairo",
+        contract_path("openzeppelin/token/erc20/ERC20_Pausable.cairo"),
         constructor_calldata=[
             str_to_felt("Pausable Token"),
             str_to_felt("PTKN"),

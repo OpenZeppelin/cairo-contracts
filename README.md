@@ -44,24 +44,43 @@ nile install
 
 ### Compile the contracts
 ```bash
-nile compile
+nile compile --directory openzeppelin
 
-🤖 Compiling all Cairo contracts in the contracts directory
-🔨 Compiling contracts/IAccount.cairo
-🔨 Compiling contracts/Account.cairo
-🔨 Compiling contracts/AddressRegistry.cairo
-🔨 Compiling contracts/Initializable.cairo
-🔨 Compiling contracts/Ownable.cairo
-🔨 Compiling contracts/token/ERC721.cairo
-🔨 Compiling contracts/token/ERC20.cairo
-🔨 Compiling contracts/token/IERC20.cairo
+🤖 Compiling all Cairo contracts in the openzeppelin directory
+🔨 Compiling openzeppelin/introspection/ERC165.cairo
+🔨 Compiling openzeppelin/introspection/IERC165.cairo
+🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
+🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo
+🔨 Compiling openzeppelin/token/erc721/library.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Metadata.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721.cairo
+🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Receiver.cairo
+🔨 Compiling openzeppelin/token/erc721/utils/ERC721_Holder.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20_Mintable.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20.cairo
+🔨 Compiling openzeppelin/token/erc20/library.cairo
+🔨 Compiling openzeppelin/token/erc20/ERC20_Pausable.cairo
+🔨 Compiling openzeppelin/token/erc20/interfaces/IERC20.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/library.cairo
+🔨 Compiling openzeppelin/token/erc721_enumerable/interfaces/IERC721_Enumerable.cairo
+🔨 Compiling openzeppelin/security/pausable.cairo
+🔨 Compiling openzeppelin/security/safemath.cairo
+🔨 Compiling openzeppelin/security/initializable.cairo
+🔨 Compiling openzeppelin/access/ownable.cairo
+🔨 Compiling openzeppelin/account/IAccount.cairo
+🔨 Compiling openzeppelin/account/Account.cairo
+🔨 Compiling openzeppelin/account/AddressRegistry.cairo
+🔨 Compiling openzeppelin/utils/constants.cairo
 ✅ Done
 ```
 
 ### Run tests
 
+Run tests using [tox](https://tox.wiki/en/latest/), tox automatically creates an isolated testing environment:
+
 ```bash
-pytest
+tox
 
 ====================== test session starts ======================
 platform linux -- Python 3.7.2, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
@@ -83,6 +102,7 @@ tests/test_Ownable.py ..                                   [100%]
 * [ERC20](docs/ERC20.md)
 * [ERC721](docs/ERC721.md)
 * [Contract extensibility pattern](docs/Extensibility.md)
+* [Proxies and upgrades](docs/Proxies.md)
 * [Utilities](docs/Utilities.md)
 ### Cairo
 * [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)

@@ -4,7 +4,8 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, to_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
-    assert_event_emitted, assert_revert, sub_uint, add_uint
+    assert_event_emitted, assert_revert, sub_uint, add_uint,
+    contract_path
 )
 
 signer = Signer(123456789987654321)
@@ -19,12 +20,12 @@ def event_loop():
 async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     erc20 = await starknet.deploy(
-        "tests/mocks/ERC20_Burnable_mock.cairo",
+        contract_path("tests/mocks/ERC20_Burnable_mock.cairo"),
         constructor_calldata=[
             str_to_felt("Token"),      # name
             str_to_felt("TKN"),        # symbol

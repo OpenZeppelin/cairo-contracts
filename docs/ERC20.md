@@ -127,8 +127,6 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 
 ## Extensibility
 
-ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods (and the extended logic if it's in a separate contract). Next, the contract should expose the methods with the extended logic therein like this:
-
 ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
 
 ```python

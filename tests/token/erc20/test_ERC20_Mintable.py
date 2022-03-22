@@ -4,7 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from utilities.SignerWithAccount import SignerWithAccount
 from utilities.utils import (
     uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
-    assert_revert, assert_event_emitted
+    assert_revert, assert_event_emitted, contract_path
 )
 
 signer = SignerWithAccount(123456789987654321)
@@ -22,12 +22,12 @@ def event_loop():
 async def token_factory():
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     token = await starknet.deploy(
-        "openzeppelin/token/erc20/ERC20_Mintable.cairo",
+        contract_path("openzeppelin/token/erc20/ERC20_Mintable.cairo"),
         constructor_calldata=[
             str_to_felt("Mintable Token"),
             str_to_felt("MTKN"),

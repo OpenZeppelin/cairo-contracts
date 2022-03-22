@@ -1,12 +1,14 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
-from utils import TRUE, FALSE, assert_revert
+from utils import TRUE, FALSE, assert_revert, contract_path
 
 
 @pytest.mark.asyncio
 async def test_initializer():
     starknet = await Starknet.empty()
-    initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
     expected = await initializable.initialized().call()
     assert expected.result == (FALSE,)
 

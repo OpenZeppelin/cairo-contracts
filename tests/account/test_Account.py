@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer, assert_revert
+from utils import Signer, assert_revert, contract_path
 
 signer = Signer(123456789987654321)
 other = Signer(987654321123456789)
@@ -21,12 +21,12 @@ def event_loop():
 async def account_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     bad_account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
-        constructor_calldata=[signer.public_key]
+        contract_path("openzeppelin/account/Account.cairo"),
+        constructor_calldata=[signer.public_key],
     )
 
     return starknet, account, bad_account
@@ -46,7 +46,9 @@ async def test_constructor(account_factory):
 @pytest.mark.asyncio
 async def test_execute(account_factory):
     starknet, account, _ = account_factory
-    initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
@@ -60,8 +62,12 @@ async def test_execute(account_factory):
 @pytest.mark.asyncio
 async def test_multicall(account_factory):
     starknet, account, _ = account_factory
-    initializable_1 = await starknet.deploy("openzeppelin/security/initializable.cairo")
-    initializable_2 = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable_1 = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
+    initializable_2 = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
 
     execution_info = await initializable_1.initialized().call()
     assert execution_info.result == (0,)
@@ -85,7 +91,9 @@ async def test_multicall(account_factory):
 @pytest.mark.asyncio
 async def test_return_value(account_factory):
     starknet, account, _ = account_factory
-    initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
 
     # initialize, set `initialized = 1`
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
@@ -99,7 +107,9 @@ async def test_return_value(account_factory):
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
     starknet, account, _ = account_factory
-    initializable = await starknet.deploy("openzeppelin/security/initializable.cairo")
+    initializable = await starknet.deploy(
+        contract_path("openzeppelin/security/initializable.cairo")
+    )
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res
 

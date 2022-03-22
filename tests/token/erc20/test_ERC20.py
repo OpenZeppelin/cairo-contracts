@@ -3,7 +3,7 @@ import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, uint, str_to_felt, MAX_UINT256, INVALID_UINT256, ZERO_ADDRESS,
-    assert_event_emitted, assert_revert, sub_uint, add_uint
+    assert_event_emitted, assert_revert, sub_uint, add_uint, contract_path
 )
 
 signer = Signer(123456789987654321)
@@ -18,12 +18,12 @@ def event_loop():
 async def erc20_factory():
     starknet = await Starknet.empty()
     account = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     erc20 = await starknet.deploy(
-        "openzeppelin/token/erc20/ERC20.cairo",
+        contract_path("openzeppelin/token/erc20/ERC20.cairo"),
         constructor_calldata=[
             str_to_felt("Token"),      # name
             str_to_felt("TKN"),        # symbol
@@ -51,7 +51,7 @@ async def test_constructor_invalid_decimals(erc20_factory):
     invalid_decimals = 2**8 + 1
 
     await assert_revert(starknet.deploy(
-        "openzeppelin/token/erc20/ERC20.cairo",
+        contract_path("openzeppelin/token/erc20/ERC20.cairo"),
         constructor_calldata=[
             str_to_felt("Token"),
             str_to_felt("TKN"),
@@ -228,7 +228,7 @@ async def test_approve_invalid_uint256(erc20_factory):
 async def test_transferFrom(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -263,7 +263,7 @@ async def test_transferFrom(erc20_factory):
 async def test_transferFrom_emits_event(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     amount = uint(345)
@@ -453,7 +453,7 @@ async def test_decreaseAllowance_overflow(erc20_factory):
 async def test_transfer_funds_greater_than_allowance(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -522,7 +522,7 @@ async def test_transferFrom_zero_address(erc20_factory):
 async def test_transferFrom_func_to_zero_address(erc20_factory):
     starknet, erc20, account = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts
@@ -545,7 +545,7 @@ async def test_transferFrom_func_to_zero_address(erc20_factory):
 async def test_transferFrom_func_from_zero_address(erc20_factory):
     starknet, erc20, _ = erc20_factory
     spender = await starknet.deploy(
-        "openzeppelin/account/Account.cairo",
+        contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
     # we use the same signer to control the main and the spender accounts

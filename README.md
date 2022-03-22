@@ -77,8 +77,10 @@ nile compile --directory openzeppelin
 
 ### Run tests
 
+Run tests using [tox](https://tox.wiki/en/latest/), tox automatically creates an isolated testing environment:
+
 ```bash
-pytest
+tox
 
 ====================== test session starts ======================
 platform linux -- Python 3.7.2, pytest-6.2.5, py-1.11.0, pluggy-1.0.0

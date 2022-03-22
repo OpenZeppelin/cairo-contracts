@@ -18,7 +18,7 @@ FALSE = 0
 TRANSACTION_VERSION = 0
 
 
-_root = Path(__file__).parent.parent
+_root = Path(__file__).parent.parent.parent
 
 
 def contract_path(name):

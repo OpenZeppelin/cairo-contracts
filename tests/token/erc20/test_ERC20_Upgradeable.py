@@ -15,17 +15,6 @@ NAME = str_to_felt('Upgradeable Token')
 SYMBOL = str_to_felt('UTKN')
 DECIMALS = 18
 
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
-
-
-# random value
-VALUE = 123
-VALUE_2 = 987
-
-
 signer = Signer(123456789987654321)
 
 

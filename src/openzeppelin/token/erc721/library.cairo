@@ -521,7 +521,7 @@ func _safe_transfer{
     _transfer(_from, to, token_id)
 
     let (success) = _check_onERC721Received(_from, to, token_id, data_len, data)
-    with_attr error_message("ERC721: transfer caller is not owner nor approved"):
+    with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
         assert_not_zero(success)
     end
     return ()

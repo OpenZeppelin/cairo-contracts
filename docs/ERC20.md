@@ -313,7 +313,7 @@ success: felt
 ### Events
 
 ```jsx
-func Transfer(_from: felt, to: felt, value: Uint256):
+func Transfer(from_: felt, to: felt, value: Uint256):
 end
 
 func Approval(owner: felt, spender: felt, value: Uint256):
@@ -322,14 +322,14 @@ end
 
 #### `Transfer (event)`
 
-Emitted when `value` tokens are moved from one account (`_from`) to another (`to`). 
+Emitted when `value` tokens are moved from one account (`from_`) to another (`to`). 
 
 Note that `value` may be zero.
 
 Parameters:
 
 ```jsx
-_from: felt
+from_: felt
 to: felt
 value: Uint256
 ```

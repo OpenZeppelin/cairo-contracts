@@ -162,11 +162,11 @@ func transferFrom{
         syscall_ptr: felt*, 
         range_check_ptr
     }(
-        _from: felt, 
+        from_: felt, 
         to: felt, 
         tokenId: Uint256
     ):
-    ERC721_transferFrom(_from, to, tokenId)
+    ERC721_transferFrom(from_, to, tokenId)
     return ()
 end
 
@@ -176,13 +176,13 @@ func safeTransferFrom{
         syscall_ptr: felt*, 
         range_check_ptr
     }(
-        _from: felt, 
+        from_: felt, 
         to: felt, 
         tokenId: Uint256,
         data_len: felt, 
         data: felt*
     ):
-    ERC721_safeTransferFrom(_from, to, tokenId, data_len, data)
+    ERC721_safeTransferFrom(from_, to, tokenId, data_len, data)
     return ()
 end
 

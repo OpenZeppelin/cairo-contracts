@@ -17,7 +17,7 @@ from openzeppelin.utils.constants import TRUE, FALSE, UINT8_MAX
 #
 
 @event
-func Transfer(_from: felt, to: felt, value: Uint256):
+func Transfer(from_: felt, to: felt, value: Uint256):
 end
 
 @event

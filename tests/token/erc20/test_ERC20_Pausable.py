@@ -1,14 +1,9 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import Signer, uint, str_to_felt, assert_revert, contract_path
 
+
 signer = Signer(123456789987654321)
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

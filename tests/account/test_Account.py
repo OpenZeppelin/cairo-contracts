@@ -1,20 +1,15 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import Signer, assert_revert, contract_path
+
 
 signer = Signer(123456789987654321)
 other = Signer(987654321123456789)
 
 IACCOUNT_ID = 0xf10dbd44
 TRUE = 1
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

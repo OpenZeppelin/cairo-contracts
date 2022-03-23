@@ -1,10 +1,10 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert, INVALID_UINT256,
     assert_event_emitted, get_contract_def, cached_contract, to_uint, sub_uint, add_uint
 )
+
 
 signer = Signer(123456789987654321)
 
@@ -27,11 +27,6 @@ IERC721_ID = 0x80ac58cd
 IERC721_METADATA_ID = 0x5b5e139f
 INVALID_ID = 0xffffffff
 UNSUPPORTED_ID = 0xabcd1234
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

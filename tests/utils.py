@@ -40,14 +40,6 @@ def felt_to_str(felt):
     return b_felt.decode()
 
 
-def assert_event_emitted(tx_exec_info, from_address, name, data):
-    assert Event(
-        from_address=from_address,
-        keys=[get_selector_from_name(name)],
-        data=data,
-    ) in tx_exec_info.raw_events
-
-
 def uint(a):
     return(a, 0)
 

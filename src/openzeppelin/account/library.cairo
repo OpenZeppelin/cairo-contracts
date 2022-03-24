@@ -16,7 +16,7 @@ from openzeppelin.introspection.ERC165 import (
     ERC165_register_interface
 )
 
-from openzeppelin.utils.constants import PREFIX_TRANSACTION 
+from openzeppelin.utils.constants import PREFIX_TRANSACTION, IACCOUNT_ID
 
 #
 # Structs
@@ -118,8 +118,7 @@ func Account_initializer{
         range_check_ptr
     }(_public_key: felt):
     Account_public_key.write(_public_key)
-    # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0xf10dbd44)
+    ERC165_register_interface(IACCOUNT_ID)
     return()
 end
 

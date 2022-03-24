@@ -31,7 +31,7 @@ The Cairo programming language includes unique features and limitations relative
 
 ## Interface ids
 
-The [constants library](../openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables. This helps increase code legibility, as `IERC165`, for example, is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
+The [constants library](../openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables to increase code legibility. For example, `IERC165_ID` is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
 
 ## Strings
 

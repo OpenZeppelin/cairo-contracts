@@ -19,13 +19,13 @@ from openzeppelin.security.reentrancy_guard import (
 
 @contract_interface
 namespace IReentrancyGuardAttacker:
-    func callSender():
+    func call_sender():
     end
 end
 
 @contract_interface
 namespace IReentrancyGuard:
-    func countThisRecursive(n : Uint256):
+    func count_this_recursive(n : Uint256):
     end
 end
 
@@ -62,19 +62,19 @@ func callback{syscall_ptr : felt*,
 end
 
 @external
-func countLocalRecursive {syscall_ptr : felt*, 
+func count_local_recursive {syscall_ptr : felt*, 
    pedersen_ptr : HashBuiltin*,
    range_check_ptr} (n : felt):
    ReentrancyGuard_start()
    assert_le(1, n)
    _count()
-   countLocalRecursive(n - 1)
+   count_local_recursive(n - 1)
    ReentrancyGuard_end()
    return ()
 end
 
 @external
-func countThisRecursive {syscall_ptr : felt*, 
+func count_this_recursive {syscall_ptr : felt*, 
    pedersen_ptr : HashBuiltin*,
    range_check_ptr} (n : Uint256, recursive_jump: Uint256):
    alloc_locals
@@ -83,7 +83,7 @@ func countThisRecursive {syscall_ptr : felt*,
    _count()
    let (contract_address) = get_contract_address()
    let (new_n: Uint256) = uint256_sub(n,recursive_jump)
-   IReentrancyGuard.delegate_countThisRecursive(
+   IReentrancyGuard.delegate_count_this_recursive(
        contract_address=contract_address, n=new_n )
    ReentrancyGuard_end()
     return ()    
@@ -96,7 +96,7 @@ func count_and_call{ syscall_ptr : felt*,
     alloc_locals
     ReentrancyGuard_start()
     _count()
-    IReentrancyGuardAttacker.callSender(contract_address=attacker)
+    IReentrancyGuardAttacker.call_sender(contract_address=attacker)
     ReentrancyGuard_end()
     return()
 end

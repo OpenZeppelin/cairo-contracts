@@ -13,7 +13,7 @@ end
 
 
 @external
-func callSender{syscall_ptr : felt*, 
+func call_sender{syscall_ptr : felt*, 
     pedersen_ptr : HashBuiltin*,
     range_check_ptr}(data: felt):
     let (caller) = get_caller_address()

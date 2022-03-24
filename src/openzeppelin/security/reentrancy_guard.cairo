@@ -12,7 +12,7 @@ func _notEntered() -> (res: felt):
 end
 
 @external
-func reentrancyGuard_start{
+func ReentrancyGuard_start{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -25,7 +25,7 @@ func reentrancyGuard_start{
     return ()
 end
 
-func reentrancyGuard_end{
+func ReentrancyGuard_end{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr

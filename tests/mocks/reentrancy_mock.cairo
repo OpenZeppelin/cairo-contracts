@@ -3,16 +3,15 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_le
-from openzeppelin.utils.constants import TRUE, FALSE
 from starkware.cairo.common.uint256 import (
     Uint256,
     uint256_signed_nn_le,
     uint256_sub
 )
 from starkware.starknet.common.syscalls import (
-    get_contract_address)
+    get_contract_address
+)
 from openzeppelin.security.reentrancy_guard import (  
     ReentrancyGuard_start,
     ReentrancyGuard_end
@@ -20,13 +19,13 @@ from openzeppelin.security.reentrancy_guard import (
 
 @contract_interface
 namespace IReentrancyGuardAttacker:
-    func callSender(data : felt):
+    func callSender():
     end
 end
 
 @contract_interface
 namespace IReentrancyGuard:
-    func countThisRecursive(n : felt):
+    func countThisRecursive(n : Uint256):
     end
 end
 
@@ -39,52 +38,62 @@ func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }():
-    counter.write(0)
+    }(initial_number: felt):
+    counter.write(initial_number)
     return ()
+end
+
+@view
+func current_count{syscall_ptr: felt*,
+ pedersen_ptr : HashBuiltin*,
+ range_check_ptr}() -> (res: felt):
+    let (res) = counter.read()
+    return (res)
 end
 
 @external
 func callback{syscall_ptr : felt*, 
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr}():
-    ReentrancyGuard_start()
-    _count()
-    ReentrancyGuard_end()
-    return ()
+   pedersen_ptr : HashBuiltin*,
+   range_check_ptr}():
+   ReentrancyGuard_start()
+   _count()
+   ReentrancyGuard_end()
+   return ()
 end
 
 @external
 func countLocalRecursive {syscall_ptr : felt*, 
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr} (n : felt):
-    ReentrancyGuard_start()
-    assert_le(1, n)
-    _count()
-    countLocalRecursive(n - 1)
-    ReentrancyGuard_end()
-    return ()
+   pedersen_ptr : HashBuiltin*,
+   range_check_ptr} (n : felt):
+   ReentrancyGuard_start()
+   assert_le(1, n)
+   _count()
+   countLocalRecursive(n - 1)
+   ReentrancyGuard_end()
+   return ()
 end
 
 @external
 func countThisRecursive {syscall_ptr : felt*, 
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr} (n : Uint256):
-    ReentrancyGuard_start()
-    uint256_signed_nn_le(1, n)
-    _count()
-    let (contract_address) = get_contract_address()
-    let (new_n: Uint256) = uint256_sub(n,1)
-    IReentrancyGuard.countThisRecursive(
-        contract_address=contract_address, n=new_n )
-    ReentrancyGuard_end()
+   pedersen_ptr : HashBuiltin*,
+   range_check_ptr} (n : Uint256, recursive_jump: Uint256):
+   alloc_locals
+   ReentrancyGuard_start()
+   uint256_signed_nn_le(recursive_jump, n)    
+   _count()
+   let (contract_address) = get_contract_address()
+   let (new_n: Uint256) = uint256_sub(n,recursive_jump)
+   IReentrancyGuard.delegate_countThisRecursive(
+       contract_address=contract_address, n=new_n )
+   ReentrancyGuard_end()
     return ()    
 end
 
 @external
-func count_and_call{syscall_ptr : felt*, 
+func count_and_call{ syscall_ptr : felt*, 
     pedersen_ptr : HashBuiltin*,
     range_check_ptr}(attacker : felt):
+    alloc_locals
     ReentrancyGuard_start()
     _count()
     IReentrancyGuardAttacker.callSender(contract_address=attacker)
@@ -92,7 +101,7 @@ func count_and_call{syscall_ptr : felt*,
     return()
 end
 
-func _count{syscall_ptr : felt*, 
+func _count{ syscall_ptr : felt*, 
     pedersen_ptr : HashBuiltin*,
     range_check_ptr}():
     let (current_count) = counter.read()

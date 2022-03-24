@@ -19,12 +19,6 @@ from openzeppelin.security.reentrancy_guard import (
 )
 
 @contract_interface
-namespace ISafeMath:
-    func uint256_checked_sub_le(a: Uint256, b: Uint256) -> (c: Uint256):
-    end
-end
-
-@contract_interface
 namespace IReentrancyGuardAttacker:
     func callSender(data : felt):
     end
@@ -40,17 +34,12 @@ end
 func counter() -> (res : felt):  
 end
 
-@storage_var
-func attacker_address() -> (res : felt):  
-end
-
 @constructor
 func constructor{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(attacker : felt):
-    attacker_address.write(attacker)
+    }():
     counter.write(0)
     return ()
 end
@@ -90,6 +79,17 @@ func countThisRecursive {syscall_ptr : felt*,
         contract_address=contract_address, n=new_n )
     ReentrancyGuard_end()
     return ()    
+end
+
+@external
+func count_and_call{syscall_ptr : felt*, 
+    pedersen_ptr : HashBuiltin*,
+    range_check_ptr}(attacker : felt):
+    ReentrancyGuard_start()
+    _count()
+    IReentrancyGuardAttacker.callSender(contract_address=attacker)
+    ReentrancyGuard_end()
+    return()
 end
 
 func _count{syscall_ptr : felt*, 

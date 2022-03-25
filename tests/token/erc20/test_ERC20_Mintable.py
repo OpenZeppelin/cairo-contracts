@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
@@ -10,11 +9,6 @@ signer = Signer(123456789987654321)
 
 # random address
 RECIPIENT = 789
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

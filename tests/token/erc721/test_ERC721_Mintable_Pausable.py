@@ -1,23 +1,17 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, assert_revert, to_uint
 )
 
-signer = Signer(123456789987654321)
 
+signer = Signer(123456789987654321)
 
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]
 TOKEN_TO_MINT = to_uint(33)
 # random data (mimicking bytes in Solidity)
 DATA = [0x42, 0x89, 0x55]
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

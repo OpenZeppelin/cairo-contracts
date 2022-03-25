@@ -17,11 +17,11 @@ func ReentrancyGuard_start{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    let (initialized) = _notEntered.read()
+    let (initialized) = _not_entered.read()
     with_attr error_message("ReentrancyGuard: reentrant call"):
         assert initialized = TRUE
     end
-    _notEntered.write(FALSE)
+    _not_entered.write(FALSE)
     return ()
 end
 
@@ -30,6 +30,6 @@ func ReentrancyGuard_end{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    _notEntered.write(TRUE)
+    _not_entered.write(TRUE)
     return ()
 end

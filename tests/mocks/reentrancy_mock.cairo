@@ -3,7 +3,8 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_le
+from starkware.cairo.common.math_cmp import is_le
+from openzeppelin.utils.constants import TRUE
 from starkware.cairo.common.uint256 import (
     Uint256,
     uint256_signed_nn_le,
@@ -65,11 +66,21 @@ end
 func count_local_recursive {syscall_ptr : felt*, 
    pedersen_ptr : HashBuiltin*,
    range_check_ptr} (n : felt):
-   ReentrancyGuard_start()
-   assert_le(1, n)
-   _count()
-   count_local_recursive(n - 1)
-   ReentrancyGuard_end()
+    alloc_locals
+    ReentrancyGuard_start()
+    let (greater_zero) = is_le(1, n)
+    if greater_zero == TRUE:           
+        _count()
+        count_local_recursive(n - 1)
+        tempvar syscall_ptr=syscall_ptr
+        tempvar pedersen_ptr=pedersen_ptr
+        tempvar range_check_ptr=range_check_ptr
+    else:
+        tempvar syscall_ptr=syscall_ptr
+        tempvar pedersen_ptr=pedersen_ptr
+        tempvar range_check_ptr=range_check_ptr
+    end
+    ReentrancyGuard_end()
    return ()
 end
 
@@ -83,7 +94,7 @@ func count_this_recursive {syscall_ptr : felt*,
    _count()
    let (contract_address) = get_contract_address()
    let (new_n: Uint256) = uint256_sub(n,recursive_jump)
-   IReentrancyGuard.delegate_count_this_recursive(
+   IReentrancyGuard.count_this_recursive(
        contract_address=contract_address, n=new_n )
    ReentrancyGuard_end()
     return ()    

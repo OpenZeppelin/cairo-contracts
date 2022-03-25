@@ -22,7 +22,7 @@ from openzeppelin.token.erc721.library import (
 
 from openzeppelin.introspection.ERC165 import ERC165_register_interface
 
-from openzeppelin.utils.constants import TRUE
+from openzeppelin.utils.constants import TRUE, IERC721_ENUMERABLE_ID
 
 #
 # Storage
@@ -57,8 +57,7 @@ func ERC721_Enumerable_initializer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    # register IERC721_Enumerable
-    ERC165_register_interface(0x780e9d63)
+    ERC165_register_interface(IERC721_ENUMERABLE_ID)
     return ()
 end
 

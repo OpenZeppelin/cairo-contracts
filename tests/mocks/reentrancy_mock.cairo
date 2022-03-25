@@ -21,6 +21,8 @@ from openzeppelin.security.reentrancy_guard import (
 namespace IReentrancyGuardAttacker:
     func call_sender():
     end
+    func call_sender_delegate():
+    end
 end
 
 @contract_interface
@@ -97,6 +99,18 @@ func count_and_call{ syscall_ptr : felt*,
     ReentrancyGuard_start()
     _count()
     IReentrancyGuardAttacker.call_sender(contract_address=attacker)
+    ReentrancyGuard_end()
+    return()
+end
+
+@external
+func count_and_call_delegate{ syscall_ptr : felt*, 
+    pedersen_ptr : HashBuiltin*,
+    range_check_ptr}(attacker : felt):
+    alloc_locals
+    ReentrancyGuard_start()
+    _count()
+    IReentrancyGuardAttacker.call_sender_delegate(contract_address=attacker)
     ReentrancyGuard_end()
     return()
 end

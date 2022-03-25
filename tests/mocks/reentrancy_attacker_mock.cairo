@@ -13,10 +13,19 @@ end
 
 
 @external
-func call_sender{syscall_ptr : felt*, 
+func call_sender_delegate{syscall_ptr : felt*, 
     pedersen_ptr : HashBuiltin*,
     range_check_ptr}(data: felt):
     let (caller) = get_caller_address()
     IReentrancyGuard.delegate_callback(contract_address=caller)
+    return ()
+end
+
+@external
+func call_sender{syscall_ptr : felt*, 
+    pedersen_ptr : HashBuiltin*,
+    range_check_ptr}(data: felt):
+    let (caller) = get_caller_address()
+    IReentrancyGuard.callback(contract_address=caller)
     return ()
 end

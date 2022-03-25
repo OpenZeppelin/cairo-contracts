@@ -142,7 +142,7 @@ func transfer{
 end
 ```
 
-Note that extensibility does not have to be library-based like in the above example. For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
+Note that extensibility does not have to be only library-based like in the above example. For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
 
 Some other ways to extend ERC20 contracts may include:
 - Implementing a minting mechanism

@@ -34,10 +34,6 @@ async def test_reentrancy_guard_remote_callback(reentrancy_mock):
         contract.count_and_call(attacker.contract_address).invoke(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
-    await assert_revert(
-        contract.count_and_call_delegate(attacker.contract_address).invoke(),
-        reverted_with="ReentrancyGuard: reentrant call"
-    )
 
 @pytest.mark.asyncio
 async def test_reentrancy_guard_local_recursion(reentrancy_mock):

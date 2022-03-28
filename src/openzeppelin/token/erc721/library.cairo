@@ -20,14 +20,16 @@ from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiv
 
 from openzeppelin.introspection.IERC165 import IERC165
 
-from openzeppelin.utils.constants import TRUE, FALSE
+from openzeppelin.utils.constants import (
+    TRUE, FALSE, IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
+)
 
 #
 # Events
 #
 
 @event
-func Transfer(_from: felt, to: felt, tokenId: Uint256):
+func Transfer(from_: felt, to: felt, tokenId: Uint256):
 end
 
 @event
@@ -84,10 +86,8 @@ func ERC721_initializer{
     ):
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
-    # register IERC721
-    ERC165_register_interface(0x80ac58cd)
-    # register IERC721_Metadata
-    ERC165_register_interface(0x5b5e139f)
+    ERC165_register_interface(IERC721_ID)
+    ERC165_register_interface(IERC721_METADATA_ID)
     return ()
 end
 
@@ -255,7 +255,7 @@ func ERC721_transferFrom{
         pedersen_ptr: HashBuiltin*,
         syscall_ptr: felt*,
         range_check_ptr
-    }(_from: felt, to: felt, token_id: Uint256):
+    }(from_: felt, to: felt, token_id: Uint256):
     alloc_locals
     with_attr error_message("ERC721: token_id is not a valid Uint256"):
         uint256_check(token_id)
@@ -271,7 +271,7 @@ func ERC721_transferFrom{
     # meaning that a*0==0 for all a in the field,
     # therefore a*b==0 implies that at least one of a,b is zero in the field
 
-    _transfer(_from, to, token_id)
+    _transfer(from_, to, token_id)
     return ()
 end
 
@@ -280,7 +280,7 @@ func ERC721_safeTransferFrom{
         syscall_ptr: felt*,
         range_check_ptr
     }(
-        _from: felt,
+        from_: felt,
         to: felt,
         token_id: Uint256,
         data_len: felt,
@@ -301,7 +301,7 @@ func ERC721_safeTransferFrom{
     # meaning that a*0==0 for all a in the field,
     # therefore a*b==0 implies that at least one of a,b is zero in the field
 
-    _safe_transfer(_from, to, token_id, data_len, data)
+    _safe_transfer(from_, to, token_id, data_len, data)
     return ()
 end
 
@@ -477,11 +477,11 @@ func _transfer{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(_from: felt, to: felt, token_id: Uint256):
-    # ownerOf ensures '_from' is not the zero address
+    }(from_: felt, to: felt, token_id: Uint256):
+    # ownerOf ensures 'from_' is not the zero address
     let (_ownerOf) = ERC721_ownerOf(token_id)
     with_attr error_message("ERC721: transfer from incorrect owner"):
-        assert _ownerOf = _from
+        assert _ownerOf = from_
     end
 
     with_attr error_message("ERC721: cannot transfer to the zero address"):
@@ -492,9 +492,9 @@ func _transfer{
     _approve(0, token_id)
 
     # Decrease owner balance
-    let (owner_bal) = ERC721_balances.read(_from)
+    let (owner_bal) = ERC721_balances.read(from_)
     let (new_balance: Uint256) = uint256_checked_sub_le(owner_bal, Uint256(1, 0))
-    ERC721_balances.write(_from, new_balance)
+    ERC721_balances.write(from_, new_balance)
 
     # Increase receiver balance
     let (receiver_bal) = ERC721_balances.read(to)
@@ -503,7 +503,7 @@ func _transfer{
 
     # Update token_id owner
     ERC721_owners.write(token_id, to)
-    Transfer.emit(_from, to, token_id)
+    Transfer.emit(from_, to, token_id)
     return ()
 end
 
@@ -512,15 +512,15 @@ func _safe_transfer{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
-        _from: felt,
+        from_: felt,
         to: felt,
         token_id: Uint256,
         data_len: felt,
         data: felt*
     ):
-    _transfer(_from, to, token_id)
+    _transfer(from_, to, token_id)
 
-    let (success) = _check_onERC721Received(_from, to, token_id, data_len, data)
+    let (success) = _check_onERC721Received(from_, to, token_id, data_len, data)
     with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
         assert_not_zero(success)
     end
@@ -532,33 +532,30 @@ func _check_onERC721Received{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
-        _from: felt,
+        from_: felt,
         to: felt,
         token_id: Uint256,
         data_len: felt,
         data: felt*
     ) -> (success: felt):
     let (caller) = get_caller_address()
-    # ERC721_RECEIVER_ID = 0x150b7a02
-    let (is_supported) = IERC165.supportsInterface(to, 0x150b7a02)
+    let (is_supported) = IERC165.supportsInterface(to, IERC721_RECEIVER_ID)
     if is_supported == TRUE:
         let (selector) = IERC721_Receiver.onERC721Received(
             to,
             caller,
-            _from,
+            from_,
             token_id,
             data_len,
             data
         )
 
-        # ERC721_RECEIVER_ID
         with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
-            assert selector = 0x150b7a02
+            assert selector = IERC721_RECEIVER_ID
         end
         return (TRUE)
     end
 
-    # IAccount_ID = 0xf10dbd44
-    let (is_account) = IERC165.supportsInterface(to, 0xf10dbd44)
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
     return (is_account)
 end

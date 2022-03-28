@@ -17,9 +17,7 @@ SYMBOL = str_to_felt("MTKN")
 DECIMALS = 18
 
 
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
+signer = Signer(123456789987654321)
 
 
 @pytest.fixture(scope='module')

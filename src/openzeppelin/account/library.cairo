@@ -16,20 +16,11 @@ from openzeppelin.introspection.ERC165 import (
     ERC165_register_interface
 )
 
-from openzeppelin.utils.constants import PREFIX_TRANSACTION 
+from openzeppelin.utils.constants import IACCOUNT_ID
 
 #
 # Structs
 #
-
-struct MultiCall:
-    member account: felt
-    member calls_len: felt
-    member calls: Call*
-    member nonce: felt
-    member max_fee: felt
-    member version: felt
-end
 
 struct Call:
     member to: felt
@@ -118,8 +109,7 @@ func Account_initializer{
         range_check_ptr
     }(_public_key: felt):
     Account_public_key.write(_public_key)
-    # Account magic value derived from ERC165 calculation of IAccount
-    ERC165_register_interface(0xf10dbd44)
+    ERC165_register_interface(IACCOUNT_ID)
     return()
 end
 
@@ -182,25 +172,15 @@ func Account_execute{
     from_call_array_to_call(call_array_len, call_array, calldata, calls)
     let calls_len = call_array_len
 
-    local multicall: MultiCall = MultiCall(
-        tx_info.account_contract_address,
-        calls_len,
-        calls,
-        _current_nonce,
-        tx_info.max_fee,
-        tx_info.version
-    )
-
     # validate transaction
-    let (hash) = hash_multicall(&multicall)
-    Account_is_valid_signature(hash, tx_info.signature_len, tx_info.signature)
+    Account_is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
 
     # bump nonce
     Account_current_nonce.write(_current_nonce + 1)
 
     # execute call
     let (response : felt*) = alloc()
-    let (response_len) = execute_list(multicall.calls_len, multicall.calls, response)
+    let (response_len) = execute_list(calls_len, calls, response)
 
     return (response_len=response_len, response=response)
 end
@@ -230,92 +210,6 @@ func execute_list{syscall_ptr: felt*}(
     # do the next calls recursively
     let (response_len) = execute_list(calls_len - 1, calls + Call.SIZE, response + res.retdata_size)
     return (response_len + res.retdata_size)
-end
-
-func hash_multicall{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*
-    } (
-        multicall: MultiCall*
-    ) -> (res: felt):
-    alloc_locals
-    let (calls_hash) = hash_call_array(multicall.calls_len, multicall.calls)
-    let hash_ptr = pedersen_ptr
-    with hash_ptr:
-        let (hash_state_ptr) = hash_init()
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, PREFIX_TRANSACTION)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.account)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, calls_hash)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.nonce)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.max_fee)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, multicall.version)
-        let (res) = hash_finalize(hash_state_ptr)
-        let pedersen_ptr = hash_ptr
-        return (res=res)
-    end
-end
-
-func hash_call_array{pedersen_ptr: HashBuiltin*}(
-        calls_len: felt,
-        calls: Call*
-    ) -> (res: felt):
-    alloc_locals
-
-    # convert [call] to [Hash(call)]
-    let (hash_array : felt*) = alloc()
-    hash_call_loop(calls_len, calls, hash_array)
-
-    # hash [Hash(call)]
-    let hash_ptr = pedersen_ptr
-    with hash_ptr:
-        let (hash_state_ptr) = hash_init()
-        let (hash_state_ptr) = hash_update(hash_state_ptr, hash_array, calls_len)
-        let (res) = hash_finalize(hash_state_ptr)
-        let pedersen_ptr = hash_ptr
-        return (res=res)
-    end
-end
-
-func hash_call_loop{pedersen_ptr: HashBuiltin*}(
-        calls_len: felt,
-        calls: Call*,
-        hash_array: felt*
-    ):
-    if calls_len == 0:
-        return ()
-    end
-    let this_call = [calls]
-    let (calldata_hash) = hash_calldata(this_call.calldata_len, this_call.calldata)
-    let hash_ptr = pedersen_ptr
-    with hash_ptr:
-        let (hash_state_ptr) = hash_init()
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.to)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.selector)
-        let (hash_state_ptr) = hash_update_single(hash_state_ptr, calldata_hash)
-        let (res) = hash_finalize(hash_state_ptr)
-        let pedersen_ptr = hash_ptr
-        assert [hash_array] = res
-    end
-    hash_call_loop(calls_len - 1, calls + Call.SIZE, hash_array + 1)
-    return()
-end
-
-func hash_calldata{pedersen_ptr: HashBuiltin*}(
-        calldata_len: felt,
-        calldata: felt*
-    ) -> (res: felt):
-    let hash_ptr = pedersen_ptr
-    with hash_ptr:
-        let (hash_state_ptr) = hash_init()
-        let (hash_state_ptr) = hash_update(
-            hash_state_ptr,
-            calldata,
-            calldata_len
-        )
-        let (res) = hash_finalize(hash_state_ptr)
-        let pedersen_ptr = hash_ptr
-        return (res=res)
-    end
 end
 
 func from_call_array_to_call{syscall_ptr: felt*}(

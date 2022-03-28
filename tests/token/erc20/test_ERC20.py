@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
@@ -17,11 +16,6 @@ UINT_ZERO = to_uint(0)
 NAME = str_to_felt("Token")
 SYMBOL = str_to_felt("TKN")
 DECIMALS = 18
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

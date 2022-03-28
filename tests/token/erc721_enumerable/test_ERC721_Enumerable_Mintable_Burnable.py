@@ -1,10 +1,10 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, str_to_felt, MAX_UINT256, get_contract_def, cached_contract,
     TRUE, assert_revert, to_uint, sub_uint, add_uint
 )
+
 
 signer = Signer(123456789987654321)
 
@@ -20,11 +20,6 @@ RECIPIENT = 555
 DATA = [0x42, 0x89, 0x55]
 # selector id
 ENUMERABLE_INTERFACE_ID = 0x780e9d63
-
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 
 @pytest.fixture(scope='module')

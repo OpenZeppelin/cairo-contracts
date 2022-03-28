@@ -7,6 +7,7 @@ The following documentation provides context, reasoning, and examples for method
 ## Table of Contents
 
 * [Constants](#constants)
+* [Interface ids](#interface-ids)
 * [Strings](#strings)
   * [`str_to_felt`](#str_to_felt)
   * [`felt_to_str`](#felt_to_str)
@@ -27,6 +28,10 @@ The following documentation provides context, reasoning, and examples for method
 ## Constants
 
 The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo contracts, this project includes reusable constant variables like `TRUE`, `FALSE`, or `ZERO_ADDRESS`.
+
+## Interface ids
+
+The [constants library](../openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables to increase code legibility. For example, `IERC165_ID` is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
 
 ## Strings
 

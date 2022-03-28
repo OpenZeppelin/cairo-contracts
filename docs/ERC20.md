@@ -8,6 +8,11 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
   * [ERC20 compatibility](#erc20-compatibility)
 - [Usage](#usage)
 - [Extensibility](#extensibility)
+- [Presets](#presets)
+  * [ERC20 (basic)](#erc20-(basic))
+  * [ERC20_Mintable](#erc20_mintable)
+  * [ERC20_Pausable](#erc20_pausable)
+  * [ERC20_Upgradeable](#erc20_upgradeable)
 - [API Specification](#api-specification)
   * [Methods](#-methods-)
     * [`name`](#-name-)
@@ -66,13 +71,13 @@ end
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 - it uses Cairo's `uint256` instead of `felt`
-- it returns `1` as success to imitate a `bool`
+- it returns `TRUE` (a constant representing `1`) as success
+- it accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2^8 (imitating `uint8` type)
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
 
 But some differences can still be found, such as:
 
-- `decimals` returns a 252-bit `felt`, meaning it can be much larger than the standard's 8-bit `uint8`. However, compliant implementations should not return a value that is not representable in `uint8`.
-- `transfer`, `transferFrom` and `approve` will never return anything different from true (`1`) because they will revert on any error
+- `transfer`, `transferFrom` and `approve` will never return anything different from `TRUE` because they will revert on any error
 - function selectors are calculated differently between [Cairo](https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25) and [Solidity](https://solidity-by-example.org/function-selector/)
 
 ## Usage
@@ -106,8 +111,6 @@ erc20 = await starknet.deploy(
 )
 ```
 
-> Note that decimals should not exceed `2^8` to be ERC20 compatible.
-
 As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`). This is why we need an Account contract to interact with it. For example:
 
 ```python
@@ -124,13 +127,49 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 
 ## Extensibility
 
-There's no clear contract extensibility pattern for Cairo smart contracts yet. In the meantime the best way to extend our contracts is copypasting and modifying them at your own risk.
+ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
 
-For example, you could:
+```python
+@external
+func transfer{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(recipient: felt, amount: Uint256) -> (success: felt):
+    Pausable_when_not_paused()            # imported extended logic
+    ERC20_transfer(recipient, amount)     # imported library method
+    return (TRUE)
+end
+```
 
-- Implement a pausing mechanism
-- Add roles such as owner or minter
-- Modify the `_transfer` function to perform actions [before](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol#L229) or after [transfers](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol#L240)
+Note that extensibility does not have to be only library-based like in the above example. For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
+
+Some other ways to extend ERC20 contracts may include:
+- Implementing a minting mechanism
+- Creating a timelock
+- Adding roles such as owner or minter
+
+For full examples of the extensibility pattern being used in ERC20 contracts, see [Presets](#presets).
+
+## Presets
+
+The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing. Each preset mints an initial supply which is especially necessary for presets that do not expose a `mint` method.
+
+### ERC20 (basic)
+
+The [`ERC20`](../openzeppelin/token/erc20/ERC20.cairo) preset offers a quick and easy setup for deploying a basic ERC20 token.
+
+### ERC20_Mintable
+
+The [`ERC20_Mintable`](../openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens. 
+
+### ERC20_Pausable
+
+The [`ERC20_Pausable`](../openzeppelin/token/erc20/ERC20_Pausable.cairo) preset allows the contract owner to pause/unpause all state-modifying methods i.e. `transfer`, `approve`, etc. This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
+
+### ERC20_Upgradeable
+
+The [`ERC20_Upgradeable`](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](../docs/Proxy.md#contract-upgrades).
 
 ## API Specification
 
@@ -313,7 +352,7 @@ success: felt
 ### Events
 
 ```jsx
-func Transfer(_from: felt, to: felt, value: Uint256):
+func Transfer(from_: felt, to: felt, value: Uint256):
 end
 
 func Approval(owner: felt, spender: felt, value: Uint256):
@@ -322,14 +361,14 @@ end
 
 #### `Transfer (event)`
 
-Emitted when `value` tokens are moved from one account (`_from`) to another (`to`). 
+Emitted when `value` tokens are moved from one account (`from_`) to another (`to`). 
 
 Note that `value` may be zero.
 
 Parameters:
 
 ```jsx
-_from: felt
+from_: felt
 to: felt
 value: Uint256
 ```

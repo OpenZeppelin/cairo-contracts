@@ -97,7 +97,7 @@ func count_this_recursive {syscall_ptr : felt*,
    let (contract_address) = get_contract_address()
    let (new_n: Uint256) = uint256_sub(n,recursive_jump)
    IReentrancyGuard.count_this_recursive(
-       contract_address=contract_address, n=new_n )
+       contract_address=contract_address, n=new_n)
    ReentrancyGuard_end()
     return ()    
 end

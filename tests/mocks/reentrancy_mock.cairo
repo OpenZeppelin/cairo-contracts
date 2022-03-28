@@ -26,7 +26,7 @@ end
 
 @contract_interface
 namespace IReentrancyGuard:
-    func count_this_recursive(n : Uint256):
+    func count_this_recursive(n : Uint256, recursive_jump: Uint256):
     end
 end
 
@@ -103,7 +103,7 @@ func count_this_recursive {
    let (contract_address) = get_contract_address()
    let (new_n: Uint256) = uint256_sub(n,recursive_jump)
    IReentrancyGuard.count_this_recursive(
-       contract_address=contract_address, n=new_n)
+       contract_address=contract_address, n=new_n, recursive_jump=recursive_jump)
    ReentrancyGuard_end()
     return ()    
 end

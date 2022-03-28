@@ -22,8 +22,7 @@ async def reentrancy_mock():
 async def test_reentrancy_guard_deploy(reentrancy_mock):
     contract, starknet = reentrancy_mock
     response = await contract.current_count().call()
-    another = await contract.get_re().call()
-    print('we got', another.result)
+
     assert response.result == (INITIAL_COUNTER,)
 
 @pytest.mark.asyncio

@@ -105,8 +105,7 @@ end
 @external
 func count_and_call{ syscall_ptr : felt*, 
     pedersen_ptr : HashBuiltin*,
-    range_check_ptr}(attacker : felt):
-    alloc_locals
+    range_check_ptr}(attacker : felt):    
     ReentrancyGuard_start()
     _count()
     IReentrancyGuardAttacker.call_sender(contract_address=attacker)

@@ -6,21 +6,41 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 
+#
+# Events
+#
+
+@event
+func OwnershipTransferred(previousOwner: felt, newOwner: felt):
+end
+
+#
+# Storage
+#
+
 @storage_var
 func Ownable_owner() -> (owner: felt):
 end
 
+#
+# Constructor
+#
+
 func Ownable_initializer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt):
-    Ownable_owner.write(owner)
+    _transferOwnership(owner)
     return ()
 end
 
-func Ownable_only_owner{
-        syscall_ptr : felt*, 
+#
+# Protector (Modifier)
+#
+
+func Ownable_onlyOwner{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
@@ -32,8 +52,12 @@ func Ownable_only_owner{
     return ()
 end
 
-func Ownable_get_owner{
-        syscall_ptr : felt*, 
+#
+# Getters
+#
+
+func Ownable_owner{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (owner: felt):
@@ -41,12 +65,40 @@ func Ownable_get_owner{
     return (owner=owner)
 end
 
-func Ownable_transfer_ownership{
-        syscall_ptr : felt*, 
+func Ownable_transferOwnership{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(new_owner: felt) -> (new_owner: felt):
-    Ownable_only_owner()
-    Ownable_owner.write(new_owner)
-    return (new_owner=new_owner)
+    }(new_owner: felt):
+    with_attr error_message("Ownable: new owner is the zero address"):
+        assert_not_zero(owner)
+    end
+    Ownable_onlyOwner()
+    _transferOwnership(new_owner)
+    return ()
+end
+
+func Ownable_renounceOwnership{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable_onlyOwner()
+    _transferOwnership(0)
+    return ()
+end
+
+#
+# Internal
+#
+
+func _transferOwnership{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    let (previousOwner: felt) = Ownable_owner.read()
+    Ownable_owner.write(newOwner)
+    OwnershipTransferred.emit(previousOwner, newOwner)
+    return ()
 end

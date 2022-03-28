@@ -16,8 +16,8 @@ from openzeppelin.token.erc721.library import (
     ERC721_tokenURI,
 
     ERC721_initializer,
-    ERC721_approve, 
-    ERC721_setApprovalForAll, 
+    ERC721_approve,
+    ERC721_setApprovalForAll,
     ERC721_transferFrom,
     ERC721_safeTransferFrom,
     ERC721_mint,
@@ -30,7 +30,7 @@ from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
 from openzeppelin.access.ownable import (
     Ownable_initializer,
-    Ownable_only_owner
+    Ownable_onlyOwner
 )
 
 #
@@ -39,7 +39,7 @@ from openzeppelin.access.ownable import (
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
@@ -88,7 +88,7 @@ end
 
 @view
 func balanceOf{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt) -> (balance: Uint256):
@@ -98,7 +98,7 @@ end
 
 @view
 func ownerOf{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(tokenId: Uint256) -> (owner: felt):
@@ -108,7 +108,7 @@ end
 
 @view
 func getApproved{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(tokenId: Uint256) -> (approved: felt):
@@ -118,7 +118,7 @@ end
 
 @view
 func isApprovedForAll{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt, operator: felt) -> (isApproved: felt):
@@ -128,8 +128,8 @@ end
 
 @view
 func tokenURI{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(tokenId: Uint256) -> (tokenURI: felt):
     let (tokenURI: felt) = ERC721_tokenURI(tokenId)
@@ -143,8 +143,8 @@ end
 
 @external
 func approve{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
     ERC721_approve(to, tokenId)
@@ -153,8 +153,8 @@ end
 
 @external
 func setApprovalForAll{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(operator: felt, approved: felt):
     ERC721_setApprovalForAll(operator, approved)
@@ -163,12 +163,12 @@ end
 
 @external
 func transferFrom{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(
-        from_: felt, 
-        to: felt, 
+        from_: felt,
+        to: felt,
         tokenId: Uint256
     ):
     ERC721_transferFrom(from_, to, tokenId)
@@ -177,14 +177,14 @@ end
 
 @external
 func safeTransferFrom{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(
-        from_: felt, 
-        to: felt, 
+        from_: felt,
+        to: felt,
         tokenId: Uint256,
-        data_len: felt, 
+        data_len: felt,
         data: felt*
     ):
     ERC721_safeTransferFrom(from_, to, tokenId, data_len, data)
@@ -193,30 +193,30 @@ end
 
 @external
 func setTokenURI{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable_onlyOwner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
 
 @external
 func mint{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_only_owner()
+    Ownable_onlyOwner()
     ERC721_mint(to, tokenId)
     return ()
 end
 
 @external
 func burn{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256):
     ERC721_only_token_owner(tokenId)

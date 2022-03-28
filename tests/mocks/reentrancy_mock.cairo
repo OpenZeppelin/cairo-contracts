@@ -15,7 +15,8 @@ from starkware.starknet.common.syscalls import (
 )
 from openzeppelin.security.reentrancy_guard import (  
     ReentrancyGuard_start,
-    ReentrancyGuard_end
+    ReentrancyGuard_end,
+    ReentrancyGuard_initialize
 )
 
 @contract_interface
@@ -41,6 +42,7 @@ func constructor{
         range_check_ptr
     }(initial_number: felt):
     counter.write(initial_number)
+    ReentrancyGuard_initialize()
     return ()
 end
 

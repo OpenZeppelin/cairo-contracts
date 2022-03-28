@@ -22,7 +22,8 @@ async def reentrancy_mock():
 async def test_reentrancy_guard_deploy(reentrancy_mock):
     contract, starknet = reentrancy_mock
     response = await contract.current_count().call()
-
+    another = await contract.get_re().call()
+    print('we got', another.result)
     assert response.result == (INITIAL_COUNTER,)
 
 @pytest.mark.asyncio
@@ -48,3 +49,12 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
         contract.count_this_recursive(to_uint(10), to_uint(1)).invoke(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
+
+@pytest.mark.asyncio
+async def test_reentrancy_guard(reentrancy_mock):
+    contract, starknet = reentrancy_mock
+    #should allow non reentrant call
+    await contract.callback().call()
+    response = await contract.current_count().call()
+
+    assert response.result == (1,)

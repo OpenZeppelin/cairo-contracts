@@ -8,20 +8,19 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from src.openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
-func _not_entered() -> (res: felt):
+func _entered() -> (res: felt):
 end
 
-@external
 func ReentrancyGuard_start{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    let (_entered) = _not_entered.read()
+    let (has_entered) = _entered.read()
     with_attr error_message("ReentrancyGuard: reentrant call"):
-        assert _entered = TRUE
+        assert has_entered = FALSE
     end
-    _not_entered.write(FALSE)
+    _entered.write(TRUE)
     return ()
 end
 
@@ -30,15 +29,7 @@ func ReentrancyGuard_end{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    _not_entered.write(TRUE)
+    _entered.write(FALSE)
     return ()
 end
 
-func ReentrancyGuard_initialize{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    _not_entered.write(TRUE)
-    return ()
-end

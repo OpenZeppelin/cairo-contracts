@@ -53,7 +53,7 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
 async def test_reentrancy_guard(reentrancy_mock):
     contract, starknet = reentrancy_mock
     #should allow non reentrant call
-    await contract.callback().call()
+    await contract.callback().invoke()
     response = await contract.current_count().call()
 
     assert response.result == (1,)

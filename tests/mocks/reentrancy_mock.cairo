@@ -45,9 +45,11 @@ func constructor{
 end
 
 @view
-func current_count{syscall_ptr: felt*,
- pedersen_ptr : HashBuiltin*,
- range_check_ptr}() -> (res: felt):
+func current_count{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
     let (res) = counter.read()
     return (res)
 end

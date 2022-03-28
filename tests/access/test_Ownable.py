@@ -14,29 +14,41 @@ def event_loop():
 @pytest.fixture(scope='module')
 async def ownable_factory():
     starknet = await Starknet.empty()
-    owner = await starknet.deploy(
+    account1 = await starknet.deploy(
+        contract_path("openzeppelin/account/Account.cairo"),
+        constructor_calldata=[signer.public_key]
+    )
+
+    account2 = await starknet.deploy(
         contract_path("openzeppelin/account/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 
     ownable = await starknet.deploy(
         contract_path("tests/mocks/Ownable.cairo"),
-        constructor_calldata=[owner.contract_address]
+        constructor_calldata=[account1.contract_address]
     )
-    return starknet, ownable, owner
+    return starknet, ownable, account1, account2
 
 
 @pytest.mark.asyncio
 async def test_constructor(ownable_factory):
-    _, ownable, owner = ownable_factory
+    _, ownable, account1, _ = ownable_factory
     expected = await ownable.get_owner().call()
-    assert expected.result.owner == owner.contract_address
+    assert expected.result.owner == account1.contract_address
 
 
 @pytest.mark.asyncio
 async def test_transfer_ownership(ownable_factory):
-    _, ownable, owner = ownable_factory
-    new_owner = 123
-    await signer.send_transaction(owner, ownable.contract_address, 'transfer_ownership', [new_owner])
+    _, ownable, account1, account2 = ownable_factory
+    await signer.send_transaction(account1, ownable.contract_address, 'transfer_ownership', [account2.contract_address])
     executed_info = await ownable.get_owner().call()
-    assert executed_info.result == (new_owner,)
+    assert executed_info.result == (account2.contract_address,)
+
+
+@pytest.mark.asyncio
+async def test_renounce_ownership(ownable_factory):
+    _, ownable, account1, account2 = ownable_factory
+    await signer.send_transaction(account2, ownable.contract_address, 'renounce_ownership', [])
+    executed_info = await ownable.get_owner().call()
+    assert executed_info.result == (0,)

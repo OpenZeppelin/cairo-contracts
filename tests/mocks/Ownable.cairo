@@ -7,7 +7,8 @@ from starkware.starknet.common.syscalls import get_caller_address
 from openzeppelin.access.ownable import (
     Ownable_initializer,
     Ownable_get_owner,
-    Ownable_transfer_ownership
+    Ownable_transfer_ownership,
+    Ownable_renounce_ownership
 )
 
 @constructor
@@ -38,4 +39,14 @@ func transfer_ownership{
     }(new_owner: felt) -> (new_owner: felt):
     Ownable_transfer_ownership(new_owner)
     return (new_owner=new_owner)
+end
+
+@external
+func renounce_ownership{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (new_owner: felt):
+    Ownable_renounce_ownership()
+    return (new_owner=0)
 end

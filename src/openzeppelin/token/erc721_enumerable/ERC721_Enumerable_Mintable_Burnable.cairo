@@ -37,7 +37,10 @@ from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
 from openzeppelin.access.ownable import (
     Ownable_initializer,
-    Ownable_only_owner
+    Ownable_only_owner,
+    Ownable_get_owner,
+    Ownable_transfer_ownership,
+    Ownable_renounce_ownership
 )
 
 #
@@ -259,4 +262,34 @@ func setTokenURI{
     Ownable_only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
+end
+
+@view
+func owner{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner : felt):
+    let (owner) = Ownable_get_owner()
+    return (owner=owner)
+end
+
+@external
+func transferOwnership{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(new_owner: felt) -> (new_owner: felt):
+    let (new_owner) = Ownable_transfer_ownership(new_owner=new_owner)
+    return (new_owner=new_owner)
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (new_owner : felt):
+    let (new_owner) = Ownable_renounce_ownership()
+    return (new_owner=new_owner)
 end

@@ -10,6 +10,6 @@
  
  ## Reentrancy Guard 
  
-A reentrancy attack occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
+A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4) occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
 
-Since Cairo does not support modifiers like Solidity, the `reentrancy_guard` library exposes two functions `ReentrancyGuard_start` and `ReentrancyGuard_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard_start` before the first function statement, and `ReentrancyGuard_end` before the return statement.
+Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../openzeppelin/security/reentrancy_guard.cairo)  library exposes two functions `ReentrancyGuard_start` and `ReentrancyGuard_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard_start` before the first function statement, and `ReentrancyGuard_end` before the return statement.

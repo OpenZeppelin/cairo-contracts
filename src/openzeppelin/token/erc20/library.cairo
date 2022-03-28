@@ -57,7 +57,7 @@ end
 #
 
 func ERC20_initializer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
@@ -93,7 +93,7 @@ func ERC20_symbol{
 end
 
 func ERC20_totalSupply{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (totalSupply: Uint256):
@@ -102,7 +102,7 @@ func ERC20_totalSupply{
 end
 
 func ERC20_decimals{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (decimals: felt):
@@ -111,7 +111,7 @@ func ERC20_decimals{
 end
 
 func ERC20_balanceOf{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(account: felt) -> (balance: Uint256):
@@ -120,7 +120,7 @@ func ERC20_balanceOf{
 end
 
 func ERC20_allowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt, spender: felt) -> (remaining: Uint256):
@@ -129,7 +129,7 @@ func ERC20_allowance{
 end
 
 func ERC20_transfer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
@@ -139,33 +139,25 @@ func ERC20_transfer{
 end
 
 func ERC20_transferFrom{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
-        sender: felt, 
-        recipient: felt, 
+        sender: felt,
+        recipient: felt,
         amount: Uint256
     ) -> ():
     alloc_locals
     let (caller) = get_caller_address()
-    let (caller_allowance: Uint256) = ERC20_allowances.read(owner=sender, spender=caller)
-
-    let (enough_allowance) = uint256_le(amount, caller_allowance)
-    with_attr error_message("ERC20: transfer amount exceeds allowance"):
-        assert enough_allowance = TRUE
-    end
-
-    _transfer(sender, recipient, amount)
-
     # subtract allowance
-    let (new_allowance: Uint256) = uint256_sub(caller_allowance, amount)
-    ERC20_allowances.write(sender, caller, new_allowance)
+    _spendAllowance(sender, caller,  amount)
+    # execute transfer
+    _transfer(sender, recipient, amount)
     return ()
 end
 
 func ERC20_approve{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256):
@@ -174,21 +166,12 @@ func ERC20_approve{
     end
 
     let (caller) = get_caller_address()
-    with_attr error_message("ERC20: zero address cannot approve"):
-        assert_not_zero(caller)
-    end
-
-    with_attr error_message("ERC20: cannot approve to the zero address"):
-        assert_not_zero(spender)
-    end
-
-    ERC20_allowances.write(caller, spender, amount)
-    Approval.emit(caller, spender, amount)
+    _approve(caller, spender, amount)
     return ()
 end
 
 func ERC20_increaseAllowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> ():
@@ -205,12 +188,12 @@ func ERC20_increaseAllowance{
         assert (is_overflow) = FALSE
     end
 
-    ERC20_approve(spender, new_allowance)
+    _approve(caller, spender, new_allowance)
     return ()
 end
 
 func ERC20_decreaseAllowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> ():
@@ -221,6 +204,8 @@ func ERC20_decreaseAllowance{
 
     let (caller) = get_caller_address()
     let (current_allowance: Uint256) = ERC20_allowances.read(owner=caller, spender=spender)
+
+    # sub allowance
     let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
 
     let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
@@ -228,12 +213,12 @@ func ERC20_decreaseAllowance{
         assert enough_allowance = TRUE
     end
 
-    ERC20_approve(spender, new_allowance)
+    _approve(caller, spender, new_allowance)
     return ()
 end
 
 func ERC20_mint{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256):
@@ -263,7 +248,7 @@ func ERC20_mint{
 end
 
 func ERC20_burn{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(account: felt, amount: Uint256):
@@ -281,7 +266,7 @@ func ERC20_burn{
     with_attr error_message("ERC20: burn amount exceeds balance"):
         assert enough_balance = TRUE
     end
-    
+
     let (new_balance: Uint256) = uint256_sub(balance, amount)
     ERC20_balances.write(account, new_balance)
 
@@ -297,7 +282,7 @@ end
 #
 
 func _transfer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(sender: felt, recipient: felt, amount: Uint256):
@@ -321,7 +306,7 @@ func _transfer{
     with_attr error_message("ERC20: transfer amount exceeds balance"):
         assert_not_zero(enough_balance)
     end
-    
+
     # subtract from sender
     let (new_sender_balance: Uint256) = uint256_sub(sender_balance, amount)
     ERC20_balances.write(sender, new_sender_balance)
@@ -333,4 +318,48 @@ func _transfer{
     ERC20_balances.write(recipient, new_recipient_balance)
     Transfer.emit(sender, recipient, amount)
     return ()
+end
+
+func _approve{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner: felt, spender: felt, amount: Uint256):
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
+        uint256_check(amount)
+    end
+
+    with_attr error_message("ERC20: cannot approve from the zero address"):
+        assert_not_zero(owner)
+    end
+
+    with_attr error_message("ERC20: cannot approve to the zero address"):
+        assert_not_zero(spender)
+    end
+
+    ERC20_allowances.write(owner, spender, amount)
+    Approval.emit(owner, spender, amount)
+    return ()
+end
+
+func _spendAllowance{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner: felt, spender: felt, amount: Uint256):
+    alloc_locals
+    with_attr error_message("ERC20: amount is not a valid Uint256"):
+        uint256_check(amount) # almost surely not needed, might remove after confirmation
+    end
+
+    let (current_allowance: Uint256) = ERC20_allowances.read(owner, spender)
+    if uint256_eq(current_allowance, uint256_not({ low: 0, high: 0 })) == 0:
+        let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
+
+        let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
+        with_attr error_message("ERC20: allowance below zero"):
+            assert enough_allowance = TRUE
+        end
+        _approve(owner, spender, new_allowance)
+    end
 end

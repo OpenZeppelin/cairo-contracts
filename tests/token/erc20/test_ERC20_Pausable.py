@@ -164,7 +164,7 @@ async def test_only_owner(token_factory):
         reverted_with="Ownable: caller is not the owner"
     )
 
-    assert assert_revert(
+    await assert_revert(
         signer.send_transaction(
             other, token.contract_address, 'unpause', []),
         reverted_with="Ownable: caller is not the owner"

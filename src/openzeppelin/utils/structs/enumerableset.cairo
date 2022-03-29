@@ -8,141 +8,141 @@ from starkware.cairo.common.math import assert_not_zero
 from openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
-func Set_values(set_key : felt, set_index : felt) -> (value : felt):
+func EnumerableSet_values_(set_id : felt, set_index : felt) -> (value : felt):
 end
 
 @storage_var
-func Set_sizes(set_key : felt) -> (size : felt):
+func EnumerableSet_sizes_(set_id : felt) -> (size : felt):
 end
 
 @storage_var
-func Set_indexes(set_key : felt, set_value : felt) -> (set_index : felt):
+func EnumerableSet_indexes_(set_id : felt, set_value : felt) -> (set_index : felt):
 end
 
 func _add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (success : felt):
+        set_id : felt, value : felt) -> (success : felt):
     alloc_locals
-    let (contains) = _contains(set_key, value=value)
+    let (contains) = _contains(set_id, value=value)
 
     if contains == FALSE:
-        let (size) = Set_sizes.read(set_key=set_key)
+        let (size) = EnumerableSet_sizes_.read(set_id=set_id)
         local newSize = size + 1
-        Set_values.write(set_key=set_key, set_index=newSize, value=value)
-        Set_indexes.write(set_key=set_key, set_value=value, value=newSize)
-        Set_sizes.write(set_key=set_key, value=newSize)
+        EnumerableSet_values_.write(set_id=set_id, set_index=newSize, value=value)
+        EnumerableSet_indexes_.write(set_id=set_id, set_value=value, value=newSize)
+        EnumerableSet_sizes_.write(set_id=set_id, value=newSize)
         return (success=TRUE)
     end
 
     return (success=FALSE)
 end
 
-func _remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt, 
+func _remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
         value : felt) -> (success : felt):
     alloc_locals
-    let (valueIndex) = Set_indexes.read(set_key=set_key, set_value=value)
+    let (valueIndex) = EnumerableSet_indexes_.read(set_id=set_id, set_value=value)
 
     if valueIndex == 0:
         return (success=FALSE)
     end
 
-    let (lastIndex) = Set_sizes.read(set_key=set_key)
+    let (lastIndex) = EnumerableSet_sizes_.read(set_id=set_id)
     local res = lastIndex - valueIndex
     local new_last_index = lastIndex - 1
 
-    let (lastValue) = Set_values.read(set_key=set_key, set_index=lastIndex)
+    let (lastValue) = EnumerableSet_values_.read(set_id=set_id, set_index=lastIndex)
 
-    Set_values.write(set_key=set_key, set_index=lastIndex, value=0)
-    Set_indexes.write(set_key=set_key, set_value=value, value=0)
-    Set_sizes.write(set_key=set_key, value=new_last_index)
+    EnumerableSet_values_.write(set_id=set_id, set_index=lastIndex, value=0)
+    EnumerableSet_indexes_.write(set_id=set_id, set_value=value, value=0)
+    EnumerableSet_sizes_.write(set_id=set_id, value=new_last_index)
 
     if res != 0:
-        Set_values.write(set_key=set_key, set_index=valueIndex, value=lastValue)
-        Set_indexes.write(set_key=set_key, set_value=lastValue, value=valueIndex)
+        EnumerableSet_values_.write(set_id=set_id, set_index=valueIndex, value=lastValue)
+        EnumerableSet_indexes_.write(set_id=set_id, set_value=lastValue, value=valueIndex)
     end
 
     return (success=TRUE)
 end
 
 func _contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (contains : felt):
-    let (index) = Set_indexes.read(set_key=set_key, set_value=value)
+        set_id : felt, value : felt) -> (contains : felt):
+    let (index) = EnumerableSet_indexes_.read(set_id=set_id, set_value=value)
     if index == 0:
         return (contains=FALSE)
     end
     return (contains=TRUE)
 end
 
-func _length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
+func _length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
         length : felt):
-    let (size) = Set_sizes.read(set_key=set_key)
-    return (length=set_key)
+    let (size) = EnumerableSet_sizes_.read(set_id=set_id)
+    return (length=size)
 end
 
 func _at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, index : felt) -> (res : felt):
-    let (value) = Set_values.read(set_key=set_key, set_index=index)
+        set_id : felt, index : felt) -> (res : felt):
+    let (value) = EnumerableSet_values_.read(set_id=set_id, set_index=index)
     return (res=value)
 end
 
-func _values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
+func _values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
         res : felt*):
     let index = 1
     let values : felt* = alloc()
-    let (size) = Set_sizes.read(set_key=set_key)
+    let (size) = EnumerableSet_sizes_.read(set_id=set_id)
     let size_oob = size + 1
-    let (set_values) = _values_helper(set_key=set_key, index=index, size=size_oob, values=values)
-    return (res=set_values)
+    let (EnumerableSet_values_) = _values_helper(set_id=set_id, index=index, size=size_oob, values=values)
+    return (res=EnumerableSet_values_)
 end
 
-func _values_helper{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt, 
+func _values_helper{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
         index : felt, size : felt, values : felt*) -> (res : felt*):
     if index == size:
         return (res=values)
     end
 
-    let (value) = Set_values.read(set_key=set_key, set_index=index)
+    let (value) = EnumerableSet_values_.read(set_id=set_id, set_index=index)
 
     assert values[index - 1] = value
 
     let new_index = index + 1
 
-    let (new_values) = _values_helper(set_key=set_key, index=new_index, size=size, values=values)
+    let (new_values) = _values_helper(set_id=set_id, index=new_index, size=size, values=values)
 
     return (res=new_values) 
 end
 
 func EnumerableSet_add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (success : felt):
-    let (success) = _add(set_key=set_key, value=value)
+        set_id : felt, value : felt) -> (success : felt):
+    let (success) = _add(set_id=set_id, value=value)
     return (success=success)
 end
 
-func EnumerableSet_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt, 
+func EnumerableSet_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
         value : felt) -> (success : felt):
-    let (success) = _remove(set_key=set_key, value=value)
+    let (success) = _remove(set_id=set_id, value=value)
     return (success=success)
 end
 
 func EnumerableSet_contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (contains : felt):
-    let (contains) = _contains(set_key=set_key, value=value)
+        set_id : felt, value : felt) -> (contains : felt):
+    let (contains) = _contains(set_id=set_id, value=value)
     return (contains=contains)
 end
 
-func EnumerableSet_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
+func EnumerableSet_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
         length : felt):
-    let (length) = _length(set_key=set_key)
+    let (length) = _length(set_id=set_id)
     return (length=length)
 end
 
 func EnumerableSet_at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, index : felt) -> (res : felt):
-    let (res) = _at(set_key=set_key, index=index)
+        set_id : felt, index : felt) -> (res : felt):
+    let (res) = _at(set_id=set_id, index=index)
     return (res=res)
 end
 
-func EnumerableSet_values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
+func EnumerableSet_values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
         res : felt*):
-    let (res) = _values(set_key=set_key)
+    let (res) = _values(set_id=set_id)
     return (res=res)
 end

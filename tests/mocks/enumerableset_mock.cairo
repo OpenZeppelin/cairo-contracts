@@ -2,6 +2,7 @@
 
 %lang starknet
 
+from starkware.cairo.common.cairo_builtins import HashBuiltin
 from openzeppelin.utils.structs.enumerableset import (
     EnumerableSet_add,
     EnumerableSet_remove,
@@ -12,43 +13,44 @@ from openzeppelin.utils.structs.enumerableset import (
 )
 
 @external
-func test_add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (success : felt):
-    let (success) = EnumerableSet_add(set_key=set_key, value=value)
+func add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, value : felt) -> (success : felt):
+    let (success) = EnumerableSet_add(set_id=set_id, value=value)
     return (success=success)
 end
 
 @external
-func test_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt, 
+func remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
         value : felt) -> (success : felt):
-    let (success) = EnumerableSet_remove(set_key=set_key, value=value)
+    let (success) = EnumerableSet_remove(set_id=set_id, value=value)
     return (success=success)
 end
 
 @view
-func test_contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, value : felt) -> (contains : felt):
-    let (contains) = EnumerableSet_contains(set_key=set_key, value=value)
+func contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, value : felt) -> (contains : felt):
+    let (contains) = EnumerableSet_contains(set_id=set_id, value=value)
     return (contains=contains)
 end
 
 @view
-func test_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
+func length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
         length : felt):
-    let (length) = EnumerableSet_length(set_key=set_key)
+    let (length) = EnumerableSet_length(set_id=set_id)
     return (length=length)
 end
 
 @view
-func test_at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_key : felt, index : felt) -> (res : felt):
-    let (res) = EnumerableSet_at(set_key=set_key, index=index)
+func at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, index : felt) -> (res : felt):
+    let (res) = EnumerableSet_at(set_id=set_id, index=index)
     return (res=res)
 end
 
 @view
-func test_values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_key : felt) -> (
-        res : felt*):
-    let (res) = EnumerableSet_values(set_key=set_key)
-    return (res=res)
+func values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
+        res_len : felt, res : felt*):
+    let (res) = EnumerableSet_values(set_id=set_id)
+    let (length) = EnumerableSet_length(set_id=set_id)
+    return (res_len=length, res=res)
 end

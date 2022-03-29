@@ -143,6 +143,7 @@ func _grantRole{
         let (sender: felt) = get_caller_address()
         _roleMember.write(role, user, TRUE)
         RoleGranted.emit(role, user, sender)
+        return ()
     end
     return ()
 end
@@ -157,6 +158,7 @@ func _revokeRole{
         let (sender: felt) = get_caller_address()
         _roleMember.write(role, user, FALSE)
         RoleRevoked.emit(role, user, sender)
+        return ()
     end
     return ()
 end

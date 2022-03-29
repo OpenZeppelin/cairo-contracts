@@ -5,7 +5,9 @@ We really appreciate and value contributions to Cairo Contracts. Please take 5' 
 
 ## Contribution guidelines
 
-Please consider that snake case is used for Cairo development in general due to its strong Python bias, but in order to be compliant with the standards, EIP implementations must use camelCase. Therefore, EIP-based contracts will have their external functions written in camelCase while the rest of the codebase will be in snake_case. 
+Before starting development, please create an issue to open the discussion, validate that the PR is wanted, and coordinate overall implementation details.
+
+Also, consider that snake case is used for Cairo development in general due to its strong Python bias, but in order to be compliant with the standards, EIP implementations must use camelCase. Therefore, EIP-based contracts will have their external functions written in camelCase while the rest of the codebase will be in snake_case. 
 
 And make sure to always include tests and documentation for the new developments.
 

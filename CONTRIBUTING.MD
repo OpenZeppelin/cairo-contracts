@@ -5,7 +5,7 @@ We really appreciate and value contributions to Cairo Contracts. Please take 5' 
 
 ## Contribution guidelines
 
-Before starting development, please create an issue to open the discussion, validate that the PR is wanted, and coordinate overall implementation details.
+Before starting development, please [create an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose) to open the discussion, validate that the PR is wanted, and coordinate overall implementation details.
 
 Also, consider that snake case is used for Cairo development in general due to its strong Python bias, but in order to be compliant with the standards, EIP implementations must use camelCase. Therefore, EIP-based contracts will have their external functions written in camelCase while the rest of the codebase will be in snake_case. 
 

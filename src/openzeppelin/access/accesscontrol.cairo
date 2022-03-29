@@ -4,6 +4,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address
 
 from openzeppelin.introspection.ERC165 import ERC165_register_interface
@@ -14,14 +15,15 @@ from openzeppelin.utils.constants import TRUE, FALSE, IACCESSCONTROL_ID
 #
 
 @event
-func RoleGranted(role: felt, account: felt, sender: felt):
-end
-
-func RoleRevoked(role: felt, account: felt, sender: felt):
+func RoleGranted(role: Uint256, account: felt, sender: felt):
 end
 
 @event
-func RoleAdminChanged(role: felt, previousAdminRole: felt, newAdminRole: felt):
+func RoleRevoked(role: Uint256, account: felt, sender: felt):
+end
+
+@event
+func RoleAdminChanged(role: Uint256, previousAdminRole: Uint256, newAdminRole: Uint256):
 end
 
 #
@@ -29,11 +31,11 @@ end
 #
 
 @storage_var
-func AccessControl_roleAdmin(role: felt) -> (admin: felt):
+func _roleAdmin(role: Uint256) -> (admin: Uint256):
 end
 
 @storage_var
-func AccessControl_roleMember(role: felt, account: felt) -> (hasRole: felt):
+func _roleMember(role: Uint256, account: felt) -> (hasRole: felt):
 end
 
 #
@@ -53,27 +55,13 @@ end
 # Modifier
 #
 
-func AccessControl_only_role{
+func AccessControl_onlyRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt):
-    let (caller) = get_caller_address()
-    let (hasRole) = AccessControl_hasRole(role, caller)
-    with_attr error_message("AccessControl: caller is missing role"):
-        assert hasRole = TRUE
-    end
-    return ()
-end
-
-func AccessControl_only_roleAdmin{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr
-}(role: felt):
-    let (caller) = get_caller_address()
-    let (admin) = AccessControl_getRoleAdmin(role)
-    let (hasRole) = AccessControl_hasRole(admin, caller)
+}(role: Uint256):
+    let (caller: felt) = get_caller_address()
+    let (hasRole: felt) = AccessControl_hasRole(role, caller)
     with_attr error_message("AccessControl: caller is missing role"):
         assert hasRole = TRUE
     end
@@ -88,8 +76,8 @@ func AccessControl_hasRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt) -> (hasRole: felt):
-    let (hasRole) = AccessControl_roleMember.read(role, user)
+}(role: Uint256, user: felt) -> (hasRole: felt):
+    let (hasRole: felt) = _roleMember.read(role, user)
     return (hasRole=hasRole)
 end
 
@@ -97,8 +85,8 @@ func AccessControl_getRoleAdmin{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt) -> (admin: felt):
-    let (admin) = AccessControl_roleAdmin.read(role)
+}(role: Uint256) -> (admin: Uint256):
+    let (admin: Uint256) = _roleAdmin.read(role)
     return (admin=admin)
 end
 
@@ -110,8 +98,9 @@ func AccessControl_grantRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt):
-    AccessControl_only_roleAdmin(role)
+}(role: Uint256, user: felt):
+    let (admin: Uint256) = AccessControl_getRoleAdmin(role)
+    AccessControl_onlyRole(admin)
     _grantRole(role, user)
     return ()
 end
@@ -120,8 +109,9 @@ func AccessControl_revokeRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt):
-    AccessControl_only_roleAdmin(role)
+}(role: Uint256, user: felt):
+    let (admin: Uint256) = AccessControl_getRoleAdmin(role)
+    AccessControl_onlyRole(admin)
     _revokeRole(role, user)
     return ()
 end
@@ -130,8 +120,8 @@ func AccessControl_renounceRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt):
-    let (sender) = get_caller_address()
+}(role: Uint256, user: felt):
+    let (sender: felt) = get_caller_address()
     with_attr error_message("AccessControl: can only renounce roles for self"):
         assert user = sender
     end
@@ -147,12 +137,12 @@ func _grantRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt):
-    let (hasRole) = AccessControl_roleMember.read(role, user)
+}(role: Uint256, user: felt):
+    let (hasRole: felt) = AccessControl_hasRole(role, user)
     if hasRole == FALSE:
-        let (sender) = get_caller_address()
-        AccessControl_roleMember.write(role, user, TRUE)
-        RoleRevoked.emit(role, user, sender)
+        let (sender: felt) = get_caller_address()
+        _roleMember.write(role, user, TRUE)
+        RoleGranted.emit(role, user, sender)
     end
     return ()
 end
@@ -161,11 +151,11 @@ func _revokeRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, user: felt):
-    let (hasRole) = AccessControl_roleMember.read(role, user)
+}(role: Uint256, user: felt):
+    let (hasRole: felt) = AccessControl_hasRole(role, user)
     if hasRole == TRUE:
-        let (sender) = get_caller_address()
-        AccessControl_roleMember.write(role, user, FALSE)
+        let (sender: felt) = get_caller_address()
+        _roleMember.write(role, user, FALSE)
         RoleRevoked.emit(role, user, sender)
     end
     return ()
@@ -175,9 +165,9 @@ func _setRoleAdmin{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
     range_check_ptr
-}(role: felt, adminRole: felt) -> ():
-    let (previousAdminRole) = AccessControl_roleAdmin.read(role)
-    AccessControl_roleAdmin.write(role, adminRole)
+}(role: Uint256, adminRole: Uint256):
+    let (previousAdminRole: Uint256) = AccessControl_getRoleAdmin(role)
+    _roleAdmin.write(role, adminRole)
     RoleAdminChanged.emit(role, previousAdminRole, adminRole)
     return ()
 end

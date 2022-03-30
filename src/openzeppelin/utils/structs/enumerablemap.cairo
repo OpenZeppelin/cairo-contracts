@@ -3,23 +3,63 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.math import assert_not_zero
-from openzeppelin.utils.constants import TRUE, FALSE
 from openzeppelin.utils.structs.enumerableset import (
-    EnumerableSet_add,
-    EnumerableSet_remove,
-    EnumerableSet_contains
-)
+    EnumerableSet_add, EnumerableSet_remove, EnumerableSet_contains, EnumerableSet_length,
+    EnumerableSet_at)
 
 @storage_var
-func EnumerableMap_felt_values(map_id : felt, key : felt) -> (value : felt):
+func EnumerableMap_values(map_id : felt, key : felt) -> (value : felt):
 end
 
-@external
 func EnumerableMap_set{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         map_id : felt, key : felt, value : felt) -> (success : felt):
     EnumerableMap_values.write(map_id=map_id, key=key, value=value)
     let (success) = EnumerableSet_add(set_id=map_id, value=key)
     return (success=success)
+end
+
+func EnumerableMap_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt, key : felt) -> (success : felt):
+    EnumerableMap_values.write(map_id=map_id, key=key, value=0)
+    let (success) = EnumerableSet_remove(set_id=map_id, value=key)
+    return (success=success)
+end
+
+func EnumerableMap_contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt, key : felt) -> (contains : felt):
+    let (contains) = EnumerableSet_contains(set_id=map_id, value=key)
+    return (contains=contains)
+end
+
+func EnumerableMap_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt) -> (length : felt):
+    let (length) = EnumerableSet_length(set_id=map_id)
+    return (length=length)
+end
+
+func EnumerableMap_at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt, index : felt) -> (key : felt, value : felt):
+    let (key) = EnumerableSet_at(set_id=map_id, index=index)
+    let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
+    return (key=key, value=value)
+end
+
+func EnumerableMap_try_get{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt, key : felt) -> (contains : felt, value : felt):
+    let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
+    let (contains) = EnumerableSet_contains(set_id=map_id, value=key)
+    return (contains=contains, value=value)
+end
+
+func EnumerableMap_get{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        map_id : felt, key : felt) -> (contains : felt, value : felt):
+    let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
+    let (contains) = EnumerableSet_contains(set_id=map_id, value=key)
+
+    with_attr error_message("EnumerableMap: nonexistent key"):
+        assert_not_zero(contains)
+    end
+
+    return (contains=contains, value=value)
 end

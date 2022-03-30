@@ -1,9 +1,7 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import Signer, assert_revert, contract_path
+from utils import Signer, contract_path
 
 signer = Signer(123456789987654321)
 

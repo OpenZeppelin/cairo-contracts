@@ -19,10 +19,10 @@ end
 func EnumerableSet_indexes_(set_id : felt, set_value : felt) -> (set_index : felt):
 end
 
-func _add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func EnumerableSet_add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         set_id : felt, value : felt) -> (success : felt):
     alloc_locals
-    let (contains) = _contains(set_id, value=value)
+    let (contains) = EnumerableSet_contains(set_id, value=value)
 
     if contains == FALSE:
         let (size) = EnumerableSet_sizes_.read(set_id=set_id)
@@ -36,8 +36,8 @@ func _add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     return (success=FALSE)
 end
 
-func _remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
-        value : felt) -> (success : felt):
+func EnumerableSet_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, value : felt) -> (success : felt):
     alloc_locals
     let (valueIndex) = EnumerableSet_indexes_.read(set_id=set_id, set_value=value)
 
@@ -63,7 +63,7 @@ func _remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     return (success=TRUE)
 end
 
-func _contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func EnumerableSet_contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         set_id : felt, value : felt) -> (contains : felt):
     let (index) = EnumerableSet_indexes_.read(set_id=set_id, set_value=value)
     if index == 0:
@@ -72,30 +72,31 @@ func _contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     return (contains=TRUE)
 end
 
-func _length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
-        length : felt):
+func EnumerableSet_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt) -> (length : felt):
     let (size) = EnumerableSet_sizes_.read(set_id=set_id)
     return (length=size)
 end
 
-func _at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func EnumerableSet_at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         set_id : felt, index : felt) -> (res : felt):
     let (value) = EnumerableSet_values_.read(set_id=set_id, set_index=index)
     return (res=value)
 end
 
-func _values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
-        res : felt*):
+func EnumerableSet_values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt) -> (res : felt*):
     let index = 1
     let values : felt* = alloc()
     let (size) = EnumerableSet_sizes_.read(set_id=set_id)
     let size_oob = size + 1
-    let (EnumerableSet_values_) = _values_helper(set_id=set_id, index=index, size=size_oob, values=values)
+    let (EnumerableSet_values_) = _values_helper(
+        set_id=set_id, index=index, size=size_oob, values=values)
     return (res=EnumerableSet_values_)
 end
 
-func _values_helper{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
-        index : felt, size : felt, values : felt*) -> (res : felt*):
+func _values_helper{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, index : felt, size : felt, values : felt*) -> (res : felt*):
     if index == size:
         return (res=values)
     end
@@ -108,41 +109,5 @@ func _values_helper{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
 
     let (new_values) = _values_helper(set_id=set_id, index=new_index, size=size, values=values)
 
-    return (res=new_values) 
-end
-
-func EnumerableSet_add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_id : felt, value : felt) -> (success : felt):
-    let (success) = _add(set_id=set_id, value=value)
-    return (success=success)
-end
-
-func EnumerableSet_remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
-        value : felt) -> (success : felt):
-    let (success) = _remove(set_id=set_id, value=value)
-    return (success=success)
-end
-
-func EnumerableSet_contains{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_id : felt, value : felt) -> (contains : felt):
-    let (contains) = _contains(set_id=set_id, value=value)
-    return (contains=contains)
-end
-
-func EnumerableSet_length{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
-        length : felt):
-    let (length) = _length(set_id=set_id)
-    return (length=length)
-end
-
-func EnumerableSet_at{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        set_id : felt, index : felt) -> (res : felt):
-    let (res) = _at(set_id=set_id, index=index)
-    return (res=res)
-end
-
-func EnumerableSet_values{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt) -> (
-        res : felt*):
-    let (res) = _values(set_id=set_id)
-    return (res=res)
+    return (res=new_values)
 end

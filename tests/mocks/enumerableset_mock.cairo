@@ -4,13 +4,8 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from openzeppelin.utils.structs.enumerableset import (
-    EnumerableSet_add,
-    EnumerableSet_remove,
-    EnumerableSet_contains,
-    EnumerableSet_length,
-    EnumerableSet_at,
-    EnumerableSet_values
-)
+    EnumerableSet_add, EnumerableSet_remove, EnumerableSet_contains, EnumerableSet_length,
+    EnumerableSet_at, EnumerableSet_values)
 
 @external
 func add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
@@ -20,8 +15,8 @@ func add{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
 end
 
 @external
-func remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(set_id : felt, 
-        value : felt) -> (success : felt):
+func remove{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        set_id : felt, value : felt) -> (success : felt):
     let (success) = EnumerableSet_remove(set_id=set_id, value=value)
     return (success=success)
 end

@@ -7,7 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero, assert_lt
 from starkware.cairo.common.uint256 import (
-    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check
+    Uint256, uint256_add, uint256_sub, uint256_le, uint256_lt, uint256_check, uint256_eq, uint256_not
 )
 
 from openzeppelin.utils.constants import TRUE, FALSE, UINT8_MAX
@@ -149,10 +149,10 @@ func ERC20_transferFrom{
     ) -> ():
     alloc_locals
     let (caller) = get_caller_address()
-    # subtract allowance
-    _spendAllowance(sender, caller,  amount)
     # execute transfer
     _transfer(sender, recipient, amount)
+    # subtract allowance
+    _spendAllowance(sender, caller,  amount)
     return ()
 end
 
@@ -353,13 +353,17 @@ func _spendAllowance{
     end
 
     let (current_allowance: Uint256) = ERC20_allowances.read(owner, spender)
-    if uint256_eq(current_allowance, uint256_not({ low: 0, high: 0 })) == 0:
-        let (new_allowance: Uint256) = uint256_sub(current_allowance, subtracted_value)
+    let (infinite:          Uint256) = uint256_not(Uint256(0, 0))
+    let (isInfinite:        felt   ) = uint256_eq(current_allowance, infinite)
+    if isInfinite == 0:
+        let (new_allowance: Uint256) = uint256_sub(current_allowance, amount)
 
         let (enough_allowance) = uint256_lt(new_allowance, current_allowance)
-        with_attr error_message("ERC20: allowance below zero"):
+        with_attr error_message("ERC20: insufficient allowance"):
             assert enough_allowance = TRUE
         end
         _approve(owner, spender, new_allowance)
+        return ()
     end
+    return ()
 end

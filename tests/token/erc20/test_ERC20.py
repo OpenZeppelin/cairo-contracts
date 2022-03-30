@@ -287,6 +287,36 @@ async def test_transferFrom_emits_event(erc20_factory):
 
 
 @pytest.mark.asyncio
+async def test_transferFrom_doesnt_consume_infinite_allowance(erc20_factory):
+    starknet, erc20, account = erc20_factory
+    spender = await starknet.deploy(
+        contract_path("openzeppelin/account/Account.cairo"),
+        constructor_calldata=[signer.public_key]
+    )
+    amount = uint(345)
+    recipient = 987
+
+    # approve
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *MAX_UINT256])
+
+    # check approval
+    execution_info_1 = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info_1.result.remaining == MAX_UINT256
+
+    # transferFrom
+    await signer.send_transaction(
+        spender, erc20.contract_address, 'transferFrom', [
+            account.contract_address,
+            recipient,
+            *amount
+        ])
+
+    # re-check approval
+    execution_info_2 = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info_2.result.remaining == MAX_UINT256
+
+
+@pytest.mark.asyncio
 async def test_increaseAllowance(erc20_factory):
     _, erc20, account = erc20_factory
     # new spender, starting from zero
@@ -464,7 +494,7 @@ async def test_transfer_funds_greater_than_allowance(erc20_factory):
             recipient,
             *uint(allowance[0] + 1)
         ]),
-        reverted_with="ERC20: transfer amount exceeds allowance"
+        reverted_with="ERC20: insufficient allowance"
     )
 
 
@@ -554,7 +584,7 @@ async def test_transferFrom_func_from_zero_address(erc20_factory):
             recipient,
             *amount
         ]),
-        reverted_with="ERC20: transfer amount exceeds allowance"
+        reverted_with="ERC20: cannot transfer from the zero address"
     )
 
 
@@ -581,5 +611,5 @@ async def test_approve_zero_address_caller(erc20_factory):
     # (get_caller_address) is zero
     await assert_revert(
         erc20.approve(spender, amount).invoke(),
-        reverted_with="ERC20: zero address cannot approve"
+        reverted_with="ERC20: cannot approve from the zero address"
     )

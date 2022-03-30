@@ -205,7 +205,7 @@ This project is still in a very early and experimental phase. It has never been 
 Please report any security issues you find to security@openzeppelin.org.
 
 ## Contribute
-OpenZeppelin Cairo Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
+OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
 
 ## License
 

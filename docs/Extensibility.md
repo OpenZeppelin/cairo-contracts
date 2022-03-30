@@ -50,15 +50,15 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets are:
 
-- [Ownable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/Ownable.cairo)
-- [ERC20](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC20.cairo)
-  - [ERC20_Mintable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC20_Mintable.cairo)
-  - [ERC20_Pausable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC20_Pausable.cairo)
-- [ERC165](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/ERC165.cairo)
-- [ERC721](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC721.cairo)
-  - [ERC721_Enumerable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC721_Enumerable.cairo)
-  - [ERC721_Mintable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC721_Mintable.cairo)
-  - [ERC721_Pausable](https://github.com/OpenZeppelin/cairo-contracts/blob/main/contracts/token/ERC721_Pausable.cairo)
+- [Account](../openzeppelin/account/Account.cairo)
+- [ERC165](../tests/mocks/ERC165.cairo)
+- [ERC20_Mintable](../openzeppelin/token/erc20/ERC20_Mintable.cairo)
+- [ERC20_Pausable](../openzeppelin/token/erc20/ERC20_Pausable.cairo)
+- [ERC20_Upgradeable](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
+- [ERC20](../openzeppelin/token/erc20/ERC20.cairo)
+- [ERC721_Mintable_Burnable](../openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
+- [ERC721_Mintable_Pausable](../openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
+- [ERC721_Enumerable_Mintable_Burnable](../openzeppelin/token/erc721_enum/ERC721_Enumerable_Mintable_Burnable.cairo)
 
 ## Emulating hooks
 
@@ -87,7 +87,6 @@ func transfer{
     }(recipient: felt, amount: Uint256) -> (success: felt):
     Pausable_when_not_paused()
     ERC20_transfer(recipient, amount)
-    # Cairo equivalent to 'return (true)'
-    return (1)
+    return (TRUE)
 end
 ```

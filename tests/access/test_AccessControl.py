@@ -74,9 +74,9 @@ async def test_grantRole(accesscontrol_factory):
         from_address=accesscontrol.contract_address,
         name='RoleGranted',
         data=[
-            0,
-            account2.contract_address,
-            account1.contract_address
+            0,                         # role
+            account2.contract_address, # account
+            account1.contract_address  # sender
         ]
     )
     expected = await accesscontrol.hasRole(0, account2.contract_address).call()
@@ -105,9 +105,9 @@ async def test_revokeRole(accesscontrol_factory):
         from_address=accesscontrol.contract_address,
         name='RoleRevoked',
         data=[
-            0,
-            account1.contract_address,
-            account2.contract_address
+            0,                         # role
+            account1.contract_address, # account
+            account2.contract_address  # sender
         ]
     )
     expected = await accesscontrol.hasRole(0, account1.contract_address).call()
@@ -134,9 +134,9 @@ async def test_renounceRole(accesscontrol_factory):
         from_address=accesscontrol.contract_address,
         name='RoleRevoked',
         data=[
-            0,
-            account1.contract_address,
-            account1.contract_address
+            0,                         # role
+            account1.contract_address, # account
+            account1.contract_address  # sender
         ]
     )
     expected = await accesscontrol.hasRole(0, account1.contract_address).call()
@@ -163,9 +163,9 @@ async def test_setRoleAdmin(accesscontrol_factory):
         from_address=accesscontrol.contract_address,
         name='RoleAdminChanged',
         data=[
-            0,
-            0,
-            1
+            0, # role
+            0, # previousAdminRole
+            1  # newAdminRole
         ]
     )
     expected = await accesscontrol.getRoleAdmin(0).call()

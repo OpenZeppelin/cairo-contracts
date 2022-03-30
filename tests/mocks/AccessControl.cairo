@@ -74,6 +74,7 @@ func renounceRole{
     return ()
 end
 
+# ONLY FOR MOCKS, DON'T EXPOSE IN PRODUCTION
 @external
 func setRoleAdmin{
     syscall_ptr : felt*,

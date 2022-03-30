@@ -1,4 +1,4 @@
-# OpenZeppelin Cairo Contracts
+# OpenZeppelin Contracts for Cairo
 [![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml)
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
@@ -121,4 +121,4 @@ Please report any security issues you find to security@openzeppelin.org.
 
 ## License
 
-OpenZeppelin Cairo Contracts is released under the [MIT License](LICENSE).
+OpenZeppelin Contracts for Cairo is released under the [MIT License](LICENSE).

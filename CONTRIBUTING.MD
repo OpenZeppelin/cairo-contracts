@@ -1,7 +1,7 @@
-Contributing to Cairo Contracts
+Contributing to OpenZeppelin Contracts for Cairo
 =======
 
-We really appreciate and value contributions to Cairo Contracts. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible.
+We really appreciate and value contributions to OpenZeppelin Contracts for Cairo. Please take 5' to review the items listed below to make sure that your contributions are merged as soon as possible.
 
 ## Contribution guidelines
 
@@ -56,7 +56,7 @@ flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statist
 *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions
 refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all PR checks pass.
 
-6) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of Cairo Contracts.
+6) Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin Contracts for Cairo.
 
 *IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards OpenZeppelin Contracts attains to.
 

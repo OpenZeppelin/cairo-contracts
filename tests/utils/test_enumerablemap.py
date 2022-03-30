@@ -35,42 +35,42 @@ async def enumerablemap_mock():
 @pytest.mark.asyncio
 async def test_set(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 6, 8])
-    executed_info = await enumerablemap.contains(0, 6).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [6, 8])
+    executed_info = await enumerablemap.contains(6).call()
     assert executed_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
 async def test_remove(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
-    await signer.send_transaction(account, enumerablemap.contract_address, 'remove', [0, 6])
-    executed_info = await enumerablemap.contains(0, 6).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'remove', [6])
+    executed_info = await enumerablemap.contains(6).call()
     assert executed_info.result == (FALSE,)
 
 
 @pytest.mark.asyncio
 async def test_update(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 6, 8])
-    executed_info = await enumerablemap.get(0, 6).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [6, 8])
+    executed_info = await enumerablemap.get(6).call()
     assert executed_info.result == (TRUE, 8,)
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 6, 19])
-    executed_info = await enumerablemap.get(0, 6).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [6, 19])
+    executed_info = await enumerablemap.get(6).call()
     assert executed_info.result == (TRUE, 19,)
-    executed_info = await enumerablemap.length(0).call()
+    executed_info = await enumerablemap.length().call()
     assert executed_info.result == (1,)
 
 
 @pytest.mark.asyncio
 async def test_two_sets(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 6, 8])
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 8, 19])
-    executed_info = await enumerablemap.get(0, 6).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [6, 8])
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [8, 19])
+    executed_info = await enumerablemap.get(6).call()
     assert executed_info.result == (TRUE, 8,)
-    executed_info = await enumerablemap.get(0, 8).call()
+    executed_info = await enumerablemap.get(8).call()
     assert executed_info.result == (TRUE, 19,)
-    executed_info = await enumerablemap.length(0).call()
+    executed_info = await enumerablemap.length().call()
     assert executed_info.result == (2,)
 
 
@@ -79,22 +79,22 @@ async def test_get(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
     
     try:
-        executed_info = await enumerablemap.get(0, 1).call()
+        executed_info = await enumerablemap.get(1).call()
         assert False
     except StarkException as err:
         _, error = err.args
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 1, 3])
-    executed_info = await enumerablemap.get(0, 1).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [1, 3])
+    executed_info = await enumerablemap.get(1).call()
     assert executed_info.result == (TRUE,3,)
 
 
 @pytest.mark.asyncio
 async def test_try_get(enumerablemap_mock):
     account, enumerablemap = enumerablemap_mock
-    executed_info = await enumerablemap.try_get(0, 11).call()
+    executed_info = await enumerablemap.try_get(11).call()
     assert executed_info.result == (FALSE,0,)
-    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [0, 11, 19])
-    executed_info = await enumerablemap.try_get(0, 11).call()
+    await signer.send_transaction(account, enumerablemap.contract_address, 'set', [11, 19])
+    executed_info = await enumerablemap.try_get(11).call()
     assert executed_info.result == (TRUE,19,)

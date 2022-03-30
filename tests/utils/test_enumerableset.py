@@ -31,56 +31,56 @@ async def enumerableset_mock():
 @pytest.mark.asyncio
 async def test_add(enumerableset_mock):
     account, enumerableset = enumerableset_mock
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 1])
-    executed_info = await enumerableset.contains(0, 1).call()
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [1])
+    executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
 async def test_remove(enumerableset_mock):
     account, enumerableset = enumerableset_mock
-    await signer.send_transaction(account, enumerableset.contract_address, 'remove', [0, 1])
-    executed_info = await enumerableset.contains(0, 1).call()
+    await signer.send_transaction(account, enumerableset.contract_address, 'remove', [1])
+    executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (FALSE,)
 
 
 @pytest.mark.asyncio
 async def test_dupe_add(enumerableset_mock):
     account, enumerableset = enumerableset_mock
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 1])
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 1])
-    executed_info = await enumerableset.contains(0, 1).call()
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [1])
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [1])
+    executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.length(0).call()
+    executed_info = await enumerableset.length().call()
     assert executed_info.result == (1,)
 
 @pytest.mark.asyncio
 async def test_multi_add(enumerableset_mock):
     account, enumerableset = enumerableset_mock
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 1])
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 3])
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 2])    
-    executed_info = await enumerableset.contains(0, 3).call()
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [1])
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [3])
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [2])    
+    executed_info = await enumerableset.contains(3).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.contains(0, 2).call()
+    executed_info = await enumerableset.contains(2).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.contains(0, 1).call()
+    executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.length(0).call()
+    executed_info = await enumerableset.length().call()
     assert executed_info.result == (3,)
 
 @pytest.mark.asyncio
 async def test_add_three_remove_one(enumerableset_mock):
     account, enumerableset = enumerableset_mock
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 1])
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 3])
-    await signer.send_transaction(account, enumerableset.contract_address, 'add', [0, 2])
-    await signer.send_transaction(account, enumerableset.contract_address, 'remove', [0, 3])    
-    executed_info = await enumerableset.contains(0, 3).call()
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [1])
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [3])
+    await signer.send_transaction(account, enumerableset.contract_address, 'add', [2])
+    await signer.send_transaction(account, enumerableset.contract_address, 'remove', [3])    
+    executed_info = await enumerableset.contains(3).call()
     assert executed_info.result == (FALSE,)
-    executed_info = await enumerableset.contains(0, 2).call()
+    executed_info = await enumerableset.contains(2).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.contains(0, 1).call()
+    executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (TRUE,)
-    executed_info = await enumerableset.length(0).call()
+    executed_info = await enumerableset.length().call()
     assert executed_info.result == (2,)

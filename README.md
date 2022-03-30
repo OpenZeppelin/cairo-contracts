@@ -62,6 +62,8 @@ nile compile
 nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --alias my_token
 ```
 
+> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](docs/Utilities.md#Uint256) for more information.
+
 ### Write a custom contract using library modules
 [Read more about libraries](docs/Extensibility.md#libraries).
 

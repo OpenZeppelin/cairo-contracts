@@ -4,14 +4,14 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math_cmp import is_le
-from openzeppelin.utils.constants import TRUE
+from src.openzeppelin.utils.constants import TRUE
 from starkware.starknet.common.syscalls import get_contract_address
 from starkware.cairo.common.uint256 import (
     Uint256,
     uint256_signed_nn_le,
     uint256_sub
 )
-from openzeppelin.security.reentrancy_guard import (  
+from src.openzeppelin.security.reentrancy_guard import (  
     ReentrancyGuard_start,
     ReentrancyGuard_end
 )

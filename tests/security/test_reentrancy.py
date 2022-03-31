@@ -8,10 +8,6 @@ from utils import (
 INITIAL_COUNTER = 0
 
 @pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
-
-@pytest.fixture(scope='module')
 async def reentrancy_mock():
     starknet = await Starknet.empty()
     contract = await starknet.deploy("tests/mocks/reentrancy_mock.cairo", constructor_calldata=[INITIAL_COUNTER])

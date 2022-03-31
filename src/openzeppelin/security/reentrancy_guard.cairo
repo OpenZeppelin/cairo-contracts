@@ -8,7 +8,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from src.openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
-func _entered() -> (res: felt):
+func ReentrancyGuard_entered() -> (res: felt):
 end
 
 func ReentrancyGuard_start{

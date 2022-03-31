@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    assert_revert, to_uint
+    assert_revert
 )
 
 INITIAL_COUNTER = 0
@@ -41,7 +41,7 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
     )
     # should not allow indirect local recursion
     await assert_revert(
-        contract.count_this_recursive(to_uint(10), to_uint(1)).invoke(),
+        contract.count_this_recursive(10).invoke(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
 

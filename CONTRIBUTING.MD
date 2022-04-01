@@ -23,7 +23,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 cd cairo-contracts
 git remote add upstream https://github.com/OpenZeppelin/cairo-contracts.git
 git fetch upstream
-git pull --rebase upstream master
+git pull --rebase upstream main
 ```
 NOTE: The directory `cairo-contracts` represents your fork's local copy.
 

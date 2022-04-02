@@ -2,7 +2,6 @@
 
 from pathlib import Path
 import math
-from starkware.cairo.common.hash_state import compute_hash_on_elements
 from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
@@ -167,8 +166,6 @@ class Signer():
             execution_info = await account.get_nonce().call()
             nonce, = execution_info.result
 
-        calls_with_selector = [
-            (call[0], get_selector_from_name(call[1]), call[2]) for call in calls]
         (call_array, calldata) = from_call_to_call_array(calls)
 
         message_hash = get_transaction_hash(account.contract_address, call_array, calldata, nonce, max_fee)

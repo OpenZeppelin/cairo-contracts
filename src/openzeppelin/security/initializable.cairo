@@ -5,7 +5,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from openzeppelin.utils.constants import TRUE, FALSE
+from src.openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
 func _initialized() -> (res: felt):

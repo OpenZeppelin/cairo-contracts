@@ -9,7 +9,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_check, uint256_add, uint256_sub, uint256_mul, 
     uint256_unsigned_div_rem, uint256_le, uint256_lt, uint256_eq
 )
-from openzeppelin.utils.constants import TRUE, FALSE
+from src.openzeppelin.utils.constants import TRUE, FALSE
 
 # Adds two integers. 
 # Reverts if the sum overflows.

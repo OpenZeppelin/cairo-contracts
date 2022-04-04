@@ -11,12 +11,12 @@ from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
 
-from openzeppelin.introspection.ERC165 import (
+from src.openzeppelin.introspection.ERC165 import (
     ERC165_supports_interface, 
     ERC165_register_interface
 )
 
-from openzeppelin.utils.constants import IACCOUNT_ID
+from src.openzeppelin.utils.constants import IACCOUNT_ID
 
 #
 # Structs

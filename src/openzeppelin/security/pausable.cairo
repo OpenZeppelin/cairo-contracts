@@ -6,7 +6,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 
-from openzeppelin.utils.constants import TRUE, FALSE
+from src.openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
 func Pausable_paused() -> (paused: felt):

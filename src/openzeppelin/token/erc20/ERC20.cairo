@@ -6,7 +6,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.token.erc20.library import (
+from src.openzeppelin.token.erc20.library import (
     ERC20_name,
     ERC20_symbol,
     ERC20_totalSupply,
@@ -23,7 +23,7 @@ from openzeppelin.token.erc20.library import (
     ERC20_mint
 )
 
-from openzeppelin.utils.constants import TRUE
+from src.openzeppelin.utils.constants import TRUE
 
 @constructor
 func constructor{

@@ -10,12 +10,12 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_lt, uint256_eq, uint256_check
 )
 
-from openzeppelin.security.safemath import (
+from src.openzeppelin.security.safemath import (
     uint256_checked_add,
     uint256_checked_sub_le
 )
 
-from openzeppelin.token.erc721.library import (
+from src.openzeppelin.token.erc721.library import (
     ERC721_balanceOf,
     ERC721_ownerOf,
 
@@ -25,9 +25,9 @@ from openzeppelin.token.erc721.library import (
     ERC721_burn
 )
 
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
+from src.openzeppelin.introspection.ERC165 import ERC165_register_interface
 
-from openzeppelin.utils.constants import TRUE, IERC721_ENUMERABLE_ID
+from src.openzeppelin.utils.constants import TRUE, IERC721_ENUMERABLE_ID
 
 #
 # Storage

@@ -7,9 +7,11 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
-from starkware.starknet.business_logic.transaction_execution_objects import Event
-from starkware.starknet.core.os.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
 from starkware.starknet.definitions.general_config import StarknetChainId
+from starkware.starknet.business_logic.execution.objects import Event
+from starkware.starknet.core.os.transaction_hash.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
+
+
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 INVALID_UINT256 = (MAX_UINT256[0] + 1, MAX_UINT256[1])

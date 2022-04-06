@@ -26,7 +26,7 @@ func constructor{
     return ()
 end
 
-@external
+@view
 func hasRole{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,
@@ -35,7 +35,7 @@ func hasRole{
     return AccessControl_hasRole(role, user)
 end
 
-@external
+@view
 func getRoleAdmin{
     syscall_ptr : felt*,
     pedersen_ptr : HashBuiltin*,

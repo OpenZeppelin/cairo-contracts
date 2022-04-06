@@ -4,7 +4,7 @@ from starkware.starknet.testing.starknet import Starknet
 from utils import (
     Signer, TRUE, FALSE,
     assert_event_emitted, assert_revert,
-    get_contract_def, cached_contract, contract_path
+    get_contract_def, cached_contract
 )
 
 
@@ -144,7 +144,7 @@ async def test_renounceRole(accesscontrol_factory):
 
 
 @pytest.mark.asyncio
-async def test_revokeRole_unauthorized(accesscontrol_factory):
+async def test_renounceRole_unauthorized(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await assert_revert(

@@ -4,9 +4,10 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.alloc import alloc
-from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
 from openzeppelin.security.safemath import (
@@ -21,7 +22,7 @@ from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiv
 from openzeppelin.introspection.IERC165 import IERC165
 
 from openzeppelin.utils.constants import (
-    TRUE, FALSE, IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
+    IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
 )
 
 #

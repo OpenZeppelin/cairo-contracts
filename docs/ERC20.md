@@ -71,7 +71,7 @@ end
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 - it uses Cairo's `uint256` instead of `felt`
-- it returns `TRUE` (a constant representing `1`) as success
+- it returns `TRUE` as success
 - it accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2^8 (imitating `uint8` type)
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
 

@@ -91,7 +91,7 @@ Note that although the current implementation works only with StarkKeys, support
 
 ### Signer utility
 
-The `Signer()` class in [utils.py](https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The `Signer()` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
 
 It exposes three functions:
 

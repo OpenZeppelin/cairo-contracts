@@ -15,7 +15,7 @@ A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smar
 Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../openzeppelin/security/reentrancy_guard.cairo) library exposes two methods `ReentrancyGuard_start` and `ReentrancyGuard_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard_start` before the first function statement, and `ReentrancyGuard_end` before the return statement, as shown below:
 
 ```
-from src.openzeppelin.security.reentrancy_guard import (  
+from openzeppelin.security.reentrancy_guard import (
     ReentrancyGuard_start,
     ReentrancyGuard_end
 )

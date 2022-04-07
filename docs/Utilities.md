@@ -19,7 +19,7 @@ The following documentation provides context, reasoning, and examples for method
   * [`sub_uint`](#sub_uint)
 * [Assertions](#assertions)
   * [`assert_revert`](#assert_revert)
-  * [`assert_events_emitted`](#assert_events_emitted)
+  * [`assert_events_emitted`](#assert_event_emitted)
 * [Memoization](#memoization)
   * [`get_contract_def`](#get_contract_def)
   * [`cached_contract`](#cached_contract)
@@ -31,7 +31,7 @@ The Cairo programming language includes unique features and limitations relative
 
 ## Interface ids
 
-The [constants library](../openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables to increase code legibility. For example, `IERC165_ID` is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
+The [constants library](../src/openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables to increase code legibility. For example, `IERC165_ID` is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
 
 ## Strings
 

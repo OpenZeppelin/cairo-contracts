@@ -347,7 +347,7 @@ func _spendAllowance{
     let (infinite:          Uint256) = uint256_not(Uint256(0, 0))
     let (isInfinite:        felt   ) = uint256_eq(current_allowance, infinite)
 
-    if isInfinite == 0:
+    if isInfinite == FALSE:
         with_attr error_message("ERC20: insufficient allowance"):
             let (new_allowance: Uint256) = uint256_checked_sub_le(current_allowance, amount)
         end

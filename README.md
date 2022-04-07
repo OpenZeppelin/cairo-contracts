@@ -147,7 +147,7 @@ nile install
 
 ### Compile the contracts
 ```bash
-nile compile --directory openzeppelin
+nile compile --directory src
 
 🤖 Compiling all Cairo contracts in the openzeppelin directory
 🔨 Compiling openzeppelin/introspection/ERC165.cairo

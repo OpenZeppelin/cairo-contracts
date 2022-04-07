@@ -14,19 +14,19 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
   * [ERC20_Pausable](#erc20_pausable)
   * [ERC20_Upgradeable](#erc20_upgradeable)
 - [API Specification](#api-specification)
-  * [Methods](#-methods-)
-    * [`name`](#-name-)
-    * [`symbol`](#-symbol-)
-    * [`decimals`](#-decimals-)
-    * [`totalSupply`](#-total-supply-)
-    * [`balanceOf`](#-balance-of-)
-    * [`allowance`](#-allowance-)
-    * [`transfer`](#-transfer-)
-    * [`transferFrom`](#-transferfrom-)
-    * [`approve`](#-approve-)
-  * [Events](#-events-)
-    * [`Transfer (event)`](#-transfer-(event)-)
-    * [`Approval (event)`](#-approval-(event)-)
+  * [Methods](#methods)
+    * [`name`](#name)
+    * [`symbol`](#symbol)
+    * [`decimals`](#decimals)
+    * [`totalSupply`](#totalsupply)
+    * [`balanceOf`](#balanceof)
+    * [`allowance`](#allowance)
+    * [`transfer`](#transfer)
+    * [`transferFrom`](#transferfrom)
+    * [`approve`](#approve)
+  * [Events](#events)
+    * [`Transfer (event)`](#transfer-event)
+    * [`Approval (event)`](#approval-event)
 
 ## Interface
 
@@ -295,7 +295,7 @@ remaining: Uint256
 
 Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if it succeeds.
 
-Emits a [Transfer](#-transfer-(event)-) event.
+Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
@@ -314,7 +314,7 @@ success: felt
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if it succeeds.
 
-Emits a [Transfer](#-transfer-(event)-) event.
+Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
@@ -334,7 +334,7 @@ success: felt
 
 Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if it succeeds.
 
-Emits an [Approval](#-approval-(event)-) event.
+Emits an [Approval](#approval-event) event.
 
 Parameters:
 
@@ -375,7 +375,7 @@ value: Uint256
 
 #### `Approval (event)`
 
-Emitted when the allowance of a `spender` for an `owner` is set by a call to [approve](#-approve-). `value` is the new allowance.
+Emitted when the allowance of a `spender` for an `owner` is set by a call to [approve](#approve). `value` is the new allowance.
 
 Parameters:
 

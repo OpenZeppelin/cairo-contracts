@@ -49,7 +49,7 @@ await signer.send_transaction(account, some_contract_address, 'some_function', [
 
 ## Standard Interface
 
-The [`IAccount.cairo`](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/contracts/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
+The [`IAccount.cairo`](../src/openzeppelin/account/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
 
 ```c#
 @contract_interface
@@ -91,7 +91,7 @@ Note that although the current implementation works only with StarkKeys, support
 
 ### Signer utility
 
-[Signer.py](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/tests/utils/Signer.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The `Signer()` class in [utils.py](https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
 
 It exposes three functions:
 
@@ -102,7 +102,7 @@ It exposes three functions:
 To use Signer, pass a private key when instantiating the class:
 
 ```python
-from utils.Signer import Signer
+from utils import Signer
 
 PRIVATE_KEY = 123456789987654321
 signer = Signer(PRIVATE_KEY)

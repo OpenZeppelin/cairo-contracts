@@ -7,7 +7,6 @@ The following documentation provides context, reasoning, and examples for method
 ## Table of Contents
 
 * [Constants](#constants)
-* [Interface ids](#interface-ids)
 * [Strings](#strings)
   * [`str_to_felt`](#str_to_felt)
   * [`felt_to_str`](#felt_to_str)

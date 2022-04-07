@@ -9,16 +9,15 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 
 * [Quickstart](#quickstart)
 * [Standard Interface](#standard-interface)
-* [Keys, signatures and signers](#keys--signatures-and-signers)
+* [Keys, signatures and signers](#keys-signatures-and-signers)
     + [Signer utility](#signer-utility)
-* [Message format](#message-format)
-* [MultiCall](#-multicall-)
+* [Call and MultiCall format](#call-and-multicall-format)
 * [API Specification](#api-specification)
-    - [`get_public_key`](#-get-public-key-)
-    - [`get_nonce`](#-get-nonce-)
-    - [`set_public_key`](#-set-public-key-)
-    - [`is_valid_signature`](#-is-valid-signature-)
-    - [`__execute__`](#-__execute__-)
+    - [`get_public_key`](#get_public_key)
+    - [`get_nonce`](#get_nonce)
+    - [`set_public_key`](#set_public_key)
+    - [`is_valid_signature`](#is_valid_signature)
+    - [`__execute__`](#__execute__)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 escape hatch mechanism](#l1-escape-hatch-mechanism)
@@ -49,7 +48,7 @@ await signer.send_transaction(account, some_contract_address, 'some_function', [
 
 ## Standard Interface
 
-The [`IAccount.cairo`](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/contracts/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
+The [`IAccount.cairo`](../src/openzeppelin/account/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
 
 ```c#
 @contract_interface
@@ -91,7 +90,7 @@ Note that although the current implementation works only with StarkKeys, support
 
 ### Signer utility
 
-[Signer.py](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/tests/utils/Signer.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The `Signer()` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
 
 It exposes three functions:
 
@@ -102,7 +101,7 @@ It exposes three functions:
 To use Signer, pass a private key when instantiating the class:
 
 ```python
-from utils.Signer import Signer
+from utils import Signer
 
 PRIVATE_KEY = 123456789987654321
 signer = Signer(PRIVATE_KEY)

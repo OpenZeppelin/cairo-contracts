@@ -3,9 +3,9 @@
 
 %lang starknet
 
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.utils.constants import TRUE, FALSE
 
 #
 # Events
@@ -92,7 +92,7 @@ func Proxy_get_admin{
     }() -> (admin: felt):
     let (admin) = Proxy_admin.read()
     return (admin)
-end 
+end
 
 func Proxy_get_implementation{
         syscall_ptr: felt*,
@@ -101,7 +101,7 @@ func Proxy_get_implementation{
     }() -> (implementation: felt):
     let (implementation) = Proxy_implementation_address.read()
     return (implementation)
-end 
+end
 
 #
 # Setters
@@ -114,4 +114,4 @@ func Proxy_set_admin{
     }(new_admin: felt):
     Proxy_admin.write(new_admin)
     return ()
-end 
+end

@@ -3,6 +3,7 @@
 
 %lang starknet
 
+from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
@@ -28,11 +29,9 @@ from openzeppelin.access.ownable import (
     Ownable_only_owner
 )
 
-from openzeppelin.utils.constants import TRUE
-
 @constructor
 func constructor{
-        syscall_ptr: felt*, 
+        syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
@@ -75,7 +74,7 @@ end
 
 @view
 func totalSupply{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (totalSupply: Uint256):
@@ -85,7 +84,7 @@ end
 
 @view
 func decimals{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (decimals: felt):
@@ -95,7 +94,7 @@ end
 
 @view
 func balanceOf{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(account: felt) -> (balance: Uint256):
@@ -105,7 +104,7 @@ end
 
 @view
 func allowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt, spender: felt) -> (remaining: Uint256):
@@ -119,7 +118,7 @@ end
 
 @external
 func transfer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
@@ -129,12 +128,12 @@ end
 
 @external
 func transferFrom{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
-        sender: felt, 
-        recipient: felt, 
+        sender: felt,
+        recipient: felt,
         amount: Uint256
     ) -> (success: felt):
     ERC20_transferFrom(sender, recipient, amount)
@@ -143,7 +142,7 @@ end
 
 @external
 func approve{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
@@ -153,7 +152,7 @@ end
 
 @external
 func increaseAllowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
@@ -163,7 +162,7 @@ end
 
 @external
 func decreaseAllowance{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):

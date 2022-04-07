@@ -1,6 +1,6 @@
 # Utilities
 
-The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.  
+The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.
 
 > Expect this module to evolve (as it has already done).
 
@@ -27,7 +27,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo contracts, this project includes reusable constant variables like `TRUE`, `FALSE`, or `ZERO_ADDRESS`.
+The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo contracts, this project includes reusable constants.
 
 ## Interface ids
 
@@ -35,12 +35,11 @@ The [constants library](../openzeppelin/utils/constants.cairo) lists all of the 
 
 ## Strings
 
-Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements. 
+Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements.
 
 ### `str_to_felt`
 
 Takes an ASCII string and converts it to a field element via big endian representation.
-
 
 ### `felt_to_str`
 
@@ -61,7 +60,6 @@ Cairo's native data type is a field element (felt). Felts equate to 252 bits whi
 Converts a simple integer into a uint256-ish tuple.
 
 > Note `to_uint` should be used in favor of `uint`, as `uint` only returns the low bits of the tuple.
-
 
 ### `to_uint`
 
@@ -129,7 +127,7 @@ x = (1, 100)
 y = (0, 25)
 z = div_rem_uint(x, y)
 print(z)
-# prints ((4, 0), (1, 0)) 
+# prints ((4, 0), (1, 0))
 ```
 
 ## Assertions
@@ -190,7 +188,7 @@ assert_event_emitted(
 
 ## Memoization
 
-Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts. 
+Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts.
 
 ### `get_contract_def`
 

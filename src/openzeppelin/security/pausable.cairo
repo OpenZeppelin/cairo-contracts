@@ -3,17 +3,16 @@
 
 %lang starknet
 
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-
-from openzeppelin.utils.constants import TRUE, FALSE
 
 @storage_var
 func Pausable_paused() -> (paused: felt):
 end
 
 func Pausable_when_not_paused{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
@@ -25,7 +24,7 @@ func Pausable_when_not_paused{
 end
 
 func Pausable_when_paused{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
@@ -37,7 +36,7 @@ func Pausable_when_paused{
 end
 
 func Pausable_pause{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
@@ -47,7 +46,7 @@ func Pausable_pause{
 end
 
 func Pausable_unpause{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():

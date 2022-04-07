@@ -11,7 +11,7 @@ func Ownable_owner() -> (owner: felt):
 end
 
 func Ownable_initializer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt):
@@ -20,7 +20,7 @@ func Ownable_initializer{
 end
 
 func Ownable_only_owner{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
@@ -33,7 +33,7 @@ func Ownable_only_owner{
 end
 
 func Ownable_get_owner{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (owner: felt):
@@ -42,7 +42,7 @@ func Ownable_get_owner{
 end
 
 func Ownable_transfer_ownership{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_owner: felt) -> (new_owner: felt):

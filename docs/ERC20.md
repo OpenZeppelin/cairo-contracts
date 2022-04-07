@@ -9,7 +9,7 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 - [Usage](#usage)
 - [Extensibility](#extensibility)
 - [Presets](#presets)
-  * [ERC20 (basic)](#erc20-(basic))
+  * [ERC20 (basic)](#erc20-basic)
   * [ERC20_Mintable](#erc20_mintable)
   * [ERC20_Pausable](#erc20_pausable)
   * [ERC20_Upgradeable](#erc20_upgradeable)
@@ -127,7 +127,7 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 
 ## Extensibility
 
-ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
+ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../src/openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
 
 ```python
 @external
@@ -157,19 +157,19 @@ The following contract presets are ready to deploy and can be used as-is for qui
 
 ### ERC20 (basic)
 
-The [`ERC20`](../openzeppelin/token/erc20/ERC20.cairo) preset offers a quick and easy setup for deploying a basic ERC20 token.
+The [`ERC20`](../src/openzeppelin/token/erc20/ERC20.cairo) preset offers a quick and easy setup for deploying a basic ERC20 token.
 
 ### ERC20_Mintable
 
-The [`ERC20_Mintable`](../openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens. 
+The [`ERC20_Mintable`](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens. 
 
 ### ERC20_Pausable
 
-The [`ERC20_Pausable`](../openzeppelin/token/erc20/ERC20_Pausable.cairo) preset allows the contract owner to pause/unpause all state-modifying methods i.e. `transfer`, `approve`, etc. This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
+The [`ERC20_Pausable`](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo) preset allows the contract owner to pause/unpause all state-modifying methods i.e. `transfer`, `approve`, etc. This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
 
 ### ERC20_Upgradeable
 
-The [`ERC20_Upgradeable`](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](../docs/Proxy.md#contract-upgrades).
+The [`ERC20_Upgradeable`](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](Proxies.md#contract-upgrades).
 
 ## API Specification
 

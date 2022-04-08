@@ -291,7 +291,7 @@ func ec_mul{range_check_ptr}(pt : EcPoint, scalar : BigInt3) -> (res : EcPoint):
 end
 
 # Verifies that val is in the range [1, N).
-func validate_signature_entry{range_check_ptr}(val : BigInt3):
+func validate_signature_entry{range_check_ptr}(val : BigInt3)-> ():
     assert_nn_le(val.d2, N2)
     assert_nn_le(val.d1, BASE - 1)
     assert_nn_le(val.d0, BASE - 1)
@@ -320,7 +320,10 @@ end
 # * public_key_pt is on the curve.
 # * All the limbs of public_key_pt.x, public_key_pt.y, msg_hash are in the range [0, 3 * BASE).
 func verify_ecdsa{range_check_ptr}(
-        public_key_pt : EcPoint, msg_hash : BigInt3, r : BigInt3, s : BigInt3):
+        public_key_pt : EcPoint, 
+        msg_hash : BigInt3, 
+        r : BigInt3, 
+        s : BigInt3) -> ():
     alloc_locals
 
     validate_signature_entry(r)

@@ -58,7 +58,6 @@ See OpenZeppelin's [Writing Upgradeable Contracts](https://docs.openzeppelin.com
 
 The Cairo programming language does not support inheritance. Instead, Cairo contracts follow the [Extensibility Pattern](../docs/Extensibility.md) which already uses initializer methods to mimic constructors. Upgradeable contracts do not, therefore, require a separate library with refactored constructor logic.
 
-
 ## Proxies
 
 A proxy contract is a contract that delegates function calls to another contract. This type of pattern decouples state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not; as well as deploying multiple proxy instances pointing to the same implementation. This can be useful to deploy many contracts with identical logic but unique initialization data.

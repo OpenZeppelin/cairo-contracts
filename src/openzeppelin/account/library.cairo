@@ -17,7 +17,7 @@ from openzeppelin.introspection.ERC165 import (
 )
 
 from openzeppelin.utils.constants import IACCOUNT_ID
-from openzeppelin.utils.secp256k1 import verify_ecdsa
+from openzeppelin.utils.secp256k1 import verify_ecdsa, EcPoint, BigInt3
 
 #
 # Structs
@@ -150,11 +150,13 @@ func Account_is_valid_secp256k1_signature{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
-        hash: felt,
+        hash: BigInt3,
         signature_len: felt,
-        signature: felt*
+        signature: BigInt3*,
+        sig_x : BigInt3,
+        sig_y : BigInt3
     ) -> ():
-    let (_public_key) = Account_public_key.read()
+    tempvar _public_key: EcPoint = EcPoint(sig_x, sig_y)
 
     # This interface expects a signature pointer and length to make
     # no assumption about signature validation schemes.

@@ -29,8 +29,8 @@ from openzeppelin.token.erc721.library import (
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
 from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_onlyOwner
+    initializer as Ownable_initializer,
+    _only_owner as Ownable_only_owner
 )
 
 #
@@ -192,23 +192,12 @@ func safeTransferFrom{
 end
 
 @external
-func setTokenURI{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(tokenId: Uint256, tokenURI: felt):
-    Ownable_onlyOwner()
-    ERC721_setTokenURI(tokenId, tokenURI)
-    return ()
-end
-
-@external
 func mint{
         pedersen_ptr: HashBuiltin*,
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_onlyOwner()
+    Ownable_only_owner()
     ERC721_mint(to, tokenId)
     return ()
 end
@@ -221,5 +210,16 @@ func burn{
     }(tokenId: Uint256):
     ERC721_only_token_owner(tokenId)
     ERC721_burn(tokenId)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(tokenId: Uint256, tokenURI: felt):
+    Ownable_only_owner()
+    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

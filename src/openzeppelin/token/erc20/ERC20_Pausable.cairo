@@ -24,8 +24,8 @@ from openzeppelin.token.erc20.library import (
 )
 
 from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_onlyOwner
+    initializer as Ownable_initializer,
+    _only_owner as Ownable_only_owner
 )
 
 from openzeppelin.security.pausable import (
@@ -199,7 +199,7 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_onlyOwner()
+    Ownable_only_owner()
     Pausable_pause()
     return ()
 end
@@ -210,7 +210,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_onlyOwner()
+    Ownable_only_owner()
     Pausable_unpause()
     return ()
 end

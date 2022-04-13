@@ -3,8 +3,8 @@
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero
 
 #
@@ -27,12 +27,12 @@ end
 # Constructor
 #
 
-func Ownable_initializer{
+func initializer{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt):
-    _transferOwnership(owner)
+    _transfer_ownership(owner)
     return ()
 end
 
@@ -40,7 +40,7 @@ end
 # Protector (Modifier)
 #
 
-func Ownable_onlyOwner{
+func _only_owner{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -54,10 +54,10 @@ func Ownable_onlyOwner{
 end
 
 #
-# Getters
+# Public
 #
 
-func Ownable_owner{
+func owner{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -66,7 +66,7 @@ func Ownable_owner{
     return (owner=owner)
 end
 
-func Ownable_transferOwnership{
+func transfer_ownership{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -74,18 +74,18 @@ func Ownable_transferOwnership{
     with_attr error_message("Ownable: new owner is the zero address"):
         assert_not_zero(newOwner)
     end
-    Ownable_onlyOwner()
-    _transferOwnership(newOwner)
+    _only_owner()
+    _transfer_ownership(newOwner)
     return ()
 end
 
-func Ownable_renounceOwnership{
+func renounce_ownership{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_onlyOwner()
-    _transferOwnership(0)
+    _only_owner()
+    _transfer_ownership(0)
     return ()
 end
 
@@ -93,7 +93,7 @@ end
 # Internal
 #
 
-func _transferOwnership{
+func _transfer_ownership{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr

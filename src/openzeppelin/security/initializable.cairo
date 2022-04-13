@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (security/initializable.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (security/initializable.cairo)
 
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-
-from openzeppelin.utils.constants import TRUE, FALSE
+from starkware.cairo.common.bool import TRUE, FALSE
 
 @storage_var
 func _initialized() -> (res: felt):

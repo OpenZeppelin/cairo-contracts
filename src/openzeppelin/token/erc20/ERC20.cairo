@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (token/erc20/ERC20.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc20/ERC20.cairo)
 
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc20.library import (
@@ -22,8 +23,6 @@ from openzeppelin.token.erc20.library import (
     ERC20_transferFrom,
     ERC20_mint
 )
-
-from openzeppelin.utils.constants import TRUE
 
 @constructor
 func constructor{

@@ -124,7 +124,7 @@ func set_value_2{
     return ()
 end
 
-@view
+@external
 func set_admin{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,

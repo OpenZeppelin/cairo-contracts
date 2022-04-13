@@ -1,77 +1,109 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
-    assert_revert, assert_event_emitted, contract_path
+    Signer, to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
+    get_contract_def, cached_contract, assert_revert, assert_event_emitted
 )
 
 signer = Signer(123456789987654321)
 
-# random address
-RECIPIENT = 789
+# testing vars
+RECIPIENT = 123
+INIT_SUPPLY = to_uint(1000)
+AMOUNT = to_uint(200)
+UINT_ONE = to_uint(1)
+NAME = str_to_felt("Mintable Token")
+SYMBOL = str_to_felt("MTKN")
+DECIMALS = 18
 
 
 @pytest.fixture(scope='module')
-async def token_factory():
+def contract_defs():
+    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    erc20_def = get_contract_def(
+        'openzeppelin/token/erc20/ERC20_Mintable.cairo')
+
+    return account_def, erc20_def
+
+
+@pytest.fixture(scope='module')
+async def erc20_init(contract_defs):
+    account_def, erc20_def = contract_defs
     starknet = await Starknet.empty()
-    owner = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
+    account1 = await starknet.deploy(
+        contract_def=account_def,
         constructor_calldata=[signer.public_key]
     )
-
-    token = await starknet.deploy(
-        contract_path("openzeppelin/token/erc20/ERC20_Mintable.cairo"),
+    erc20 = await starknet.deploy(
+        contract_def=erc20_def,
         constructor_calldata=[
-            str_to_felt("Mintable Token"),
-            str_to_felt("MTKN"),
-            18,
-            *uint(1000),
-            owner.contract_address,
-            owner.contract_address
+            NAME,
+            SYMBOL,
+            DECIMALS,
+            *INIT_SUPPLY,
+            account1.contract_address,        # recipient
+            account1.contract_address         # owner
         ]
     )
-    return starknet, token, owner
+    return (
+        starknet.state,
+        account1,
+        erc20
+    )
+
+
+@pytest.fixture
+def token_factory(contract_defs, erc20_init):
+    account_def, erc20_def = contract_defs
+    state, account1, erc20 = erc20_init
+    _state = state.copy()
+    account1 = cached_contract(_state, account_def, account1)
+    erc20 = cached_contract(_state, erc20_def, erc20)
+
+    return erc20, account1
 
 
 @pytest.mark.asyncio
 async def test_constructor(token_factory):
-    _, token, owner = token_factory
+    token, owner = token_factory
 
-    execution_info = await token.name().invoke()
-    assert execution_info.result == (str_to_felt("Mintable Token"),)
+    execution_info = await token.name().call()
+    assert execution_info.result.name == NAME
 
-    execution_info = await token.symbol().invoke()
-    assert execution_info.result == (str_to_felt("MTKN"),)
+    execution_info = await token.symbol().call()
+    assert execution_info.result.symbol == SYMBOL
 
-    execution_info = await token.decimals().invoke()
-    assert execution_info.result.decimals == 18
+    execution_info = await token.decimals().call()
+    assert execution_info.result.decimals == DECIMALS
 
-    execution_info = await token.balanceOf(owner.contract_address).invoke()
-    assert execution_info.result.balance == uint(1000)
+    execution_info = await token.balanceOf(owner.contract_address).call()
+    assert execution_info.result.balance == INIT_SUPPLY
 
 
 @pytest.mark.asyncio
 async def test_mint(token_factory):
-    _, erc20, account = token_factory
-    amount = uint(1)
+    erc20, account = token_factory
 
-    await signer.send_transaction(account, erc20.contract_address, 'mint', [account.contract_address, *amount])
+    await signer.send_transaction(
+        account, erc20.contract_address, 'mint', [
+            account.contract_address,
+            *UINT_ONE
+        ])
 
     # check new supply
     execution_info = await erc20.totalSupply().invoke()
     new_supply = execution_info.result.totalSupply
-    assert new_supply == uint(1001)
+    assert new_supply == add_uint(INIT_SUPPLY, UINT_ONE)
 
 
 @pytest.mark.asyncio
 async def test_mint_emits_event(token_factory):
-    _, erc20, account = token_factory
-    amount = uint(1)
+    erc20, account = token_factory
 
     tx_exec_info = await signer.send_transaction(
         account, erc20.contract_address, 'mint', [
             account.contract_address,
-            *amount
+            *UINT_ONE
         ])
 
     assert_event_emitted(
@@ -81,62 +113,53 @@ async def test_mint_emits_event(token_factory):
         data=[
             ZERO_ADDRESS,
             account.contract_address,
-            *amount
+            *UINT_ONE
         ]
     )
 
 
 @pytest.mark.asyncio
 async def test_mint_to_zero_address(token_factory):
-    _, erc20, account = token_factory
-    amount = uint(1)
+    erc20, account = token_factory
 
     await assert_revert(signer.send_transaction(
         account,
         erc20.contract_address,
         'mint',
-        [ZERO_ADDRESS, *amount]),
+        [ZERO_ADDRESS, *UINT_ONE]
+    ),
         reverted_with="ERC20: cannot mint to the zero address"
     )
 
 
 @pytest.mark.asyncio
 async def test_mint_overflow(token_factory):
-    _, erc20, account = token_factory
-    # fetching the previously minted totalSupply and verifying the overflow check
-    # (totalSupply >= 2**256) should fail, (totalSupply < 2**256) should pass
-    execution_info = await erc20.totalSupply().invoke()
-    previous_supply = execution_info.result.totalSupply
-
+    erc20, account = token_factory
     # pass_amount subtracts the already minted supply from MAX_UINT256 in order for
     # the minted supply to equal MAX_UINT256
     # (2**128 - 1, 2**128 - 1)
-    pass_amount = (
-        MAX_UINT256[0] - previous_supply[0],  # 2**128 - 1
-        MAX_UINT256[1] - previous_supply[1]   # 2**128 - 1
-    )
+    pass_amount = sub_uint(MAX_UINT256, INIT_SUPPLY)
 
-    await signer.send_transaction(account, erc20.contract_address, 'mint', [RECIPIENT, *pass_amount])
+    await signer.send_transaction(
+        account, erc20.contract_address, 'mint', [
+            RECIPIENT,
+            *pass_amount
+        ])
 
-    # fail_amount displays the edge case where any addition over MAX_SUPPLY
-    # should result in a failing tx
-    fail_amount = (
-        pass_amount[0] + 1,  # 2**128 (will overflow)
-        pass_amount[1]       # 2**128 - 1
-    )
-
-    await assert_revert(signer.send_transaction(
-        account,
-        erc20.contract_address,
-        'mint',
-        [RECIPIENT, *fail_amount]),
+    # totalSupply is MAX_UINT256 therefore adding (1, 0) should fail
+    await assert_revert(
+        signer.send_transaction(
+            account, erc20.contract_address, 'mint', [
+                RECIPIENT,
+                *UINT_ONE
+            ]),
         reverted_with="ERC20: mint overflow"
     )
 
 
 @pytest.mark.asyncio
 async def test_mint_invalid_uint256(token_factory):
-    _, erc20, account = token_factory
+    erc20, account = token_factory
 
     await assert_revert(signer.send_transaction(
         account,

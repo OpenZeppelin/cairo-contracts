@@ -8,7 +8,6 @@ from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc20.library import ERC20
-from openzeppelin.utils.constants import TRUE
 
 from openzeppelin.access.ownable import (
     Ownable_initializer,

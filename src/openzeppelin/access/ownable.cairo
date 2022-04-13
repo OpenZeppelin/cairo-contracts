@@ -23,83 +23,86 @@ end
 func _owner() -> (owner: felt):
 end
 
-#
-# Constructor
-#
+namespace Ownable:
+    #
+    # Constructor
+    #
 
-func initializer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(owner: felt):
-    _transfer_ownership(owner)
-    return ()
-end
-
-#
-# Protector (Modifier)
-#
-
-func _only_owner{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    let (owner) = Ownable_owner()
-    let (caller) = get_caller_address()
-    with_attr error_message("Ownable: caller is not the owner"):
-        assert owner = caller
+    func constructor{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }(owner: felt):
+        _transfer_ownership(owner)
+        return ()
     end
-    return ()
-end
 
-#
-# Public
-#
+    #
+    # Protector (Modifier)
+    #
 
-func owner{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (owner: felt):
-    let (owner) = _owner.read()
-    return (owner=owner)
-end
-
-func transfer_ownership{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(newOwner: felt):
-    with_attr error_message("Ownable: new owner is the zero address"):
-        assert_not_zero(newOwner)
+    func _only_owner{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }():
+        let (owner) = Ownable.owner()
+        let (caller) = get_caller_address()
+        with_attr error_message("Ownable: caller is not the owner"):
+            assert owner = caller
+        end
+        return ()
     end
-    _only_owner()
-    _transfer_ownership(newOwner)
-    return ()
-end
 
-func renounce_ownership{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    _only_owner()
-    _transfer_ownership(0)
-    return ()
-end
+    #
+    # Public
+    #
 
-#
-# Internal
-#
+    func owner{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }() -> (owner: felt):
+        let (owner) = _owner.read()
+        return (owner=owner)
+    end
 
-func _transfer_ownership{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(newOwner: felt):
-    let (previousOwner: felt) = Ownable_owner()
-    _owner.write(newOwner)
-    OwnershipTransferred.emit(previousOwner, newOwner)
-    return ()
+    func transfer_ownership{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }(newOwner: felt):
+        with_attr error_message("Ownable: new owner is the zero address"):
+            assert_not_zero(newOwner)
+        end
+        _only_owner()
+        _transfer_ownership(newOwner)
+        return ()
+    end
+
+    func renounce_ownership{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }():
+        _only_owner()
+        _transfer_ownership(0)
+        return ()
+    end
+
+    #
+    # Internal
+    #
+
+    func _transfer_ownership{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }(newOwner: felt):
+        let (previousOwner: felt) = Ownable.owner()
+        _owner.write(newOwner)
+        OwnershipTransferred.emit(previousOwner, newOwner)
+        return ()
+    end
+
 end

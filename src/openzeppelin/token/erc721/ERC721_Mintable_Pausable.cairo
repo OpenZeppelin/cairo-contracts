@@ -33,10 +33,7 @@ from openzeppelin.security.pausable import (
     Pausable_when_not_paused
 )
 
-from openzeppelin.access.ownable import (
-    initializer as Ownable_initializer,
-    _only_owner as Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 #
 # Constructor
@@ -53,7 +50,7 @@ func constructor{
         owner: felt
     ):
     ERC721_initializer(name, symbol)
-    Ownable_initializer(owner)
+    Ownable.constructor(owner)
     return ()
 end
 
@@ -217,7 +214,7 @@ func mint{
         range_check_ptr
     }(to: felt, tokenId: Uint256):
     Pausable_when_not_paused()
-    Ownable_only_owner()
+    Ownable._only_owner()
     ERC721_mint(to, tokenId)
     return ()
 end
@@ -228,7 +225,7 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable._only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
@@ -239,7 +236,7 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
+    Ownable._only_owner()
     Pausable_pause()
     return ()
 end
@@ -250,7 +247,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
+    Ownable._only_owner()
     Pausable_unpause()
     return ()
 end

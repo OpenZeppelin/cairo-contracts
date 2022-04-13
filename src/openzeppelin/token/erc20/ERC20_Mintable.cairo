@@ -23,10 +23,7 @@ from openzeppelin.token.erc20.library import (
     ERC20_mint
 )
 
-from openzeppelin.access.ownable import (
-    initializer as Ownable_initializer,
-    _only_owner as Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 from openzeppelin.utils.constants import TRUE
 
@@ -45,7 +42,7 @@ func constructor{
     ):
     ERC20_initializer(name, symbol, decimals)
     ERC20_mint(recipient, initial_supply)
-    Ownable_initializer(owner)
+    Ownable.constructor(owner)
     return ()
 end
 
@@ -177,7 +174,7 @@ func mint{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(to: felt, amount: Uint256):
-    Ownable_only_owner()
+    Ownable._only_owner()
     ERC20_mint(to, amount)
     return ()
 end

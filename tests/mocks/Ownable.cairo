@@ -4,12 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_owner,
-    Ownable_transferOwnership,
-    Ownable_renounceOwnership
-)
+from openzeppelin.access.ownable import Ownable
 
 @constructor
 func constructor{
@@ -17,7 +12,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt):
-    Ownable_initializer(owner)
+    Ownable.constructor(owner)
     return ()
 end
 
@@ -27,7 +22,7 @@ func owner{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (owner: felt):
-    let (owner) = Ownable_owner()
+    let (owner) = Ownable.owner()
     return (owner=owner)
 end
 
@@ -37,7 +32,7 @@ func transferOwnership{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(newOwner: felt):
-    Ownable_transferOwnership(newOwner)
+    Ownable.transfer_ownership(newOwner)
     return ()
 end
 
@@ -47,6 +42,6 @@ func renounceOwnership{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_renounceOwnership()
+    Ownable.renounce_ownership()
     return ()
 end

@@ -28,10 +28,7 @@ from openzeppelin.token.erc721.library import (
 
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
-from openzeppelin.access.ownable import (
-    initializer as Ownable_initializer,
-    _only_owner as Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 #
 # Constructor
@@ -48,7 +45,7 @@ func constructor{
         owner: felt
     ):
     ERC721_initializer(name, symbol)
-    Ownable_initializer(owner)
+    Ownable.constructor(owner)
     return ()
 end
 
@@ -197,7 +194,7 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_only_owner()
+    Ownable._only_owner()
     ERC721_mint(to, tokenId)
     return ()
 end
@@ -219,7 +216,7 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable._only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

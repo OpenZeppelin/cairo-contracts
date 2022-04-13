@@ -33,7 +33,7 @@ func initializer{
         recipient: felt,
         proxy_admin: felt
     ):
-    ERC20.initializer(name, symbol, decimals)
+    ERC20.constructor(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
     Proxy_initializer(proxy_admin)
     return ()

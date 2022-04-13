@@ -56,7 +56,7 @@ namespace ERC20:
     # Constructor
     #
 
-    func initializer{
+    func constructor{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr

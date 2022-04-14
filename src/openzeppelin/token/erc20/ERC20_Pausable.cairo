@@ -117,6 +117,16 @@ func allowance{
 end
 
 @view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
+@view
 func paused{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
@@ -187,6 +197,26 @@ func decreaseAllowance{
     Pausable_when_not_paused()
     ERC20_decreaseAllowance(spender, subtracted_value)
     return (TRUE)
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
+    return ()
 end
 
 @external

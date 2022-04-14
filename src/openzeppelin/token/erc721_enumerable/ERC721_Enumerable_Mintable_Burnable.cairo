@@ -171,6 +171,16 @@ func tokenURI{
     return (tokenURI)
 end
 
+@view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
 #
 # Externals
 #
@@ -255,5 +265,25 @@ func setTokenURI{
     }(tokenId: Uint256, tokenURI: felt):
     Ownable._only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
+    return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
     return ()
 end

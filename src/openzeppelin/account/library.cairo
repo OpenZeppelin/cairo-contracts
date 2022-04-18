@@ -150,13 +150,11 @@ func Account_is_valid_secp256k1_signature{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(
+        public_key_pt : EcPoint,
         hash: BigInt3,
         signature_len: felt,
         signature: BigInt3*,
-        sig_x : BigInt3,
-        sig_y : BigInt3
     ) -> ():
-    tempvar _public_key: EcPoint = EcPoint(sig_x, sig_y)
 
     # This interface expects a signature pointer and length to make
     # no assumption about signature validation schemes.
@@ -165,7 +163,7 @@ func Account_is_valid_secp256k1_signature{
     let sig_s = signature[1]
 
     verify_ecdsa(
-        public_key_pt=_public_key,
+        public_key_pt=public_key_pt,
         msg_hash=hash,
         r=sig_r,
         s=sig_s)

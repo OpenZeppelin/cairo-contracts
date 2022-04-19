@@ -10,7 +10,7 @@ from starkware.cairo.common.bool import TRUE, FALSE
 func _initialized() -> (res: felt):
 end
 
-@external
+@view
 func initialized{ 
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,

@@ -3,6 +3,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import Signer, assert_revert, contract_path
+from fastecdsa import keys, curve
 
 
 signer = Signer(123456789987654321)
@@ -156,3 +157,23 @@ async def test_public_key_setter_different_account(account_factory):
         ),
         reverted_with="Account: caller is not this account"
     )
+
+@pytest.mark.asyncio
+async def test_secp256k1_account(account_factory):
+    _, account, bad_account = account_factory
+
+    # generate a keypair (i.e. both keys) for curve P256
+    private_key, public_key = keys.gen_keypair(curve.secp256k1)
+    hashed_pk = str(int(public_key.x))  + str(int(public_key.y))
+    print(public_key,'ce est la public_key key',hashed_pk)
+    
+    # set new pubkey
+    await assert_revert(
+        signer.send_transactions(
+            bad_account,
+            [(account.contract_address, 'set_public_key', [other.public_key])]#TODO update argument for it not to fail
+        )
+    )
+    execution_info = await account.get_public_key().call()
+    print(execution_info.result,'ce est la resultant')
+    assert execution_info.result == (public_key,)

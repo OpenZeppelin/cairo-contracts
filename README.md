@@ -6,7 +6,7 @@
 ## Usage
 
 > ## ⚠️ WARNING! ⚠️
-> This is repo contains highly experimental code.
+> This repo contains highly experimental code.
 > Expect rapid iteration.
 > **Use at your own risk.**
 
@@ -47,7 +47,7 @@ pip install openzeppelin-cairo-contracts
 
 Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](docs/Extensibility.md#presets).
 
-```python
+```cairo
 # contracts/MyToken.cairo
 
 %lang starknet
@@ -67,7 +67,7 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 ### Write a custom contract using library modules
 [Read more about libraries](docs/Extensibility.md#libraries).
 
-```python
+```cairo
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
@@ -189,7 +189,7 @@ tox
 platform linux -- Python 3.7.2, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
 rootdir: /home/readme/cairo-contracts
 plugins: asyncio-0.16.0, web3-5.24.0, typeguard-2.13.0
-collected 19 items                                                                                               
+collected 19 items
 
 tests/test_Account.py ....                                 [ 21%]
 tests/test_AddressRegistry.py ..                           [ 31%]

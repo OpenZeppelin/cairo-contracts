@@ -7,8 +7,7 @@
 ## Usage
 
 > ## ⚠️ WARNING! ⚠️
-
-> This is repo contains highly experimental code.
+> This repo contains highly experimental code.
 > Expect rapid iteration.
 > **Use at your own risk.**
 

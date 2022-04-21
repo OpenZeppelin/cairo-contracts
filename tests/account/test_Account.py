@@ -162,18 +162,21 @@ async def test_public_key_setter_different_account(account_factory):
 async def test_secp256k1_account(account_factory):
     _, account, bad_account = account_factory
 
-    # generate a keypair (i.e. both keys) for curve P256
-    private_key, public_key = keys.gen_keypair(curve.secp256k1)
-    hashed_pk = str(int(public_key.x))  + str(int(public_key.y))
-    print(public_key,'ce est la public_key key',hashed_pk)
+    # generate a keypair (i.e. both keys) for curve secp256k1
+    private_key = 123456789987654321
+    public_key = keys.get_public_key(private_key, curve.secp256k1)
     
+    #X: 0x3595819058943de6b847791de355b3591738dd5055eac0d9839e27149da4491e
+    #Y: 0x6fb37ec164564d3467d7923c84a2c3cc2b4e68f5ee8254abc0ac3c571f906bc7
+    #public key hex:0x3595819058943de6b847791de355b3591738dd5055eac0d9839e27149da4491e6fb37ec164564d3467d7923c84a2c3cc2b4e68f5ee8254abc0ac3c571f906bc7
+    public_key_int = int('0x3595819058943de6b847791de355b3591738dd5055eac0d9839e27149da4491e6fb37ec164564d3467d7923c84a2c3cc2b4e68f5ee8254abc0ac3c571f906bc7',0)
+    print(public_key_int)
     # set new pubkey
-    await assert_revert(
-        signer.send_transactions(
-            bad_account,
-            [(account.contract_address, 'set_public_key', [other.public_key])]#TODO update argument for it not to fail
-        )
-    )
+    await signer.send_transactions(account, [(account.contract_address, 'set_public_key', [public_key_int])])
+
     execution_info = await account.get_public_key().call()
-    print(execution_info.result,'ce est la resultant')
-    assert execution_info.result == (public_key,)
+    #res=1813293060336465068570802339647185657676088914728234993269889516456358561835
+    assert execution_info.result != (other.public_key,)
+    assert execution_info.result != (signer.public_key,)
+
+

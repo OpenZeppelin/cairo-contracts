@@ -244,11 +244,11 @@ end
 
 Returns the public key associated with the Account contract.
 
-##### Parameters
+##### Parameters:
 
 None.
 
-##### Returns
+##### Returns:
 
 ```cairo
 public_key: felt
@@ -258,11 +258,11 @@ public_key: felt
 
 Returns the current transaction nonce for the Account.
 
-##### Parameters
+##### Parameters:
 
 None.
 
-##### Returns
+##### Returns:
 
 ```cairo
 nonce: felt
@@ -272,13 +272,13 @@ nonce: felt
 
 Sets the public key that will control this Account. It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
 
-##### Parameters
+##### Parameters:
 
 ```cairo
 public_key: felt
 ```
 
-##### Returns
+##### Returns:
 
 None.
 
@@ -286,7 +286,7 @@ None.
 
 This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
 
-##### Parameters
+##### Parameters:
 
 ```cairo
 hash: felt
@@ -294,7 +294,7 @@ signature_len: felt
 signature: felt*
 ```
 
-##### Returns
+##### Returns:
 
 None.
 
@@ -308,7 +308,7 @@ This is the only external entrypoint to interact with the Account contract. It:
 4. Calls the target contract with the intended function selector and calldata parameters
 5. Forwards the contract call response data as return value
 
-##### Parameters
+##### Parameters:
 
 ```cairo
 call_array_len: felt
@@ -320,7 +320,7 @@ nonce: felt
 
 > Note that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
-##### Returns
+##### Returns:
 
 ```cairo
 response_len: felt

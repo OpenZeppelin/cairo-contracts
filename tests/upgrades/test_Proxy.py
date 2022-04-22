@@ -1,14 +1,14 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, assert_revert, get_contract_def, cached_contract
+    ActivatedSigner, assert_revert, get_contract_def, cached_contract
 )
 
 
 # random value
 VALUE = 123
 
-signer = Signer(123456789987654321)
+signer = ActivatedSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')

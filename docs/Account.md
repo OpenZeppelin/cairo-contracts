@@ -1,4 +1,5 @@
 # Accounts
+
 Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
 Instead, signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
@@ -10,7 +11,8 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Quickstart](#quickstart)
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
-  * [Signer utility](#signer-utility)
+  * [Signer](#signer)
+  * [ActivatedSigner utility](#activatedsigner-utility)
 * [Call and MultiCall format](#call-and-multicall-format)
 * [API Specification](#api-specification)
   * [`get_public_key`](#get_public_key)
@@ -26,12 +28,13 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 ## Quickstart
 
 The general workflow is:
+
 1. Account contract is deployed to StarkNet
 2. Signed transactions can now be sent to the Account contract which validates and executes them
 
 In Python, this would look as follows:
 
-```cairo
+```python
 from starkware.starknet.testing.starknet import Starknet
 signer = Signer(123456789987654321)
 starknet = await Starknet.empty()
@@ -88,23 +91,58 @@ While the interface is agnostic of signature validation schemes, this implementa
 
 Note that although the current implementation works only with StarkKeys, support for Ethereum's ECDSA algorithm will be added in the future.
 
-### Signer utility
+### Signer
 
-The `Signer()` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The Signer is responsible for creating a transaction signature with the user's private key for a given transaction. This implementation utilizes [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) class to create transaction signatures through the Signer method `sign_transaction`.
 
-It exposes three functions:
+`sign_transaction` expects the following parameters per transaction:
 
-* `def sign(message_hash)` receives a hash and returns a signed message of it
-* `def send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
-* `def send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+* `sender` the contract address invoking the tx
+* `calls` a list containing a sublist of each call to be sent. Each sublist must consist of:
+    1. `to` the address of the target contract of the message
+    2. `selector` the function to be called on the target contract
+    3. `calldata` the parameters for the given `selector`
+* `nonce` an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
+* `max_fee` the maximum fee a user will pay
 
-To use Signer, pass a private key when instantiating the class:
+Which returns:
+
+* `calls` a list of calls to be bundled in the transaction
+* `calldata` a list of arguments for each call
+* `sig_r` the transaction signature
+* `sig_s` the transaction signature
+
+While the Signer class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. Those functions can be done manually; however, this implementation abstracts that all away with `ActivatedSigner`.
+
+### ActivatedSigner utility
+
+The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces. In order for a transaction to be sent, this utility performs the following:
+
+* checks nonce
+  * if none is given, it fetches the nonce from the Account contract via `get_nonce`
+
+* reformats callarray
+  * a necessary process to convert the `to` contract address to hexadecimal format
+
+* passes transaction data to Nile's Signer
+  * this returns the signature for the transaction as well as the `calls` and `calldata`
+
+* invokes the Account contract's `__execute__` method
+  * where the transaction is finally sent
+
+Users only need to interact with the following exposed methods to perform a transaction:
+
+* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
+
+* `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+
+To use `ActivatedSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils import Signer
+from utils import ActivatedSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = Signer(PRIVATE_KEY)
+signer = ActivatedSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -170,6 +208,7 @@ Where:
 * `version` is a fixed number which is used to invalidate old transactions
 
 This `MultiCall` message is built within the `__execute__` method which has the following interface:
+
 ```cairo
 func __execute__(
         call_array_len: felt,
@@ -206,6 +245,7 @@ await signer.send_transaction(account, registry.contract_address, 'set_L1_addres
 You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
 
 > Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+
 ## API Specification
 
 This in a nutshell is the Account contract public API:
@@ -338,6 +378,7 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 ## L1 escape hatch mechanism
 
 *[unknown, to be defined]*
+
 ## Paying for gas
 
 *[unknown, to be defined]*

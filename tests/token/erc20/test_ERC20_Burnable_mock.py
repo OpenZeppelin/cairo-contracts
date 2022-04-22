@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     ActivatedSigner, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,

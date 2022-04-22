@@ -2,17 +2,12 @@
 
 from pathlib import Path
 import math
-from starkware.crypto.signature.signature import private_to_stark_key, sign
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
-from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.business_logic.execution.objects import Event
-from starkware.starknet.core.os.transaction_hash.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
 from nile.signer import Signer
-
-
 
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)

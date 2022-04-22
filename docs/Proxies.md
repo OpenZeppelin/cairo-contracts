@@ -3,6 +3,7 @@
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge.
 
 ## Table of Contents
+
 * [Quickstart](#quickstart)
 * [Proxies](#proxies)
   * [Proxy contract](#proxy-contract)
@@ -18,6 +19,7 @@
 ## Quickstart
 
 The general workflow is:
+
 1. deploy implementation contract
 2. deploy proxy contract with the implementation contract's address set in the proxy's constructor calldata
 3. initialize the implementation contract by sending a call to the proxy contract. This will redirect the call to the implementation contract and behave like the implementation contract's constructor
@@ -66,31 +68,34 @@ Since this proxy is designed to work both as an [UUPS-flavored upgrade proxy](ht
 
 When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract to execute.
 
-
 ### Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [Extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../src/openzeppelin/upgrades/library.cairo).
 
-
 The implementation contract should:
-- import `Proxy_initializer` and `Proxy_set_implementation`
-- initialize the proxy immediately after contract deployment.
+
+* import `Proxy_initializer` and `Proxy_set_implementation`
+* initialize the proxy immediately after contract deployment.
 
 If the implementation is upgradeable, it should:
-- include a method to upgrade the implementation (i.e. `upgrade`)
-- use access control to protect the contract's upgradeability.
+
+* include a method to upgrade the implementation (i.e. `upgrade`)
+* use access control to protect the contract's upgradeability.
 
 The implementation contract should NOT:
-- deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
+
+* deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
 
 > Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`Proxy_only_admin`](#proxy_only_admin).
 
 For a full implementation contract example, please see:
-- [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)
+
+* [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)
 
 ## Upgrades library API
 
 ### Methods
+
 ```cairo
 func Proxy_initializer(proxy_admin: felt):
 end
@@ -216,7 +221,6 @@ implementation: felt
 
 To upgrade a contract, the implementation contract should include an `upgrade` method that, when called, changes the reference to a new deployed contract like this:
 
-
 ```python
     # deploy first implementation
     IMPLEMENTATION = await starknet.deploy(
@@ -247,8 +251,9 @@ To upgrade a contract, the implementation contract should include an `upgrade` m
 ```
 
 For a full deployment and upgrade implementation, please see:
-- [Upgrades V1](../tests/mocks/upgrades_v1_mock.cairo)
-- [Upgrades V2](../tests/mocks/upgrades_v2_mock.cairo)
+
+* [Upgrades V1](../tests/mocks/upgrades_v1_mock.cairo)
+* [Upgrades V2](../tests/mocks/upgrades_v2_mock.cairo)
 
 ### Handling method calls
 
@@ -269,5 +274,6 @@ result = await signer.send_transaction(
 Presets are pre-written contracts that extend from our library of contracts. They can be deployed as-is or used as templates for customization.
 
 Some presets include:
-- [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-- more to come! have an idea? [open an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose)!
+
+* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
+* more to come! have an idea? [open an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose)!

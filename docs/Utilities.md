@@ -30,12 +30,11 @@ To ease the readability of Cairo contracts, this project includes reusable [cons
 
 ## Strings
 
-Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements. 
+Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements.
 
 ### `str_to_felt`
 
 Takes an ASCII string and converts it to a field element via big endian representation.
-
 
 ### `felt_to_str`
 
@@ -45,7 +44,7 @@ Takes an integer and converts it to an ASCII string by trimming the null bytes a
 
 Cairo's native data type is a field element (felt). Felts equate to 252 bits which poses a problem regarding 256-bit integer integration. To resolve the bit discrepancy, Cairo represents 256-bit integers as a struct of two 128-bit integers. Further, the low bits precede the high bits e.g.
 
-```
+```python
 1 = (1, 0)
 1 << 128 = (0, 1)
 (1 << 128) - 1 = (340282366920938463463374607431768211455, 0)
@@ -56,7 +55,6 @@ Cairo's native data type is a field element (felt). Felts equate to 252 bits whi
 Converts a simple integer into a uint256-ish tuple.
 
 > Note `to_uint` should be used in favor of `uint`, as `uint` only returns the low bits of the tuple.
-
 
 ### `to_uint`
 
@@ -185,7 +183,7 @@ assert_event_emitted(
 
 ## Memoization
 
-Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts. 
+Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts.
 
 ### `get_contract_def`
 

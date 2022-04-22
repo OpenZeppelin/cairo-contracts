@@ -36,7 +36,7 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
-signer = Signer(123456789987654321)
+signer = ActivatedSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -93,7 +93,7 @@ Note that although the current implementation works only with StarkKeys, support
 
 ### Signer
 
-The Signer is responsible for creating a transaction signature with the user's private key for a given transaction. This implementation utilizes [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) class to create transaction signatures through the Signer method `sign_transaction`.
+The signer is responsible for creating a transaction signature with the user's private key for a given transaction. This implementation utilizes [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) class to create transaction signatures through the `Signer` method `sign_transaction`.
 
 `sign_transaction` expects the following parameters per transaction:
 
@@ -112,7 +112,7 @@ Which returns:
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
 
-While the Signer class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. Those functions can be done manually; however, this implementation abstracts that all away with `ActivatedSigner`.
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. Those functions can be done manually; however, this implementation abstracts that all away with `ActivatedSigner`.
 
 ### ActivatedSigner utility
 
@@ -124,7 +124,7 @@ The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform 
 * reformats callarray
   * a necessary process to convert the `to` contract address to hexadecimal format
 
-* passes transaction data to Nile's Signer
+* passes transaction data to Nile's `Signer`
   * this returns the signature for the transaction as well as the `calls` and `calldata`
 
 * invokes the Account contract's `__execute__` method
@@ -234,7 +234,7 @@ Where:
 await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
 
-Note that Signer's `send_transaction` and `send_transactions` call `__execute__` under the hood.
+Note that `ActivatedSigner`'s `send_transaction` and `send_transactions` call `__execute__` under the hood.
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 

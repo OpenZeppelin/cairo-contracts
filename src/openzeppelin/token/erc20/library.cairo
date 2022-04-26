@@ -102,9 +102,9 @@ namespace ERC20:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
-        }() -> (totalSupply: Uint256):
-        let (totalSupply: Uint256) = total_supply_.read()
-        return (totalSupply)
+        }() -> (total_supply: Uint256):
+        let (total_supply: Uint256) = total_supply_.read()
+        return (total_supply)
     end
 
     func decimals{
@@ -347,9 +347,9 @@ namespace ERC20:
 
         let (current_allowance: Uint256) = allowances_.read(owner, spender)
         let (infinite:          Uint256) = uint256_not(Uint256(0, 0))
-        let (isInfinite:        felt   ) = uint256_eq(current_allowance, infinite)
+        let (is_infinite:       felt   ) = uint256_eq(current_allowance, infinite)
 
-        if isInfinite == FALSE:
+        if is_infinite == FALSE:
             with_attr error_message("ERC20: insufficient allowance"):
                 let (new_allowance: Uint256) = uint256_checked_sub_le(current_allowance, amount)
             end

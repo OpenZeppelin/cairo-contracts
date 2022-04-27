@@ -7,17 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc721.library import ERC721
-
-from openzeppelin.token.erc721_enumerable.library import (
-    ERC721_Enumerable_initializer,
-    ERC721_Enumerable_totalSupply,
-    ERC721_Enumerable_tokenByIndex,
-    ERC721_Enumerable_tokenOfOwnerByIndex,
-    ERC721_Enumerable_mint,
-    ERC721_Enumerable_burn,
-    ERC721_Enumerable_transferFrom,
-    ERC721_Enumerable_safeTransferFrom
-)
+from openzeppelin.token.erc721_enumerable.library import ERC721_Enumerable
 
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
@@ -41,7 +31,7 @@ func constructor{
         owner: felt
     ):
     ERC721.constructor(name, symbol)
-    ERC721_Enumerable_initializer()
+    ERC721_Enumerable.constructor()
     Ownable_initializer(owner)
     return ()
 end
@@ -56,7 +46,7 @@ func totalSupply{
         syscall_ptr: felt*,
         range_check_ptr
     }() -> (totalSupply: Uint256):
-    let (totalSupply: Uint256) = ERC721_Enumerable_totalSupply()
+    let (totalSupply: Uint256) = ERC721_Enumerable.total_supply()
     return (totalSupply)
 end
 
@@ -66,7 +56,7 @@ func tokenByIndex{
         syscall_ptr: felt*,
         range_check_ptr
     }(index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable_tokenByIndex(index)
+    let (tokenId: Uint256) = ERC721_Enumerable.token_by_index(index)
     return (tokenId)
 end
 
@@ -76,7 +66,7 @@ func tokenOfOwnerByIndex{
         syscall_ptr: felt*,
         range_check_ptr
     }(owner: felt, index: Uint256) -> (tokenId: Uint256):
-    let (tokenId: Uint256) = ERC721_Enumerable_tokenOfOwnerByIndex(owner, index)
+    let (tokenId: Uint256) = ERC721_Enumerable.token_of_owner_by_index(owner, index)
     return (tokenId)
 end
 
@@ -194,7 +184,7 @@ func transferFrom{
         to: felt,
         tokenId: Uint256
     ):
-    ERC721_Enumerable_transferFrom(from_, to, tokenId)
+    ERC721_Enumerable.transfer_from(from_, to, tokenId)
     return ()
 end
 
@@ -210,7 +200,7 @@ func safeTransferFrom{
         data_len: felt,
         data: felt*
     ):
-    ERC721_Enumerable_safeTransferFrom(from_, to, tokenId, data_len, data)
+    ERC721_Enumerable.safe_transfer_from(from_, to, tokenId, data_len, data)
     return ()
 end
 
@@ -221,7 +211,7 @@ func mint{
         range_check_ptr
     }(to: felt, tokenId: Uint256):
     Ownable_only_owner()
-    ERC721_Enumerable_mint(to, tokenId)
+    ERC721_Enumerable._mint(to, tokenId)
     return ()
 end
 
@@ -232,7 +222,7 @@ func burn{
         range_check_ptr
     }(tokenId: Uint256):
     ERC721._only_token_owner(tokenId)
-    ERC721_Enumerable_burn(tokenId)
+    ERC721_Enumerable._burn(tokenId)
     return ()
 end
 

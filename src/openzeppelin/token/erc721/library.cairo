@@ -462,7 +462,7 @@ namespace ERC721:
         return ()
     end
 
-    func _safeMint{
+    func _safe_mint{
             pedersen_ptr: HashBuiltin*,
             syscall_ptr: felt*,
             range_check_ptr

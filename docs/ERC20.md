@@ -5,32 +5,32 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 ## Table of Contents
 
 - [Interface](#interface)
-  * [ERC20 compatibility](#erc20-compatibility)
+  - [ERC20 compatibility](#erc20-compatibility)
 - [Usage](#usage)
 - [Extensibility](#extensibility)
 - [Presets](#presets)
-  * [ERC20 (basic)](#erc20-basic)
-  * [ERC20_Mintable](#erc20_mintable)
-  * [ERC20_Pausable](#erc20_pausable)
-  * [ERC20_Upgradeable](#erc20_upgradeable)
+  - [ERC20 (basic)](#erc20-basic)
+  - [ERC20_Mintable](#erc20_mintable)
+  - [ERC20_Pausable](#erc20_pausable)
+  - [ERC20_Upgradeable](#erc20_upgradeable)
 - [API Specification](#api-specification)
-  * [Methods](#methods)
-    * [`name`](#name)
-    * [`symbol`](#symbol)
-    * [`decimals`](#decimals)
-    * [`totalSupply`](#totalsupply)
-    * [`balanceOf`](#balanceof)
-    * [`allowance`](#allowance)
-    * [`transfer`](#transfer)
-    * [`transferFrom`](#transferfrom)
-    * [`approve`](#approve)
-  * [Events](#events)
-    * [`Transfer (event)`](#transfer-event)
-    * [`Approval (event)`](#approval-event)
+  - [Methods](#methods)
+    - [`name`](#name)
+    - [`symbol`](#symbol)
+    - [`decimals`](#decimals)
+    - [`totalSupply`](#totalsupply)
+    - [`balanceOf`](#balanceof)
+    - [`allowance`](#allowance)
+    - [`transfer`](#transfer)
+    - [`transferFrom`](#transferfrom)
+    - [`approve`](#approve)
+  - [Events](#events)
+    - [`Transfer (event)`](#transfer-event)
+    - [`Approval (event)`](#approval-event)
 
 ## Interface
 
-```jsx
+```cairo
 @contract_interface
 namespace IERC20:
     func name() -> (name: felt):
@@ -55,8 +55,8 @@ namespace IERC20:
     end
 
     func transferFrom(
-            sender: felt, 
-            recipient: felt, 
+            sender: felt,
+            recipient: felt,
             amount: Uint256
         ) -> (success: felt):
     end
@@ -132,7 +132,7 @@ ERC20 contracts can be extended by following the [extensibility pattern](../docs
 ```python
 @external
 func transfer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
@@ -145,6 +145,7 @@ end
 Note that extensibility does not have to be only library-based like in the above example. For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
 
 Some other ways to extend ERC20 contracts may include:
+
 - Implementing a minting mechanism
 - Creating a timelock
 - Adding roles such as owner or minter
@@ -161,7 +162,7 @@ The [`ERC20`](../src/openzeppelin/token/erc20/ERC20.cairo) preset offers a quick
 
 ### ERC20_Mintable
 
-The [`ERC20_Mintable`](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens. 
+The [`ERC20_Mintable`](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens.
 
 ### ERC20_Pausable
 
@@ -175,7 +176,7 @@ The [`ERC20_Upgradeable`](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cair
 
 ### Methods
 
-```jsx
+```cairo
 func name() -> (name: felt):
 end
 
@@ -198,8 +199,8 @@ func transfer(recipient: felt, amount: Uint256) -> (success: felt):
 end
 
 func transferFrom(
-        sender: felt, 
-        recipient: felt, 
+        sender: felt,
+        recipient: felt,
         amount: Uint256
     ) -> (success: felt):
 end
@@ -216,7 +217,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 name: felt
 ```
 
@@ -228,7 +229,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 symbol: felt
 ```
 
@@ -240,7 +241,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 decimals: felt
 ```
 
@@ -252,7 +253,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 totalSupply: Uint256
 ```
 
@@ -262,13 +263,13 @@ Returns the amount of tokens owned by `account`.
 
 Parameters:
 
-```jsx
+```cairo
 account: felt
 ```
 
 Returns:
 
-```jsx
+```cairo
 balance: Uint256
 ```
 
@@ -280,14 +281,14 @@ This value changes when `approve` or `transferFrom` are called.
 
 Parameters:
 
-```jsx
+```cairo
 owner: felt
 spender: felt
 ```
 
 Returns:
 
-```jsx
+```cairo
 remaining: Uint256
 ```
 
@@ -299,14 +300,14 @@ Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 recipient: felt
 amount: Uint256
 ```
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
@@ -318,7 +319,7 @@ Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 sender: felt
 recipient: felt
 amount: Uint256
@@ -326,7 +327,7 @@ amount: Uint256
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
@@ -338,20 +339,20 @@ Emits an [Approval](#approval-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 spender: felt
 amount: Uint256
 ```
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
 ### Events
 
-```jsx
+```cairo
 func Transfer(from_: felt, to: felt, value: Uint256):
 end
 
@@ -361,13 +362,13 @@ end
 
 #### `Transfer (event)`
 
-Emitted when `value` tokens are moved from one account (`from_`) to another (`to`). 
+Emitted when `value` tokens are moved from one account (`from_`) to another (`to`).
 
 Note that `value` may be zero.
 
 Parameters:
 
-```jsx
+```cairo
 from_: felt
 to: felt
 value: Uint256
@@ -379,7 +380,7 @@ Emitted when the allowance of a `spender` for an `owner` is set by a call to [ap
 
 Parameters:
 
-```jsx
+```cairo
 owner: felt
 spender: felt
 value: Uint256

@@ -1,11 +1,11 @@
 # Proxies
 
-> Expect rapid iteration as this pattern matures and more patterns potentially emerge. 
+> Expect rapid iteration as this pattern matures and more patterns potentially emerge.
 
 ## Table of Contents
 * [Quickstart](#quickstart)
 * [Proxies](#proxies)
-  * [Proxy contract](#proxy-contract) 
+  * [Proxy contract](#proxy-contract)
   * [Implementation contract](#implementation-contract)
 * [Upgrades library API](#upgrades-library-api)
   * [Methods](#methods)
@@ -52,13 +52,13 @@ In Python, this would look as follows:
 
 A proxy contract is a contract that delegates function calls to another contract. This type of pattern decouples state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not; as well as deploying multiple proxy instances pointing to the same implementation. This can be useful to deploy many contracts with identical logic but unique initialization data.
 
-In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the implementation contract. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application. 
+In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the implementation contract. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application.
 
 ### Proxy contract
 
-The [Proxy contract](../src/openzeppelin/upgrades/Proxy.cairo) includes two core methods:  
+The [Proxy contract](../src/openzeppelin/upgrades/Proxy.cairo) includes two core methods:
 
-1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract. 
+1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 
 2. The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
 
@@ -70,7 +70,7 @@ When interacting with the contract, function calls should be sent by the user to
 ### Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [Extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../src/openzeppelin/upgrades/library.cairo).
- 
+
 
 The implementation contract should:
 - import `Proxy_initializer` and `Proxy_set_implementation`
@@ -83,7 +83,7 @@ If the implementation is upgradeable, it should:
 The implementation contract should NOT:
 - deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
 
-> Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`Proxy_only_admin`](#proxy_only_admin). 
+> Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`Proxy_only_admin`](#proxy_only_admin).
 
 For a full implementation contract example, please see:
 - [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)
@@ -91,7 +91,7 @@ For a full implementation contract example, please see:
 ## Upgrades library API
 
 ### Methods
-```jsx
+```cairo
 func Proxy_initializer(proxy_admin: felt):
 end
 
@@ -117,7 +117,7 @@ Initializes the proxy contract with an initial implementation.
 
 Parameters:
 
-```jsx
+```cairo
 proxy_admin: felt
 ```
 
@@ -131,7 +131,7 @@ Sets the implementation contract. This method is included in the proxy contract'
 
 Parameters:
 
-```jsx
+```cairo
 new_implementation: felt
 ```
 
@@ -161,7 +161,7 @@ None.
 
 Returns:
 
-```jsx
+```cairo
 admin: felt
 ```
 
@@ -175,7 +175,7 @@ None.
 
 Returns:
 
-```jsx
+```cairo
 implementation: felt
 ```
 
@@ -185,7 +185,7 @@ Sets the admin of the proxy contract.
 
 Parameters:
 
-```jsx
+```cairo
 new_admin: felt
 ```
 
@@ -195,7 +195,7 @@ None.
 
 ### Events
 
-```jsx
+```cairo
 func Upgraded(implementation: felt):
 end
 ```
@@ -206,11 +206,11 @@ Emitted when a proxy contract sets a new implementation address.
 
 Parameters:
 
-```jsx
+```cairo
 implementation: felt
 ```
 
-## Using proxies 
+## Using proxies
 
 ### Contract upgrades
 
@@ -266,7 +266,7 @@ result = await signer.send_transaction(
 
 ## Presets
 
-Presets are pre-written contracts that extend from our library of contracts. They can be deployed as-is or used as templates for customization. 
+Presets are pre-written contracts that extend from our library of contracts. They can be deployed as-is or used as templates for customization.
 
 Some presets include:
 - [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)

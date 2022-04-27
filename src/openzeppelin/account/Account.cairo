@@ -4,17 +4,24 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from openzeppelin.account.library import (
-    AccountCallArray,
-    Account_execute,
-    Account_get_nonce,
-    Account_initializer,
-    Account_get_public_key,
-    Account_set_public_key,
-    Account_is_valid_signature
-)
+from openzeppelin.account.library import Account
+#from openzeppelin.account.library import AccountCallArray, Account
 
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface 
+
+#
+# Constructor
+#
+
+@constructor
+func constructor{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(public_key: felt):
+    Account.constructor(public_key)
+    return ()
+end
 
 #
 # Getters
@@ -26,7 +33,7 @@ func get_public_key{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
-    let (res) = Account_get_public_key()
+    let (res) = Account.get_public_key()
     return (res=res)
 end
 
@@ -36,7 +43,7 @@ func get_nonce{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
-    let (res) = Account_get_nonce()
+    let (res) = Account.get_nonce()
     return (res=res)
 end
 
@@ -60,21 +67,7 @@ func set_public_key{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_public_key: felt):
-    Account_set_public_key(new_public_key)
-    return ()
-end
-
-#
-# Constructor
-#
-
-@constructor
-func constructor{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(public_key: felt):
-    Account_initializer(public_key)
+    Account.set_public_key(new_public_key)
     return ()
 end
 
@@ -82,7 +75,7 @@ end
 # Business logic
 #
 
-@view
+#@view
 func is_valid_signature{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
@@ -93,7 +86,7 @@ func is_valid_signature{
         signature_len: felt,
         signature: felt*
     ) -> ():
-    Account_is_valid_signature(hash, signature_len, signature)
+    Account.is_valid_signature(hash, signature_len, signature)
     return ()
 end
 
@@ -105,12 +98,12 @@ func __execute__{
         ecdsa_ptr: SignatureBuiltin*
     }(
         call_array_len: felt,
-        call_array: AccountCallArray*,
+        call_array: Account.AccountCallArray*,
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
     ) -> (response_len: felt, response: felt*):
-    let (response_len, response) = Account_execute(
+    let (response_len, response) = Account.execute(
         call_array_len,
         call_array,
         calldata_len,

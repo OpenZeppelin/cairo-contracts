@@ -127,5 +127,6 @@ func release{
     let (contract_address) = get_contract_address()
     let (amount) = IERC20.balanceOf(token, contract_address)
     let (success) = IERC20.transfer(token, beneficiary, amount)
+    Released.emit(beneficiary, amount)
     return (success)
 end

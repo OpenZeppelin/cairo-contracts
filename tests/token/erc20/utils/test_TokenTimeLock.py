@@ -101,3 +101,39 @@ async def test_constructor_invalid_token_address(token_time_lock_factory):
             ]),
         reverted_with="TokenTimeLock: token and beneficiary cannot be set to 0"
     )
+
+@pytest.mark.asyncio
+async def test_constructor_invalid_beneficiary(token_time_lock_factory):
+    erc20, _, _, _ = token_time_lock_factory
+
+    bad_beneficiary = 0
+
+    starknet = await Starknet.empty()
+    await assert_revert(
+        starknet.deploy(
+            contract_path("openzeppelin/token/erc20/utils/TokenTimeLock.cairo"),
+            constructor_calldata=[
+                erc20.contract_address,
+                bad_beneficiary,
+                RELEASE_TIME
+            ]),
+        reverted_with="TokenTimeLock: token and beneficiary cannot be set to 0"
+    )
+
+@pytest.mark.asyncio
+async def test_constructor_invalid_release_time(token_time_lock_factory):
+    erc20, account, _, _ = token_time_lock_factory
+
+    bad_release_time = 0
+
+    starknet = await Starknet.empty()
+    await assert_revert(
+        starknet.deploy(
+            contract_path("openzeppelin/token/erc20/utils/TokenTimeLock.cairo"),
+            constructor_calldata=[
+                erc20.contract_address,
+                account.contract_address,
+                bad_release_time
+            ]),
+        reverted_with="TokenTimeLock: release time is before current time"
+    )

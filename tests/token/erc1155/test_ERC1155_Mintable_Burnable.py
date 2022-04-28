@@ -7,7 +7,7 @@ from utils import (
 signer = Signer(123456789987654321)
 account_path = 'openzeppelin/account/Account.cairo'
 erc1155_path = 'openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo'
-receiver_path = 'tests/mocks/ERC1155_receiver_mock.cairo'
+receiver_path = 'tests/mocks/ERC1155_Receiver_mock.cairo'
 
 
 def uint_array(arr):

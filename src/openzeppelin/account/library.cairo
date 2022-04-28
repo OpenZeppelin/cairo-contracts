@@ -167,7 +167,7 @@ namespace Account:
 
         # TMP: Convert `AccountCallArray` to 'Call'.
         let (calls : Call*) = alloc()
-        from_call_array_to_call(call_array_len, call_array, calldata, calls)
+        _from_call_array_to_call(call_array_len, call_array, calldata, calls)
         let calls_len = call_array_len
 
         # validate transaction
@@ -178,12 +178,12 @@ namespace Account:
 
         # execute call
         let (response : felt*) = alloc()
-        let (response_len) = execute_list(calls_len, calls, response)
+        let (response_len) = _execute_list(calls_len, calls, response)
 
         return (response_len=response_len, response=response)
     end
 
-    func execute_list{syscall_ptr: felt*}(
+    func _execute_list{syscall_ptr: felt*}(
             calls_len: felt,
             calls: Call*,
             response: felt*
@@ -210,7 +210,7 @@ namespace Account:
         return (response_len + res.retdata_size)
     end
 
-    func from_call_array_to_call{syscall_ptr: felt*}(
+    func _from_call_array_to_call{syscall_ptr: felt*}(
             call_array_len: felt,
             call_array: AccountCallArray*,
             calldata: felt*,

@@ -127,11 +127,11 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
-## Call and AccountCallArray format
+## `Call` and `AccountCallArray` format
 
 The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a struct named `AccountCallArray`. Please note that `AccountCallArray` is temporary and acts as a workaround until the Cairo programming language supports pointers for arrays of structs (see below!!!!!!)
 
-### Call
+### `Call`
 
 A single `Call` is structured as follows:
 
@@ -151,39 +151,50 @@ Where:
 * `calldata_len` is the number of calldata parameters
 * `calldata` is an array representing the function parameters
 
-### AccountCallArray
+### `AccountCallArray`
 
 `AccountCallArray` is structured as:
 
 ```cairo
-struct MultiCall:
-    member account: felt
-    member calls_len: felt
-    member calls: Call*
-    member nonce: felt
-    member max_fee: felt
-    member version: felt
+struct AccountCallArray:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
 end
 ```
 
 Where:
 
-* `account` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys
-* `calls_len` is the number of calls bundled into the transaction
-* `calls` is an array representing each `Call`
-* `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
-* `max_fee` is the maximum fee a user will pay
-* `version` is a fixed number which is used to invalidate old transactions
+* `to` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys
+* `selector` is the number of calls bundled into the transaction
+* `data_offset` is an array representing each `Call`
+* `data_len` is an unique identifier of this message to prevent transaction replays.
 
-### How AccountCallArray works
+### How `AccountCallArray` works
 
-Since Cairo does not yet support pointers for arrays of structs, this implementation builds a multicall transaction inside the `execute` method. First, messages are bundled into the `AccountCallArray`. 
+Since Cairo does not yet support pointers for arrays of structs, this implementation builds a multicall transaction inside the internal `execute` method. This is the basic flow:
 
-The temporary struct is necessary because Cairo does not yet support pointers for arrays of structs.
+1. The user sends the messages for the transaction through a Signer instantiation which looks like this:
 
-It should be noted that every transaction utilizes multicall. A single `Call`, however, is treated as a bundle of one.
+    ```python
+    await signer.send_transaction(
+            account, [
+                (contract_address, 'contract_method', [arg_1]),
+                (contract_address, 'another_method', [arg_1, arg_2])
+            ]
+        )
+    ```
 
-### How it comes together
+    Each message is bundled into the `AccountCallArray`.
+
+2. The internal `execute` method creates an empty array which is passed with the `AccountCallArray` and calldata into the `_from_call_array_to_call` method. This method iterates through the messages in `AccountCallArray` and converts each message into a `Call`.
+
+3. A new empty array is created and passed with the list of calls (populated from `from_call_array_to_call`) to `_execute_list`. This method iterates and executes a contract call for each `Call` and pushes each result into the array. Once all contract calls are finished, the array holding each contract call response is returned.
+
+> It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
+
+### `__Execute__`
 
 This `MultiCall` message is built within the `__execute__` method which has the following interface:
 

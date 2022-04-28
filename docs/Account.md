@@ -1,4 +1,5 @@
 # Accounts
+
 Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
 Instead, signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
@@ -26,6 +27,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 ## Quickstart
 
 The general workflow is:
+
 1. Account contract is deployed to StarkNet
 2. Signed transactions can now be sent to the Account contract which validates and executes them
 
@@ -125,9 +127,11 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
-## Call and MultiCall format
+## Call and AccountCallArray format
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a `MultiCall`. It should be noted that every transaction utilizes multicall. A single `Call`, however, is treated as a bundle of one.
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a struct named `AccountCallArray`. Please note that `AccountCallArray` is temporary and acts as a workaround until the Cairo programming language supports pointers for arrays of structs (see below!!!!!!)
+
+### Call
 
 A single `Call` is structured as follows:
 
@@ -147,7 +151,9 @@ Where:
 * `calldata_len` is the number of calldata parameters
 * `calldata` is an array representing the function parameters
 
-`MultiCall` is structured as:
+### AccountCallArray
+
+`AccountCallArray` is structured as:
 
 ```cairo
 struct MultiCall:
@@ -169,7 +175,18 @@ Where:
 * `max_fee` is the maximum fee a user will pay
 * `version` is a fixed number which is used to invalidate old transactions
 
+### How AccountCallArray works
+
+Since Cairo does not yet support pointers for arrays of structs, this implementation builds a multicall transaction inside the `execute` method. First, messages are bundled into the `AccountCallArray`. 
+
+The temporary struct is necessary because Cairo does not yet support pointers for arrays of structs.
+
+It should be noted that every transaction utilizes multicall. A single `Call`, however, is treated as a bundle of one.
+
+### How it comes together
+
 This `MultiCall` message is built within the `__execute__` method which has the following interface:
+
 ```cairo
 func __execute__(
         call_array_len: felt,
@@ -206,6 +223,7 @@ await signer.send_transaction(account, registry.contract_address, 'set_L1_addres
 You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
 
 > Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+
 ## API Specification
 
 This in a nutshell is the Account contract public API:
@@ -338,6 +356,7 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 ## L1 escape hatch mechanism
 
 *[unknown, to be defined]*
+
 ## Paying for gas
 
 *[unknown, to be defined]*

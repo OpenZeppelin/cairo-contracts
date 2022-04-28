@@ -20,8 +20,8 @@ def uarr2cd(arr):
         acc.append(lo)
         acc.append(hi)
     return acc
-# Constants
 
+# Constants
 
 TRUE = 1
 FALSE = 0
@@ -443,10 +443,6 @@ async def test_mint_overflow(erc1155_factory):
         "ERC1155: balance overflow"
     )
 
-    # upon rejection, there should be MAX balance
-    execution_info = await erc1155.balanceOf(recipient, token_id).invoke()
-    assert execution_info.result.balance == MAX_UINT256
-
 
 @pytest.mark.asyncio
 async def test_mint_invalid_uint(erc1155_factory):
@@ -483,10 +479,6 @@ async def test_mint_invalid_uint(erc1155_factory):
         ),
         "ERC1155: id is not a valid Uint256"
     )
-
-    # balance should remain 0 <- redundant
-    # execution_info = await erc1155.balanceOf(recipient,token_id).invoke()
-    # assert execution_info.result.balance == uint(0)
 
 #
 # Burning
@@ -883,8 +875,7 @@ async def test_burn_batch_from_zero_address(erc1155_minted_factory):
     # Attempt to burn nothing (since cannot mint non_zero balance to burn)
     # call from 0 address
     await assert_revert(
-        erc1155.burnBatch(burner, token_ids, amounts).invoke()  # ,
-        # "ERC1155: burn from the zero address"
+        erc1155.burnBatch(burner, token_ids, amounts).invoke()
     )
 
 
@@ -903,8 +894,6 @@ async def test_burn_batch_insufficent_balance(erc1155_minted_factory):
             [burner, *uarr2cd(token_ids), *uarr2cd(amounts)]),
         "ERC1155: burn amount exceeds balance"
     )
-
-    # todo nonzero balance
 
 
 @pytest.mark.asyncio

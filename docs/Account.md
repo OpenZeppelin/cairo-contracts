@@ -166,8 +166,8 @@ end
 
 Where:
 
-* `to` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys
-* `selector` is the number of calls bundled into the transaction
+* `to` is the address of the target contract of the message
+* `selector` is the selector of the function to be called on the target contract
 * `data_offset` is an array representing each `Call`
 * `data_len` is an unique identifier of this message to prevent transaction replays.
 

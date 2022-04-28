@@ -23,6 +23,7 @@ def uarr2cd(arr):
 
 # Constants
 
+
 TRUE = 1
 FALSE = 0
 NON_BOOLEAN = 2

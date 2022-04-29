@@ -51,7 +51,7 @@ In Python, this would look as follows:
 
 ## Solidity/Cairo upgrades comparison
 
-OpenZeppelin's Solidity implementation of upgradeable contracts necessitates the use of a second library. This is in large part due to Solidity's inheritance mechanism. Consider that in Solidity, constructors are not a part of the deployed contract's runtime bytecode; rather, a constructor's logic is executed only once when the contract instance is deployed. Deploying an upgradeable contract, however, requires additional steps _after_ the contract is deployed which makes the constructor logic unknown to the proxy contract's state.
+OpenZeppelin Contracts for Solidity requires the use of an alternative library for upgradeable contracts. Consider that in Solidity constructors are not part of the deployed contract's runtime bytecode; rather, a constructor's logic is executed only once when the contract instance is deployed and then discarded. This is why proxies can't imitate the construction of its implementation, therefore requiring a different initialization mechanism.
 
 The constructor problem in upgradeable contracts is resolved by the use of initializer methods. Initializer methods are essentially regular methods that execute the logic that would have been in the constructor. Care needs to be exercised with initializers to ensure they can only be called once. Thus, OpenZeppelin offers an [upgradeable contracts library](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable) where much of this process is abstracted away.
 See OpenZeppelin's [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable) for more info.

@@ -1,4 +1,5 @@
 # Accounts
+
 Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
 Instead, signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
@@ -26,6 +27,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 ## Quickstart
 
 The general workflow is:
+
 1. Account contract is deployed to StarkNet
 2. Signed transactions can now be sent to the Account contract which validates and executes them
 
@@ -170,6 +172,7 @@ Where:
 * `version` is a fixed number which is used to invalidate old transactions
 
 This `MultiCall` message is built within the `__execute__` method which has the following interface:
+
 ```cairo
 func __execute__(
         call_array_len: felt,
@@ -206,6 +209,7 @@ await signer.send_transaction(account, registry.contract_address, 'set_L1_addres
 You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
 
 > Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+
 ## API Specification
 
 This in a nutshell is the Account contract public API:
@@ -236,63 +240,65 @@ func __execute__(
 end
 ```
 
-#### `get_public_key`
+### `get_public_key`
 
 Returns the public key associated with the Account contract.
 
-##### Parameters:
+Parameters:
 
 None.
 
-##### Returns:
+Returns:
 
 ```cairo
 public_key: felt
 ```
 
-#### `get_nonce`
+### `get_nonce`
 
 Returns the current transaction nonce for the Account.
 
-##### Parameters:
+Parameters:
 
 None.
 
-##### Returns:
+Returns:
 
 ```cairo
 nonce: felt
 ```
 
-#### `set_public_key`
+### `set_public_key`
 
 Sets the public key that will control this Account. It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
 
-##### Parameters:
+Parameters:
+
 ```cairo
 public_key: felt
 ```
 
-##### Returns:
+Returns:
 
 None.
 
-#### `is_valid_signature`
+### `is_valid_signature`
 
 This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
 
-##### Parameters:
+Parameters:
+
 ```cairo
 hash: felt
 signature_len: felt
 signature: felt*
 ```
 
-##### Returns:
+Returns:
 
 None.
 
-#### `__execute__`
+### `__execute__`
 
 This is the only external entrypoint to interact with the Account contract. It:
 
@@ -302,7 +308,8 @@ This is the only external entrypoint to interact with the Account contract. It:
 4. Calls the target contract with the intended function selector and calldata parameters
 5. Forwards the contract call response data as return value
 
-##### Parameters:
+Parameters:
+
 ```cairo
 call_array_len: felt
 call_array: AccountCallArray*
@@ -313,7 +320,8 @@ nonce: felt
 
 > Note that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
-##### Returns:
+Returns:
+
 ```cairo
 response_len: felt
 response: felt*
@@ -338,6 +346,7 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 ## L1 escape hatch mechanism
 
 *[unknown, to be defined]*
+
 ## Paying for gas
 
 *[unknown, to be defined]*

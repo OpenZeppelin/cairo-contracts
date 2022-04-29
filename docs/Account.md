@@ -112,11 +112,11 @@ Which returns:
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
 
-While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. Those functions can be done manually; however, this implementation abstracts that all away with `ActivatedSigner`.
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `ActivatedSigner`.
 
 ### ActivatedSigner utility
 
-The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces. In order for a transaction to be sent, this utility performs the following:
+The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces. In order for a transaction to be sent, this utility performs the following:
 
 * checks nonce
   * if none is given, it fetches the nonce from the Account contract via `get_nonce`
@@ -125,10 +125,9 @@ The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform 
   * a necessary process to convert the `to` contract address to hexadecimal format
 
 * passes transaction data to Nile's `Signer`
-  * this returns the signature for the transaction as well as the `calls` and `calldata`
+  * this returns the signature for the transaction as well as `calls` and `calldata`
 
 * invokes the Account contract's `__execute__` method
-  * where the transaction is finally sent
 
 Users only need to interact with the following exposed methods to perform a transaction:
 

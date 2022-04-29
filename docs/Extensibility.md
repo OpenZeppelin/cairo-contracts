@@ -15,9 +15,9 @@ Smart contract development is a critical task. As with all software development,
 
 One of the best approaches to minimize introducing bugs is to reuse existing, battle-tested code, a.k.a. using libraries. But code reutilization in StarkNet’s smart contracts is not easy:
 
-- Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
-- Using imports for modularity can result in clashes (more so given that arguments are not part of the selector), and lack of overrides or aliasing leaves no way to resolve them
-- Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
+* Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
+* Using imports for modularity can result in clashes (more so given that arguments are not part of the selector), and lack of overrides or aliasing leaves no way to resolve them
+* Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
 
 To overcome these problems, this project builds on the following guidelines™.
 
@@ -29,18 +29,18 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-- All function and storage variable names must be prefixed with the file name to prevent clashing with other libraries (e.g. `ERC20_approve` in the `ERC20` library)
-- Must not implement any `@external` or `@view` functions
-- Must not implement constructors
-- Must not call initializers on any function
-- Should implement initializer functions to mimic construction logic if needed (as any other library function, never as `@external`)
+* All function and storage variable names must be prefixed with the file name to prevent clashing with other libraries (e.g. `ERC20_approve` in the `ERC20` library)
+* Must not implement any `@external` or `@view` functions
+* Must not implement constructors
+* Must not call initializers on any function
+* Should implement initializer functions to mimic construction logic if needed (as any other library function, never as `@external`)
 
 ### Contracts
 
-- Can import from libraries
-- Should implement `@external` functions if needed
-- Should implement a constructor that calls initializers
-- Must not call initializers in any function beside the constructor
+* Can import from libraries
+* Should implement `@external` functions if needed
+* Should implement a constructor that calls initializers
+* Must not call initializers in any function beside the constructor
 
 Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the contract constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double initialization of libraries.
 
@@ -50,15 +50,15 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets are:
 
-- [Account](../src/openzeppelin/account/Account.cairo)
-- [ERC165](../tests/mocks/ERC165.cairo)
-- [ERC20_Mintable](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo)
-- [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
-- [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-- [ERC20](../src/openzeppelin/token/erc20/ERC20.cairo)
-- [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
-- [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
-- [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+* [Account](../src/openzeppelin/account/Account.cairo)
+* [ERC165](../tests/mocks/ERC165.cairo)
+* [ERC20_Mintable](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo)
+* [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
+* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
+* [ERC20](../src/openzeppelin/token/erc20/ERC20.cairo)
+* [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
+* [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
+* [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
 
 ## Emulating hooks
 

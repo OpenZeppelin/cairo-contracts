@@ -4,11 +4,15 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.math import assert_not_equal
+from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_lt, uint256_eq, uint256_check
 )
+
+from openzeppelin.introspection.ERC165 import ERC165_register_interface
+from openzeppelin.utils.constants import IERC721_ENUMERABLE_ID
 
 from openzeppelin.security.safemath import (
     uint256_checked_add,
@@ -24,10 +28,6 @@ from openzeppelin.token.erc721.library import (
     ERC721_mint,
     ERC721_burn
 )
-
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
-
-from openzeppelin.utils.constants import TRUE, IERC721_ENUMERABLE_ID
 
 #
 # Storage

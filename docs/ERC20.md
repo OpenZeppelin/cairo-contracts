@@ -5,32 +5,32 @@ The ERC20 token standard is a specification for [fungible tokens](https://docs.o
 ## Table of Contents
 
 - [Interface](#interface)
-  * [ERC20 compatibility](#erc20-compatibility)
+  - [ERC20 compatibility](#erc20-compatibility)
 - [Usage](#usage)
 - [Extensibility](#extensibility)
 - [Presets](#presets)
-  * [ERC20 (basic)](#erc20-(basic))
-  * [ERC20_Mintable](#erc20_mintable)
-  * [ERC20_Pausable](#erc20_pausable)
-  * [ERC20_Upgradeable](#erc20_upgradeable)
+  - [ERC20 (basic)](#erc20-basic)
+  - [ERC20_Mintable](#erc20_mintable)
+  - [ERC20_Pausable](#erc20_pausable)
+  - [ERC20_Upgradeable](#erc20_upgradeable)
 - [API Specification](#api-specification)
-  * [Methods](#-methods-)
-    * [`name`](#-name-)
-    * [`symbol`](#-symbol-)
-    * [`decimals`](#-decimals-)
-    * [`totalSupply`](#-total-supply-)
-    * [`balanceOf`](#-balance-of-)
-    * [`allowance`](#-allowance-)
-    * [`transfer`](#-transfer-)
-    * [`transferFrom`](#-transferfrom-)
-    * [`approve`](#-approve-)
-  * [Events](#-events-)
-    * [`Transfer (event)`](#-transfer-(event)-)
-    * [`Approval (event)`](#-approval-(event)-)
+  - [Methods](#methods)
+    - [`name`](#name)
+    - [`symbol`](#symbol)
+    - [`decimals`](#decimals)
+    - [`totalSupply`](#totalsupply)
+    - [`balanceOf`](#balanceof)
+    - [`allowance`](#allowance)
+    - [`transfer`](#transfer)
+    - [`transferFrom`](#transferfrom)
+    - [`approve`](#approve)
+  - [Events](#events)
+    - [`Transfer (event)`](#transfer-event)
+    - [`Approval (event)`](#approval-event)
 
 ## Interface
 
-```jsx
+```cairo
 @contract_interface
 namespace IERC20:
     func name() -> (name: felt):
@@ -55,8 +55,8 @@ namespace IERC20:
     end
 
     func transferFrom(
-            sender: felt, 
-            recipient: felt, 
+            sender: felt,
+            recipient: felt,
             amount: Uint256
         ) -> (success: felt):
     end
@@ -71,7 +71,7 @@ end
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 - it uses Cairo's `uint256` instead of `felt`
-- it returns `TRUE` (a constant representing `1`) as success
+- it returns `TRUE` as success
 - it accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2^8 (imitating `uint8` type)
 - it makes use of Cairo's short strings to simulate `name` and `symbol`
 
@@ -127,12 +127,12 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 
 ## Extensibility
 
-ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
+ERC20 contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter. For example, let's say you wanted to implement a pausing mechanism. The contract should first import the ERC20 methods and the extended logic from the [pausable library](../src/openzeppelin/security/pausable.cairo) i.e. `Pausable_pause`, `Pausable_unpause`. Next, the contract should expose the methods with the extended logic therein like this:
 
 ```python
 @external
 func transfer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
@@ -145,6 +145,7 @@ end
 Note that extensibility does not have to be only library-based like in the above example. For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
 
 Some other ways to extend ERC20 contracts may include:
+
 - Implementing a minting mechanism
 - Creating a timelock
 - Adding roles such as owner or minter
@@ -157,25 +158,25 @@ The following contract presets are ready to deploy and can be used as-is for qui
 
 ### ERC20 (basic)
 
-The [`ERC20`](../openzeppelin/token/erc20/ERC20.cairo) preset offers a quick and easy setup for deploying a basic ERC20 token.
+The [`ERC20`](../src/openzeppelin/token/erc20/ERC20.cairo) preset offers a quick and easy setup for deploying a basic ERC20 token.
 
 ### ERC20_Mintable
 
-The [`ERC20_Mintable`](../openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens. 
+The [`ERC20_Mintable`](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo) preset allows the contract owner to mint new tokens.
 
 ### ERC20_Pausable
 
-The [`ERC20_Pausable`](../openzeppelin/token/erc20/ERC20_Pausable.cairo) preset allows the contract owner to pause/unpause all state-modifying methods i.e. `transfer`, `approve`, etc. This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
+The [`ERC20_Pausable`](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo) preset allows the contract owner to pause/unpause all state-modifying methods i.e. `transfer`, `approve`, etc. This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
 
 ### ERC20_Upgradeable
 
-The [`ERC20_Upgradeable`](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](../docs/Proxy.md#contract-upgrades).
+The [`ERC20_Upgradeable`](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](Proxies.md#contract-upgrades).
 
 ## API Specification
 
 ### Methods
 
-```jsx
+```cairo
 func name() -> (name: felt):
 end
 
@@ -198,8 +199,8 @@ func transfer(recipient: felt, amount: Uint256) -> (success: felt):
 end
 
 func transferFrom(
-        sender: felt, 
-        recipient: felt, 
+        sender: felt,
+        recipient: felt,
         amount: Uint256
     ) -> (success: felt):
 end
@@ -216,7 +217,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 name: felt
 ```
 
@@ -228,7 +229,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 symbol: felt
 ```
 
@@ -240,7 +241,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 decimals: felt
 ```
 
@@ -252,7 +253,7 @@ Parameters: None.
 
 Returns:
 
-```jsx
+```cairo
 totalSupply: Uint256
 ```
 
@@ -262,13 +263,13 @@ Returns the amount of tokens owned by `account`.
 
 Parameters:
 
-```jsx
+```cairo
 account: felt
 ```
 
 Returns:
 
-```jsx
+```cairo
 balance: Uint256
 ```
 
@@ -280,14 +281,14 @@ This value changes when `approve` or `transferFrom` are called.
 
 Parameters:
 
-```jsx
+```cairo
 owner: felt
 spender: felt
 ```
 
 Returns:
 
-```jsx
+```cairo
 remaining: Uint256
 ```
 
@@ -295,18 +296,18 @@ remaining: Uint256
 
 Moves `amount` tokens from the caller’s account to `recipient`. It returns `1` representing a bool if it succeeds.
 
-Emits a [Transfer](#-transfer-(event)-) event.
+Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 recipient: felt
 amount: Uint256
 ```
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
@@ -314,11 +315,11 @@ success: felt
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller’s allowance. It returns `1` representing a bool if it succeeds.
 
-Emits a [Transfer](#-transfer-(event)-) event.
+Emits a [Transfer](#transfer-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 sender: felt
 recipient: felt
 amount: Uint256
@@ -326,7 +327,7 @@ amount: Uint256
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
@@ -334,24 +335,24 @@ success: felt
 
 Sets `amount` as the allowance of `spender` over the caller’s tokens. It returns `1` representing a bool if it succeeds.
 
-Emits an [Approval](#-approval-(event)-) event.
+Emits an [Approval](#approval-event) event.
 
 Parameters:
 
-```jsx
+```cairo
 spender: felt
 amount: Uint256
 ```
 
 Returns:
 
-```jsx
+```cairo
 success: felt
 ```
 
 ### Events
 
-```jsx
+```cairo
 func Transfer(from_: felt, to: felt, value: Uint256):
 end
 
@@ -361,13 +362,13 @@ end
 
 #### `Transfer (event)`
 
-Emitted when `value` tokens are moved from one account (`from_`) to another (`to`). 
+Emitted when `value` tokens are moved from one account (`from_`) to another (`to`).
 
 Note that `value` may be zero.
 
 Parameters:
 
-```jsx
+```cairo
 from_: felt
 to: felt
 value: Uint256
@@ -375,11 +376,11 @@ value: Uint256
 
 #### `Approval (event)`
 
-Emitted when the allowance of a `spender` for an `owner` is set by a call to [approve](#-approve-). `value` is the new allowance.
+Emitted when the allowance of a `spender` for an `owner` is set by a call to [approve](#approve). `value` is the new allowance.
 
 Parameters:
 
-```jsx
+```cairo
 owner: felt
 spender: felt
 value: Uint256

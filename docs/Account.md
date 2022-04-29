@@ -12,7 +12,10 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer utility](#signer-utility)
-* [Call and MultiCall format](#call-and-multicall-format)
+* [Call and AccountCallArray format](#call-and-accountcallarray-format)
+  * [Call](#call)
+  * [AccountCallArray](#accountcallarray)
+  * [How multicall transactions work](#how-multicall-transactions-work)
 * [API Specification](#api-specification)
   * [`get_public_key`](#get_public_key)
   * [`get_nonce`](#get_nonce)
@@ -129,7 +132,7 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 
 ## `Call` and `AccountCallArray` format
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a struct named `AccountCallArray`. Please note that `AccountCallArray` is temporary and acts as a workaround until the Cairo programming language supports pointers for arrays of structs (see below!!!!!!)
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (also known as multicall). Cairo currently does not support pointers for arrays of structs which means the `__execute__` function cannot iterate through mutiple `Call`'s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [How AccountCallArray works](#how-accountcallarray-works)
 
 ### `Call`
 
@@ -168,12 +171,14 @@ Where:
 
 * `to` is the address of the target contract of the message
 * `selector` is the selector of the function to be called on the target contract
-* `data_offset` is an array representing each `Call`
-* `data_len` is an unique identifier of this message to prevent transaction replays.
+* `data_offset` is the starting position of the calldata array that holds the `Call`'s calldata
+* `data_len` is the number of calldata elements in the `Call`
 
-### How `AccountCallArray` works
+### How multicall transactions work
 
-Since Cairo does not yet support pointers for arrays of structs, this implementation builds a multicall transaction inside the internal `execute` method. This is the basic flow:
+A multicall transaction packs the `to`, `selector`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in another array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
+
+This is the basic flow:
 
 1. The user sends the messages for the transaction through a Signer instantiation which looks like this:
 
@@ -186,17 +191,15 @@ Since Cairo does not yet support pointers for arrays of structs, this implementa
         )
     ```
 
-    Each message is bundled into the `AccountCallArray`.
+    The `_from_call_to_call_array` method in [utils.py](../tests/utils.py) converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array. Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash. The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
-2. The internal `execute` method creates an empty array which is passed with the `AccountCallArray` and calldata into the `_from_call_array_to_call` method. This method iterates through the messages in `AccountCallArray` and converts each message into a `Call`.
+2. The `__execute__` method creates an empty array which is passed with the `AccountCallArray` and calldata into the `_from_call_array_to_call` method. This method iterates through the messages in `AccountCallArray` and converts each message into a `Call`.
 
 3. A new empty array is created and passed with the list of calls (populated from `from_call_array_to_call`) to `_execute_list`. This method iterates and executes a contract call for each `Call` and pushes each result into the array. Once all contract calls are finished, the array holding each contract call response is returned.
 
 > It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
 
-### `__Execute__`
-
-This `MultiCall` message is built within the `__execute__` method which has the following interface:
+The `__execute__` method has the following interface:
 
 ```cairo
 func __execute__(
@@ -222,8 +225,6 @@ Where:
 ```python
 await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
-
-Note that Signer's `send_transaction` and `send_transactions` call `__execute__` under the hood.
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 

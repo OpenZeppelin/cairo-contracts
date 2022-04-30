@@ -1,11 +1,11 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    ActivatedSigner, TRUE, FALSE, to_uint, str_to_felt, assert_revert, 
+    TestSigner, TRUE, FALSE, to_uint, str_to_felt, assert_revert, 
     get_contract_def, cached_contract
 )
 
-signer = ActivatedSigner(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 # testing vars
 INIT_SUPPLY = to_uint(1000)

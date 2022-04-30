@@ -125,7 +125,7 @@ def cached_contract(state, definition, deployed):
     return contract
 
 
-class ActivatedSigner():
+class TestSigner():
     """
     Utility for sending signed transactions to an Account on Starknet.
 
@@ -136,9 +136,9 @@ class ActivatedSigner():
 
     Examples
     ---------
-    Constructing an ActivatedSigner object
+    Constructing an TestSigner object
 
-    >>> signer = ActivatedSigner(1234)
+    >>> signer = TestSigner(1234)
 
     Sending a transaction
 

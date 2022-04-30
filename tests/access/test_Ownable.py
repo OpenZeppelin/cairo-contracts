@@ -1,9 +1,9 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
-from utils import ActivatedSigner, contract_path
+from utils import TestSigner, contract_path
 
 
-signer = ActivatedSigner(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')

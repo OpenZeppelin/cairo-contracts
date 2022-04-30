@@ -1,16 +1,10 @@
 import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import Signer, contract_path
+from utils import Signer, contract_path, TRUE, FALSE
 
 signer = Signer(123456789987654321)
 
-FALSE = 0
-TRUE = 1
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
 
 @pytest.fixture(scope='module')
 async def enumerableset_mock():

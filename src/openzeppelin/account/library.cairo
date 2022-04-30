@@ -117,7 +117,6 @@ end
 # Business logic
 #
 
-@view
 func Account_is_valid_signature{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,

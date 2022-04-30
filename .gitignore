@@ -130,5 +130,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# cairo
-node.json
+# nile
+*node.json*

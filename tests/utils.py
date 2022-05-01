@@ -136,7 +136,7 @@ class TestSigner():
 
     Examples
     ---------
-    Constructing an TestSigner object
+    Constructing a TestSigner object
 
     >>> signer = TestSigner(1234)
 

@@ -12,7 +12,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer](#signer)
-  * [ActivatedSigner utility](#activatedsigner-utility)
+  * [TestSigner utility](#TestSigner-utility)
 * [Call and MultiCall format](#call-and-multicall-format)
 * [API Specification](#api-specification)
   * [`get_public_key`](#get_public_key)
@@ -36,7 +36,7 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
-signer = ActivatedSigner(123456789987654321)
+signer = TestSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -112,22 +112,15 @@ Which returns:
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
 
-While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `ActivatedSigner`.
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `TestSigner`.
 
-### ActivatedSigner utility
+### TestSigner utility
 
-The `ActivatedSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces. In order for a transaction to be sent, this utility performs the following:
+The `TestSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
-* checks nonce
-  * if none is given, it fetches the nonce from the Account contract via `get_nonce`
+The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format. The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument). Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
 
-* reformats callarray
-  * a necessary process to convert the `to` contract address to hexadecimal format
-
-* passes transaction data to Nile's `Signer`
-  * this returns the signature for the transaction as well as `calls` and `calldata`
-
-* invokes the Account contract's `__execute__` method
+The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `TestSigner` instance invokes the account contract's `__execute__` with the transaction data.
 
 Users only need to interact with the following exposed methods to perform a transaction:
 
@@ -135,13 +128,13 @@ Users only need to interact with the following exposed methods to perform a tran
 
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
 
-To use `ActivatedSigner`, pass a private key when instantiating the class:
+To use `TestSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils import ActivatedSigner
+from utils import TestSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = ActivatedSigner(PRIVATE_KEY)
+signer = TestSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -233,7 +226,7 @@ Where:
 await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
 
-Note that `ActivatedSigner`'s `send_transaction` and `send_transactions` call `__execute__` under the hood.
+Note that `TestSigner`'s `send_transaction` and `send_transactions` call `__execute__` under the hood.
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 

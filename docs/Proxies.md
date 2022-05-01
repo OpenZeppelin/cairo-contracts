@@ -66,7 +66,7 @@ The Cairo programming language does not support inheritance. Instead, Cairo cont
 
 ### Storage
 
-OpenZeppelin's alternative Upgrades library also implements [unstructured storage](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#unstructured-storage-proxies) for its upgradeable contracts. The basic idea behind unstructured storage is to pseudo-randomize the storage slots being used by the proxy contract which makes the chances of storage collision between the proxy and implementation contract extremely unlikely.
+OpenZeppelin's alternative Upgrades library also implements [unstructured storage](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#unstructured-storage-proxies) for its upgradeable contracts. The basic idea behind unstructured storage is to pseudo-randomize the storage structure of the upgradeable contract so it's based on variable names instead of declaration order, which makes the chances of storage collision during an upgrade extremely unlikely.
 
 The StarkNet compiler, meanwhile, already creates pseudo-random storage addresses by hashing the storage variable names (and keys in mappings) by default. In other words, StarkNet already uses unstructured storage and does not need a second library to modify how storage is set. See StarkNet's [Contracts Storage documentation](https://starknet.io/documentation/contracts/#contracts_storage) for more information.
 

@@ -132,7 +132,7 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 
 ## `Call` and `AccountCallArray` format
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (also known as multicall). Cairo currently does not support pointers for arrays of structs which means the `__execute__` function cannot iterate through mutiple `Call`'s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [How AccountCallArray works](#how-accountcallarray-works)
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (a multicall transaction). Cairo currently does not support pointers for arrays of structs which means the `__execute__` function cannot iterate through mutiple `Call`s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [How multicall transactions work](#how-multicall-transactions-work)
 
 ### `Call`
 
@@ -176,7 +176,7 @@ Where:
 
 ### How multicall transactions work
 
-A multicall transaction packs the `to`, `selector`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in another array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
+A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
 
 This is the basic flow:
 
@@ -328,7 +328,7 @@ None.
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a [Multicall](#message-format) message with it
+1. Takes the input and builds a `Call` for each iterated message. See [How multicall transactions work](#how-multicall-transactions-work)
 2. Validates the transaction signature matches the message (including the nonce)
 3. Increments the nonce
 4. Calls the target contract with the intended function selector and calldata parameters

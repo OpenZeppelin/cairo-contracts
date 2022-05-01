@@ -331,7 +331,7 @@ None.
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a `Call` for each iterated message. See [How multicall transactions work](#how-multicall-transactions-work)
+1. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information
 2. Validates the transaction signature matches the message (including the nonce)
 3. Increments the nonce
 4. Calls the target contract with the intended function selector and calldata parameters

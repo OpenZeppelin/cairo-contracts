@@ -12,10 +12,11 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer utility](#signer-utility)
+* [Account entrypoint](#account-entrypoint)
 * [Call and AccountCallArray format](#call-and-accountcallarray-format)
   * [Call](#call)
   * [AccountCallArray](#accountcallarray)
-  * [How multicall transactions work](#how-multicall-transactions-work)
+* [Multicall transactions](#multicall-transactions)
 * [API Specification](#api-specification)
   * [`get_public_key`](#get_public_key)
   * [`get_nonce`](#get_nonce)
@@ -130,9 +131,48 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
+## Account entrypoint
+
+`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
+
+```python
+await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
+```
+
+Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
+
+```python
+await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
+```
+
+You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
+
+The `__execute__` method has the following interface:
+
+```cairo
+func __execute__(
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*,
+        nonce: felt
+    ) -> (response_len: felt, response: felt*):
+end
+```
+
+Where:
+
+* `call_array_len` is the number of calls
+* `call_array` is an array representing each `Call`
+* `calldata_len` is the number of calldata parameters
+* `calldata` is an array representing the function parameters
+* `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
+
+> Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+
 ## `Call` and `AccountCallArray` format
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (creating a multicall transaction). Cairo currently does not support arrays of structs with pointers which means the `__execute__` function cannot properly iterate through mutiple `Call`s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [How multicall transactions work](#how-multicall-transactions-work)
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (creating a multicall transaction). Cairo currently does not support arrays of structs with pointers which means the `__execute__` function cannot properly iterate through mutiple `Call`s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [Multicall transactions](#multicall-transactions).
 
 ### `Call`
 
@@ -174,7 +214,7 @@ Where:
 * `data_offset` is the starting position of the calldata array that holds the `Call`'s calldata
 * `data_len` is the number of calldata elements in the `Call`
 
-### How multicall transactions work
+## Multicall transactions
 
 A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
 
@@ -198,43 +238,6 @@ This is the basic flow:
 3. A new empty array is created and passed with the list of calls (populated from `from_call_array_to_call`) to `_execute_list`. This method iterates and executes a contract call for each `Call` and pushes each result into the array. Once all contract calls are finished, the array holding each contract call response is returned.
 
 > It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
-
-The `__execute__` method has the following interface:
-
-```cairo
-func __execute__(
-        call_array_len: felt,
-        call_array: AccountCallArray*,
-        calldata_len: felt,
-        calldata: felt*,
-        nonce: felt
-    ) -> (response_len: felt, response: felt*):
-end
-```
-
-Where:
-
-* `call_array_len` is the number of calls
-* `call_array` is an array representing each `Call`
-* `calldata_len` is the number of calldata parameters
-* `calldata` is an array representing the function parameters
-* `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
-
-`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
-
-```python
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
-```
-
-Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
-
-```python
-await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
-```
-
-You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
-
-> Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
 
 ## API Specification
 

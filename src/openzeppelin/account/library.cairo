@@ -27,27 +27,27 @@ end
 func Account_public_key() -> (res: felt):
 end
 
+#
+# Structs
+#
+
+struct Call:
+    member to: felt
+    member selector: felt
+    member calldata_len: felt
+    member calldata: felt*
+end
+
+# Tmp struct introduced while we wait for Cairo
+# to support passing `[AccountCall]` to __execute__
+struct AccountCallArray:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
+end
+
 namespace Account:
-
-    #
-    # Structs
-    #
-
-    struct Call:
-        member to: felt
-        member selector: felt
-        member calldata_len: felt
-        member calldata: felt*
-    end
-
-    # Tmp struct introduced while we wait for Cairo
-    # to support passing `[AccountCall]` to __execute__
-    struct AccountCallArray:
-        member to: felt
-        member selector: felt
-        member data_offset: felt
-        member data_len: felt
-    end
 
     #
     # Constructor

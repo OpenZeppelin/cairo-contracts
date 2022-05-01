@@ -5,7 +5,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
-from openzeppelin.account.library import Account
+from openzeppelin.account.library import Account, AccountCallArray
 
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface 
 
@@ -98,7 +98,7 @@ func __execute__{
         ecdsa_ptr: SignatureBuiltin*
     }(
         call_array_len: felt,
-        call_array: Account.AccountCallArray*,
+        call_array: AccountCallArray*,
         calldata_len: felt,
         calldata: felt*,
         nonce: felt

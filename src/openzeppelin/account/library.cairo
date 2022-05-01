@@ -206,7 +206,7 @@ namespace Account:
         # copy the result in response
         memcpy(response, res.retdata, res.retdata_size)
         # do the next calls recursively
-        let (response_len) = execute_list(calls_len - 1, calls + Call.SIZE, response + res.retdata_size)
+        let (response_len) = _execute_list(calls_len - 1, calls + Call.SIZE, response + res.retdata_size)
         return (response_len + res.retdata_size)
     end
 
@@ -228,9 +228,8 @@ namespace Account:
                 calldata_len=[call_array].data_len,
                 calldata=calldata + [call_array].data_offset
             )
-
         # parse the remaining calls recursively
-        from_call_array_to_call(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
+        _from_call_array_to_call(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
         return ()
     end
 end

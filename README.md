@@ -1,4 +1,5 @@
 # OpenZeppelin Contracts for Cairo
+
 [![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml)
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
@@ -13,13 +14,15 @@
 ### First time?
 
 Before installing Cairo on your machine, you need to install `gmp`:
+
 ```bash
 sudo apt install -y libgmp3-dev # linux
 brew install gmp # mac
 ```
+
 > If you have any troubles installing gmp on your Apple M1 computer, [here’s a list of potential solutions](https://github.com/OpenZeppelin/nile/issues/22).
 
-### Set up the project
+### Set up your project
 
 Create a directory for your project, then `cd` into it and create a Python virtual environment.
 
@@ -56,6 +59,7 @@ from openzeppelin.token.erc20.ERC20 import constructor
 ```
 
 Compile and deploy it right away:
+
 ```bash
 nile compile
 
@@ -65,6 +69,7 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 > Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](docs/Utilities.md#Uint256) for more information.
 
 ### Write a custom contract using library modules
+
 [Read more about libraries](docs/Extensibility.md#libraries).
 
 ```cairo
@@ -107,24 +112,31 @@ end
 ## Learn
 
 ### Contract documentation
+
 * [Account](docs/Account.md)
 * [ERC20](docs/ERC20.md)
 * [ERC721](docs/ERC721.md)
 * [Contract extensibility pattern](docs/Extensibility.md)
 * [Proxies and upgrades](docs/Proxies.md)
+* [Security](docs/Security.md)
 * [Utilities](docs/Utilities.md)
+
 ### Cairo
+
 * [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
 * [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)
 * Perama's [Cairo by example](https://perama-v.github.io/cairo/by-example/)
 * [Cairo 101 workshops](https://www.youtube.com/playlist?list=PLcIyXLwiPilV5RBZj43AX1FY4FJMWHFTY)
+
 ### Nile
+
 * [Getting started with StarkNet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
 * [How to manage smart contract deployments with Nile](https://medium.com/@martriay/manage-your-starknet-deployments-with-nile-%EF%B8%8F-e849d40546dd)
 
 ## Development
 
 ### Set up the project
+
 Clone the repository
 
 ```bash
@@ -140,12 +152,14 @@ source env/bin/activate
 ```
 
 Install Nile:
+
 ```bash
 pip install cairo-nile
 nile install
 ```
 
 ### Compile the contracts
+
 ```bash
 nile compile --directory src
 
@@ -205,6 +219,7 @@ This project is still in a very early and experimental phase. It has never been 
 Please report any security issues you find to security@openzeppelin.org.
 
 ## Contribute
+
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
 
 ## License

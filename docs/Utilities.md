@@ -225,6 +225,6 @@ def foo_factory(contract_defs, foo_init):
     return cached_foo  # return cached contracts
 ```
 
-## ActivatedSigner
+## TestSigner
 
-`ActivatedSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `ActivatedSigner` to operate with the Account contract's `__execute__` method. See [ActivatedSigner utility](../docs/Account.md#activatedsigner-utility) for more information.
+`TestSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `TestSigner` to operate with the Account contract's `__execute__` method. See [TestSigner utility](../docs/Account.md#activatedsigner-utility) for more information.

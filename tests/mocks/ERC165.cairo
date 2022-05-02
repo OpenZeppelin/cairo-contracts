@@ -4,10 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
-from openzeppelin.introspection.ERC165 import (
-    ERC165_supports_interface, 
-    ERC165_register_interface
-)
+from openzeppelin.introspection.ERC165 import ERC165
 
 @view
 func supportsInterface{
@@ -15,7 +12,7 @@ func supportsInterface{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
     return (success)
 end
 
@@ -25,6 +22,6 @@ func registerInterface{
         pedersen_ptr: HashBuiltin*, 
         range_check_ptr
     } (interfaceId: felt):
-    ERC165_register_interface(interfaceId)
+    ERC165.register_interface(interfaceId)
     return ()
 end

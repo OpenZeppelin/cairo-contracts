@@ -63,7 +63,7 @@ end
 
 @external
 func set_public_key{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_public_key: felt):
@@ -77,9 +77,9 @@ end
 
 #@view
 func is_valid_signature{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr, 
+        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*
     }(
         hash: felt,
@@ -92,9 +92,9 @@ end
 
 @external
 func __execute__{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr, 
+        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*
     }(
         call_array_len: felt,

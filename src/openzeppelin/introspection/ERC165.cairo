@@ -15,8 +15,8 @@ end
 
 namespace ERC165:
     func supports_interface{
-            syscall_ptr: felt*, 
-            pedersen_ptr: HashBuiltin*, 
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         } (interface_id: felt) -> (success: felt):
         if interface_id == IERC165_ID:
@@ -29,8 +29,8 @@ namespace ERC165:
     end
 
     func register_interface{
-            syscall_ptr: felt*, 
-            pedersen_ptr: HashBuiltin*, 
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         } (interface_id: felt):
         with_attr error_message("ERC165: invalid interface id"):

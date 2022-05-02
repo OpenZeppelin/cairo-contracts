@@ -14,7 +14,7 @@ from openzeppelin.account.library import (
     Account_is_valid_signature
 )
 
-from openzeppelin.introspection.ERC165 import ERC165 
+from openzeppelin.introspection.ERC165 import ERC165
 
 #
 # Getters

@@ -15,7 +15,7 @@ from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(public_key: felt):
@@ -49,7 +49,7 @@ end
 
 @view
 func supportsInterface{
-        syscall_ptr: felt*, 
+        syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):

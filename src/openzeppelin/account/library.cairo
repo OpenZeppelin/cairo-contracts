@@ -9,7 +9,7 @@ from starkware.cairo.common.memcpy import memcpy
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 
 from openzeppelin.introspection.ERC165 import (
-    ERC165_supports_interface, 
+    ERC165_supports_interface,
     ERC165_register_interface
 )
 
@@ -54,7 +54,7 @@ namespace Account:
     #
 
     func constructor{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(_public_key: felt):
@@ -90,7 +90,7 @@ namespace Account:
     end
 
     func get_nonce{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }() -> (res: felt):
@@ -103,7 +103,7 @@ namespace Account:
     #
 
     func set_public_key{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(new_public_key: felt):
@@ -117,9 +117,9 @@ namespace Account:
     #
 
     func is_valid_signature{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr, 
+            range_check_ptr,
             ecdsa_ptr: SignatureBuiltin*
         }(
             hash: felt,
@@ -145,9 +145,9 @@ namespace Account:
 
 
     func execute{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr, 
+            range_check_ptr,
             ecdsa_ptr: SignatureBuiltin*
         }(
             call_array_len: felt,

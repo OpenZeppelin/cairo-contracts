@@ -19,13 +19,24 @@ func EnumerableSet_indexes(set_id : felt, set_value : felt) -> (set_index : felt
 end
 
 namespace EnumerableSet:
+    func contains{
+            syscall_ptr : felt*, 
+            pedersen_ptr : HashBuiltin*, 
+            range_check_ptr
+        }(set_id : felt, value : felt) -> (contains : felt):
+        let (index) = EnumerableSet_indexes.read(set_id=set_id, set_value=value)
+        if index == 0:
+            return (contains=FALSE)
+        end
+        return (contains=TRUE)
+    end
     func add{
             syscall_ptr : felt*, 
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(set_id : felt, value : felt) -> (success : felt):
         alloc_locals
-        let (contains) = contains(set_id, value=value)
+        let (contains) = EnumerableSet.contains(set_id, value=value)
 
         if contains == FALSE:
             let (size) = EnumerableSet_sizes.read(set_id=set_id)
@@ -67,18 +78,6 @@ namespace EnumerableSet:
         end
 
         return (success=TRUE)
-    end
-
-    func contains{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*, 
-            range_check_ptr
-        }(set_id : felt, value : felt) -> (contains : felt):
-        let (index) = EnumerableSet_indexes.read(set_id=set_id, set_value=value)
-        if index == 0:
-            return (contains=FALSE)
-        end
-        return (contains=TRUE)
     end
 
     func length{

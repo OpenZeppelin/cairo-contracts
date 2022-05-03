@@ -212,6 +212,10 @@ tests/test_Initializable.py .                              [ 89%]
 tests/test_Ownable.py ..                                   [100%]
 ```
 
+### Run Tests in Docker
+
+For M1 users or those who are having trouble with version you can alternatively run the tests within a docker container. Run `make build` followed by `make test`
+
 ## Security
 
 This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.

@@ -42,7 +42,7 @@ async def test_constructor(account_factory):
 async def test_execute(account_factory):
     starknet, account, _ = account_factory
     initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
 
     execution_info = await initializable.initialized().call()
@@ -58,10 +58,10 @@ async def test_execute(account_factory):
 async def test_multicall(account_factory):
     starknet, account, _ = account_factory
     initializable_1 = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
     initializable_2 = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
 
     execution_info = await initializable_1.initialized().call()
@@ -87,7 +87,7 @@ async def test_multicall(account_factory):
 async def test_return_value(account_factory):
     starknet, account, _ = account_factory
     initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
 
     # initialize, set `initialized = 1`
@@ -103,7 +103,7 @@ async def test_return_value(account_factory):
 async def test_nonce(account_factory):
     starknet, account, _ = account_factory
     initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res

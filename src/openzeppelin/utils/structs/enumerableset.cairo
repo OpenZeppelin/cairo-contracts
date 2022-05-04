@@ -30,6 +30,7 @@ namespace EnumerableSet:
         end
         return (contains=TRUE)
     end
+
     func add{
             syscall_ptr : felt*, 
             pedersen_ptr : HashBuiltin*, 
@@ -40,10 +41,10 @@ namespace EnumerableSet:
 
         if contains == FALSE:
             let (size) = EnumerableSet_sizes.read(set_id=set_id)
-            local newSize = size + 1
-            EnumerableSet_values.write(set_id=set_id, set_index=newSize, value=value)
-            EnumerableSet_indexes.write(set_id=set_id, set_value=value, value=newSize)
-            EnumerableSet_sizes.write(set_id=set_id, value=newSize)
+            local new_size = size + 1
+            EnumerableSet_values.write(set_id=set_id, set_index=new_size, value=value)
+            EnumerableSet_indexes.write(set_id=set_id, set_value=value, value=new_size)
+            EnumerableSet_sizes.write(set_id=set_id, value=new_size)
             return (success=TRUE)
         end
 
@@ -56,25 +57,26 @@ namespace EnumerableSet:
             range_check_ptr
         }(set_id : felt, value : felt) -> (success : felt):
         alloc_locals
-        let (valueIndex) = EnumerableSet_indexes.read(set_id=set_id, set_value=value)
+        let (value_index) = EnumerableSet_indexes.read(set_id=set_id, set_value=value)
 
-        if valueIndex == 0:
+        if value_index == 0:
             return (success=FALSE)
         end
 
-        let (lastIndex) = EnumerableSet_sizes.read(set_id=set_id)
-        local res = lastIndex - valueIndex
-        local new_last_index = lastIndex - 1
+        let (last_index) = EnumerableSet_sizes.read(set_id=set_id)
+        local res = last_index - value_index
+        local new_last_index = last_index - 1
 
-        let (lastValue) = EnumerableSet_values.read(set_id=set_id, set_index=lastIndex)
+        let (last_value) = EnumerableSet_values.read(set_id=set_id, set_index=last_index)
 
-        EnumerableSet_values.write(set_id=set_id, set_index=lastIndex, value=0)
+        EnumerableSet_values.write(set_id=set_id, set_index=last_index, value=0)
         EnumerableSet_indexes.write(set_id=set_id, set_value=value, value=0)
         EnumerableSet_sizes.write(set_id=set_id, value=new_last_index)
 
+        # if removed value index is not last
         if res != 0:
-            EnumerableSet_values.write(set_id=set_id, set_index=valueIndex, value=lastValue)
-            EnumerableSet_indexes.write(set_id=set_id, set_value=lastValue, value=valueIndex)
+            EnumerableSet_values.write(set_id=set_id, set_index=value_index, value=last_value)
+            EnumerableSet_indexes.write(set_id=set_id, set_value=last_value, value=value_index)
         end
 
         return (success=TRUE)

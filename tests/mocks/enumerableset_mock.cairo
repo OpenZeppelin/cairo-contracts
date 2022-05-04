@@ -52,8 +52,7 @@ func at{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
-    }(index : felt) -> (
-        res : felt):
+    }(index : felt) -> (res : felt):
     let (res) = EnumerableSet.at(set_id=SET_ID, index=index)
     return (res=res)
 end

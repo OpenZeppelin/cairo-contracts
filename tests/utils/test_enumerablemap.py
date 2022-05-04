@@ -113,11 +113,11 @@ async def test_get(enumerablemap_mock):
 async def test_try_get(enumerablemap_mock):
     enumerablemap = enumerablemap_mock
 
-    executed_info = await enumerablemap.try_get(11).call()
+    executed_info = await enumerablemap.tryGet(11).call()
     assert executed_info.result == (FALSE,0,)
 
     success = await enumerablemap.set(11, 19).invoke()
     assert success.result.success == TRUE
 
-    executed_info = await enumerablemap.try_get(11).call()
+    executed_info = await enumerablemap.tryGet(11).call()
     assert executed_info.result == (TRUE,19,)

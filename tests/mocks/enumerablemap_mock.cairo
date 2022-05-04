@@ -48,7 +48,7 @@ func length{
 end
 
 @external
-func try_get{
+func tryGet{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
@@ -59,7 +59,7 @@ end
 
 @external
 func get{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*, 
         range_check_ptr
     }(key : felt) -> (contains : felt, value : felt):

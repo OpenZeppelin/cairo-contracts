@@ -84,6 +84,10 @@ The [Proxy contract](../src/openzeppelin/upgrades/Proxy.cairo) includes two core
 
 2. The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
 
+Proxy also includes a private view:
+
+1. The `_get_implementation` method allows accessing the address of contract that is being proxied by this proxy.
+
 Since this proxy is designed to work both as an [UUPS-flavored upgrade proxy](https://eips.ethereum.org/EIPS/eip-1822) as well as a non-upgradeable proxy, it does not know how to handle its own state. Therefore it requires the implementation contract to be deployed beforehand, so its address can be passed to the Proxy on construction time.
 
 When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract to execute.

@@ -388,9 +388,9 @@ namespace ERC721:
             range_check_ptr
         }(from_: felt, to: felt, token_id: Uint256):
         # ownerOf ensures 'from_' is not the zero address
-        let (_ownerOf) = owner_of(token_id)
+        let (owner) = owner_of(token_id)
         with_attr error_message("ERC721: transfer from incorrect owner"):
-            assert _ownerOf = from_
+            assert owner = from_
         end
 
         with_attr error_message("ERC721: cannot transfer to the zero address"):

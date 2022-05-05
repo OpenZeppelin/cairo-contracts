@@ -7,7 +7,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import delegate_l1_handler, delegate_call
 from openzeppelin.upgrades.library import (
     Proxy_implementation_address,
-    Proxy_set_implementation
+    Proxy_set_implementation,
+    Proxy_get_implementation,
 )
 
 #
@@ -76,4 +77,18 @@ func __l1_default__{
     )
 
     return ()
+end
+
+#
+# Views
+#
+
+@view
+func get_implementation{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (implementation: felt):
+    let (implementation) = Proxy_get_implementation()
+    return (implementation=implementation)
 end

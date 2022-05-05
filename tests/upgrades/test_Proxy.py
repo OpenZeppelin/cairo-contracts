@@ -73,6 +73,16 @@ async def test_constructor_sets_correct_implementation(proxy_factory):
 
 
 @pytest.mark.asyncio
+async def test_proxy_get_implementation_directly(proxy_factory):
+    account, implementation, proxy = proxy_factory
+
+    execution_info = await signer.send_transaction(
+        account, proxy.contract_address, '_get_implementation', []
+    )
+    assert execution_info.result.response == [implementation.contract_address]
+
+
+@pytest.mark.asyncio
 async def test_initializer(proxy_factory):
     account, _, proxy = proxy_factory
 

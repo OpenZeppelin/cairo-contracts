@@ -84,7 +84,7 @@ end
 #
 
 @view
-func get_implementation{
+func _get_implementation{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr

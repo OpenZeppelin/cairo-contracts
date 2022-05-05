@@ -11,10 +11,7 @@ from starkware.cairo.common.hash_state import (
     hash_init, hash_finalize, hash_update, hash_update_single
 )
 
-from openzeppelin.introspection.ERC165 import (
-    ERC165_supports_interface, 
-    ERC165_register_interface
-)
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.utils.constants import IACCOUNT_ID
 
@@ -109,7 +106,7 @@ func Account_initializer{
         range_check_ptr
     }(_public_key: felt):
     Account_public_key.write(_public_key)
-    ERC165_register_interface(IACCOUNT_ID)
+    ERC165.register_interface(IACCOUNT_ID)
     return()
 end
 

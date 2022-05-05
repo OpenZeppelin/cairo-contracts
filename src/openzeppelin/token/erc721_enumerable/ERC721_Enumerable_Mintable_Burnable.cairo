@@ -9,7 +9,7 @@ from starkware.cairo.common.uint256 import Uint256
 from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.token.erc721_enumerable.library import ERC721_Enumerable
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.access.ownable import (
     Ownable_initializer,
@@ -76,7 +76,7 @@ func supportsInterface{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
     return (success)
 end
 

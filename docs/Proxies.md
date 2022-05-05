@@ -5,6 +5,9 @@
 ## Table of Contents
 
 * [Quickstart](#quickstart)
+* [Solidity/Cairo upgrades comparison](#solidity/cairo-upgrades-comparison)
+  * [Constructors](#constructors)
+  * [Storage](#storage)
 * [Proxies](#proxies)
   * [Proxy contract](#proxy-contract)
   * [Implementation contract](#implementation-contract)
@@ -49,6 +52,23 @@ In Python, this would look as follows:
         ]
     )
 ```
+
+## Solidity/Cairo upgrades comparison
+
+### Constructors
+
+OpenZeppelin Contracts for Solidity requires the use of an alternative library for upgradeable contracts. Consider that in Solidity constructors are not part of the deployed contract's runtime bytecode; rather, a constructor's logic is executed only once when the contract instance is deployed and then discarded. This is why proxies can't imitate the construction of its implementation, therefore requiring a different initialization mechanism.
+
+The constructor problem in upgradeable contracts is resolved by the use of initializer methods. Initializer methods are essentially regular methods that execute the logic that would have been in the constructor. Care needs to be exercised with initializers to ensure they can only be called once. Thus, OpenZeppelin offers an [upgradeable contracts library](https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable) where much of this process is abstracted away.
+See OpenZeppelin's [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable) for more info.
+
+The Cairo programming language does not support inheritance. Instead, Cairo contracts follow the [Extensibility Pattern](../docs/Extensibility.md) which already uses initializer methods to mimic constructors. Upgradeable contracts do not, therefore, require a separate library with refactored constructor logic.
+
+### Storage
+
+OpenZeppelin's alternative Upgrades library also implements [unstructured storage](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#unstructured-storage-proxies) for its upgradeable contracts. The basic idea behind unstructured storage is to pseudo-randomize the storage structure of the upgradeable contract so it's based on variable names instead of declaration order, which makes the chances of storage collision during an upgrade extremely unlikely.
+
+The StarkNet compiler, meanwhile, already creates pseudo-random storage addresses by hashing the storage variable names (and keys in mappings) by default. In other words, StarkNet already uses unstructured storage and does not need a second library to modify how storage is set. See StarkNet's [Contracts Storage documentation](https://starknet.io/documentation/contracts/#contracts_storage) for more information.
 
 ## Proxies
 

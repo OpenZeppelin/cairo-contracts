@@ -38,10 +38,10 @@ end
 namespace Proxy:
 
     #
-    # Initializer
+    # Constructor
     #
 
-    func initializer{
+    func constructor{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -60,7 +60,7 @@ namespace Proxy:
     # Upgrades
     #
 
-    func set_implementation{
+    func _set_implementation{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -74,7 +74,7 @@ namespace Proxy:
     # Setters
     #
 
-    func set_admin{
+    func _set_admin{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -109,7 +109,7 @@ namespace Proxy:
     # Guards
     #
 
-    func _only_admin{
+    func assert_only_admin{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr

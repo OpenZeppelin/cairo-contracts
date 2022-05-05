@@ -17,7 +17,7 @@ func constructor{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(implementation_address: felt):
-    Proxy.set_implementation(implementation_address)
+    Proxy._set_implementation(implementation_address)
     return ()
 end
 

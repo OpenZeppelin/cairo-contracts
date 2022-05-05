@@ -20,9 +20,9 @@ namespace EnumerableMap:
             key : felt, 
             value : felt
         ) -> (success : felt):
-        EnumerableMap_values.write(map_id=map_id, key=key, value=value)
-        let (success) = EnumerableSet.add(set_id=map_id, value=key)
-        return (success=success)
+        EnumerableMap_values.write(map_id, key, value)
+        let (success) = EnumerableSet.add(map_id, key)
+        return (success)
     end
 
     func remove{
@@ -30,9 +30,9 @@ namespace EnumerableMap:
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(map_id : felt, key : felt) -> (success : felt):
-        EnumerableMap_values.write(map_id=map_id, key=key, value=0)
-        let (success) = EnumerableSet.remove(set_id=map_id, value=key)
-        return (success=success)
+        EnumerableMap_values.write(map_id, key, 0)
+        let (success) = EnumerableSet.remove(map_id, key)
+        return (success)
     end
 
     func contains{
@@ -43,8 +43,8 @@ namespace EnumerableMap:
             map_id : felt, 
             key : felt
         ) -> (contains : felt):
-        let (contains) = EnumerableSet.contains(set_id=map_id, value=key)
-        return (contains=contains)
+        let (contains) = EnumerableSet.contains(map_id, key)
+        return (contains)
     end
 
     func length{
@@ -52,8 +52,8 @@ namespace EnumerableMap:
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(map_id : felt) -> (length : felt):
-        let (length) = EnumerableSet.length(set_id=map_id)
-        return (length=length)
+        let (length) = EnumerableSet.length(map_id)
+        return (length)
     end
 
     func at{
@@ -61,9 +61,9 @@ namespace EnumerableMap:
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(map_id : felt, index : felt) -> (key : felt, value : felt):
-        let (key) = EnumerableSet.at(set_id=map_id, index=index)
-        let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
-        return (key=key, value=value)
+        let (key) = EnumerableSet.at(map_id, index)
+        let (value) = EnumerableMap_values.read(map_id, key)
+        return (key, value)
     end
 
     func try_get{
@@ -71,9 +71,9 @@ namespace EnumerableMap:
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(map_id : felt, key : felt) -> (contains : felt, value : felt):
-        let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
-        let (contains) = EnumerableSet.contains(set_id=map_id, value=key)
-        return (contains=contains, value=value)
+        let (value) = EnumerableMap_values.read(map_id, key)
+        let (contains) = EnumerableSet.contains(map_id, key)
+        return (contains, value)
     end
 
     func get{
@@ -81,13 +81,13 @@ namespace EnumerableMap:
             pedersen_ptr : HashBuiltin*, 
             range_check_ptr
         }(map_id : felt, key : felt) -> (contains : felt, value : felt):
-        let (value) = EnumerableMap_values.read(map_id=map_id, key=key)
-        let (contains) = EnumerableSet.contains(set_id=map_id, value=key)
+        let (value) = EnumerableMap_values.read(map_id, key)
+        let (contains) = EnumerableSet.contains(map_id, key)
 
         with_attr error_message("EnumerableMap: nonexistent key"):
             assert_not_zero(contains)
         end
 
-        return (contains=contains, value=value)
+        return (contains, value)
     end
 end

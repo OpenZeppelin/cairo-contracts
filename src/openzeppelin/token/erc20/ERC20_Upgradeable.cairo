@@ -31,7 +31,7 @@ func initializer{
     ):
     ERC20.constructor(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
-    Proxy.initializer(proxy_admin)
+    Proxy.constructor(proxy_admin)
     return ()
 end
 
@@ -41,8 +41,8 @@ func upgrade{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(new_implementation: felt):
-    Proxy._only_admin()
-    Proxy.set_implementation(new_implementation)
+    Proxy.assert_only_admin()
+    Proxy._set_implementation(new_implementation)
     return ()
 end
 

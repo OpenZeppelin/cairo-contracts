@@ -26,7 +26,7 @@ func initializer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(proxy_admin: felt):
-    Proxy.initializer(proxy_admin)
+    Proxy.constructor(proxy_admin)
     return ()
 end
 
@@ -51,6 +51,16 @@ func get_implementation{
         range_check_ptr
     }() -> (address: felt):
     let (address) = Proxy.get_implementation()
+    return (address)
+end
+
+@view
+func get_admin{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (address: felt):
+    let (address) = Proxy.get_admin()
     return (address)
 end
 

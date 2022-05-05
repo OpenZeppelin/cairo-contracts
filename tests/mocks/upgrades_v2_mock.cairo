@@ -30,7 +30,7 @@ func initializer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(proxy_admin: felt):
-    Proxy.initializer(proxy_admin)
+    Proxy.constructor(proxy_admin)
     return ()
 end
 
@@ -44,8 +44,8 @@ func upgrade{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(new_implementation: felt):
-    Proxy._only_admin()
-    Proxy.set_implementation(new_implementation)
+    Proxy.assert_only_admin()
+    Proxy._set_implementation(new_implementation)
     return ()
 end
 
@@ -123,7 +123,7 @@ func set_admin{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_admin: felt):
-    Proxy._only_admin()
-    Proxy.set_admin(new_admin)
+    Proxy.assert_only_admin()
+    Proxy._set_admin(new_admin)
     return ()
 end

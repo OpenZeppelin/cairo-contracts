@@ -21,7 +21,7 @@ def contract_defs():
     erc721_holder_def = get_contract_def(
         'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
     unsupported_def = get_contract_def(
-        'openzeppelin/security/initializable.cairo')
+        'tests/mocks/Initializable.cairo')
 
     return account_def, erc721_def, erc721_holder_def, unsupported_def
 

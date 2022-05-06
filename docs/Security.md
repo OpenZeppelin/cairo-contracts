@@ -6,7 +6,33 @@
 
 ## Table of Contents
 
+* [Initializable](#initializable)
 * [Reentrancy Guard](#Reentrancy-Guard)
+
+## Initializable
+
+The Initializable library provides a simple mechanism that mimics the functionality of a constructor. More specifically, it enables logic to be performed once and only once which is useful to setup a contract's initial state when a constructor cannot be used.
+
+The recommended pattern with Initializable is to include a check that the Initializable state is `False` and invoke `initialize` in the target function like this:
+
+```cairo
+from openzeppelin.security.initializable import Initializable
+
+@external
+func foo{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    let (initialized) = Initializable.initialized()
+    assert initialized = FALSE
+
+    Initializable.initialize()
+    return ()
+end
+```
+
+> Please note that this Initializable pattern should only be used on one function.
 
 ## Reentrancy Guard
 

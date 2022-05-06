@@ -6,10 +6,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.bool import TRUE
 from starkware.starknet.common.syscalls import get_contract_address
-from openzeppelin.security.reentrancy_guard import (
-    ReentrancyGuard_start,
-    ReentrancyGuard_end
-)
+
+from openzeppelin.security.reentrancy_guard import ReentrancyGuard
 
 @contract_interface
 namespace IReentrancyGuardAttacker:
@@ -53,9 +51,9 @@ func callback{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-   ReentrancyGuard_start()
+   ReentrancyGuard.start()
    _count()
-   ReentrancyGuard_end()
+   ReentrancyGuard.end_()
    return ()
 end
 
@@ -66,7 +64,7 @@ func count_local_recursive {
         range_check_ptr
     } (n : felt):
     alloc_locals
-    ReentrancyGuard_start()
+    ReentrancyGuard.start()
     let (greater_zero) = is_le(1, n)
     if greater_zero == TRUE:           
         _count()
@@ -79,7 +77,7 @@ func count_local_recursive {
         tempvar pedersen_ptr=pedersen_ptr
         tempvar range_check_ptr=range_check_ptr
     end
-    ReentrancyGuard_end()
+    ReentrancyGuard.end_()
    return ()
 end
 
@@ -90,7 +88,7 @@ func count_this_recursive {
         range_check_ptr
    } (n : felt):
     alloc_locals
-    ReentrancyGuard_start()
+    ReentrancyGuard.start()
     let (greater_zero) = is_le(1, n)
     if greater_zero == TRUE:      
         _count()
@@ -105,7 +103,7 @@ func count_this_recursive {
         tempvar pedersen_ptr=pedersen_ptr
         tempvar range_check_ptr=range_check_ptr
     end
-    ReentrancyGuard_end()
+    ReentrancyGuard.end_()
     return ()    
 end
 
@@ -115,10 +113,10 @@ func count_and_call{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(attacker : felt):    
-    ReentrancyGuard_start()
+    ReentrancyGuard.start()
     _count()
     IReentrancyGuardAttacker.call_sender(contract_address=attacker)
-    ReentrancyGuard_end()
+    ReentrancyGuard.end_()
     return()
 end
 

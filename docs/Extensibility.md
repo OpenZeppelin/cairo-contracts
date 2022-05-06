@@ -29,20 +29,20 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-* All function and storage variable names must be prefixed with the file name to prevent clashing with other libraries (e.g. `ERC20_approve` in the `ERC20` library)
-* Must not implement any `@external` or `@view` functions
-* Must not implement constructors
-* Must not call initializers on any function
-* Should implement initializer functions to mimic construction logic if needed (as any other library function, never as `@external`)
+* All exposed functions must be implemented under a `namespace`
+* All storage variable names must be prefixed with the namespace name to prevent clashing with other libraries (e.g. `ERC20_balances` in the `ERC20` library)
+* Must not implement any `@external`, `@view`, or `@constructor` functions
+* Can implement library constructor functions as long as they're not decorated with `@constructor` or `@external`
+* Must not call library constructors on any function
 
 ### Contracts
 
 * Can import from libraries
 * Should implement `@external` functions if needed
-* Should implement a constructor that calls initializers
-* Must not call initializers in any function beside the constructor
+* Should implement a `@constructor` function that calls library constructors
+* Must not call library constructors in any function beside the main constructor
 
-Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the contract constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double initialization of libraries.
+Note that since library constructors will never be marked as `@external` and they won’t be called from anywhere but the main constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make library constructors interdependent to avoid weird dependency paths that may lead to double construction of libraries.
 
 ## Presets
 
@@ -86,7 +86,7 @@ func transfer{
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
     Pausable_when_not_paused()
-    ERC20_transfer(recipient, amount)
+    ERC20.transfer(recipient, amount)
     return (TRUE)
 end
 ```

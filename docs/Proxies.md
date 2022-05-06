@@ -94,8 +94,8 @@ The implementation contract, also known as the logic contract, receives the redi
 
 The implementation contract should:
 
-* import `Proxy_initializer` and `Proxy_set_implementation`
-* initialize the proxy immediately after contract deployment.
+* import `Proxy` namespace
+* initialize the proxy immediately after contract deployment with `Proxy.constructor`.
 
 If the implementation is upgradeable, it should:
 
@@ -104,9 +104,9 @@ If the implementation is upgradeable, it should:
 
 The implementation contract should NOT:
 
-* deploy with a traditional constructor. Instead, use an initializer method that invokes `Proxy_initializer`.
+* deploy with a traditional constructor (decorated with `@constructor`). Instead, use an initializer method that invokes the Proxy `constructor`.
 
-> Note that the imported `Proxy_initializer` includes a check the ensures the initializer can only be called once; however, `Proxy_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`Proxy_only_admin`](#proxy_only_admin).
+> Note that the Proxy `constructor` includes a check the ensures the initializer can only be called once; however, `_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`assert_only_admin`](#assert_only_admin).
 
 For a full implementation contract example, please see:
 
@@ -117,26 +117,26 @@ For a full implementation contract example, please see:
 ### Methods
 
 ```cairo
-func Proxy_initializer(proxy_admin: felt):
+func constructor(proxy_admin: felt):
 end
 
-func Proxy_set_implementation(new_implementation: felt):
+func _set_implementation(new_implementation: felt):
 end
 
-func Proxy_only_admin():
+func _set_admin(new_admin: felt):
 end
 
-func Proxy_get_admin() -> (admin: felt):
+func get_implementation() -> (implementation: felt):
 end
 
-func Proxy_get_implementation() -> (implementation: felt):
+func get_admin() -> (admin: felt):
 end
 
-func Proxy_set_admin(new_admin: felt):
+func assert_only_admin():
 end
 ```
 
-#### `Proxy_initializer`
+#### `constructor`
 
 Initializes the proxy contract with an initial implementation.
 
@@ -150,7 +150,7 @@ Returns:
 
 None.
 
-#### `Proxy_set_implementation`
+#### `_set_implementation`
 
 Sets the implementation contract. This method is included in the proxy contract's constructor and is furthermore used to upgrade contracts.
 
@@ -164,33 +164,21 @@ Returns:
 
 None.
 
-#### `Proxy_only_admin`
+#### `_set_admin`
 
-Throws if called by any account other than the admin.
-
-Parameters:
-
-None.
-
-Returns:
-
-None.
-
-#### `Proxy_get_admin`
-
-Returns the current admin.
+Sets the admin of the proxy contract.
 
 Parameters:
-
-None.
-
-Returns:
 
 ```cairo
-admin: felt
+new_admin: felt
 ```
 
-#### `Proxy_get_implementation`
+Returns:
+
+None.
+
+#### `get_implementation`
 
 Returns the current implementation address.
 
@@ -204,15 +192,27 @@ Returns:
 implementation: felt
 ```
 
-#### `Proxy_set_admin`
+#### `get_admin`
 
-Sets the admin of the proxy contract.
+Returns the current admin.
 
 Parameters:
 
+None.
+
+Returns:
+
 ```cairo
-new_admin: felt
+admin: felt
 ```
+
+#### `assert_only_admin`
+
+Throws if called by any account other than the admin.
+
+Parameters:
+
+None.
 
 Returns:
 

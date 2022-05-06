@@ -29,8 +29,20 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-* All exposed functions must be implemented under a `namespace`
-* All storage variable names must be prefixed with the namespace name to prevent clashing with other libraries (e.g. `ERC20_balances` in the `ERC20` library)
+Considering four type of functions:
+
+- `A`: internal to a library, not meant to be used outside the module
+- `B`: part of the public API of a library
+- `C`: subset of B that is meant to be exported as-is by contracts
+- `S`: storage variables
+
+Then:
+
+* Must implement `B` and `C` functions under a namespace
+* Must implement type `A` functions outside the namespace to avoid exposing them
+* Must prefix type `B` functions with an underscore (e.g. `ERC20._mint`)
+* Must not prefix `C` functions with an underscore (e.g. `ERC20.transfer`)
+* Must prefix `S` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions
 * Can implement library constructor functions as long as they're not decorated with `@constructor` or `@external`
 * Must not call library constructors on any function
@@ -59,6 +71,12 @@ Some presets are:
 * [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
 * [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
 * [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+
+## Function names and Coding style
+
+* Following the Cairo programming style, we choose to stick with `snake_case` for library APIs (e.g. `ERC20.transfer_from`, `ERC721.safe_transfer_from`).
+  * Contract developers should then expose the `camelCase` version of the methods to comply with existing standards (e.g. `transferFrom` in a ERC20 contract)
+* Guard functions such as the so-called "only owner" are prefixed with `assert_` (e.g. `Ownable.assert_only_owner`).
 
 ## Emulating hooks
 

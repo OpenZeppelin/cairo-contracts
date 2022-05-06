@@ -13,8 +13,8 @@ end
 namespace ReentrancyGuard:
 
     func _start{
-            syscall_ptr : felt*,
-            pedersen_ptr : HashBuiltin*,
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }():
         let (has_entered) = ReentrancyGuard_entered.read()

@@ -8,10 +8,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.memcpy import memcpy
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 
-from openzeppelin.introspection.ERC165 import (
-    ERC165_supports_interface,
-    ERC165_register_interface
-)
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.utils.constants import IACCOUNT_ID
 

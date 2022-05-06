@@ -7,7 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
 from openzeppelin.account.library import Account, AccountCallArray
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface 
+from openzeppelin.introspection.ERC165 import ERC165
 
 #
 # Constructor
@@ -53,7 +53,7 @@ func supportsInterface{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
     return (success)
 end
 

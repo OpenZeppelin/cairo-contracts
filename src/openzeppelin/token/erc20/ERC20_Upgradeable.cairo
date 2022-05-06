@@ -10,11 +10,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.upgrades.library import (
-    Proxy_initializer,
-    Proxy_only_admin,
-    Proxy_set_implementation
-)
+from openzeppelin.upgrades.library import Proxy
 
 #
 # Initializer
@@ -35,7 +31,7 @@ func initializer{
     ):
     ERC20.constructor(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
-    Proxy_initializer(proxy_admin)
+    Proxy.constructor(proxy_admin)
     return ()
 end
 
@@ -45,8 +41,8 @@ func upgrade{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(new_implementation: felt):
-    Proxy_only_admin()
-    Proxy_set_implementation(new_implementation)
+    Proxy.assert_only_admin()
+    Proxy._set_implementation(new_implementation)
     return ()
 end
 

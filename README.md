@@ -212,6 +212,26 @@ tests/test_Initializable.py .                              [ 89%]
 tests/test_Ownable.py ..                                   [100%]
 ```
 
+### Run Tests in Docker
+
+For M1 users or those who are having trouble with library/python versions you can alternatively run the tests within a docker container. Using the following as a Dockerfile placed in the root directory of the project:
+```
+FROM python:3.7
+
+RUN pip install tox
+RUN mkdir cairo-contracts
+COPY . cairo-contracts
+WORKDIR cairo-contracts
+ENTRYPOINT tox
+
+```
+After its placed there run:
+```
+docker build -t cairo-tests .
+docker run cairo-tests
+```
+
+
 ## Security
 
 This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.

@@ -6,11 +6,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.upgrades.library import (
-    Proxy_initializer,
-    Proxy_only_admin,
-    Proxy_set_implementation
-)
+from openzeppelin.upgrades.library import Proxy
 
 #
 # Storage
@@ -26,11 +22,11 @@ end
 
 @external
 func initializer{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(proxy_admin: felt):
-    Proxy_initializer(proxy_admin)
+    Proxy.constructor(proxy_admin)
     return ()
 end
 
@@ -40,12 +36,12 @@ end
 
 @external
 func upgrade{
-        syscall_ptr: felt*, 
+        syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(new_implementation: felt):
-    Proxy_only_admin()
-    Proxy_set_implementation(new_implementation)
+    Proxy.assert_only_admin()
+    Proxy._set_implementation(new_implementation)
     return ()
 end
 
@@ -55,7 +51,7 @@ end
 
 @view
 func get_value_1{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (val: felt):
@@ -69,7 +65,7 @@ end
 
 @external
 func set_value_1{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(val: felt):

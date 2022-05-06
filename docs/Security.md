@@ -50,7 +50,7 @@ func test_function{
     }():
    ReentrancyGuard._start()
    # function body
-   ReentrancyGuard._end_()
+   ReentrancyGuard._end()
    return ()
 end
 ```

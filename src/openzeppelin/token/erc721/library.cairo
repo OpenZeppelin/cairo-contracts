@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc721/library.cairo)
 
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.alloc import alloc
-from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
 from openzeppelin.security.safemath import (
@@ -14,14 +15,14 @@ from openzeppelin.security.safemath import (
     uint256_checked_sub_le
 )
 
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
 from openzeppelin.introspection.IERC165 import IERC165
 
 from openzeppelin.utils.constants import (
-    TRUE, FALSE, IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
+    IERC721_ID, IERC721_METADATA_ID, IERC721_RECEIVER_ID, IACCOUNT_ID
 )
 
 #
@@ -86,8 +87,8 @@ func ERC721_initializer{
     ):
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
-    ERC165_register_interface(IERC721_ID)
-    ERC165_register_interface(IERC721_METADATA_ID)
+    ERC165.register_interface(IERC721_ID)
+    ERC165.register_interface(IERC721_METADATA_ID)
     return ()
 end
 

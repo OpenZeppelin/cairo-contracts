@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
 
 %lang starknet
 
@@ -33,7 +33,7 @@ from openzeppelin.token.erc721_enumerable.library import (
     ERC721_Enumerable_safeTransferFrom
 )
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.access.ownable import (
     Ownable_initializer,
@@ -100,7 +100,7 @@ func supportsInterface{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
     return (success)
 end
 

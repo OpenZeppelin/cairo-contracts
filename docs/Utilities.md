@@ -7,7 +7,6 @@ The following documentation provides context, reasoning, and examples for method
 ## Table of Contents
 
 * [Constants](#constants)
-* [Interface ids](#interface-ids)
 * [Strings](#strings)
   * [`str_to_felt`](#str_to_felt)
   * [`felt_to_str`](#felt_to_str)
@@ -19,7 +18,7 @@ The following documentation provides context, reasoning, and examples for method
   * [`sub_uint`](#sub_uint)
 * [Assertions](#assertions)
   * [`assert_revert`](#assert_revert)
-  * [`assert_events_emitted`](#assert_events_emitted)
+  * [`assert_events_emitted`](#assert_event_emitted)
 * [Memoization](#memoization)
   * [`get_contract_def`](#get_contract_def)
   * [`cached_contract`](#cached_contract)
@@ -27,20 +26,15 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-The Cairo programming language includes unique features and limitations relative to other programming languages. To ease the readability of Cairo contracts, this project includes reusable constant variables like `TRUE`, `FALSE`, or `ZERO_ADDRESS`.
-
-## Interface ids
-
-The [constants library](../openzeppelin/utils/constants.cairo) lists all of the interface ids used by our libaries as constant variables to increase code legibility. For example, `IERC165_ID` is much easier to read than `0x01ffc9a7`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
+To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
 
 ## Strings
 
-Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements. 
+Cairo currently only provides support for short string literals (less than 32 characters). Note that short strings aren't really strings, rather, they're representations of Cairo field elements. The following methods provide a simple conversion to/from field elements.
 
 ### `str_to_felt`
 
 Takes an ASCII string and converts it to a field element via big endian representation.
-
 
 ### `felt_to_str`
 
@@ -50,7 +44,7 @@ Takes an integer and converts it to an ASCII string by trimming the null bytes a
 
 Cairo's native data type is a field element (felt). Felts equate to 252 bits which poses a problem regarding 256-bit integer integration. To resolve the bit discrepancy, Cairo represents 256-bit integers as a struct of two 128-bit integers. Further, the low bits precede the high bits e.g.
 
-```
+```python
 1 = (1, 0)
 1 << 128 = (0, 1)
 (1 << 128) - 1 = (340282366920938463463374607431768211455, 0)
@@ -61,7 +55,6 @@ Cairo's native data type is a field element (felt). Felts equate to 252 bits whi
 Converts a simple integer into a uint256-ish tuple.
 
 > Note `to_uint` should be used in favor of `uint`, as `uint` only returns the low bits of the tuple.
-
 
 ### `to_uint`
 
@@ -190,7 +183,7 @@ assert_event_emitted(
 
 ## Memoization
 
-Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts. 
+Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts.
 
 ### `get_contract_def`
 
@@ -232,6 +225,6 @@ def foo_factory(contract_defs, foo_init):
     return cached_foo  # return cached contracts
 ```
 
-## Signer
+## TestSigner
 
-`Signer` is used to perform transactions on a given Account, crafting the tx and managing nonces. See the [Account documentation](../docs/Account.md#signer-utility) for in-depth information.
+`TestSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `TestSigner` to operate with the Account contract's `__execute__` method. See [TestSigner utility](../docs/Account.md#activatedsigner-utility) for more information.

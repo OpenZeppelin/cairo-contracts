@@ -86,7 +86,7 @@ func count_this_recursive{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-   } (n : felt):
+   } (n: felt):
     alloc_locals
     ReentrancyGuard._start()
     let (greater_zero) = is_le(1, n)

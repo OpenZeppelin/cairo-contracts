@@ -218,25 +218,6 @@ Where:
 
 A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
 
-This is the basic flow:
-
-1. The user sends the messages for the transaction through a Signer instantiation which looks like this:
-
-    ```python
-    await signer.send_transaction(
-            account, [
-                (contract_address, 'contract_method', [arg_1]),
-                (contract_address, 'another_method', [arg_1, arg_2])
-            ]
-        )
-    ```
-
-    The `_from_call_to_call_array` method in [utils.py](../tests/utils.py) converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array. Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash. The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
-
-2. The `__execute__` method takes the `AccountCallArray` and calldata and builds an array of `Call` (MultiCall).
-
-3. A new empty array is created and passed with the list of calls (populated from `from_call_array_to_call`) to `_execute_list`. This method iterates and executes a contract call for each `Call` and pushes each result into the array. Once all contract calls are finished, the array holding each contract call response is returned.
-
 > It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
 
 ## API Specification

@@ -17,18 +17,18 @@ end
 
 @contract_interface
 namespace IReentrancyGuard:
-    func count_this_recursive(n : felt):
+    func count_this_recursive(n: felt):
     end
 end
 
 @storage_var
-func counter() -> (res : felt):
+func counter() -> (res: felt):
 end
 
 @constructor
 func constructor{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(initial_number: felt):
     counter.write(initial_number)
@@ -37,8 +37,8 @@ end
 
 @view
 func current_count{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
     let (res) = counter.read()
@@ -47,8 +47,8 @@ end
 
 @external
 func callback{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
    ReentrancyGuard._start()
@@ -59,10 +59,10 @@ end
 
 @external
 func count_local_recursive{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    } (n : felt):
+    } (n: felt):
     alloc_locals
     ReentrancyGuard._start()
     let (greater_zero) = is_le(1, n)
@@ -83,8 +83,8 @@ end
 
 @external
 func count_this_recursive{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
    } (n : felt):
     alloc_locals
@@ -109,10 +109,10 @@ end
 
 @external
 func count_and_call{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(attacker : felt):
+    }(attacker: felt):
     ReentrancyGuard._start()
     _count()
     IReentrancyGuardAttacker.call_sender(contract_address=attacker)
@@ -121,8 +121,8 @@ func count_and_call{
 end
 
 func _count{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
     let (current_count) = counter.read()

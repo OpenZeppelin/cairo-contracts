@@ -27,7 +27,7 @@ end
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(initial_number: felt):
@@ -37,7 +37,7 @@ end
 
 @view
 func current_count{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
@@ -47,26 +47,26 @@ end
 
 @external
 func callback{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-   ReentrancyGuard.start()
+   ReentrancyGuard._start()
    _count()
-   ReentrancyGuard.end_()
+   ReentrancyGuard._end()
    return ()
 end
 
 @external
-func count_local_recursive {
-        syscall_ptr : felt*, 
+func count_local_recursive{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     } (n : felt):
     alloc_locals
-    ReentrancyGuard.start()
+    ReentrancyGuard._start()
     let (greater_zero) = is_le(1, n)
-    if greater_zero == TRUE:           
+    if greater_zero == TRUE:
         _count()
         count_local_recursive(n - 1)
         tempvar syscall_ptr=syscall_ptr
@@ -77,20 +77,20 @@ func count_local_recursive {
         tempvar pedersen_ptr=pedersen_ptr
         tempvar range_check_ptr=range_check_ptr
     end
-    ReentrancyGuard.end_()
+    ReentrancyGuard._end()
    return ()
 end
 
 @external
-func count_this_recursive {
-        syscall_ptr : felt*, 
+func count_this_recursive{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
    } (n : felt):
     alloc_locals
-    ReentrancyGuard.start()
+    ReentrancyGuard._start()
     let (greater_zero) = is_le(1, n)
-    if greater_zero == TRUE:      
+    if greater_zero == TRUE:
         _count()
         let (contract_address) = get_contract_address()
         IReentrancyGuard.count_this_recursive(
@@ -103,25 +103,25 @@ func count_this_recursive {
         tempvar pedersen_ptr=pedersen_ptr
         tempvar range_check_ptr=range_check_ptr
     end
-    ReentrancyGuard.end_()
-    return ()    
+    ReentrancyGuard._end()
+    return ()
 end
 
 @external
-func count_and_call{ 
-        syscall_ptr : felt*, 
+func count_and_call{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(attacker : felt):    
-    ReentrancyGuard.start()
+    }(attacker : felt):
+    ReentrancyGuard._start()
     _count()
     IReentrancyGuardAttacker.call_sender(contract_address=attacker)
-    ReentrancyGuard.end_()
+    ReentrancyGuard._end()
     return()
 end
 
-func _count{ 
-        syscall_ptr : felt*, 
+func _count{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():

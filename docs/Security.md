@@ -6,7 +6,33 @@
 
 ## Table of Contents
 
+* [Initializable](#initializable)
 * [Reentrancy Guard](#Reentrancy-Guard)
+
+## Initializable
+
+The Initializable library provides a simple mechanism that mimics the functionality of a constructor. More specifically, it enables logic to be performed once and only once which is commonly used to setup a contract's initial state. This is especially useful for proxy contracts and upgradeable contracts since they first need to be deployed before the state of the implementation contract can be set (see [constructors](../docs/Proxies.md#constructors) for more info).
+
+> Please note that Initializable should only be used once and only on one function. Subsequent uses will clash.
+
+The basic design utilizes Cairo booleans and leverages the initial state of storage variables (`0` or `FALSE` as a boolean). Once `initialize` is invoked, then the `initialized` storage variable equates to `TRUE`. The recommended pattern with Initializable is to include a check that the Initializable state is `False` and invoke `initialize` in the target function like this:
+
+```cairo
+from openzeppelin.security.initializable import Initializable
+
+@external
+func foo{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    let (initialized) = Initializable.initialized()
+    assert initialized = FALSE
+
+    Initializable.initialize()
+    return ()
+end
+```
 
 ## Reentrancy Guard
 

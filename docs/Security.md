@@ -7,6 +7,7 @@
 ## Table of Contents
 
 * [Initializable](#initializable)
+* [Pausable](#pausable)
 * [Reentrancy Guard](#Reentrancy-Guard)
 
 ## Initializable
@@ -33,6 +34,8 @@ end
 ```
 
 > Please note that this Initializable pattern should only be used on one function.
+
+## Pausable
 
 ## Reentrancy Guard
 

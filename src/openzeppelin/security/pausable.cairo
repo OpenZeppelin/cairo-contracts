@@ -7,35 +7,31 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
 
+#
+# Storage
+#
+
 @storage_var
 func Pausable_paused() -> (paused: felt):
 end
 
+#
+# Events
+#
+
+@event
+func Paused(account: felt):
+end
+
+@event
+func Unpaused(account: felt):
+end
+
 namespace Pausable:
 
-    func pause{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*,
-            range_check_ptr
-        }():
-        assert_not_paused()
-        Pausable_paused.write(TRUE)
-        return ()
-    end
-
-    func unpause{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*,
-            range_check_ptr
-        }():
-        assert_paused()
-        Pausable_paused.write(FALSE)
-        return ()
-    end
-
     func is_paused{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*,
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }() -> (is_paused: felt):
         let (is_paused) = Pausable_paused.read()
@@ -43,8 +39,8 @@ namespace Pausable:
     end
 
     func assert_not_paused{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*,
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }():
         let (is_paused) = Pausable_paused.read()
@@ -55,14 +51,40 @@ namespace Pausable:
     end
 
     func assert_paused{
-            syscall_ptr : felt*, 
-            pedersen_ptr : HashBuiltin*,
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }():
         let (is_paused) = Pausable_paused.read()
         with_attr error_message("Pausable: contract is not paused"):
             assert is_paused = TRUE
         end
+        return ()
+    end
+
+    func _pause{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }():
+        assert_not_paused()
+        Pausable_paused.write(TRUE)
+
+        let (account) = get_caller_address()
+        Paused.emit(account)
+        return ()
+    end
+
+    func _unpause{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }():
+        assert_paused()
+        Pausable_paused.write(FALSE)
+
+        let (account) = get_caller_address()
+        Unpaused.emit(account)
         return ()
     end
 

@@ -179,7 +179,7 @@ func pause{
         range_check_ptr
     }():
     Ownable_only_owner()
-    Pausable.pause()
+    Pausable._pause()
     return ()
 end
 
@@ -190,6 +190,6 @@ func unpause{
         range_check_ptr
     }():
     Ownable_only_owner()
-    Pausable.unpause()
+    Pausable._unpause()
     return ()
 end

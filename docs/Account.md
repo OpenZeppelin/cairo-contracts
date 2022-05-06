@@ -233,7 +233,7 @@ This is the basic flow:
 
     The `_from_call_to_call_array` method in [utils.py](../tests/utils.py) converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array. Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash. The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
-2. The `__execute__` method creates an empty array which is passed with the `AccountCallArray` and calldata into the `_from_call_array_to_call` method. This method iterates through the `AccountCallArray` messages and converts each message into a `Call`.
+2. The `__execute__` method takes the `AccountCallArray` and calldata and builds an array of `Call` (MultiCall).
 
 3. A new empty array is created and passed with the list of calls (populated from `from_call_array_to_call`) to `_execute_list`. This method iterates and executes a contract call for each `Call` and pushes each result into the array. Once all contract calls are finished, the array holding each contract call response is returned.
 

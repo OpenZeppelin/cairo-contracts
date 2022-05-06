@@ -38,22 +38,21 @@ end
 
 A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4) occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
 
-Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/reentrancy_guard.cairo) library exposes two methods `ReentrancyGuard_start` and `ReentrancyGuard_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard_start` before the first function statement, and `ReentrancyGuard_end` before the return statement, as shown below:
+Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/reentrancy_guard.cairo) library exposes two methods `start` and `end_` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard.start` before the first function statement, and `ReentrancyGuard.end_` before the return statement, as shown below:
 
 ```cairo
-from openzeppelin.security.reentrancy_guard import (
-    ReentrancyGuard_start,
-    ReentrancyGuard_end
-)
+from openzeppelin.security.reentrancy_guard import ReentrancyGuard
 
 func test_function{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-   ReentrancyGuard_start()
+   ReentrancyGuard.start()
    # function body
-   ReentrancyGuard_end()
+   ReentrancyGuard.end_()
    return ()
 end
 ```
+
+> Note that `Reentrancy.end_` includes the appended underscore because `end` itself is a [protected keyword](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/lang/ide/vim/syntax/cairo.vim) in Cairo.

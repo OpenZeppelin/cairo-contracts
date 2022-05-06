@@ -3,11 +3,12 @@
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.bool import TRUE, FALSE
 
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
-from openzeppelin.utils.constants import TRUE, FALSE, IACCESSCONTROL_ID
+from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.utils.constants import IACCESSCONTROL_ID
 
 #
 # Events
@@ -47,7 +48,7 @@ namespace AccessControl:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():
-        ERC165_register_interface(IACCESSCONTROL_ID)
+        ERC165.register_interface(IACCESSCONTROL_ID)
         return ()
     end
 

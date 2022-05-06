@@ -22,7 +22,7 @@ namespace IReentrancyGuard:
 end
 
 @storage_var
-func counter() -> (res : felt):  
+func counter() -> (res : felt):
 end
 
 @constructor

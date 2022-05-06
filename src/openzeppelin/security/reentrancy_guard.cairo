@@ -13,7 +13,7 @@ end
 namespace ReentrancyGuard:
 
     func start{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():
@@ -26,7 +26,7 @@ namespace ReentrancyGuard:
     end
 
     func end_{
-            syscall_ptr : felt*, 
+            syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():

@@ -56,7 +56,7 @@ namespace Account:
             range_check_ptr
         }(_public_key: felt):
         Account_public_key.write(_public_key)
-        ERC165_register_interface(IACCOUNT_ID)
+        ERC165.register_interface(IACCOUNT_ID)
         return()
     end
 

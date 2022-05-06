@@ -4,17 +4,24 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from openzeppelin.account.library import (
-    AccountCallArray,
-    Account_execute,
-    Account_get_nonce,
-    Account_initializer,
-    Account_get_public_key,
-    Account_set_public_key,
-    Account_is_valid_signature
-)
+
+from openzeppelin.account.library import Account, AccountCallArray
 
 from openzeppelin.introspection.ERC165 import ERC165
+
+#
+# Constructor
+#
+
+@constructor
+func constructor{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(public_key: felt):
+    Account.constructor(public_key)
+    return ()
+end
 
 #
 # Getters
@@ -26,7 +33,7 @@ func get_public_key{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
-    let (res) = Account_get_public_key()
+    let (res) = Account.get_public_key()
     return (res=res)
 end
 
@@ -36,13 +43,13 @@ func get_nonce{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
-    let (res) = Account_get_nonce()
+    let (res) = Account.get_nonce()
     return (res=res)
 end
 
 @view
 func supportsInterface{
-        syscall_ptr: felt*, 
+        syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):
@@ -56,25 +63,11 @@ end
 
 @external
 func set_public_key{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_public_key: felt):
-    Account_set_public_key(new_public_key)
-    return ()
-end
-
-#
-# Constructor
-#
-
-@constructor
-func constructor{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(public_key: felt):
-    Account_initializer(public_key)
+    Account.set_public_key(new_public_key)
     return ()
 end
 
@@ -82,26 +75,26 @@ end
 # Business logic
 #
 
-@view
+#@view
 func is_valid_signature{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr, 
+        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*
     }(
         hash: felt,
         signature_len: felt,
         signature: felt*
     ) -> ():
-    Account_is_valid_signature(hash, signature_len, signature)
+    Account.is_valid_signature(hash, signature_len, signature)
     return ()
 end
 
 @external
 func __execute__{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
-        range_check_ptr, 
+        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*
     }(
         call_array_len: felt,
@@ -110,7 +103,7 @@ func __execute__{
         calldata: felt*,
         nonce: felt
     ) -> (response_len: felt, response: felt*):
-    let (response_len, response) = Account_execute(
+    let (response_len, response) = Account.execute(
         call_array_len,
         call_array,
         calldata_len,

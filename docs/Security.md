@@ -37,7 +37,7 @@ end
 
 ## Pausable
 
-The Pausable library allows contracts to implement an emergency stop mechanism. This can be useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch to freeze all transactions in the event of a large bug.
+The Pausable library allows contracts to implement an emergency stop mechanism. This can be useful for scenarios such as preventing trades until the end of an evaluation period or having an emergency switch to freeze all transactions in the event of a large bug.
 
 To use the Pausable library, the contract should include `pause` and `unpause` functions (which should be protected). For methods that should be available only when not paused, insert `assert_not_paused`. For methods that should be available only when paused, insert `assert_paused`. For example:
 

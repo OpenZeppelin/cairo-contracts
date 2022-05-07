@@ -44,7 +44,7 @@ namespace Pausable:
             range_check_ptr
         }():
         let (is_paused) = Pausable_paused.read()
-        with_attr error_message("Pausable: contract is paused"):
+        with_attr error_message("Pausable: paused"):
             assert is_paused = FALSE
         end
         return ()
@@ -56,7 +56,7 @@ namespace Pausable:
             range_check_ptr
         }():
         let (is_paused) = Pausable_paused.read()
-        with_attr error_message("Pausable: contract is not paused"):
+        with_attr error_message("Pausable: not paused"):
             assert is_paused = TRUE
         end
         return ()

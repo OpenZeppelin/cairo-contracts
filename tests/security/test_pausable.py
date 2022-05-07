@@ -64,7 +64,7 @@ async def test_pausable_when_paused(pausable_factory):
 
     await assert_revert(
         contract.normalProcess().invoke(),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     execution_info = await contract.getDrasticMeasureTaken().call()

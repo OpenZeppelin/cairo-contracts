@@ -7,7 +7,6 @@ from utils import assert_revert, contract_path, TRUE, FALSE
 @pytest.fixture
 async def enumerablemap_mock():
     starknet = await Starknet.empty()
-
     enumerablemap = await starknet.deploy(
         contract_path("tests/mocks/enumerablemap_mock.cairo")
     )
@@ -33,9 +32,14 @@ async def test_remove(enumerablemap_mock):
     success = await enumerablemap.set(6, 8).invoke()
     assert success.result.success == TRUE
 
+    executed_info = await enumerablemap.length().call()
+    assert executed_info.result == (1,)
+
     success = await enumerablemap.remove(6).invoke()
     assert success.result.success == TRUE
 
+    executed_info = await enumerablemap.length().call()
+    assert executed_info.result == (0,)
 
     executed_info = await enumerablemap.contains(6).call()
     assert executed_info.result == (FALSE,)
@@ -45,9 +49,11 @@ async def test_remove(enumerablemap_mock):
 async def test_remove_fail(enumerablemap_mock):
     enumerablemap = enumerablemap_mock
 
+    executed_info = await enumerablemap.contains(6).call()
+    assert executed_info.result == (FALSE,)
+
     success = await enumerablemap.remove(6).invoke()
     assert success.result.success == FALSE
-
 
     executed_info = await enumerablemap.contains(6).call()
     assert executed_info.result == (FALSE,)
@@ -106,7 +112,7 @@ async def test_get(enumerablemap_mock):
     assert success.result.success == TRUE
 
     executed_info = await enumerablemap.get(1).call()
-    assert executed_info.result == (TRUE,3,)
+    assert executed_info.result == (TRUE, 3,)
 
 
 @pytest.mark.asyncio
@@ -114,10 +120,10 @@ async def test_try_get(enumerablemap_mock):
     enumerablemap = enumerablemap_mock
 
     executed_info = await enumerablemap.tryGet(11).call()
-    assert executed_info.result == (FALSE,0,)
+    assert executed_info.result == (FALSE, 0,)
 
     success = await enumerablemap.set(11, 19).invoke()
     assert success.result.success == TRUE
 
     executed_info = await enumerablemap.tryGet(11).call()
-    assert executed_info.result == (TRUE,19,)
+    assert executed_info.result == (TRUE, 19,)

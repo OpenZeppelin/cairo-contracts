@@ -17,11 +17,18 @@ async def enumerableset_mock():
 @pytest.mark.asyncio
 async def test_add(enumerableset_mock):
     enumerableset = enumerableset_mock
+    
+    executed_info = await enumerableset.length().call()
+    assert executed_info.result == (0,)
+    
     success = await enumerableset.add(1).invoke()
     assert success.result.success == TRUE
 
     executed_info = await enumerableset.contains(1).call()
     assert executed_info.result == (TRUE,)
+
+    executed_info = await enumerableset.length().call()
+    assert executed_info.result == (1,)
 
 
 @pytest.mark.asyncio
@@ -33,8 +40,9 @@ async def test_remove(enumerableset_mock):
     success = await enumerableset.remove(1).invoke()
     assert success.result.success == TRUE
 
-    executed_info = await enumerableset.contains(1).call()
-    assert executed_info.result == (FALSE,)
+    executed_info = await enumerableset.length().call()
+    assert executed_info.result == (0,)
+
 
 @pytest.mark.asyncio
 async def test_remove_not_present(enumerableset_mock):

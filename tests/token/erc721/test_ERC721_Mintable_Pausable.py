@@ -100,7 +100,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKENS[0]
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -108,7 +108,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             TRUE
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -117,7 +117,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKENS[0]
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -128,7 +128,7 @@ async def test_pause(erc721_minted):
             len(DATA),
             *DATA
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -136,7 +136,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKEN_TO_MINT
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
 

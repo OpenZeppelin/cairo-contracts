@@ -102,7 +102,7 @@ async def test_pause(token_factory):
         'transfer',
         [other.contract_address, *AMOUNT]
     ),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -111,7 +111,7 @@ async def test_pause(token_factory):
         'transferFrom',
         [other.contract_address, other.contract_address, *AMOUNT]
     ),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -120,7 +120,7 @@ async def test_pause(token_factory):
         'approve',
         [other.contract_address, *AMOUNT]
     ),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -129,7 +129,7 @@ async def test_pause(token_factory):
         'increaseAllowance',
         [other.contract_address, *AMOUNT]
     ),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -138,7 +138,7 @@ async def test_pause(token_factory):
         'decreaseAllowance',
         [other.contract_address, *AMOUNT]
     ),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
 

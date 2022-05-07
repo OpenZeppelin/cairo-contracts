@@ -46,7 +46,7 @@ async def test_pausable_when_unpaused(pausable_factory):
 
     await assert_revert(
         contract.drasticMeasure().invoke(),
-        reverted_with="Pausable: contract is not paused"
+        reverted_with="Pausable: not paused"
     )
 
 @pytest.mark.asyncio
@@ -79,6 +79,9 @@ async def test_pausable_when_paused(pausable_factory):
     # unpause
     await contract.unpause().invoke()
 
+    execution_info = await contract.isPaused().call()
+    assert execution_info.result.isPaused == FALSE
+
     # check normal process after unpausing
     await contract.normalProcess().invoke()
 
@@ -87,7 +90,7 @@ async def test_pausable_when_paused(pausable_factory):
 
     await assert_revert(
         contract.drasticMeasure().invoke(),
-        reverted_with="Pausable: contract is not paused"
+        reverted_with="Pausable: not paused"
     )
 
 @pytest.mark.asyncio
@@ -100,7 +103,7 @@ async def test_pausable_pause_when_paused(pausable_factory):
     # re-pause
     await assert_revert(
         contract.pause().invoke(),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     # unpause
@@ -109,7 +112,7 @@ async def test_pausable_pause_when_paused(pausable_factory):
     # re-unpause
     await assert_revert(
         contract.unpause().invoke(),
-        reverted_with="Pausable: contract is not paused"
+        reverted_with="Pausable: not paused"
     )
 
 @pytest.mark.asyncio

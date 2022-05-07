@@ -33,7 +33,7 @@ Considering four type of functions:
 
 - `A`: internal to a library, not meant to be used outside the module
 - `B`: part of the public API of a library
-- `C`: subset of B that is meant to be exported as-is by contracts
+- `C`: subset of B that is ready to be exported as-is by contracts
 - `S`: storage variables
 
 Then:
@@ -44,17 +44,17 @@ Then:
 * Must not prefix `C` functions with an underscore (e.g. `ERC20.transfer`)
 * Must prefix `S` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions
-* Can implement library constructor functions as long as they're not decorated with `@constructor` or `@external`
-* Must not call library constructors on any function
+* Can implement initializers (never as `@constructor` or `@external`)
+* Must not call initializers on any function
 
 ### Contracts
 
 * Can import from libraries
 * Should implement `@external` functions if needed
-* Should implement a `@constructor` function that calls library constructors
-* Must not call library constructors in any function beside the main constructor
+* Should implement a `@constructor` function that calls initializers
+* Must not call initializers in any function beside the constructor
 
-Note that since library constructors will never be marked as `@external` and they won’t be called from anywhere but the main constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make library constructors interdependent to avoid weird dependency paths that may lead to double construction of libraries.
+Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double construction of libraries.
 
 ## Presets
 
@@ -74,8 +74,8 @@ Some presets are:
 
 ## Function names and Coding style
 
-* Following the Cairo programming style, we choose to stick with `snake_case` for library APIs (e.g. `ERC20.transfer_from`, `ERC721.safe_transfer_from`).
-  * Contract developers should then expose the `camelCase` version of the methods to comply with existing standards (e.g. `transferFrom` in a ERC20 contract)
+* Following Cairo's programming style, we use `snake_case` for library APIs (e.g. `ERC20.transfer_from`, `ERC721.safe_transfer_from`).
+* But for standard EVM ecosystem compatibility, we implement external functions in contracts using `camelCase` (e.g. `transferFrom` in a ERC20 contract).
 * Guard functions such as the so-called "only owner" are prefixed with `assert_` (e.g. `Ownable.assert_only_owner`).
 
 ## Emulating hooks
@@ -103,7 +103,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.transfer(recipient, amount)
     return (TRUE)
 end

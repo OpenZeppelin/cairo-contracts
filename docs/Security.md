@@ -8,7 +8,8 @@
 
 * [Initializable](#initializable)
 * [Reentrancy Guard](#Reentrancy-Guard)
-* [SafeUint256](#safeuint256)
+* [SafeMath](#safemath)
+  * [SafeUint256](#safeuint256)
 
 ## Initializable
 
@@ -56,7 +57,9 @@ func test_function{
 end
 ```
 
-## SafeUint256
+## SafeMath
+
+### SafeUint256
 
 The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/safemath.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
 

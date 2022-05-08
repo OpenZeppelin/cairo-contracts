@@ -53,6 +53,8 @@ flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statist
 
 5) Go to [github.com/OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts) in your web browser and issue a new pull request.
 
+Begin the body of the PR with "Fixes #123" or "Resolves #123" to link the PR to the issue that it is resolving.
+
 *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions
 refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all PR checks pass.
 

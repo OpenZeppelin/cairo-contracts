@@ -23,7 +23,7 @@ namespace SafeUint256:
         uint256_check(a)
         uint256_check(b)
         let (c: Uint256, is_overflow) = uint256_add(a, b)
-        with_attr error_message("SafeMath: addition overflow"):
+        with_attr error_message("SafeUint256: addition overflow"):
             assert is_overflow = FALSE
         end
         return (c)
@@ -40,7 +40,7 @@ namespace SafeUint256:
         uint256_check(a)
         uint256_check(b)
         let (is_le) = uint256_le(b, a)
-        with_attr error_message("SafeMath: subtraction overflow"):
+        with_attr error_message("SafeUint256: subtraction overflow"):
             assert is_le = TRUE
         end
         let (c: Uint256) = uint256_sub(a, b)
@@ -59,7 +59,7 @@ namespace SafeUint256:
         uint256_check(b)
 
         let (is_lt) = uint256_lt(b, a)
-        with_attr error_message("SafeMath: subtraction overflow or the difference equals zero"):
+        with_attr error_message("SafeUint256: subtraction overflow or the difference equals zero"):
             assert is_lt = TRUE
         end
         let (c: Uint256) = uint256_sub(a, b)
@@ -87,7 +87,7 @@ namespace SafeUint256:
         end
 
         let (c: Uint256, overflow: Uint256) = uint256_mul(a, b)
-        with_attr error_message("SafeMath: multiplication overflow"):
+        with_attr error_message("SafeUint256: multiplication overflow"):
             assert overflow = Uint256(0, 0)
         end
         return (c)
@@ -109,7 +109,7 @@ namespace SafeUint256:
         uint256_check(b)
 
         let (is_zero) = uint256_eq(b, Uint256(0, 0))
-        with_attr error_message("SafeMath: divisor cannot be zero"):
+        with_attr error_message("SafeUint256: divisor cannot be zero"):
             assert is_zero = FALSE
         end
 

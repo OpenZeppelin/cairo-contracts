@@ -37,7 +37,7 @@ async def test_add_overflow(safemath_mock):
 
     await assert_revert(
         safemath.uint256_add(a, b).invoke(),
-        reverted_with="Safemath: addition overflow"
+        reverted_with="SafeMath: addition overflow"
     )
 
 
@@ -62,7 +62,7 @@ async def test_sub_lt_equal(safemath_mock):
 
     await assert_revert(
         safemath.uint256_sub_lt(a, b).invoke(),
-        reverted_with="Safemath: subtraction overflow or the difference equals zero"
+        reverted_with="SafeMath: subtraction overflow or the difference equals zero"
     )
 
 
@@ -75,7 +75,7 @@ async def test_sub_lt_overflow(safemath_mock):
 
     await assert_revert(
         safemath.uint256_sub_lt(a, b).invoke(),
-        reverted_with="Safemath: subtraction overflow or the difference equals zero"
+        reverted_with="SafeMath: subtraction overflow or the difference equals zero"
     )
 
 
@@ -112,7 +112,7 @@ async def test_sub_le_overflow(safemath_mock):
 
     await assert_revert(
         safemath.uint256_sub_le(a, b).invoke(),
-        reverted_with="Safemath: subtraction overflow"
+        reverted_with="SafeMath: subtraction overflow"
     )
     await assert_revert(safemath.uint256_sub_le(a, b).invoke())
 
@@ -153,7 +153,7 @@ async def test_mul_overflow(safemath_mock):
 
     await assert_revert(
         safemath.uint256_mul(a, b).invoke(),
-        reverted_with="Safemath: multiplication overflow"
+        reverted_with="SafeMath: multiplication overflow"
     )
 
 
@@ -190,7 +190,7 @@ async def test_div_zero_divisor(safemath_mock):
 
     await assert_revert(
         safemath.uint256_div(a, b).invoke(),
-        reverted_with="Safemath: divisor cannot be zero"
+        reverted_with="SafeMath: divisor cannot be zero"
     )
 
 

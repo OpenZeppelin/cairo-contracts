@@ -11,11 +11,11 @@ from starkware.cairo.common.uint256 import (
     uint256_unsigned_div_rem, uint256_le, uint256_lt, uint256_eq
 )
 
-namespace SafeMath:
+namespace SafeUint256:
 
     # Adds two integers. 
     # Reverts if the sum overflows.
-    func uint256_checked_add{
+    func add{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -31,7 +31,7 @@ namespace SafeMath:
 
     # Subtracts two integers.
     # Reverts if minuend (`b`) is greater than subtrahend (`a`).
-    func uint256_checked_sub_le{
+    func sub_le{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -40,7 +40,7 @@ namespace SafeMath:
         uint256_check(a)
         uint256_check(b)
         let (is_le) = uint256_le(b, a)
-        with_attr error_message("Safemath: subtraction overflow"):
+        with_attr error_message("SafeMath: subtraction overflow"):
             assert is_le = TRUE
         end
         let (c: Uint256) = uint256_sub(a, b)
@@ -49,7 +49,7 @@ namespace SafeMath:
 
     # Subtracts two integers.
     # Reverts if minuend (`b`) is greater than or equal to subtrahend (`a`).
-    func uint256_checked_sub_lt{
+    func sub_lt{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -59,7 +59,7 @@ namespace SafeMath:
         uint256_check(b)
 
         let (is_lt) = uint256_lt(b, a)
-        with_attr error_message("Safemath: subtraction overflow or the difference equals zero"):
+        with_attr error_message("SafeMath: subtraction overflow or the difference equals zero"):
             assert is_lt = TRUE
         end
         let (c: Uint256) = uint256_sub(a, b)
@@ -68,7 +68,7 @@ namespace SafeMath:
 
     # Multiplies two integers.
     # Reverts if product is greater than 2^256.
-    func uint256_checked_mul{
+    func mul{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -87,7 +87,7 @@ namespace SafeMath:
         end
 
         let (c: Uint256, overflow: Uint256) = uint256_mul(a, b)
-        with_attr error_message("Safemath: multiplication overflow"):
+        with_attr error_message("SafeMath: multiplication overflow"):
             assert overflow = Uint256(0, 0)
         end
         return (c)
@@ -99,7 +99,7 @@ namespace SafeMath:
     # Cairo's `uint256_unsigned_div_rem` already checks:
     #    remainder < divisor
     #    quotient * divisor + remainder == dividend
-    func uint256_checked_div_rem{
+    func div_rem{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
@@ -109,7 +109,7 @@ namespace SafeMath:
         uint256_check(b)
 
         let (is_zero) = uint256_eq(b, Uint256(0, 0))
-        with_attr error_message("Safemath: divisor cannot be zero"):
+        with_attr error_message("SafeMath: divisor cannot be zero"):
             assert is_zero = FALSE
         end
 

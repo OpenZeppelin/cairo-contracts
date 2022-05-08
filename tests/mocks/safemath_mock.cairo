@@ -5,7 +5,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.security.safemath import SafeMath
+from openzeppelin.security.safemath import SafeUint256
 
 @view
 func uint256_add{
@@ -13,7 +13,7 @@ func uint256_add{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256):
-    let (c: Uint256) = SafeMath.uint256_checked_add(a, b)
+    let (c: Uint256) = SafeUint256.add(a, b)
     return (c)
 end
 
@@ -23,7 +23,7 @@ func uint256_sub_le{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256):
-    let (c: Uint256) = SafeMath.uint256_checked_sub_le(a, b)
+    let (c: Uint256) = SafeUint256.sub_le(a, b)
     return (c)
 end
 
@@ -33,7 +33,7 @@ func uint256_sub_lt{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256):
-    let (c: Uint256) = SafeMath.uint256_checked_sub_lt(a, b)
+    let (c: Uint256) = SafeUint256.sub_lt(a, b)
     return (c)
 end
 
@@ -43,7 +43,7 @@ func uint256_mul{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256):
-    let (c: Uint256) = SafeMath.uint256_checked_mul(a, b)
+    let (c: Uint256) = SafeUint256.mul(a, b)
     return (c)
 end
 
@@ -53,6 +53,6 @@ func uint256_div{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256, rem: Uint256):
-    let (c: Uint256, rem: Uint256) = SafeMath.uint256_checked_div_rem(a, b)
+    let (c: Uint256, rem: Uint256) = SafeUint256.div_rem(a, b)
     return (c, rem)
 end

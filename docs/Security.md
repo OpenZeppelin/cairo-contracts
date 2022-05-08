@@ -8,7 +8,7 @@
 
 * [Initializable](#initializable)
 * [Reentrancy Guard](#Reentrancy-Guard)
-* [SafeMath](#safemath)
+* [SafeUint256](#safeuint256)
 
 ## Initializable
 
@@ -56,21 +56,21 @@ func test_function{
 end
 ```
 
-## SafeMath
+## SafeUint256
 
-The SafeMath library offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
+The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/safemath.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
 
-Using SafeMath methods is rather straightforward. Simply import SafeMath and insert the arithmetic method like this:
+Using SafeUint256 methods is rather straightforward. Simply import SafeUint256 and insert the arithmetic method like this:
 
 ```cairo
-from openzeppelin.security.safemath import SafeMath
+from openzeppelin.security.safemath import SafeUint256
 
 func add_two_uints{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (a: Uint256, b: Uint256) -> (c: Uint256):
-    let (c: Uint256) = SafeMath.uint256_checked_add(a, b)
+    let (c: Uint256) = SafeUint256.add(a, b)
     return (c)
 end
 ```

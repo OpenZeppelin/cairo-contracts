@@ -23,7 +23,7 @@ namespace SafeMath:
         uint256_check(a)
         uint256_check(b)
         let (c: Uint256, is_overflow) = uint256_add(a, b)
-        with_attr error_message("Safemath: addition overflow"):
+        with_attr error_message("SafeMath: addition overflow"):
             assert is_overflow = FALSE
         end
         return (c)

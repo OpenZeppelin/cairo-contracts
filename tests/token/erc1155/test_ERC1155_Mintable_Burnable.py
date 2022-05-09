@@ -2,9 +2,9 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, uint, add_uint, sub_uint, MAX_UINT256, get_contract_def, cached_contract, assert_revert, assert_event_emitted)
+    TestSigner, uint, add_uint, sub_uint, MAX_UINT256, get_contract_def, cached_contract, assert_revert, assert_event_emitted)
 
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 account_path = 'openzeppelin/account/Account.cairo'
 erc1155_path = 'openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo'
 receiver_path = 'tests/mocks/ERC1155_Receiver_mock.cairo'

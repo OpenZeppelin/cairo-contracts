@@ -11,7 +11,7 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_lt, uint256_eq, uint256_check
 )
 
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
+from openzeppelin.introspection.ERC165 import ERC165
 from openzeppelin.utils.constants import IERC721_ENUMERABLE_ID
 
 from openzeppelin.security.safemath import (
@@ -62,7 +62,7 @@ func ERC721_Enumerable_initializer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }():
-    ERC165_register_interface(IERC721_ENUMERABLE_ID)
+    ERC165.register_interface(IERC721_ENUMERABLE_ID)
     return ()
 end
 

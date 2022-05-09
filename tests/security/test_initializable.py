@@ -7,7 +7,7 @@ from utils import TRUE, FALSE, assert_revert, contract_path
 async def test_initializer():
     starknet = await Starknet.empty()
     initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+        contract_path("tests/mocks/Initializable.cairo")
     )
     expected = await initializable.initialized().call()
     assert expected.result == (FALSE,)

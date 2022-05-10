@@ -11,6 +11,7 @@ from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.transaction_execution_objects import Event
 from starkware.starknet.core.os.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
 from starkware.starknet.definitions.general_config import StarknetChainId
+from starkware.starknet.business_logic.state import BlockInfo
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 INVALID_UINT256 = (MAX_UINT256[0] + 1, MAX_UINT256[1])
@@ -99,6 +100,8 @@ async def assert_revert(fun, reverted_with=None):
 
 
 def assert_event_emitted(tx_exec_info, from_address, name, data):
+    print(tx_exec_info.raw_events)
+
     assert Event(
         from_address=from_address,
         keys=[get_selector_from_name(name)],
@@ -205,4 +208,13 @@ def get_transaction_hash(account, call_array, calldata, nonce, max_fee):
         max_fee,
         StarknetChainId.TESTNET.value,
         []
+    )
+
+def get_block_timestamp(starknet_state):
+    return starknet_state.state.block_info.block_timestamp
+
+
+def set_block_timestamp(starknet_state, timestamp):
+    starknet_state.state.block_info = BlockInfo(
+        starknet_state.state.block_info.block_number, timestamp
     )

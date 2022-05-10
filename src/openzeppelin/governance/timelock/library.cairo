@@ -53,6 +53,8 @@ func OperationScheduled(
     calls_array : TimelockCall*,
     calldata_len : felt,
     calldata : felt*,
+    predecessor : felt,
+    delay : felt,
 ):
 end
 
@@ -193,7 +195,9 @@ namespace Timelock:
         let (id : felt) = hash_operation(call_array_len, call_array, calldata, predecessor, salt)
         _schedule(id, delay)
 
-        OperationScheduled.emit(id, call_array_len, call_array, calldata_len, calldata)
+        OperationScheduled.emit(
+            id, call_array_len, call_array, calldata_len, calldata, predecessor, delay
+        )
 
         return ()
     end
@@ -252,14 +256,17 @@ namespace Timelock:
         id : felt, predecessor : felt
     ):
         let (ready : felt) = is_operation_ready(id)
-        let (predecessor_done : felt) = is_operation_done(predecessor)
 
         with_attr error_message("Timelock: operation is not ready"):
             assert ready = TRUE
         end
 
-        with_attr error_message("Timelock: missing dependency"):
-            assert predecessor_done = TRUE
+        if predecessor != 0:
+            let (predecessor_done : felt) = is_operation_done(predecessor)
+
+            with_attr error_message("Timelock: missing dependency"):
+                assert predecessor_done = TRUE
+            end
         end
 
         return ()
@@ -300,7 +307,7 @@ namespace Timelock:
         let (pending : felt) = is_operation_pending(id)
 
         with_attr error_message("Timelock: operation cannot be cancelled"):
-            assert pending = FALSE
+            assert pending = TRUE
         end
 
         Timelock_timestamps.write(id, 0)

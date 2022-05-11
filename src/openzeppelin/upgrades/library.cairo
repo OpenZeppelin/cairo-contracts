@@ -35,83 +35,91 @@ end
 # Initializer
 #
 
-func Proxy_initializer{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(proxy_admin: felt):
-    let (initialized) = Proxy_initialized.read()
-    with_attr error_message("Proxy: contract already initialized"):
-        assert initialized = FALSE
+namespace Proxy:
+
+    #
+    # Constructor
+    #
+
+    func constructor{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(proxy_admin: felt):
+        let (initialized) = Proxy_initialized.read()
+        with_attr error_message("Proxy: contract already initialized"):
+            assert initialized = FALSE
+        end
+
+        Proxy_initialized.write(TRUE)
+        Proxy_admin.write(proxy_admin)
+        return ()
     end
 
-    Proxy_initialized.write(TRUE)
-    Proxy_admin.write(proxy_admin)
-    return ()
-end
+    #
+    # Upgrades
+    #
 
-#
-# Upgrades
-#
-
-func Proxy_set_implementation{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(new_implementation: felt):
-    Proxy_implementation_address.write(new_implementation)
-    Upgraded.emit(new_implementation)
-    return ()
-end
-
-#
-# Guards
-#
-
-func Proxy_only_admin{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    let (caller) = get_caller_address()
-    let (admin) = Proxy_admin.read()
-    with_attr error_message("Proxy: caller is not admin"):
-        assert admin = caller
+    func _set_implementation{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(new_implementation: felt):
+        Proxy_implementation_address.write(new_implementation)
+        Upgraded.emit(new_implementation)
+        return ()
     end
-    return ()
+
+    #
+    # Setters
+    #
+
+    func _set_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(new_admin: felt):
+        Proxy_admin.write(new_admin)
+        return ()
+    end
+
+    #
+    # Getters
+    #
+
+    func get_implementation{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (implementation: felt):
+        let (implementation) = Proxy_implementation_address.read()
+        return (implementation)
+    end
+
+    func get_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (admin: felt):
+        let (admin) = Proxy_admin.read()
+        return (admin)
+    end
+
+    #
+    # Guards
+    #
+
+    func assert_only_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }():
+        let (caller) = get_caller_address()
+        let (admin) = Proxy_admin.read()
+        with_attr error_message("Proxy: caller is not admin"):
+            assert admin = caller
+        end
+        return ()
+    end
+
 end
-
-#
-# Getters
-#
-
-func Proxy_get_admin{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (admin: felt):
-    let (admin) = Proxy_admin.read()
-    return (admin)
-end 
-
-func Proxy_get_implementation{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (implementation: felt):
-    let (implementation) = Proxy_implementation_address.read()
-    return (implementation)
-end 
-
-#
-# Setters
-#
-
-func Proxy_set_admin{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(new_admin: felt):
-    Proxy_admin.write(new_admin)
-    return ()
-end 

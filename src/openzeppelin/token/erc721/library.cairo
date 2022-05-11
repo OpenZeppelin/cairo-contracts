@@ -15,7 +15,7 @@ from openzeppelin.security.safemath import (
     uint256_checked_sub_le
 )
 
-from openzeppelin.introspection.ERC165 import ERC165_register_interface
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.token.erc721.interfaces.IERC721_Receiver import IERC721_Receiver
 
@@ -87,8 +87,8 @@ func ERC721_initializer{
     ):
     ERC721_name_.write(name)
     ERC721_symbol_.write(symbol)
-    ERC165_register_interface(IERC721_ID)
-    ERC165_register_interface(IERC721_METADATA_ID)
+    ERC165.register_interface(IERC721_ID)
+    ERC165.register_interface(IERC721_METADATA_ID)
     return ()
 end
 

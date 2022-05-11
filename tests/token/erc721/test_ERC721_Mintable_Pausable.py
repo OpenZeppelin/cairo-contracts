@@ -1,11 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, assert_revert, to_uint
+    TestSigner, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, 
+    assert_revert, to_uint
 )
 
 
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]
@@ -99,7 +100,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKENS[0]
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -107,7 +108,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             TRUE
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -116,7 +117,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKENS[0]
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -127,7 +128,7 @@ async def test_pause(erc721_minted):
             len(DATA),
             *DATA
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
     await assert_revert(signer.send_transaction(
@@ -135,7 +136,7 @@ async def test_pause(erc721_minted):
             other.contract_address,
             *TOKEN_TO_MINT
         ]),
-        reverted_with="Pausable: contract is paused"
+        reverted_with="Pausable: paused"
     )
 
 

@@ -1,11 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
-    TRUE, get_contract_def, cached_contract, assert_revert, assert_event_emitted, contract_path
+    TestSigner, to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, 
+    ZERO_ADDRESS, INVALID_UINT256, TRUE, get_contract_def, cached_contract, 
+    assert_revert, assert_event_emitted, contract_path
 )
 
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 # testing vars
 RECIPIENT = 123
@@ -185,7 +186,7 @@ async def test_approve_from_zero_address(erc20_factory):
     # (get_caller_address) is zero
     await assert_revert(
         erc20.approve(spender.contract_address, AMOUNT).invoke(),
-        reverted_with="ERC20: zero address cannot approve"
+        reverted_with="ERC20: cannot approve from the zero address"
     )
 
 
@@ -398,6 +399,29 @@ async def test_transferFrom_emits_event(erc20_factory):
     )
 
 
+async def test_transferFrom_doesnt_consume_infinite_allowance(erc20_factory):
+    erc20, account, spender = erc20_factory
+
+    # approve
+    await signer.send_transaction(account, erc20.contract_address, 'approve', [spender.contract_address, *MAX_UINT256])
+
+    # check approval
+    execution_info_1 = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info_1.result.remaining == MAX_UINT256
+
+    # transferFrom
+    await signer.send_transaction(
+        spender, erc20.contract_address, 'transferFrom', [
+            account.contract_address,
+            RECIPIENT,
+            *AMOUNT
+        ])
+
+    # re-check approval
+    execution_info_2 = await erc20.allowance(account.contract_address, spender.contract_address).call()
+    assert execution_info_2.result.remaining == MAX_UINT256
+
+
 @pytest.mark.asyncio
 async def test_transferFrom_greater_than_allowance(erc20_factory):
     erc20, account, spender = erc20_factory
@@ -420,7 +444,7 @@ async def test_transferFrom_greater_than_allowance(erc20_factory):
             RECIPIENT,
             *fail_amount
         ]),
-        reverted_with="ERC20: transfer amount exceeds allowance"
+        reverted_with="ERC20: insufficient allowance"
     )
 
 
@@ -434,7 +458,7 @@ async def test_transferFrom_from_zero_address(erc20_factory):
             RECIPIENT,
             *AMOUNT
         ]),
-        reverted_with="ERC20: transfer amount exceeds allowance"
+        reverted_with="ERC20: insufficient allowance"
     )
 
 

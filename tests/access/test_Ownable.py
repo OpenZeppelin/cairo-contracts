@@ -53,14 +53,14 @@ async def ownable_factory():
 
 @pytest.mark.asyncio
 async def test_constructor(ownable_factory):
-    ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     expected = await ownable.owner().call()
     assert expected.result.owner == owner.contract_address
 
 
 @pytest.mark.asyncio
 async def test_transferOwnership(ownable_factory):
-    ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     newOwner = 123
     await signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [newOwner])
     executed_info = await ownable.owner().call()
@@ -69,7 +69,7 @@ async def test_transferOwnership(ownable_factory):
 
 @pytest.mark.asyncio
 async def test_transferOwnership_emits_event(ownable_factory):
-    ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     newOwner = 123
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [newOwner])
 
@@ -86,7 +86,7 @@ async def test_transferOwnership_emits_event(ownable_factory):
 
 @pytest.mark.asyncio
 async def test_renounceOwnership(ownable_factory):
-    ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
     executed_info = await ownable.owner().call()
     assert executed_info.result == (ZERO_ADDRESS,)
@@ -94,7 +94,7 @@ async def test_renounceOwnership(ownable_factory):
 
 @pytest.mark.asyncio
 async def test_renounceOwnership_emits_event(ownable_factory):
-    ownable, owner = ownable_factory
+    _, ownable, owner = ownable_factory
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
 
     assert_event_emitted(

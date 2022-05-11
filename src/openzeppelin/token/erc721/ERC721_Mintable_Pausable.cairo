@@ -217,7 +217,7 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     Ownable._only_owner()
     ERC721_mint(to, tokenId)
     return ()
@@ -261,7 +261,7 @@ func pause{
         range_check_ptr
     }():
     Ownable._only_owner()
-    Pausable_pause()
+    Pausable._pause()
     return ()
 end
 
@@ -272,6 +272,6 @@ func unpause{
         range_check_ptr
     }():
     Ownable._only_owner()
-    Pausable_unpause()
+    Pausable._unpause()
     return ()
 end

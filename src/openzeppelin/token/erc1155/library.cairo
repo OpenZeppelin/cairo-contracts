@@ -28,14 +28,14 @@ end
 
 @event
 func TransferBatch(
-    operator : felt,
-    from_ : felt,
-    to : felt,
-    ids_len : felt,
-    ids : Uint256*,
-    values_len : felt,
-    values : Uint256*,
-):
+        operator: felt,
+        from_: felt,
+        to: felt,
+        ids_len: felt,
+        ids: Uint256*,
+        values_len: felt,
+        values: Uint256*,
+    ):
 end
 
 @event
@@ -128,7 +128,7 @@ namespace ERC1155:
         operator : felt, approved : felt
     ):
         let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
+        with_attr error_message("ERC1155: cannot approve from the zero address"):
             assert_not_zero(caller)
         end
         _set_approval_for_all(owner=caller, operator=operator, approved=approved)
@@ -372,9 +372,6 @@ namespace ERC1155:
         return ()
     end
 
-    #
-    # Internals
-    #
 
     func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         owner : felt, operator : felt, approved : felt
@@ -465,6 +462,7 @@ namespace ERC1155:
         return ()
     end
 end
+
 #
 # Helpers
 #

@@ -389,7 +389,7 @@ async def test_mint_emits_event(erc1155_factory):
 
 @pytest.mark.asyncio
 async def test_mint_to_zero_address(erc1155_factory):
-    erc1155, owner, account, _ = erc1155_factory
+    erc1155, owner, _, _ = erc1155_factory
 
     recipient = ZERO_ADDRESS
     token_id = TOKEN_ID
@@ -1443,7 +1443,7 @@ async def test_safe_transfer_from_receiver_rejection(erc1155_minted_factory):
 
 @pytest.mark.asyncio
 async def test_mint_to_unsafe_contract(erc1155_factory):
-    erc1155, owner, account, _ = erc1155_factory
+    erc1155, owner, _, _ = erc1155_factory
 
     recipient = erc1155.contract_address
     token_id = TOKEN_ID
@@ -1494,7 +1494,6 @@ async def test_mint_receiver(erc1155_factory):
     token_id = TOKEN_ID
     amount = MINT_AMOUNT
 
-    # minting to 0 address should fail
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
         [

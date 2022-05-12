@@ -1,4 +1,8 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc1155/ERC1155_Mintable_Burnable.cairo)
+
 %lang starknet
+
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
@@ -18,8 +22,11 @@ from openzeppelin.introspection.ERC165 import ERC165
 #
 
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        uri,owner):
+func constructor{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(uri: felt, owner: felt):
     ERC1155.initializer(uri)
     Ownable_initializer(owner)
     return ()
@@ -30,7 +37,7 @@ end
 #
 
 @view
-func supportsInterface{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(interfaceId : felt) -> (is_supported : felt):
+func supportsInterface{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(interfaceId : felt) -> (success: felt):
     return ERC165.supports_interface(interfaceId)
 end
 
@@ -43,14 +50,14 @@ end
 @view
 func balanceOf{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         account : felt, id : Uint256) -> (balance : Uint256):
-    return ERC1155.balance_of(account,id)
+    return ERC1155.balance_of(account, id)
 end
 
 @view
 func balanceOfBatch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         accounts_len : felt, accounts : felt*, ids_len : felt, ids : Uint256*)
         -> (balances_len : felt, balances : Uint256*):
-    return ERC1155.balance_of_batch(accounts_len,accounts,ids_len,ids)
+    return ERC1155.balance_of_batch(accounts_len, accounts, ids_len, ids)
 end
 
 @view
@@ -72,7 +79,7 @@ end
 
 @external
 func safeTransferFrom{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        _from : felt, to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*):
+        from_ : felt, to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*):
     ERC1155.safe_transfer_from(_from, to, id, amount, data_len, data)
     return ()
 end
@@ -119,5 +126,4 @@ func burnBatch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     ERC1155._burn_batch(_from, ids_len, ids, amounts_len, amounts)
     return ()
 end
-
 

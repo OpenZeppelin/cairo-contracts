@@ -231,7 +231,7 @@ docker run cairo-tests
 
 ### Parallel Testing
 
-This repo integrates the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests run in parallel—not in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
+This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests run in parallel—not in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
 
 ```python
 from utils import get_contract_def, cached_contract

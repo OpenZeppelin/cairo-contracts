@@ -31,18 +31,18 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 Considering four type of functions:
 
-- `A`: internal to a library, not meant to be used outside the module
-- `B`: part of the public API of a library
-- `C`: subset of B that is ready to be exported as-is by contracts
-- `S`: storage variables
+- `internal`: internal to a library, not meant to be used outside the module or imported
+- `public`: part of the public API of a library
+- `external`: subset of `public` that is ready to be exported as-is by contracts
+- `storage`: storage variables
 
 Then:
 
-* Must implement `B` and `C` functions under a namespace
-* Must implement type `A` functions outside the namespace to avoid exposing them
-* Must prefix type `B` functions with an underscore (e.g. `ERC20._mint`)
-* Must not prefix `C` functions with an underscore (e.g. `ERC20.transfer`)
-* Must prefix `S` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
+* Must implement `public` and `external` functions under a namespace
+* Must implement `internal` functions outside the namespace to avoid exposing them
+* Must prefix `public` functions with an underscore (e.g. `ERC20._mint`)
+* Must not prefix `external` functions with an underscore (e.g. `ERC20.transfer`)
+* Must prefix `storage` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions
 * Can implement initializers (never as `@constructor` or `@external`)
 * Must not call initializers on any function

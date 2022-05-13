@@ -27,7 +27,7 @@ func constructor{
         recipient: felt,
         owner: felt
     ):
-    ERC20.constructor(name, symbol, decimals)
+    ERC20.initializer(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
     Ownable_initializer(owner)
     return ()

@@ -77,23 +77,8 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from openzeppelin.security.pausable import Pausable_when_not_paused
-from openzeppelin.token.erc20.library import (
-    ERC20_name,
-    ERC20_symbol,
-    ERC20_totalSupply,
-    ERC20_decimals,
-    ERC20_balanceOf,
-    ERC20_allowance,
-
-    ERC20_initializer,
-    ERC20_approve,
-    ERC20_increaseAllowance,
-    ERC20_decreaseAllowance,
-    ERC20_transfer,
-    ERC20_transferFrom,
-    ERC20_mint
-)
+from openzeppelin.security.pausable import Pausable
+from openzeppelin.token.erc20.library import ERC20
 
 (...)
 
@@ -103,8 +88,8 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
-    ERC20_transfer(recipient, amount)
+    Pausable.assert_not_paused()
+    ERC20.transfer(recipient, amount)
     return (TRUE)
 end
 ```

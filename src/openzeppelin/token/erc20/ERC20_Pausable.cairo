@@ -14,12 +14,7 @@ from openzeppelin.access.ownable import (
     Ownable_only_owner
 )
 
-from openzeppelin.security.pausable import (
-    Pausable_paused,
-    Pausable_pause,
-    Pausable_unpause,
-    Pausable_when_not_paused
-)
+from openzeppelin.security.pausable import Pausable
 
 @constructor
 func constructor{
@@ -110,7 +105,7 @@ func paused{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }() -> (paused: felt):
-    let (paused) = Pausable_paused.read()
+    let (paused) = Pausable.is_paused()
     return (paused)
 end
 
@@ -124,7 +119,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.transfer(recipient, amount)
     return (TRUE)
 end
@@ -139,7 +134,7 @@ func transferFrom{
         recipient: felt,
         amount: Uint256
     ) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.transfer_from(sender, recipient, amount)
     return (TRUE)
 end
@@ -150,7 +145,7 @@ func approve{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.approve(spender, amount)
     return (TRUE)
 end
@@ -161,7 +156,7 @@ func increaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, added_value: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.increase_allowance(spender, added_value)
     return (TRUE)
 end
@@ -172,7 +167,7 @@ func decreaseAllowance{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(spender: felt, subtracted_value: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC20.decrease_allowance(spender, subtracted_value)
     return (TRUE)
 end
@@ -184,7 +179,7 @@ func pause{
         range_check_ptr
     }():
     Ownable_only_owner()
-    Pausable_pause()
+    Pausable._pause()
     return ()
 end
 
@@ -195,6 +190,6 @@ func unpause{
         range_check_ptr
     }():
     Ownable_only_owner()
-    Pausable_unpause()
+    Pausable._unpause()
     return ()
 end

@@ -121,13 +121,14 @@ async def test_schedule(timelock_factory):
     assert_event_emitted(
         schedule_exec_info,
         timelock.contract_address,
-        name="OperationScheduled",
+        name="CallScheduled",
         data=[
             operation_hash,  # id
-            *[1, *init_call],  # calls
-            *[0],  # calldata
-            0,
-            2 * DAY,
+            0,  # index
+            initializable.contract_address,  # target
+            get_selector_from_name("initialize"), # selector
+            *[0],  # calldata = *[0]
+            0,  # predecessor
         ],
     )
 
@@ -241,26 +242,28 @@ async def test_schedule_salt(timelock_factory):
     assert_event_emitted(
         schedule_exec_info,
         timelock.contract_address,
-        name="OperationScheduled",
+        name="CallScheduled",
         data=[
             operation_hash,  # id
-            *[1, *init_call],  # calls
-            *[0],  # calldata
-            0,
-            2 * DAY,
+            0,  # index
+            initializable.contract_address,  # target
+            get_selector_from_name("initialize"),
+            0,  # calldata = *[0]
+            0,  # predecessor
         ],
     )
 
     assert_event_emitted(
         schedule_salt_exec_info,
         timelock.contract_address,
-        name="OperationScheduled",
+        name="CallScheduled",
         data=[
             operation_hash_salt,  # id
-            *[1, *init_call],  # calls
-            *[0],  # calldata
-            0,
-            2 * DAY,
+            0,  # index
+            initializable.contract_address,  # target
+            get_selector_from_name("initialize"),
+            0,  # calldata = *[0]
+            0,  # predecessor
         ],
     )
 
@@ -308,7 +311,7 @@ async def test_cancel(timelock_factory):
     assert_event_emitted(
         execution_info_cancel,
         timelock.contract_address,
-        "OperationCancelled",
+        "Cancelled",
         [operation_hash],
     )
 
@@ -405,17 +408,6 @@ async def test_execute(timelock_factory):
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (TRUE,)
-
-    assert_event_emitted(
-        execution_info_exec,
-        timelock.contract_address,
-        "OperationExecuted",
-        [
-            operation_hash,  # id
-            *[1, *init_call],  # calls
-            *[0],  # calldata
-        ],
-    )
 
     assert_event_emitted(
         execution_info_exec,

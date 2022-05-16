@@ -36,8 +36,14 @@ const EXECUTOR_ROLE = 0x4
 
 
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    proposer : felt, executor : felt, delay : felt
+func constructor{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    proposer: felt, 
+    executor: felt, 
+    delay: felt
 ):
     alloc_locals
 
@@ -65,44 +71,56 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 end
 
 @view
-func isOperation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(id : felt) -> (
-    is_operation : felt
-):
+func isOperation{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt) -> (is_operation: felt):
     let (is_operation) = Timelock.is_operation(id)
 
     return (is_operation=is_operation)
 end
 
 @view
-func isOperationPending{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    id : felt
-) -> (is_pending : felt):
+func isOperationPending{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt) -> (is_pending: felt):
     let (is_pending) = Timelock.is_operation_pending(id)
 
     return (is_pending=is_pending)
 end
 
 @view
-func isOperationReady{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    id : felt
-) -> (is_ready : felt):
+func isOperationReady{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt) -> (is_ready: felt):
     let (is_ready) = Timelock.is_operation_ready(id)
 
     return (is_ready=is_ready)
 end
 
 @view
-func isOperationDone{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    id : felt
-) -> (is_done : felt):
+func isOperationDone{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt) -> (is_done: felt):
     let (is_done) = Timelock.is_operation_done(id)
 
     return (is_done=is_done)
 end
 
 @view
-func getTimestamp{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(id : felt) -> (
-    timestamp : felt
+func getTimestamp{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt) -> (
+    timestamp: felt
 ):
     let (timestamp) = Timelock.get_timestamp(id)
 
@@ -110,51 +128,68 @@ func getTimestamp{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
 end
 
 @view
-func getMinDelay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-    min_delay : felt
-):
+func getMinDelay{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}() -> (min_delay: felt):
     let (min_delay) = Timelock.get_min_delay()
 
     return (min_delay=min_delay)
 end
 
 @view
-func hashOperation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    call_array_len : felt,
-    call_array : TimelockCall*,
-    calldata_len : felt,
-    calldata : felt*,
-    predecessor : felt,
-    salt : felt,
-) -> (hash : felt):
+func hashOperation{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    call_array_len: felt,
+    call_array: TimelockCall*,
+    calldata_len: felt,
+    calldata: felt*,
+    predecessor: felt,
+    salt: felt,
+) -> (hash: felt):
     let (hash) = Timelock.hash_operation(call_array_len, call_array, calldata, predecessor, salt)
 
     return (hash=hash)
 end
 
 @view
-func hasRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    role : felt, user : felt
-) -> (hasRole : felt):
+func hasRole{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    role: felt, 
+    user: felt
+) -> (hasRole: felt):
     return AccessControl_hasRole(role, user)
 end
 
 @view
-func getRoleAdmin{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    role : felt
-) -> (admin : felt):
+func getRoleAdmin{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(role: felt) -> (admin: felt):
     return AccessControl_getRoleAdmin(role)
 end
 
 @external
-func schedule{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    call_array_len : felt,
-    call_array : TimelockCall*,
-    calldata_len : felt,
-    calldata : felt*,
-    predecessor : felt,
-    salt : felt,
-    delay : felt,
+func schedule{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    call_array_len: felt,
+    call_array: TimelockCall*,
+    calldata_len: felt,
+    calldata: felt*,
+    predecessor: felt,
+    salt: felt,
+    delay: felt,
 ):
     AccessControl_onlyRole(PROPOSER_ROLE)
     Timelock.schedule(call_array_len, call_array, calldata_len, calldata, predecessor, salt, delay)
@@ -163,7 +198,11 @@ func schedule{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}
 end
 
 @external
-func cancel{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(id : felt):
+func cancel{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(id: felt):
     AccessControl_onlyRole(CANCELLER_ROLE)
     Timelock.cancel(id)
 
@@ -171,15 +210,19 @@ func cancel{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(i
 end
 
 @external
-func execute{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    call_array_len : felt,
-    call_array : TimelockCall*,
-    calldata_len : felt,
-    calldata : felt*,
-    predecessor : felt,
-    salt : felt,
+func execute{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    call_array_len: felt,
+    call_array: TimelockCall*,
+    calldata_len: felt,
+    calldata: felt*,
+    predecessor: felt,
+    salt: felt,
 ):
-    let (zero_has_role : felt) = AccessControl_hasRole(EXECUTOR_ROLE, 0)
+    let (zero_has_role: felt) = AccessControl_hasRole(EXECUTOR_ROLE, 0)
 
     if zero_has_role == FALSE:
         AccessControl_onlyRole(EXECUTOR_ROLE)
@@ -199,9 +242,11 @@ func execute{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
 end
 
 @external
-func updateDelay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    new_delay : felt
-):
+func updateDelay{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(new_delay: felt):
     AccessControl_onlyRole(TIMELOCK_ADMIN_ROLE)
     Timelock.update_delay(new_delay)
 
@@ -209,8 +254,13 @@ func updateDelay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 end
 
 @external
-func grantRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    role : felt, account : felt
+func grantRole{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    role: felt, 
+    account: felt
 ):
     AccessControl_grantRole(role, account)
 
@@ -218,8 +268,13 @@ func grantRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
 end
 
 @external
-func revokeRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    role : felt, account : felt
+func revokeRole{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(
+    role: felt, 
+    account: felt
 ):
     AccessControl_revokeRole(role, account)
 
@@ -227,7 +282,11 @@ func revokeRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
 end
 
 @external
-func renounceRole{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(role : felt):
+func renounceRole{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(role: felt):
     let (caller) = get_caller_address()
 
     AccessControl_renounceRole(role, caller)
@@ -237,15 +296,21 @@ end
 
 @view
 func onERC721Received(
-    operator : felt, from_ : felt, tokenId : Uint256, data_len : felt, data : felt*
-) -> (selector : felt):
+    operator: felt, 
+    from_: felt, 
+    tokenId: Uint256, 
+    data_len: felt, 
+    data: felt*
+) -> (selector: felt):
     return (IERC721_RECEIVER_ID)
 end
 
 @view
-func supportsInterface{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    interfaceId : felt
-) -> (success : felt):
+func supportsInterface{
+    syscall_ptr: felt*, 
+    pedersen_ptr: HashBuiltin*, 
+    range_check_ptr
+}(interfaceId: felt) -> (success: felt):
     let (success) = ERC165_supports_interface(interfaceId)
     return (success)
 end

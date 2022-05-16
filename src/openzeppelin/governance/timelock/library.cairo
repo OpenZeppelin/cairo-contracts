@@ -9,8 +9,8 @@ from starkware.cairo.common.math import assert_le
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import call_contract, get_block_timestamp
 from starkware.cairo.common.math_cmp import is_le, is_not_zero
+from starkware.starknet.common.syscalls import call_contract, get_block_timestamp
 
 from starkware.cairo.common.hash_state import (
     HashState,
@@ -20,7 +20,11 @@ from starkware.cairo.common.hash_state import (
     hash_update_single,
 )
 
-from openzeppelin.utils.constants import DONE_TIMESTAMP
+#
+# Constants
+#
+
+const DONE_TIMESTAMP = 1
 
 #
 # Structs
@@ -47,35 +51,30 @@ end
 #
 
 @event
-func OperationScheduled(
+func CallScheduled(
     id : felt,
-    calls_array_len : felt,
-    calls_array : TimelockCall*,
+    index : felt,
+    target : felt,
+    selector : felt,
     calldata_len : felt,
     calldata : felt*,
     predecessor : felt,
-    delay : felt,
 ):
 end
 
 @event
 func CallExecuted(
-    id : felt, index : felt, target : felt, selector : felt, calldata_len : felt, calldata : felt*
+    id : felt, 
+    index : felt, 
+    target : felt, 
+    selector : felt, 
+    calldata_len : felt, 
+    calldata : felt*
 ):
 end
 
 @event
-func OperationExecuted(
-    id : felt,
-    calls_array_len : felt,
-    calls_array : TimelockCall*,
-    calldata_len : felt,
-    calldata : felt*,
-):
-end
-
-@event
-func OperationCancelled(id : felt):
+func Cancelled(id : felt):
 end
 
 @event
@@ -123,22 +122,22 @@ namespace Timelock:
 
     func is_operation{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         id : felt
-    ) -> (is_operation : felt):
+    ) -> (operation : felt):
         let (timestamp : felt) = get_timestamp(id)
-        let (is_operation : felt) = is_not_zero(timestamp)
+        let (operation : felt) = is_not_zero(timestamp)
 
-        return (is_operation=is_operation)
+        return (operation=operation)
     end
 
     func is_operation_pending{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         id : felt
-    ) -> (is_pending : felt):
+    ) -> (pending : felt):
         alloc_locals
 
         let (timestamp : felt) = get_timestamp(id)
-        let (is_pending : felt) = is_le(DONE_TIMESTAMP + 1, timestamp)
+        let (pending : felt) = is_le(DONE_TIMESTAMP + 1, timestamp)
 
-        return (is_pending=is_pending)
+        return (pending=pending)
     end
 
     func is_operation_ready{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
@@ -153,9 +152,9 @@ namespace Timelock:
         let (ready : felt) = is_le(timestamp, block_timestamp)
 
         if pending + ready == 2:
-            return (ready=TRUE)
+            return (TRUE)
         else:
-            return (ready=FALSE)
+            return (FALSE)
         end
     end
 
@@ -165,13 +164,13 @@ namespace Timelock:
         let (timestamp : felt) = get_timestamp(id)
 
         if timestamp == DONE_TIMESTAMP:
-            return (done=TRUE)
+            return (TRUE)
         else:
-            return (done=FALSE)
+            return (FALSE)
         end
     end
 
-    func set_min_delay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    func update_delay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         min_delay : felt
     ):
         let (old_min_delay : felt) = Timelock_min_delay.read()
@@ -193,11 +192,10 @@ namespace Timelock:
         alloc_locals
 
         let (id : felt) = hash_operation(call_array_len, call_array, calldata, predecessor, salt)
-        _schedule(id, delay)
 
-        OperationScheduled.emit(
-            id, call_array_len, call_array, calldata_len, calldata, predecessor, delay
-        )
+        let (calls : Call*) = alloc()
+        _from_timelock_calls_to_calls(call_array_len, call_array, calldata, calls)
+        _schedule(id, delay, calls)
 
         return ()
     end
@@ -213,12 +211,23 @@ namespace Timelock:
         alloc_locals
 
         let (id : felt) = hash_operation(call_array_len, call_array, calldata, predecessor, salt)
+        let (ready : felt) = is_operation_ready(id)
 
-        _before_execute(id, predecessor)
+        with_attr error_message("Timelock: operation is not ready"):
+            assert ready = TRUE
+        end
+
+        if predecessor != 0:
+            let (predecessor_done : felt) = is_operation_done(predecessor)
+
+            with_attr error_message("Timelock: missing dependency"):
+                assert predecessor_done = TRUE
+            end
+        end
+
         _execute(id, call_array_len, call_array, calldata_len, calldata, predecessor)
-        _after_execute(id)
 
-        OperationExecuted.emit(id, call_array_len, call_array, calldata_len, calldata)
+        Timelock_timestamps.write(id, 1)
 
         return ()
     end
@@ -226,13 +235,13 @@ namespace Timelock:
     func cancel{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(id : felt):
         _cancel(id)
 
-        OperationCancelled.emit(id)
+        Cancelled.emit(id)
 
         return ()
     end
 
     func _schedule{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        id : felt, delay : felt
+        id : felt, calls_len : felt, calls : Call*, predecessor : felt, delay : felt, 
     ):
         let (operation_exists : felt) = is_operation(id)
         let (min_delay : felt) = get_min_delay()
@@ -249,39 +258,27 @@ namespace Timelock:
 
         Timelock_timestamps.write(id, block_timestamp + delay)
 
-        return ()
-    end
-
-    func _before_execute{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        id : felt, predecessor : felt
-    ):
-        let (ready : felt) = is_operation_ready(id)
-
-        with_attr error_message("Timelock: operation is not ready"):
-            assert ready = TRUE
-        end
-
-        if predecessor != 0:
-            let (predecessor_done : felt) = is_operation_done(predecessor)
-
-            with_attr error_message("Timelock: missing dependency"):
-                assert predecessor_done = TRUE
-            end
-        end
+        _emit_schedule_events(id, 0, calls_len, calls, predecessor)
 
         return ()
     end
 
-    func _after_execute{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        id : felt
+    func _emit_schedule_events{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        id : felt, index : felt, calls_len : felt, calls : felt*, predecessor : felt
     ):
-        let (ready : felt) = is_operation_ready(id)
+        alloc_locals
 
-        with_attr error_message("Timelock: operation is not ready"):
-            assert ready = TRUE
+        if calls_len == 0:
+            return ()
         end
 
-        Timelock_timestamps.write(id, 1)
+        let this_call : Call = [calls]
+
+        CallScheduled.emit(
+            id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata, predecessor
+        )
+
+        _emit_schedule_events(id, index + 1, calls_len - 1, calls + Call.SIZE, predecessor)
 
         return ()
     end

@@ -35,11 +35,3 @@ const IERC721_ENUMERABLE_ID = 0x780e9d63
 
 # AccessControl
 const IACCESSCONTROL_ID = 0x7965db0b
-
-# Timelock
-const DONE_TIMESTAMP = 1
-
-const TIMELOCK_ADMIN_ROLE = 0x1
-const PROPOSER_ROLE = 0x2
-const CANCELLER_ROLE = 0x3
-const EXECUTOR_ROLE = 0x4

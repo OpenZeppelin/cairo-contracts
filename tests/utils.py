@@ -100,8 +100,6 @@ async def assert_revert(fun, reverted_with=None):
 
 
 def assert_event_emitted(tx_exec_info, from_address, name, data):
-    print(tx_exec_info.raw_events)
-
     assert Event(
         from_address=from_address,
         keys=[get_selector_from_name(name)],

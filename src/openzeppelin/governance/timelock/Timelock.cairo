@@ -4,21 +4,14 @@
 %lang starknet
 
 from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
-from openzeppelin.utils.constants import IERC721_RECEIVER_ID, TRUE, FALSE
-
+from openzeppelin.utils.constants import IERC721_RECEIVER_ID
+from openzeppelin.governance.timelock.library import Timelock, TimelockCall
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface, ERC165_register_interface
 
-from openzeppelin.governance.timelock.library import Timelock, TimelockCall
-
-from openzeppelin.utils.constants import (
-    TIMELOCK_ADMIN_ROLE,
-    PROPOSER_ROLE,
-    CANCELLER_ROLE,
-    EXECUTOR_ROLE,
-)
 from openzeppelin.access.accesscontrol import (
     _grantRole,
     _setRoleAdmin,
@@ -31,7 +24,16 @@ from openzeppelin.access.accesscontrol import (
     AccessControl_getRoleAdmin,
 )
 
+
+#
 # Constants
+#
+
+const TIMELOCK_ADMIN_ROLE = 0x1
+const PROPOSER_ROLE = 0x2
+const CANCELLER_ROLE = 0x3
+const EXECUTOR_ROLE = 0x4
+
 
 @constructor
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
@@ -201,7 +203,7 @@ func updateDelay{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     new_delay : felt
 ):
     AccessControl_onlyRole(TIMELOCK_ADMIN_ROLE)
-    Timelock.set_min_delay(new_delay)
+    Timelock.update_delay(new_delay)
 
     return ()
 end

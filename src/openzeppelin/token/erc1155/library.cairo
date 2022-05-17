@@ -137,7 +137,7 @@ namespace ERC1155:
         operator : felt, approved : felt
     ):
         let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
+        with_attr error_message("ERC1155: cannot approve from the zero address"):
             assert_not_zero(caller)
         end
         _set_approval_for_all(owner=caller, operator=operator, approved=approved)

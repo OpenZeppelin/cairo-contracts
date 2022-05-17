@@ -255,10 +255,6 @@ namespace ERC1155:
     func _mint{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*
     ):
-        let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
-            assert_not_zero(caller)
-        end
         # Cannot mint to zero address
         with_attr error_message("ERC1155: mint to the zero address"):
             assert_not_zero(to)
@@ -295,10 +291,6 @@ namespace ERC1155:
         data : felt*,
     ):
         alloc_locals
-        let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
-            assert_not_zero(caller)
-        end
         # Cannot mint to zero address
         with_attr error_message("ERC1155: mint to the zero address"):
             assert_not_zero(to)
@@ -330,10 +322,6 @@ namespace ERC1155:
         from_ : felt, id : Uint256, amount : Uint256
     ):
         alloc_locals
-        let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
-            assert_not_zero(caller)
-        end
         with_attr error_message("ERC1155: burn from the zero address"):
             assert_not_zero(from_)
         end
@@ -354,10 +342,6 @@ namespace ERC1155:
         from_ : felt, ids_len : felt, ids : Uint256*, amounts_len : felt, amounts : Uint256*
     ):
         alloc_locals
-        let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
-            assert_not_zero(caller)
-        end
         with_attr error_message("ERC1155: burn from the zero address"):
             assert_not_zero(from_)
         end

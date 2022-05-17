@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc1155/library.cairo)
+
 %lang starknet
 
 from starkware.starknet.common.syscalls import get_caller_address
@@ -23,19 +26,25 @@ from openzeppelin.utils.constants import (
 #
 
 @event
-func TransferSingle(operator : felt, from_ : felt, to : felt, id : Uint256, value : Uint256):
+func TransferSingle(
+    operator : felt,
+    from_ : felt,
+    to : felt,
+    id : Uint256,
+    value : Uint256
+):
 end
 
 @event
 func TransferBatch(
-        operator: felt,
-        from_: felt,
-        to: felt,
-        ids_len: felt,
-        ids: Uint256*,
-        values_len: felt,
-        values: Uint256*,
-    ):
+    operator : felt,
+    from_ : felt,
+    to : felt,
+    ids_len : felt,
+    ids : Uint256*,
+    values_len : felt,
+    values : Uint256*,
+):
 end
 
 @event
@@ -128,7 +137,7 @@ namespace ERC1155:
         operator : felt, approved : felt
     ):
         let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: cannot approve from the zero address"):
+        with_attr error_message("ERC1155: called from zero address"):
             assert_not_zero(caller)
         end
         _set_approval_for_all(owner=caller, operator=operator, approved=approved)
@@ -372,7 +381,6 @@ namespace ERC1155:
         return ()
     end
 
-
     func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         owner : felt, operator : felt, approved : felt
     ):
@@ -587,12 +595,13 @@ func burn_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     return burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
 
-func owner_or_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(owner):
+func assert_owner_or_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(owner):
     let (caller) = get_caller_address()
     if caller == owner:
         return ()
     end
     let (approved) = ERC1155.is_approved_for_all(owner, caller)
-    assert approved = TRUE
+    with_attr error_message("ERC1155: caller is not owner nor approved"):
+        assert approved = TRUE
     return ()
 end

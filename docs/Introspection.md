@@ -11,7 +11,7 @@
   * [IERC165](#ierc165)
   * [IERC165 API Specification](#ierc165-api-specification)
     * [`supportsInterface`](#supportsinterface)
-  * [ERC165 Library API Specification](#erc165-library-api-specification)
+  * [ERC165 Library Functions](#erc165-library-library-functions)
     * [`supports_interface`](#supports_interface)
     * [`register_interface`](#register_interface)
 
@@ -100,7 +100,7 @@ Returns:
 success: felt
 ```
 
-### ERC165 Library API Specification
+### ERC165 Library Functions
 
 ```cairo
 func supports_interface(interface_id: felt) -> (success: felt):

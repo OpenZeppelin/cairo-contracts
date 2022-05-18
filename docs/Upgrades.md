@@ -1,4 +1,4 @@
-# Proxies
+# Upgrades
 
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge.
 

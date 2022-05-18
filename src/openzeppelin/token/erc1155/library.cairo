@@ -152,7 +152,7 @@ namespace ERC1155:
             assert_not_zero(caller)
         end
         with_attr error_message("ERC1155: caller is not owner nor approved"):
-            owner_or_approved(from_)
+            assert_owner_or_approved(from_)
         end
         _safe_transfer_from(from_, to, id, amount, data_len, data)
         return ()
@@ -175,7 +175,7 @@ namespace ERC1155:
             assert_not_zero(caller)
         end
         with_attr error_message("ERC1155: transfer caller is not owner nor approved"):
-            owner_or_approved(from_)
+            assert_owner_or_approved(from_)
         end
         _safe_batch_transfer_from(from_, to, ids_len, ids, amounts_len, amounts, data_len, data)
         return ()
@@ -382,12 +382,28 @@ namespace ERC1155:
         return ()
     end
 
-    func _setURI{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(newuri : felt):
+    func _set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(newuri : felt):
         ERC1155_uri.write(newuri)
         return ()
     end
 
-    func _do_safe_transfer_acceptance_check{
+    func assert_owner_or_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(owner):
+        let (caller) = get_caller_address()
+        if caller == owner:
+            return ()
+        end
+        let (approved) = ERC1155.is_approved_for_all(owner, caller)
+        with_attr error_message("ERC1155: caller is not owner nor approved"):
+            assert approved = TRUE
+        return ()
+    end
+end
+
+#
+# Private
+#
+
+func _do_safe_transfer_acceptance_check{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     }(
         operator : felt,
@@ -398,27 +414,26 @@ namespace ERC1155:
         data_len : felt,
         data : felt*,
     ):
-        let (caller) = get_caller_address()
-        let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
-        if is_supported == TRUE:
-            let (selector) = IERC1155_Receiver.onERC1155Received(
-                to, operator, from_, id, amount, data_len, data
-            )
+    let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
+    if is_supported == TRUE:
+        let (selector) = IERC1155_Receiver.onERC1155Received(
+            to, operator, from_, id, amount, data_len, data
+        )
 
-            # onERC1155Recieved selector
-            with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
-                assert selector = ON_ERC1155_RECEIVED_SELECTOR
-            end
-            return ()
-        end
-        let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
-        with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
-            assert_not_zero(is_account)
+        # onERC1155Recieved selector
+        with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
+            assert selector = ON_ERC1155_RECEIVED_SELECTOR
         end
         return ()
     end
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
+    with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
+        assert_not_zero(is_account)
+    end
+    return ()
+end
 
-    func _do_safe_batch_transfer_acceptance_check{
+func _do_safe_batch_transfer_acceptance_check{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
     }(
         operator : felt,
@@ -431,28 +446,26 @@ namespace ERC1155:
         data_len : felt,
         data : felt*,
     ):
-        let (caller) = get_caller_address()
-        # Confirm supports IERC1155Reciever interface
-        let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
-        if is_supported == TRUE:
-            let (selector) = IERC1155_Receiver.onERC1155BatchReceived(
-                to, operator, from_, ids_len, ids, amounts_len, amounts, data_len, data
-            )
+    # Confirm supports IERC1155Reciever interface
+    let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
+    if is_supported == TRUE:
+        let (selector) = IERC1155_Receiver.onERC1155BatchReceived(
+            to, operator, from_, ids_len, ids, amounts_len, amounts, data_len, data
+        )
 
-            # Confirm onBatchERC1155Recieved selector returned
-            with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
-                assert selector = ON_ERC1155_BATCH_RECEIVED_SELECTOR
-            end
-            return ()
-        end
-
-        # Alternatively confirm EOA
-        let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
-        with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
-            assert is_account = TRUE
+        # Confirm onBatchERC1155Recieved selector returned
+        with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
+            assert selector = ON_ERC1155_BATCH_RECEIVED_SELECTOR
         end
         return ()
     end
+
+    # Alternatively confirm EOA
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
+    with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
+        assert is_account = TRUE
+    end
+    return ()
 end
 
 #
@@ -579,13 +592,4 @@ func burn_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     return burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
 
-func assert_owner_or_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(owner):
-    let (caller) = get_caller_address()
-    if caller == owner:
-        return ()
-    end
-    let (approved) = ERC1155.is_approved_for_all(owner, caller)
-    with_attr error_message("ERC1155: caller is not owner nor approved"):
-        assert approved = TRUE
-    return ()
-end
+

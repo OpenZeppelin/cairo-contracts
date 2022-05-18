@@ -11,8 +11,7 @@ from openzeppelin.access.ownable import (
     Ownable_only_owner
 )
 from openzeppelin.token.erc1155.library import (
-    ERC1155,
-    owner_or_approved 
+    ERC1155
 )
 
 from openzeppelin.introspection.ERC165 import ERC165
@@ -122,7 +121,7 @@ end
 @external
 func burn{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
          _from : felt, id : Uint256, amount : Uint256):
-    owner_or_approved(owner=_from)
+    ERC1155.assert_owner_or_approved(owner=_from)
     let (caller) = get_caller_address()
     with_attr error_message("ERC1155: called from zero address"):
         assert_not_zero(caller)
@@ -134,7 +133,7 @@ end
 @external
 func burnBatch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         _from : felt, ids_len : felt, ids : Uint256*, amounts_len : felt, amounts : Uint256*):
-    owner_or_approved(owner=_from)
+    ERC1155.assert_owner_or_approved(owner=_from)
     let (caller) = get_caller_address()
     with_attr error_message("ERC1155: called from zero address"):
         assert_not_zero(caller)

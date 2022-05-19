@@ -12,7 +12,7 @@
   * [IERC165 API Specification](#ierc165-api-specification)
     * [`supportsInterface`](#supportsinterface)
   * [ERC165 Library Functions](#erc165-library-functions)
-    * [`supports_interface`](#supports_interface)
+    * [`supports_interface`](#supportsinterface2)
     * [`register_interface`](#register_interface)
 
 ## ERC165
@@ -110,7 +110,7 @@ func register_interface(interface_id: felt):
 end
 ```
 
-#### `supports_interface`
+<h4 id="supportsinterface2"><code>supports_interface</code></h4>
 
 Returns true if this contract implements the interface defined by `interface_id`.
 

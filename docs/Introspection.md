@@ -11,7 +11,7 @@
   * [IERC165](#ierc165)
   * [IERC165 API Specification](#ierc165-api-specification)
     * [`supportsInterface`](#supportsinterface)
-  * [ERC165 Library Functions](#erc165-library-library-functions)
+  * [ERC165 Library Functions](#erc165-library-functions)
     * [`supports_interface`](#supports_interface)
     * [`register_interface`](#register_interface)
 

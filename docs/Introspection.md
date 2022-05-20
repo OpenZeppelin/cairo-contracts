@@ -68,7 +68,7 @@ func check_support{
 end
 ```
 
-> Please note that `supportsInterface` is camelCased because it is a contract (as opposed to a library which uses snake_case). See the [Extensibility Pattern](../Extensibility.md#function-names-and-coding-style) for more details.
+> Please note that `supportsInterface` is camelCased because it is a contract method (as opposed to a library method which uses snake_case). See the [Extensibility Pattern](../docs/Extensibility.md#function-names-and-coding-style) for more details.
 
 ### IERC165
 

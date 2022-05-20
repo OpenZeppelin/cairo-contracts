@@ -36,7 +36,8 @@ from openzeppelin.introspection.ERC165 import ERC165
 
 INTERFACE_ID = 0x12345678
 
-func contract_initializer{
+@constructor
+func constructor{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr

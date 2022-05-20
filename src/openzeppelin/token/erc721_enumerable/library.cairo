@@ -211,7 +211,6 @@ func _remove_token_from_all_tokens_enumeration{
         ERC721_Enumerable_all_tokens.write(token_index, last_token_id)
         return ()
     end
-
     return ()
 end
 
@@ -226,6 +225,7 @@ func _add_token_to_owner_enumeration{
     ERC721_Enumerable_owned_tokens_index.write(token_id, length)
     return ()
 end
+
 
 func _remove_token_from_owner_enumeration{
         pedersen_ptr: HashBuiltin*, 

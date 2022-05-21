@@ -68,7 +68,7 @@ func check_support{
 end
 ```
 
-> Please note that `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface. This differs from library methods (such as the [ERC165 library's](../src/openzeppelin/introspection/ERC165.cairo) `supports_interface`) which are snake_cased and not exposed. See the [Function names and coding style](../docs/Extensibility.md#function-names-and-coding-style) for more details.
+> Please note that `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface. This differs from library methods (such as `supports_interface` from the [ERC165 library](../src/openzeppelin/introspection/ERC165.cairo)) which are snake_cased and not exposed. See the [Function names and coding style](../docs/Extensibility.md#function-names-and-coding-style) for more details.
 
 ### IERC165
 

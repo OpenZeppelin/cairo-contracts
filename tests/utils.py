@@ -5,7 +5,9 @@ import math
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import StarknetContract
+from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.business_logic.execution.objects import Event
 from nile.signer import Signer
 
@@ -123,6 +125,50 @@ def cached_contract(state, definition, deployed):
         deploy_execution_info=deployed.deploy_execution_info
     )
     return contract
+
+
+class State:
+    """
+    Utility helper for Account class to initialize and return StarkNet state.
+
+    Example
+    ---------
+    Initalize StarkNet state
+
+    >>> starknet = await State.init()
+    
+    """
+    async def init():
+        global starknet
+        if 'starknet' not in globals():
+            starknet = await Starknet.empty()
+        return starknet
+
+
+class Account(State):
+    """
+    Utility for deploying Account contract.
+
+    Parameters
+    ----------
+
+    public_key : int
+
+    Examples
+    ----------
+
+    >>> starknet = await State.init()
+    >>> account = await Account.deploy(public_key)
+
+    """
+    get_def = get_contract_def("openzeppelin/account/Account.cairo")
+
+    async def deploy(public_key):
+        account = await starknet.deploy(
+            contract_def=Account.get_def,
+            constructor_calldata=[public_key]
+        )
+        return account
 
 
 class TestSigner():

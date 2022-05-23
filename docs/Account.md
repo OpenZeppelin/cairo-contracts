@@ -351,7 +351,8 @@ signature: felt*
 
 Returns:
 
-None.
+`TRUE` if a given signature is valid. Otherwise, reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
 
 ### `__execute__`
 

@@ -28,7 +28,7 @@ func constructor{
     ):
     ERC20.constructor(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
-    Ownable.constructor(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -205,7 +205,7 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     Pausable._pause()
     return ()
 end
@@ -216,7 +216,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     Pausable._unpause()
     return ()
 end

@@ -45,7 +45,7 @@ func constructor{
         owner: felt
     ):
     ERC721_initializer(name, symbol)
-    Ownable.constructor(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -218,7 +218,7 @@ func mint{
         range_check_ptr
     }(to: felt, tokenId: Uint256):
     Pausable.assert_not_paused()
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     ERC721_mint(to, tokenId)
     return ()
 end
@@ -229,7 +229,7 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
@@ -260,7 +260,7 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     Pausable._pause()
     return ()
 end
@@ -271,7 +271,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     Pausable._unpause()
     return ()
 end

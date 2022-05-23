@@ -53,7 +53,7 @@ func constructor{
     ):
     ERC721_initializer(name, symbol)
     ERC721_Enumerable_initializer()
-    Ownable.constructor(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -241,7 +241,7 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     ERC721_Enumerable_mint(to, tokenId)
     return ()
 end
@@ -263,7 +263,7 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable._only_owner()
+    Ownable.assert_only_owner()
     ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end

@@ -20,7 +20,7 @@ end
 #
 
 @storage_var
-func _owner() -> (owner: felt):
+func Ownable_owner() -> (owner: felt):
 end
 
 namespace Ownable:
@@ -28,7 +28,7 @@ namespace Ownable:
     # Constructor
     #
 
-    func constructor{
+    func initializer{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
@@ -41,7 +41,7 @@ namespace Ownable:
     # Protector (Modifier)
     #
 
-    func _only_owner{
+    func assert_only_owner{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
@@ -63,7 +63,7 @@ namespace Ownable:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }() -> (owner: felt):
-        let (owner) = _owner.read()
+        let (owner) = Ownable_owner.read()
         return (owner=owner)
     end
 
@@ -71,12 +71,12 @@ namespace Ownable:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
-        }(newOwner: felt):
+        }(new_owner: felt):
         with_attr error_message("Ownable: new owner is the zero address"):
-            assert_not_zero(newOwner)
+            assert_not_zero(new_owner)
         end
-        _only_owner()
-        _transfer_ownership(newOwner)
+        assert_only_owner()
+        _transfer_ownership(new_owner)
         return ()
     end
 
@@ -85,7 +85,7 @@ namespace Ownable:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():
-        _only_owner()
+        assert_only_owner()
         _transfer_ownership(0)
         return ()
     end
@@ -98,10 +98,10 @@ namespace Ownable:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
-        }(newOwner: felt):
-        let (previousOwner: felt) = Ownable.owner()
-        _owner.write(newOwner)
-        OwnershipTransferred.emit(previousOwner, newOwner)
+        }(new_owner: felt):
+        let (previous_owner: felt) = Ownable.owner()
+        Ownable_owner.write(new_owner)
+        OwnershipTransferred.emit(previous_owner, new_owner)
         return ()
     end
 

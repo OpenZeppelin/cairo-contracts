@@ -14,16 +14,17 @@ signer = TestSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 def contract_defs():
+    account_def = Account.get_def
     v1_def = get_contract_def('tests/mocks/upgrades_v1_mock.cairo')
     v2_def = get_contract_def('tests/mocks/upgrades_v2_mock.cairo')
     proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
 
-    return v1_def, v2_def, proxy_def
+    return account_def, v1_def, v2_def, proxy_def
 
 
 @pytest.fixture(scope='module')
 async def proxy_init(contract_defs):
-    dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
+    _, dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)
@@ -51,11 +52,11 @@ async def proxy_init(contract_defs):
 
 @pytest.fixture
 def proxy_factory(contract_defs, proxy_init):
-    dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
+    account_def, dummy_v1_def, dummy_v2_def, proxy_def = contract_defs
     state, account1, account2, v1, v2, proxy = proxy_init
     _state = state.copy()
-    account1 = cached_contract(_state, Account.get_def, account1)
-    account2 = cached_contract(_state, Account.get_def, account2)
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
     v1 = cached_contract(_state, dummy_v1_def, v1)
     v2 = cached_contract(_state, dummy_v2_def, v2)
     proxy = cached_contract(_state, proxy_def, proxy)

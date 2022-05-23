@@ -95,7 +95,7 @@ The implementation contract, also known as the logic contract, receives the redi
 The implementation contract should:
 
 * import `Proxy` namespace
-* initialize the proxy immediately after contract deployment with `Proxy.constructor`.
+* initialize the proxy immediately after contract deployment with `Proxy.initializer`.
 
 If the implementation is upgradeable, it should:
 

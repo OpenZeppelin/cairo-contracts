@@ -23,14 +23,15 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 @pytest.fixture(scope='module')
 def contract_defs():
+    account_def = Account.get_def
     erc721_def = get_contract_def(
         'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
 
-    return erc721_def
+    return account_def, erc721_def
 
 @pytest.fixture(scope='module')
 async def erc721_init(contract_defs):
-    erc721_def = contract_defs
+    _, erc721_def = contract_defs
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)
@@ -52,11 +53,11 @@ async def erc721_init(contract_defs):
 
 @pytest.fixture
 def erc721_factory(contract_defs, erc721_init):
-    erc721_def = contract_defs
+    account_def, erc721_def = contract_defs
     state, account1, account2, erc721 = erc721_init
     _state = state.copy()
-    account1 = cached_contract(_state, Account.get_def, account1)
-    account2 = cached_contract(_state, Account.get_def, account2)
+    account1 = cached_contract(_state, account_def, account1)
+    account2 = cached_contract(_state, account_def, account2)
     erc721 = cached_contract(_state, erc721_def, erc721)
 
     return erc721, account1, account2

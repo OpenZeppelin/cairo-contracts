@@ -10,10 +10,10 @@ ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 @pytest.fixture(scope='module')
 async def account_factory():
     starknet = await State.init()
-    account = Account.deploy(signer.public_key)
     registry = await starknet.deploy(
         contract_path("openzeppelin/account/AddressRegistry.cairo")
     )
+    account = await Account.deploy(signer.public_key)
 
     return account, registry
 

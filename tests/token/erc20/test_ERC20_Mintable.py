@@ -19,14 +19,15 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_defs():
+    account_def = Account.get_def
     erc20_def = get_contract_def(
         'openzeppelin/token/erc20/ERC20_Mintable.cairo')
-    return erc20_def
+    return account_def, erc20_def
 
 
 @pytest.fixture(scope='module')
 async def erc20_init(contract_defs):
-    erc20_def = contract_defs
+    _, erc20_def = contract_defs
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     erc20 = await starknet.deploy(
@@ -49,10 +50,10 @@ async def erc20_init(contract_defs):
 
 @pytest.fixture
 def token_factory(contract_defs, erc20_init):
-    erc20_def = contract_defs
+    account_def, erc20_def = contract_defs
     state, account1, erc20 = erc20_init
     _state = state.copy()
-    account1 = cached_contract(_state, Account.get_def, account1)
+    account1 = cached_contract(_state, account_def, account1)
     erc20 = cached_contract(_state, erc20_def, erc20)
 
     return erc20, account1

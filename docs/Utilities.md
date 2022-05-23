@@ -225,6 +225,6 @@ def foo_factory(contract_defs, foo_init):
     return cached_foo  # return cached contracts
 ```
 
-## Signer
+## TestSigner
 
-`Signer` is used to perform transactions on a given Account, crafting the tx and managing nonces. See the [Account documentation](../docs/Account.md#signer-utility) for in-depth information.
+`TestSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `TestSigner` to operate with the Account contract's `__execute__` method. See [TestSigner utility](../docs/Account.md#activatedsigner-utility) for more information.

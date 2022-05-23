@@ -8,13 +8,8 @@ from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.token.erc721_enumerable.library import ERC721_Enumerable
-
 from openzeppelin.introspection.ERC165 import ERC165
-
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 #
 # Constructor
@@ -32,7 +27,7 @@ func constructor{
     ):
     ERC721.constructor(name, symbol)
     ERC721_Enumerable.constructor()
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -150,6 +145,16 @@ func tokenURI{
     return (tokenURI)
 end
 
+@view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
 #
 # Externals
 #
@@ -210,7 +215,7 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721_Enumerable._mint(to, tokenId)
     return ()
 end
@@ -232,7 +237,27 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721._set_token_uri(tokenId, tokenURI)
+    return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
     return ()
 end

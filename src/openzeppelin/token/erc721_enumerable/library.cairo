@@ -14,10 +14,7 @@ from starkware.cairo.common.uint256 import (
 from openzeppelin.introspection.ERC165 import ERC165
 from openzeppelin.utils.constants import IERC721_ENUMERABLE_ID
 
-from openzeppelin.security.safemath import (
-    uint256_checked_add,
-    uint256_checked_sub_le
-)
+from openzeppelin.security.safemath import SafeUint256
 
 from openzeppelin.token.erc721.library import ERC721
 

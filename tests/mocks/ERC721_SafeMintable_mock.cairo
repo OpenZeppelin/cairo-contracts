@@ -4,13 +4,9 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.token.erc721.library import ERC721
-
 from openzeppelin.introspection.ERC165 import ERC165
 
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 #
 # Constructor
@@ -27,7 +23,7 @@ func constructor{
         owner: felt
     ):
     ERC721.constructor(name, symbol)
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -175,7 +171,7 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721._mint(to, tokenId)
     return ()
 end
@@ -191,7 +187,7 @@ func safeMint{
         data_len: felt,
         data: felt*
     ):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721._safe_mint(to, tokenId, data_len, data)
     return ()
 end
@@ -202,7 +198,7 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721._set_token_uri(tokenId, tokenURI)
     return ()
 end

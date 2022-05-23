@@ -10,10 +10,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
-from openzeppelin.security.safemath import (
-    uint256_checked_add,
-    uint256_checked_sub_le
-)
+from openzeppelin.security.safemath import SafeUint256
 
 from openzeppelin.introspection.ERC165 import ERC165
 

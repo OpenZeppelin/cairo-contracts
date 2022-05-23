@@ -9,17 +9,9 @@ from starkware.cairo.common.uint256 import Uint256
 from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.introspection.ERC165 import ERC165
 
-from openzeppelin.security.pausable import (
-    Pausable_paused,
-    Pausable_pause,
-    Pausable_unpause,
-    Pausable_when_not_paused
-)
+from openzeppelin.security.pausable import Pausable
 
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 #
 # Constructor
@@ -36,7 +28,7 @@ func constructor{
         owner: felt
     ):
     ERC721.constructor(name, symbol)
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -125,15 +117,24 @@ func tokenURI{
 end
 
 @view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
+@view
 func paused{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }() -> (paused: felt):
-    let (paused) = Pausable_paused.read()
+    let (paused) = Pausable.is_paused()
     return (paused)
 end
-
 
 #
 # Externals
@@ -145,7 +146,7 @@ func approve{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC721.approve(to, tokenId)
     return ()
 end
@@ -156,7 +157,7 @@ func setApprovalForAll{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(operator: felt, approved: felt):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC721.set_approval_for_all(operator, approved)
     return ()
 end
@@ -171,7 +172,7 @@ func transferFrom{
         to: felt,
         tokenId: Uint256
     ):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC721.transfer_from(from_, to, tokenId)
     return ()
 end
@@ -188,7 +189,7 @@ func safeTransferFrom{
         data_len: felt,
         data: felt*
     ):
-    Pausable_when_not_paused()
+    Pausable.assert_not_paused()
     ERC721.safe_transfer_from(from_, to, tokenId, data_len, data)
     return ()
 end
@@ -199,8 +200,8 @@ func mint{
         syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, tokenId: Uint256):
-    Pausable_when_not_paused()
-    Ownable_only_owner()
+    Pausable.assert_not_paused()
+    Ownable.assert_only_owner()
     ERC721._mint(to, tokenId)
     return ()
 end
@@ -211,8 +212,28 @@ func setTokenURI{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256, tokenURI: felt):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC721._set_token_uri(tokenId, tokenURI)
+    return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
     return ()
 end
 
@@ -222,8 +243,8 @@ func pause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
-    Pausable_pause()
+    Ownable.assert_only_owner()
+    Pausable._pause()
     return ()
 end
 
@@ -233,7 +254,7 @@ func unpause{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }():
-    Ownable_only_owner()
-    Pausable_unpause()
+    Ownable.assert_only_owner()
+    Pausable._unpause()
     return ()
 end

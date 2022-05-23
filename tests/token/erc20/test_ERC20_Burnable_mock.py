@@ -1,12 +1,11 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
-    get_contract_def, cached_contract, assert_revert, assert_event_emitted, contract_path
+    TestSigner, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
+    get_contract_def, cached_contract, assert_revert, assert_event_emitted, 
 )
 
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 # testing vars
 INIT_SUPPLY = to_uint(1000)
@@ -15,9 +14,6 @@ UINT_ONE = to_uint(1)
 NAME = str_to_felt("Mintable Token")
 SYMBOL = str_to_felt("MTKN")
 DECIMALS = 18
-
-
-signer = Signer(123456789987654321)
 
 
 @pytest.fixture(scope='module')

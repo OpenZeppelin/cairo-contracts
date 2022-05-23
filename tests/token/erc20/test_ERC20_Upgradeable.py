@@ -1,8 +1,7 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TestSigner, to_uint, sub_uint, str_to_felt, assert_revert,
-    get_contract_def, cached_contract
+    get_contract_def, cached_contract, State, Account
 )
 
 
@@ -18,26 +17,20 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
     token_def = get_contract_def(
         'openzeppelin/token/erc20/ERC20_Upgradeable.cairo')
     proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
 
-    return account_def, token_def, proxy_def
+    return token_def, proxy_def
 
 
 @pytest.fixture(scope='module')
 async def token_init(contract_defs):
-    account_def, token_def, proxy_def = contract_defs
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_def=account_def,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_def=account_def,
-        constructor_calldata=[signer.public_key]
-    )
+    token_def, proxy_def = contract_defs
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
+
     token_v1 = await starknet.deploy(
         contract_def=token_def,
         constructor_calldata=[]
@@ -62,11 +55,11 @@ async def token_init(contract_defs):
 
 @pytest.fixture
 def token_factory(contract_defs, token_init):
-    account_def, token_def, proxy_def = contract_defs
+    token_def, proxy_def = contract_defs
     state, account1, account2, token_v1, token_v2, proxy = token_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
+    account1 = cached_contract(_state, Account.get_def, account1)
+    account2 = cached_contract(_state, Account.get_def, account2)
     token_v1 = cached_contract(_state, token_def, token_v1)
     token_v2 = cached_contract(_state, token_def, token_v2)
     proxy = cached_contract(_state, proxy_def, proxy)

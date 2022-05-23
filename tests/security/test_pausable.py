@@ -1,8 +1,7 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TRUE, FALSE, assert_revert, assert_event_emitted, 
-    get_contract_def, cached_contract, TestSigner
+    get_contract_def, cached_contract, TestSigner, State, Account
 )
 
 signer = TestSigner(12345678987654321)
@@ -10,21 +9,17 @@ signer = TestSigner(12345678987654321)
 @pytest.fixture
 async def pausable_factory():
     pausable_def = get_contract_def("tests/mocks/Pausable.cairo")
-    account_def = get_contract_def("openzeppelin/account/Account.cairo")
 
-    starknet = await Starknet.empty()
+    starknet = await State.init()
+    account = await Account.deploy(signer.public_key)
     pausable = await starknet.deploy(
         contract_def=pausable_def,
         constructor_calldata=[]
     )
-    account = await starknet.deploy(
-        contract_def=account_def,
-        constructor_calldata=[signer.public_key]
-    )
     state = starknet.state.copy()
 
     pausable = cached_contract(state, pausable_def, pausable)
-    account = cached_contract(state, account_def, account)
+    account = cached_contract(state, Account.get_def, account)
     return pausable, account
 
 

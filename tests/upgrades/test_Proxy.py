@@ -1,7 +1,6 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, assert_revert, get_contract_def, cached_contract
+    TestSigner, assert_revert, get_contract_def, cached_contract, State, Account
 )
 
 
@@ -13,23 +12,19 @@ signer = TestSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
     implementation_def = get_contract_def(
         'tests/mocks/proxiable_implementation.cairo'
     )
     proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
 
-    return account_def, implementation_def, proxy_def
+    return implementation_def, proxy_def
 
 
 @pytest.fixture(scope='module')
 async def proxy_init(contract_defs):
-    account_def, implementation_def, proxy_def = contract_defs
-    starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        contract_def=account_def,
-        constructor_calldata=[signer.public_key]
-    )
+    implementation_def, proxy_def = contract_defs
+    starknet = await State.init()
+    account = await Account.deploy(signer.public_key)
     implementation = await starknet.deploy(
         contract_def=implementation_def,
         constructor_calldata=[]
@@ -48,10 +43,10 @@ async def proxy_init(contract_defs):
 
 @pytest.fixture
 def proxy_factory(contract_defs, proxy_init):
-    account_def, implementation_def, proxy_def = contract_defs
+    implementation_def, proxy_def = contract_defs
     state, account, implementation, proxy = proxy_init
     _state = state.copy()
-    account = cached_contract(_state, account_def, account)
+    account = cached_contract(_state, Account.get_def, account)
     implementation = cached_contract(
         _state,
         implementation_def,

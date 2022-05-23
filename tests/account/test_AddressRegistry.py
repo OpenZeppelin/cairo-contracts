@@ -1,6 +1,5 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
-from utils import TestSigner, contract_path
+from utils import TestSigner, contract_path, State, Account
 
 
 signer = TestSigner(123456789987654321)
@@ -10,21 +9,18 @@ ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 
 @pytest.fixture(scope='module')
 async def account_factory():
-    starknet = await Starknet.empty()
+    starknet = await State.init()
+    account = Account.deploy(signer.public_key)
     registry = await starknet.deploy(
         contract_path("openzeppelin/account/AddressRegistry.cairo")
     )
-    account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key]
-    )
 
-    return starknet, account, registry
+    return account, registry
 
 
 @pytest.mark.asyncio
 async def test_set_address(account_factory):
-    _, account, registry = account_factory
+    account, registry = account_factory
 
     await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [L1_ADDRESS])
     execution_info = await registry.get_L1_address(account.contract_address).call()
@@ -33,7 +29,7 @@ async def test_set_address(account_factory):
 
 @pytest.mark.asyncio
 async def test_update_address(account_factory):
-    _, account, registry = account_factory
+    account, registry = account_factory
 
     await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [L1_ADDRESS])
 

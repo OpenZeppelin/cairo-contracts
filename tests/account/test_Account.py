@@ -1,8 +1,7 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import TestSigner, assert_revert, contract_path
+from utils import TestSigner, assert_revert, contract_path, State, Account
 
 
 signer = TestSigner(123456789987654321)
@@ -14,15 +13,9 @@ TRUE = 1
 
 @pytest.fixture(scope='module')
 async def account_factory():
-    starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key]
-    )
-    bad_account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key],
-    )
+    starknet = await State.init()
+    account = await Account.deploy(signer.public_key)
+    bad_account = await Account.deploy(signer.public_key)
 
     return starknet, account, bad_account
 

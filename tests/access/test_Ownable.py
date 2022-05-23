@@ -1,6 +1,5 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
-from utils import TestSigner, contract_path
+from utils import TestSigner, contract_path, State, Account
 
 
 signer = TestSigner(123456789987654321)
@@ -8,11 +7,8 @@ signer = TestSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 async def ownable_factory():
-    starknet = await Starknet.empty()
-    owner = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    owner = await Account.deploy(signer.public_key)
 
     ownable = await starknet.deploy(
         contract_path("tests/mocks/Ownable.cairo"),

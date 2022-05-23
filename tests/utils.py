@@ -5,7 +5,6 @@ import math
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.business_logic.execution.objects import Event

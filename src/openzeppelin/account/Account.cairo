@@ -76,7 +76,7 @@ end
 #
 
 @view
-func is_valid_signature{
+func assert_valid_signature{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
@@ -86,7 +86,7 @@ func is_valid_signature{
         signature_len: felt,
         signature: felt*
     ) -> ():
-    Account.is_valid_signature(hash, signature_len, signature)
+    Account.assert_valid_signature(hash, signature_len, signature)
     return ()
 end
 

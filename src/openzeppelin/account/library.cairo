@@ -113,7 +113,7 @@ namespace Account:
     # Business logic
     #
 
-    func is_valid_signature{
+    func assert_valid_signature{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
@@ -168,7 +168,7 @@ namespace Account:
         let calls_len = call_array_len
 
         # validate transaction
-        is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        assert_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
 
         # bump nonce
         Account_current_nonce.write(_current_nonce + 1)

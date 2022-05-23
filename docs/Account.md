@@ -22,7 +22,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
   * [`get_public_key`](#get_public_key)
   * [`get_nonce`](#get_nonce)
   * [`set_public_key`](#set_public_key)
-  * [`is_valid_signature`](#is_valid_signature)
+  * [`assert_valid_signature`](#assert_valid_signature)
   * [`__execute__`](#__execute__)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
@@ -71,7 +71,7 @@ namespace IAccount:
     # Business logic
     #
 
-    func is_valid_signature(
+    func assert_valid_signature(
             hash: felt,
             signature_len: felt,
             signature: felt*
@@ -279,7 +279,7 @@ end
 func set_public_key(new_public_key: felt):
 end
 
-func is_valid_signature(hash: felt,
+func assert_valid_signature(hash: felt,
         signature_len: felt,
         signature: felt*
     ):
@@ -337,7 +337,7 @@ Returns:
 
 None.
 
-### `is_valid_signature`
+### `assert_valid_signature`
 
 This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
 

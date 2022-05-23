@@ -19,7 +19,7 @@ namespace IAccount:
     # Business logic
     #
 
-    func is_valid_signature(
+    func assert_valid_signature(
             hash: felt,
             signature_len: felt,
             signature: felt*

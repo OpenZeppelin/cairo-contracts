@@ -22,7 +22,9 @@ The following documentation provides context, reasoning, and examples for method
 * [Memoization](#memoization)
   * [`get_contract_def`](#get_contract_def)
   * [`cached_contract`](#cached_contract)
-* [Signer](#signer)
+* [State](#state)
+* [Account](#account)
+* [TestSigner](#testsigner)
 
 ## Constants
 
@@ -223,6 +225,34 @@ def foo_factory(contract_defs, foo_init):
     _state = state.copy()  # copy the state
     cached_foo = cached_contract(_state, foo_def, foo)  # cache contracts
     return cached_foo  # return cached contracts
+```
+
+## State
+
+The `State` class provides a wrapper for initializing the StarkNet state which acts as a helper for the `Account` class. This wrapper allows `Account` deployments to share the same initialized state without explicitly passing the instantiated StarkNet state to `Account`. Initializing the state should look like this:
+
+```python
+from utils import State
+
+starknet = await State.init()
+```
+
+## Account
+
+The `Account` class abstracts away most of the boilerplate for deploying accounts. Instantiating accounts with this class requires the StarkNet state to be instantiated first with the `State.init()` method like this:
+
+```python
+from utils import State, Account
+
+starknet = await State.init()
+account1 = await Account.deploy(public_key)
+account2 = await Account.deploy(public_key)
+```
+
+The Account class also provides access to the account contract definition which is useful for following the [`Memoization`](#Memoization) pattern. To fetch the account contract definition:
+
+```python
+fetch_definition = Account.get_def()
 ```
 
 ## TestSigner

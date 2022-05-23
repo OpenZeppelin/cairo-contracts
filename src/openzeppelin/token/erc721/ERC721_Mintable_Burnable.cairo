@@ -25,7 +25,7 @@ func constructor{
         symbol: felt,
         owner: felt
     ):
-    ERC721.constructor(name, symbol)
+    ERC721.initializer(name, symbol)
     Ownable.initializer(owner)
     return ()
 end
@@ -208,17 +208,6 @@ func setTokenURI{
     }(tokenId: Uint256, tokenURI: felt):
     Ownable.assert_only_owner()
     ERC721._set_token_uri(tokenId, tokenURI)
-    return ()
-end
-
-@external
-func setTokenURI{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(tokenId: Uint256, tokenURI: felt):
-    Ownable.assert_only_owner()
-    ERC721_setTokenURI(tokenId, tokenURI)
     return ()
 end
 

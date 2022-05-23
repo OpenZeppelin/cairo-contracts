@@ -25,8 +25,8 @@ func constructor{
         symbol: felt,
         owner: felt
     ):
-    ERC721.constructor(name, symbol)
-    ERC721_Enumerable.constructor()
+    ERC721.initializer(name, symbol)
+    ERC721_Enumerable.initializer()
     Ownable.initializer(owner)
     return ()
 end

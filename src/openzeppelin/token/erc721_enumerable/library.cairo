@@ -49,7 +49,7 @@ namespace ERC721_Enumerable:
     # Constructor
     #
 
-    func constructor{
+    func initializer{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
@@ -175,7 +175,7 @@ namespace ERC721_Enumerable:
         ERC721_Enumerable_all_tokens.write(supply, token_id)
         ERC721_Enumerable_all_tokens_index.write(token_id, supply)
 
-        let (new_supply: Uint256) = uint256_checked_add(supply, Uint256(1, 0))
+        let (new_supply: Uint256) = SafeUint256.add(supply, Uint256(1, 0))
         ERC721_Enumerable_all_tokens_len.write(new_supply)
         return ()
     end
@@ -188,7 +188,7 @@ namespace ERC721_Enumerable:
         }(token_id: Uint256):
         alloc_locals
         let (supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
-        let (last_token_index: Uint256) = uint256_checked_sub_le(supply, Uint256(1, 0))
+        let (last_token_index: Uint256) = SafeUint256.sub_le(supply, Uint256(1, 0))
         let (token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
 
         # When the token to delete is the last token, the swap operation is unnecessary. However,
@@ -202,7 +202,7 @@ namespace ERC721_Enumerable:
         ERC721_Enumerable_all_tokens_index.write(last_token_id, token_index)
         ERC721_Enumerable_all_tokens_index.write(token_id, Uint256(0, 0))
 
-        let (new_supply: Uint256) = uint256_checked_sub_le(supply, Uint256(1, 0))
+        let (new_supply: Uint256) = SafeUint256.sub_le(supply, Uint256(1, 0))
         ERC721_Enumerable_all_tokens_len.write(new_supply)
         return ()
     end
@@ -226,7 +226,7 @@ namespace ERC721_Enumerable:
         alloc_locals
         let (last_token_index: Uint256) = ERC721.balance_of(from_)
         # the index starts at zero therefore the user's last token index is their balance minus one
-        let (last_token_index) = uint256_checked_sub_le(last_token_index, Uint256(1, 0))
+        let (last_token_index) = SafeUint256.sub_le(last_token_index, Uint256(1, 0))
         let (token_index: Uint256) = ERC721_Enumerable_owned_tokens_index.read(token_id)
 
         # If index is last, we can just set the return values to zero

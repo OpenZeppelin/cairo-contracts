@@ -19,7 +19,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(public_key: felt):
-    Account.constructor(public_key)
+    Account.initializer(public_key)
     return ()
 end
 

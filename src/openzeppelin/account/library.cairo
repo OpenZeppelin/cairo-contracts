@@ -170,7 +170,7 @@ namespace Account:
 
         # validate transaction
         let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
-        with_attr error_message("Invalid signature"):
+        with_attr error_message("Account: invalid signature"):
             assert is_valid = TRUE
         end
 

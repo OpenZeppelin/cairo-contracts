@@ -10,10 +10,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 
-from openzeppelin.security.safemath import (
-    uint256_checked_add,
-    uint256_checked_sub_le
-)
+from openzeppelin.security.safemath import SafeUint256
 
 from openzeppelin.introspection.ERC165 import ERC165
 
@@ -325,7 +322,7 @@ func ERC721_mint{
     end
 
     let (balance: Uint256) = ERC721_balances.read(to)
-    let (new_balance: Uint256) = uint256_checked_add(balance, Uint256(1, 0))
+    let (new_balance: Uint256) = SafeUint256.add(balance, Uint256(1, 0))
     ERC721_balances.write(to, new_balance)
     ERC721_owners.write(token_id, to)
     Transfer.emit(0, to, token_id)
@@ -348,7 +345,7 @@ func ERC721_burn{
 
     # Decrease owner balance
     let (balance: Uint256) = ERC721_balances.read(owner)
-    let (new_balance: Uint256) = uint256_checked_sub_le(balance, Uint256(1, 0))
+    let (new_balance: Uint256) = SafeUint256.sub_le(balance, Uint256(1, 0))
     ERC721_balances.write(owner, new_balance)
 
     # Delete owner
@@ -494,12 +491,12 @@ func _transfer{
 
     # Decrease owner balance
     let (owner_bal) = ERC721_balances.read(from_)
-    let (new_balance: Uint256) = uint256_checked_sub_le(owner_bal, Uint256(1, 0))
+    let (new_balance: Uint256) = SafeUint256.sub_le(owner_bal, Uint256(1, 0))
     ERC721_balances.write(from_, new_balance)
 
     # Increase receiver balance
     let (receiver_bal) = ERC721_balances.read(to)
-    let (new_balance: Uint256) = uint256_checked_add(receiver_bal, Uint256(1, 0))
+    let (new_balance: Uint256) = SafeUint256.add(receiver_bal, Uint256(1, 0))
     ERC721_balances.write(to, new_balance)
 
     # Update token_id owner

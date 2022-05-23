@@ -145,7 +145,7 @@ class State:
         return starknet
 
 
-class Account(State):
+class Account:
     """
     Utility for deploying Account contract.
 

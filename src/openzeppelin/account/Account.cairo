@@ -19,7 +19,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(public_key: felt):
-    Account.constructor(public_key)
+    Account.initializer(public_key)
     return ()
 end
 
@@ -75,7 +75,7 @@ end
 # Business logic
 #
 
-#@view
+@view
 func is_valid_signature{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

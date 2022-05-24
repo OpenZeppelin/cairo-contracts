@@ -7,6 +7,7 @@
   * [Libraries](#libraries)
   * [Contracts](#contracts)
 * [Presets](#presets)
+* [Function names and coding style](#function-names-and-coding-style)
 * [Emulating hooks](#emulating-hooks)
 
 ## The extensibility problem
@@ -72,7 +73,7 @@ Some presets are:
 * [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
 * [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
 
-## Function names and Coding style
+## Function names and coding style
 
 * Following Cairo's programming style, we use `snake_case` for library APIs (e.g. `ERC20.transfer_from`, `ERC721.safe_transfer_from`).
 * But for standard EVM ecosystem compatibility, we implement external functions in contracts using `camelCase` (e.g. `transferFrom` in a ERC20 contract).

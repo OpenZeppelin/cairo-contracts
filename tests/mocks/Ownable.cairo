@@ -4,38 +4,44 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_get_owner,
-    Ownable_transfer_ownership
-)
+from openzeppelin.access.ownable import Ownable
 
 @constructor
 func constructor{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(owner: felt):
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
 @external
-func get_owner{
-        syscall_ptr : felt*, 
+func owner{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (owner: felt):
-    let (owner) = Ownable_get_owner()
+    let (owner) = Ownable.owner()
     return (owner=owner)
 end
 
 @external
-func transfer_ownership{
-        syscall_ptr : felt*, 
+func transferOwnership{
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(new_owner: felt) -> (new_owner: felt):
-    Ownable_transfer_ownership(new_owner)
-    return (new_owner=new_owner)
+    }(new_owner: felt):
+    Ownable.transfer_ownership(new_owner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
+    return ()
 end

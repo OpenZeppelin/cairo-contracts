@@ -195,7 +195,7 @@ func burn{
         syscall_ptr: felt*,
         range_check_ptr
     }(tokenId: Uint256):
-    ERC721._only_token_owner(tokenId)
+    ERC721.assert_only_token_owner(tokenId)
     ERC721._burn(tokenId)
     return ()
 end

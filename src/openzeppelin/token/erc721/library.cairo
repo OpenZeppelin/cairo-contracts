@@ -309,7 +309,7 @@ namespace ERC721:
     # Internals
     #
 
-    func _only_token_owner{
+    func assert_only_token_owner{
             pedersen_ptr: HashBuiltin*,
             syscall_ptr: felt*,
             range_check_ptr

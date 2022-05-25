@@ -1,4 +1,6 @@
 {
     // Disable line length check
-    "MD013": false
+    "MD013": false,
+    // Disable inline HTML check
+    "MD033": false
 } 

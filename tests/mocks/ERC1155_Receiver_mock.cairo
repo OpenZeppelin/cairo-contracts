@@ -1,6 +1,8 @@
-%lang starknet
-from starkware.cairo.common.uint256 import Uint256
+# SPDX-License-Identifier: MIT
 
+%lang starknet
+
+from starkware.cairo.common.uint256 import Uint256
 from openzeppelin.utils.constants import (
     IERC1155_RECEIVER_ID, IACCOUNT_ID, ON_ERC1155_RECEIVED_SELECTOR, ON_ERC1155_BATCH_RECEIVED_SELECTOR 
 )

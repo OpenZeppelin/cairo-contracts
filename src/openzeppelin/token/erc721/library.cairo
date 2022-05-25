@@ -527,37 +527,41 @@ namespace ERC721:
         return ()
     end
 
-    func _check_onERC721Received{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            from_: felt,
-            to: felt,
-            token_id: Uint256,
-            data_len: felt,
-            data: felt*
-        ) -> (success: felt):
-        let (caller) = get_caller_address()
-        let (is_supported) = IERC165.supportsInterface(to, IERC721_RECEIVER_ID)
-        if is_supported == TRUE:
-            let (selector) = IERC721_Receiver.onERC721Received(
-                to,
-                caller,
-                from_,
-                token_id,
-                data_len,
-                data
-            )
+end
 
-            with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
-                assert selector = IERC721_RECEIVER_ID
-            end
-            return (TRUE)
+#
+# Private
+#
+
+func _check_onERC721Received{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        from_: felt,
+        to: felt,
+        token_id: Uint256,
+        data_len: felt,
+        data: felt*
+    ) -> (success: felt):
+    let (caller) = get_caller_address()
+    let (is_supported) = IERC165.supportsInterface(to, IERC721_RECEIVER_ID)
+    if is_supported == TRUE:
+        let (selector) = IERC721_Receiver.onERC721Received(
+            to,
+            caller,
+            from_,
+            token_id,
+            data_len,
+            data
+        )
+
+        with_attr error_message("ERC721: transfer to non ERC721Receiver implementer"):
+            assert selector = IERC721_RECEIVER_ID
         end
-
-        let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
-        return (is_account)
+        return (TRUE)
     end
 
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
+    return (is_account)
 end

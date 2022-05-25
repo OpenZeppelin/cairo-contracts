@@ -12,9 +12,6 @@ from openzeppelin.token.erc20.library import ERC20
 
 from openzeppelin.access.ownable import Ownable
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface
-
-
 @constructor
 func constructor{
         syscall_ptr: felt*,
@@ -28,7 +25,7 @@ func constructor{
         recipient: felt,
         owner: felt
     ):
-    ERC20.constructor(name, symbol, decimals)
+    ERC20.initializer(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
     Ownable.initializer(owner)
     return ()

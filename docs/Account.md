@@ -11,8 +11,13 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Quickstart](#quickstart)
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
-  * [Signer utility](#signer-utility)
-* [Call and MultiCall format](#call-and-multicall-format)
+  * [Signer](#signer)
+  * [TestSigner utility](#TestSigner-utility)
+* [Account entrypoint](#account-entrypoint)
+* [Call and AccountCallArray format](#call-and-accountcallarray-format)
+  * [Call](#call)
+  * [AccountCallArray](#accountcallarray)
+* [Multicall transactions](#multicall-transactions)
 * [API Specification](#api-specification)
   * [`get_public_key`](#get_public_key)
   * [`get_nonce`](#get_nonce)
@@ -33,9 +38,9 @@ The general workflow is:
 
 In Python, this would look as follows:
 
-```cairo
+```python
 from starkware.starknet.testing.starknet import Starknet
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -90,23 +95,50 @@ While the interface is agnostic of signature validation schemes, this implementa
 
 Note that although the current implementation works only with StarkKeys, support for Ethereum's ECDSA algorithm will be added in the future.
 
-### Signer utility
+### Signer
 
-The `Signer()` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The signer is responsible for creating a transaction signature with the user's private key for a given transaction. This implementation utilizes [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) class to create transaction signatures through the `Signer` method `sign_transaction`.
 
-It exposes three functions:
+`sign_transaction` expects the following parameters per transaction:
 
-* `def sign(message_hash)` receives a hash and returns a signed message of it
-* `def send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
-* `def send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+* `sender` the contract address invoking the tx
+* `calls` a list containing a sublist of each call to be sent. Each sublist must consist of:
+    1. `to` the address of the target contract of the message
+    2. `selector` the function to be called on the target contract
+    3. `calldata` the parameters for the given `selector`
+* `nonce` an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
+* `max_fee` the maximum fee a user will pay
 
-To use Signer, pass a private key when instantiating the class:
+Which returns:
+
+* `calls` a list of calls to be bundled in the transaction
+* `calldata` a list of arguments for each call
+* `sig_r` the transaction signature
+* `sig_s` the transaction signature
+
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `TestSigner`.
+
+### TestSigner utility
+
+The `TestSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+
+The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format. The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument). Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
+
+The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `TestSigner` instance invokes the account contract's `__execute__` with the transaction data.
+
+Users only need to interact with the following exposed methods to perform a transaction:
+
+* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
+
+* `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+
+To use `TestSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils import Signer
+from utils import TestSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = Signer(PRIVATE_KEY)
+signer = TestSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -127,51 +159,23 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
-## Call and MultiCall format
+## Account entrypoint
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a `MultiCall`. It should be noted that every transaction utilizes multicall. A single `Call`, however, is treated as a bundle of one.
+`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
 
-A single `Call` is structured as follows:
-
-```cairo
-struct Call:
-    member to: felt
-    member selector: felt
-    member calldata_len: felt
-    member calldata: felt*
-end
+```python
+await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
 
-Where:
+Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 
-* `to` is the address of the target contract of the message
-* `selector` is the selector of the function to be called on the target contract
-* `calldata_len` is the number of calldata parameters
-* `calldata` is an array representing the function parameters
-
-`MultiCall` is structured as:
-
-```cairo
-struct MultiCall:
-    member account: felt
-    member calls_len: felt
-    member calls: Call*
-    member nonce: felt
-    member max_fee: felt
-    member version: felt
-end
+```python
+await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
 ```
 
-Where:
+You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
 
-* `account` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys
-* `calls_len` is the number of calls bundled into the transaction
-* `calls` is an array representing each `Call`
-* `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
-* `max_fee` is the maximum fee a user will pay
-* `version` is a fixed number which is used to invalidate old transactions
-
-This `MultiCall` message is built within the `__execute__` method which has the following interface:
+The `__execute__` method has the following interface:
 
 ```cairo
 func __execute__(
@@ -192,23 +196,74 @@ Where:
 * `calldata` is an array representing the function parameters
 * `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
 
-`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
-
-```python
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
-```
-
-Note that Signer's `send_transaction` and `send_transactions` call `__execute__` under the hood.
-
-Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
-
-```python
-await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
-```
-
-You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
-
 > Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+
+## `Call` and `AccountCallArray` format
+
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (creating a multicall transaction). Cairo currently does not support arrays of structs with pointers which means the `__execute__` function cannot properly iterate through mutiple `Call`s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [Multicall transactions](#multicall-transactions).
+
+### `Call`
+
+A single `Call` is structured as follows:
+
+```cairo
+struct Call:
+    member to: felt
+    member selector: felt
+    member calldata_len: felt
+    member calldata: felt*
+end
+```
+
+Where:
+
+* `to` is the address of the target contract of the message
+* `selector` is the selector of the function to be called on the target contract
+* `calldata_len` is the number of calldata parameters
+* `calldata` is an array representing the function parameters
+
+### `AccountCallArray`
+
+`AccountCallArray` is structured as:
+
+```cairo
+struct AccountCallArray:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
+end
+```
+
+Where:
+
+* `to` is the address of the target contract of the message
+* `selector` is the selector of the function to be called on the target contract
+* `data_offset` is the starting position of the calldata array that holds the `Call`'s calldata
+* `data_len` is the number of calldata elements in the `Call`
+
+## Multicall transactions
+
+A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
+
+This is the basic flow:
+
+1. The user sends the messages for the transaction through a Signer instantiation which looks like this:
+
+    ```python
+    await signer.send_transaction(
+            account, [
+                (contract_address, 'contract_method', [arg_1]),
+                (contract_address, 'another_method', [arg_1, arg_2])
+            ]
+        )
+    ```
+
+    The `_from_call_to_call_array` method in [utils.py](../tests/utils.py) converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array. Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash. The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
+
+2. The `__execute__` method takes the `AccountCallArray` and calldata and builds an array of `Call`s (MultiCall).
+
+> It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
 
 ## API Specification
 
@@ -302,7 +357,7 @@ None.
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a [Multicall](#message-format) message with it
+1. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information
 2. Validates the transaction signature matches the message (including the nonce)
 3. Increments the nonce
 4. Calls the target contract with the intended function selector and calldata parameters

@@ -26,7 +26,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
+To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/Introspection.md#interface-calculations).
 
 ## Strings
 
@@ -225,6 +225,6 @@ def foo_factory(contract_defs, foo_init):
     return cached_foo  # return cached contracts
 ```
 
-## Signer
+## TestSigner
 
-`Signer` is used to perform transactions on a given Account, crafting the tx and managing nonces. See the [Account documentation](../docs/Account.md#signer-utility) for in-depth information.
+`TestSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `TestSigner` to operate with the Account contract's `__execute__` method. See [TestSigner utility](../docs/Account.md#activatedsigner-utility) for more information.

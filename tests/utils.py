@@ -139,8 +139,7 @@ class State:
     """
     async def init():
         global starknet
-        if 'starknet' not in globals():
-            starknet = await Starknet.empty()
+        starknet = await Starknet.empty()
         return starknet
 
 

@@ -103,7 +103,7 @@ end
 * [ERC20](docs/ERC20.md)
 * [ERC721](docs/ERC721.md)
 * [Contract extensibility pattern](docs/Extensibility.md)
-* [Proxies and upgrades](docs/Proxies.md)
+* [Proxies and upgrades](docs/Upgrades.md)
 * [Security](docs/Security.md)
 * [Utilities](docs/Utilities.md)
 

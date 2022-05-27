@@ -170,7 +170,7 @@ The [`ERC20_Pausable`](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo) pre
 
 ### ERC20_Upgradeable
 
-The [`ERC20_Upgradeable`](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](Proxies.md#contract-upgrades).
+The [`ERC20_Upgradeable`](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo) preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state. This preset proves useful for scenarios such as eliminating bugs and adding new features. For more on upgradeability, see [Contract upgrades](Upgrades.md#contract-upgrades).
 
 ## API Specification
 

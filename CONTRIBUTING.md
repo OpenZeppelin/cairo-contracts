@@ -46,11 +46,9 @@ As a contributor, you are expected to fork this repository, work on your own for
 4. Run tests, linter, etc. This can be done by running local continuous integration and make sure it passes.
 
     ```bash
-    pytest
-    # stop the build if there are Python syntax errors or undefined names
-    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    tox
+    # stop the build if there are Markdown documentation errors
+    tox -e lint
     ```
 
 5. Go to [github.com/OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts) in your web browser and issue a new pull request.

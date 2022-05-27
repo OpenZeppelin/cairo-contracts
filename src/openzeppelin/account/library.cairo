@@ -174,7 +174,7 @@ func Account_execute{
     let (tx_info) = get_tx_info()
     let (_current_nonce) = Account_current_nonce.read()
     
-    # Forbid non-external calls to prevent signature spoofing
+    # Forbid non-external calls to prevent reentrant signature reutilization
     # See https://github.com/OpenZeppelin/cairo-contracts/issues/344
     let (caller) = get_caller_address()
     assert caller = 0

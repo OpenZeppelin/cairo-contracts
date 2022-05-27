@@ -173,6 +173,11 @@ func Account_execute{
     let (__fp__, _) = get_fp_and_pc()
     let (tx_info) = get_tx_info()
     let (_current_nonce) = Account_current_nonce.read()
+    
+    # Avoid contracts
+    # See https://github.com/OpenZeppelin/cairo-contracts/issues/344
+    let (caller) = get_caller_address()
+    assert caller = 0
 
     # validate nonce
     assert _current_nonce = nonce

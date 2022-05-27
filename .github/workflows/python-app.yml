@@ -19,8 +19,7 @@ jobs:
     - name: Markdown Linter
       uses: docker://avtodev/markdown-lint:v1
       with:
-        args: "**/*.md"
-        ignore: ".github/ISSUE_TEMPLATE/ PULL_REQUEST_TEMPLATE.md"
+        args: README.md CONTRIBUTING.md docs
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:

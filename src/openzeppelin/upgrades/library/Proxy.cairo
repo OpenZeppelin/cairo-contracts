@@ -31,10 +31,6 @@ end
 func Proxy_initialized() -> (initialized: felt):
 end
 
-#
-# Initializer
-#
-
 namespace Proxy:
 
     #

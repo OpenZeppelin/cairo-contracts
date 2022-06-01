@@ -31,11 +31,11 @@ UNSUPPORTED_ID = 0xabcd1234
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     erc721_def = get_contract_def(
-        'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+        'openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo')
     erc721_holder_def = get_contract_def(
-        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+        'openzeppelin/token/erc721/utils/ERC721Holder.cairo')
     unsupported_def = get_contract_def(
         'tests/mocks/Initializable.cairo')
 

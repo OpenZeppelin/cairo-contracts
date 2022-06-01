@@ -18,9 +18,9 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     erc20_def = get_contract_def(
-        'tests/mocks/ERC20_Burnable_mock.cairo')
+        'tests/mocks/ERC20BurnableMock.cairo')
 
     return account_def, erc20_def
 

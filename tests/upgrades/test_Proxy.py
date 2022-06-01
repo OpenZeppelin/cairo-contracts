@@ -13,11 +13,11 @@ signer = TestSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     implementation_def = get_contract_def(
-        'tests/mocks/proxiable_implementation.cairo'
+        'tests/mocks/ProxiableImplementation.cairo'
     )
-    proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
+    proxy_def = get_contract_def('openzeppelin/upgrades/ProxyFallback.cairo')
 
     return account_def, implementation_def, proxy_def
 

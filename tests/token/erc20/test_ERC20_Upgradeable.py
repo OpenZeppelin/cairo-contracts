@@ -18,10 +18,10 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     token_def = get_contract_def(
-        'openzeppelin/token/erc20/ERC20_Upgradeable.cairo')
-    proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
+        'openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo')
+    proxy_def = get_contract_def('openzeppelin/upgrades/ProxyFallback.cairo')
 
     return account_def, token_def, proxy_def
 

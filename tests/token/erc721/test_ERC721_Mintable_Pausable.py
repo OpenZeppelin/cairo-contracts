@@ -17,11 +17,11 @@ DATA = [0x42, 0x89, 0x55]
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     erc721_def = get_contract_def(
-        'openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo')
+        'openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo')
     erc721_holder_def = get_contract_def(
-        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+        'openzeppelin/token/erc721/utils/ERC721Holder.cairo')
 
     return account_def, erc721_def, erc721_holder_def
 

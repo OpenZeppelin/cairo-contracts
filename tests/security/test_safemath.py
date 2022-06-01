@@ -10,7 +10,7 @@ from utils import (
 async def safemath_mock():
     starknet = await Starknet.empty()
     safemath = await starknet.deploy(
-        contract_path("tests/mocks/safemath_mock.cairo")
+        contract_path("tests/mocks/SafeMathMock.cairo")
     )
 
     return safemath

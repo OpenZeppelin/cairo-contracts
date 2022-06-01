@@ -13,9 +13,9 @@ IACCOUNT_ID = 0xf10dbd44
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     init_def = get_contract_def("tests/mocks/Initializable.cairo")
-    attacker_def = get_contract_def("tests/mocks/account_reentrancy.cairo")
+    attacker_def = get_contract_def("tests/mocks/AccountReentrancy.cairo")
 
     return account_def, init_def, attacker_def
 

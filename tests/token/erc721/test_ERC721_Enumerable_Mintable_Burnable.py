@@ -24,9 +24,9 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     erc721_def = get_contract_def(
-        'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
+        'openzeppelin/token/erc721/presets/ERC721EnumerableMintableBurnable.cairo')
 
     return account_def, erc721_def
 

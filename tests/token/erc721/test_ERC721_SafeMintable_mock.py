@@ -16,10 +16,10 @@ DATA = [0x42, 0x89, 0x55]
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
-    erc721_def = get_contract_def('tests/mocks/ERC721_SafeMintable_mock.cairo')
+    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
+    erc721_def = get_contract_def('tests/mocks/ERC721SafeMintableMock.cairo')
     erc721_holder_def = get_contract_def(
-        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+        'openzeppelin/token/erc721/utils/ERC721Holder.cairo')
     unsupported_def = get_contract_def(
         'tests/mocks/Initializable.cairo')
 

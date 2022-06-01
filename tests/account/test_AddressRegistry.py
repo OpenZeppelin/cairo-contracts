@@ -12,10 +12,10 @@ ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 async def account_factory():
     starknet = await Starknet.empty()
     registry = await starknet.deploy(
-        contract_path("openzeppelin/account/AddressRegistry.cairo")
+        contract_path("openzeppelin/account/presets/AddressRegistry.cairo")
     )
     account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
+        contract_path("openzeppelin/account/presets/Account.cairo"),
         constructor_calldata=[signer.public_key]
     )
 

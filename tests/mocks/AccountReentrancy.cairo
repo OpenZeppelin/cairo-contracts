@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 %lang starknet
 
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info, get_contract_address

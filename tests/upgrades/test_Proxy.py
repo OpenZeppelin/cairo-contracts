@@ -17,7 +17,7 @@ def contract_defs():
     implementation_def = get_contract_def(
         'tests/mocks/ProxiableImplementation.cairo'
     )
-    proxy_def = get_contract_def('openzeppelin/upgrades/ProxyFallback.cairo')
+    proxy_def = get_contract_def('openzeppelin/upgrades/presets/Proxy.cairo')
 
     return account_def, implementation_def, proxy_def
 

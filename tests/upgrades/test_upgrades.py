@@ -17,7 +17,7 @@ def contract_defs():
     account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     v1_def = get_contract_def('tests/mocks/UpgradesMockV1.cairo')
     v2_def = get_contract_def('tests/mocks/UpgradesMockV2.cairo')
-    proxy_def = get_contract_def('openzeppelin/upgrades/ProxyFallback.cairo')
+    proxy_def = get_contract_def('openzeppelin/upgrades/presets/Proxy.cairo')
 
     return account_def, v1_def, v2_def, proxy_def
 

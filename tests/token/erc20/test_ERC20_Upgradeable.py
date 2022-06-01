@@ -21,7 +21,7 @@ def contract_defs():
     account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
     token_def = get_contract_def(
         'openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo')
-    proxy_def = get_contract_def('openzeppelin/upgrades/ProxyFallback.cairo')
+    proxy_def = get_contract_def('openzeppelin/upgrades/presets/Proxy.cairo')
 
     return account_def, token_def, proxy_def
 

@@ -6,14 +6,14 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.upgrades.library import Proxy
+from openzeppelin.upgrades.library.Proxy import Proxy
 
 #
 # Storage
 #
 
 @storage_var
-func value() -> (res: felt):
+func value_1() -> (res: felt):
 end
 
 #
@@ -31,37 +31,32 @@ func initializer{
 end
 
 #
+# Upgrades
+#
+
+@external
+func upgrade{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(new_implementation: felt):
+    Proxy.assert_only_admin()
+    Proxy._set_implementation(new_implementation)
+    return ()
+end
+
+#
 # Getters
 #
 
 @view
-func get_value{
+func get_value_1{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (val: felt):
-    let (val) = value.read()
+    let (val) = value_1.read()
     return (val)
-end
-
-@view
-func get_implementation{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (address: felt):
-    let (address) = Proxy.get_implementation()
-    return (address)
-end
-
-@view
-func get_admin{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (address: felt):
-    let (address) = Proxy.get_admin()
-    return (address)
 end
 
 #
@@ -69,11 +64,11 @@ end
 #
 
 @external
-func set_value{
+func set_value_1{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(val: felt):
-    value.write(val)
+    value_1.write(val)
     return ()
 end

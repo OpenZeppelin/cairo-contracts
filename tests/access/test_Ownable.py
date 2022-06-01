@@ -15,7 +15,7 @@ signer = TestSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_defs():
     return (
-        get_contract_def('openzeppelin/account/Account.cairo'),
+        get_contract_def('openzeppelin/account/presets/Account.cairo'),
         get_contract_def('tests/mocks/Ownable.cairo')
     )
 

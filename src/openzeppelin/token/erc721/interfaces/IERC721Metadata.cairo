@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import Uint256
 from openzeppelin.token.erc721.interfaces.IERC721 import IERC721
 
 @contract_interface
-namespace IERC721_Metadata:
+namespace IERC721Metadata:
     func name() -> (name: felt):
     end
 

@@ -5,7 +5,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import delegate_l1_handler, delegate_call
-from openzeppelin.upgrades.library import Proxy
+from openzeppelin.upgrades.library.Proxy import Proxy
 
 #
 # Constructor

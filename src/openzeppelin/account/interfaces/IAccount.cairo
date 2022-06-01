@@ -3,7 +3,7 @@
 
 %lang starknet
 
-from openzeppelin.account.library import AccountCallArray
+from openzeppelin.account.library.Account import AccountCallArray
 
 @contract_interface
 namespace IAccount:

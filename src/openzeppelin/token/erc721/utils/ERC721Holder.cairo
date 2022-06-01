@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.utils.constants import IERC721_RECEIVER_ID
 
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.library.ERC165 import ERC165
 
 @view
 func onERC721Received(

@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from openzeppelin.security.initializable import Initializable
+from openzeppelin.security.library.Initializable import Initializable
 
 
 @view

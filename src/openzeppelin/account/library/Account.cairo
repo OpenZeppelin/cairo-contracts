@@ -155,6 +155,11 @@ namespace Account:
         ) -> (response_len: felt, response: felt*):
         alloc_locals
 
+        let (caller) = get_caller_address()
+        with_attr error_message("Account: no reentrant call"):
+            assert caller = 0
+        end
+
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
         let (_current_nonce) = Account_current_nonce.read()

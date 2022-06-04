@@ -3,6 +3,7 @@ from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TestSigner,
     ZERO_ADDRESS,
+    assert_revert,
     assert_event_emitted,
     get_contract_def,
     cached_contract
@@ -10,7 +11,6 @@ from utils import (
 
 
 signer = TestSigner(123456789987654321)
-second_signer = TestSigner(98765432123456789)
 
 @pytest.fixture(scope='module')
 def contract_defs():
@@ -30,36 +30,50 @@ async def ownable_init(contract_defs):
     )
     proposed_owner = await starknet.deploy(
         contract_def=account_def,
-        constructor_calldata=[second_signer.public_key]
+        constructor_calldata=[signer.public_key]
+    )
+    third_account = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
     )
     ownable = await starknet.deploy(
         contract_def=ownable_def,
         constructor_calldata=[owner.contract_address]
     )
-    return starknet.state, ownable, owner, proposed_owner
+    return starknet.state, ownable, owner, proposed_owner, third_account
 
 
 @pytest.fixture
 def ownable_factory(contract_defs, ownable_init):
     account_def, ownable_def = contract_defs
-    state, ownable, owner, proposed_owner = ownable_init
+    state, ownable, owner, proposed_owner, third_account = ownable_init
     _state = state.copy()
     owner = cached_contract(_state, account_def, owner)
     proposed_owner = cached_contract(_state, account_def, proposed_owner)
+    third_account = cached_contract(_state, account_def, third_account)
     ownable = cached_contract(_state, ownable_def, ownable)
-    return ownable, owner, proposed_owner
+    return ownable, owner, proposed_owner, third_account
+
+
+# Used to aovid repeating proposing an owner everywhere else
+@pytest.fixture
+async def after_proposed(ownable_factory):
+    ownable, owner, proposed_owner, third_account = ownable_factory
+    await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
+
+    return ownable, owner, proposed_owner, third_account
 
 
 @pytest.mark.asyncio
 async def test_constructor(ownable_factory):
-    ownable, owner, _ = ownable_factory
+    ownable, owner, _, _ = ownable_factory
     expected = await ownable.owner().call()
     assert expected.result.owner == owner.contract_address
 
 
 @pytest.mark.asyncio
 async def test_transferOwnership(ownable_factory):
-    ownable, owner, _ = ownable_factory
+    ownable, owner, _, _ = ownable_factory
     new_owner = 123
 
     await signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [new_owner])
@@ -67,37 +81,197 @@ async def test_transferOwnership(ownable_factory):
     executed_info = await ownable.owner().call()
     assert executed_info.result == (new_owner,)
 
+
 @pytest.mark.asyncio
 async def test_proposeOwnerhsip(ownable_factory):
-    ownable, owner, proposed_owner = ownable_factory
+    ownable, owner, proposed_owner, _ = ownable_factory
 
     await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
     executed_info = await ownable.proposedOwner().call()
     assert executed_info.result == (proposed_owner.contract_address, )
 
-@pytest.mark.asyncio
-async def test_CancelOwnershipProposalByOwner(ownable_factory):
-    ownable, owner, proposed_owner = ownable_factory
 
-    await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
+@pytest.mark.asyncio
+async def test_proposeOwnership_from_zero_address(ownable_factory):
+    ownable, _, proposed_owner, _ = ownable_factory
+
+    await assert_revert(
+        ownable.proposeOwner(proposed_owner.contract_address).invoke(),
+        reverted_with="Ownable: caller is the zero address"
+    )
+
+@pytest.mark.asyncio
+async def test_proposeOwnership_from_another_account(ownable_factory):
+    ownable, _, proposed_owner, third_account = ownable_factory
+
+    await assert_revert(
+        signer.send_transaction(
+            third_account, 
+            ownable.contract_address, 
+            'proposeOwner', 
+            [proposed_owner.contract_address]
+        ),
+        reverted_with="Ownable: caller is not the owner"
+    )
+
+
+@pytest.mark.asyncio
+async def test_proposeOwnership_from_self(ownable_factory):
+    ownable, owner, _, _ = ownable_factory
+
+    await assert_revert(signer.send_transaction(
+        owner, 
+        ownable.contract_address, 
+        'proposeOwner', 
+        [owner.contract_address]
+    ),
+        reverted_with="Ownable: proposed owner cannot be the caller"
+    )
+
+
+@pytest.mark.asyncio
+async def test_proposeOwnership_to_zero_address(ownable_factory):
+    ownable, owner, _, _ = ownable_factory
+
+    await assert_revert(signer.send_transaction(
+        owner, 
+        ownable.contract_address, 
+        'proposeOwner', 
+        [ZERO_ADDRESS]
+    ),
+        reverted_with="Ownable: proposed owner cannot be the zero address"
+    )
+
+@pytest.mark.asyncio
+async def test_proposeOwnership_when_owner_already_proposed(after_proposed):
+    ownable, owner, proposed_owner, _ = after_proposed
+
+    await assert_revert(signer.send_transaction(
+        owner,
+        ownable.contract_address,
+        'proposeOwner',
+        [proposed_owner.contract_address]
+    ),
+        reverted_with="Ownable: a proposal is already in motion"
+    )
+
+
+@pytest.mark.asyncio
+async def test_cancelOwnershipProposal_from_owner(after_proposed):
+    ownable, owner, _, _ = after_proposed
+
     await signer.send_transaction(owner, ownable.contract_address, 'cancelOwnershipProposal', [])
 
     executed_info = await ownable.proposedOwner().call()
     assert executed_info.result == (ZERO_ADDRESS, )
 
-@pytest.mark.asyncio
-async def test_CancelOwnershipProposalByProposedOwner(ownable_factory):
-    ownable, owner, proposed_owner = ownable_factory
 
-    await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
-    await second_signer.send_transaction(proposed_owner, ownable.contract_address, 'cancelOwnershipProposal', [])
+@pytest.mark.asyncio
+async def test_cancelOwnershipProposal_from_proposed_owner(after_proposed):
+    ownable, _, proposed_owner, _ = after_proposed
+
+    await signer.send_transaction(proposed_owner, ownable.contract_address, 'cancelOwnershipProposal', [])
 
     executed_info = await ownable.proposedOwner().call()
     assert executed_info.result == (ZERO_ADDRESS, )
 
+
+@pytest.mark.asyncio
+async def test_cancelOwnershipProposal_from_zero_address(after_proposed):
+    ownable, _, _, _ = after_proposed
+
+    await assert_revert(
+        ownable.cancelOwnershipProposal().invoke(),
+        reverted_with="Ownable: caller is neither the current owner nor the proposed owner"
+    )
+
+
+@pytest.mark.asyncio
+async def test_cancelOwnershipProposal_from_neither_owner_nor_proposed(after_proposed):
+    ownable, _, _, third_account  = after_proposed
+    
+    await assert_revert(
+        signer.send_transaction(
+            third_account,
+            ownable.contract_address,
+            'cancelOwnershipProposal',
+            []
+        ),
+        reverted_with="Ownable: caller is neither the current owner nor the proposed owner"
+    )
+
+
+@pytest.mark.asyncio
+async def test_cancelOwnershipProposal_when_ownership_transfer_is_not_engaged(ownable_factory):
+    ownable, owner, _, _ = ownable_factory
+
+    await assert_revert(
+        signer.send_transaction(
+            owner,
+            ownable.contract_address,
+            'cancelOwnershipProposal',
+            []
+        ),
+        reverted_with="Ownable: no proposed owner to cancel"
+    )
+
+
+@pytest.mark.asyncio
+async def test_acceptOwnership(after_proposed):
+    ownable, _, proposed_owner, _  = after_proposed
+
+    await signer.send_transaction(proposed_owner, ownable.contract_address, 'acceptOwnership', [])
+    executed_info = await ownable.proposedOwner().call()
+    # proposed owner should have been reset
+    assert executed_info.result == (ZERO_ADDRESS, )
+    # new owner should be proposed owner
+    executed_info = await ownable.owner().call()
+    assert executed_info.result == (proposed_owner.contract_address, )
+
+
+@pytest.mark.asyncio
+async def test_acceptOwnership_from_zero_address(after_proposed):
+    ownable, _, _, _  = after_proposed
+
+    await assert_revert(
+        ownable.acceptOwnership().invoke(),
+        reverted_with="Ownable: caller is the zero address"
+    )
+
+
+@pytest.mark.asyncio
+async def test_acceptOwnership_from_other(after_proposed):
+    ownable, _, _, third_account = after_proposed
+
+    await assert_revert(
+        signer.send_transaction(
+            third_account,
+            ownable.contract_address,
+            'acceptOwnership',
+            []
+        ),
+        reverted_with="Ownable: caller is not the proposed owner"
+    )
+    
+
+@pytest.mark.asyncio 
+async def test_acceptOwnerhsip_when_ownership_proposal_is_not_engaged(ownable_factory):
+    ownable, _, proposed_owner, _  = ownable_factory
+
+    await assert_revert(
+        signer.send_transaction(
+            proposed_owner,
+            ownable.contract_address,
+            'acceptOwnership',
+            []
+        ),
+        reverted_with="Ownable: a proposal is not in motion"
+    )
+
+
 @pytest.mark.asyncio
 async def test_cancelOwnershipProposal_emits_event(ownable_factory):
-    ownable, owner, proposed_owner = ownable_factory
+    ownable, owner, proposed_owner, _ = ownable_factory
     await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'cancelOwnershipProposal', [])
 
@@ -111,9 +285,10 @@ async def test_cancelOwnershipProposal_emits_event(ownable_factory):
         ]
     )
 
+
 @pytest.mark.asyncio
 async def test_transferOwnership_emits_event(ownable_factory):
-    ownable, owner, _ = ownable_factory
+    ownable, owner, _, _ = ownable_factory
     new_owner = 123
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [new_owner])
 
@@ -127,9 +302,10 @@ async def test_transferOwnership_emits_event(ownable_factory):
         ]
     )
 
+
 @pytest.mark.asyncio
 async def test_proposeOwner_emits_event(ownable_factory):
-    ownable, owner, proposed_owner = ownable_factory
+    ownable, owner, proposed_owner, _ = ownable_factory
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'proposeOwner', [proposed_owner.contract_address])
 
     assert_event_emitted(
@@ -142,9 +318,10 @@ async def test_proposeOwner_emits_event(ownable_factory):
         ]
     )
 
+
 @pytest.mark.asyncio
 async def test_renounceOwnership(ownable_factory):
-    ownable, owner, _ = ownable_factory
+    ownable, owner, _, _ = ownable_factory
     await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
     executed_info = await ownable.owner().call()
     assert executed_info.result == (ZERO_ADDRESS,)
@@ -152,7 +329,7 @@ async def test_renounceOwnership(ownable_factory):
 
 @pytest.mark.asyncio
 async def test_renounceOwnership_emits_event(ownable_factory):
-    ownable, owner, _ = ownable_factory
+    ownable, owner, _, _ = ownable_factory
     tx_exec_info = await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
 
     assert_event_emitted(

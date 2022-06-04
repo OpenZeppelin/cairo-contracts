@@ -95,9 +95,9 @@ end
 
 namespace Timelock:
     func initializer{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
+            syscall_ptr: felt*, 
+            pedersen_ptr: HashBuiltin*, 
+            range_check_ptr
     }(delay: felt):
         Timelock_min_delay.write(delay)
 

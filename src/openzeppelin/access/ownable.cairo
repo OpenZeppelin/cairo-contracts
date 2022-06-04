@@ -207,10 +207,11 @@ namespace Ownable:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(new_owner: felt):
+        alloc_locals
         let (previous_owner: felt) = Ownable.owner()
         Ownable_owner.write(new_owner)
         # reset the proposed owner
-        Ownable_proposed_owner.write(0)
+        _reset_proposed_owner()
         OwnershipTransferred.emit(previous_owner, new_owner)
         return ()
     end

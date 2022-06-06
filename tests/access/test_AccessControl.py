@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, TRUE, FALSE,
+    TestSigner, TRUE, FALSE,
     assert_event_emitted, assert_revert,
     get_contract_def, cached_contract
 )
@@ -10,7 +10,7 @@ from utils import (
 DEFAULT_ADMIN_ROLE = 0
 SOME_OTHER_ROLE = 42
 
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')

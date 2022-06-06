@@ -12,7 +12,7 @@ func constructor{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(admin: felt):
-    AccessControl.constructor()
+    AccessControl.initializer()
     AccessControl._grant_role(0, admin)
     return ()
 end

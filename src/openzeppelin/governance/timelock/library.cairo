@@ -39,7 +39,7 @@ struct Call:
     member calldata: felt*
 end
 
-struct TimelockCall:
+struct AccountCallArray:
     member to: felt
     member selector: felt
     member data_offset: felt
@@ -78,7 +78,7 @@ func Cancelled(id: felt):
 end
 
 @event
-func MinDelayChange(old_duration: felt, new_duration: felt):
+func MinDelayChange(oldDuration: felt, newDuration: felt):
 end
 
 #
@@ -100,9 +100,7 @@ namespace Timelock:
             range_check_ptr
     }(delay: felt):
         Timelock_min_delay.write(delay)
-
         MinDelayChange.emit(0, delay)
-
         return ()
     end
 
@@ -202,7 +200,7 @@ namespace Timelock:
         range_check_ptr
     }(
         call_array_len: felt,
-        call_array: TimelockCall*,
+        call_array: AccountCallArray*,
         calldata_len: felt,
         calldata: felt*,
         predecessor: felt,
@@ -226,7 +224,7 @@ namespace Timelock:
         range_check_ptr
     }(
         call_array_len: felt,
-        call_array: TimelockCall*,
+        call_array: AccountCallArray*,
         calldata_len: felt,
         calldata: felt*,
         predecessor: felt,
@@ -251,8 +249,7 @@ namespace Timelock:
 
         _execute(id, call_array_len, call_array, calldata_len, calldata, predecessor)
 
-        Timelock_timestamps.write(id, 1)
-
+        Timelock_timestamps.write(id, DONE_TIMESTAMP)
         return ()
     end
 
@@ -262,9 +259,7 @@ namespace Timelock:
         range_check_ptr
     }(id: felt):
         _cancel(id)
-
         Cancelled.emit(id)
-
         return ()
     end
 
@@ -291,11 +286,8 @@ namespace Timelock:
         end
 
         let (block_timestamp: felt) = get_block_timestamp()
-
         Timelock_timestamps.write(id, block_timestamp + delay)
-
         _emit_schedule_events(id, 0, calls_len, calls, predecessor)
-
         return ()
     end
 
@@ -317,13 +309,10 @@ namespace Timelock:
         end
 
         let this_call: Call = [calls]
-
         CallScheduled.emit(
             id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata, predecessor
         )
-
         _emit_schedule_events(id, index + 1, calls_len - 1, calls + Call.SIZE, predecessor)
-
         return ()
     end
 
@@ -334,7 +323,7 @@ namespace Timelock:
     }(
         id: felt,
         call_array_len: felt,
-        call_array: TimelockCall*,
+        call_array: AccountCallArray*,
         calldata_len: felt,
         calldata: felt*,
         predecessor: felt,
@@ -344,7 +333,6 @@ namespace Timelock:
         let (calls: Call*) = alloc()
         _from_timelock_calls_to_calls(call_array_len, call_array, calldata, calls)
         _execute_calls(id, 0, call_array_len, calls)
-
         return ()
     end
 
@@ -360,7 +348,6 @@ namespace Timelock:
         end
 
         Timelock_timestamps.write(id, 0)
-
         return ()
     end
 
@@ -370,7 +357,7 @@ namespace Timelock:
         range_check_ptr
     }(
         call_array_len: felt,
-        call_array: TimelockCall*,
+        call_array: AccountCallArray*,
         calldata: felt*,
         predecessor: felt,
         salt: felt,
@@ -389,7 +376,6 @@ namespace Timelock:
         let (state: HashState*) = hash_update_single{hash_ptr=pedersen_ptr}(state, salt)
 
         let (hash: felt) = hash_finalize{hash_ptr=pedersen_ptr}(state)
-
         return (hash=hash)
     end
 
@@ -399,7 +385,7 @@ namespace Timelock:
         range_check_ptr
     }(
         call_array_len: felt, 
-        call_array: TimelockCall*, 
+        call_array: AccountCallArray*, 
         calldata: felt*
     ) -> (calls_hash_array: felt*):
         alloc_locals
@@ -420,7 +406,7 @@ namespace Timelock:
         range_check_ptr
     }(
         call_array_len: felt, 
-        call_array: TimelockCall*, 
+        call_array: AccountCallArray*, 
         calldata: felt*, 
         calls: Call*
     ):
@@ -435,7 +421,7 @@ namespace Timelock:
             calldata=calldata + [call_array].data_offset
             )
 
-        _from_timelock_calls_to_calls(call_array_len - 1, call_array + TimelockCall.SIZE, calldata, calls + Call.SIZE)
+        _from_timelock_calls_to_calls(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
 
         return ()
     end

@@ -9,7 +9,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from openzeppelin.utils.constants import IERC721_RECEIVER_ID
-from openzeppelin.governance.timelock.library import Timelock, TimelockCall
+from openzeppelin.governance.timelock.library import Timelock, AccountCallArray
 from openzeppelin.introspection.ERC165 import ERC165_supports_interface, ERC165_register_interface
 
 from openzeppelin.access.accesscontrol import (
@@ -28,6 +28,11 @@ from openzeppelin.access.accesscontrol import (
 #
 # Constants
 #
+
+#const TIMELOCK_ADMIN_ROLE = 0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5
+#const PROPOSER_ROLE = 0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1
+#const CANCELLER_ROLE = 0xfd643c72710c63c0180259aba6b2d05451e3591a24e58b62239378085726f783
+#const EXECUTOR_ROLE = 0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63
 
 const TIMELOCK_ADMIN_ROLE = 0x1
 const PROPOSER_ROLE = 0x2
@@ -145,7 +150,7 @@ func hashOperation{
     range_check_ptr
 }(
     call_array_len: felt,
-    call_array: TimelockCall*,
+    call_array: AccountCallArray*,
     calldata_len: felt,
     calldata: felt*,
     predecessor: felt,
@@ -184,7 +189,7 @@ func schedule{
     range_check_ptr
 }(
     call_array_len: felt,
-    call_array: TimelockCall*,
+    call_array: AccountCallArray*,
     calldata_len: felt,
     calldata: felt*,
     predecessor: felt,
@@ -216,7 +221,7 @@ func execute{
     range_check_ptr
 }(
     call_array_len: felt,
-    call_array: TimelockCall*,
+    call_array: AccountCallArray*,
     calldata_len: felt,
     calldata: felt*,
     predecessor: felt,

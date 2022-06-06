@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.1.0 (account/IAccount.cairo)
+# OpenZeppelin Contracts for Cairo v0.1.0 (account/IAccount.cairo)
 
 %lang starknet
 
-from openzeppelin.account.Account import AccountCallArray
+from openzeppelin.account.library import AccountCallArray
 
 @contract_interface
 namespace IAccount:
@@ -23,7 +23,7 @@ namespace IAccount:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ):
+        ) -> (is_valid: felt):
     end
 
     func __execute__(

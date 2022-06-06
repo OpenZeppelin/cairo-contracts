@@ -1,4 +1,5 @@
 # Accounts
+
 Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
 Instead, signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
@@ -9,16 +10,20 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 
 * [Quickstart](#quickstart)
 * [Standard Interface](#standard-interface)
-* [Keys, signatures and signers](#keys--signatures-and-signers)
-    + [Signer utility](#signer-utility)
-* [Message format](#message-format)
-* [MultiCall](#-multicall-)
+* [Keys, signatures and signers](#keys-signatures-and-signers)
+  * [Signer](#signer)
+  * [TestSigner utility](#TestSigner-utility)
+* [Account entrypoint](#account-entrypoint)
+* [Call and AccountCallArray format](#call-and-accountcallarray-format)
+  * [Call](#call)
+  * [AccountCallArray](#accountcallarray)
+* [Multicall transactions](#multicall-transactions)
 * [API Specification](#api-specification)
-    - [`get_public_key`](#-get-public-key-)
-    - [`get_nonce`](#-get-nonce-)
-    - [`set_public_key`](#-set-public-key-)
-    - [`is_valid_signature`](#-is-valid-signature-)
-    - [`__execute__`](#-__execute__-)
+  * [`get_public_key`](#get_public_key)
+  * [`get_nonce`](#get_nonce)
+  * [`set_public_key`](#set_public_key)
+  * [`is_valid_signature`](#is_valid_signature)
+  * [`__execute__`](#__execute__)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 escape hatch mechanism](#l1-escape-hatch-mechanism)
@@ -26,7 +31,8 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 
 ## Quickstart
 
-The general workflow is: 
+The general workflow is:
+
 1. Account contract is deployed to StarkNet
 2. Signed transactions can now be sent to the Account contract which validates and executes them
 
@@ -34,7 +40,7 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
-signer = Signer(123456789987654321)
+signer = TestSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -49,9 +55,9 @@ await signer.send_transaction(account, some_contract_address, 'some_function', [
 
 ## Standard Interface
 
-The [`IAccount.cairo`](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/contracts/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
+The [`IAccount.cairo`](../src/openzeppelin/account/IAccount.cairo) contract interface contains the standard account interface proposed in [#41](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and adopted by OpenZeppelin and Argent. It implements [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and it is agnostic of signature validation and nonce management strategies.
 
-```c#
+```cairo
 @contract_interface
 namespace IAccount:
     #
@@ -69,7 +75,7 @@ namespace IAccount:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ):
+        ) -> (is_valid: felt):
     end
 
     func __execute__(
@@ -89,23 +95,50 @@ While the interface is agnostic of signature validation schemes, this implementa
 
 Note that although the current implementation works only with StarkKeys, support for Ethereum's ECDSA algorithm will be added in the future.
 
-### Signer utility
+### Signer
 
-[Signer.py](https://github.com/OpenZeppelin/cairo-contracts/blob/8739a1c2c28b1fe0b6ed7a10a66aa7171da41326/tests/utils/Signer.py) is used to perform transactions on a given Account, crafting the tx and managing nonces.
+The signer is responsible for creating a transaction signature with the user's private key for a given transaction. This implementation utilizes [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) class to create transaction signatures through the `Signer` method `sign_transaction`.
 
-It exposes three functions:
+`sign_transaction` expects the following parameters per transaction:
 
-- `def sign(message_hash)` receives a hash and returns a signed message of it
-- `def send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
-- `def send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+* `sender` the contract address invoking the tx
+* `calls` a list containing a sublist of each call to be sent. Each sublist must consist of:
+    1. `to` the address of the target contract of the message
+    2. `selector` the function to be called on the target contract
+    3. `calldata` the parameters for the given `selector`
+* `nonce` an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
+* `max_fee` the maximum fee a user will pay
 
-To use Signer, pass a private key when instantiating the class:
+Which returns:
+
+* `calls` a list of calls to be bundled in the transaction
+* `calldata` a list of arguments for each call
+* `sig_r` the transaction signature
+* `sig_s` the transaction signature
+
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `TestSigner`.
+
+### TestSigner utility
+
+The `TestSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+
+The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format. The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument). Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
+
+The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `TestSigner` instance invokes the account contract's `__execute__` with the transaction data.
+
+Users only need to interact with the following exposed methods to perform a transaction:
+
+* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
+
+* `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+
+To use `TestSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils.Signer import Signer
+from utils import TestSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = Signer(PRIVATE_KEY)
+signer = TestSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -126,52 +159,24 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
+## Account entrypoint
 
-## Call and MultiCall format
+`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
 
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call. If the user wants to send multiple messages in a single transaction, these `Call`s are bundled into a `MultiCall`. It should be noted that every transaction utilizes multicall. A single `Call`, however, is treated as a bundle of one.
-
-A single `Call` is structured as follows:
-
-```c#
-struct Call:
-    member to: felt
-    member selector: felt
-    member calldata_len: felt
-    member calldata: felt*
-end
+```python
+await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ```
 
-Where:
+Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 
-- `to` is the address of the target contract of the message
-- `selector` is the selector of the function to be called on the target contract
-- `calldata_len` is the number of calldata parameters
-- `calldata` is an array representing the function parameters
-
-`MultiCall` is structured as:
-
-```c#
-struct MultiCall:
-    member account: felt
-    member calls_len: felt
-    member calls: Call*
-    member nonce: felt
-    member max_fee: felt
-    member version: felt
-end
+```python
+await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
 ```
 
-Where:
+You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
 
-- `account` is the Account contract address. It is included to prevent transaction replays in case there's another Account contract controlled by the same public keys
-- `calls_len` is the number of calls bundled into the transaction
-- `calls` is an array representing each `Call`
-- `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
-- `max_fee` is the maximum fee a user will pay
-- `version` is a fixed number which is used to invalidate old transactions
+The `__execute__` method has the following interface:
 
-This `MultiCall` message is built within the `__execute__` method which has the following interface:
 ```cairo
 func __execute__(
         call_array_len: felt,
@@ -185,30 +190,80 @@ end
 
 Where:
 
-- `call_array_len` is the number of calls
-- `call_array` is an array representing each `Call`
-- `calldata_len` is the number of calldata parameters
-- `calldata` is an array representing the function parameters 
-- `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
-
-`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself. That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
-
-```python
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
-```
-
-Note that Signer's `send_transaction` and `send_transactions` call `__execute__` under the hood.
-
-Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would 
-
-```python
-await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
-```
-
-You can read more about how messages are structured and hashed in the [Account message scheme  discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/24). For more information on the design choices and implementation of multicall, you can read the [How should Account multicall work discussion](https://github.com/OpenZeppelin/cairo-contracts/discussions/27).
+* `call_array_len` is the number of calls
+* `call_array` is an array representing each `Call`
+* `calldata_len` is the number of calldata parameters
+* `calldata` is an array representing the function parameters
+* `nonce` is an unique identifier of this message to prevent transaction replays. Current implementation requires nonces to be incremental
 
 > Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays. In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
 
+## `Call` and `AccountCallArray` format
+
+The idea is for all user intent to be encoded into a `Call` representing a smart contract call. Users can also pack multiple messages into a single transaction (creating a multicall transaction). Cairo currently does not support arrays of structs with pointers which means the `__execute__` function cannot properly iterate through mutiple `Call`s. Instead, this implementation utilizes a workaround with the `AccountCallArray` struct. See [Multicall transactions](#multicall-transactions).
+
+### `Call`
+
+A single `Call` is structured as follows:
+
+```cairo
+struct Call:
+    member to: felt
+    member selector: felt
+    member calldata_len: felt
+    member calldata: felt*
+end
+```
+
+Where:
+
+* `to` is the address of the target contract of the message
+* `selector` is the selector of the function to be called on the target contract
+* `calldata_len` is the number of calldata parameters
+* `calldata` is an array representing the function parameters
+
+### `AccountCallArray`
+
+`AccountCallArray` is structured as:
+
+```cairo
+struct AccountCallArray:
+    member to: felt
+    member selector: felt
+    member data_offset: felt
+    member data_len: felt
+end
+```
+
+Where:
+
+* `to` is the address of the target contract of the message
+* `selector` is the selector of the function to be called on the target contract
+* `data_offset` is the starting position of the calldata array that holds the `Call`'s calldata
+* `data_len` is the number of calldata elements in the `Call`
+
+## Multicall transactions
+
+A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array. The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call). The rebuilding logic is set in the internal `_from_call_array_to_call`.
+
+This is the basic flow:
+
+1. The user sends the messages for the transaction through a Signer instantiation which looks like this:
+
+    ```python
+    await signer.send_transaction(
+            account, [
+                (contract_address, 'contract_method', [arg_1]),
+                (contract_address, 'another_method', [arg_1, arg_2])
+            ]
+        )
+    ```
+
+    The `_from_call_to_call_array` method in [utils.py](../tests/utils.py) converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array. Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash. The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
+
+2. The `__execute__` method takes the `AccountCallArray` and calldata and builds an array of `Call`s (MultiCall).
+
+> It should be noted that every transaction utilizes `AccountCallArray`. A single `Call` is treated as a bundle with one message.
 
 ## API Specification
 
@@ -227,7 +282,7 @@ end
 func is_valid_signature(hash: felt,
         signature_len: felt,
         signature: felt*
-    ):
+    ) -> (is_valid: felt):
 end
 
 func __execute__(
@@ -240,73 +295,81 @@ func __execute__(
 end
 ```
 
-#### `get_public_key`
+### `get_public_key`
 
 Returns the public key associated with the Account contract.
 
-##### Parameters:
+Parameters:
 
 None.
 
-##### Returns:
-```
+Returns:
+
+```cairo
 public_key: felt
 ```
 
-#### `get_nonce`
+### `get_nonce`
 
 Returns the current transaction nonce for the Account.
 
-##### Parameters:
+Parameters:
 
 None.
 
-##### Returns:
+Returns:
 
-```
+```cairo
 nonce: felt
 ```
 
-#### `set_public_key`
+### `set_public_key`
 
 Sets the public key that will control this Account. It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
 
-##### Parameters:
-```
+Parameters:
+
+```cairo
 public_key: felt
 ```
 
-##### Returns:
+Returns:
 
 None.
 
-#### `is_valid_signature`
+### `is_valid_signature`
 
-This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
+This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and returns `TRUE` if a given signature is valid, otherwise it reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
 
-##### Parameters:
-```
+Parameters:
+
+```cairo
 hash: felt
 signature_len: felt
 signature: felt*
 ```
 
-##### Returns:
+Returns:
 
-None.
+```cairo
+is_valid: felt
+```
 
-#### `__execute__`
+> returns `TRUE` if a given signature is valid. Otherwise, reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
+### `__execute__`
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a [Multicall](#message-format) message with it
+1. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information
 2. Validates the transaction signature matches the message (including the nonce)
 3. Increments the nonce
 4. Calls the target contract with the intended function selector and calldata parameters
 5. Forwards the contract call response data as return value
 
-##### Parameters:
-```
+Parameters:
+
+```cairo
 call_array_len: felt
 call_array: AccountCallArray*
 calldata_len: felt
@@ -316,9 +379,9 @@ nonce: felt
 
 > Note that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
+Returns:
 
-##### Returns:
-```
+```cairo
 response_len: felt
 response: felt*
 ```
@@ -327,22 +390,21 @@ response: felt*
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
 
-Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces that the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return [`TRUE`](../openzeppelin/utils/constants.cairo) (a constant variable representing `1` in Cairo).
+Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of [ERC165Storage](https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage) which stores the interfaces that the implementing contract supports. In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.
 
 ## Extending the Account contract
 
 Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite methods from the Account library and incorporate the extended logic thereafter.
 
 Currently, there's only a single library/preset Account scheme, but we're looking for feedback and new presets to emerge. Some new validation schemes to look out for in the future:
-- multisig
-- guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)
-- [Ethereum signatures](https://github.com/OpenZeppelin/cairo-contracts/issues/161)
 
+* multisig
+* guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)
+* [Ethereum signatures](https://github.com/OpenZeppelin/cairo-contracts/issues/161)
 
 ## L1 escape hatch mechanism
 
 *[unknown, to be defined]*
-
 
 ## Paying for gas
 

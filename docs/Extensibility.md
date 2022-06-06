@@ -7,6 +7,7 @@
   * [Libraries](#libraries)
   * [Contracts](#contracts)
 * [Presets](#presets)
+* [Function names and coding style](#function-names-and-coding-style)
 * [Emulating hooks](#emulating-hooks)
 
 ## The extensibility problem
@@ -15,9 +16,9 @@ Smart contract development is a critical task. As with all software development,
 
 One of the best approaches to minimize introducing bugs is to reuse existing, battle-tested code, a.k.a. using libraries. But code reutilization in StarkNet’s smart contracts is not easy:
 
-- Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
-- Using imports for modularity can result in clashes (more so given that arguments are not part of the selector), and lack of overrides or aliasing leaves no way to resolve them
-- Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
+* Cairo has no explicit smart contract extension mechanisms such as inheritance or composability
+* Using imports for modularity can result in clashes (more so given that arguments are not part of the selector), and lack of overrides or aliasing leaves no way to resolve them
+* Any `@external` function defined in an imported module will be automatically re-exposed by the importer (i.e. the smart contract)
 
 To overcome these problems, this project builds on the following guidelines™.
 
@@ -29,20 +30,32 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-- All function and storage variable names must be prefixed with the file name to prevent clashing with other libraries (e.g. `ERC20_approve` in the `ERC20` library)
-- Must not implement any `@external` or `@view` functions
-- Must not implement constructors
-- Must not call initializers on any function
-- Should implement initializer functions to mimic construction logic if needed (as any other library function, never as `@external`)
+Considering four types of functions:
+
+- `internal`: internal to a library, not meant to be used outside the module or imported
+- `public`: part of the public API of a library
+- `external`: subset of `public` that is ready to be exported as-is by contracts
+- `storage`: storage variable functions
+
+Then:
+
+* Must implement `public` and `external` functions under a namespace
+* Must implement `internal` functions outside the namespace to avoid exposing them
+* Must prefix `public` functions with an underscore (e.g. `ERC20._mint`)
+* Must not prefix `external` functions with an underscore (e.g. `ERC20.transfer`)
+* Must prefix `storage` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
+* Must not implement any `@external`, `@view`, or `@constructor` functions
+* Can implement initializers (never as `@constructor` or `@external`)
+* Must not call initializers on any function
 
 ### Contracts
 
-- Can import from libraries
-- Should implement `@external` functions if needed
-- Should implement a constructor that calls initializers
-- Must not call initializers in any function beside the constructor
+* Can import from libraries
+* Should implement `@external` functions if needed
+* Should implement a `@constructor` function that calls initializers
+* Must not call initializers in any function beside the constructor
 
-Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the contract constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double initialization of libraries.
+Note that since initializers will never be marked as `@external` and they won’t be called from anywhere but the constructor, there’s no risk of re-initialization after deployment. It’s up to the library developers not to make initializers interdependent to avoid weird dependency paths that may lead to double construction of libraries.
 
 ## Presets
 
@@ -50,15 +63,21 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets are:
 
-- [Account](../openzeppelin/account/Account.cairo)
-- [ERC165](../tests/mocks/ERC165.cairo)
-- [ERC20_Mintable](../openzeppelin/token/erc20/ERC20_Mintable.cairo)
-- [ERC20_Pausable](../openzeppelin/token/erc20/ERC20_Pausable.cairo)
-- [ERC20_Upgradeable](../openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-- [ERC20](../openzeppelin/token/erc20/ERC20.cairo)
-- [ERC721_Mintable_Burnable](../openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
-- [ERC721_Mintable_Pausable](../openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
-- [ERC721_Enumerable_Mintable_Burnable](../openzeppelin/token/erc721_enum/ERC721_Enumerable_Mintable_Burnable.cairo)
+* [Account](../src/openzeppelin/account/Account.cairo)
+* [ERC165](../tests/mocks/ERC165.cairo)
+* [ERC20_Mintable](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo)
+* [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
+* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
+* [ERC20](../src/openzeppelin/token/erc20/ERC20.cairo)
+* [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
+* [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
+* [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+
+## Function names and coding style
+
+* Following Cairo's programming style, we use `snake_case` for library APIs (e.g. `ERC20.transfer_from`, `ERC721.safe_transfer_from`).
+* But for standard EVM ecosystem compatibility, we implement external functions in contracts using `camelCase` (e.g. `transferFrom` in a ERC20 contract).
+* Guard functions such as the so-called "only owner" are prefixed with `assert_` (e.g. `Ownable.assert_only_owner`).
 
 ## Emulating hooks
 
@@ -85,8 +104,8 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()
-    ERC20_transfer(recipient, amount)
+    Pausable.assert_not_paused()
+    ERC20.transfer(recipient, amount)
     return (TRUE)
 end
 ```

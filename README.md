@@ -247,6 +247,9 @@ See [Memoization](docs/Utilities.md#memoization) in the Utilities documentation 
 
 ## Security
 
+> ⚠️ Warning! ⚠️
+> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+
 Refer to [SECURITY.md](SECURITY.md) for more details.
 
 ## Contribute

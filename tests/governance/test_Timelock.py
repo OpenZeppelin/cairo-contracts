@@ -4,17 +4,18 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import (
-    Signer,
+    TestSigner,
     assert_event_emitted,
     assert_revert,
     contract_path,
+    get_contract_def,
     get_block_timestamp,
     set_block_timestamp,
 )
 
-
-proposer_signer = Signer(123456789987654321)
-executor_signer = Signer(987654321123456789)
+signer = TestSigner(123456789987654321)
+#proposer_signer = TestSigner(123456789987654321)
+#executor_signer = TestSigner(987654321123456789)
 
 TRUE = 1
 FALSE = 0
@@ -30,31 +31,50 @@ PROPOSER_ROLE = 0x2
 CANCELLER_ROLE = 0x3
 EXECUTOR_ROLE = 0x4
 
+@pytest.fixture(scope="module")
+async def contract_defs():
+    account_def = get_contract_def("openzeppelin/account/Account.cairo")
+    timelock_def = get_contract_def("openzeppelin/governance/timelock/Timelock.cairo")
+    init_def = get_contract_def("tests/mocks/Initializable.cairo")
+
+    return account_def, timelock_def, init_def
 
 @pytest.fixture(scope="module")
-async def timelock_factory():
+async def timelock_init(contract_defs):
+    account_def, timelock_def, init_def = contract_defs
     starknet = await Starknet.empty()
 
-    proposer_account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[proposer_signer.public_key],
+    proposer = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
     )
-
-    executor_account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[executor_signer.public_key],
+    executor = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
     )
-
     timelock = await starknet.deploy(
-        contract_path("openzeppelin/governance/timelock/Timelock.cairo"),
+        contract_def=timelock_def,
         constructor_calldata=[
-            proposer_account.contract_address,
-            executor_account.contract_address,
+            proposer.contract_address,
+            executor.contract_address,
             DAY,
         ],
     )
+    initializable = await starknet.deploy(
+        contract_def=init_def,
+    )
 
-    return starknet, timelock, proposer_account, executor_account
+    return starknet.state, proposer, executor, timelock, initializable
+
+@pytest.fixture(scope="module")
+async def timelock_factory(contract_defs, timelock_init):
+    account_def, timelock_def, init_def = contract_defs
+    state, proposer, executor, timelock, initializable = timelock_init
+    _state = state.copy()
+
+
+
+    return timelock, proposer_account, executor_account, initializable
 
 
 @pytest.mark.asyncio

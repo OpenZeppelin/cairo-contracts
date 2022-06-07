@@ -10,7 +10,7 @@ from starkware.starknet.common.syscalls import get_caller_address, get_contract_
 
 from openzeppelin.utils.constants import IERC721_RECEIVER_ID
 from openzeppelin.governance.timelock.library import Timelock, AccountCallArray
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface, ERC165_register_interface
+from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.access.accesscontrol import (
     _grantRole,
@@ -52,7 +52,7 @@ func constructor{
 ):
     alloc_locals
 
-    ERC165_register_interface(IERC721_RECEIVER_ID)
+    ERC165.register_interface(IERC721_RECEIVER_ID)
 
     AccessControl_initializer()
     Timelock.initializer(delay)
@@ -316,6 +316,6 @@ func supportsInterface{
     pedersen_ptr: HashBuiltin*, 
     range_check_ptr
 }(interfaceId: felt) -> (success: felt):
-    let (success) = ERC165_supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
     return (success)
 end

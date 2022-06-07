@@ -217,5 +217,5 @@ def get_block_timestamp(starknet_state):
 
 def set_block_timestamp(starknet_state, timestamp):
     starknet_state.state.block_info = BlockInfo(
-        starknet_state.state.block_info.block_number, timestamp
+        starknet_state.state.block_info.block_number, timestamp, 2000, 123
     )

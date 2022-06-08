@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.access.ownableTwoStepTranfer import OwnableTwoStepTransfer
+from openzeppelin.access.ownable_two_step_transfer import OwnableTwoStepTransfer
 
 @constructor
 func constructor{

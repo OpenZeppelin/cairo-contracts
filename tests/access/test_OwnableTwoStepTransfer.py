@@ -46,13 +46,13 @@ async def ownable_init(contract_defs):
 @pytest.fixture
 def ownable_factory(contract_defs, ownable_init):
     account_def, ownable_def = contract_defs
-    state, ownable, owner, proposed_owner, third_account = ownable_init
+    state, ownable_two_steps, owner, proposed_owner, third_account = ownable_init
     _state = state.copy()
     owner = cached_contract(_state, account_def, owner)
     proposed_owner = cached_contract(_state, account_def, proposed_owner)
     third_account = cached_contract(_state, account_def, third_account)
-    ownable = cached_contract(_state, ownable_def, ownable)
-    return ownable, owner, proposed_owner, third_account
+    ownable_two_steps = cached_contract(_state, ownable_def, ownable_two_steps)
+    return ownable_two_steps, owner, proposed_owner, third_account
 
 
 # Used to aovid repeating proposing an owner everywhere else
@@ -86,7 +86,7 @@ async def test_proposeOwnership_from_zero_address(ownable_factory):
 
     await assert_revert(
         ownable.proposeOwner(proposed_owner.contract_address).invoke(),
-        reverted_with="Ownable: proposed owner nor caller cannot be the zero address"
+        reverted_with="OwnableTwoStepTransfer: proposed owner nor caller cannot be the zero address"
     )
 
 
@@ -101,7 +101,7 @@ async def test_proposeOwnership_from_another_account(ownable_factory):
             'proposeOwner', 
             [proposed_owner.contract_address]
         ),
-        reverted_with="Ownable: caller is not the owner"
+        reverted_with="OwnableTwoStepTransfer: caller is not the owner"
     )
 
 
@@ -115,7 +115,7 @@ async def test_proposeOwnership_from_self(ownable_factory):
         'proposeOwner', 
         [owner.contract_address]
     ),
-        reverted_with="Ownable: proposed owner cannot be the caller"
+        reverted_with="OwnableTwoStepTransfer: proposed owner cannot be the caller"
     )
 
 
@@ -129,7 +129,7 @@ async def test_proposeOwnership_to_zero_address(ownable_factory):
         'proposeOwner', 
         [ZERO_ADDRESS]
     ),
-        reverted_with="Ownable: proposed owner nor caller cannot be the zero address"
+        reverted_with="OwnableTwoStepTransfer: proposed owner nor caller cannot be the zero address"
     )
 
 
@@ -143,7 +143,7 @@ async def test_proposeOwnership_when_owner_already_proposed(after_proposed):
         'proposeOwner',
         [proposed_owner.contract_address]
     ),
-        reverted_with="Ownable: a proposal is already in motion"
+        reverted_with="OwnableTwoStepTransfer: a proposal is already in motion"
     )
 
 
@@ -173,7 +173,7 @@ async def test_cancelOwnershipProposal_from_zero_address(after_proposed):
 
     await assert_revert(
         ownable.cancelOwnershipProposal().invoke(),
-        reverted_with="Ownable: caller is neither the current owner nor the proposed owner"
+        reverted_with="OwnableTwoStepTransfer: caller is neither the current owner nor the proposed owner"
     )
 
 
@@ -188,7 +188,7 @@ async def test_cancelOwnershipProposal_from_neither_owner_nor_proposed(after_pro
             'cancelOwnershipProposal',
             []
         ),
-        reverted_with="Ownable: caller is neither the current owner nor the proposed owner"
+        reverted_with="OwnableTwoStepTransfer: caller is neither the current owner nor the proposed owner"
     )
 
 
@@ -203,7 +203,7 @@ async def test_cancelOwnershipProposal_when_ownership_transfer_is_not_engaged(ow
             'cancelOwnershipProposal',
             []
         ),
-        reverted_with="Ownable: no proposed owner to cancel"
+        reverted_with="OwnableTwoStepTransfer: no proposed owner to cancel"
     )
 
 
@@ -226,7 +226,7 @@ async def test_acceptOwnership_from_zero_address(after_proposed):
 
     await assert_revert(
         ownable.acceptOwnership().invoke(),
-        reverted_with="Ownable: caller is the zero address"
+        reverted_with="OwnableTwoStepTransfer: caller is the zero address"
     )
 
 
@@ -241,7 +241,7 @@ async def test_acceptOwnership_from_other(after_proposed):
             'acceptOwnership',
             []
         ),
-        reverted_with="Ownable: caller is not the proposed owner"
+        reverted_with="OwnableTwoStepTransfer: caller is not the proposed owner"
     )
     
 
@@ -256,7 +256,7 @@ async def test_acceptOwnership_when_ownership_proposal_is_not_engaged(ownable_fa
             'acceptOwnership',
             []
         ),
-        reverted_with="Ownable: a proposal is not in motion"
+        reverted_with="OwnableTwoStepTransfer: a proposal is not in motion"
     )
 
 

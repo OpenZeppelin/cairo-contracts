@@ -45,7 +45,7 @@ namespace OwnableTwoStepTransfer:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(owner: felt):
-        with_attr error_message("Ownable: owner cannot be the zero address"):
+        with_attr error_message("OwnableTwoStepTransfer: owner cannot be the zero address"):
             assert_not_zero(owner)
         end
         _transfer_ownership(owner)
@@ -61,9 +61,9 @@ namespace OwnableTwoStepTransfer:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():
-        let (owner) = Ownable.owner()
+        let (owner) = OwnableTwoStepTransfer.owner()
         let (caller) = get_caller_address()
-        with_attr error_message("Ownable: caller is not the owner"):
+        with_attr error_message("OwnableTwoStepTransfer: caller is not the owner"):
             assert owner = caller
         end
         return ()
@@ -98,16 +98,16 @@ namespace OwnableTwoStepTransfer:
         }(proposed_owner: felt):
         let (caller) = get_caller_address()
 
-        with_attr error_message("Ownable: proposed owner nor caller cannot be the zero address"):
+        with_attr error_message("OwnableTwoStepTransfer: proposed owner nor caller cannot be the zero address"):
             assert_not_zero(proposed_owner * caller)
         end
         
-        with_attr error_message("Ownable: proposed owner cannot be the caller"):
+        with_attr error_message("OwnableTwoStepTransfer: proposed owner cannot be the caller"):
             assert_not_equal(proposed_owner, caller)
         end 
 
-        let (current_proposed) = Ownable.proposed_owner()
-        with_attr error_message("Ownable: a proposal is already in motion"):
+        let (current_proposed) = OwnableTwoStepTransfer.proposed_owner()
+        with_attr error_message("OwnableTwoStepTransfer: a proposal is already in motion"):
             assert current_proposed = 0
         end  
 
@@ -122,19 +122,19 @@ namespace OwnableTwoStepTransfer:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }():
-        let (proposed_owner) = Ownable.proposed_owner()
+        let (proposed_owner) = OwnableTwoStepTransfer.proposed_owner()
         let (caller) = get_caller_address()
         # caller cannot be zero address to avoid overwriting owner when proposed_owner is not set
-        with_attr error_message("Ownable: caller is the zero address"):
+        with_attr error_message("OwnableTwoStepTransfer: caller is the zero address"):
             assert_not_zero(caller)
         end
 
         # no proposed ownership is in motion 
-        with_attr error_message("Ownable: a proposal is not in motion"):
+        with_attr error_message("OwnableTwoStepTransfer: a proposal is not in motion"):
             assert_not_zero(proposed_owner)
         end 
 
-        with_attr error_message("Ownable: caller is not the proposed owner"):
+        with_attr error_message("OwnableTwoStepTransfer: caller is not the proposed owner"):
             assert caller = proposed_owner
         end
 
@@ -148,17 +148,17 @@ namespace OwnableTwoStepTransfer:
             range_check_ptr
         }():
         alloc_locals
-        let (local proposed_owner) = Ownable.proposed_owner()
+        let (local proposed_owner) = OwnableTwoStepTransfer.proposed_owner()
 
-        with_attr error_message("Ownable: no proposed owner to cancel"):
+        with_attr error_message("OwnableTwoStepTransfer: no proposed owner to cancel"):
             assert_not_zero(proposed_owner)
         end
 
-        let (local current_owner) = Ownable.owner()
+        let (local current_owner) = OwnableTwoStepTransfer.owner()
         let (local caller) = get_caller_address()
 
         # Can only be called by current owner or proposed owner
-        with_attr error_message("Ownable: caller is neither the current owner nor the proposed owner"):
+        with_attr error_message("OwnableTwoStepTransfer: caller is neither the current owner nor the proposed owner"):
             if caller != proposed_owner:
                 assert caller = current_owner
             end
@@ -190,7 +190,7 @@ namespace OwnableTwoStepTransfer:
             range_check_ptr
         }(new_owner: felt):
         alloc_locals
-        let (previous_owner: felt) = Ownable.owner()
+        let (previous_owner: felt) = OwnableTwoStepTransfer.owner()
         Ownable_owner.write(new_owner)
         # reset the proposed owner
         _reset_proposed_owner()
@@ -203,7 +203,7 @@ namespace OwnableTwoStepTransfer:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(proposed_owner: felt):
-        let (current_owner) = Ownable.owner()
+        let (current_owner) = OwnableTwoStepTransfer.owner()
         Ownable_proposed_owner.write(proposed_owner)
         OwnershipProposed.emit(current_owner, proposed_owner)
         return ()

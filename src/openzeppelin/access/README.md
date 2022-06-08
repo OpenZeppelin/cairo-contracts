@@ -14,13 +14,13 @@ Please note that the ownership of the contract can still be resigned by calling 
 
 ## How to use it 
 
-Please look into the `OwnableTwoStepTransfer.cairo` mock contract to see a sample implementation. 
+Please look into the `tests/mocks/OwnableTwoStepTransfer.cairo` mock contract to see a sample implementation. 
 
 ### Propose a new owner 
 
 The contract owner should be calling the `propose_owner` function:
 
-```cairo
+```
 func propose_owner{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -56,7 +56,7 @@ It will emit an event with `currentOwner` and `proposedOwner`.
 
 Should the proposed owner decide to accept ownership of the contract, the can call the `accept_ownership` function:
 
-```cairo
+```
 func accept_ownership{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
@@ -89,7 +89,7 @@ This function can only be called by either the current owner or the proposed own
 
 Both the current owner and the proposed owner can cancel the proposal by calling the `cancel_ownership_proposal` function:
 
-```cairo
+```
 func cancel_ownership_proposal{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

@@ -30,7 +30,7 @@ func initializer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(proxy_admin: felt):
-    Proxy.constructor(proxy_admin)
+    Proxy.initializer(proxy_admin)
     return ()
 end
 

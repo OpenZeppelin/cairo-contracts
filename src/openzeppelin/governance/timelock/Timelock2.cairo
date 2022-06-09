@@ -9,7 +9,10 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from openzeppelin.utils.constants import IERC721_RECEIVER_ID
-from openzeppelin.governance.timelock.library import Timelock, AccountCallArray
+from openzeppelin.governance.timelock.library2 import Timelock
+
+from openzeppelin.account.library import Call, AccountCallArray
+
 from openzeppelin.introspection.ERC165 import ERC165
 
 from openzeppelin.access.accesscontrol import AccessControl

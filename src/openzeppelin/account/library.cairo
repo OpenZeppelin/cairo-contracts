@@ -209,6 +209,40 @@ namespace Account:
         return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
+    func eth_execute{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr,
+            ecdsa_ptr: SignatureBuiltin*
+        }(
+            call_array_len: felt,
+            call_array: AccountCallArray*,
+            calldata_len: felt,
+            calldata: felt*,
+            nonce: felt
+        ) -> (response_len: felt, response: felt*):
+        alloc_locals
+
+        let (caller) = get_caller_address()
+        with_attr error_message("Account: no reentrant call"):
+            assert caller = 0
+        end
+
+        let (__fp__, _) = get_fp_and_pc()
+        let (tx_info) = get_tx_info()
+
+        let (local bitwise_ptr : BitwiseBuiltin*) = alloc()
+        let bitwise_ptr_start = bitwise_ptr
+
+        # validate transaction        
+        let (is_valid) = is_valid_eth_signature{bitwise_ptr=bitwise_ptr}(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        with_attr error_message("Account: invalid signature"):
+            assert is_valid = TRUE
+        end
+
+        return unsafe_execute(call_array_len, call_array, calldata_len, calldata)
+    end
+
     func _execute_list{syscall_ptr: felt*}(
             calls_len: felt,
             calls: Call*,

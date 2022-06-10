@@ -240,7 +240,7 @@ namespace Account:
             assert is_valid = TRUE
         end
 
-        return unsafe_execute(call_array_len, call_array, calldata_len, calldata)
+        return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
     func _execute_list{syscall_ptr: felt*}(

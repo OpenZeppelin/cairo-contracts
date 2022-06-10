@@ -3,7 +3,7 @@
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
 
 from openzeppelin.account.library import Account, AccountCallArray
 
@@ -80,7 +80,8 @@ func is_valid_signature{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*
+        ecdsa_ptr: SignatureBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*
     }(
         hash: felt,
         signature_len: felt,

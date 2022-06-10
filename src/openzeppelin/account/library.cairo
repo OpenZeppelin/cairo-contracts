@@ -163,15 +163,6 @@ namespace Account:
 
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
-        let (_current_nonce) = Account_current_nonce.read()
-
-        # validate nonce
-        assert _current_nonce = nonce
-
-        # TMP: Convert `AccountCallArray` to 'Call'.
-        let (calls : Call*) = alloc()
-        _from_call_array_to_call(call_array_len, call_array, calldata, calls)
-        let calls_len = call_array_len
 
         # validate transaction
         let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
@@ -179,14 +170,7 @@ namespace Account:
             assert is_valid = TRUE
         end
 
-        # bump nonce
-        Account_current_nonce.write(_current_nonce + 1)
-
-        # execute call
-        let (response : felt*) = alloc()
-        let (response_len) = _execute_list(calls_len, calls, response)
-
-        return (response_len=response_len, response=response)
+        return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
     func _execute_list{syscall_ptr: felt*}(
@@ -237,5 +221,36 @@ namespace Account:
         # parse the remaining calls recursively
         _from_call_array_to_call(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
         return ()
+    end
+
+    func unsafe_execute{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr,
+            ecdsa_ptr: SignatureBuiltin*
+        }(
+            call_array_len: felt,
+            call_array: AccountCallArray*,
+            calldata_len: felt,
+            calldata: felt*, 
+            nonce: felt
+        ) -> (response_len: felt, response: felt*):
+        alloc_locals
+        let (_current_nonce) = Account_current_nonce.read()
+        # validate nonce
+        assert _current_nonce = nonce
+        # bump nonce
+        Account_current_nonce.write(_current_nonce + 1)
+
+        # TMP: Convert `AccountCallArray` to 'Call'.
+        let (calls : Call*) = alloc()
+        _from_call_array_to_call(call_array_len, call_array, calldata, calls)
+        let calls_len = call_array_len
+
+        # execute call
+        let (response : felt*) = alloc()
+        let (response_len) = _execute_list(calls_len, calls, response)
+
+        return (response_len=response_len, response=response)
     end
 end

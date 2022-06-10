@@ -10,6 +10,7 @@ from starkware.starknet.business_logic.execution.objects import Event
 from nile.signer import Signer
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash
 import eth_keys
+from Crypto.Hash import keccak
 
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)

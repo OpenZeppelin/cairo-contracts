@@ -74,19 +74,19 @@ async def test_constructor(account_factory):
     assert execution_info.result == (TRUE,)
 
 
-#@pytest.mark.asyncio
-#async def test_execute(account_factory):
-#    account, _, initializable, *_ = account_factory
-#
-#    execution_info = await initializable.initialized().call()
-#    assert execution_info.result == (0,)
-#
-#    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
-#
-#    execution_info = await initializable.initialized().call()
-#    assert execution_info.result == (1,)
-#
-#
+@pytest.mark.asyncio
+async def test_execute(account_factory):
+    account, _, initializable, *_ = account_factory
+
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result == (0,)
+
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
+
+    execution_info = await initializable.initialized().call()
+    assert execution_info.result == (1,)
+
+
 #@pytest.mark.asyncio
 #async def test_multicall(account_factory):
 #    account, _, initializable_1, initializable_2, _ = account_factory

@@ -96,7 +96,7 @@ func __execute__{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*
+        bitwise_ptr: BitwiseBuiltin*
     }(
         call_array_len: felt,
         call_array: AccountCallArray*,

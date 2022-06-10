@@ -212,8 +212,7 @@ namespace Account:
     func eth_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr,
-            ecdsa_ptr: SignatureBuiltin*
+            range_check_ptr
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,
@@ -296,8 +295,7 @@ namespace Account:
     func unsafe_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr,
-            ecdsa_ptr: SignatureBuiltin*
+            range_check_ptr
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,

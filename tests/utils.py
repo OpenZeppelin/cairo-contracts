@@ -219,3 +219,52 @@ def set_block_timestamp(starknet_state, timestamp):
     starknet_state.state.block_info = BlockInfo(
         starknet_state.state.block_info.block_number, timestamp, 2000, 123
     )
+
+
+def format_calls_for_calls(calls):
+    """Format calls as AccountCallArray call."""
+    return_calls = []
+    return_calldata = []
+    calldata_offset = 0
+    calldata_amount = 0
+    for call in calls:
+        build_call = list(call)
+
+        to = build_call[0]
+        selector = get_selector_from_name(build_call[1])
+        calldata = build_call[2]
+
+        calldata_offset = calldata_offset + calldata_amount 
+        calldata_amount = len(calldata)
+        _call = (to, selector, calldata_offset, calldata_amount)
+        return_calls.append(_call)
+        return_calldata.extend(calldata)
+    return (return_calls), return_calldata
+
+
+def _iterate_calldata_for_signer(calls):
+    """Return iterated calldata for signer invoke."""
+    iter_calldata = []
+    for elem in calls[-1]:
+        iter_calldata.append(elem)
+    return [len(iter_calldata), *iter_calldata]
+
+
+def _iterate_calls_for_signer(calls):
+    """Return iterated call array for signer invoke."""
+    iter_calls = []
+    # remove calldata because we need to prepend it with length
+    calls[-1].clear()
+    calls_len = len(calls[0])
+    for call in list(calls):
+        for elem in list(call):
+            iter_calls.extend(elem)
+
+    return [calls_len, *iter_calls]
+
+
+def format_calls_for_signer(calls):
+    """Format calls for signer invoke."""
+    _calldata = _iterate_calldata_for_signer(calls)
+    _calls = _iterate_calls_for_signer(calls)
+    return [*_calls, *_calldata]

@@ -1,521 +1,687 @@
 import pytest
+from itertools import count
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import (
-    TestSigner,
-    assert_event_emitted,
-    assert_revert,
-    contract_path,
-    get_block_timestamp,
-    set_block_timestamp,
-)
+from starkware.starknet.compiler.compile import compile_starknet_files
+from starkware.cairo.common.hash_state import compute_hash_on_elements
 
+
+from utils import (
+    TestSigner, assert_event_emitted, assert_revert, get_contract_def,
+    cached_contract, get_block_timestamp, TRUE, FALSE, set_block_timestamp,
+    format_calls_for_calls, format_calls_for_signer
+)
 
 signer = TestSigner(123456789987654321)
 
-TRUE = 1
-FALSE = 0
-DAY = 86400
+TIMELOCK_ADMIN_ROLE = 0x11
+PROPOSER_ROLE = 0x22
+CANCELLER_ROLE = 0x33
+EXECUTOR_ROLE = 0x44
 
-TIMELOCK_ADMIN_ROLE = 0x1
-PROPOSER_ROLE = 0x2
-CANCELLER_ROLE = 0x3
-EXECUTOR_ROLE = 0x4
+PROPOSERS = [111, 112, 113, 114]
+EXECUTORS = [221, 222, 223, 224]
+
+MIN_DELAY = 86400
+BAD_DELAY = 100
+HELPER_CALLDATA = 5
+PREDECESSOR = get_selector_from_name("decreaseCount")
+
+# random amount for helper contract
+INIT_COUNT = 100
+
+# to prevent hash id collisions between tests, the salt is incremented for test case
+SALT_IID = count(100)
+
+
+def gen_operation(address):
+    return format_calls_for_calls(
+        [
+            [address, "increaseCount", [HELPER_CALLDATA]]
+        ]
+    )
+
+
+def batch_operations(address):
+    return format_calls_for_calls(
+        [
+            [address, "increaseCount", [HELPER_CALLDATA]],
+            [address, "increaseCount", [HELPER_CALLDATA]],
+            [address, "increaseCount", [HELPER_CALLDATA]]
+        ]
+    )
 
 
 @pytest.fixture(scope="module")
-async def timelock_factory():
+async def contract_defs():
+    account_def = get_contract_def("openzeppelin/account/Account.cairo")
+    timelock_def = get_contract_def("openzeppelin/governance/timelock/Timelock.cairo")
+    helper_def = get_contract_def("tests/mocks/TimelockHelper.cairo")
+
+    return account_def, timelock_def, helper_def
+
+
+@pytest.fixture(scope="module")
+async def timelock_init(contract_defs):
+    account_def, timelock_def, helper_def = contract_defs
     starknet = await Starknet.empty()
 
-    proposer_account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key],
+    proposer = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
+    )
+    executor = await starknet.deploy(
+        contract_def=account_def,
+        constructor_calldata=[signer.public_key]
     )
 
-    executor_account = await starknet.deploy(
-        contract_path("openzeppelin/account/Account.cairo"),
-        constructor_calldata=[signer.public_key],
-    )
+    # add accounts to proposers and executors arrays
+    PROPOSERS.append(proposer.contract_address)
+    EXECUTORS.append(executor.contract_address)
 
     timelock = await starknet.deploy(
-        contract_path("openzeppelin/governance/timelock/Timelock.cairo"),
+        contract_def=timelock_def,
         constructor_calldata=[
-            proposer_account.contract_address,
-            executor_account.contract_address,
-            DAY,
+            MIN_DELAY,                  # delay
+            proposer.contract_address,  # deployer
+            len(PROPOSERS),             # proposers length
+            *PROPOSERS,                 # proposers array
+            len(EXECUTORS),             # executors length
+            *EXECUTORS                  # executors array
         ],
     )
+    helper = await starknet.deploy(
+        contract_def=helper_def,
+        constructor_calldata=[INIT_COUNT]
+    )
 
-    return starknet, timelock, proposer_account, executor_account
+    return starknet.state, proposer, executor, timelock, helper
+
+
+@pytest.fixture(scope="module")
+async def timelock_factory(contract_defs, timelock_init):
+    account_def, timelock_def, helper_def = contract_defs
+    state, proposer, executor, timelock, helper = timelock_init
+    _state = state.copy()
+    proposer = cached_contract(_state, account_def, proposer)
+    executor = cached_contract(_state, account_def, executor)
+    timelock = cached_contract(_state, timelock_def, timelock)
+    helper = cached_contract(_state, helper_def, helper)
+
+
+    return timelock, proposer, executor, helper, state
+
+#
+# constructor
+#
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('role, addresses, not_role', [
+    [PROPOSER_ROLE, PROPOSERS, EXECUTOR_ROLE],
+    [CANCELLER_ROLE, PROPOSERS, EXECUTOR_ROLE],
+    [EXECUTOR_ROLE, EXECUTORS, PROPOSER_ROLE],
+])
+async def test_constructor_roles_arrays(timelock_factory, role, addresses, not_role):
+    timelock, *_ = timelock_factory
+
+    for i in range(len(addresses)):
+        execution_info = await timelock.hasRole(role, addresses[i]).call()
+        assert execution_info.result == (TRUE,)
+
+        execution_info = await timelock.hasRole(not_role, addresses[i]).call()
+        assert execution_info.result == (FALSE,)
 
 
 @pytest.mark.asyncio
 async def test_constructor(timelock_factory):
-    _, timelock, proposer_account, executor_account = timelock_factory
+    timelock, deployer, *_ = timelock_factory
 
-    execution_info = await timelock.hasRole(
-        TIMELOCK_ADMIN_ROLE, timelock.contract_address
-    ).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.hasRole(
-        PROPOSER_ROLE, proposer_account.contract_address
-    ).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.hasRole(
-        CANCELLER_ROLE, proposer_account.contract_address
-    ).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.hasRole(
-        EXECUTOR_ROLE, executor_account.contract_address
-    ).call()
-    assert execution_info.result == (TRUE,)
-
+    # check delay
     execution_info = await timelock.getMinDelay().call()
-    assert execution_info.result == (DAY,)
+    assert execution_info.result == (MIN_DELAY,)
+
+    # check self as admin
+    execution_info = await timelock.hasRole(TIMELOCK_ADMIN_ROLE, timelock.contract_address).call()
+    assert execution_info.result == (TRUE,)
+
+    # check deployer as admin
+    execution_info = await timelock.hasRole(TIMELOCK_ADMIN_ROLE, deployer.contract_address).call()
+    assert execution_info.result == (TRUE,)
+
+
+#
+# hashOperation
+#
+
+@pytest.mark.asyncio
+async def test_hashOperation(timelock_factory):
+    timelock, _, _, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # hash single operation
+    operation = gen_operation(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
+
+    calculate_hash_operation = compute_hash_on_elements([
+        compute_hash_on_elements([
+            helper.contract_address,                        # to
+            get_selector_from_name("increaseCount"),        # selector
+            compute_hash_on_elements([HELPER_CALLDATA])]),  # hashed calldata
+        1,                                                  # calldata length
+        0,                                                  # predecessor
+        salt                                                # salt
+    ])
+
+    assert execution_info.result.hash == calculate_hash_operation
 
 
 @pytest.mark.asyncio
-async def test_schedule(timelock_factory):
-    starknet, timelock, proposer_account, _ = timelock_factory
+async def test_hashOperation_batch(timelock_factory):
+    timelock, _, _, helper, _ = timelock_factory
 
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
-    )
+    salt = next(SALT_IID)
 
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
+    # hash batched operations
+    operation = batch_operations(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
 
-    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-    (operation_hash,) = execution_info.result
+    call = compute_hash_on_elements([
+        helper.contract_address,
+        get_selector_from_name("increaseCount"),
+        compute_hash_on_elements([HELPER_CALLDATA])
+    ])
 
-    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
+    calculate_hash_operation = compute_hash_on_elements([
+        call,                                               #
+        call,                                               # calls
+        call,                                               #
+        3,                                                  # calldata length
+        0,                                                  # predecessor
+        salt                                                # salt
+    ])
+            
 
-    block_timestamp = get_block_timestamp(starknet.state)
+    assert execution_info.result.hash == calculate_hash_operation
 
-    schedule_exec_info = await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
-    )
 
-    execution_info = await timelock.getTimestamp(operation_hash).call()
-    assert execution_info.result == (block_timestamp + (2 * DAY),)
+@pytest.mark.asyncio
+async def test_hashOperation_batch_with_predecessor(timelock_factory):
+    timelock, _, _, helper, _ = timelock_factory
 
-    execution_info = await timelock.isOperation(operation_hash).call()
-    assert execution_info.result == (TRUE,)
+    salt = next(SALT_IID)
 
-    execution_info = await timelock.isOperationPending(operation_hash).call()
-    assert execution_info.result == (TRUE,)
+    # hash batched operations with predecessor
+    operation = batch_operations(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, PREDECESSOR, salt).call()
 
-    execution_info = await timelock.isOperationReady(operation_hash).call()
+    call = compute_hash_on_elements([
+        helper.contract_address,
+        get_selector_from_name("increaseCount"),
+        compute_hash_on_elements([HELPER_CALLDATA])
+    ])
+
+    calculate_hash_operation = compute_hash_on_elements([
+        call,                                               #
+        call,                                               # calls
+        call,                                               #
+        3,                                                  # calldata length
+        PREDECESSOR,                                        # predecessor
+        salt                                                # salt
+    ])
+
+    assert execution_info.result.hash == calculate_hash_operation
+
+#
+# schedule
+#
+
+@pytest.mark.asyncio
+async def test_schedule_is_scheduled(timelock_factory):
+    timelock, proposer, _, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # get hash id
+    operation = gen_operation(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
+    hash_id = execution_info.result.hash
+
+    # check id is not scheduled
+    execution_info = await timelock.isOperation(hash_id).call()
     assert execution_info.result == (FALSE,)
 
-    assert_event_emitted(
-        schedule_exec_info,
-        timelock.contract_address,
-        name="CallScheduled",
-        data=[
-            operation_hash,  # id
-            0,  # index
-            initializable.contract_address,  # target
-            get_selector_from_name("initialize"), # selector
-            *[0],  # calldata = *[0]
-            0,  # predecessor
-        ],
-    )
-
-
-@pytest.mark.asyncio
-async def test_revert_min_delay_too_low(timelock_factory):
-    starknet, timelock, proposer_account, _ = timelock_factory
-
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
-    )
-
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
-    call_array = [1, *init_call, *[0], 0, 0, int(DAY / 2)]
-
-    schedule_fun = signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
-    )
-    await assert_revert(schedule_fun, "Timelock: insufficient delay")
-
-
-@pytest.mark.asyncio
-async def test_reschedule_fails(timelock_factory):
-    starknet, timelock, proposer_account, _ = timelock_factory
-
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
-    )
-
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
-    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-
-    await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
-    )
-    await assert_revert(
-        signer.send_transaction(
-            proposer_account, timelock.contract_address, "schedule", call_array
-        ),
-        "Timelock: operation already scheduled",
-    )
-
-
-@pytest.mark.asyncio
-async def test_schedule_salt(timelock_factory):
-    starknet, timelock, proposer_account, _ = timelock_factory
-
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
-    )
-
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
-
-    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-    (operation_hash,) = execution_info.result
-
-    execution_info = await timelock.hashOperation([init_call], [], 0, 1).call()
-    (operation_hash_salt,) = execution_info.result
-
-    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-    call_array_salt = [1, *init_call, *[0], 0, 1, 2 * DAY]
-
-    block_timestamp = get_block_timestamp(starknet.state)
-
-    schedule_exec_info = await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
-    )
-    schedule_salt_exec_info = await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array_salt
-    )
-
-    execution_info = await timelock.getTimestamp(operation_hash).call()
-    assert execution_info.result == (block_timestamp + (2 * DAY),)
-
-    execution_info = await timelock.getTimestamp(operation_hash_salt).call()
-    assert execution_info.result == (block_timestamp + (2 * DAY),)
-
-    execution_info = await timelock.isOperation(operation_hash).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.isOperation(operation_hash_salt).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.isOperationPending(operation_hash).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.isOperationPending(operation_hash_salt).call()
-    assert execution_info.result == (TRUE,)
-
-    execution_info = await timelock.isOperationReady(operation_hash).call()
+    # check id is not pending
+    execution_info = await timelock.isOperationPending(hash_id).call()
     assert execution_info.result == (FALSE,)
 
-    execution_info = await timelock.isOperationReady(operation_hash_salt).call()
+    # check id is not ready
+    execution_info = await timelock.isOperationReady(hash_id).call()
     assert execution_info.result == (FALSE,)
 
-    assert_event_emitted(
-        schedule_exec_info,
-        timelock.contract_address,
-        name="CallScheduled",
-        data=[
-            operation_hash,  # id
-            0,  # index
-            initializable.contract_address,  # target
-            get_selector_from_name("initialize"),
-            0,  # calldata = *[0]
-            0,  # predecessor
-        ],
-    )
+    # check id is not done
+    execution_info = await timelock.isOperationDone(hash_id).call()
+    assert execution_info.result == (FALSE,)
 
-    assert_event_emitted(
-        schedule_salt_exec_info,
-        timelock.contract_address,
-        name="CallScheduled",
-        data=[
-            operation_hash_salt,  # id
-            0,  # index
-            initializable.contract_address,  # target
-            get_selector_from_name("initialize"),
-            0,  # calldata = *[0]
-            0,  # predecessor
-        ],
-    )
-
-
-@pytest.mark.asyncio
-async def test_cancel(timelock_factory):
-    starknet, timelock, proposer_account, _ = timelock_factory
-
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
-    )
-
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
-
-    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-    (operation_hash,) = execution_info.result
-
-    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-
-    await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
-    )
-
-    execution_info_cancel = await signer.send_transaction(
-        proposer_account, timelock.contract_address, "cancel", [operation_hash]
-    )
-
-    execution_info = await timelock.getTimestamp(operation_hash).call()
+    # check timestamp
+    execution_info = await timelock.getTimestamp(hash_id).call()
     assert execution_info.result == (0,)
 
-    execution_info = await timelock.isOperation(operation_hash).call()
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # check id is scheduled
+    execution_info = await timelock.isOperation(hash_id).call()
+    assert execution_info.result == (TRUE,)
+
+    # check id is pending
+    execution_info = await timelock.isOperationPending(hash_id).call()
+    assert execution_info.result == (TRUE,)
+
+    # check id is not ready
+    execution_info = await timelock.isOperationReady(hash_id).call()
     assert execution_info.result == (FALSE,)
 
-    execution_info = await timelock.isOperationPending(operation_hash).call()
+    # check id is not done
+    execution_info = await timelock.isOperationDone(hash_id).call()
     assert execution_info.result == (FALSE,)
 
-    execution_info = await timelock.isOperationReady(operation_hash).call()
-    assert execution_info.result == (FALSE,)
+    # check timestamp
+    execution_info = await timelock.getTimestamp(hash_id).call()
+    assert execution_info.result == (MIN_DELAY,)
 
+
+@pytest.mark.asyncio
+async def test_schedule_emits_event(timelock_factory):
+    timelock, proposer, _, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # get hash id
+    operation = gen_operation(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
+    hash_id = execution_info.result.hash
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    tx_exec_info = await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # check event
     assert_event_emitted(
-        execution_info_cancel,
-        timelock.contract_address,
-        "Cancelled",
-        [operation_hash],
+        tx_exec_info,
+        from_address=timelock.contract_address,
+        name='CallScheduled',
+        data=[
+            hash_id,                                 # id
+            0,                                       # index
+            helper.contract_address,                 # target
+            get_selector_from_name("increaseCount"), # selector
+            1,                                       # calldata length
+            HELPER_CALLDATA,                         # calldata
+            0,                                       # predecessor
+            MIN_DELAY                                # delay
+        ]
     )
 
 
 @pytest.mark.asyncio
-async def test_cancel_not_pending(timelock_factory):
-    starknet, timelock, proposer_account, executor_account = timelock_factory
+async def test_schedule_prevents_overwriting_active_operation(timelock_factory):
+    timelock, proposer, _, helper, _ = timelock_factory
 
-    initializable = await starknet.deploy(
-        contract_path("openzeppelin/security/initializable.cairo")
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
     )
 
-    init_call = (
-        initializable.contract_address,
-        get_selector_from_name("initialize"),
-        0,
-        0,
-    )
-
-    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-    (operation_hash,) = execution_info.result
-
-    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-    exec_array = [1, *init_call, *[0], 0, 0]
-
+    # schedule operation
     await signer.send_transaction(
-        proposer_account, timelock.contract_address, "schedule", call_array
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+    
+    # repeated operation should fail
+    await assert_revert(signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ]),
+        reverted_with="Timelock: operation already scheduled"
     )
 
-    set_block_timestamp(starknet.state, 2 * DAY)
+@pytest.mark.asyncio
+async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
+    timelock, _, executor, helper, _ = timelock_factory
 
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # non-proposer invocation should fail
+    await assert_revert(signer.send_transaction(
+        executor, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ]),
+        reverted_with=f"AccessControl: caller is missing role {PROPOSER_ROLE}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_schedule_enforce_minimum_delay(timelock_factory):
+    timelock, proposer, _, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # delay under threshold should fail
+    await assert_revert(signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            BAD_DELAY                                # delay
+        ]),
+        reverted_with="Timelock: insufficient delay"
+    )
+
+
+@pytest.mark.asyncio
+async def test_schedule_enforce_overflow_check(timelock_factory):
+    timelock, proposer, _, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # set timestamp otherwise felt can't hold overflowing int
+    set_block_timestamp(state, 2**128)
+
+    delay_overflow = 2**128
+
+    # delay overflow should fail
+    await assert_revert(signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            delay_overflow                           # delay
+        ]),
+        reverted_with="Timelock: timestamp overflow"
+    )
+
+#
+# execute
+#
+
+@pytest.mark.asyncio
+async def test_execute_when_operation_not_scheduled(timelock_factory):
+    timelock, proposer, executor, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
     await signer.send_transaction(
-        executor_account, timelock.contract_address, "execute", exec_array
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # delay overflow should fail
+    await assert_revert(signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ]),
+        reverted_with="Timelock: operation is not ready"
     )
 
-    await assert_revert(
-        signer.send_transaction(
-            proposer_account, timelock.contract_address, "cancel", [operation_hash]
-        ),
-        "Timelock: operation cannot be cancelled",
+
+@pytest.mark.asyncio
+async def test_execute_when_too_early_PART_ONE(timelock_factory):
+    timelock, proposer, executor, helper, _ = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
     )
 
-    set_block_timestamp(starknet.state, 0)
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # operation should fail when under delay
+    await assert_revert(signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ]),
+        reverted_with="Timelock: operation is not ready"
+    )
 
 
-#@pytest.mark.asyncio
-#async def test_execute(timelock_factory):
-#    starknet, timelock, proposer_account, executor_account = timelock_factory
-#
-#    initializable = await starknet.deploy(
-#        contract_path("openzeppelin/security/initializable.cairo")
-#    )
-#
-#    init_call = (
-#        initializable.contract_address,
-#        get_selector_from_name("initialize"),
-#        0,
-#        0,
-#    )
-#
-#    execution_info = await initializable.initialized().call()
-#    assert execution_info.result == (FALSE,)
-#
-#    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-#    (operation_hash,) = execution_info.result
-#
-#    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-#    exec_array = [1, *init_call, *[0], 0, 0]
-#
-#    await proposer_signer.send_transaction(
-#        proposer_account, timelock.contract_address, "schedule", call_array
-#    )
-#
-#    set_block_timestamp(starknet.state, 2 * DAY)
-#
-#    execution_info_exec = await executor_signer.send_transaction(
-#        executor_account, timelock.contract_address, "execute", exec_array
-#    )
-#
-#    execution_info = await timelock.getTimestamp(operation_hash).call()
-#    assert execution_info.result == (1,)
-#
-#    execution_info = await timelock.isOperation(operation_hash).call()
-#    assert execution_info.result == (TRUE,)
-#
-#    execution_info = await timelock.isOperationPending(operation_hash).call()
-#    assert execution_info.result == (FALSE,)
-#
-#    execution_info = await timelock.isOperationReady(operation_hash).call()
-#    assert execution_info.result == (FALSE,)
-#
-#    execution_info = await timelock.isOperationDone(operation_hash).call()
-#    assert execution_info.result == (TRUE,)
-#
-#    execution_info = await initializable.initialized().call()
-#    assert execution_info.result == (TRUE,)
-#
-#    assert_event_emitted(
-#        execution_info_exec,
-#        timelock.contract_address,
-#        "CallExecuted",
-#        [
-#            operation_hash,  # id
-#            0,
-#            initializable.contract_address,
-#            get_selector_from_name("initialize"),
-#            *[0],  # calldata
-#        ],
-#    )
-#
-#    set_block_timestamp(starknet.state, 0)
-#
-#
-#@pytest.mark.asyncio
-#async def test_execute_not_ready(timelock_factory):
-#    starknet, timelock, proposer_account, executor_account = timelock_factory
-#
-#    initializable = await starknet.deploy(
-#        contract_path("openzeppelin/security/initializable.cairo")
-#    )
-#
-#    init_call = (
-#        initializable.contract_address,
-#        get_selector_from_name("initialize"),
-#        0,
-#        0,
-#    )
-#
-#    execution_info = await initializable.initialized().call()
-#    assert execution_info.result == (FALSE,)
-#
-#    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-#    (operation_hash,) = execution_info.result
-#
-#    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-#    exec_array = [1, *init_call, *[0], 0, 0]
-#
-#    await proposer_signer.send_transaction(
-#        proposer_account, timelock.contract_address, "schedule", call_array
-#    )
-#
-#    await assert_revert(
-#        executor_signer.send_transaction(
-#            executor_account, timelock.contract_address, "execute", exec_array
-#        ),
-#        "Timelock: operation is not ready",
-#    )
-#
-#
-#@pytest.mark.asyncio
-#async def test_execute_predecessor_not_executed(timelock_factory):
-#    starknet, timelock, proposer_account, executor_account = timelock_factory
-#
-#    initializable = await starknet.deploy(
-#        contract_path("openzeppelin/security/initializable.cairo")
-#    )
-#
-#    initializable_2 = await starknet.deploy(
-#        contract_path("openzeppelin/security/initializable.cairo")
-#    )
-#
-#    init_call = (
-#        initializable.contract_address,
-#        get_selector_from_name("initialize"),
-#        0,
-#        0,
-#    )
-#
-#    init_2_call = (
-#        initializable.contract_address,
-#        get_selector_from_name("initialize"),
-#        0,
-#        0,
-#    )
-#
-#    execution_info = await timelock.hashOperation([init_call], [], 0, 0).call()
-#    (operation_hash,) = execution_info.result
-#
-#    execution_info = await timelock.hashOperation(
-#        [init_2_call], [], operation_hash, 0
-#    ).call()
-#
-#    (operation_hash_2,) = execution_info.result
-#
-#    call_array = [1, *init_call, *[0], 0, 0, 2 * DAY]
-#
-#    call_array_2 = [1, *init_call, *[0], operation_hash, 0, 2 * DAY]
-#    exec_array_2 = [1, *init_call, *[0], operation_hash, 0]
-#
-#    await proposer_signer.send_transaction(
-#        proposer_account, timelock.contract_address, "schedule", call_array
-#    )
-#
-#    await proposer_signer.send_transaction(
-#        proposer_account, timelock.contract_address, "schedule", call_array_2
-#    )
-#
-#    set_block_timestamp(starknet.state, 2 * DAY)
-#
-#    await assert_revert(
-#        executor_signer.send_transaction(
-#            executor_account, timelock.contract_address, "execute", exec_array_2
-#        ),
-#        "Timelock: missing dependency",
-#    )
-#
-#    set_block_timestamp(starknet.state, 0)
-#
+@pytest.mark.asyncio
+async def test_execute_when_too_early_PART_TWO(timelock_factory):
+    timelock, proposer, executor, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    set_block_timestamp(state, MIN_DELAY - 10)
+
+    # operation should fail when under delay
+    await assert_revert(signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ]),
+        reverted_with="Timelock: operation is not ready"
+    )
+
+
+@pytest.mark.asyncio
+async def test_execute(timelock_factory):
+    timelock, proposer, executor, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # get hash id
+    operation = gen_operation(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
+    hash_id = execution_info.result.hash
+
+    # check id is pending
+    execution_info = await timelock.isOperationPending(hash_id).call()
+    assert execution_info.result == (TRUE,)
+
+    # check id is not done
+    execution_info = await timelock.isOperationDone(hash_id).call()
+    assert execution_info.result == (FALSE,)
+
+    set_block_timestamp(state, MIN_DELAY+10)
+
+    # execute
+    await signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ])
+
+    # check id is no longer pending
+    execution_info = await timelock.isOperationPending(hash_id).call()
+    assert execution_info.result == (FALSE,)
+
+    # check id is done
+    execution_info = await timelock.isOperationDone(hash_id).call()
+    assert execution_info.result == (TRUE,)
+
+
+@pytest.mark.asyncio
+async def test_execute_emits_event(timelock_factory):
+    timelock, proposer, executor, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # get hash id
+    operation = gen_operation(helper.contract_address)
+    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
+    hash_id = execution_info.result.hash
+
+    set_block_timestamp(state, MIN_DELAY+10)
+
+    # execute
+    tx_exec_info = await signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ])
+
+    # check event
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=timelock.contract_address,
+        name='CallExecuted',
+        data=[
+            hash_id,                                 # id
+            0,                                       # index
+            helper.contract_address,                 # target
+            get_selector_from_name("increaseCount"), # selector
+            1,                                       # calldata length
+            HELPER_CALLDATA,                         # calldata
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
+    timelock, proposer, _, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    set_block_timestamp(state, MIN_DELAY)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # execute with non-executor
+    await assert_revert(signer.send_transaction(
+        proposer, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ]),
+        reverted_with=f"AccessControl: caller is missing role {EXECUTOR_ROLE}"
+    )
+

@@ -4,13 +4,12 @@
 %lang starknet
 
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.math import assert_le
-from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math_cmp import is_le, is_not_zero
+from starkware.cairo.common.math_cmp import is_le, is_not_zero, is_in_range
 from starkware.starknet.common.syscalls import call_contract, get_block_timestamp
+from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from starkware.cairo.common.hash_state import (
     HashState,
@@ -20,31 +19,24 @@ from starkware.cairo.common.hash_state import (
     hash_update_single,
 )
 
+from openzeppelin.account.library import Call, AccountCallArray, Account
+
+from openzeppelin.access.accesscontrol import AccessControl
+
+from openzeppelin.introspection.ERC165 import ERC165
+
+from openzeppelin.utils.constants import IERC1155_RECEIVER_ID
+
 #
 # Constants
 #
 
+const TIMELOCK_ADMIN_ROLE = 0x11
+const PROPOSER_ROLE = 0x22
+const CANCELLER_ROLE = 0x33
+const EXECUTOR_ROLE = 0x44
+
 const DONE_TIMESTAMP = 1
-
-#
-# Structs
-#
-
-# tmp structs needed for external methods
-
-struct Call:
-    member to: felt
-    member selector: felt
-    member calldata_len: felt
-    member calldata: felt*
-end
-
-struct AccountCallArray:
-    member to: felt
-    member selector: felt
-    member data_offset: felt
-    member data_len: felt
-end
 
 #
 # Events
@@ -59,6 +51,7 @@ func CallScheduled(
     calldata_len: felt,
     calldata: felt*,
     predecessor: felt,
+    delay: felt
 ):
 end
 
@@ -78,7 +71,10 @@ func Cancelled(id: felt):
 end
 
 @event
-func MinDelayChange(oldDuration: felt, newDuration: felt):
+func MinDelayChange(
+    oldDuration: felt,
+    newDuration: felt
+):
 end
 
 #
@@ -94,14 +90,120 @@ func Timelock_timestamps(id: felt) -> (timestamp: felt):
 end
 
 namespace Timelock:
+    #
+    # Initializer
+    #
+
     func initializer{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(delay: felt):
+        }(
+            delay: felt,
+            deployer: felt,
+            proposers_len: felt,
+            proposers: felt*,
+            executors_len: felt,
+            executors: felt*
+        ):
+        alloc_locals
+        AccessControl._set_role_admin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE)
+        AccessControl._set_role_admin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE)
+        AccessControl._set_role_admin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE)
+        AccessControl._set_role_admin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE)
+
+        # deployer + self administration
+        let (this) = get_contract_address()
+        AccessControl._grant_role(TIMELOCK_ADMIN_ROLE, this)
+        AccessControl._grant_role(TIMELOCK_ADMIN_ROLE, deployer)
+
+        # register proposers, cancellers, and executors
+        _iter_roles(proposers_len, proposers, PROPOSER_ROLE)
+        _iter_roles(proposers_len, proposers, CANCELLER_ROLE)
+        _iter_roles(executors_len, executors, EXECUTOR_ROLE)
+
+        ERC165.supports_interface(IERC1155_RECEIVER_ID)
         Timelock_min_delay.write(delay)
         MinDelayChange.emit(0, delay)
         return ()
+    end
+
+    #
+    # Guard
+    #
+
+    func assert_only_role_or_open_role{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(role: felt):
+        let (is_public) = AccessControl.has_role(role, 0)
+        if is_public == FALSE:
+            AccessControl._only_role(EXECUTOR_ROLE)
+            return ()
+        end
+
+        return ()
+    end
+
+    func is_operation{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt) -> (operation: felt):
+        let (timestamp: felt) = get_timestamp(id)
+        let (operation: felt) = is_not_zero(timestamp)
+        return (operation)
+    end
+
+    func is_operation_pending{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt) -> (pending: felt):
+        alloc_locals
+        let (timestamp: felt) = get_timestamp(id)
+        let (pending: felt) = is_le(DONE_TIMESTAMP + 1, timestamp)
+        return (pending)
+    end
+
+    func is_operation_ready{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt) -> (ready: felt):
+        alloc_locals
+        let (timestamp) = get_timestamp(id)
+        let (current_timestamp) = get_block_timestamp()
+        
+        let (ready: felt) = is_in_range(timestamp, DONE_TIMESTAMP + 1, current_timestamp)
+        return (ready)
+    end
+
+    func is_operation_done{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt) -> (done: felt):
+        let (timestamp: felt) = get_timestamp(id)
+        if timestamp == DONE_TIMESTAMP:
+            return (TRUE)
+        else:
+            return (FALSE)
+        end
+    end
+
+    #
+    # Getters
+    #
+
+    func get_timestamp{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt) -> (timestamp: felt):
+        let (timestamp: felt) = Timelock_timestamps.read(id)
+        return (timestamp)
     end
 
     func get_min_delay{
@@ -113,79 +215,36 @@ namespace Timelock:
         return (min_delay)
     end
 
-    func get_timestamp{
+    func hash_operation{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(id: felt) -> (timestamp: felt):
-        let (timestamp: felt) = Timelock_timestamps.read(id)
-        return (timestamp=timestamp)
-    end
-
-    func is_operation{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(id: felt) -> (operation: felt):
-        let (timestamp: felt) = get_timestamp(id)
-        let (operation: felt) = is_not_zero(timestamp)
-        return (operation=operation)
-    end
-
-    func is_operation_pending{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(id: felt) -> (pending: felt):
+        }(
+            call_array_len: felt,
+            call_array: AccountCallArray*,
+            calldata_len: felt,
+            calldata: felt*,
+            predecessor: felt,
+            salt: felt,
+        ) -> (hash: felt):
         alloc_locals
-        let (timestamp: felt) = get_timestamp(id)
-        let (pending: felt) = is_le(DONE_TIMESTAMP + 1, timestamp)
-        return (pending=pending)
-    end
+        let (calls_hash_array: felt*) = _get_calls_hash_array(call_array_len, call_array, calldata)
 
-    func is_operation_ready{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(id: felt) -> (ready: felt):
-        alloc_locals
-
-        let (timestamp: felt) = get_timestamp(id)
-        let (block_timestamp: felt) = get_block_timestamp()
-
-        let (pending: felt) = is_operation_pending(id)
-        let (ready: felt) = is_le(timestamp, block_timestamp)
-
-        if pending + ready == 2:
-            return (TRUE)
-        else:
-            return (FALSE)
+        let hash_ptr = pedersen_ptr
+        with hash_ptr:
+            let (hash_state_ptr) = hash_init()
+            let (hash_state_ptr) = hash_update(
+                hash_state_ptr,
+                calls_hash_array,
+                call_array_len
+            )
+            let (hash_state_ptr) = hash_update_single(hash_state_ptr, calldata_len) 
+            let (hash_state_ptr) = hash_update_single(hash_state_ptr, predecessor)
+            let (hash_state_ptr) = hash_update_single(hash_state_ptr, salt)
+            let (res) = hash_finalize(hash_state_ptr)
+            let pedersen_ptr = hash_ptr
+            return (res)
         end
-    end
-
-    func is_operation_done{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(id: felt) -> (done: felt):
-        let (timestamp: felt) = get_timestamp(id)
-
-        if timestamp == DONE_TIMESTAMP:
-            return (TRUE)
-        else:
-            return (FALSE)
-        end
-    end
-
-    func update_delay{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(min_delay: felt):
-        let (old_min_delay: felt) = Timelock_min_delay.read()
-        Timelock_min_delay.write(min_delay)
-        MinDelayChange.emit(old_min_delay, min_delay)
-        return ()
     end
 
     func schedule{
@@ -202,14 +261,52 @@ namespace Timelock:
             delay: felt,
         ):
         alloc_locals
-        let (id: felt) = hash_operation(call_array_len, call_array, calldata, predecessor, salt)
-        let (calls: Call*) = alloc()
+        AccessControl._only_role(PROPOSER_ROLE)
 
-        _from_timelock_calls_to_calls(call_array_len, call_array, calldata, calls)
-        _schedule(id, delay, call_array_len, calls, predecessor)
+        let (id: felt) = hash_operation(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
+        let (calls: Call*) = alloc()
+        Account._from_call_array_to_call(call_array_len, call_array, calldata, calls)
+
+        let (operation_exists: felt) = is_operation(id)
+        let (min_delay: felt) = get_min_delay()
+
+        with_attr error_message("Timelock: operation already scheduled"):
+            assert operation_exists = FALSE
+        end
+
+        with_attr error_message("Timelock: insufficient delay"):
+            assert_le(min_delay, delay)
+        end
+
+        let (block_timestamp: felt) = get_block_timestamp()
+        tempvar total_time = block_timestamp + delay
+
+        with_attr error_message("Timelock: timestamp overflow"):
+            assert_le(block_timestamp, total_time)
+            Timelock_timestamps.write(id, total_time)
+        end
+
+        _emit_schedule_events(id, 0, call_array_len, calls, predecessor, delay)
         return ()
     end
 
+    func cancel{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(id: felt):
+        AccessControl._only_role(CANCELLER_ROLE)
+
+        let (pending: felt) = is_operation_pending(id)
+        with_attr error_message("Timelock: operation cannot be cancelled"):
+            assert pending = TRUE
+        end
+
+        Timelock_timestamps.write(id, 0)
+        Cancelled.emit(id)
+        return ()
+    end
+      
     func execute{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
@@ -223,7 +320,10 @@ namespace Timelock:
             salt: felt,
         ):
         alloc_locals
-        let (id: felt) = hash_operation(call_array_len, call_array, calldata, predecessor, salt)
+        # check if role is public or for only executor
+        assert_only_role_or_open_role(EXECUTOR_ROLE)
+
+        let (id: felt) = hash_operation(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
         let (ready: felt) = is_operation_ready(id)
 
         with_attr error_message("Timelock: operation is not ready"):
@@ -238,231 +338,187 @@ namespace Timelock:
             end
         end
 
-        _execute(id, call_array_len, call_array, calldata_len, calldata, predecessor)
+        # reference rebinding
+        tempvar range_check_ptr = range_check_ptr
+        tempvar pedersen_ptr: HashBuiltin* = pedersen_ptr
+
+        let (calls: Call*) = alloc()
+        Account._from_call_array_to_call(call_array_len, call_array, calldata, calls)
+        _execute_calls(id, 0, call_array_len, calls)
+
         Timelock_timestamps.write(id, DONE_TIMESTAMP)
         return ()
     end
 
-    func cancel{
+    func update_delay{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(id: felt):
-        _cancel(id)
-        Cancelled.emit(id)
+        }(min_delay: felt):
+        # checks that the caller is the timelock itself
+        let (self) = get_caller_address()
+        let (this) = get_contract_address()
+        assert self = this
+
+        let (old_min_delay: felt) = Timelock_min_delay.read()
+        Timelock_min_delay.write(min_delay)
+        MinDelayChange.emit(old_min_delay, min_delay)
         return ()
     end
 
-    func _schedule{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            id: felt,
-            delay: felt,
-            calls_len: felt,
-            calls: Call*,
-            predecessor: felt
-        ):
-        let (operation_exists: felt) = is_operation(id)
-        let (min_delay: felt) = get_min_delay()
+end
 
-        with_attr error_message("Timelock: operation already scheduled"):
-            assert operation_exists = FALSE
-        end
+#
+# Internals
+#
 
-        with_attr error_message("Timelock: insufficient delay"):
-            assert_le(min_delay, delay)
-        end
-
-        let (block_timestamp: felt) = get_block_timestamp()
-        Timelock_timestamps.write(id, block_timestamp + delay)
-        _emit_schedule_events(id, 0, calls_len, calls, predecessor)
+func _iter_roles{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(addresses_len: felt, addresses: felt*, role):
+    if addresses_len == 0:
         return ()
     end
 
-    func _emit_schedule_events{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            id: felt,
-            index: felt,
-            calls_len: felt,
-            calls: Call*,
-            predecessor: felt
-        ):
-        alloc_locals
-        if calls_len == 0:
-            return ()
-        end
+    # grant role to address
+    let address = [addresses]
+    AccessControl._grant_role(role, address)
 
-        let this_call: Call = [calls]
-        CallScheduled.emit(
-            id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata, predecessor
+    # recursive call
+    _iter_roles(addresses_len - 1, addresses + 1, role)
+    return ()
+end
+
+func _get_calls_hash_array{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata: felt*
+    ) -> (calls_hash_array: felt*):
+    alloc_locals
+
+    # TMP: Convert `AccountCallArray` to 'Call'.
+    let (calls: Call*) = alloc()
+    Account._from_call_array_to_call(call_array_len, call_array, calldata, calls)
+    let calls_len = call_array_len
+
+    let (calls_hash_array: felt*) = alloc()
+    _hash_calls(calls_len, calls, calls_hash_array)
+    return (calls_hash_array)
+end
+
+func _hash_calls{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        call_array_len: felt,
+        call_array: Call*,
+        hash_array: felt*
+    ):
+    alloc_locals
+    if call_array_len == 0:
+        return ()
+    end
+
+    # hash calldata
+    let this_call: Call = [call_array]
+    let (local res_calldata) = _hash_calldata(this_call.calldata_len, this_call.calldata)
+
+    # hash chain
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.to)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, this_call.selector)
+        let (hash_state_ptr) = hash_update_single(hash_state_ptr, res_calldata)
+        let (hash) = hash_finalize(hash_state_ptr)
+    end
+    let pedersen_ptr = hash_ptr
+
+    # recursive call
+    assert [hash_array] = hash
+    _hash_calls(call_array_len - 1, call_array + Call.SIZE, hash_array + 1)
+    return ()
+end
+
+func _hash_calldata{pedersen_ptr: HashBuiltin*}(
+        calldata_len: felt,
+        calldata: felt*,
+    ) -> (res: felt):
+    let hash_ptr = pedersen_ptr
+    with hash_ptr:
+        let (hash_state_ptr) = hash_init()
+        let (hash_state_ptr) = hash_update(
+            hash_state_ptr,
+            calldata,
+            calldata_len
         )
-        _emit_schedule_events(id, index + 1, calls_len - 1, calls + Call.SIZE, predecessor)
+        let (res) = hash_finalize(hash_state_ptr)
+        let pedersen_ptr = hash_ptr
+        return (res=res)
+    end
+end
+
+func _emit_schedule_events{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        id: felt,
+        index: felt,
+        calls_len: felt,
+        calls: Call*,
+        predecessor: felt,
+        delay: felt
+    ):
+    alloc_locals
+    if calls_len == 0:
         return ()
     end
 
-    func _execute{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            id: felt,
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata_len: felt,
-            calldata: felt*,
-            predecessor: felt,
-        ):
-        alloc_locals
+    let this_call: Call = [calls]
+    CallScheduled.emit(
+        id,
+        index,
+        this_call.to,
+        this_call.selector,
+        this_call.calldata_len,
+        this_call.calldata,
+        predecessor,
+        delay
+    )
+    _emit_schedule_events(id, index + 1, calls_len - 1, calls + Call.SIZE, predecessor, delay)
+    return ()
+end
 
-        let (calls: Call*) = alloc()
-        _from_timelock_calls_to_calls(call_array_len, call_array, calldata, calls)
-        _execute_calls(id, 0, call_array_len, calls)
+func _execute_calls{
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(
+        id: felt,
+        index: felt,
+        calls_len: felt,
+        calls: Call*
+    ):
+    alloc_locals
+    if calls_len == 0:
         return ()
     end
 
-    func _cancel{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(id: felt):
-        let (pending: felt) = is_operation_pending(id)
-        with_attr error_message("Timelock: operation cannot be cancelled"):
-            assert pending = TRUE
-        end
+    let this_call: Call = [calls]
+    call_contract(
+        contract_address=this_call.to,
+        function_selector=this_call.selector,
+        calldata_size=this_call.calldata_len,
+        calldata=this_call.calldata,
+    )
 
-        Timelock_timestamps.write(id, 0)
-        return ()
-    end
-
-    func hash_operation{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata: felt*,
-            predecessor: felt,
-            salt: felt,
-        ) -> (hash: felt):
-        alloc_locals
-
-        let (calls_hash_array: felt*) = _get_calls_hash_array(call_array_len, call_array, calldata)
-
-        let (state: HashState*) = hash_init()
-        let (state: HashState*) = hash_update{hash_ptr=pedersen_ptr}(
-            state, calls_hash_array, call_array_len
-        )
-        let (state: HashState*) = hash_update_single{hash_ptr=pedersen_ptr}(state, predecessor)
-        let (state: HashState*) = hash_update_single{hash_ptr=pedersen_ptr}(state, salt)
-
-        let (hash: felt) = hash_finalize{hash_ptr=pedersen_ptr}(state)
-        return (hash=hash)
-    end
-
-    func _get_calls_hash_array{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata: felt*
-        ) -> (calls_hash_array: felt*):
-        alloc_locals
-        let (calls: Call*) = alloc()
-        _from_timelock_calls_to_calls(call_array_len, call_array, calldata, calls)
-        
-        let calls_len = call_array_len
-        let (calls_hash_array: felt*) = alloc()
-        _hash_calls(calls_len, calls, calls_hash_array)
-
-        return (calls_hash_array=calls_hash_array)
-    end
-
-    func _from_timelock_calls_to_calls{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata: felt*,
-            calls: Call*
-        ):
-        if call_array_len == 0:
-            return ()
-        end
-
-        assert [calls] = Call(
-            to=[call_array].to,
-            selector=[call_array].selector,
-            calldata_len=[call_array].data_len,
-            calldata=calldata + [call_array].data_offset
-            )
-
-        _from_timelock_calls_to_calls(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
-        return ()
-    end
-
-    func _hash_calls{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(
-            call_array_len: felt,
-            call_array: Call*,
-            hash_array: felt*
-        ):
-        if call_array_len == 0:
-            return ()
-        end
-
-        let (state: HashState*) = hash_init()
-        let (state: HashState*) = hash_update_single{hash_ptr=pedersen_ptr}(state, [call_array].to)
-        let (state: HashState*) = hash_update_single{hash_ptr=pedersen_ptr}(
-            state, [call_array].selector
-        )
-        let (state: HashState*) = hash_update{hash_ptr=pedersen_ptr}(
-            state, [call_array].calldata, [call_array].calldata_len
-        )
-
-        let (hash: felt) = hash_finalize{hash_ptr=pedersen_ptr}(state)
-        assert [hash_array] = hash
-
-        _hash_calls(call_array_len - 1, call_array + Call.SIZE, hash_array + 1)
-        return ()
-    end
-
-    func _execute_calls{
-            syscall_ptr: felt*,
-            range_check_ptr
-        }(
-            id: felt,
-            index: felt,
-            calls_len: felt,
-            calls: Call*
-        ):
-        alloc_locals
-        if calls_len == 0:
-            return ()
-        end
-
-        let this_call: Call = [calls]
-        call_contract(
-            contract_address=this_call.to,
-            function_selector=this_call.selector,
-            calldata_size=this_call.calldata_len,
-            calldata=this_call.calldata,
-        )
-
-        CallExecuted.emit(id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata)
-        _execute_calls(id, index + 1, calls_len - 1, calls + Call.SIZE)
-        return ()
-    end
+    CallExecuted.emit(id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata)
+    _execute_calls(id, index + 1, calls_len - 1, calls + Call.SIZE)
+    return ()
 end

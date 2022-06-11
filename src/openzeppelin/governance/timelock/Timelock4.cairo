@@ -14,7 +14,7 @@ from openzeppelin.utils.constants import (
     ON_ERC1155_BATCH_RECEIVED_SELECTOR
 )
 
-from openzeppelin.governance.timelock.library3 import Timelock
+from openzeppelin.governance.timelock.library import Timelock
 
 from openzeppelin.introspection.ERC165 import ERC165
 
@@ -132,7 +132,7 @@ func hashOperation{
         predecessor: felt,
         salt: felt,
     ) -> (hash: felt):
-    let (hash) = Timelock.hash_operation(call_array_len, call_array, calldata, predecessor, salt)
+    let (hash) = Timelock.hash_operation(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
     return (hash)
 end
 

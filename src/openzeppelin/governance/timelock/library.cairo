@@ -25,7 +25,7 @@ from openzeppelin.access.accesscontrol import AccessControl
 
 from openzeppelin.introspection.ERC165 import ERC165
 
-from openzeppelin.utils.constants import IERC1155_RECEIVER_ID
+from openzeppelin.utils.constants import IERC1155_RECEIVER_ID, IERC721_RECEIVER_ID
 
 #
 # Constants
@@ -122,7 +122,10 @@ namespace Timelock:
         _iter_roles(proposers_len, proposers, CANCELLER_ROLE)
         _iter_roles(executors_len, executors, EXECUTOR_ROLE)
 
-        ERC165.supports_interface(IERC1155_RECEIVER_ID)
+        # register token receiver interfaces
+        ERC165.register_interface(IERC721_RECEIVER_ID)
+        ERC165.register_interface(IERC1155_RECEIVER_ID)
+
         Timelock_min_delay.write(delay)
         MinDelayChange.emit(0, delay)
         return ()
@@ -358,7 +361,9 @@ namespace Timelock:
         # checks that the caller is the timelock itself
         let (self) = get_caller_address()
         let (this) = get_contract_address()
-        assert self = this
+        with_attr error_message("Timelock: caller must be timelock"):
+            assert self = this
+        end
 
         let (old_min_delay: felt) = Timelock_min_delay.read()
         Timelock_min_delay.write(min_delay)
@@ -511,12 +516,14 @@ func _execute_calls{
     end
 
     let this_call: Call = [calls]
-    call_contract(
-        contract_address=this_call.to,
-        function_selector=this_call.selector,
-        calldata_size=this_call.calldata_len,
-        calldata=this_call.calldata,
-    )
+    with_attr error_message("Timelock: underlying transaction reverted"):
+        call_contract(
+            contract_address=this_call.to,
+            function_selector=this_call.selector,
+            calldata_size=this_call.calldata_len,
+            calldata=this_call.calldata,
+        )
+    end
 
     CallExecuted.emit(id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata)
     _execute_calls(id, index + 1, calls_len - 1, calls + Call.SIZE)

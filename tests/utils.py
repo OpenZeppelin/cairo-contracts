@@ -244,21 +244,17 @@ def format_calls_for_calls(calls):
 
 def _iterate_calldata_for_signer(calls):
     """Return iterated calldata for signer invoke."""
-    iter_calldata = []
-    for elem in calls[-1]:
-        iter_calldata.append(elem)
+    iter_calldata = [e for e in calls[-1]]
+
     return [len(iter_calldata), *iter_calldata]
 
 
 def _iterate_calls_for_signer(calls):
     """Return iterated call array for signer invoke."""
-    iter_calls = []
     # remove calldata because we need to prepend it with length
     calls[-1].clear()
     calls_len = len(calls[0])
-    for call in list(calls):
-        for elem in list(call):
-            iter_calls.extend(elem)
+    iter_calls = [e for call in calls[0] for e in call]
 
     return [calls_len, *iter_calls]
 

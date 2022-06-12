@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (governance/timelock/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (governance/timelock/library.cairo)
 
 %lang starknet
 
@@ -106,7 +106,6 @@ namespace Timelock:
             executors_len: felt,
             executors: felt*
         ):
-        alloc_locals
         AccessControl._set_role_admin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE)

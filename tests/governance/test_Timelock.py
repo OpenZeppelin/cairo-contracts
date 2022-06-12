@@ -20,6 +20,13 @@ EXECUTOR_ROLE = 0x44
 PROPOSERS = [111, 112, 113, 114]
 EXECUTORS = [221, 222, 223, 224]
 
+# selector ids
+IERC165_ID = 0x01ffc9a7
+IERC721_RECEIVER_ID = 0x150b7a02
+IERC1155_RECEIVER_ID = 0x4e2312e0
+INVALID_ID = 0xffffffff
+UNSUPPORTED_ID = 0xabcd1234
+
 MIN_DELAY = 86400
 NEW_MIN_DELAY = 21600
 BAD_DELAY = 100
@@ -185,6 +192,22 @@ async def test_constructor(timelock_factory):
     # check deployer as admin
     execution_info = await timelock.hasRole(TIMELOCK_ADMIN_ROLE, deployer.contract_address).call()
     assert execution_info.result == (TRUE,)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('interface_id, result', [
+    [IERC165_ID, TRUE],
+    [IERC721_RECEIVER_ID, TRUE],
+    [IERC1155_RECEIVER_ID, TRUE],
+    [INVALID_ID, FALSE],
+    [UNSUPPORTED_ID, FALSE],
+])
+async def test_registered_interfaces(timelock_factory, interface_id, result):
+    timelock, _, *_ = timelock_factory
+
+    execution_info = await timelock.supportsInterface(interface_id).invoke()
+    assert execution_info.result == (result,)
+
 
 
 #

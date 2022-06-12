@@ -653,10 +653,6 @@ async def test_execute(timelock_factory):
     execution_info = await timelock.isOperationDone(hash_id).call()
     assert execution_info.result == (TRUE,)
 
-    # check helper contract
-    execution_info = await helper.getCount().call()
-    assert execution_info.result == (INIT_COUNT + HELPER_CALLDATA,)
-
 
 @pytest.mark.asyncio
 async def test_execute_emits_event(timelock_factory):
@@ -1150,12 +1146,6 @@ async def test_execute_batch(timelock_factory):
     execution_info = await timelock.isOperationDone(hash_id).call()
     assert execution_info.result == (TRUE,)
 
-    # check helper contract
-    execution_info = await helper.getCount().call()
-    # mulitply calldata by total calls in batch 
-    helper_total = call_array[0] * HELPER_CALLDATA
-    assert execution_info.result == (INIT_COUNT + helper_total,)
-
 
 @pytest.mark.asyncio
 async def test_execute_batch_emits_events(timelock_factory):
@@ -1547,6 +1537,42 @@ async def test_execute_before_dependency(timelock_factory):
         ]),
         reverted_with="Timelock: missing dependency"
     )
+
+#
+# usage scenario
+#
+
+@pytest.mark.asyncio
+async def test_execute(timelock_factory):
+    timelock, proposer, executor, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = format_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            MIN_DELAY                                # delay
+        ])
+
+    # execute
+    await signer.send_transaction(
+        executor, timelock.contract_address, "execute", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+        ])
+
+    # check contract value
+    execution_info = await helper.getCount().call()
+    assert execution_info.result == (INIT_COUNT + HELPER_CALLDATA,)
 
 #
 # safe receive

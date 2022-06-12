@@ -30,17 +30,6 @@ func increaseCount{
     return ()
 end
 
-@external
-func decreaseCount{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(amount: felt):
-    let (oldCount) = count.read()
-    count.write(oldCount - amount)
-    return ()
-end
-
 @view
 func getCount{
         syscall_ptr: felt*,

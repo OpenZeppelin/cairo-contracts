@@ -128,7 +128,7 @@ namespace Timelock:
         }(role: felt):
         let (is_public) = AccessControl.has_role(role, 0)
         if is_public == FALSE:
-            AccessControl._only_role(EXECUTOR_ROLE)
+            AccessControl.assert_only_role(EXECUTOR_ROLE)
             return ()
         end
 
@@ -250,7 +250,7 @@ namespace Timelock:
             delay: felt,
         ):
         alloc_locals
-        AccessControl._only_role(PROPOSER_ROLE)
+        AccessControl.assert_only_role(PROPOSER_ROLE)
 
         let (id: felt) = hash_operation(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
         let (calls: Call*) = alloc()
@@ -284,7 +284,7 @@ namespace Timelock:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(id: felt):
-        AccessControl._only_role(CANCELLER_ROLE)
+        AccessControl.assert_only_role(CANCELLER_ROLE)
 
         let (pending: felt) = is_operation_pending(id)
         with_attr error_message("Timelock: operation cannot be cancelled"):

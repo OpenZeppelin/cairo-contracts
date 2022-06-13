@@ -56,7 +56,7 @@ namespace AccessControl:
     # Modifier
     #
 
-    func _only_role{
+    func assert_only_role{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
@@ -101,7 +101,7 @@ namespace AccessControl:
             range_check_ptr
         }(role: felt, user: felt):
         let (admin: felt) = get_role_admin(role)
-        _only_role(admin)
+        assert_only_role(admin)
         _grant_role(role, user)
         return ()
     end
@@ -112,7 +112,7 @@ namespace AccessControl:
             range_check_ptr
         }(role: felt, user: felt):
         let (admin: felt) = get_role_admin(role)
-        _only_role(admin)
+        assert_only_role(admin)
         _revoke_role(role, user)
         return ()
     end

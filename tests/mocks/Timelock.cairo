@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.0 (governance/timelock/Timelock.cairo)
 
 %lang starknet
 
@@ -12,7 +11,13 @@ from openzeppelin.utils.constants import (
     ON_ERC1155_BATCH_RECEIVED_SELECTOR
 )
 
-from openzeppelin.governance.timelock.library import Timelock
+from openzeppelin.security.timelock import (
+    Timelock,
+    PROPOSER_ROLE,
+    CANCELLER_ROLE,
+    EXECUTOR_ROLE,
+    _iter_roles
+)
 
 from openzeppelin.introspection.ERC165 import ERC165
 
@@ -36,14 +41,12 @@ func constructor{
     ):
     alloc_locals
     AccessControl.initializer()
-    Timelock.initializer(
-        delay,
-        deployer,
-        proposers_len,
-        proposers,
-        executors_len,
-        executors
-    )
+    Timelock.initializer(delay, deployer)
+
+    # register proposers, cancellers, and executors
+    _iter_roles(proposers_len, proposers, PROPOSER_ROLE)
+    _iter_roles(proposers_len, proposers, CANCELLER_ROLE)
+    _iter_roles(executors_len, executors, EXECUTOR_ROLE)
     return ()
 end
 

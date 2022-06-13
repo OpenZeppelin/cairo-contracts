@@ -4,10 +4,20 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.public.abi import get_selector_from_name
 
 from utils import (
-    TestSigner, assert_event_emitted, assert_revert, get_contract_def,
-    cached_contract, get_block_timestamp, TRUE, FALSE, set_block_timestamp,
-    from_call_to_call_array, flatten_calls_for_signer, to_uint, str_to_felt,
-    timelock_hash_chain
+    TestSigner,
+    assert_event_emitted,
+    assert_revert,
+    get_contract_def,
+    cached_contract,
+    get_block_timestamp,
+    set_block_timestamp,
+    from_call_to_call_array,
+    flatten_calls_for_signer,
+    timelock_hash_chain,
+    to_uint,
+    str_to_felt,
+    TRUE,
+    FALSE
 )
 
 signer = TestSigner(123456789987654321)
@@ -18,6 +28,7 @@ PROPOSER_ROLE = 0x2
 CANCELLER_ROLE = 0x3
 EXECUTOR_ROLE = 0x4
 
+# arrays of random numbers to mimic addresses
 PROPOSERS = [111, 112, 113, 114]
 EXECUTORS = [221, 222, 223, 224]
 
@@ -83,7 +94,7 @@ async def fast_forward_to_target(_operation, _predecessor, _salt, _timelock, sta
 async def timelock_init():
     # contract definitions
     account_def = get_contract_def("openzeppelin/account/Account.cairo")
-    timelock_def = get_contract_def("openzeppelin/governance/timelock/Timelock.cairo")
+    timelock_def = get_contract_def("tests/mocks/Timelock.cairo")
     helper_def = get_contract_def("tests/mocks/TimelockHelper.cairo")
     erc721_def = get_contract_def('openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
 
@@ -1539,7 +1550,7 @@ async def test_execute_after_dependency(timelock_factory):
         executor, timelock.contract_address, "execute", [
             *call_array,                               # call array
             0,                                         # predecessor
-            salt,                                    # salt
+            salt,                                      # salt
         ])
 
     # execute 2
@@ -1547,7 +1558,7 @@ async def test_execute_after_dependency(timelock_factory):
         executor, timelock.contract_address, "execute", [
             *call_array,                               # call array
             hash_id_1,                                 # predecessor
-            salt,                                    # salt
+            salt,                                      # salt
         ])
 
 #

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.0 (governance/timelock/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (security/timelock.cairo)
 
 %lang starknet
 
@@ -98,14 +98,7 @@ namespace Timelock:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(
-            delay: felt,
-            deployer: felt,
-            proposers_len: felt,
-            proposers: felt*,
-            executors_len: felt,
-            executors: felt*
-        ):
+        }(delay: felt, deployer: felt):
         AccessControl._set_role_admin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE)
@@ -116,17 +109,11 @@ namespace Timelock:
         AccessControl._grant_role(TIMELOCK_ADMIN_ROLE, this)
         AccessControl._grant_role(TIMELOCK_ADMIN_ROLE, deployer)
 
-        # register proposers, cancellers, and executors
-        _iter_roles(proposers_len, proposers, PROPOSER_ROLE)
-        _iter_roles(proposers_len, proposers, CANCELLER_ROLE)
-        _iter_roles(executors_len, executors, EXECUTOR_ROLE)
-
         # register token receiver interfaces
         ERC165.register_interface(IERC721_RECEIVER_ID)
         ERC165.register_interface(IERC1155_RECEIVER_ID)
 
-        Timelock_min_delay.write(delay)
-        MinDelayChange.emit(0, delay)
+        _update_delay(delay)
         return ()
     end
 
@@ -364,9 +351,7 @@ namespace Timelock:
             assert self = this
         end
 
-        let (old_min_delay: felt) = Timelock_min_delay.read()
-        Timelock_min_delay.write(min_delay)
-        MinDelayChange.emit(old_min_delay, min_delay)
+        _update_delay(min_delay)
         return ()
     end
 
@@ -526,5 +511,16 @@ func _execute_calls{
 
     CallExecuted.emit(id, index, this_call.to, this_call.selector, this_call.calldata_len, this_call.calldata)
     _execute_calls(id, index + 1, calls_len - 1, calls + Call.SIZE)
+    return ()
+end
+
+func _update_delay{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(new_duration: felt):
+    let (old_duration) = Timelock_min_delay.read()
+    Timelock_min_delay.write(new_duration)
+    MinDelayChange.emit(old_duration, new_duration)
     return ()
 end

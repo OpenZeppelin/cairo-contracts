@@ -23,7 +23,7 @@ namespace IAccount:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ):
+        ) -> (is_valid: felt):
     end
 
     func __execute__(

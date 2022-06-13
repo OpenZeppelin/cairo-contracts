@@ -9,6 +9,7 @@ from starkware.cairo.common.signature import verify_ecdsa_signature
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.bool import TRUE
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 
 from openzeppelin.introspection.library.ERC165 import ERC165
@@ -125,7 +126,7 @@ namespace Account:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ) -> ():
+        ) -> (is_valid: felt):
         let (_public_key) = Account_public_key.read()
 
         # This interface expects a signature pointer and length to make
@@ -140,7 +141,7 @@ namespace Account:
             signature_r=sig_r,
             signature_s=sig_s)
 
-        return ()
+        return (is_valid=TRUE)
     end
 
 
@@ -168,7 +169,9 @@ namespace Account:
         let (_current_nonce) = Account_current_nonce.read()
 
         # validate nonce
-        assert _current_nonce = nonce
+        with_attr error_message("Account: nonce is invalid"):
+            assert _current_nonce = nonce
+        end
 
         # TMP: Convert `AccountCallArray` to 'Call'.
         let (calls : Call*) = alloc()
@@ -176,7 +179,10 @@ namespace Account:
         let calls_len = call_array_len
 
         # validate transaction
-        is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        with_attr error_message("Account: invalid signature"):
+            assert is_valid = TRUE
+        end
 
         # bump nonce
         Account_current_nonce.write(_current_nonce + 1)

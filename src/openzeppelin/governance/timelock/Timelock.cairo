@@ -112,7 +112,7 @@ func getMinDelay{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }() -> (min_delay: felt):
+    }() -> (minDelay: felt):
     let (minDelay) = Timelock.get_min_delay()
     return (minDelay)
 end

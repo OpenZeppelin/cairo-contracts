@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (governance/timelock/Timelock.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (governance/timelock/Timelock.cairo)
 
 %lang starknet
 

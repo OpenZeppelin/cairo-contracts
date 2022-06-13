@@ -31,10 +31,10 @@ from openzeppelin.utils.constants import IERC1155_RECEIVER_ID, IERC721_RECEIVER_
 # Constants
 #
 
-const TIMELOCK_ADMIN_ROLE = 0x11
-const PROPOSER_ROLE = 0x22
-const CANCELLER_ROLE = 0x33
-const EXECUTOR_ROLE = 0x44
+const TIMELOCK_ADMIN_ROLE = 0x1
+const PROPOSER_ROLE = 0x2
+const CANCELLER_ROLE = 0x3
+const EXECUTOR_ROLE = 0x4
 
 const DONE_TIMESTAMP = 1
 

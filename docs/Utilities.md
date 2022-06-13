@@ -26,7 +26,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/ERC721.md#erc165).
+To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/Introspection.md#interface-calculations).
 
 ## Strings
 

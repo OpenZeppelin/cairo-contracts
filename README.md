@@ -4,9 +4,13 @@
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
+## Security Advisory ⚠️
+
+- A critical [vulnerability](https://github.com/OpenZeppelin/cairo-contracts/issues/344) was found in an **unreleased** version of the Account contract. It was [introduced in March 25th](https://github.com/OpenZeppelin/cairo-contracts/pull/233) and has been [patched as of June 1st](https://github.com/OpenZeppelin/cairo-contracts/pull/347). If you copied the Account contract code into your project during that period, please update to the patched version. Note that 0.1.0 users are not affected.
+
 ## Usage
 
-> ## ⚠️ WARNING! ⚠️
+> ## ⚠️ Warning! ⚠️
 > This repo contains highly experimental code.
 > Expect rapid iteration.
 > **Use at your own risk.**
@@ -185,22 +189,19 @@ Run tests using [tox](https://tox.wiki/en/latest/), tox automatically creates an
 tox
 
 ====================== test session starts ======================
-platform linux -- Python 3.7.2, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
-rootdir: /home/readme/cairo-contracts
-plugins: asyncio-0.16.0, web3-5.24.0, typeguard-2.13.0
-collected 19 items
-
-tests/test_Account.py ....                                 [ 21%]
-tests/test_AddressRegistry.py ..                           [ 31%]
-tests/test_ERC20.py ..........                             [ 84%]
-tests/test_Initializable.py .                              [ 89%]
-tests/test_Ownable.py ..                                   [100%]
+platform linux -- Python 3.7.2, pytest-7.1.2, py-1.11.0, pluggy-1.0.0
+rootdir: /home/readme/cairo-contracts, configfile: tox.ini
+plugins: asyncio-0.18.3, xdist-2.5.0, forked-1.4.0, web3-5.29.0, typeguard-2.13.3
+asyncio: mode=auto
+gw0 [185] / gw1 [185]
+........................................................................................................................................................................................    [100%]
 ```
 
 ### Run Tests in Docker
 
 For M1 users or those who are having trouble with library/python versions you can alternatively run the tests within a docker container. Using the following as a Dockerfile placed in the root directory of the project:
-```
+
+```dockerfile
 FROM python:3.7
 
 RUN pip install tox
@@ -208,14 +209,41 @@ RUN mkdir cairo-contracts
 COPY . cairo-contracts
 WORKDIR cairo-contracts
 ENTRYPOINT tox
+```
 
-```
 After its placed there run:
-```
+
+```bash
 docker build -t cairo-tests .
 docker run cairo-tests
 ```
 
+### Parallel Testing
+
+This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests do not run in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
+
+```python
+from utils import get_contract_def, cached_contract
+
+@pytest.fixture(scope='module')
+def foo_factory():
+    # get contract definition
+    foo_def = get_contract_def('path/to/foo.cairo')
+
+    # deploy contract
+    starknet = await Starknet.empty()
+    foo = await starknet.deploy(contract_def=foo_def)
+
+    # copy the state and cache contract
+    state = starknet.state.copy()
+    cached_foo = cached_contract(state, foo_def, foo)
+
+    return cached_foo
+```
+
+See [Memoization](docs/Utilities.md#memoization) in the Utilities documentation for a more thorough example on caching contracts.
+
+> Note that this does not apply for stateless libraries such as SafeMath.
 
 ## Security
 

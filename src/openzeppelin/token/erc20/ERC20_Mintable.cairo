@@ -9,10 +9,7 @@ from starkware.cairo.common.bool import TRUE
 
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_only_owner
-)
+from openzeppelin.access.ownable import Ownable
 
 @constructor
 func constructor{
@@ -27,9 +24,9 @@ func constructor{
         recipient: felt,
         owner: felt
     ):
-    ERC20.constructor(name, symbol, decimals)
+    ERC20.initializer(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -97,6 +94,16 @@ func allowance{
     return (remaining)
 end
 
+@view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
 #
 # Externals
 #
@@ -161,7 +168,27 @@ func mint{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(to: felt, amount: Uint256):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     ERC20._mint(to, amount)
+    return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
     return ()
 end

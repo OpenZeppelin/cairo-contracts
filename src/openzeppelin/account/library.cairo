@@ -142,7 +142,7 @@ namespace Account:
         return (is_valid=TRUE)
     end
 
-    func is_valid_eth_signature{
+ func is_valid_eth_signature{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
@@ -211,7 +211,7 @@ namespace Account:
         return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
-    func eth_execute{
+     func eth_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,

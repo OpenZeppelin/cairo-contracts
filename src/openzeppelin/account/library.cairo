@@ -154,18 +154,22 @@ namespace Account:
         ) -> (is_valid: felt):
         alloc_locals
         let (_public_key) = get_public_key()
+        let (__fp__, _) = get_fp_and_pc()
 
         # This interface expects a signature pointer and length to make
         # no assumption about signature validation schemes.
-        # But this implementation does, and it expects a (sig_r, sig_s) pair.
+        # But this implementation does, and it expects a (sig_r, sig_s) pair. #TODO update
         let sig_v: felt = signature[0]
         local sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
         local sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
         local msg_hash : Uint256 = Uint256(low=signature[5], high=signature[6])
         let eth_address: felt = signature[7]
         let (local keccak_ptr : felt*) = alloc()
+         let loo1: felt =signature[5]
+         let loo2: felt =signature[6]
+         let loo3: felt =signature[7]
         with keccak_ptr:
-            with_attr error_message("The signature is not: {eth_address} "):
+            with_attr error_message("The signature is not: {loo1} {loo2} {loo3}  "):
             verify_eth_signature_uint256(
                 msg_hash=msg_hash,
                 r=sig_r,
@@ -182,7 +186,8 @@ namespace Account:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
-            ecdsa_ptr: SignatureBuiltin*
+            #ecdsa_ptr: SignatureBuiltin*,
+            bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,
@@ -199,12 +204,14 @@ namespace Account:
 
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
-
-        # validate transaction
-        let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
-        with_attr error_message("Account: invalid signature"):
-            assert is_valid = TRUE
-        end
+        let (local ecdsa_ptr : SignatureBuiltin*) = alloc()
+        with ecdsa_ptr:
+            # validate transaction
+            let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+            with_attr error_message("Account: invalid signature"):
+                assert is_valid = TRUE
+            end
+        end        
 
         return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
@@ -212,7 +219,8 @@ namespace Account:
     func eth_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr
+            range_check_ptr,
+            bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,
@@ -230,11 +238,8 @@ namespace Account:
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
 
-        let (local bitwise_ptr : BitwiseBuiltin*) = alloc()
-        let bitwise_ptr_start = bitwise_ptr
-
         # validate transaction        
-        let (is_valid) = is_valid_eth_signature{bitwise_ptr=bitwise_ptr}(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
         with_attr error_message("Account: invalid signature"):
             assert is_valid = TRUE
         end
@@ -295,7 +300,8 @@ namespace Account:
     func unsafe_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr
+            range_check_ptr,
+            bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,

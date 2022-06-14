@@ -2,9 +2,7 @@
 # OpenZeppelin Contracts for Cairo v0.1.0 (account/Account.cairo)
 
 %lang starknet
-from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
-from starkware.cairo.common.registers import get_fp_and_pc
 from openzeppelin.account.library import Account, AccountCallArray
 
 from openzeppelin.introspection.ERC165 import ERC165
@@ -88,21 +86,6 @@ func is_valid_signature{
         signature: felt*
     ) -> (is_valid: felt):
     let (is_valid) = Account.is_valid_eth_signature(hash, signature_len, signature)
-    return (is_valid=is_valid)
-end
-
-@view
-func is_valid_signature2{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*
-    }(
-        
-    ) -> (is_valid: felt):
-    let (tx_info) = get_tx_info()
-    let (is_valid) = Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
     return (is_valid=is_valid)
 end
 

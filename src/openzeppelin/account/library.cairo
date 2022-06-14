@@ -163,20 +163,16 @@ namespace Account:
         local sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
         local sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
         local msg_hash : Uint256 = Uint256(low=signature[5], high=signature[6])
-        let eth_address: felt = signature[7]
+        
         let (local keccak_ptr : felt*) = alloc()
-         let loo1: felt =signature[5]
-         let loo2: felt =signature[6]
-         let loo3: felt =signature[7]
+
         with keccak_ptr:
-            with_attr error_message("The signature is not: {loo1} {loo2} {loo3}  "):
             verify_eth_signature_uint256(
                 msg_hash=msg_hash,
                 r=sig_r,
                 s=sig_s,
                 v=sig_v,
-                eth_address=eth_address)
-            end            
+                eth_address=_public_key)                        
         end
 
         return (is_valid=TRUE)

@@ -211,14 +211,10 @@ class TestEthSigner():
             account.contract_address, call_array, calldata, nonce, max_fee
         )
         k = keccak.new(digest_bits=256)
-        k.update(b'some message')
-        #signature = self.signer.sign_msg_hash(bytes.fromhex(hex(message_hash)[0][2:]))
+        k.update(str.encode(str(message_hash)))
         hash = to_uint(int(k.hexdigest(), 16))
         signature = self.signer.sign_msg_hash(k.digest())        
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
-        print(signature.v, sig_r[0], sig_r[1], sig_s[0], sig_s[1], hash[0], hash[1], self.public_key)
-        res = await account.is_valid_signature2().invoke(signature=[signature.v, sig_r[0], sig_r[1], sig_s[0], sig_s[1], hash[0], hash[1], self.public_key])
-        print(res.result)
-        return await account.__execute__(call_array, calldata, nonce).invoke(signature=[signature.v, sig_r[0], sig_r[1], sig_s[0], sig_s[1], hash[0], hash[1], self.public_key])
+        return await account.__execute__(call_array, calldata, nonce).invoke(signature=[signature.v, sig_r[0], sig_r[1], sig_s[0], sig_s[1], hash[0], hash[1]])
         

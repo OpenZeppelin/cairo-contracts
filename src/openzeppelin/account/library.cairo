@@ -148,7 +148,6 @@ namespace Account:
             range_check_ptr,
             bitwise_ptr: BitwiseBuiltin*
         }(
-            hash: felt,
             signature_len: felt,
             signature: felt*
         ) -> (is_valid: felt):
@@ -158,7 +157,8 @@ namespace Account:
 
         # This interface expects a signature pointer and length to make
         # no assumption about signature validation schemes.
-        # But this implementation does, and it expects a (sig_r, sig_s) pair. #TODO update
+        # But this implementation does, and it expects a the sig_v, sig_r, 
+        # sig_s, and hash elements.
         let sig_v: felt = signature[0]
         local sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
         local sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
@@ -234,7 +234,7 @@ namespace Account:
         let (tx_info) = get_tx_info()
 
         # validate transaction        
-        let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+        let (is_valid) = is_valid_eth_signature(tx_info.signature_len, tx_info.signature)
         with_attr error_message("Account: invalid signature"):
             assert is_valid = TRUE
         end

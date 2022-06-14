@@ -186,7 +186,6 @@ namespace Account:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
-            #ecdsa_ptr: SignatureBuiltin*,
             bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
@@ -243,7 +242,7 @@ namespace Account:
         with_attr error_message("Account: invalid signature"):
             assert is_valid = TRUE
         end
-
+                
         return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 

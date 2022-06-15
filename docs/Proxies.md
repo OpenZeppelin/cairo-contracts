@@ -1,4 +1,4 @@
-# Upgrades
+<h1 id="proxies-header">Proxies</h1>
 
 > Expect rapid iteration as this pattern matures and more patterns potentially emerge.
 

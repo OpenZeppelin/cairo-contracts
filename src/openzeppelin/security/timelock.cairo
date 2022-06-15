@@ -5,6 +5,7 @@
 
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.math import assert_le
+from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math_cmp import is_le, is_not_zero, is_in_range
@@ -31,10 +32,11 @@ from openzeppelin.utils.constants import IERC1155_RECEIVER_ID, IERC721_RECEIVER_
 # Constants
 #
 
-const TIMELOCK_ADMIN_ROLE = 0x1
-const PROPOSER_ROLE = 0x2
-const CANCELLER_ROLE = 0x3
-const EXECUTOR_ROLE = 0x4
+# first 250 bits of keccak256 role
+const TIMELOCK_ADMIN_ROLE = 0x2fac71d118b1a4c91e71bc07c6ac3ed96b91bc576b354130e48b2a27d342365
+const PROPOSER_ROLE = 0x2c26a96bacdc0b3f542dad8af114c98124e3c8492289e875729cd820ada0673
+const CANCELLER_ROLE = 0x3f590f1c9c4318f00600966ae9acb4151478d646893962d888e4de0215c9bde
+const EXECUTOR_ROLE = 0x362a83cc6525c68a84599e7df08243da4e723538068aa35f90755794d451a79
 
 const DONE_TIMESTAMP = 1
 
@@ -182,10 +184,6 @@ namespace Timelock:
         end
     end
 
-    #
-    # Getters
-    #
-
     func get_timestamp{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
@@ -319,7 +317,7 @@ namespace Timelock:
             assert ready = TRUE
         end
 
-        if predecessor != 0:
+        if predecessor != FALSE:
             let (predecessor_done: felt) = is_operation_done(predecessor)
 
             with_attr error_message("Timelock: missing dependency"):

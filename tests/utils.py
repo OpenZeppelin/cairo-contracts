@@ -7,8 +7,6 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.execution.objects import Event
-from starkware.starknet.core.os.transaction_hash.transaction_hash import calculate_transaction_hash_common, TransactionHashPrefix
-from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.business_logic.state.state import BlockInfo
 from starkware.cairo.common.hash_state import compute_hash_on_elements
 from nile.signer import Signer
@@ -183,47 +181,34 @@ class TestSigner():
 
 
 def from_call_to_call_array(calls):
+    """Return calls and calldata arrays."""
     call_array = []
     calldata = []
-    for i, call in enumerate(calls):
+    for call in calls:
         assert len(call) == 3, "Invalid call parameters"
-        entry = (call[0], get_selector_from_name(
-            call[1]), len(calldata), len(call[2]))
+        entry = (
+            call[0],                                # to
+            get_selector_from_name(call[1]),        # selector
+            len(calldata),                          # calldata length
+            len(call[2])                            # calldata
+        )
         call_array.append(entry)
         calldata.extend(call[2])
     return (call_array, calldata)
 
 
-def get_transaction_hash(account, call_array, calldata, nonce, max_fee):
-    execute_calldata = [
-        len(call_array),
-        *[x for t in call_array for x in t],
-        len(calldata),
-        *calldata,
-        nonce]
-
-    return calculate_transaction_hash_common(
-        TransactionHashPrefix.INVOKE,
-        TRANSACTION_VERSION,
-        account,
-        get_selector_from_name('__execute__'),
-        execute_calldata,
-        max_fee,
-        StarknetChainId.TESTNET.value,
-        []
-    )
-
-
 def get_block_timestamp(starknet_state):
+    """Return the block timestamp."""
     return starknet_state.state.block_info.block_timestamp
 
 
 def set_block_timestamp(starknet_state, timestamp):
+    """Set the block timestamp."""
     starknet_state.state.block_info = BlockInfo(
         starknet_state.state.block_info.block_number,   # block number
         timestamp,                                      # new timestamp
-        2000,                                           # gas
-        123                                             # validator
+        2000,                                           # gas price
+        123                                             # sequencer address
     )
 
 
@@ -234,24 +219,24 @@ def flatten_calls_for_signer(calls):
     flatten_calldata = [e for e in calls[-1]]
     
     return [
-        calls_len,
-        *flatten_calls,
-        len(flatten_calldata),
-        *flatten_calldata
+        calls_len,                      # calls length
+        *flatten_calls,                 # flattened calls
+        len(flatten_calldata),          # calldata length
+        *flatten_calldata               # flattened calldata
     ]
 
 
 def timelock_hash_chain(calls, predecessor, salt):
-    """Returns hash id for timelock hash operations."""
+    """Return the hash id for timelock hash operations."""
     calldata_len = 0
     hashed_calls = []
     for call in calls:
         calldata_len = calldata_len + len(call[2])
         hashed_calls.append(
             compute_hash_on_elements([
-                call[0],
-                get_selector_from_name(call[1]),
-                compute_hash_on_elements(call[2])
+                call[0],                            # to
+                get_selector_from_name(call[1]),    # selector
+                compute_hash_on_elements(call[2])   # calldata
             ])
         )
     return compute_hash_on_elements([*hashed_calls, calldata_len, predecessor, salt])

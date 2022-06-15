@@ -23,10 +23,11 @@ from utils import (
 signer = TestSigner(123456789987654321)
 
 
-TIMELOCK_ADMIN_ROLE = 0x1
-PROPOSER_ROLE = 0x2
-CANCELLER_ROLE = 0x3
-EXECUTOR_ROLE = 0x4
+# first 250 bits of the keccak256 role
+TIMELOCK_ADMIN_ROLE = 0x2fac71d118b1a4c91e71bc07c6ac3ed96b91bc576b354130e48b2a27d342365
+PROPOSER_ROLE = 0x2c26a96bacdc0b3f542dad8af114c98124e3c8492289e875729cd820ada0673
+CANCELLER_ROLE = 0x3f590f1c9c4318f00600966ae9acb4151478d646893962d888e4de0215c9bde
+EXECUTOR_ROLE = 0x362a83cc6525c68a84599e7df08243da4e723538068aa35f90755794d451a79
 
 # arrays of random numbers to mimic addresses
 PROPOSERS = [111, 112, 113, 114]
@@ -38,6 +39,7 @@ IERC721_RECEIVER_ID = 0x150b7a02
 IERC1155_RECEIVER_ID = 0x4e2312e0
 INVALID_ID = 0xffffffff
 UNSUPPORTED_ID = 0xabcd1234
+IACCESSCONTROL_ID = 0x7965db0b
 
 MIN_DELAY = 86400
 NEW_MIN_DELAY = 21600
@@ -45,6 +47,7 @@ BAD_DELAY = 100
 HELPER_CALLDATA = 5
 INVALID_ID = 11223344
 TOKEN = to_uint(5042)
+
 # random data (mimicking bytes in Solidity)
 DATA = [0x42, 0x89, 0x55]
 
@@ -82,21 +85,29 @@ def batch_operations(address):
         *build_batch(address)
     ])
 
-async def fast_forward_to_target(_operation, _predecessor, _salt, _timelock, state):
-    execution_info = await _timelock.hashOperation(*_operation, _predecessor, _salt).call()
+async def fast_forward_to_target(operation, predecessor, salt, timelock, state):
+    """Sets the timestamp to the target time plus 10."""
+    execution_info = await timelock.hashOperation(*operation, predecessor, salt).call()
     hash_id = execution_info.result.hash
-    execution_id = await _timelock.getTimestamp(hash_id).call()
+    execution_id = await timelock.getTimestamp(hash_id).call()
     target = execution_id.result.timestamp
+    # we add `10` to the target otherwise all of the tests do not consistently pass
     set_block_timestamp(state, target + 10)
 
 
 @pytest.fixture(scope="module")
-async def timelock_init():
-    # contract definitions
+async def contract_defs():
     account_def = get_contract_def("openzeppelin/account/Account.cairo")
     timelock_def = get_contract_def("tests/mocks/Timelock.cairo")
     helper_def = get_contract_def("tests/mocks/TimelockHelper.cairo")
     erc721_def = get_contract_def('openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+
+    return account_def, timelock_def, helper_def, erc721_def
+
+
+@pytest.fixture(scope="module")
+async def timelock_init(contract_defs):
+    account_def, timelock_def, helper_def, erc721_def = contract_defs
 
     # contract deployments
     starknet = await Starknet.empty()
@@ -212,6 +223,7 @@ async def test_constructor(timelock_factory):
     [IERC165_ID, TRUE],
     [IERC721_RECEIVER_ID, TRUE],
     [IERC1155_RECEIVER_ID, TRUE],
+    [IACCESSCONTROL_ID, TRUE],
     [INVALID_ID, FALSE],
     [UNSUPPORTED_ID, FALSE],
 ])
@@ -323,7 +335,7 @@ async def test_schedule_is_scheduled(timelock_factory):
     )
 
     # schedule operation
-    await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         proposer, timelock.contract_address, "schedule", [
             *call_array,                             # call array
             0,                                       # predecessor
@@ -350,32 +362,6 @@ async def test_schedule_is_scheduled(timelock_factory):
     # check timestamp
     execution_info = await timelock.getTimestamp(hash_id).call()
     assert execution_info.result == (MIN_DELAY,)
-
-
-@pytest.mark.asyncio
-async def test_schedule_emits_event(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
-
-    salt = next(SALT_IID)
-
-    # get hash id
-    operation = gen_operation(helper.contract_address)
-    execution_info = await timelock.hashOperation(*operation, 0, salt).call()
-    hash_id = execution_info.result.hash
-
-    # format call array
-    call_array = flatten_calls_for_signer(
-        gen_operation(helper.contract_address)
-    )
-
-    # schedule operation
-    tx_exec_info = await signer.send_transaction(
-        proposer, timelock.contract_address, "schedule", [
-            *call_array,                             # call array
-            0,                                       # predecessor
-            salt,                                    # salt
-            MIN_DELAY                                # delay
-        ])
 
     # check event
     assert_event_emitted(
@@ -470,34 +456,6 @@ async def test_schedule_enforce_minimum_delay(timelock_factory):
             BAD_DELAY                                # delay
         ]),
         reverted_with="Timelock: insufficient delay"
-    )
-
-
-@pytest.mark.asyncio
-async def test_schedule_enforce_overflow_check(timelock_factory):
-    timelock, proposer, _, helper, state = timelock_factory
-
-    salt = next(SALT_IID)
-
-    # format call array
-    call_array = flatten_calls_for_signer(
-        gen_operation(helper.contract_address)
-    )
-
-    # set timestamp otherwise felt can't hold overflowing int
-    set_block_timestamp(state, 2**128)
-
-    delay_overflow = 2**128
-
-    # delay overflow should fail
-    await assert_revert(signer.send_transaction(
-        proposer, timelock.contract_address, "schedule", [
-            *call_array,                             # call array
-            0,                                       # predecessor
-            salt,                                    # salt
-            delay_overflow                           # delay
-        ]),
-        reverted_with="Timelock: timestamp overflow"
     )
 
 #
@@ -1589,6 +1547,10 @@ async def test_execute_check_target_contract(timelock_factory):
     operation = gen_operation(helper.contract_address)
     await fast_forward_to_target(operation, 0, salt, timelock, state)
 
+    # fetch initial helper contract value
+    execution_info = await helper.getCount().call()
+    init_amount = execution_info.result.res
+
     # execute
     await signer.send_transaction(
         executor, timelock.contract_address, "execute", [
@@ -1597,9 +1559,9 @@ async def test_execute_check_target_contract(timelock_factory):
             salt,                                    # salt
         ])
 
-    # check contract value
+    # check updated contract value
     execution_info = await helper.getCount().call()
-    assert execution_info.result == (INIT_COUNT + HELPER_CALLDATA,)
+    assert execution_info.result.res == init_amount + HELPER_CALLDATA
 
 #
 # safe receive
@@ -1617,4 +1579,34 @@ async def test_receive_erc721_safe_transfer(timelock_with_erc721):
             len(DATA),
             *DATA
         ]
+    )
+
+#
+# overflow
+#
+
+@pytest.mark.asyncio
+async def test_schedule_enforce_overflow_check(timelock_factory):
+    timelock, proposer, _, helper, state = timelock_factory
+
+    salt = next(SALT_IID)
+
+    # format call array
+    call_array = flatten_calls_for_signer(
+        gen_operation(helper.contract_address)
+    )
+
+    # set timestamp otherwise felt can't hold overflowing int
+    set_block_timestamp(state, 2**128)
+    delay_overflow = 2**128
+
+    # delay overflow should fail
+    await assert_revert(signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,                             # call array
+            0,                                       # predecessor
+            salt,                                    # salt
+            delay_overflow                           # delay
+        ]),
+        reverted_with="Timelock: timestamp overflow"
     )

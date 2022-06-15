@@ -158,6 +158,10 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
         ]
     )
 ```
+### TestEthSigner utility
+
+The `TestEthSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces. The way this differs with the `TestSigner` implementation is by using the address instead of the public key, performing a keccak hash of the transaction hash, and signing the message with a secp256k1 curve address.
+
 
 ## Account entrypoint
 
@@ -386,6 +390,49 @@ response_len: felt
 response: felt*
 ```
 
+### `is_eth_valid_signature`
+
+Returns `TRUE` if a given signature in the secp256k1 curve is valid, otherwise it reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
+Parameters:
+
+```cairo
+hash: felt
+signature_len: felt
+signature: felt*
+```
+
+Returns:
+
+```cairo
+is_valid: felt
+```
+
+> returns `TRUE` if a given signature is valid. Otherwise, reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
+### `eth_execute`
+
+This is follows the same conceptions the `execute`, with the variation of verifying that the signature corresponds to a secp256k1 curve
+
+Parameters:
+
+```cairo
+call_array_len: felt
+call_array: AccountCallArray*
+calldata_len: felt
+calldata: felt*
+nonce: felt
+```
+
+> Note that the current signature scheme expects a 7-element array like `[sig_v, uint256_sig_r_low, uint256_sig_r_high, uint256_sig_s_low, uint256_sig_s_high, uint256_hash_low, uint256_hash_high]` given that the parameters of the verification are bigger than a felt.
+
+Returns:
+
+```cairo
+response_len: felt
+response: felt*
+```
+
 ## Account differentiation with ERC165
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
@@ -400,7 +447,6 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 
 * multisig
 * guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)
-* [Ethereum signatures](https://github.com/OpenZeppelin/cairo-contracts/issues/161)
 
 ## L1 escape hatch mechanism
 

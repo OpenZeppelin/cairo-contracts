@@ -32,10 +32,10 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 Considering four types of functions:
 
-- `internal`: internal to a library, not meant to be used outside the module or imported
-- `public`: part of the public API of a library
-- `external`: subset of `public` that is ready to be exported as-is by contracts
-- `storage`: storage variable functions
+* `internal`: internal to a library, not meant to be used outside the module or imported
+* `public`: part of the public API of a library
+* `external`: subset of `public` that is ready to be exported as-is by contracts
+* `storage`: storage variable functions
 
 Then:
 

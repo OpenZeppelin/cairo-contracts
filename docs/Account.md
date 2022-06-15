@@ -404,8 +404,8 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 
 ## L1 escape hatch mechanism
 
-*[unknown, to be defined]*
+[unknown, to be defined]
 
 ## Paying for gas
 
-*[unknown, to be defined]*
+[unknown, to be defined]

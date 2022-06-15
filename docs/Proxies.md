@@ -8,7 +8,7 @@
 * [Solidity/Cairo upgrades comparison](#solidity/cairo-upgrades-comparison)
   * [Constructors](#constructors)
   * [Storage](#storage)
-* [Proxies](#proxies)
+* [Proxies](#proxies2)
   * [Proxy contract](#proxy-contract)
   * [Implementation contract](#implementation-contract)
 * [Upgrades library API](#upgrades-library-api)
@@ -70,7 +70,7 @@ OpenZeppelin's alternative Upgrades library also implements [unstructured storag
 
 The StarkNet compiler, meanwhile, already creates pseudo-random storage addresses by hashing the storage variable names (and keys in mappings) by default. In other words, StarkNet already uses unstructured storage and does not need a second library to modify how storage is set. See StarkNet's [Contracts Storage documentation](https://starknet.io/documentation/contracts/#contracts_storage) for more information.
 
-## Proxies
+<h2 id="proxies2">Proxies</h2>
 
 A proxy contract is a contract that delegates function calls to another contract. This type of pattern decouples state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not; as well as deploying multiple proxy instances pointing to the same implementation. This can be useful to deploy many contracts with identical logic but unique initialization data.
 

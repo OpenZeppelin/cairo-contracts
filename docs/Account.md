@@ -75,7 +75,7 @@ namespace IAccount:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ):
+        ) -> (is_valid: felt):
     end
 
     func __execute__(
@@ -282,7 +282,7 @@ end
 func is_valid_signature(hash: felt,
         signature_len: felt,
         signature: felt*
-    ):
+    ) -> (is_valid: felt):
 end
 
 func __execute__(
@@ -339,7 +339,7 @@ None.
 
 ### `is_valid_signature`
 
-This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and checks whether a given signature is valid, otherwise it reverts.
+This function is inspired by [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) and returns `TRUE` if a given signature is valid, otherwise it reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
 
 Parameters:
 
@@ -351,7 +351,11 @@ signature: felt*
 
 Returns:
 
-None.
+```cairo
+is_valid: felt
+```
+
+> returns `TRUE` if a given signature is valid. Otherwise, reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
 
 ### `__execute__`
 

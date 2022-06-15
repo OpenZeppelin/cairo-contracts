@@ -107,7 +107,7 @@ end
 - [ERC20](docs/ERC20.md)
 - [ERC721](docs/ERC721.md)
 - [Contract extensibility pattern](docs/Extensibility.md)
-- [Proxies and upgrades](docs/Upgrades.md)
+- [Proxies and upgrades](docs/Proxies.md)
 - [Security](docs/Security.md)
 - [Utilities](docs/Utilities.md)
 
@@ -257,6 +257,24 @@ Please report any security issues you find to security@openzeppelin.org.
 ## Contribute
 
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
+
+### Markdown linter
+
+To keep the markdown files neat and easy to edit, we utilize DavidAnson's [markdownlint](https://github.com/DavidAnson/markdownlint) linter. You can find the listed rules [here](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md). Note that the following rules are disabled:
+
+- `MD013: line length`
+
+  - to enable paragraphs without internal line breaks
+
+- `MD033: inline HTML`
+
+  - to enable .md files to have duplicate headers and separate them by identifiers
+
+Before creating a PR, check that documentation changes are compliant with our markdown rules by running:
+
+```bash
+tox -e lint
+```
 
 ## License
 

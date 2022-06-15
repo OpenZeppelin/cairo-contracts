@@ -307,7 +307,9 @@ namespace Account:
         alloc_locals
         let (_current_nonce) = Account_current_nonce.read()
         # validate nonce
-        assert _current_nonce = nonce
+        with_attr error_message("Account: nonce is invalid"):
+             assert _current_nonce = nonce
+        end
         # bump nonce
         Account_current_nonce.write(_current_nonce + 1)
 

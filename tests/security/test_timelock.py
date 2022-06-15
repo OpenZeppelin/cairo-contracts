@@ -73,20 +73,20 @@ def build_batch(address):
 
 
 def single_operation(address):
-    """Single callable test operation."""
+    """Return single callable test operation."""
     return from_call_to_call_array([
         *build_call(address)
     ])
 
 
 def batch_operations(address):
-    """Batched callable test operations."""
+    """Return batched callable test operations."""
     return from_call_to_call_array([
         *build_batch(address)
     ])
 
 async def fast_forward_to_target(operation, predecessor, salt, timelock, state):
-    """Sets the timestamp to the target time plus 10."""
+    """Set the timestamp to the target time plus 10."""
     execution_info = await timelock.hashOperation(*operation, predecessor, salt).call()
     hash_id = execution_info.result.hash
     execution_id = await timelock.getTimestamp(hash_id).call()

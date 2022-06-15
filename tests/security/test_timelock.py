@@ -1582,7 +1582,7 @@ async def test_receive_erc721_safe_transfer(timelock_with_erc721):
     )
 
 #
-# overflow
+# timestamp overflow
 #
 
 @pytest.mark.asyncio

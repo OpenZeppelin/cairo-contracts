@@ -247,9 +247,10 @@ See [Memoization](docs/Utilities.md#memoization) in the Utilities documentation 
 
 ## Security
 
-This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+> ⚠️ Warning! ⚠️
+> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
 
-Please report any security issues you find to security@openzeppelin.org.
+Refer to [SECURITY.md](SECURITY.md) for more details.
 
 ## Contribute
 

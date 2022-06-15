@@ -104,21 +104,21 @@ def assert_event_emitted(tx_exec_info, from_address, name, data):
     ) in tx_exec_info.raw_events
 
 
-def get_contract_def(path):
-    """Returns the contract definition from the contract path"""
+def get_contract_class(path):
+    """Return the contract class from the contract path"""
     path = contract_path(path)
-    contract_def = compile_starknet_files(
+    contract_class = compile_starknet_files(
         files=[path],
         debug_info=True
     )
-    return contract_def
+    return contract_class
 
 
-def cached_contract(state, definition, deployed):
-    """Returns the cached contract"""
+def cached_contract(state, _class, deployed):
+    """Return the cached contract"""
     contract = StarknetContract(
         state=state,
-        abi=definition.abi,
+        abi=_class.abi,
         contract_address=deployed.contract_address,
         deploy_execution_info=deployed.deploy_execution_info
     )

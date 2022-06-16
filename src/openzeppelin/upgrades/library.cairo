@@ -6,6 +6,7 @@
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
+from starkware.cairo.common.math import assert_not_zero
 
 #
 # Events
@@ -80,9 +81,9 @@ namespace Proxy:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }() -> (implementation: felt):
-        let (implementation) = Proxy_implementation_hash.read()
-        return (implementation)
+        }() -> (hash: felt):
+        let (hash) = Proxy_implementation_hash.read()
+        return (hash)
     end
 
     func get_admin{
@@ -95,6 +96,25 @@ namespace Proxy:
     end
 
     #
+    # Setters
+    #
+
+    func set_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(new_admin: felt):
+        assert_only_admin()
+        let (caller) = get_caller_address()
+        with_attr error_message("Proxy: caller is the zero address"):
+            assert_not_zero(caller)
+        end
+
+        _set_admin(new_admin)
+        return ()
+    end
+
+    #
     # Internals
     #
 
@@ -103,6 +123,10 @@ namespace Proxy:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(new_admin: felt):
+        with_attr error_message("Proxy: new admin cannot be the zero address"):
+            assert_not_zero(new_admin)
+        end
+
         let (old_admin) = get_admin()
         Proxy_admin.write(new_admin)
         AdminChanged.emit(old_admin, new_admin)
@@ -117,9 +141,11 @@ namespace Proxy:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(new_implementation: felt):
-        Proxy_implementation_hash.write(new_implementation)
-        Upgraded.emit(new_implementation)
+        }(new_hash: felt):
+        with_attr error_message("Proxy: implementation hash cannot be zero"):
+            Proxy_implementation_hash.write(new_hash)
+        end
+        Upgraded.emit(new_hash)
         return ()
     end
 

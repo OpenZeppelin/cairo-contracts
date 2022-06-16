@@ -2,6 +2,7 @@
 # OpenZeppelin Contracts for Cairo v0.x.0 (upgrades/Proxy.cairo)
 
 %lang starknet
+#%builtins pedersen range_check bitwise
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import (

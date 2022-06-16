@@ -2,7 +2,7 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TestSigner, to_uint, sub_uint, str_to_felt, assert_revert,
-    get_contract_def, cached_contract
+    get_contract_class, cached_contract
 )
 
 
@@ -17,18 +17,18 @@ DECIMALS = 18
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
-    token_def = get_contract_def(
+def contract_classes():
+    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
+    token_cls = get_contract_class(
         'openzeppelin/token/erc20/ERC20_Upgradeable.cairo')
-    proxy_def = get_contract_def('openzeppelin/upgrades/Proxy.cairo')
+    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
 
-    return account_def, token_def, proxy_def
+    return account_cls, token_cls, proxy_cls
 
 
 @pytest.fixture(scope='module')
-async def token_init(contract_defs):
-    account_def, token_def, proxy_def = contract_defs
+async def token_init(contract_classes):
+    account_cls, token_cls, proxy_cls = contract_classes
     starknet = await Starknet.empty()
     account1 = await starknet.deploy(
         contract_def=account_def,

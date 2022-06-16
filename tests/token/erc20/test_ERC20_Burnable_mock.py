@@ -1,12 +1,20 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
+<<<<<<< HEAD
     MockSigner, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
 <<<<<<< HEAD
     get_contract_class, cached_contract, assert_revert, assert_event_emitted, 
 =======
     get_contract_def, cached_contract, assert_revert, assert_event_emitted, 
+<<<<<<< HEAD
 >>>>>>> Fix `TestSigner` pytest warning (#367)
+=======
+=======
+    TestSigner, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
+    get_contract_class, cached_contract, assert_revert, assert_event_emitted, 
+>>>>>>> update token tests
+>>>>>>> update token tests
 )
 
 signer = MockSigner(123456789987654321)

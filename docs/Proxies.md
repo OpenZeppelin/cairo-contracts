@@ -16,6 +16,7 @@
   * [Events](#events)
 * [Using proxies](#using-proxies)
   * [Contract upgrades](#contract-upgrades)
+  * [Declaring contracts](#declaring-contracts)
   * [Handling method calls](#handling-method-calls)
 * [Presets](#presets)
 
@@ -286,6 +287,10 @@ For a full deployment and upgrade implementation, please see:
 
 * [Upgrades V1](../tests/mocks/upgrades_v1_mock.cairo)
 * [Upgrades V2](../tests/mocks/upgrades_v2_mock.cairo)
+
+### Declaring contracts
+
+StarkNet contracts come in two forms: contract classes and contract instances. Contract classes represent the uninstantiated, stateless code; whereas, contract instances are instantiated and include the state. Since the Proxy contract references the implementation contract by its class hash, declaring an implementation contract proves sufficient (as opposed to a full deployment). For more information on declaring classes, see [StarkNet's documentation](https://starknet.io/docs/hello_starknet/intro.html#declare-contract).
 
 ### Handling method calls
 

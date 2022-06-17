@@ -81,9 +81,9 @@ namespace Proxy:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }() -> (hash: felt):
-        let (hash) = Proxy_implementation_hash.read()
-        return (hash)
+        }() -> (implementation: felt):
+        let (implementation) = Proxy_implementation_hash.read()
+        return (implementation)
     end
 
     func get_admin{
@@ -96,25 +96,6 @@ namespace Proxy:
     end
 
     #
-    # Setters
-    #
-
-    func set_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(new_admin: felt):
-        assert_only_admin()
-        let (caller) = get_caller_address()
-        with_attr error_message("Proxy: caller is the zero address"):
-            assert_not_zero(caller)
-        end
-
-        _set_admin(new_admin)
-        return ()
-    end
-
-    #
     # Internals
     #
 
@@ -123,10 +104,6 @@ namespace Proxy:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(new_admin: felt):
-        with_attr error_message("Proxy: new admin cannot be the zero address"):
-            assert_not_zero(new_admin)
-        end
-
         let (old_admin) = get_admin()
         Proxy_admin.write(new_admin)
         AdminChanged.emit(old_admin, new_admin)
@@ -141,11 +118,11 @@ namespace Proxy:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(new_hash: felt):
+        }(new_implementation: felt):
         with_attr error_message("Proxy: implementation hash cannot be zero"):
-            Proxy_implementation_hash.write(new_hash)
+            Proxy_implementation_hash.write(new_implementation)
         end
-        Upgraded.emit(new_hash)
+        Upgraded.emit(new_implementation)
         return ()
     end
 

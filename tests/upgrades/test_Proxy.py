@@ -136,29 +136,6 @@ async def test_setAdmin(after_initialized):
     )
     assert execution_info.result.response == [VALUE]
 
-
-@pytest.mark.asyncio
-async def test_setAdmin_as_zero_address(after_initialized):
-    account, proxy = after_initialized
-
-    await assert_revert(signer.send_transaction(
-        account, proxy.contract_address, 'setAdmin', [ZERO_ADDRESS]),
-        reverted_with="Proxy: new admin cannot be the zero address"
-    )
-
-
-@pytest.mark.asyncio
-async def test_setAdmin_from_zero_address(after_initialized):
-    _, proxy = after_initialized
-
-    try:
-        await proxy.setAdmin().invoke()
-        raise StarkException
-    except AttributeError as err:
-        # calls and invocations to the fallback return an
-        # attribute error when not called from an account contract
-        assert "'StarknetContract' object has no attribute 'setAdmin'" in err.args
-
 #
 # fallback function
 #

@@ -38,10 +38,10 @@ end
 namespace Proxy:
 
     #
-    # Constructor
+    # Initializer
     #
 
-    func constructor{
+    func initializer{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr

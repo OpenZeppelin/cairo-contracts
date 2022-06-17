@@ -8,16 +8,23 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256, uint256_check
+from starkware.cairo.common.bool import TRUE, FALSE
+
 from openzeppelin.introspection.IERC165 import IERC165
+
 from openzeppelin.introspection.ERC165 import ERC165
+
 from openzeppelin.token.erc1155.interfaces.IERC1155_Receiver import IERC1155_Receiver
 
 from openzeppelin.security.safemath import uint256_checked_add, uint256_checked_sub_le
 
-from starkware.cairo.common.bool import TRUE, FALSE
-
 from openzeppelin.utils.constants import (
-    IERC1155_ID, IERC1155_METADATA_ID, IERC1155_RECEIVER_ID, IACCOUNT_ID, ON_ERC1155_RECEIVED_SELECTOR, ON_ERC1155_BATCH_RECEIVED_SELECTOR 
+    IERC1155_ID,
+    IERC1155_METADATA_ID,
+    IERC1155_RECEIVER_ID,
+    IACCOUNT_ID,
+    ON_ERC1155_RECEIVED_SELECTOR,
+    ON_ERC1155_BATCH_RECEIVED_SELECTOR 
 )
 
 
@@ -27,32 +34,32 @@ from openzeppelin.utils.constants import (
 
 @event
 func TransferSingle(
-    operator : felt,
-    from_ : felt,
-    to : felt,
-    id : Uint256,
-    value : Uint256
+    operator: felt,
+    from_: felt,
+    to: felt,
+    id: Uint256,
+    value: Uint256
 ):
 end
 
 @event
 func TransferBatch(
-    operator : felt,
-    from_ : felt,
-    to : felt,
-    ids_len : felt,
-    ids : Uint256*,
-    values_len : felt,
-    values : Uint256*,
+    operator: felt,
+    from_: felt,
+    to: felt,
+    ids_len: felt,
+    ids: Uint256*,
+    values_len: felt,
+    values: Uint256*
 ):
 end
 
 @event
-func ApprovalForAll(account : felt, operator : felt, approved : felt):
+func ApprovalForAll(account: felt, operator: felt, approved: felt):
 end
 
 @event
-func URI(value_len : felt, value : felt*, id : Uint256):
+func URI(value_len: felt, value: felt*, id: Uint256):
 end
 
 #
@@ -60,26 +67,31 @@ end
 #
 
 @storage_var
-func ERC1155_balances(id : Uint256, account : felt) -> (balance : Uint256):
+func ERC1155_balances(id: Uint256, account: felt) -> (balance: Uint256):
 end
 
 @storage_var
-func ERC1155_operator_approvals(account : felt, operator : felt) -> (approved : felt):
+func ERC1155_operator_approvals(account: felt, operator: felt) -> (approved: felt):
 end
 
 @storage_var
-func ERC1155_uri() -> (uri : felt):
+func ERC1155_uri() -> (uri: felt):
 end
 
 namespace ERC1155:
+
     #
     # Constructor
     #
 
-    func initializer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        uri_ : felt
-    ):
-        _setURI(uri_)
+    func initializer{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            uri_: felt
+        ):
+        _set_uri(uri_)
         ERC165.register_interface(IERC1155_ID)
         ERC165.register_interface(IERC1155_METADATA_ID)
         return ()
@@ -89,43 +101,60 @@ namespace ERC1155:
     # Getters
     #
 
-    func uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-        uri : felt
-    ):
+    func uri{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (uri: felt):
         let (uri) = ERC1155_uri.read()
         return (uri)
     end
 
-    func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        account : felt, id : Uint256
-    ) -> (balance : Uint256):
+    func balance_of{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(account: felt, id: Uint256) -> (balance: Uint256):
         with_attr error_message("ERC1155: balance query for the zero address"):
             assert_not_zero(account)
         end
-        let (balance) = ERC1155_balances.read(id=id, account=account)
+        let (balance) = ERC1155_balances.read(id, account)
         return (balance)
     end
 
-    func balance_of_batch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        accounts_len : felt, accounts : felt*, ids_len : felt, ids : Uint256*
-    ) -> (batch_balances_len : felt, batch_balances : Uint256*):
+    func balance_of_batch{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            accounts_len: felt,
+            accounts: felt*,
+            ids_len: felt,
+            ids: Uint256*
+        ) -> (
+            batch_balances_len: felt,
+            batch_balances: Uint256*
+        ):
         alloc_locals
         # Check args are equal length arrays
         with_attr error_message("ERC1155: accounts and ids length mismatch"):
             assert ids_len = accounts_len
         end
         # Allocate memory
-        let (local batch_balances : Uint256*) = alloc()
+        let (local batch_balances: Uint256*) = alloc()
         let len = accounts_len
         # Call iterator
         balance_of_batch_iter(len, accounts, ids, batch_balances)
-        return (batch_balances_len=len, batch_balances=batch_balances)
+        let batch_balances_len = len
+        return (batch_balances_len, batch_balances)
     end
 
-    func is_approved_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        account : felt, operator : felt
-    ) -> (approved : felt):
-        let (approved) = ERC1155_operator_approvals.read(account=account, operator=operator)
+    func is_approved_for_all{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(account: felt, operator: felt) -> (approved: felt):
+        let (approved) = ERC1155_operator_approvals.read(account, operator)
         return (approved)
     end
 
@@ -133,22 +162,33 @@ namespace ERC1155:
     # Externals
     #
 
-    func set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        operator : felt, approved : felt
-    ):
+    func set_approval_for_all{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(operator: felt, approved: felt):
         let (caller) = get_caller_address()
         with_attr error_message("ERC1155: cannot approve from the zero address"):
             assert_not_zero(caller)
         end
-        _set_approval_for_all(owner=caller, operator=operator, approved=approved)
+        _set_approval_for_all(caller, operator, approved)
         return ()
     end
 
-    func safe_transfer_from{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_ : felt, to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*
-    ):
+    func safe_transfer_from{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            from_: felt,
+            to: felt,
+            id: Uint256,
+            amount: Uint256,
+            data_len: felt,
+            data: felt*
+        ):
         let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
+        with_attr error_message("ERC1155: cannot call transfer from the zero address"):
             assert_not_zero(caller)
         end
         with_attr error_message("ERC1155: caller is not owner nor approved"):
@@ -159,19 +199,21 @@ namespace ERC1155:
     end
 
     func safe_batch_transfer_from{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-    }(
-        from_ : felt,
-        to : felt,
-        ids_len : felt,
-        ids : Uint256*,
-        amounts_len : felt,
-        amounts : Uint256*,
-        data_len : felt,
-        data : felt*,
-    ):
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            from_: felt,
+            to: felt,
+            ids_len: felt,
+            ids: Uint256*,
+            amounts_len: felt,
+            amounts: Uint256*,
+            data_len: felt,
+            data: felt*
+        ):
         let (caller) = get_caller_address()
-        with_attr error_message("ERC1155: called from zero address"):
+        with_attr error_message("ERC1155: cannot call transfer from the zero address"):
             assert_not_zero(caller)
         end
         with_attr error_message("ERC1155: transfer caller is not owner nor approved"):
@@ -185,9 +227,18 @@ namespace ERC1155:
     # Internals
     #
 
-    func _safe_transfer_from{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_ : felt, to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*
-    ):
+    func _safe_transfer_from{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            from_: felt,
+            to: felt,
+            id: Uint256,
+            amount: Uint256,
+            data_len: felt,
+            data: felt*
+        ):
         alloc_locals
         # Check args
         with_attr error_message("ERC1155: transfer to the zero address"):
@@ -200,61 +251,102 @@ namespace ERC1155:
             uint256_check(amount)
         end
 
-        # deduct from sender
-        let (from_balance : Uint256) = ERC1155_balances.read(id=id, account=from_)
+        # Deduct from sender
+        let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
         with_attr error_message("ERC1155: insufficient balance for transfer"):
-            let (new_balance : Uint256) = uint256_checked_sub_le(from_balance, amount)
+            let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
         end
-        ERC1155_balances.write(id=id, account=from_, value=new_balance)
+        ERC1155_balances.write(id, from_, new_balance)
 
         # Add to receiver
-        let (to_balance : Uint256) = ERC1155_balances.read(id=id, account=to)
+        let (to_balance: Uint256) = ERC1155_balances.read(id, to)
         with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance : Uint256) = uint256_checked_add(to_balance, amount)
+            let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
         end
-        ERC1155_balances.write(id=id, account=to, value=new_balance)
+        ERC1155_balances.write(id, to, new_balance)
 
+        # Emit events and check
         let (operator) = get_caller_address()
-
-        TransferSingle.emit(operator, from_, to, id, amount)
-
-        _do_safe_transfer_acceptance_check(operator, from_, to, id, amount, data_len, data)
-
+        TransferSingle.emit(
+            operator,
+            from_, 
+            to,
+            id,
+            amount
+        )
+        _do_safe_transfer_acceptance_check(
+            operator, 
+            from_, 
+            to,
+            id,
+            amount,
+            data_len,
+            data
+        )
         return ()
     end
 
-    func _safe_batch_transfer_from{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_ : felt,
-        to : felt,
-        ids_len : felt,
-        ids : Uint256*,
-        amounts_len : felt,
-        amounts : Uint256*,
-        data_len : felt,
-        data : felt*,
-    ):
+    func _safe_batch_transfer_from{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            from_: felt,
+            to: felt,
+            ids_len: felt,
+            ids: Uint256*,
+            amounts_len: felt,
+            amounts: Uint256*,
+            data_len: felt,
+            data: felt*
+        ):
         alloc_locals
+        # Check args
         with_attr error_message("ERC1155: transfer to the zero address"):
             assert_not_zero(to)
         end
-        # Check args are equal length arrays
         with_attr error_message("ERC1155: ids and amounts length mismatch"):
             assert ids_len = amounts_len
         end
         # Recursive call
         let len = ids_len
         safe_batch_transfer_from_iter(from_, to, len, ids, amounts)
+
+        # Emit events and check
         let (operator) = get_caller_address()
-        TransferBatch.emit(operator, from_, to, ids_len, ids, amounts_len, amounts)
+        TransferBatch.emit(
+            operator,
+            from_,
+            to,
+            ids_len,
+            ids,
+            amounts_len,amounts
+        )
         _do_safe_batch_transfer_acceptance_check(
-            operator, from_, to, ids_len, ids, amounts_len, amounts, data_len, data
+            operator,
+            from_,
+            to,
+            ids_len,
+            ids,
+            amounts_len,
+            amounts,
+            data_len,
+            data
         )
         return ()
     end
 
-    func _mint{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*
-    ):
+    func _mint{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            to: felt,
+            id: Uint256,
+            amount: Uint256,
+            data_len: felt,
+            data: felt*
+        ):
         # Cannot mint to zero address
         with_attr error_message("ERC1155: mint to the zero address"):
             assert_not_zero(to)
@@ -268,28 +360,46 @@ namespace ERC1155:
         end
 
         # add to minter check for overflow
-        let (to_balance : Uint256) = ERC1155_balances.read(id=id, account=to)
+        let (to_balance: Uint256) = ERC1155_balances.read(id, to)
         with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance : Uint256) = uint256_checked_add(to_balance, amount)
+            let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
         end
-        ERC1155_balances.write(id=id, account=to, value=new_balance)
+        ERC1155_balances.write(id, to, new_balance)
 
+        # Emit events and check
         let (operator) = get_caller_address()
-        TransferSingle.emit(operator=operator, from_=0, to=to, id=id, value=amount)
-        _do_safe_transfer_acceptance_check(operator, 0, to, id, amount, data_len, data)
-
+        TransferSingle.emit(
+            operator=operator,
+            from_=0,
+            to=to,
+            id=id,
+            value=amount
+        )
+        _do_safe_transfer_acceptance_check(
+            operator=operator,
+            from_=0,
+            to=to,
+            id=id,
+            amount=amount,
+            data_len=data_len,
+            data=data
+        )
         return ()
     end
 
-    func _mint_batch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        to : felt,
-        ids_len : felt,
-        ids : Uint256*,
-        amounts_len : felt,
-        amounts : Uint256*,
-        data_len : felt,
-        data : felt*,
-    ):
+    func _mint_batch{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            to: felt,
+            ids_len: felt,
+            ids: Uint256*,
+            amounts_len: felt,
+            amounts: Uint256*,
+            data_len: felt,
+            data: felt*
+        ):
         alloc_locals
         # Cannot mint to zero address
         with_attr error_message("ERC1155: mint to the zero address"):
@@ -299,9 +409,12 @@ namespace ERC1155:
         with_attr error_message("ERC1155: ids and amounts length mismatch"):
             assert ids_len = amounts_len
         end
+
         # Recursive call
         let len = ids_len
         mint_batch_iter(to, len, ids, amounts)
+
+        # Emit events and check
         let (operator) = get_caller_address()
         TransferBatch.emit(
             operator=operator,
@@ -311,44 +424,62 @@ namespace ERC1155:
             ids=ids,
             values_len=amounts_len,
             values=amounts,
-        )
+        ) 
         _do_safe_batch_transfer_acceptance_check(
-            operator, 0, to, ids_len, ids, amounts_len, amounts, data_len, data
+            operator=operator,
+            from_=0,
+            to=to,
+            ids_len=ids_len,
+            ids=ids,
+            amounts_len=amounts_len,
+            amounts=amounts,
+            data_len=data_len,
+            data=data
         )
         return ()
     end
 
-    func _burn{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_ : felt, id : Uint256, amount : Uint256
-    ):
+    func _burn{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(from_: felt, id: Uint256, amount: Uint256):
         alloc_locals
         with_attr error_message("ERC1155: burn from the zero address"):
             assert_not_zero(from_)
         end
 
         # Deduct from burner
-        let (from_balance : Uint256) = ERC1155_balances.read(id=id, account=from_)
+        let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
         with_attr error_message("ERC1155: burn amount exceeds balance"):
-            let (new_balance : Uint256) = uint256_checked_sub_le(from_balance, amount)
+            let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
         end
-        ERC1155_balances.write(id=id, account=from_, value=new_balance)
+        ERC1155_balances.write(id, from_, new_balance)
 
         let (operator) = get_caller_address()
         TransferSingle.emit(operator=operator, from_=from_, to=0, id=id, value=amount)
         return ()
     end
 
-    func _burn_batch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_ : felt, ids_len : felt, ids : Uint256*, amounts_len : felt, amounts : Uint256*
-    ):
+    func _burn_batch{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            from_: felt,
+            ids_len: felt,
+            ids: Uint256*,
+            amounts_len: felt,
+            amounts: Uint256*
+        ):
         alloc_locals
         with_attr error_message("ERC1155: burn from the zero address"):
             assert_not_zero(from_)
         end
-        # Check args are equal length arrays
         with_attr error_message("ERC1155: ids and amounts length mismatch"):
             assert ids_len = amounts_len
         end
+
         # Recursive call
         let len = ids_len
         burn_batch_iter(from_, len, ids, amounts)
@@ -360,14 +491,16 @@ namespace ERC1155:
             ids_len=ids_len,
             ids=ids,
             values_len=amounts_len,
-            values=amounts,
+            values=amounts
         )
         return ()
     end
 
-    func _set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        owner : felt, operator : felt, approved : felt
-    ):
+    func _set_approval_for_all{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(owner: felt, operator: felt, approved: felt):
         # check approved is bool
         assert approved * (approved - 1) = 0
         # caller/owner already checked  non-0
@@ -382,12 +515,20 @@ namespace ERC1155:
         return ()
     end
 
-    func _set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(newuri : felt):
+    func _set_uri{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(newuri: felt):
         ERC1155_uri.write(newuri)
         return ()
     end
 
-    func assert_owner_or_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(owner):
+    func assert_owner_or_approved{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(owner):
         let (caller) = get_caller_address()
         if caller == owner:
             return ()
@@ -395,8 +536,10 @@ namespace ERC1155:
         let (approved) = ERC1155.is_approved_for_all(owner, caller)
         with_attr error_message("ERC1155: caller is not owner nor approved"):
             assert approved = TRUE
+        end
         return ()
     end
+
 end
 
 #
@@ -404,28 +547,33 @@ end
 #
 
 func _do_safe_transfer_acceptance_check{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
     }(
-        operator : felt,
-        from_ : felt,
-        to : felt,
-        id : Uint256,
-        amount : Uint256,
-        data_len : felt,
-        data : felt*,
+        operator: felt,
+        from_: felt,
+        to: felt,
+        id: Uint256,
+        amount: Uint256,
+        data_len: felt,
+        data: felt*
     ):
+    # Confirm supports IERC1155Reciever interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
     if is_supported == TRUE:
         let (selector) = IERC1155_Receiver.onERC1155Received(
             to, operator, from_, id, amount, data_len, data
         )
 
-        # onERC1155Recieved selector
+        # Confirm onERC1155Recieved selector returned
         with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
             assert selector = ON_ERC1155_RECEIVED_SELECTOR
         end
         return ()
     end
+
+    # Alternatively confirm EOA
     let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
     with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
         assert_not_zero(is_account)
@@ -434,25 +582,34 @@ func _do_safe_transfer_acceptance_check{
 end
 
 func _do_safe_batch_transfer_acceptance_check{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
     }(
-        operator : felt,
-        from_ : felt,
-        to : felt,
-        ids_len : felt,
-        ids : Uint256*,
-        amounts_len : felt,
-        amounts : Uint256*,
-        data_len : felt,
-        data : felt*,
+        operator: felt,
+        from_: felt,
+        to: felt,
+        ids_len: felt,
+        ids: Uint256*,
+        amounts_len: felt,
+        amounts: Uint256*,
+        data_len: felt,
+        data: felt*
     ):
     # Confirm supports IERC1155Reciever interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
     if is_supported == TRUE:
         let (selector) = IERC1155_Receiver.onERC1155BatchReceived(
-            to, operator, from_, ids_len, ids, amounts_len, amounts, data_len, data
+            contract_address=to,
+            operator=operator,
+            from_=from_,
+            ids_len=ids_len,
+            ids=ids,
+            amounts_len=amounts_len,
+            amounts=amounts, 
+            data_len=data_len, 
+            data=data
         )
-
         # Confirm onBatchERC1155Recieved selector returned
         with_attr error_message("ERC1155: ERC1155Receiver rejected tokens"):
             assert selector = ON_ERC1155_BATCH_RECEIVED_SELECTOR
@@ -472,21 +629,28 @@ end
 # Helpers
 #
 
-func balance_of_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    len : felt, accounts : felt*, ids : Uint256*, batch_balances : Uint256*
-):
+func balance_of_batch_iter{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        len: felt,
+        accounts: felt*,
+        ids: Uint256*,
+        batch_balances: Uint256*
+    ):
     if len == 0:
         return ()
     end
     # Read current entries
-    let id : Uint256 = [ids]
+    let id: Uint256 = [ids]
     with_attr error_message("ERC1155: id is not a valid Uint256"):
         uint256_check(id)
     end
-    let account : felt = [accounts]
+    let account: felt = [accounts]
 
     # Get balance
-    let (balance : Uint256) = ERC1155.balance_of(account, id)
+    let (balance: Uint256) = ERC1155.balance_of(account, id)
     assert [batch_balances] = balance
     return balance_of_batch_iter(
         len - 1, accounts + 1, ids + Uint256.SIZE, batch_balances + Uint256.SIZE
@@ -494,8 +658,16 @@ func balance_of_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, ran
 end
 
 func safe_batch_transfer_from_iter{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}(from_ : felt, to : felt, len : felt, ids : Uint256*, amounts : Uint256*):
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        from_: felt,
+        to: felt,
+        len: felt,
+        ids: Uint256*,
+        amounts: Uint256*
+    ):
     # Base case
     alloc_locals
     if len == 0:
@@ -513,18 +685,18 @@ func safe_batch_transfer_from_iter{
     end
 
     # deduct from sender
-    let (from_balance : Uint256) = ERC1155_balances.read(id=id, account=from_)
+    let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
     with_attr error_message("ERC1155: insufficient balance for transfer"):
-        let (new_balance : Uint256) = uint256_checked_sub_le(from_balance, amount)
+        let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
     end
-    ERC1155_balances.write(id=id, account=from_, value=new_balance)
+    ERC1155_balances.write(id, from_, new_balance)
 
     # add to
-    let (to_balance : Uint256) = ERC1155_balances.read(id=id, account=to)
+    let (to_balance: Uint256) = ERC1155_balances.read(id, to)
     with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance : Uint256) = uint256_checked_add(to_balance, amount)
+        let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
     end
-    ERC1155_balances.write(id=id, account=to, value=new_balance)
+    ERC1155_balances.write(id, to, new_balance)
 
     # Recursive call
     return safe_batch_transfer_from_iter(
@@ -532,9 +704,16 @@ func safe_batch_transfer_from_iter{
     )
 end
 
-func mint_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    to : felt, len : felt, ids : Uint256*, amounts : Uint256*
-):
+func mint_batch_iter{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        to: felt, 
+        len: felt, 
+        ids: Uint256*, 
+        amounts: Uint256*
+    ):
     # Base case
     alloc_locals
     if len == 0:
@@ -542,29 +721,36 @@ func mint_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     end
 
     # Read current entries
-    let id : Uint256 = [ids]
+    let id: Uint256 = [ids]
     with_attr error_message("ERC1155: id is not a valid Uint256"):
         uint256_check(id)
     end
-    let amount : Uint256 = [amounts]
+    let amount: Uint256 = [amounts]
     with_attr error_message("ERC1155: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
     # add to
-    let (to_balance : Uint256) = ERC1155_balances.read(id=id, account=to)
+    let (to_balance: Uint256) = ERC1155_balances.read(id, to)
     with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance : Uint256) = uint256_checked_add(to_balance, amount)
+        let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
     end
-    ERC1155_balances.write(id=id, account=to, value=new_balance)
+    ERC1155_balances.write(id, to, new_balance)
 
     # Recursive call
     return mint_batch_iter(to, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
 
-func burn_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    from_ : felt, len : felt, ids : Uint256*, amounts : Uint256*
-):
+func burn_batch_iter{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        from_: felt,
+        len: felt,
+        ids: Uint256*,
+        amounts: Uint256*
+    ):
     # Base case
     alloc_locals
     if len == 0:
@@ -572,24 +758,22 @@ func burn_batch_iter{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_che
     end
 
     # Read current entries
-    let id : Uint256 = [ids]
+    let id: Uint256 = [ids]
     with_attr error_message("ERC1155: id is not a valid Uint256"):
         uint256_check(id)
     end
-    let amount : Uint256 = [amounts]
+    let amount: Uint256 = [amounts]
     with_attr error_message("ERC1155: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
     # Deduct from burner
-    let (from_balance : Uint256) = ERC1155_balances.read(id=id, account=from_)
+    let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
     with_attr error_message("ERC1155: burn amount exceeds balance"):
-        let (new_balance : Uint256) = uint256_checked_sub_le(from_balance, amount)
+        let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
     end
-    ERC1155_balances.write(id=id, account=from_, value=new_balance)
+    ERC1155_balances.write(id, from_, new_balance)
 
     # Recursive call
     return burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
-
-

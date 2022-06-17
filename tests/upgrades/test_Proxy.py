@@ -1,6 +1,4 @@
 import pytest
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     MockSigner,
@@ -142,7 +140,6 @@ async def test_setAdmin(after_initialized):
     )
     assert execution_info.result.response == [VALUE]
 
-<<<<<<< HEAD
 
 @pytest.mark.asyncio
 async def test_setAdmin_from_unauthorized(after_initialized):
@@ -154,8 +151,6 @@ async def test_setAdmin_from_unauthorized(after_initialized):
         reverted_with="Proxy: caller is not admin"
     )
 
-=======
->>>>>>> update upgradeables and proxy tests
 #
 # fallback function
 #

@@ -8,7 +8,31 @@ Before starting development, please [create an issue](https://github.com/OpenZep
 
 Also, consider that snake case is used for Cairo development in general due to its strong Python bias, but in order to be compliant with the standards, EIP implementations must use camelCase. Therefore, EIP-based contracts will have their external functions written in camelCase while the rest of the codebase will be in snake_case.
 
-And make sure to always include tests and documentation for the new developments.
+And make sure to always include tests and documentation for the new developments. Please consider the following conventions:
+
+- Naming
+  - contracts and libraries should be PascalCased i.e. `MyContract.cairo`
+  - test modules should begin with `test_` followed by the contract name i.e. `test_MyContract.py`
+
+- Structure
+  - preset contracts and libraries should live in their respective `presets` and `library` directories
+  - Here are example paths:
+    - `openzeppelin.token.erc20.interfaces.IERC20.cairo`
+    - `openzeppelin.token.erc20.library.ERC20.cairo`
+    - `openzeppelin.token.erc20.presets.ERC20Mintable.cairo`
+  - And a visual guide:
+
+    ```bash
+    openzeppelin
+          └──token
+               └── erc20
+                     ├── interfaces
+                            └── IERC20.cairo
+                     ├── library
+                            └── ERC20.cairo
+                     └── presets
+                            └── ERC20Mintable.cairo
+    ```
 
 ## Creating Pull Requests (PRs)
 

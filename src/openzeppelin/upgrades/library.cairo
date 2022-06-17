@@ -6,7 +6,6 @@
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
-from starkware.cairo.common.math import assert_not_zero
 
 #
 # Events
@@ -119,9 +118,7 @@ namespace Proxy:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(new_implementation: felt):
-        with_attr error_message("Proxy: implementation hash cannot be zero"):
-            Proxy_implementation_hash.write(new_implementation)
-        end
+        Proxy_implementation_hash.write(new_implementation)
         Upgraded.emit(new_implementation)
         return ()
     end

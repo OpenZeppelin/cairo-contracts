@@ -1,6 +1,4 @@
 import pytest
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TestSigner,
@@ -8,7 +6,7 @@ from utils import (
     get_contract_class,
     cached_contract,
     assert_event_emitted,
-    ZERO_ADDRESS
+    assert_revert_entry_point
 )
 
 # random value
@@ -32,7 +30,11 @@ def contract_classes():
 async def proxy_init(contract_classes):
     account_cls, implementation_cls, proxy_cls = contract_classes
     starknet = await Starknet.empty()
-    account = await starknet.deploy(
+    account1 = await starknet.deploy(
+        contract_class=account_cls,
+        constructor_calldata=[signer.public_key]
+    )
+    account2 = await starknet.deploy(
         contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
@@ -45,7 +47,8 @@ async def proxy_init(contract_classes):
     )
     return (
         starknet.state,
-        account,
+        account1,
+        account2,
         proxy
     )
 
@@ -53,24 +56,25 @@ async def proxy_init(contract_classes):
 @pytest.fixture
 def proxy_factory(contract_classes, proxy_init):
     account_cls, _, proxy_cls = contract_classes
-    state, account, proxy = proxy_init
+    state, account1, account2, proxy = proxy_init
     _state = state.copy()
-    account = cached_contract(_state, account_cls, account)
+    admin = cached_contract(_state, account_cls, account1)
+    other = cached_contract(_state, account_cls, account2)
     proxy = cached_contract(_state, proxy_cls, proxy)
 
-    return account, proxy
+    return admin, other, proxy
 
 
 @pytest.fixture
 async def after_initialized(proxy_factory):
-    account, proxy = proxy_factory
-    
+    admin, other, proxy = proxy_factory 
+
     # initialize proxy
     await signer.send_transaction(
-        account, proxy.contract_address, 'initializer', [account.contract_address]
+        admin, proxy.contract_address, 'initializer', [admin.contract_address]
     )
 
-    return account, proxy
+    return admin, other, proxy
 
 #
 # constructor
@@ -78,25 +82,25 @@ async def after_initialized(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_initializer(proxy_factory):
-    account, proxy = proxy_factory
+    admin, _, proxy = proxy_factory 
 
     await signer.send_transaction(
-        account, proxy.contract_address, 'initializer', [account.contract_address]
+        admin, proxy.contract_address, 'initializer', [admin.contract_address]
     )
 
     # check admin is set
     execution_info = await signer.send_transaction(
-        account, proxy.contract_address, 'getAdmin', []
+        admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [account.contract_address]
+    assert execution_info.result.response == [admin.contract_address]
 
 
 @pytest.mark.asyncio
 async def test_initializer_after_initialized(after_initialized):
-    account, proxy = after_initialized
+    admin, _, proxy = after_initialized 
 
     await assert_revert(signer.send_transaction(
-        account, proxy.contract_address, 'initializer', [account.contract_address]),
+        admin, proxy.contract_address, 'initializer', [admin.contract_address]),
         reverted_with="Proxy: contract already initialized"
     )
 
@@ -106,17 +110,17 @@ async def test_initializer_after_initialized(after_initialized):
 
 @pytest.mark.asyncio
 async def test_setAdmin(after_initialized):
-    account, proxy = after_initialized
+    admin, _, proxy = after_initialized 
 
     # check initial admin
     execution_info = await signer.send_transaction(
-        account, proxy.contract_address, 'getAdmin', []
+        admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [account.contract_address]
+    assert execution_info.result.response == [admin.contract_address]
 
     # set admin
     tx_exec_info = await signer.send_transaction(
-        account, proxy.contract_address, 'setAdmin', [VALUE]
+        admin, proxy.contract_address, 'setAdmin', [VALUE]
     )
 
     # check event
@@ -125,16 +129,27 @@ async def test_setAdmin(after_initialized):
         from_address=proxy.contract_address,
         name='AdminChanged',
         data=[
-            account.contract_address,       # old admin
-            VALUE                           # new admin
+            admin.contract_address,       # old admin
+            VALUE                         # new admin
         ]
     )
 
     # check new admin
     execution_info = await signer.send_transaction(
-        account, proxy.contract_address, 'getAdmin', []
+        admin, proxy.contract_address, 'getAdmin', []
     )
     assert execution_info.result.response == [VALUE]
+
+
+@pytest.mark.asyncio
+async def test_setAdmin_from_unauthorized(after_initialized):
+    _, non_admin, proxy = after_initialized 
+
+    # set admin
+    await assert_revert(signer.send_transaction(
+        non_admin, proxy.contract_address, 'setAdmin', [VALUE]),
+        reverted_with="Proxy: caller is not admin"
+    )
 
 #
 # fallback function
@@ -142,32 +157,28 @@ async def test_setAdmin(after_initialized):
 
 @pytest.mark.asyncio
 async def test_default_fallback(proxy_factory):
-    account, proxy = proxy_factory
+    admin, _, proxy = proxy_factory 
 
     # set value through proxy
     await signer.send_transaction(
-        account, proxy.contract_address, 'setValue', [VALUE]
+        admin, proxy.contract_address, 'setValue', [VALUE]
     )
 
     # get value through proxy
     execution_info = execution_info = await signer.send_transaction(
-        account, proxy.contract_address, 'getValue', []
+        admin, proxy.contract_address, 'getValue', []
     )
     assert execution_info.result.response == [VALUE]
 
 
 @pytest.mark.asyncio
 async def test_fallback_when_selector_does_not_exist(proxy_factory):
-    account, proxy = proxy_factory
+    admin, _, proxy = proxy_factory 
 
-    try:
-        await signer.send_transaction(
-            account, proxy.contract_address, 'bad_selector', []
-        )
-        raise StarkException
-    except StarkException as err:
-        _, error = err.args
-        assert (
-            f"Entry point {hex(get_selector_from_name('bad_selector'))} not found in contract" 
-            in error['message']
-        )
+    # should fail with entry point error
+    await assert_revert_entry_point(
+        signer.send_transaction(
+            admin, proxy.contract_address, 'invalid_selector', []
+        ),
+        invalid_selector='invalid_selector'
+    )

@@ -216,5 +216,7 @@ class TestEthSigner():
         signature = self.signer.sign_msg_hash(k.digest())        
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
-        return await account.__execute__(call_array, calldata, nonce).invoke(signature=[signature.v, sig_r[0], sig_r[1], sig_s[0], sig_s[1], hash[0], hash[1]])
+        return await account.__execute__(call_array, calldata, nonce).invoke(
+            signature=[signature.v, *sig_r, *sig_s, *hash]
+        ) 
         

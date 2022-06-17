@@ -24,8 +24,8 @@
 The general workflow is:
 
 1. declare an implementation contract
-2. deploy proxy contract with the hash of the implementation contract class set in the proxy's constructor calldata
-3. initialize the implementation contract class by sending a call to the proxy contract. This will redirect the call to the implementation contract class and behave like the implementation contract's constructor
+2. deploy proxy contract with the implementation contract's class hash set in the proxy's constructor calldata
+3. initialize the implementation contract by sending a call to the proxy contract. This will redirect the call to the implementation contract class and behave like the implementation contract's constructor
 
 In Python, this would look as follows:
 

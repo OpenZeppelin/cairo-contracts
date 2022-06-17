@@ -96,6 +96,13 @@ async def assert_revert(fun, reverted_with=None):
             assert reverted_with in error['message']
 
 
+async def assert_revert_entry_point(fun, invalid_selector):
+    selector_hex = hex(get_selector_from_name(invalid_selector))
+    entry_point_msg = f"Entry point {selector_hex} not found in contract"
+    
+    await assert_revert(fun, entry_point_msg)
+
+
 def assert_event_emitted(tx_exec_info, from_address, name, data):
     assert Event(
         from_address=from_address,

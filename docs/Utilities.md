@@ -156,6 +156,19 @@ await assert_revert(signer.send_transaction(
 )
 ```
 
+### `assert_revert_entry_point`
+
+An extension of `assert_revert` that asserts an entry point error occurs with the given `invalid_selector` parameter. This assertion is especially useful in checking proxy/implementation contracts. To use `assert_revert_entry_point`:
+
+```python
+await assert_revert_entry_point(
+    signer.send_transaction(
+        account, contract.contract_address, 'nonexistent_selector', []
+    ),
+    invalid_selector='nonexistent_selector'
+)
+```
+
 ### `assert_event_emitted`
 
 A helper method that checks a transaction receipt for the contract emitting the event (`from_address`), the emitted event itself (`name`), and the arguments emitted (`data`). To use `assert_event_emitted`:

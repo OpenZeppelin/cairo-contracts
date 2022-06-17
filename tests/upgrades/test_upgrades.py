@@ -247,6 +247,7 @@ async def test_set_admin(after_upgrade):
 
 
 @pytest.mark.asyncio
+<<<<<<< HEAD
 async def test_set_admin_from_non_admin(after_upgrade):
     _, non_admin, proxy, *_ = after_upgrade
 
@@ -330,3 +331,24 @@ async def test_v2_functions_pre_and_post_upgrade(proxy_factory):
         new_admin.contract_address      # getAdmin
     ]
     assert execution_info.result.response == expected
+=======
+async def test_new_function_in_v2(after_upgrade):
+    admin, _, proxy, *_ = after_upgrade
+
+    # check value 2
+    execution_info = await signer.send_transaction(
+        admin, proxy.contract_address, 'getValue2', []
+    )
+    assert execution_info.result.response == [0]
+
+    # set value 2
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'setValue2', [VALUE_2]
+    )
+
+    # check new value 2
+    execution_info = await signer.send_transaction(
+        admin, proxy.contract_address, 'getValue2', []
+    )
+    assert execution_info.result.response == [VALUE_2]
+>>>>>>> update upgradeables and proxy tests

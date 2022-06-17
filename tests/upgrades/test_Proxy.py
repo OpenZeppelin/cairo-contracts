@@ -142,6 +142,7 @@ async def test_setAdmin(after_initialized):
     )
     assert execution_info.result.response == [VALUE]
 
+<<<<<<< HEAD
 
 @pytest.mark.asyncio
 async def test_setAdmin_from_unauthorized(after_initialized):
@@ -153,6 +154,8 @@ async def test_setAdmin_from_unauthorized(after_initialized):
         reverted_with="Proxy: caller is not admin"
     )
 
+=======
+>>>>>>> update upgradeables and proxy tests
 #
 # fallback function
 #

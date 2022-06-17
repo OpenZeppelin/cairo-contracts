@@ -160,9 +160,9 @@ namespace Account:
         # But this implementation does, and it expects a the sig_v, sig_r, 
         # sig_s, and hash elements.
         let sig_v: felt = signature[0]
-        local sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
-        local sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
-        local msg_hash : Uint256 = Uint256(low=signature[5], high=signature[6])
+        let sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
+        let sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
+        let msg_hash : Uint256 = Uint256(low=signature[5], high=signature[6])
         
         let (local keccak_ptr : felt*) = alloc()
 

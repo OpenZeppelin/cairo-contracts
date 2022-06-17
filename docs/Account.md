@@ -393,14 +393,13 @@ response_len: felt
 response: felt*
 ```
 
-### `is_eth_valid_signature`
+### `is_valid_eth_signature`
 
 Returns `TRUE` if a given signature in the secp256k1 curve is valid, otherwise it reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
 
 Parameters:
 
 ```cairo
-hash: felt
 signature_len: felt
 signature: felt*
 ```

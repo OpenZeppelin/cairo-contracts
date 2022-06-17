@@ -415,7 +415,7 @@ is_valid: felt
 
 ### `eth_execute`
 
-This is follows the same conceptions the `execute`, with the variation of verifying that the signature corresponds to a secp256k1 curve
+This follows the same idea as the vanilla version of `execute` with the sole difference that signature verification is on the secp256k1 curve.
 
 Parameters:
 

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 
 %lang starknet
-%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 

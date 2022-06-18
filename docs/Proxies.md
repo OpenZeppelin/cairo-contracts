@@ -31,7 +31,7 @@ The general workflow is:
 In Python, this would look as follows:
 
 ```python
-    # declare implementation class
+    # declare implementation contract
     IMPLEMENTATION = await starknet.declare(
         "path/to/implementation.cairo",
     )
@@ -74,19 +74,19 @@ The StarkNet compiler, meanwhile, already creates pseudo-random storage addresse
 
 A proxy contract is a contract that delegates function calls to another contract. This type of pattern decouples state and logic. Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic. This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not; as well as deploying multiple proxy instances pointing to the same implementation. This can be useful to deploy many contracts with identical logic but unique initialization data.
 
-In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the declared class of the implementation. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application.
+In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the class hash of the declared implementation. This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application.
 
 ### Proxy contract
 
 The [Proxy contract](../src/openzeppelin/upgrades/Proxy.cairo) includes two core methods:
 
-1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the declared class of the implementation contract.
+1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 
 2. The `__l1_default__` method is also a fallback method; however, it redirects the function call and associated calldata to a layer one contract. In order to invoke `__l1_default__`, the original function call must include the library function `send_message_to_l1`. See Cairo's [Interacting with L1 contracts](https://www.cairo-lang.org/docs/hello_starknet/l1l2.html) for more information.
 
 Since this proxy is designed to work both as an [UUPS-flavored upgrade proxy](https://eips.ethereum.org/EIPS/eip-1822) as well as a non-upgradeable proxy, it does not know how to handle its own state. Therefore it requires the implementation contract class to be declared beforehand, so its class hash can be passed to the Proxy on construction time.
 
-When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract class to execute.
+When interacting with the contract, function calls should be sent by the user to the proxy. The proxy's fallback function redirects the function call to the implementation contract to execute.
 
 ### Implementation contract
 

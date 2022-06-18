@@ -100,7 +100,7 @@ To create a token you need to deploy it like this:
 
 ```python
 erc20 = await starknet.deploy(
-    "contracts/token/ERC20.cairo",
+    "openzeppelin/token/erc20/presets/ERC20.cairo",
     constructor_calldata=[
         str_to_felt("Token"),     # name
         str_to_felt("TKN"),       # symbol

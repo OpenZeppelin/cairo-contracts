@@ -52,7 +52,7 @@ end
 To query a target contract's support for an interface, the querying contract should call `supportsInterface` through IERC165 with the target contract's address and the queried interface id. Here's an example:
 
 ```cairo
-from openzeppelin.introspection.IERC165 import IERC165
+from openzeppelin.introspection.interfaces.IERC165 import IERC165
 
 INTERFACE_ID = 0x12345678
 

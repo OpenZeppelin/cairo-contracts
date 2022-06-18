@@ -18,6 +18,7 @@ The following documentation provides context, reasoning, and examples for method
   * [`sub_uint`](#sub_uint)
 * [Assertions](#assertions)
   * [`assert_revert`](#assert_revert)
+  * [`assert_revert_entry_point`](#assert_revert_entry_point)
   * [`assert_events_emitted`](#assert_event_emitted)
 * [Memoization](#memoization)
   * [`get_contract_class`](#get_contract_class)

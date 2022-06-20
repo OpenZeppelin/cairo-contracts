@@ -2,13 +2,10 @@ import pytest
 import asyncio
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, uint, add_uint, sub_uint, MAX_UINT256, get_contract_def, cached_contract, assert_revert, assert_event_emitted)
+    TestSigner, uint, add_uint, sub_uint, MAX_UINT256, cached_contract, assert_revert, assert_event_emitted)
+from starkware.starknet.testing.contract_utils import get_contract_class
 
 signer = TestSigner(123456789987654321)
-account_path = 'openzeppelin/account/Account.cairo'
-erc1155_path = 'openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo'
-receiver_path = 'tests/mocks/ERC1155_Receiver_mock.cairo'
-
 
 def uint_array(arr):
     return list(map(uint, arr))
@@ -68,31 +65,31 @@ def event_loop():
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = get_contract_def(account_path)
-    erc1155_def = get_contract_def(erc1155_path)
-    receiver_def = get_contract_def(receiver_path)
-    return account_def, erc1155_def, receiver_def
+def contract_classes():
+    account_class = get_contract_class('openzeppelin/account/Account.cairo')
+    erc1155_class = get_contract_class('openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo')
+    receiver_class = get_contract_class('../tests/mocks/ERC1155_Receiver_mock.cairo')
+    return account_class, erc1155_class, receiver_class
 
 
 @pytest.fixture(scope='module')
-async def erc1155_init(contract_defs):
-    account_def, erc1155_def, receiver_def = contract_defs
+async def erc1155_init(contract_classes):
+    account_class, erc1155_class, receiver_class = contract_classes
     starknet = await Starknet.empty()
     account1 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_class,
         constructor_calldata=[signer.public_key]
     )
     account2 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_class,
         constructor_calldata=[signer.public_key]
     )
     erc1155 = await starknet.deploy(
-        contract_def=erc1155_def,
+        contract_class=erc1155_class,
         constructor_calldata=[0, account1.contract_address]
     )
     receiver = await starknet.deploy(
-        contract_def=receiver_def
+        contract_class=receiver_class
     )
     return (
         starknet.state,
@@ -104,26 +101,26 @@ async def erc1155_init(contract_defs):
 
 
 @pytest.fixture
-def erc1155_factory(contract_defs, erc1155_init):
-    account_def, erc1155_def, receiver_def = contract_defs
+def erc1155_factory(contract_classes, erc1155_init):
+    account_class, erc1155_class, receiver_class = contract_classes
     state, account1, account2, erc1155, receiver = erc1155_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
-    erc1155 = cached_contract(_state, erc1155_def, erc1155)
-    receiver = cached_contract(_state, receiver_def, receiver)
+    account1 = cached_contract(_state, account_class, account1)
+    account2 = cached_contract(_state, account_class, account2)
+    erc1155 = cached_contract(_state, erc1155_class, erc1155)
+    receiver = cached_contract(_state, receiver_class, receiver)
     return erc1155, account1, account2, receiver
 
 
 @pytest.fixture(scope='module')
-async def erc1155_minted_init(contract_defs, erc1155_init):
-    account_def, erc1155_def, receiver_def = contract_defs
+async def erc1155_minted_init(contract_classes, erc1155_init):
+    account_class, erc1155_class, receiver_class = contract_classes
     state, owner, account, erc1155, receiver = erc1155_init
     _state = state.copy()
-    owner = cached_contract(_state, account_def, owner)
-    account = cached_contract(_state, account_def, account)
-    erc1155 = cached_contract(_state, erc1155_def, erc1155)
-    receiver = cached_contract(_state, receiver_def, receiver)
+    owner = cached_contract(_state, account_class, owner)
+    account = cached_contract(_state, account_class, account)
+    erc1155 = cached_contract(_state, erc1155_class, erc1155)
+    receiver = cached_contract(_state, receiver_class, receiver)
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
@@ -137,14 +134,14 @@ async def erc1155_minted_init(contract_defs, erc1155_init):
 
 
 @pytest.fixture
-def erc1155_minted_factory(contract_defs, erc1155_minted_init):
-    account_def, erc1155_def, receiver_def = contract_defs
+def erc1155_minted_factory(contract_classes, erc1155_minted_init):
+    account_class, erc1155_class, receiver_class = contract_classes
     state, erc1155, owner, account, receiver = erc1155_minted_init
     _state = state.copy()
-    owner = cached_contract(_state, account_def, owner)
-    account = cached_contract(_state, account_def, account)
-    erc1155 = cached_contract(_state, erc1155_def, erc1155)
-    receiver = cached_contract(_state, receiver_def, receiver)
+    owner = cached_contract(_state, account_class, owner)
+    account = cached_contract(_state, account_class, account)
+    erc1155 = cached_contract(_state, erc1155_class, erc1155)
+    receiver = cached_contract(_state, receiver_class, receiver)
     return erc1155, owner, account, receiver
 
 
@@ -165,7 +162,6 @@ async def test_constructor(erc1155_factory):
 # ERC165
 #
 
-
 @pytest.mark.asyncio
 async def test_supports_interface(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
@@ -174,13 +170,13 @@ async def test_supports_interface(erc1155_factory):
         execution_info = await erc1155.supportsInterface(
             supported_id
         ).invoke()
-        assert execution_info.result.is_supported == TRUE
+        assert execution_info.result.success == TRUE
 
     for unsupported_id in UNSUPPORTED_INTERFACES:
         execution_info = await erc1155.supportsInterface(
             unsupported_id
         ).invoke()
-        assert execution_info.result.is_supported == FALSE
+        assert execution_info.result.success == FALSE
 
 #
 # Set/Get approval
@@ -863,7 +859,8 @@ async def test_burn_batch_from_unapproved(erc1155_minted_factory):
 
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)]))
+        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)]),
+        )
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner,
+    MockSigner,
     ZERO_ADDRESS,
     assert_event_emitted,
     get_contract_def,
@@ -9,7 +9,7 @@ from utils import (
 )
 
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')

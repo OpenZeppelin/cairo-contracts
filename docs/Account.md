@@ -12,7 +12,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer](#signer)
-  * [MockSigner utility](#MockSigner-utility)
+  * [MockSigner utility](#mocksigner-utility)
 * [Account entrypoint](#account-entrypoint)
 * [Call and AccountCallArray format](#call-and-accountcallarray-format)
   * [Call](#call)

@@ -9,14 +9,8 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.bool import TRUE, FALSE
 
-from openzeppelin.access.ownable import (
-    Ownable_initializer,
-    Ownable_only_owner
-)
-from openzeppelin.token.erc1155.library import (
-    ERC1155
-)
-
+from openzeppelin.access.ownable import Ownable
+from openzeppelin.token.erc1155.library import ERC1155
 from openzeppelin.introspection.ERC165 import ERC165
 
 #
@@ -30,7 +24,7 @@ func constructor{
         range_check_ptr
     }(uri: felt, owner: felt):
     ERC1155.initializer(uri)
-    Ownable_initializer(owner)
+    Ownable.initializer(owner)
     return ()
 end
 
@@ -59,13 +53,15 @@ end
 func balanceOfBatch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         accounts_len : felt, accounts : felt*, ids_len : felt, ids : Uint256*)
         -> (balances_len : felt, balances : Uint256*):
-    return ERC1155.balance_of_batch(accounts_len, accounts, ids_len, ids)
+    let (balances_len,balances) =  ERC1155.balance_of_batch(accounts_len, accounts, ids_len, ids)
+    return (balances_len,balances)
 end
 
 @view
 func isApprovedForAll{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         account : felt, operator : felt) -> (is_approved : felt):
-    return ERC1155.is_approved_for_all(account, operator)
+    let (is_approved) = ERC1155.is_approved_for_all(account, operator)
+    return (is_approved)
 end
 
 #
@@ -99,7 +95,7 @@ end
 @external
 func mint{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         to : felt, id : Uint256, amount : Uint256, data_len : felt, data : felt*):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     let (caller) = get_caller_address()
     with_attr error_message("ERC1155: called from zero address"):
         assert_not_zero(caller)
@@ -112,7 +108,7 @@ end
 func mintBatch{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         to : felt, ids_len : felt, ids : Uint256*, amounts_len : felt, amounts : Uint256*,
         data_len : felt, data : felt*):
-    Ownable_only_owner()
+    Ownable.assert_only_owner()
     let (caller) = get_caller_address()
     with_attr error_message("ERC1155: called from zero address"):
         assert_not_zero(caller)

@@ -11,13 +11,9 @@ from starkware.cairo.common.uint256 import Uint256, uint256_check
 from starkware.cairo.common.bool import TRUE, FALSE
 
 from openzeppelin.introspection.IERC165 import IERC165
-
 from openzeppelin.introspection.ERC165 import ERC165
-
 from openzeppelin.token.erc1155.interfaces.IERC1155_Receiver import IERC1155_Receiver
-
-from openzeppelin.security.safemath import uint256_checked_add, uint256_checked_sub_le
-
+from openzeppelin.security.safemath import SafeUint256
 from openzeppelin.utils.constants import (
     IERC1155_ID,
     IERC1155_METADATA_ID,
@@ -254,14 +250,14 @@ namespace ERC1155:
         # Deduct from sender
         let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
         with_attr error_message("ERC1155: insufficient balance for transfer"):
-            let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
+            let (new_balance: Uint256) = SafeUint256.sub_le(from_balance, amount)
         end
         ERC1155_balances.write(id, from_, new_balance)
 
         # Add to receiver
         let (to_balance: Uint256) = ERC1155_balances.read(id, to)
         with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
+            let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
         end
         ERC1155_balances.write(id, to, new_balance)
 
@@ -362,7 +358,7 @@ namespace ERC1155:
         # add to minter check for overflow
         let (to_balance: Uint256) = ERC1155_balances.read(id, to)
         with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
+            let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
         end
         ERC1155_balances.write(id, to, new_balance)
 
@@ -452,7 +448,7 @@ namespace ERC1155:
         # Deduct from burner
         let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
         with_attr error_message("ERC1155: burn amount exceeds balance"):
-            let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
+            let (new_balance: Uint256) = SafeUint256.sub_le(from_balance, amount)
         end
         ERC1155_balances.write(id, from_, new_balance)
 
@@ -687,14 +683,14 @@ func safe_batch_transfer_from_iter{
     # deduct from sender
     let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
     with_attr error_message("ERC1155: insufficient balance for transfer"):
-        let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
+        let (new_balance: Uint256) = SafeUint256.sub_le(from_balance, amount)
     end
     ERC1155_balances.write(id, from_, new_balance)
 
     # add to
     let (to_balance: Uint256) = ERC1155_balances.read(id, to)
     with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
+        let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
     end
     ERC1155_balances.write(id, to, new_balance)
 
@@ -733,7 +729,7 @@ func mint_batch_iter{
     # add to
     let (to_balance: Uint256) = ERC1155_balances.read(id, to)
     with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance: Uint256) = uint256_checked_add(to_balance, amount)
+        let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
     end
     ERC1155_balances.write(id, to, new_balance)
 
@@ -770,7 +766,7 @@ func burn_batch_iter{
     # Deduct from burner
     let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
     with_attr error_message("ERC1155: burn amount exceeds balance"):
-        let (new_balance: Uint256) = uint256_checked_sub_le(from_balance, amount)
+        let (new_balance: Uint256) = SafeUint256.sub_le(from_balance, amount)
     end
     ERC1155_balances.write(id, from_, new_balance)
 

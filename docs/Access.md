@@ -24,7 +24,7 @@ OpenZeppelin Contracts provides Ownable for implementing ownership in your contr
 
 ### Quickstart
 
-Setup simply consists of assigning an owner within the constructor of a Cairo contract like this:
+This library's initializer simply consists of assigning an owner within the constructor of a Cairo contract like this:
 
 ```cairo
 from openzeppelin.access.ownable import Ownable
@@ -40,7 +40,7 @@ func constructor{
 end
 ```
 
-To prevent non-owners from calling a function, add in the `assert_only_owner` method like this:
+To restrict a function's access to the owner only, add in the `assert_only_owner` method like this:
 
 ```cairo
 from openzeppelin.access.ownable import Ownable
@@ -73,7 +73,7 @@ end
 
 #### `assert_only_owner`
 
-Throws if called by any account other than the owner.
+Reverts if called by any account other than the owner.
 
 Parameters:
 
@@ -115,7 +115,7 @@ None.
 
 #### `renounce_ownership`
 
-Leaves the contract without owner. It will not be possible to call onlyOwner functions anymore. Can only be called by the current owner.
+Leaves the contract without owner. It will not be possible to call functions with `assert_only_owner` anymore. Can only be called by the current owner.
 
 Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 

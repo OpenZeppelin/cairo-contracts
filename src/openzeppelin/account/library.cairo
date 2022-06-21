@@ -235,7 +235,7 @@ namespace Account:
 
         # validate transaction        
         let (is_valid) = is_valid_eth_signature(tx_info.signature_len, tx_info.signature)
-        with_attr error_message("Account: invalid signature"):
+        with_attr error_message("Account: invalid secp256k1 signature"):
             assert is_valid = TRUE
         end
                 

@@ -192,11 +192,6 @@ namespace Account:
         ) -> (response_len: felt, response: felt*):
         alloc_locals
 
-        let (caller) = get_caller_address()
-        with_attr error_message("Account: no reentrant call"):
-            assert caller = 0
-        end
-
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
         let (local ecdsa_ptr : SignatureBuiltin*) = alloc()
@@ -225,11 +220,6 @@ namespace Account:
         ) -> (response_len: felt, response: felt*):
         alloc_locals
 
-        let (caller) = get_caller_address()
-        with_attr error_message("Account: no reentrant call"):
-            assert caller = 0
-        end
-
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
 
@@ -240,6 +230,45 @@ namespace Account:
         end
                 
         return _unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
+    end
+
+    func _unsafe_execute{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr,
+            bitwise_ptr: BitwiseBuiltin*
+        }(
+            call_array_len: felt,
+            call_array: AccountCallArray*,
+            calldata_len: felt,
+            calldata: felt*, 
+            nonce: felt
+        ) -> (response_len: felt, response: felt*):
+        alloc_locals
+        
+        let (caller) = get_caller_address()
+        with_attr error_message("Account: no reentrant call"):
+            assert caller = 0
+        end
+
+        let (_current_nonce) = Account_current_nonce.read()
+        # validate nonce
+        with_attr error_message("Account: nonce is invalid"):
+             assert _current_nonce = nonce
+        end
+        # bump nonce
+        Account_current_nonce.write(_current_nonce + 1)
+
+        # TMP: Convert `AccountCallArray` to 'Call'.
+        let (calls : Call*) = alloc()
+        _from_call_array_to_call(call_array_len, call_array, calldata, calls)
+        let calls_len = call_array_len
+
+        # execute call
+        let (response : felt*) = alloc()
+        let (response_len) = _execute_list(calls_len, calls, response)
+
+        return (response_len=response_len, response=response)
     end
 
     func _execute_list{syscall_ptr: felt*}(
@@ -291,37 +320,5 @@ namespace Account:
         _from_call_array_to_call(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
         return ()
     end
-
-    func _unsafe_execute{
-            syscall_ptr : felt*,
-            pedersen_ptr : HashBuiltin*,
-            range_check_ptr,
-            bitwise_ptr: BitwiseBuiltin*
-        }(
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata_len: felt,
-            calldata: felt*, 
-            nonce: felt
-        ) -> (response_len: felt, response: felt*):
-        alloc_locals
-        let (_current_nonce) = Account_current_nonce.read()
-        # validate nonce
-        with_attr error_message("Account: nonce is invalid"):
-             assert _current_nonce = nonce
-        end
-        # bump nonce
-        Account_current_nonce.write(_current_nonce + 1)
-
-        # TMP: Convert `AccountCallArray` to 'Call'.
-        let (calls : Call*) = alloc()
-        _from_call_array_to_call(call_array_len, call_array, calldata, calls)
-        let calls_len = call_array_len
-
-        # execute call
-        let (response : felt*) = alloc()
-        let (response_len) = _execute_list(calls_len, calls, response)
-
-        return (response_len=response_len, response=response)
-    end
+    
 end

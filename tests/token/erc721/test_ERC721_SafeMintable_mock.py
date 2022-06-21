@@ -1,12 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    Signer, str_to_felt, ZERO_ADDRESS, INVALID_UINT256, assert_revert,
+    MockSigner, str_to_felt, ZERO_ADDRESS, INVALID_UINT256, assert_revert,
     assert_event_emitted, get_contract_def, cached_contract, to_uint
 )
 
 
-signer = Signer(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 # random token id
 TOKEN = to_uint(5042)
@@ -21,7 +21,7 @@ def contract_defs():
     erc721_holder_def = get_contract_def(
         'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
     unsupported_def = get_contract_def(
-        'openzeppelin/security/initializable.cairo')
+        'tests/mocks/Initializable.cairo')
 
     return account_def, erc721_def, erc721_holder_def, unsupported_def
 

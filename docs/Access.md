@@ -8,11 +8,13 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
 
 * [Ownable](#ownable)
   * [Quickstart](#quickstart)
-  * [Ownable library functions](#ownable-library-functions)
+  * [Ownable library API](#ownable-library-api)
+    * [`initializer`](#initializer)
     * [`assert_only_owner`](#assert_only_owner)
     * [`owner`](#owner)
     * [`transfer_ownership`](#transfer_ownership)
     * [`renounce_ownership`](#renounce_ownership)
+    * [`_transfer_ownership`](#transfer-ownership-internal)
   * [Ownable events](#ownable-events)
     * [`OwnershipTransferred`](#ownershiptransferred)
 
@@ -24,7 +26,7 @@ OpenZeppelin Contracts for Cairo provides [Ownable](../src/openzeppelin/access/o
 
 ### Quickstart
 
-This library's initializer simply consists of assigning an owner within the constructor of a Cairo contract like this:
+Integrating [Ownable](../src/openzeppelin/access/ownable.cairo) into a contract first requires assigning an owner. The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's [initializer](#initializer) like this:
 
 ```cairo
 from openzeppelin.access.ownable import Ownable
@@ -40,7 +42,7 @@ func constructor{
 end
 ```
 
-To restrict a function's access to the owner only, add in the `assert_only_owner` method like this:
+To restrict a function's access to the owner only, add in the `assert_only_owner` method:
 
 ```cairo
 from openzeppelin.access.ownable import Ownable
@@ -55,9 +57,12 @@ func protected_function{
 end
 ```
 
-### Ownable library functions
+### Ownable library API
 
 ```cairo
+func initializer(owner: felt):
+end
+
 func assert_only_owner():
 end
 
@@ -69,7 +74,26 @@ end
 
 func renounce_ownership():
 end
+
+func _transfer_ownership(new_owner: felt):
+end
 ```
+
+#### `initializer`
+
+Initializes Ownable access control and should be called in the implementing contract's constructor.
+
+This can only be called once.
+
+Parameters:
+
+```cairo
+owner:felt
+```
+
+Returns:
+
+None.
 
 #### `assert_only_owner`
 
@@ -122,6 +146,22 @@ Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 Parameters:
 
 None.
+
+Returns:
+
+None.
+
+<h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
+
+Transfers ownership of the contract to a new account (`new_owner`). Internal function without access restriction.
+
+Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
+
+Parameters:
+
+```cairo
+new_owner: felt
+```
 
 Returns:
 

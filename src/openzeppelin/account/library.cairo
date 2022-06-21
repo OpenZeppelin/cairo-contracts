@@ -306,6 +306,7 @@ namespace Account:
         ) -> (response_len: felt, response: felt*):
         alloc_locals
         let (_current_nonce) = Account_current_nonce.read()
+
         # validate nonce
         with_attr error_message("Account: nonce is invalid"):
              assert _current_nonce = nonce

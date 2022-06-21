@@ -6,7 +6,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_equal
-from starkware.cairo.common.bool import TRUE
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import (
     Uint256, uint256_lt, uint256_eq, uint256_check
 )
@@ -16,15 +16,7 @@ from openzeppelin.utils.constants import IERC721_ENUMERABLE_ID
 
 from openzeppelin.security.safemath import SafeUint256
 
-from openzeppelin.token.erc721.library import (
-    ERC721_balanceOf,
-    ERC721_ownerOf,
-
-    ERC721_transferFrom,
-    ERC721_safeTransferFrom,
-    ERC721_mint,
-    ERC721_burn
-)
+from openzeppelin.token.erc721.library import ERC721
 
 #
 # Storage
@@ -50,187 +42,194 @@ end
 func ERC721_Enumerable_owned_tokens_index(token_id: Uint256) -> (index: Uint256):
 end
 
-#
-# Constructor
-#
 
-func ERC721_Enumerable_initializer{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    ERC165.register_interface(IERC721_ENUMERABLE_ID)
-    return ()
-end
+namespace ERC721_Enumerable:
 
-#
-# Getters
-#
+    #
+    # Constructor
+    #
 
-func ERC721_Enumerable_totalSupply{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }() -> (totalSupply: Uint256):
-    let (totalSupply) = ERC721_Enumerable_all_tokens_len.read()
-    return (totalSupply)
-end
-
-
-func ERC721_Enumerable_tokenByIndex{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }(index: Uint256) -> (token_id: Uint256):
-    alloc_locals
-    uint256_check(index)
-    # Ensures index argument is less than total_supply 
-    let (len: Uint256) = ERC721_Enumerable_totalSupply()
-    let (is_lt) = uint256_lt(index, len)
-    with_attr error_message("ERC721_Enumerable: global index out of bounds"):
-        assert is_lt = TRUE
+    func initializer{
+            syscall_ptr : felt*,
+            pedersen_ptr : HashBuiltin*,
+            range_check_ptr
+        }():
+        ERC165.register_interface(IERC721_ENUMERABLE_ID)
+        return ()
     end
 
-    let (token_id: Uint256) = ERC721_Enumerable_all_tokens.read(index)
-    return (token_id)
-end
+    #
+    # Getters
+    #
 
-func ERC721_Enumerable_tokenOfOwnerByIndex{
-        syscall_ptr: felt*, 
-        pedersen_ptr: HashBuiltin*, 
-        range_check_ptr
-    }(owner: felt, index: Uint256) -> (token_id: Uint256):
-    alloc_locals
-    uint256_check(index)
-    # Ensures index argument is less than owner's balance 
-    let (len: Uint256) = ERC721_balanceOf(owner)
-    let (is_lt) = uint256_lt(index, len)
-    with_attr error_message("ERC721_Enumerable: owner index out of bounds"):
-        assert is_lt = TRUE
+    func total_supply{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (total_supply: Uint256):
+        let (total_supply) = ERC721_Enumerable_all_tokens_len.read()
+        return (total_supply)
     end
-    
-    let (token_id: Uint256) = ERC721_Enumerable_owned_tokens.read(owner, index)
-    return (token_id)
+
+
+    func token_by_index{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(index: Uint256) -> (token_id: Uint256):
+        alloc_locals
+        uint256_check(index)
+        # Ensures index argument is less than total_supply
+        let (len: Uint256) = ERC721_Enumerable.total_supply()
+        let (is_lt) = uint256_lt(index, len)
+        with_attr error_message("ERC721_Enumerable: global index out of bounds"):
+            assert is_lt = TRUE
+        end
+
+        let (token_id: Uint256) = ERC721_Enumerable_all_tokens.read(index)
+        return (token_id)
+    end
+
+    func token_of_owner_by_index{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(owner: felt, index: Uint256) -> (token_id: Uint256):
+        alloc_locals
+        uint256_check(index)
+        # Ensures index argument is less than owner's balance
+        let (len: Uint256) = ERC721.balance_of(owner)
+        let (is_lt) = uint256_lt(index, len)
+        with_attr error_message("ERC721_Enumerable: owner index out of bounds"):
+            assert is_lt = TRUE
+        end
+
+        let (token_id: Uint256) = ERC721_Enumerable_owned_tokens.read(owner, index)
+        return (token_id)
+    end
+
+    #
+    # Externals
+    #
+    func transfer_from{
+            pedersen_ptr: HashBuiltin*,
+            syscall_ptr: felt*,
+            range_check_ptr
+        }(from_: felt, to: felt, token_id: Uint256):
+        _remove_token_from_owner_enumeration(from_, token_id)
+        _add_token_to_owner_enumeration(to, token_id)
+        ERC721.transfer_from(from_, to, token_id)
+        return ()
+    end
+
+    func safe_transfer_from{
+            pedersen_ptr: HashBuiltin*,
+            syscall_ptr: felt*,
+            range_check_ptr
+        }(
+            from_: felt,
+            to: felt,
+            token_id: Uint256,
+            data_len: felt,
+            data: felt*
+        ):
+        _remove_token_from_owner_enumeration(from_, token_id)
+        _add_token_to_owner_enumeration(to, token_id)
+        ERC721.safe_transfer_from(from_, to, token_id, data_len, data)
+        return ()
+    end
+
+    #
+    # Internals
+    #
+
+    func _mint{
+            pedersen_ptr: HashBuiltin*,
+            syscall_ptr: felt*,
+            range_check_ptr
+        }(to: felt, token_id: Uint256):
+        _add_token_to_all_tokens_enumeration(token_id)
+        _add_token_to_owner_enumeration(to, token_id)
+        ERC721._mint(to, token_id)
+        return ()
+    end
+
+    func _burn{
+            pedersen_ptr: HashBuiltin*,
+            syscall_ptr: felt*,
+            range_check_ptr
+        }(token_id: Uint256):
+        let (from_) = ERC721.owner_of(token_id)
+        _remove_token_from_owner_enumeration(from_, token_id)
+        _remove_token_from_all_tokens_enumeration(token_id)
+        ERC721._burn(token_id)
+        return ()
+    end
+
 end
 
 #
-# Externals
-#
-
-func ERC721_Enumerable_mint{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(to: felt, token_id: Uint256):
-    _add_token_to_all_tokens_enumeration(token_id)
-    _add_token_to_owner_enumeration(to, token_id)
-    ERC721_mint(to, token_id)
-    return ()
-end
-
-func ERC721_Enumerable_burn{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(token_id: Uint256):
-    let (from_) = ERC721_ownerOf(token_id)
-    _remove_token_from_owner_enumeration(from_, token_id)
-    _remove_token_from_all_tokens_enumeration(token_id)
-    ERC721_burn(token_id)
-    return ()
-end
-
-func ERC721_Enumerable_transferFrom{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(from_: felt, to: felt, token_id: Uint256):
-    _remove_token_from_owner_enumeration(from_, token_id)
-    _add_token_to_owner_enumeration(to, token_id)
-    ERC721_transferFrom(from_, to, token_id)
-    return ()
-end
-
-func ERC721_Enumerable_safeTransferFrom{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
-        range_check_ptr
-    }(
-        from_: felt, 
-        to: felt, 
-        token_id: Uint256, 
-        data_len: felt,
-        data: felt*
-    ):
-    _remove_token_from_owner_enumeration(from_, token_id)
-    _add_token_to_owner_enumeration(to, token_id)
-    ERC721_safeTransferFrom(from_, to, token_id, data_len, data)
-    return ()
-end
-
-#
-# Internals
+# Private
 #
 
 func _add_token_to_all_tokens_enumeration{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(token_id: Uint256):
     let (supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
     ERC721_Enumerable_all_tokens.write(supply, token_id)
     ERC721_Enumerable_all_tokens_index.write(token_id, supply)
-    
+
     let (new_supply: Uint256) = SafeUint256.add(supply, Uint256(1, 0))
     ERC721_Enumerable_all_tokens_len.write(new_supply)
     return ()
 end
 
-
 func _remove_token_from_all_tokens_enumeration{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(token_id: Uint256):
     alloc_locals
     let (supply: Uint256) = ERC721_Enumerable_all_tokens_len.read()
     let (last_token_index: Uint256) = SafeUint256.sub_le(supply, Uint256(1, 0))
     let (token_index: Uint256) = ERC721_Enumerable_all_tokens_index.read(token_id)
-
-    # When the token to delete is the last token, the swap operation is unnecessary. However,
-    # since this occurs so rarely (when the last minted token is burnt), we still do the swap
-    # here to avoid the gas cost of adding an 'if' statement (like in _remove_token_from_owner_enumeration)
     let (last_token_id: Uint256) = ERC721_Enumerable_all_tokens.read(last_token_index)
 
     ERC721_Enumerable_all_tokens.write(last_token_index, Uint256(0, 0))
-    ERC721_Enumerable_all_tokens.write(token_index, last_token_id)
-
-    ERC721_Enumerable_all_tokens_index.write(last_token_id, token_index)
     ERC721_Enumerable_all_tokens_index.write(token_id, Uint256(0, 0))
+    ERC721_Enumerable_all_tokens_len.write(last_token_index)
 
-    let (new_supply: Uint256) = SafeUint256.sub_le(supply, Uint256(1, 0))
-    ERC721_Enumerable_all_tokens_len.write(new_supply)
+    let (is_equal) = uint256_eq(last_token_index, token_index)
+    if is_equal == FALSE:
+        ERC721_Enumerable_all_tokens_index.write(last_token_id, token_index)
+        ERC721_Enumerable_all_tokens.write(token_index, last_token_id)
+        return ()
+    end
     return ()
 end
 
+
 func _add_token_to_owner_enumeration{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(to: felt, token_id: Uint256):
-    let (length: Uint256) = ERC721_balanceOf(to) 
+    let (length: Uint256) = ERC721.balance_of(to)
     ERC721_Enumerable_owned_tokens.write(to, length, token_id)
     ERC721_Enumerable_owned_tokens_index.write(token_id, length)
     return ()
 end
 
+
 func _remove_token_from_owner_enumeration{
-        pedersen_ptr: HashBuiltin*, 
-        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
         range_check_ptr
     }(from_: felt, token_id: Uint256):
     alloc_locals
-    let (last_token_index: Uint256) = ERC721_balanceOf(from_)
+    let (last_token_index: Uint256) = ERC721.balance_of(from_)
     # the index starts at zero therefore the user's last token index is their balance minus one
     let (last_token_index) = SafeUint256.sub_le(last_token_index, Uint256(1, 0))
     let (token_index: Uint256) = ERC721_Enumerable_owned_tokens_index.read(token_id)

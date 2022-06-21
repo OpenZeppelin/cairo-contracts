@@ -208,7 +208,7 @@ namespace Account:
             end
         end        
 
-        return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
+        return _unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
     func eth_execute{
@@ -239,7 +239,7 @@ namespace Account:
             assert is_valid = TRUE
         end
                 
-        return unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
+        return _unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
     func _execute_list{syscall_ptr: felt*}(
@@ -292,7 +292,7 @@ namespace Account:
         return ()
     end
 
-    func unsafe_execute{
+    func _unsafe_execute{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,

@@ -445,7 +445,7 @@ Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implem
 
 Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite methods from the Account library and incorporate the extended logic thereafter.
 
-Currently, there's only a single library/preset Account scheme, but we're looking for feedback and new presets to emerge. Some new validation schemes to look out for in the future:
+Currently, there's a library/preset Account scheme, and an EthAccount preset, both contain a validation and an execution step, where `_unsafe_execution` is used as a building block for each scheme, and exposing it is highly discourage, but we're looking for feedback and new presets to emerge. Some new validation schemes to look out for in the future:
 
 * multisig
 * guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)

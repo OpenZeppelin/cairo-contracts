@@ -148,11 +148,22 @@ async def test_burn_from(erc20_factory):
             *AMOUNT
         ])
 
-    await signer.send_transaction(
+    tx_exec_info = await signer.send_transaction(
         account2, erc20.contract_address, 'burnFrom', [
             account1.contract_address,
             *AMOUNT
         ])
+
+    assert_event_emitted(
+        tx_exec_info,
+        from_address=erc20.contract_address,
+        name='Transfer',
+        data=[
+            account1.contract_address,
+            ZERO_ADDRESS,
+            *AMOUNT
+        ]
+    )
 
     new_balance = sub_uint(INIT_SUPPLY, AMOUNT)
 

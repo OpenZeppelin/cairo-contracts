@@ -36,6 +36,16 @@ end
 #
 
 @view
+func owner{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner) = Ownable.owner()
+    return (owner)
+end
+
+@view
 func name{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
@@ -94,6 +104,10 @@ func allowance{
     let (remaining: Uint256) = ERC20.allowance(owner, spender)
     return (remaining)
 end
+
+#
+# External
+#
 
 @external
 func transfer{
@@ -170,16 +184,6 @@ func burnFrom{
     ERC20._spend_allowance(account, caller, amount)
     ERC20._burn(account, amount)
     return ()
-end
-
-@view
-func owner{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (owner: felt):
-    let (owner) = Ownable.owner()
-    return (owner)
 end
 
 @external

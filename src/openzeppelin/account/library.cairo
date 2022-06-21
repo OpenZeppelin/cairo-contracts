@@ -145,8 +145,8 @@ namespace Account:
  func is_valid_eth_signature{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr,
-            bitwise_ptr: BitwiseBuiltin*
+            bitwise_ptr: BitwiseBuiltin*,
+            range_check_ptr
         }(
             signature_len: felt,
             signature: felt*

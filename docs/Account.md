@@ -12,7 +12,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer](#signer)
-  * [TestSigner utility](#TestSigner-utility)
+  * [MockSigner utility](#mocksigner-utility)
 * [Account entrypoint](#account-entrypoint)
 * [Call and AccountCallArray format](#call-and-accountcallarray-format)
   * [Call](#call)
@@ -40,7 +40,7 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -116,15 +116,15 @@ Which returns:
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
 
-While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `TestSigner`.
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `MockSigner`.
 
-### TestSigner utility
+### MockSigner utility
 
-The `TestSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+The `MockSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
 The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format. The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument). Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
 
-The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `TestSigner` instance invokes the account contract's `__execute__` with the transaction data.
+The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `MockSigner` instance invokes the account contract's `__execute__` with the transaction data.
 
 Users only need to interact with the following exposed methods to perform a transaction:
 
@@ -132,13 +132,13 @@ Users only need to interact with the following exposed methods to perform a tran
 
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
 
-To use `TestSigner`, pass a private key when instantiating the class:
+To use `MockSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils import TestSigner
+from utils import MockSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = TestSigner(PRIVATE_KEY)
+signer = MockSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -404,8 +404,8 @@ Currently, there's only a single library/preset Account scheme, but we're lookin
 
 ## L1 escape hatch mechanism
 
-*[unknown, to be defined]*
+[unknown, to be defined]
 
 ## Paying for gas
 
-*[unknown, to be defined]*
+[unknown, to be defined]

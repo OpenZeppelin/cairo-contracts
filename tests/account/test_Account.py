@@ -2,11 +2,11 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import TestSigner, assert_revert, get_contract_def, cached_contract, TRUE
+from utils import MockSigner, assert_revert, get_contract_def, cached_contract, TRUE
 
 
-signer = TestSigner(123456789987654321)
-other = TestSigner(987654321123456789)
+signer = MockSigner(123456789987654321)
+other = MockSigner(987654321123456789)
 
 IACCOUNT_ID = 0xf10dbd44
 
@@ -131,20 +131,17 @@ async def test_nonce(account_factory):
     current_nonce = execution_info.result.res
 
     # lower nonce
-    try:
-        await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1)
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    await assert_revert(
+        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
+        reverted_with="Account: nonce is invalid"
+    )
 
     # higher nonce
-    try:
-        await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1)
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    await assert_revert(
+        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
+        reverted_with="Account: nonce is invalid"
+    )
+
     # right nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce)
 

@@ -1,12 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, 
+    MockSigner, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, 
     assert_revert, to_uint
 )
 
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]

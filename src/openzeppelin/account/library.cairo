@@ -145,8 +145,8 @@ namespace Account:
  func is_valid_eth_signature{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
-            range_check_ptr,
-            bitwise_ptr: BitwiseBuiltin*
+            bitwise_ptr: BitwiseBuiltin*,
+            range_check_ptr
         }(
             signature_len: felt,
             signature: felt*
@@ -225,7 +225,7 @@ namespace Account:
 
         # validate transaction        
         let (is_valid) = is_valid_eth_signature(tx_info.signature_len, tx_info.signature)
-        with_attr error_message("Account: invalid signature"):
+        with_attr error_message("Account: invalid secp256k1 signature"):
             assert is_valid = TRUE
         end
                 

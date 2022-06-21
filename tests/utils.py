@@ -7,7 +7,6 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.execution.objects import Event
-from nile.signer import Signer
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash
 import eth_keys
 from Crypto.Hash import keccak
@@ -219,4 +218,3 @@ class TestEthSigner():
         return await account.__execute__(call_array, calldata, nonce).invoke(
             signature=[signature.v, *sig_r, *sig_s, *hash]
         ) 
-        

@@ -1,8 +1,9 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, assert_revert, assert_event_emitted, get_contract_def, cached_contract
+    assert_revert, assert_event_emitted, get_contract_def, cached_contract
 )
+from signers import TestSigner
 
 
 # random value

@@ -1,12 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner,
     ZERO_ADDRESS,
     assert_event_emitted,
     get_contract_def,
     cached_contract
 )
+from signers import TestSigner
 
 
 signer = TestSigner(123456789987654321)

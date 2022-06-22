@@ -2,7 +2,8 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import TestSigner, TestEthSigner, assert_revert, get_contract_def, cached_contract, TRUE
+from utils import assert_revert, get_contract_def, cached_contract, TRUE
+from signers import TestEthSigner
 
 private_key = b'\x01' * 32
 signer = TestEthSigner(b'\x01' * 32)

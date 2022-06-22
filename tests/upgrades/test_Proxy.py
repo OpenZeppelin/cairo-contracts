@@ -1,9 +1,9 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, assert_revert, get_contract_def, cached_contract
+    assert_revert, get_contract_def, cached_contract
 )
-
+from signers import TestSigner
 
 # random value
 VALUE = 123

@@ -162,6 +162,7 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 ### TestEthSigner utility
 
 The `TestEthSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces. It differs from the `TestSigner` implementation by:
+
 * not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
 * using keccak to hash transactions
 * signing the message with a secp256k1 curve address

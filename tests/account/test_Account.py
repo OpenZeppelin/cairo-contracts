@@ -2,7 +2,8 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import TestSigner, assert_revert, get_contract_def, cached_contract, TRUE
+from utils import assert_revert, get_contract_def, cached_contract, TRUE
+from signers import TestSigner
 
 
 signer = TestSigner(123456789987654321)

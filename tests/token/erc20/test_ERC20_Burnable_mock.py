@@ -1,9 +1,10 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner, to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
+    to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
     get_contract_def, cached_contract, assert_revert, assert_event_emitted, 
 )
+from signers import TestSigner
 
 signer = TestSigner(123456789987654321)
 

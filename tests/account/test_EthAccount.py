@@ -140,12 +140,11 @@ async def test_nonce(account_factory):
         assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
 
     # higher nonce
-    try:
-        await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1)
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    await assert_revert(
+        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
+        reverted_with="Account: nonce is invalid"
+    )
+
     # right nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce)
 

@@ -396,7 +396,6 @@ Cairo field elements can hold a maximum of 252 bits. Even further, a declared *c
 
 * using the first or last 250 bits of keccak256 hash digests
 * using Cairo's [hash2](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo)
-* making up your own.
 
 ### AccessControl library API
 

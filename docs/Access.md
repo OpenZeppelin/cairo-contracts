@@ -83,7 +83,7 @@ end
 
 Initializes Ownable access control and should be called in the implementing contract's constructor.
 
-This can only be called once.
+This must be called only once.
 
 Parameters:
 

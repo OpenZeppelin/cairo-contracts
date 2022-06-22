@@ -224,7 +224,7 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.accesscontrol import AccessControl
 
 # constant
-const MINTER_ROLE = 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956
+const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
 
 @constructor
 func constructor{
@@ -267,8 +267,8 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.accesscontrol import AccessControl
 
 # constants
-const MINTER_ROLE = 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956
-const BURNER_ROLE = 0xf04745b2ebff4077da73871013d8d03b815d263d7c00918643a9508815daa1
+const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
+const BURNER_ROLE = 0x1e08e8b65d7fe80efb4e70e2027b1a07702ba4c7af801230c8752a1102bb542
 
 @constructor
 func constructor{
@@ -332,8 +332,8 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.accesscontrol import AccessControl
 
 # constants
-const MINTER_ROLE = 0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956
-const BURNER_ROLE = 0xf04745b2ebff4077da73871013d8d03b815d263d7c00918643a9508815daa1
+const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
+const BURNER_ROLE = 0x1e08e8b65d7fe80efb4e70e2027b1a07702ba4c7af801230c8752a1102bb542
 
 @constructor
 func constructor{
@@ -394,7 +394,7 @@ These identifiers take up 32 bytes (256 bits).
 
 Cairo field elements can hold a maximum of 252 bits. Even further, a declared *constant* field element in a StarkNet contract can only hold 251 bits. With this discrepancy, this library maintains an agnostic stance on how contracts should declare identifiers. Some ideas to consider:
 
-* using the first or last 250 bits of keccak256 hash digests
+* using the first or last 251 bits of keccak256 hash digests
 * using Cairo's [hash2](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo)
 
 ### AccessControl library API

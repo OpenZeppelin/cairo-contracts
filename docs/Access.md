@@ -81,7 +81,7 @@ end
 
 #### `initializer`
 
-Initializes Ownable access control and should be called in the implementing contract's constructor.
+Initializes Ownable access control and should be called in the implementing contract's constructor. Assigns `owner` as the initial owner address of the contract.
 
 This must be called only once.
 

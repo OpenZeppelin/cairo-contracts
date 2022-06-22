@@ -88,7 +88,7 @@ This must be called only once.
 Parameters:
 
 ```cairo
-owner:felt
+owner: felt
 ```
 
 Returns:

@@ -40,7 +40,7 @@ end
 
 namespace AccessControl:
     #
-    # Constructor
+    # Initializer
     #
 
     func initializer{
@@ -63,7 +63,7 @@ namespace AccessControl:
         }(role: felt):
         let (caller: felt) = get_caller_address()
         let (authorized: felt) = has_role(role, caller)
-        with_attr error_message("AccessControl: caller is missing role {role}"):
+        with_attr error_message("AccessControl: {caller} is missing role {role}"):
             assert authorized = TRUE
         end
         return ()
@@ -79,7 +79,7 @@ namespace AccessControl:
             range_check_ptr
         }(role: felt, user: felt) -> (has_role: felt):
         let (authorized: felt) = AccessControl_role_member.read(role, user)
-        return (has_role=authorized)
+        return (authorized)
     end
 
     func get_role_admin{
@@ -139,9 +139,9 @@ namespace AccessControl:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(role: felt, user: felt):
-        let (authorized: felt) = has_role(role, user)
+        let (user_has_role: felt) = has_role(role, user)
         if authorized == FALSE:
-            let (sender: felt) = get_caller_address()
+            let (caller: felt) = get_caller_address()
             AccessControl_role_member.write(role, user, TRUE)
             RoleGranted.emit(role, user, sender)
             return ()

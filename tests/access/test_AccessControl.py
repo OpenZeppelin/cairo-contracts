@@ -67,7 +67,7 @@ async def test_constructor(accesscontrol_factory):
 
 
 @pytest.mark.asyncio
-async def test_grantRole(accesscontrol_factory):
+async def test_grant_role(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'grantRole', [0, account2.contract_address])
@@ -81,7 +81,7 @@ async def test_grantRole(accesscontrol_factory):
             account1.contract_address  # sender
         ]
     )
-    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account2.contract_address).call()
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account2.contract_address).invoke()
     assert expected.result.hasRole == TRUE
 
 

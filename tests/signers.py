@@ -85,12 +85,11 @@ class TestEthSigner():
         message_hash = get_transaction_hash(
             account.contract_address, call_array, calldata, nonce, max_fee
         )
-        k = keccak.new(digest_bits=256)
-        k.update(str.encode(str(message_hash)))
-        hash = to_uint(int(k.hexdigest(), 16))
-        signature = self.signer.sign_msg_hash(k.digest())        
+        
+        signature = self.signer.sign_msg_hash((message_hash).to_bytes(32, byteorder="big"))        
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
+
         return await account.__execute__(call_array, calldata, nonce).invoke(
-            signature=[signature.v, *sig_r, *sig_s, *hash]
-        ) , [signature.v, *sig_r, *sig_s, *hash]
+            signature=[signature.v, *sig_r, *sig_s]
+        ) , [signature.v, *sig_r, *sig_s]

@@ -7,6 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin,
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.math import split_felt
 from starkware.cairo.common.bool import TRUE
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
@@ -148,6 +149,7 @@ namespace Account:
             bitwise_ptr: BitwiseBuiltin*,
             range_check_ptr
         }(
+            hash: felt,
             signature_len: felt,
             signature: felt*
         ) -> (is_valid: felt):
@@ -159,10 +161,11 @@ namespace Account:
         # no assumption about signature validation schemes.
         # But this implementation does, and it expects a the sig_v, sig_r, 
         # sig_s, and hash elements.
-        let sig_v: felt = signature[0]
+        let sig_v : felt = signature[0]
         let sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
         let sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
-        let msg_hash : Uint256 = Uint256(low=signature[5], high=signature[6])
+        let (high, low) = split_felt(hash)
+        let msg_hash : Uint256 = Uint256(low=low, high=high)
         
         let (local keccak_ptr : felt*) = alloc()
 
@@ -224,7 +227,7 @@ namespace Account:
         let (tx_info) = get_tx_info()
 
         # validate transaction        
-        let (is_valid) = is_valid_eth_signature(tx_info.signature_len, tx_info.signature)
+        let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash,tx_info.signature_len, tx_info.signature)
         with_attr error_message("Account: invalid secp256k1 signature"):
             assert is_valid = TRUE
         end

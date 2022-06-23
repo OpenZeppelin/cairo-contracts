@@ -81,10 +81,11 @@ func is_valid_signature{
         ecdsa_ptr: SignatureBuiltin*,
         bitwise_ptr: BitwiseBuiltin*
     }(
+        hash: felt,
         signature_len: felt,
         signature: felt*
     ) -> (is_valid: felt):
-    let (is_valid) = Account.is_valid_eth_signature(signature_len, signature)
+    let (is_valid) = Account.is_valid_eth_signature(hash, signature_len, signature)
     return (is_valid=is_valid)
 end
 

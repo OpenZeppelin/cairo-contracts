@@ -92,4 +92,4 @@ class TestEthSigner():
 
         return await account.__execute__(call_array, calldata, nonce).invoke(
             signature=[signature.v, *sig_r, *sig_s]
-        ) , [signature.v, *sig_r, *sig_s]
+        ) , message_hash, [signature.v, *sig_r, *sig_s]

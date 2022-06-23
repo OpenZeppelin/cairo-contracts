@@ -82,10 +82,10 @@ async def test_execute(account_factory):
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
 
-    _, *signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
+    _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    #validity_info = account.is_valid_signature(7,signature=signature).invoke()
-    #assert validity_info.result == (1,)
+    validity_info, *_ = await signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash, len(signature), *signature])])
+    assert validity_info.result.response[0] == 1
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (1,)
@@ -121,7 +121,7 @@ async def test_return_value(account_factory):
     # initialize, set `initialized = 1`
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    read_info, _ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    read_info, *_ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
     assert read_info.result.response == [call_result]  # 1

@@ -122,9 +122,9 @@ namespace AccessControl:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(role: felt, user: felt):
-        let (sender: felt) = get_caller_address()
+        let (caller: felt) = get_caller_address()
         with_attr error_message("AccessControl: can only renounce roles for self"):
-            assert user = sender
+            assert user = caller
         end
         _revoke_role(role, user)
         return ()
@@ -140,10 +140,10 @@ namespace AccessControl:
             range_check_ptr
         }(role: felt, user: felt):
         let (user_has_role: felt) = has_role(role, user)
-        if authorized == FALSE:
+        if user_has_role == FALSE:
             let (caller: felt) = get_caller_address()
             AccessControl_role_member.write(role, user, TRUE)
-            RoleGranted.emit(role, user, sender)
+            RoleGranted.emit(role, user, caller)
             return ()
         end
         return ()
@@ -154,11 +154,11 @@ namespace AccessControl:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(role: felt, user: felt):
-        let (authorized: felt) = has_role(role, user)
-        if authorized == TRUE:
-            let (sender: felt) = get_caller_address()
+        let (user_has_role: felt) = has_role(role, user)
+        if user_has_role == TRUE:
+            let (caller: felt) = get_caller_address()
             AccessControl_role_member.write(role, user, FALSE)
-            RoleRevoked.emit(role, user, sender)
+            RoleRevoked.emit(role, user, caller)
             return ()
         end
         return ()

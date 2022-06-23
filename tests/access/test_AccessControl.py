@@ -91,7 +91,7 @@ async def test_grantRole_unauthorized(accesscontrol_factory):
 
     await assert_revert(
         signer.send_transaction(account2, accesscontrol.contract_address, 'grantRole', [DEFAULT_ADMIN_ROLE, account2.contract_address]),
-        reverted_with="AccessControl: caller is missing role {}".format(DEFAULT_ADMIN_ROLE)
+        reverted_with="AccessControl: {caller} is missing role {role}".format(caller=account2.contract_address, role=DEFAULT_ADMIN_ROLE)
     )
 
 
@@ -122,7 +122,7 @@ async def test_revokeRole_unauthorized(accesscontrol_factory):
 
     await assert_revert(
         signer.send_transaction(account2, accesscontrol.contract_address, 'revokeRole', [DEFAULT_ADMIN_ROLE, account1.contract_address]),
-        reverted_with="AccessControl: caller is missing role {}".format(DEFAULT_ADMIN_ROLE)
+        reverted_with="AccessControl: {caller} is missing role {role}".format(caller=account2.contract_address, role=DEFAULT_ADMIN_ROLE)
     )
 
 

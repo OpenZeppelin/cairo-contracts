@@ -23,7 +23,7 @@ The following documentation provides context, reasoning, and examples for method
 * [Memoization](#memoization)
   * [`get_contract_class`](#get_contract_class)
   * [`cached_contract`](#cached_contract)
-* [Signer](#signer)
+* [MockSigner](#mocksigner)
 
 ## Constants
 
@@ -241,4 +241,4 @@ def foo_factory(contract_classes, foo_init):
 
 ## MockSigner
 
-`MockSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `__execute__` method. See [MockSigner utility](../docs/Account.md#mocksigner-utility) for more information.
+`MockSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `__execute__` method. See [MockSigner utility](../docs/Account.md#activatedsigner-utility) for more information.

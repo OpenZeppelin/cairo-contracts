@@ -153,7 +153,7 @@ None.
 
 <h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
 
-Transfers ownership of the contract to a new account (`new_owner`). [Internal function](./Extensibility.md#libraries) without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`). Unprotected method without access restriction.
 
 Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 

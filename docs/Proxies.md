@@ -24,7 +24,7 @@
 
 The general workflow is:
 
-1. declare an implementation contract
+1. declare an implementation [contract class](https://starknet.io/docs/hello_starknet/intro.html#declare-the-contract-on-the-starknet-testnet)
 2. deploy proxy contract with the implementation contract's class hash set in the proxy's constructor calldata
 3. initialize the implementation contract by sending a call to the proxy contract. This will redirect the call to the implementation contract class and behave like the implementation contract's constructor
 

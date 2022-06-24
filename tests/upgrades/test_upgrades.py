@@ -1,7 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner,
+    MockSigner,
     assert_revert,
     assert_revert_entry_point,
     assert_event_emitted,
@@ -14,7 +14,7 @@ from utils import (
 VALUE_1 = 123
 VALUE_2 = 987
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')
@@ -229,7 +229,7 @@ async def test_implementation_v2(after_upgrade):
 #
 
 @pytest.mark.asyncio
-async def test_setAdmin(after_upgrade):
+async def test_set_admin(after_upgrade):
     admin, new_admin, proxy, *_ = after_upgrade
 
     # change admin
@@ -247,7 +247,7 @@ async def test_setAdmin(after_upgrade):
 
 
 @pytest.mark.asyncio
-async def test_setAdmin_from_non_admin(after_upgrade):
+async def test_set_admin_from_non_admin(after_upgrade):
     _, non_admin, proxy, *_ = after_upgrade
 
     # should revert

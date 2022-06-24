@@ -132,7 +132,7 @@ def cached_contract(state, _class, deployed):
     return contract
 
 
-class TestSigner():
+class MockSigner():
     """
     Utility for sending signed transactions to an Account on Starknet.
 
@@ -143,9 +143,9 @@ class TestSigner():
 
     Examples
     ---------
-    Constructing a TestSigner object
+    Constructing a MockSigner object
 
-    >>> signer = TestSigner(1234)
+    >>> signer = MockSigner(1234)
 
     Sending a transaction
 

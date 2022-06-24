@@ -1,7 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    TestSigner,
+    MockSigner,
     assert_revert,
     get_contract_class,
     cached_contract,
@@ -12,7 +12,7 @@ from utils import (
 # random value
 VALUE = 123
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')
@@ -77,7 +77,7 @@ async def after_initialized(proxy_factory):
     return admin, other, proxy
 
 #
-# constructor
+# initializer
 #
 
 @pytest.mark.asyncio
@@ -105,7 +105,7 @@ async def test_initializer_after_initialized(after_initialized):
     )
 
 #
-# setAdmin
+# set_admin
 #
 
 @pytest.mark.asyncio

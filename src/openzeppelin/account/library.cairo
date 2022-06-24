@@ -200,8 +200,8 @@ namespace Account:
         let (local ecdsa_ptr : SignatureBuiltin*) = alloc()
         with ecdsa_ptr:
             # validate transaction
-            let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
             with_attr error_message("Account: invalid signature"):
+                let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
                 assert is_valid = TRUE
             end
         end        
@@ -227,8 +227,8 @@ namespace Account:
         let (tx_info) = get_tx_info()
 
         # validate transaction        
-        let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash,tx_info.signature_len, tx_info.signature)
         with_attr error_message("Account: invalid secp256k1 signature"):
+            let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash,tx_info.signature_len, tx_info.signature)
             assert is_valid = TRUE
         end
                 
@@ -255,7 +255,7 @@ namespace Account:
         end
 
         # validate nonce
-        
+
         let (_current_nonce) = Account_current_nonce.read()
         
         with_attr error_message("Account: nonce is invalid"):

@@ -446,7 +446,6 @@ Is the internal method that performs the following task inside the `execute` and
 3. Calls the target contract with the intended function selector and calldata parameters
 4. Forwards the contract call response data as return value
 
-
 ## Account differentiation with ERC165
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.

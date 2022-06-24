@@ -85,10 +85,10 @@ async def test_execute(account_factory):
     _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
     validity_info, *_ = await signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash, len(signature), *signature])])
-    assert validity_info.result.response[0] == 1
+    assert validity_info.result.response[0] == TRUE
 
     execution_info = await initializable.initialized().call()
-    assert execution_info.result == (1,)
+    assert execution_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
@@ -109,9 +109,9 @@ async def test_multicall(account_factory):
     )
 
     execution_info = await initializable_1.initialized().call()
-    assert execution_info.result == (1,)
+    assert execution_info.result == (TRUE,)
     execution_info = await initializable_2.initialized().call()
-    assert execution_info.result == (1,)
+    assert execution_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio
@@ -152,7 +152,7 @@ async def test_nonce(account_factory):
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce)
 
     execution_info = await initializable.initialized().call()
-    assert execution_info.result == (1,)
+    assert execution_info.result == (TRUE,)
 
 
 @pytest.mark.asyncio

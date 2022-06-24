@@ -254,8 +254,10 @@ namespace Account:
             assert caller = 0
         end
 
-        let (_current_nonce) = Account_current_nonce.read()
         # validate nonce
+        
+        let (_current_nonce) = Account_current_nonce.read()
+        
         with_attr error_message("Account: nonce is invalid"):
              assert _current_nonce = nonce
         end

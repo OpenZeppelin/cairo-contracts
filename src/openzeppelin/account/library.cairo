@@ -259,6 +259,7 @@ namespace Account:
         with_attr error_message("Account: nonce is invalid"):
              assert _current_nonce = nonce
         end
+
         # bump nonce
         Account_current_nonce.write(_current_nonce + 1)
 

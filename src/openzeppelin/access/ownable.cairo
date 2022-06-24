@@ -33,6 +33,9 @@ namespace Ownable:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(owner: felt):
+        with_attr error_message("Ownable: owner cannot be the zero address"):
+            assert_not_zero(owner)
+        end
         _transfer_ownership(owner)
         return ()
     end

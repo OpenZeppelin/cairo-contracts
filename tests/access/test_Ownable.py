@@ -4,6 +4,7 @@ from utils import (
     MockSigner,
     ZERO_ADDRESS,
     assert_event_emitted,
+    assert_revert,
     get_contract_def,
     cached_contract
 )
@@ -59,6 +60,16 @@ async def test_transferOwnership(ownable_factory):
     await signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [new_owner])
     executed_info = await ownable.owner().call()
     assert executed_info.result == (new_owner,)
+
+
+@pytest.mark.asyncio 
+async def test_transferOwnership_to_zero_address(ownable_factory):
+    ownable, owner = ownable_factory
+
+    await assert_revert(
+        signer.send_transaction(owner, ownable.contract_address, 'transferOwnership', [ZERO_ADDRESS]),
+        reverted_with="Ownable: new owner is the zero address"
+    )
 
 
 @pytest.mark.asyncio

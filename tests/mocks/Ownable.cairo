@@ -16,7 +16,7 @@ func constructor{
     return ()
 end
 
-@external
+@view
 func owner{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

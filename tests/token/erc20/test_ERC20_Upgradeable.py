@@ -80,7 +80,7 @@ async def after_initializer(token_factory):
             NAME,                       # name
             SYMBOL,                     # symbol
             DECIMALS,                   # decimals
-            *INIT_SUPPLY,               # initial supplt
+            *INIT_SUPPLY,               # initial supply
             admin.contract_address,     # recipient
             admin.contract_address      # admin
         ]
@@ -98,7 +98,7 @@ async def test_constructor(token_factory):
             NAME,                       # name
             SYMBOL,                     # symbol
             DECIMALS,                   # decimals
-            *INIT_SUPPLY,               # initial supplt
+            *INIT_SUPPLY,               # initial supply
             admin.contract_address,     # recipient
             admin.contract_address      # admin
         ])

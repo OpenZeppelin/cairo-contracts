@@ -17,7 +17,7 @@ func Upgraded(implementation: felt):
 end
 
 @event
-func AdminChanged(oldAdmin: felt, newAdmin: felt):
+func AdminChanged(previousAdmin: felt, newAdmin: felt):
 end
 
 #
@@ -57,7 +57,7 @@ namespace Proxy:
     end
 
     #
-    # Guard
+    # Guards
     #
 
     func assert_only_admin{
@@ -104,9 +104,9 @@ namespace Proxy:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(new_admin: felt):
-        let (old_admin) = get_admin()
+        let (previous_admin) = get_admin()
         Proxy_admin.write(new_admin)
-        AdminChanged.emit(old_admin, new_admin)
+        AdminChanged.emit(previous_admin, new_admin)
         return ()
     end
 

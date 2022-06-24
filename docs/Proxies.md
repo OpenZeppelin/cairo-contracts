@@ -104,7 +104,7 @@ If the implementation is upgradeable, it should:
 
 The implementation contract should NOT:
 
-* deploy like a regular contract. Instead, the implementation contract should be declared (which creates an instance containing its declared class and abi)
+* be deployed like a regular contract. Instead, the implementation contract should be declared (which creates an instance containing its declared class and abi)
 * set its initial state with a traditional constructor (decorated with `@constructor`). Instead, use an initializer method that invokes the Proxy `constructor`.
 
 > Note that the Proxy `constructor` includes a check the ensures the initializer can only be called once; however, `_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`assert_only_admin`](#assert_only_admin).
@@ -153,7 +153,7 @@ None.
 
 #### `assert_only_admin`
 
-Throws if called by any account other than the admin.
+Reverts if called by any account other than the admin.
 
 Parameters:
 
@@ -193,7 +193,7 @@ admin: felt
 
 #### `_set_admin`
 
-Sets the admin of the proxy contract.
+Sets `new_admin` as the admin of the proxy contract.
 
 Parameters:
 
@@ -207,7 +207,7 @@ None.
 
 #### `_set_implementation_hash`
 
-Sets the implementation contract class. This method is included in the proxy contract's constructor and is furthermore used to upgrade contracts.
+Sets `new_implementation` as the implementation's contract class. This method is included in the proxy contract's constructor and can be used to upgrade contracts.
 
 Parameters:
 
@@ -225,7 +225,7 @@ None.
 func Upgraded(implementation: felt):
 end
 
-func AdminChanged(oldAdmin: felt, newAdmin: felt):
+func AdminChanged(previousAdmin: felt, newAdmin: felt):
 end
 ```
 
@@ -241,12 +241,12 @@ implementation: felt
 
 #### `AdminChanged`
 
-Emitted when the `admin` is changed.
+Emitted when the `admin` changes from `previousAdmin` to `newAdmin`.
 
 Parameters:
 
 ```cairo
-oldAdmin: felt
+previousAdmin: felt
 newAdmin: felt
 ```
 

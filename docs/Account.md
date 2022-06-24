@@ -24,6 +24,11 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
   * [`set_public_key`](#set_public_key)
   * [`is_valid_signature`](#is_valid_signature)
   * [`__execute__`](#__execute__)
+  * [`is_valid_eth_signature`](#is_valid_eth_signature)
+  * [`eth_execute`](#eth_execute)
+  * [`_unsafe_execute`](#_unsafe_execute)
+* [Presets](#presets)
+  * [Eth Account](#eth-account)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 escape hatch mechanism](#l1-escape-hatch-mechanism)
@@ -368,11 +373,8 @@ is_valid: felt
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information
-2. Validates the transaction signature matches the message (including the nonce)
-3. Increments the nonce
-4. Calls the target contract with the intended function selector and calldata parameters
-5. Forwards the contract call response data as return value
+1. Validates the transaction signature matches the message (including the nonce)
+2. Calls _unsafe_execute.
 
 Parameters:
 
@@ -435,6 +437,16 @@ response_len: felt
 response: felt*
 ```
 
+### `_unsafe_execute`
+
+Is the internal method that performs the following task inside the `execute` and `eth_execute` functions:
+
+1. Increments the nonce.
+2. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information.
+3. Calls the target contract with the intended function selector and calldata parameters
+4. Forwards the contract call response data as return value
+
+
 ## Account differentiation with ERC165
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
@@ -449,7 +461,7 @@ To implement custom account contracts, a pair of `validate` and `execute` functi
 
 Account contract developers are encouraged to implement the [standard Account interface](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and incorporate the custom logic thereafter.
 
-To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execution` building block. Do not expose `_unsafe_execution` directly.
+To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block. Do not expose `_unsafe_execute` directly.
 
 Some other validation schemes to look out for in the future:
 

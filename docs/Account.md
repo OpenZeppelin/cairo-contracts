@@ -445,7 +445,13 @@ Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implem
 
 Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern).
 
-Currently, there's a library/preset Account scheme, and an EthAccount preset, both contain a validation and an execution step, where `_unsafe_execution` is used as a building block for each scheme, and exposing it is highly discourage, but we're looking for feedback and new presets to emerge. Some new validation schemes to look out for in the future:
+To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed. This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
+
+Account contract developers are encouraged to implement the [standard Account interface](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and incorporate the custom logic thereafter.
+
+To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execution` building block. Do not expose `_unsafe_execution` directly.
+
+Some other validation schemes to look out for in the future:
 
 * multisig
 * guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)

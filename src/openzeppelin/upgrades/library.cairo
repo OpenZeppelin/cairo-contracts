@@ -96,7 +96,7 @@ namespace Proxy:
     end
 
     #
-    # Internals
+    # Unprotected
     #
 
     func _set_admin{

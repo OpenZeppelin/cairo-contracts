@@ -239,6 +239,6 @@ def foo_factory(contract_classes, foo_init):
     return cached_foo                                   # return cached contracts
 ```
 
-## TestSigner
+## MockSigner
 
-`TestSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `TestSigner` to operate with the Account contract's `__execute__` method. See [TestSigner utility](../docs/Account.md#activatedsigner-utility) for more information.
+`MockSigner` is used to perform transactions with an instance of [Nile's Signer](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py) on a given Account, crafting the transaction and managing nonces. The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `__execute__` method. See [MockSigner utility](../docs/Account.md#mocksigner-utility) for more information.

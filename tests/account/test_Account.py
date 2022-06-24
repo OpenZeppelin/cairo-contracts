@@ -1,6 +1,12 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
+<<<<<<< HEAD
 from utils import MockSigner, assert_revert, get_contract_class, cached_contract, TRUE
+=======
+from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from utils import MockSigner, assert_revert, get_contract_def, cached_contract, TRUE
+>>>>>>> Fix `TestSigner` pytest warning (#367)
 
 
 signer = MockSigner(123456789987654321)

@@ -112,12 +112,6 @@ async def test_initializer_after_initialized(after_initialized):
 async def test_set_admin(after_initialized):
     admin, _, proxy = after_initialized 
 
-    # check initial admin
-    execution_info = await signer.send_transaction(
-        admin, proxy.contract_address, 'getAdmin', []
-    )
-    assert execution_info.result.response == [admin.contract_address]
-
     # set admin
     tx_exec_info = await signer.send_transaction(
         admin, proxy.contract_address, 'setAdmin', [VALUE]

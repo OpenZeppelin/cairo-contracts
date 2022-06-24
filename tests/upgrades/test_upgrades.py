@@ -229,7 +229,7 @@ async def test_implementation_v2(after_upgrade):
 #
 
 @pytest.mark.asyncio
-async def test_setAdmin(after_upgrade):
+async def test_set_admin(after_upgrade):
     admin, new_admin, proxy, *_ = after_upgrade
 
     # change admin
@@ -249,87 +249,6 @@ async def test_setAdmin(after_upgrade):
 @pytest.mark.asyncio
 async def test_set_admin_from_non_admin(after_upgrade):
     _, non_admin, proxy, *_ = after_upgrade
-
-    # should revert
-    await assert_revert(signer.send_transaction(
-        non_admin, proxy.contract_address, 'setAdmin', [non_admin.contract_address]),
-        reverted_with="Proxy: caller is not admin"
-    )
-
-
-@pytest.mark.asyncio
-async def test_v2_functions_pre_and_post_upgrade(proxy_factory):
-    admin, new_admin, proxy, _, v2_decl = proxy_factory
-
-    # initialize
-    await signer.send_transaction(
-        admin, proxy.contract_address, 'initializer', [
-            admin.contract_address
-        ]
-    )
-
-    # check getValue2 doesn't exist
-    await assert_revert_entry_point(
-        signer.send_transaction(
-            admin, proxy.contract_address, 'getValue2', []
-        ), 
-        invalid_selector='getValue2'
-    )
-
-    # check setValue2 doesn't exist in v1
-    await assert_revert_entry_point(
-        signer.send_transaction(
-            admin, proxy.contract_address, 'setValue2', [VALUE_2]
-        ),
-        invalid_selector='setValue2'
-    )
-
-    # check getAdmin doesn't exist in v1
-    await assert_revert_entry_point(
-        signer.send_transaction(
-            admin, proxy.contract_address, 'getAdmin', []
-        ),
-        invalid_selector='getAdmin'
-    )
-
-    # check setAdmin doesn't exist in v1
-    await assert_revert_entry_point(
-        signer.send_transaction(
-            admin, proxy.contract_address, 'setAdmin', [new_admin.contract_address]
-        ),
-        invalid_selector='setAdmin'
-    )
-
-    # upgrade
-    await signer.send_transaction(
-        admin, proxy.contract_address, 'upgrade', [
-            v2_decl.class_hash
-        ]
-    )
-
-    # set value 2 and admin
-    await signer.send_transactions(
-        admin,
-        [
-            (proxy.contract_address, 'setValue2', [VALUE_2]),
-            (proxy.contract_address, 'setAdmin', [new_admin.contract_address])
-        ]
-    )
-
-    # check value 2 and admin
-    execution_info = await signer.send_transactions(
-        admin,
-        [
-            (proxy.contract_address, 'getValue2', []),
-            (proxy.contract_address, 'getAdmin', [])
-        ]
-    )
-
-    expected = [
-        VALUE_2,                        # getValue2
-        new_admin.contract_address      # getAdmin
-    ]
-    assert execution_info.result.response == expected
 
     # should revert
     await assert_revert(signer.send_transaction(

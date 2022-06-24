@@ -115,13 +115,13 @@ func setValue2{
     return ()
 end
 
-# ONLY FOR MOCKS, DON'T EXPOSE IN PRODUCTION
 @external
 func setAdmin{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_admin: felt):
+    Proxy.assert_only_admin()
     Proxy._set_admin(new_admin)
     return ()
 end

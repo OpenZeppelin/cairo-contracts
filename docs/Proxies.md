@@ -104,7 +104,7 @@ If the implementation is upgradeable, it should:
 
 The implementation contract should NOT:
 
-* be deployed like a regular contract. Instead, the implementation contract should be declared (which creates an instance containing its declared class and abi)
+* be deployed like a regular contract. Instead, the implementation contract should be declared (which creates a `DeclaredClass` containing its hash and abi)
 * set its initial state with a traditional constructor (decorated with `@constructor`). Instead, use an initializer method that invokes the Proxy `constructor`.
 
 > Note that the Proxy `constructor` includes a check the ensures the initializer can only be called once; however, `_set_implementation` does not include this check. It's up to the developers to protect their implementation contract's upgradeability with access controls such as [`assert_only_admin`](#assert_only_admin).

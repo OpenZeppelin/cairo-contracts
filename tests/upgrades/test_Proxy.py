@@ -109,7 +109,7 @@ async def test_initializer_after_initialized(after_initialized):
 #
 
 @pytest.mark.asyncio
-async def test_setAdmin(after_initialized):
+async def test_set_admin(after_initialized):
     admin, _, proxy = after_initialized 
 
     # check initial admin
@@ -142,7 +142,7 @@ async def test_setAdmin(after_initialized):
 
 
 @pytest.mark.asyncio
-async def test_setAdmin_from_unauthorized(after_initialized):
+async def test_set_admin_from_unauthorized(after_initialized):
     _, non_admin, proxy = after_initialized 
 
     # set admin

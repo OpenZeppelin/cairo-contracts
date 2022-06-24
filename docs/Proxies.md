@@ -118,7 +118,7 @@ For a full implementation contract example, please see:
 ### Methods
 
 ```cairo
-func constructor(proxy_admin: felt):
+func initializer(proxy_admin: felt):
 end
 
 func assert_only_admin():
@@ -137,7 +137,7 @@ func _set_implementation_hash(new_implementation: felt):
 end
 ```
 
-#### `constructor`
+#### `initializer`
 
 Initializes the proxy contract with an initial implementation.
 

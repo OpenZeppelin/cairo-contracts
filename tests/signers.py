@@ -3,7 +3,7 @@ from utils import to_uint
 import eth_keys
 from Crypto.Hash import keccak
 
-class TestSigner():
+class MockSigner():
     """
     Utility for sending signed transactions to an Account on Starknet.
 
@@ -14,9 +14,9 @@ class TestSigner():
 
     Examples
     ---------
-    Constructing a TestSigner object
+    Constructing a MockSigner object
 
-    >>> signer = TestSigner(1234)
+    >>> signer = MockSigner(1234)
 
     Sending a transaction
 
@@ -55,9 +55,9 @@ class TestSigner():
         (call_array, calldata, sig_r, sig_s) = self.signer.sign_transaction(hex(account.contract_address), build_calls, nonce, max_fee)
         return await account.__execute__(call_array, calldata, nonce).invoke(signature=[sig_r, sig_s])
 
-class TestEthSigner():
+class MockeEthSigner():
     """
-    Utility for sending signed transactions to an Account on Starknet, like TestSigner, but using a secp256k1 signature.
+    Utility for sending signed transactions to an Account on Starknet, like MockSigner, but using a secp256k1 signature.
     Parameters
     ----------
     private_key : int

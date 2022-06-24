@@ -3,11 +3,11 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from utils import assert_revert, get_contract_def, cached_contract, TRUE
-from signers import TestEthSigner
+from signers import MockeEthSigner
 
 private_key = b'\x01' * 32
-signer = TestEthSigner(b'\x01' * 32)
-other = TestEthSigner(b'\x02' * 32)
+signer = MockeEthSigner(b'\x01' * 32)
+other = MockeEthSigner(b'\x02' * 32)
 
 IACCOUNT_ID = 0xf10dbd44
 

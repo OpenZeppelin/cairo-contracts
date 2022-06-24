@@ -10,7 +10,8 @@
 
 ## Usage
 
-> ## ⚠️ Warning! ⚠️
+> ## ⚠️ WARNING! ⚠️
+>
 > This repo contains highly experimental code.
 > Expect rapid iteration.
 > **Use at your own risk.**
@@ -102,25 +103,25 @@ end
 
 ### Contract documentation
 
-* [Account](docs/Account.md)
-* [ERC20](docs/ERC20.md)
-* [ERC721](docs/ERC721.md)
-* [Contract extensibility pattern](docs/Extensibility.md)
-* [Proxies and upgrades](docs/Proxies.md)
-* [Security](docs/Security.md)
-* [Utilities](docs/Utilities.md)
+- [Account](docs/Account.md)
+- [ERC20](docs/ERC20.md)
+- [ERC721](docs/ERC721.md)
+- [Contract extensibility pattern](docs/Extensibility.md)
+- [Proxies and upgrades](docs/Proxies.md)
+- [Security](docs/Security.md)
+- [Utilities](docs/Utilities.md)
 
 ### Cairo
 
-* [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
-* [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)
-* Perama's [Cairo by example](https://perama-v.github.io/cairo/by-example/)
-* [Cairo 101 workshops](https://www.youtube.com/playlist?list=PLcIyXLwiPilV5RBZj43AX1FY4FJMWHFTY)
+- [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
+- [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)
+- Perama's [Cairo by example](https://perama-v.github.io/cairo/by-example/)
+- [Cairo 101 workshops](https://www.youtube.com/playlist?list=PLcIyXLwiPilV5RBZj43AX1FY4FJMWHFTY)
 
 ### Nile
 
-* [Getting started with StarkNet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
-* [How to manage smart contract deployments with Nile](https://medium.com/@martriay/manage-your-starknet-deployments-with-nile-%EF%B8%8F-e849d40546dd)
+- [Getting started with StarkNet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
+- [How to manage smart contract deployments with Nile](https://medium.com/@martriay/manage-your-starknet-deployments-with-nile-%EF%B8%8F-e849d40546dd)
 
 ## Development
 
@@ -194,7 +195,9 @@ rootdir: /home/readme/cairo-contracts, configfile: tox.ini
 plugins: asyncio-0.18.3, xdist-2.5.0, forked-1.4.0, web3-5.29.0, typeguard-2.13.3
 asyncio: mode=auto
 gw0 [185] / gw1 [185]
-........................................................................................................................................................................................    [100%]
+......................................................................................
+......................................................................................
+............    [100%]
 ```
 
 ### Run Tests in Docker
@@ -247,13 +250,32 @@ See [Memoization](docs/Utilities.md#memoization) in the Utilities documentation 
 
 ## Security
 
-This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+> ⚠️ Warning! ⚠️
+> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
 
-Please report any security issues you find to security@openzeppelin.org.
+Refer to [SECURITY.md](SECURITY.md) for more details.
 
 ## Contribute
 
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
+
+### Markdown linter
+
+To keep the markdown files neat and easy to edit, we utilize DavidAnson's [markdownlint](https://github.com/DavidAnson/markdownlint) linter. You can find the listed rules [here](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md). Note that the following rules are disabled:
+
+- `MD013: line length`
+
+  - to enable paragraphs without internal line breaks
+
+- `MD033: inline HTML`
+
+  - to enable .md files to have duplicate headers and separate them by identifiers
+
+Before creating a PR, check that documentation changes are compliant with our markdown rules by running:
+
+```bash
+tox -e lint
+```
 
 ## License
 

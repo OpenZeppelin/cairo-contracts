@@ -1,12 +1,13 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
+from signers import MockSigner
 from utils import (
     TRUE, FALSE, assert_revert, assert_event_emitted, 
     get_contract_def, cached_contract
 )
-from signers import TestSigner
 
-signer = TestSigner(12345678987654321)
+
+signer = MockSigner(12345678987654321)
 
 @pytest.fixture
 async def pausable_factory():

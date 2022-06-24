@@ -2,12 +2,12 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
+from signers import MockSigner
 from utils import assert_revert, get_contract_def, cached_contract, TRUE
-from signers import TestSigner
 
 
-signer = TestSigner(123456789987654321)
-other = TestSigner(987654321123456789)
+signer = MockSigner(123456789987654321)
+other = MockSigner(987654321123456789)
 
 IACCOUNT_ID = 0xf10dbd44
 

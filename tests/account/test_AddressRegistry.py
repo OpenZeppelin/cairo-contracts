@@ -1,10 +1,11 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
+from signers import MockSigner
 from utils import contract_path
-from signers import TestSigner
 
 
-signer = TestSigner(123456789987654321)
+
+signer = MockSigner(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 

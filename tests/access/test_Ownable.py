@@ -1,4 +1,5 @@
 import pytest
+from signers import MockSigner
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     ZERO_ADDRESS,
@@ -6,10 +7,10 @@ from utils import (
     get_contract_def,
     cached_contract
 )
-from signers import TestSigner
 
 
-signer = TestSigner(123456789987654321)
+
+signer = MockSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')

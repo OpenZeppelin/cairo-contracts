@@ -1,12 +1,13 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
+from signers import MockSigner
 from utils import (
     to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
     get_contract_def, cached_contract, assert_revert, assert_event_emitted, 
 )
-from signers import TestSigner
 
-signer = TestSigner(123456789987654321)
+
+signer = MockSigner(123456789987654321)
 
 # testing vars
 INIT_SUPPLY = to_uint(1000)

@@ -28,6 +28,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
   * [`eth_execute`](#eth_execute)
   * [`_unsafe_execute`](#_unsafe_execute)
 * [Presets](#presets)
+  * [Account](#account)
   * [Eth Account](#eth-account)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
@@ -445,6 +446,18 @@ Is the internal method that performs the following task inside the `execute` and
 2. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information.
 3. Calls the target contract with the intended function selector and calldata parameters
 4. Forwards the contract call response data as return value
+
+## Presets
+
+The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing. Each preset differs on the signature type being used by the Account.
+
+### Account
+
+The [`Account`](../src/openzeppelin/account/Account.cairo) preset offers an basic implementation of the library.
+
+### Eth Account
+
+The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset offers an account that supports ethereum addresses, meaning the key pair uses the 256k1 curve.
 
 ## Account differentiation with ERC165
 

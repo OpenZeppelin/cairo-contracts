@@ -141,11 +141,11 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Install Nile:
+Install [tox](https://tox.wiki/en/latest/index.html) and then use tox to install dependencies (without triggering tests):
 
 ```bash
-pip install cairo-nile
-nile install
+pip install tox
+tox --notest
 ```
 
 ### Compile the contracts

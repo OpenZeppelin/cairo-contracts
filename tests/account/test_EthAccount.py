@@ -2,7 +2,7 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import assert_revert, get_contract_def, cached_contract, TRUE
+from utils import assert_revert, get_contract_def, cached_contract, TRUE, FALSE
 from signers import MockeEthSigner
 
 private_key = b'\x01' * 32
@@ -80,7 +80,7 @@ async def test_execute(account_factory):
     account, _, initializable, *_ = account_factory
 
     execution_info = await initializable.initialized().call()
-    assert execution_info.result == (0,)
+    assert execution_info.result == (FALSE,)
 
     _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
@@ -96,9 +96,9 @@ async def test_multicall(account_factory):
     account, _, initializable_1, initializable_2, _ = account_factory
 
     execution_info = await initializable_1.initialized().call()
-    assert execution_info.result == (0,)
+    assert execution_info.result == (FALSE,)
     execution_info = await initializable_2.initialized().call()
-    assert execution_info.result == (0,)
+    assert execution_info.result == (FALSE,)
 
     await signer.send_transactions(
         account,

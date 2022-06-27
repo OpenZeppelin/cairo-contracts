@@ -13,6 +13,7 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer](#signer)
   * [MockSigner utility](#mocksigner-utility)
+  * [MockEthSigner utility](#mockethsigner-utility)
 * [Account entrypoint](#account-entrypoint)
 * [Call and AccountCallArray format](#call-and-accountcallarray-format)
   * [Call](#call)
@@ -165,9 +166,9 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
     )
 ```
 
-### MockeEthSigner utility
+### MockEthSigner utility
 
-The `MockeEthSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces. It differs from the `MockSigner` implementation by:
+The `MockEthSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces. It differs from the `MockSigner` implementation by:
 
 * not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
 * signing the message with a secp256k1 curve address

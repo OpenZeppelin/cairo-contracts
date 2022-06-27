@@ -55,7 +55,7 @@ class MockSigner():
         (call_array, calldata, sig_r, sig_s) = self.signer.sign_transaction(hex(account.contract_address), build_calls, nonce, max_fee)
         return await account.__execute__(call_array, calldata, nonce).invoke(signature=[sig_r, sig_s])
 
-class MockeEthSigner():
+class MockEthSigner():
     """
     Utility for sending signed transactions to an Account on Starknet, like MockSigner, but using a secp256k1 signature.
     Parameters

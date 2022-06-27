@@ -90,6 +90,14 @@ async def test_execute(account_factory):
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (TRUE,)
 
+    # should revert if signature is not correct
+    try:
+        await signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash-1, len(signature), *signature])])
+        assert False
+    except StarkException as err:
+        _, error = err.args
+        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+
 
 @pytest.mark.asyncio
 async def test_multicall(account_factory):
@@ -130,6 +138,9 @@ async def test_return_value(account_factory):
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
+    
+    # bump nonce 
+    _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res

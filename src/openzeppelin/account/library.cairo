@@ -228,7 +228,7 @@ namespace Account:
 
         # validate transaction        
         with_attr error_message("Account: invalid secp256k1 signature"):
-            let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash,tx_info.signature_len, tx_info.signature)
+            let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
             assert is_valid = TRUE
         end
                 

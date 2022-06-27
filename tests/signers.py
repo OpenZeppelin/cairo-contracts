@@ -1,7 +1,6 @@
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash
 from utils import to_uint
 import eth_keys
-from Crypto.Hash import keccak
 
 class MockSigner():
     """
@@ -90,6 +89,7 @@ class MockEthSigner():
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
 
+        # the hash and signature are returned for other tests to use them
         return await account.__execute__(call_array, calldata, nonce).invoke(
             signature=[signature.v, *sig_r, *sig_s]
         ), message_hash, [signature.v, *sig_r, *sig_s]

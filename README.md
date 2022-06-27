@@ -141,11 +141,10 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Install [tox](https://tox.wiki/en/latest/index.html) and then use tox to install dependencies (without triggering tests):
+Install dependencies:
 
 ```bash
-pip install tox
-tox --notest
+python -m pip install .
 ```
 
 ### Compile the contracts

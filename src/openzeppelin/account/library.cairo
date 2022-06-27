@@ -259,7 +259,7 @@ namespace Account:
         let (_current_nonce) = Account_current_nonce.read()
         
         with_attr error_message("Account: nonce is invalid"):
-             assert _current_nonce = nonce
+            assert _current_nonce = nonce
         end
 
         # bump nonce

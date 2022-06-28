@@ -14,7 +14,7 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
     * [`owner`](#owner)
     * [`transfer_ownership`](#transfer_ownership)
     * [`renounce_ownership`](#renounce_ownership)
-    * [`_transfer_ownership`](#transfer-ownership-internal)
+    * [`_transfer_ownership`](#transfer-ownership-unprotected)
   * [Ownable events](#ownable-events)
     * [`OwnershipTransferred`](#ownershiptransferred)
 * [AccessControl](#accesscontrol)
@@ -29,9 +29,9 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
     * [`grant_role`](#grant_role)
     * [`revoke_role`](#revoke_role)
     * [`renounce_role`](#renounce_role)
-    * [`_grant_role`](#grantrole-internal)
-    * [`_revoke_role`](#revokerole-internal)
-    * [`_set_role_admin`](#_set_role_admin)
+    * [`_grant_role`](#grantrole-unprotected)
+    * [`_revoke_role`](#revokerole-unprotected)
+    * [`_set_role_admin`](#setroleadmin)
   * [AccessControl events](#accesscontrol-events)
     * [`RoleGranted`](#rolegranted)
     * [`RoleRevoked`](#rolerevoked)
@@ -170,9 +170,9 @@ Returns:
 
 None.
 
-<h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
+<h4 id="transfer-ownership-unprotected"><code>_transfer_ownership</code></h4>
 
-Transfers ownership of the contract to a new account (`new_owner`). Internal function without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`). Unprotected function without access restriction.
 
 Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 
@@ -316,7 +316,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 
 ### Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an internal function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grant_role`, an unprotected function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, accounts with a role cannot grant it or revoke it from other accounts: all having a role does is making the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role’s *admin*.
 
@@ -392,7 +392,7 @@ bytes32 public constant SOME_ROLE = keccak256("SOME_ROLE")
 
 These identifiers take up 32 bytes (256 bits).
 
-Cairo field elements can hold a maximum of 252 bits. Even further, a declared *constant* field element in a StarkNet contract can only hold 251 bits. With this discrepancy, this library maintains an agnostic stance on how contracts should declare identifiers. Some ideas to consider:
+Cairo field elements store a maximum of 252 bits. Even further, a declared *constant* field element in a StarkNet contract stores even less (see [cairo_constants](https://github.com/starkware-libs/cairo-lang/blob/167b28bcd940fd25ea3816204fa882a0b0a49603/src/starkware/cairo/lang/cairo_constants.py#L1)). With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers. Some ideas to consider:
 
 * using the first or last 251 bits of keccak256 hash digests
 * using Cairo's [hash2](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo)
@@ -556,11 +556,11 @@ Returns:
 
 None.
 
-<h4 id="grantrole-internal"><code>_grant_role</code></h4>
+<h4 id="grantrole-unprotected"><code>_grant_role</code></h4>
 
 Grants `role` to `account`.
 
-Internal function without access restriction.
+Unprotected function without access restriction.
 
 Parameters:
 
@@ -573,11 +573,11 @@ Returns:
 
 None.
 
-<h4 id="revokerole-internal"><code>_revoke_role</code></h4>
+<h4 id="revokerole-unprotected"><code>_revoke_role</code></h4>
 
 Revokes `role` from `account`.
 
-Internal function without access restriction.
+Unprotected function without access restriction.
 
 Parameters:
 
@@ -590,9 +590,9 @@ Returns:
 
 None.
 
-#### `_set_role_admin`
+<h4 id="setroleadmin"><code>_set_role_admin</code></h4>
 
-Internal function that sets `admin_role` as `role`'s admin role.
+Unprotected function that sets `admin_role` as `role`'s admin role.
 
 Emits a [RoleAdminChanged](#roleadminchanged) event.
 

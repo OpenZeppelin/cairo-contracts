@@ -18,11 +18,12 @@ The following documentation provides context, reasoning, and examples for method
   * [`sub_uint`](#sub_uint)
 * [Assertions](#assertions)
   * [`assert_revert`](#assert_revert)
+  * [`assert_revert_entry_point`](#assert_revert_entry_point)
   * [`assert_events_emitted`](#assert_event_emitted)
 * [Memoization](#memoization)
-  * [`get_contract_def`](#get_contract_def)
+  * [`get_contract_class`](#get_contract_class)
   * [`cached_contract`](#cached_contract)
-* [Signer](#signer)
+* [MockSigner](#mocksigner)
 
 ## Constants
 
@@ -156,6 +157,19 @@ await assert_revert(signer.send_transaction(
 )
 ```
 
+### `assert_revert_entry_point`
+
+An extension of `assert_revert` that asserts an entry point error occurs with the given `invalid_selector` parameter. This assertion is especially useful in checking proxy/implementation contracts. To use `assert_revert_entry_point`:
+
+```python
+await assert_revert_entry_point(
+    signer.send_transaction(
+        account, contract.contract_address, 'nonexistent_selector', []
+    ),
+    invalid_selector='nonexistent_selector'
+)
+```
+
 ### `assert_event_emitted`
 
 A helper method that checks a transaction receipt for the contract emitting the event (`from_address`), the emitted event itself (`name`), and the arguments emitted (`data`). To use `assert_event_emitted`:
@@ -185,12 +199,12 @@ assert_event_emitted(
 
 Memoizing functions allow for quicker and computationally cheaper calculations which is immensely beneficial while testing smart contracts.
 
-### `get_contract_def`
+### `get_contract_class`
 
-A helper method that returns the contract definition from the given path. To capture the contract definition, simply add the contracat path as an argument like this:
+A helper method that returns the contract class from the given path. To capture the contract class, simply add the contract path as an argument like this:
 
 ```python
-contract_definition = get_contract_def('path/to/contract.cairo')
+contract_class = get_contract_class('path/to/contract.cairo')
 ```
 
 ### `cached_contract`
@@ -198,31 +212,31 @@ contract_definition = get_contract_def('path/to/contract.cairo')
 A helper method that returns the cached state of a given contract. It's recommended to first deploy all the relevant contracts before caching the state. The requisite contracts in the testing module should each be instantiated with `cached_contract` in a fixture after the state has been copied. The memoization pattern with `cached_contract` should look something like this:
 
 ```python
-# get contract definitions
+# get contract classes
 @pytest.fixture(scope='module')
-def contract_defs():
-  foo_def = get_contract_def('path/to/foo.cairo')
-  return foo_def
+def contract_classes():
+  foo_cls = get_contract_class('path/to/foo.cairo')
+  return foo_cls
 
 # deploy contracts
 @pytest.fixture(scope='module')
-async def foo_init(contract_defs):
-    foo_def = contract_defs
+async def foo_init(contract_classes):
+    foo_cls = contract_classes
     starknet = await Starknet.empty()
     foo = await starknet.deploy(
-        contract_def=foo_def,
+        contract_class=foo_cls,
         constructor_calldata=[]
     )
     return starknet.state, foo  # return state and all deployed contracts
 
 # memoization
 @pytest.fixture(scope='module')
-def foo_factory(contract_defs, foo_init):
-    foo_def = contract_defs  # contract definitions
-    state, foo = foo_init  # state and deployed contracts
-    _state = state.copy()  # copy the state
-    cached_foo = cached_contract(_state, foo_def, foo)  # cache contracts
-    return cached_foo  # return cached contracts
+def foo_factory(contract_classes, foo_init):
+    foo_cls = contract_classes                          # contract classes
+    state, foo = foo_init                               # state and deployed contracts
+    _state = state.copy()                               # copy the state
+    cached_foo = cached_contract(_state, foo_cls, foo)  # cache contracts
+    return cached_foo                                   # return cached contracts
 ```
 
 ## MockSigner

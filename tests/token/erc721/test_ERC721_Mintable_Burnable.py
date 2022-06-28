@@ -2,7 +2,7 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     MockSigner, str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert, INVALID_UINT256,
-    assert_event_emitted, get_contract_def, cached_contract, to_uint, sub_uint, add_uint
+    assert_event_emitted, get_contract_class, cached_contract, to_uint, sub_uint, add_uint
 )
 
 
@@ -30,32 +30,32 @@ UNSUPPORTED_ID = 0xabcd1234
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/Account.cairo')
-    erc721_def = get_contract_def(
+def contract_classes():
+    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
+    erc721_cls = get_contract_class(
         'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
-    erc721_holder_def = get_contract_def(
+    erc721_holder_cls = get_contract_class(
         'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
-    unsupported_def = get_contract_def(
+    unsupported_cls = get_contract_class(
         'tests/mocks/Initializable.cairo')
 
-    return account_def, erc721_def, erc721_holder_def, unsupported_def
+    return account_cls, erc721_cls, erc721_holder_cls, unsupported_cls
 
 
 @pytest.fixture(scope='module')
-async def erc721_init(contract_defs):
-    account_def, erc721_def, erc721_holder_def, unsupported_def = contract_defs
+async def erc721_init(contract_classes):
+    account_cls, erc721_cls, erc721_holder_cls, unsupported_cls = contract_classes
     starknet = await Starknet.empty()
     account1 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     account2 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     erc721 = await starknet.deploy(
-        contract_def=erc721_def,
+        contract_class=erc721_cls,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
@@ -63,11 +63,11 @@ async def erc721_init(contract_defs):
         ]
     )
     erc721_holder = await starknet.deploy(
-        contract_def=erc721_holder_def,
+        contract_class=erc721_holder_cls,
         constructor_calldata=[]
     )
     unsupported = await starknet.deploy(
-        contract_def=unsupported_def,
+        contract_class=unsupported_cls,
         constructor_calldata=[]
     )
     return (
@@ -81,15 +81,15 @@ async def erc721_init(contract_defs):
 
 
 @pytest.fixture
-def erc721_factory(contract_defs, erc721_init):
-    account_def, erc721_def, erc721_holder_def, unsupported_def = contract_defs
+def erc721_factory(contract_classes, erc721_init):
+    account_cls, erc721_cls, erc721_holder_cls, unsupported_cls = contract_classes
     state, account1, account2, erc721, erc721_holder, unsupported = erc721_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
-    erc721 = cached_contract(_state, erc721_def, erc721)
-    erc721_holder = cached_contract(_state, erc721_holder_def, erc721_holder)
-    unsupported = cached_contract(_state, unsupported_def, unsupported)
+    account1 = cached_contract(_state, account_cls, account1)
+    account2 = cached_contract(_state, account_cls, account2)
+    erc721 = cached_contract(_state, erc721_cls, erc721)
+    erc721_holder = cached_contract(_state, erc721_holder_cls, erc721_holder)
+    unsupported = cached_contract(_state, unsupported_cls, unsupported)
 
     return erc721, account1, account2, erc721_holder, unsupported
 

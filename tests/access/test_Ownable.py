@@ -4,7 +4,7 @@ from utils import (
     MockSigner,
     ZERO_ADDRESS,
     assert_event_emitted,
-    get_contract_def,
+    get_contract_class,
     cached_contract
 )
 
@@ -13,35 +13,35 @@ signer = MockSigner(123456789987654321)
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
+def contract_classes():
     return (
-        get_contract_def('openzeppelin/account/Account.cairo'),
-        get_contract_def('tests/mocks/Ownable.cairo')
+        get_contract_class('openzeppelin/account/Account.cairo'),
+        get_contract_class('tests/mocks/Ownable.cairo')
     )
 
 
 @pytest.fixture(scope='module')
-async def ownable_init(contract_defs):
-    account_def, ownable_def = contract_defs
+async def ownable_init(contract_classes):
+    account_cls, ownable_cls = contract_classes
     starknet = await Starknet.empty()
     owner = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     ownable = await starknet.deploy(
-        contract_def=ownable_def,
+        contract_class=ownable_cls,
         constructor_calldata=[owner.contract_address]
     )
     return starknet.state, ownable, owner
 
 
 @pytest.fixture
-def ownable_factory(contract_defs, ownable_init):
-    account_def, ownable_def = contract_defs
+def ownable_factory(contract_classes, ownable_init):
+    account_cls, ownable_cls = contract_classes
     state, ownable, owner = ownable_init
     _state = state.copy()
-    owner = cached_contract(_state, account_def, owner)
-    ownable = cached_contract(_state, ownable_def, ownable)
+    owner = cached_contract(_state, account_cls, owner)
+    ownable = cached_contract(_state, ownable_cls, ownable)
     return ownable, owner
 
 

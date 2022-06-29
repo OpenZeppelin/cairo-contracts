@@ -458,7 +458,7 @@ The [`Account`](../src/openzeppelin/account/Account.cairo) preset uses StarkNet 
 
 ### Eth Account
 
-The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset offers an account that supports ethereum addresses, meaning the key pair uses the 256k1 curve.
+The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 ## Account differentiation with ERC165
 

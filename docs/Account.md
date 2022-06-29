@@ -454,7 +454,7 @@ The following contract presets are ready to deploy and can be used as-is for qui
 
 ### Account
 
-The [`Account`](../src/openzeppelin/account/Account.cairo) preset offers an basic implementation of the library.
+The [`Account`](../src/openzeppelin/account/Account.cairo) preset uses StarkNet keys to validate transactions.
 
 ### Eth Account
 

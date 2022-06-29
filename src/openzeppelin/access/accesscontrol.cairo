@@ -61,9 +61,10 @@ namespace AccessControl:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(role: felt):
-        let (caller: felt) = get_caller_address()
-        let (authorized: felt) = has_role(role, caller)
-        with_attr error_message("AccessControl: {caller} is missing role {role}"):
+        alloc_locals
+        let (caller) = get_caller_address()
+        let (authorized) = has_role(role, caller)
+        with_attr error_message("AccessControl: caller is missing role {role}"):
             assert authorized = TRUE
         end
         return ()
@@ -131,7 +132,7 @@ namespace AccessControl:
     end
 
     #
-    # Internal
+    # Unprotected
     #
 
     func _grant_role{

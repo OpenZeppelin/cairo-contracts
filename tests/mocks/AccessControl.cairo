@@ -5,6 +5,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.introspection.ERC165 import ERC165
 
 @constructor
 func constructor{
@@ -23,7 +24,8 @@ func hasRole{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(role: felt, user: felt) -> (hasRole: felt):
-    return AccessControl.has_role(role, user)
+    let (hasRole) = AccessControl.has_role(role, user)
+    return (hasRole)
 end
 
 @view
@@ -74,4 +76,14 @@ func setRoleAdmin{
     }(role: felt, admin: felt):
     AccessControl._set_role_admin(role, admin)
     return ()
+end
+
+@view
+func supportsInterface{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    } (interfaceId: felt) -> (success: felt):
+    let (success) = ERC165.supports_interface(interfaceId)
+    return (success)
 end

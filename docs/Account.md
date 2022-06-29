@@ -376,7 +376,10 @@ is_valid: felt
 This is the only external entrypoint to interact with the Account contract. It:
 
 1. Validates the transaction signature matches the message (including the nonce)
-2. Calls _unsafe_execute.
+2. Validates the transaction signature matches the message (including the nonce)
+3. Increments the nonce
+4. Calls the target contract with the intended function selector and calldata parameters
+5. Forwards the contract call response data as return value
 
 Parameters:
 
@@ -474,7 +477,7 @@ To implement custom account contracts, a pair of `validate` and `execute` functi
 
 Account contract developers are encouraged to implement the [standard Account interface](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and incorporate the custom logic thereafter.
 
-To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block. Do not expose `_unsafe_execute` directly.
+To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block, as each of the current presets is doing. Do not expose `_unsafe_execute` directly.
 
 Some other validation schemes to look out for in the future:
 

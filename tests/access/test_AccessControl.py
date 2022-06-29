@@ -59,7 +59,7 @@ async def test_initializer(accesscontrol_factory):
     accesscontrol, _, _ = accesscontrol_factory
 
     execution_info = await accesscontrol.supportsInterface(IACCESSCONTROL_ID).invoke()
-    assert execution_info.result == (1,)
+    assert execution_info.result == (TRUE,)
 
 
 @ pytest.mark.asyncio

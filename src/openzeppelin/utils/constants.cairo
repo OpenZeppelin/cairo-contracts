@@ -28,3 +28,9 @@ const IERC721_ENUMERABLE_ID = 0x780e9d63
 
 # AccessControl
 const IACCESSCONTROL_ID = 0x7965db0b
+
+#
+# Roles
+#
+
+const DEFAULT_ADMIN_ROLE = 0

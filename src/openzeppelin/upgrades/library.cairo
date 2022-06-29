@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (upgrades/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (upgrades/library.cairo)
 
 %lang starknet
 
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
+from starkware.cairo.common.math import assert_not_zero
 
 #
 # Events
@@ -15,12 +16,16 @@ from starkware.cairo.common.bool import TRUE, FALSE
 func Upgraded(implementation: felt):
 end
 
+@event
+func AdminChanged(previousAdmin: felt, newAdmin: felt):
+end
+
 #
 # Storage variables
 #
 
 @storage_var
-func Proxy_implementation_address() -> (implementation_address: felt):
+func Proxy_implementation_hash() -> (class_hash: felt):
 end
 
 @storage_var
@@ -31,12 +36,7 @@ end
 func Proxy_initialized() -> (initialized: felt):
 end
 
-#
-# Initializer
-#
-
 namespace Proxy:
-
     #
     # Initializer
     #
@@ -52,57 +52,8 @@ namespace Proxy:
         end
 
         Proxy_initialized.write(TRUE)
-        Proxy_admin.write(proxy_admin)
+        _set_admin(proxy_admin)
         return ()
-    end
-
-    #
-    # Upgrades
-    #
-
-    func _set_implementation{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(new_implementation: felt):
-        Proxy_implementation_address.write(new_implementation)
-        Upgraded.emit(new_implementation)
-        return ()
-    end
-
-    #
-    # Setters
-    #
-
-    func _set_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(new_admin: felt):
-        Proxy_admin.write(new_admin)
-        return ()
-    end
-
-    #
-    # Getters
-    #
-
-    func get_implementation{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }() -> (implementation: felt):
-        let (implementation) = Proxy_implementation_address.read()
-        return (implementation)
-    end
-
-    func get_admin{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }() -> (admin: felt):
-        let (admin) = Proxy_admin.read()
-        return (admin)
     end
 
     #
@@ -119,6 +70,59 @@ namespace Proxy:
         with_attr error_message("Proxy: caller is not admin"):
             assert admin = caller
         end
+        return ()
+    end
+
+    #
+    # Getters
+    #
+
+    func get_implementation_hash{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (implementation: felt):
+        let (implementation) = Proxy_implementation_hash.read()
+        return (implementation)
+    end
+
+    func get_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }() -> (admin: felt):
+        let (admin) = Proxy_admin.read()
+        return (admin)
+    end
+
+    #
+    # Unprotected
+    #
+
+    func _set_admin{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(new_admin: felt):
+        let (previous_admin) = get_admin()
+        Proxy_admin.write(new_admin)
+        AdminChanged.emit(previous_admin, new_admin)
+        return ()
+    end
+
+    #
+    # Upgrade
+    #
+
+    func _set_implementation_hash{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(new_implementation: felt):
+        with_attr error_message("Proxy: implementation hash cannot be zero"):
+            Proxy_implementation_hash.write(new_implementation)
+        end
+        Upgraded.emit(new_implementation)
         return ()
     end
 

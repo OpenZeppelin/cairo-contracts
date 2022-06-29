@@ -226,20 +226,20 @@ docker run cairo-tests
 This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests do not run in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
 
 ```python
-from utils import get_contract_def, cached_contract
+from utils import get_contract_class, cached_contract
 
 @pytest.fixture(scope='module')
 def foo_factory():
-    # get contract definition
-    foo_def = get_contract_def('path/to/foo.cairo')
+    # get contract class
+    foo_cls = get_contract_class('path/to/foo.cairo')
 
     # deploy contract
     starknet = await Starknet.empty()
-    foo = await starknet.deploy(contract_def=foo_def)
+    foo = await starknet.deploy(contract_class=foo_cls)
 
     # copy the state and cache contract
     state = starknet.state.copy()
-    cached_foo = cached_contract(state, foo_def, foo)
+    cached_foo = cached_contract(state, foo_cls, foo)
 
     return cached_foo
 ```

@@ -82,7 +82,7 @@ async def test_grant_role(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_grantRole_unauthorized(accesscontrol_factory):
+async def test_grant_role_unauthorized(accesscontrol_factory):
     accesscontrol, _, account2 = accesscontrol_factory
 
     await assert_revert(
@@ -94,7 +94,7 @@ async def test_grantRole_unauthorized(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_revokeRole(accesscontrol_factory):
+async def test_revoke_role(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await signer.send_transaction(account1, accesscontrol.contract_address, 'grantRole', [DEFAULT_ADMIN_ROLE, account2.contract_address])
@@ -115,7 +115,7 @@ async def test_revokeRole(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_revokeRole_unauthorized(accesscontrol_factory):
+async def test_revoke_role_unauthorized(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await assert_revert(
@@ -127,7 +127,7 @@ async def test_revokeRole_unauthorized(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_renounceRole(accesscontrol_factory):
+async def test_renounce_role(accesscontrol_factory):
     accesscontrol, account1, _ = accesscontrol_factory
 
     tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'renounceRole', [DEFAULT_ADMIN_ROLE, account1.contract_address])
@@ -146,7 +146,7 @@ async def test_renounceRole(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_renounceRole_unauthorized(accesscontrol_factory):
+async def test_renounce_role_unauthorized(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await assert_revert(
@@ -157,7 +157,7 @@ async def test_renounceRole_unauthorized(accesscontrol_factory):
 
 
 @ pytest.mark.asyncio
-async def test_setRoleAdmin(accesscontrol_factory):
+async def test_set_role_admin(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'setRoleAdmin', [DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE])

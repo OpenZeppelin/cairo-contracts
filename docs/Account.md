@@ -441,7 +441,7 @@ response: felt*
 
 ### `_unsafe_execute`
 
-Is the internal method that performs the following task inside the `execute` and `eth_execute` functions:
+It's an internal method that performs the following tasks:
 
 1. Increments the nonce.
 2. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information.

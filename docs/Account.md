@@ -441,7 +441,7 @@ response: felt*
 
 ### `_unsafe_execute`
 
-Is the internal method that performs the following task inside the `execute` and `eth_execute` functions:
+It's an internal method that performs the following tasks:
 
 1. Increments the nonce.
 2. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information.
@@ -454,11 +454,11 @@ The following contract presets are ready to deploy and can be used as-is for qui
 
 ### Account
 
-The [`Account`](../src/openzeppelin/account/Account.cairo) preset offers an basic implementation of the library.
+The [`Account`](../src/openzeppelin/account/Account.cairo) preset uses StarkNet keys to validate transactions.
 
 ### Eth Account
 
-The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset offers an account that supports ethereum addresses, meaning the key pair uses the 256k1 curve.
+The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 ## Account differentiation with ERC165
 

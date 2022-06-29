@@ -89,7 +89,7 @@ class MockEthSigner():
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
 
-        # the hash and signature are returned for other tests to use them
+        # the hash and signature are returned for other tests to use
         return await account.__execute__(call_array, calldata, nonce).invoke(
             signature=[signature.v, *sig_r, *sig_s]
         ), message_hash, [signature.v, *sig_r, *sig_s]

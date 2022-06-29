@@ -91,12 +91,10 @@ async def test_execute(account_factory):
     assert execution_info.result == (TRUE,)
 
     # should revert if signature is not correct
-    try:
-        await signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash-1, len(signature), *signature])])
-        assert False
-    except StarkException as err:
-        _, error = err.args
-        assert error['code'] == StarknetErrorCode.TRANSACTION_FAILED
+    await assert_revert(
+        signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash-1, len(signature), *signature])]),
+        reverted_with="Invalid signature"
+    )
 
 
 @pytest.mark.asyncio

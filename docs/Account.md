@@ -376,9 +376,9 @@ is_valid: felt
 This is the only external entrypoint to interact with the Account contract. It:
 
 1. Validates the transaction signature matches the message (including the nonce)
-3. Increments the nonce
-4. Calls the target contract with the intended function selector and calldata parameters
-5. Forwards the contract call response data as return value
+2. Increments the nonce
+3. Calls the target contract with the intended function selector and calldata parameters
+4. Forwards the contract call response data as return value
 
 Parameters:
 

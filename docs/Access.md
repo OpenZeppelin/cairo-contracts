@@ -14,7 +14,7 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
     * [`owner`](#owner)
     * [`transfer_ownership`](#transfer_ownership)
     * [`renounce_ownership`](#renounce_ownership)
-    * [`_transfer_ownership`](#transfer-ownership-unprotected)
+    * [`_transfer_ownership`](#transfer-ownership-internal)
   * [Ownable events](#ownable-events)
     * [`OwnershipTransferred`](#ownershiptransferred)
 * [AccessControl](#accesscontrol)
@@ -29,8 +29,8 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
     * [`grant_role`](#grant_role)
     * [`revoke_role`](#revoke_role)
     * [`renounce_role`](#renounce_role)
-    * [`_grant_role`](#grantrole-unprotected)
-    * [`_revoke_role`](#revokerole-unprotected)
+    * [`_grant_role`](#grantrole-internal)
+    * [`_revoke_role`](#revokerole-internal)
     * [`_set_role_admin`](#setroleadmin)
   * [AccessControl events](#accesscontrol-events)
     * [`RoleGranted`](#rolegranted)
@@ -170,9 +170,9 @@ Returns:
 
 None.
 
-<h4 id="transfer-ownership-unprotected"><code>_transfer_ownership</code></h4>
+<h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
 
-Transfers ownership of the contract to a new account (`new_owner`). Unprotected function without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`). Internal function without access restriction.
 
 Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 
@@ -316,7 +316,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 
 ### Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an unprotected function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grant_role`, an internal function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, accounts with a role cannot grant it or revoke it from other accounts: all having a role does is making the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role’s *admin*.
 
@@ -330,6 +330,9 @@ Let’s take a look at the ERC20 token example, this time taking advantage of th
 from openzeppelin.token.erc20.library import ERC20
 
 from openzeppelin.access.accesscontrol import AccessControl
+
+from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
+
 
 # constants
 const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
@@ -349,9 +352,7 @@ func constructor{
     ERC20.initializer(name, symbol, decimals)
     AccessControl.initializer()
 
-    # Grant `admin` the default admin role (`0`).
-    # It will be able to grant and revoke any roles.
-    AccessControl._grant_role(0, admin)
+    AccessControl._grant_role(DEFAULT_ADMIN_ROLE, admin)
     return ()
 end
 
@@ -556,11 +557,11 @@ Returns:
 
 None.
 
-<h4 id="grantrole-unprotected"><code>_grant_role</code></h4>
+<h4 id="grantrole-internal"><code>_grant_role</code></h4>
 
 Grants `role` to `account`.
 
-Unprotected function without access restriction.
+Internal function without access restriction.
 
 Parameters:
 
@@ -573,11 +574,11 @@ Returns:
 
 None.
 
-<h4 id="revokerole-unprotected"><code>_revoke_role</code></h4>
+<h4 id="revokerole-internal"><code>_revoke_role</code></h4>
 
 Revokes `role` from `account`.
 
-Unprotected function without access restriction.
+Internal function without access restriction.
 
 Parameters:
 
@@ -592,7 +593,7 @@ None.
 
 <h4 id="setroleadmin"><code>_set_role_admin</code></h4>
 
-Unprotected function that sets `admin_role` as `role`'s admin role.
+Internal function that sets `admin_role` as `role`'s admin role.
 
 Emits a [RoleAdminChanged](#roleadminchanged) event.
 

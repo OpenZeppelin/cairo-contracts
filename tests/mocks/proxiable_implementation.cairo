@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: MIT
 
 %lang starknet
-%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.upgrades.library import Proxy
 
@@ -35,7 +33,7 @@ end
 #
 
 @view
-func get_value{
+func getValue{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -45,17 +43,7 @@ func get_value{
 end
 
 @view
-func get_implementation{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (address: felt):
-    let (address) = Proxy.get_implementation()
-    return (address)
-end
-
-@view
-func get_admin{
+func getAdmin{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
@@ -69,11 +57,22 @@ end
 #
 
 @external
-func set_value{
+func setValue{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(val: felt):
     value.write(val)
+    return ()
+end
+
+@external
+func setAdmin{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(address: felt):
+    Proxy.assert_only_admin()
+    Proxy._set_admin(address)
     return ()
 end

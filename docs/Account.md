@@ -12,7 +12,8 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
 * [Standard Interface](#standard-interface)
 * [Keys, signatures and signers](#keys-signatures-and-signers)
   * [Signer](#signer)
-  * [TestSigner utility](#TestSigner-utility)
+  * [MockSigner utility](#mocksigner-utility)
+  * [MockEthSigner utility](#mockethsigner-utility)
 * [Account entrypoint](#account-entrypoint)
 * [Call and AccountCallArray format](#call-and-accountcallarray-format)
   * [Call](#call)
@@ -24,6 +25,12 @@ A more detailed writeup on the topic can be found on [Perama's blogpost](https:/
   * [`set_public_key`](#set_public_key)
   * [`is_valid_signature`](#is_valid_signature)
   * [`__execute__`](#__execute__)
+  * [`is_valid_eth_signature`](#is_valid_eth_signature)
+  * [`eth_execute`](#eth_execute)
+  * [`_unsafe_execute`](#_unsafe_execute)
+* [Presets](#presets)
+  * [Account](#account)
+  * [Eth Account](#eth-account)
 * [Account differentiation with ERC165](#account-differentiation-with-erc165)
 * [Extending the Account contract](#extending-the-account-contract)
 * [L1 escape hatch mechanism](#l1-escape-hatch-mechanism)
@@ -40,7 +47,7 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
@@ -116,15 +123,15 @@ Which returns:
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
 
-While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `TestSigner`.
+While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract. To simplify Account management, most of this is abstracted away with `MockSigner`.
 
-### TestSigner utility
+### MockSigner utility
 
-The `TestSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+The `MockSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
 The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format. The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument). Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
 
-The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `TestSigner` instance invokes the account contract's `__execute__` with the transaction data.
+The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature. Finally, the `MockSigner` instance invokes the account contract's `__execute__` with the transaction data.
 
 Users only need to interact with the following exposed methods to perform a transaction:
 
@@ -132,13 +139,13 @@ Users only need to interact with the following exposed methods to perform a tran
 
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
 
-To use `TestSigner`, pass a private key when instantiating the class:
+To use `MockSigner`, pass a private key when instantiating the class:
 
 ```python
-from utils import TestSigner
+from utils import MockSigner
 
 PRIVATE_KEY = 123456789987654321
-signer = TestSigner(PRIVATE_KEY)
+signer = MockSigner(PRIVATE_KEY)
 ```
 
 Then send single transactions with the `send_transaction` method.
@@ -158,6 +165,13 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
         ]
     )
 ```
+
+### MockEthSigner utility
+
+The `MockEthSigner` class in [utils.py](../tests/utils.py) is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces. It differs from the `MockSigner` implementation by:
+
+* not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
+* signing the message with a secp256k1 curve address
 
 ## Account entrypoint
 
@@ -361,11 +375,10 @@ is_valid: felt
 
 This is the only external entrypoint to interact with the Account contract. It:
 
-1. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information
-2. Validates the transaction signature matches the message (including the nonce)
-3. Increments the nonce
-4. Calls the target contract with the intended function selector and calldata parameters
-5. Forwards the contract call response data as return value
+1. Validates the transaction signature matches the message (including the nonce)
+2. Increments the nonce
+3. Calls the target contract with the intended function selector and calldata parameters
+4. Forwards the contract call response data as return value
 
 Parameters:
 
@@ -386,6 +399,69 @@ response_len: felt
 response: felt*
 ```
 
+### `is_valid_eth_signature`
+
+Returns `TRUE` if a given signature in the secp256k1 curve is valid, otherwise it reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
+Parameters:
+
+```cairo
+signature_len: felt
+signature: felt*
+```
+
+Returns:
+
+```cairo
+is_valid: felt
+```
+
+> returns `TRUE` if a given signature is valid. Otherwise, reverts. In the future it will return `FALSE` if a given signature is invalid (for more info please check [this issue](https://github.com/OpenZeppelin/cairo-contracts/issues/327)).
+
+### `eth_execute`
+
+This follows the same idea as the vanilla version of `execute` with the sole difference that signature verification is on the secp256k1 curve.
+
+Parameters:
+
+```cairo
+call_array_len: felt
+call_array: AccountCallArray*
+calldata_len: felt
+calldata: felt*
+nonce: felt
+```
+
+> Note that the current signature scheme expects a 7-element array like `[sig_v, uint256_sig_r_low, uint256_sig_r_high, uint256_sig_s_low, uint256_sig_s_high, uint256_hash_low, uint256_hash_high]` given that the parameters of the verification are bigger than a felt.
+
+Returns:
+
+```cairo
+response_len: felt
+response: felt*
+```
+
+### `_unsafe_execute`
+
+It's an internal method that performs the following tasks:
+
+1. Increments the nonce.
+2. Takes the input and builds a `Call` for each iterated message. See [Multicall transactions](#multicall-transactions) for more information.
+3. Calls the target contract with the intended function selector and calldata parameters
+4. Forwards the contract call response data as return value
+
+## Presets
+
+The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing. Each preset differs on the signature type being used by the Account.
+
+### Account
+
+The [`Account`](../src/openzeppelin/account/Account.cairo) preset uses StarkNet keys to validate transactions.
+
+### Eth Account
+
+The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset supports Ethereum addresses, validating transactions with secp256k1 keys.
+
 ## Account differentiation with ERC165
 
 Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts. For a contract to declare itself as an account, it should implement [ERC165](https://eips.ethereum.org/EIPS/eip-165) as proposed in [#100](https://github.com/OpenZeppelin/cairo-contracts/discussions/100). To be in compliance with ERC165 specifications, the idea is to calculate the XOR of `IAccount`'s EVM selectors (not StarkNet selectors). The resulting magic value of `IAccount` is 0x50b70dcb.
@@ -394,13 +470,18 @@ Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implem
 
 ## Extending the Account contract
 
-Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern). The basic idea behind integrating the pattern is to import the requisite methods from the Account library and incorporate the extended logic thereafter.
+Account contracts can be extended by following the [extensibility pattern](../docs/Extensibility.md#the-pattern).
 
-Currently, there's only a single library/preset Account scheme, but we're looking for feedback and new presets to emerge. Some new validation schemes to look out for in the future:
+To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed. This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
+
+Account contract developers are encouraged to implement the [standard Account interface](https://github.com/OpenZeppelin/cairo-contracts/discussions/41) and incorporate the custom logic thereafter.
+
+To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block, as each of the current presets is doing. Do not expose `_unsafe_execute` directly.
+
+Some other validation schemes to look out for in the future:
 
 * multisig
 * guardian logic like in [Argent's account](https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo)
-* [Ethereum signatures](https://github.com/OpenZeppelin/cairo-contracts/issues/161)
 
 ## L1 escape hatch mechanism
 

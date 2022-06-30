@@ -42,7 +42,7 @@ func upgrade{
         range_check_ptr
     }(new_implementation: felt):
     Proxy.assert_only_admin()
-    Proxy._set_implementation(new_implementation)
+    Proxy._set_implementation_hash(new_implementation)
     return ()
 end
 

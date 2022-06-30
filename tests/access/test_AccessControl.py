@@ -1,8 +1,9 @@
 import pytest
 from pathlib import Path
+from signers import MockSigner
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    MockSigner, TRUE, FALSE,
+    TRUE, FALSE,
     assert_event_emitted, assert_revert,
     get_contract_class, cached_contract
 )
@@ -66,7 +67,16 @@ async def test_initializer(accesscontrol_factory):
 async def test_grant_role(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
-    tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'grantRole', [0, account2.contract_address])
+    tx_exec_info = await signer.send_transaction(
+        account1,
+        accesscontrol.contract_address,
+        'grantRole',
+        [
+            DEFAULT_ADMIN_ROLE,
+            account2.contract_address
+        ]
+    )
+
     assert_event_emitted(
         tx_exec_info,
         from_address=accesscontrol.contract_address,
@@ -77,6 +87,7 @@ async def test_grant_role(accesscontrol_factory):
             account1.contract_address   # sender
         ]
     )
+
     expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account2.contract_address).invoke()
     assert expected.result.hasRole == TRUE
 
@@ -119,10 +130,18 @@ async def test_revoke_role_unauthorized(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await assert_revert(
-        signer.send_transaction(account2, accesscontrol.contract_address, 'revokeRole', [
-                                DEFAULT_ADMIN_ROLE, account1.contract_address]),
+        signer.send_transaction(
+            account2,
+            accesscontrol.contract_address,
+            'revokeRole',
+            [
+                DEFAULT_ADMIN_ROLE,
+                account1.contract_address
+            ]
+        ),
         reverted_with="AccessControl: caller is missing role {}".format(
-            DEFAULT_ADMIN_ROLE)
+            DEFAULT_ADMIN_ROLE
+        )
     )
 
 
@@ -130,7 +149,16 @@ async def test_revoke_role_unauthorized(accesscontrol_factory):
 async def test_renounce_role(accesscontrol_factory):
     accesscontrol, account1, _ = accesscontrol_factory
 
-    tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'renounceRole', [DEFAULT_ADMIN_ROLE, account1.contract_address])
+    tx_exec_info = await signer.send_transaction(
+        account1,
+        accesscontrol.contract_address,
+        'renounceRole',
+        [
+            DEFAULT_ADMIN_ROLE,
+            account1.contract_address
+        ]
+    )
+
     assert_event_emitted(
         tx_exec_info,
         from_address=accesscontrol.contract_address,
@@ -141,6 +169,7 @@ async def test_renounce_role(accesscontrol_factory):
             account1.contract_address   # sender
         ]
     )
+
     expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).invoke()
     assert expected.result.hasRole == FALSE
 
@@ -150,8 +179,15 @@ async def test_renounce_role_unauthorized(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
     await assert_revert(
-        signer.send_transaction(account1, accesscontrol.contract_address, 'renounceRole', [
-                                DEFAULT_ADMIN_ROLE, account2.contract_address]),
+        signer.send_transaction(
+            account1,
+            accesscontrol.contract_address,
+            'renounceRole',
+            [
+                DEFAULT_ADMIN_ROLE,
+                account2.contract_address
+            ]
+        ),
         reverted_with="AccessControl: can only renounce roles for self"
     )
 
@@ -160,7 +196,13 @@ async def test_renounce_role_unauthorized(accesscontrol_factory):
 async def test_set_role_admin(accesscontrol_factory):
     accesscontrol, account1, account2 = accesscontrol_factory
 
-    tx_exec_info = await signer.send_transaction(account1, accesscontrol.contract_address, 'setRoleAdmin', [DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE])
+    tx_exec_info = await signer.send_transaction(
+        account1,
+        accesscontrol.contract_address,
+        'setRoleAdmin',
+        [DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE]
+    )
+
     assert_event_emitted(
         tx_exec_info,
         from_address=accesscontrol.contract_address,
@@ -171,9 +213,27 @@ async def test_set_role_admin(accesscontrol_factory):
             SOME_OTHER_ROLE      # newAdminRole
         ]
     )
+
     expected = await accesscontrol.getRoleAdmin(DEFAULT_ADMIN_ROLE).invoke()
     assert expected.result.admin == SOME_OTHER_ROLE
 
     # test role admin cycle
-    await signer.send_transaction(account1, accesscontrol.contract_address, 'grantRole',  [SOME_OTHER_ROLE, account2.contract_address])
-    await signer.send_transaction(account2, accesscontrol.contract_address, 'revokeRole', [DEFAULT_ADMIN_ROLE, account1.contract_address])
+    await signer.send_transaction(
+        account1,
+        accesscontrol.contract_address,
+        'grantRole',
+        [SOME_OTHER_ROLE, account2.contract_address]
+    )
+
+    expected = await accesscontrol.hasRole(SOME_OTHER_ROLE, account2.contract_address).invoke()
+    assert expected.result.hasRole == TRUE
+
+    await signer.send_transaction(
+        account2,
+        accesscontrol.contract_address,
+        'revokeRole',
+        [DEFAULT_ADMIN_ROLE, account1.contract_address]
+    )
+
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).invoke()
+    assert expected.result.hasRole == FALSE

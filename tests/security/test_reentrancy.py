@@ -6,6 +6,7 @@ from utils import (
 
 INITIAL_COUNTER = 0
 
+
 @pytest.fixture(scope='module')
 async def reentrancy_mock():
     starknet = await Starknet.empty()
@@ -16,15 +17,17 @@ async def reentrancy_mock():
 
     return contract, starknet
 
+
 @pytest.mark.asyncio
-async def test_reentrancy_guard_deploy(reentrancy_mock):
+async def test_reentrancyguard_deploy(reentrancy_mock):
     contract, _ = reentrancy_mock
     response = await contract.current_count().call()
 
     assert response.result == (INITIAL_COUNTER,)
 
+
 @pytest.mark.asyncio
-async def test_reentrancy_guard_remote_callback(reentrancy_mock):
+async def test_reentrancyguard_remote_callback(reentrancy_mock):
     contract, starknet = reentrancy_mock
     attacker = await starknet.deploy("tests/mocks/reentrancy_attacker_mock.cairo")
     # should not allow remote callback
@@ -33,8 +36,9 @@ async def test_reentrancy_guard_remote_callback(reentrancy_mock):
         reverted_with="ReentrancyGuard: reentrant call"
     )
 
+
 @pytest.mark.asyncio
-async def test_reentrancy_guard_local_recursion(reentrancy_mock):
+async def test_reentrancyguard_local_recursion(reentrancy_mock):
     contract, _ = reentrancy_mock
     # should not allow local recursion
     await assert_revert(
@@ -47,8 +51,9 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
         reverted_with="ReentrancyGuard: reentrant call"
     )
 
+
 @pytest.mark.asyncio
-async def test_reentrancy_guard(reentrancy_mock):
+async def test_reentrancyguard(reentrancy_mock):
     contract, _ = reentrancy_mock
     # should allow non reentrant call
     await contract.callback().invoke()

@@ -82,10 +82,10 @@ For a list of full implementations utilizing the Pausable library, see:
 
 A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4) occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
 
-Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/reentrancy_guard.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
+Since Cairo does not support modifiers like Solidity, the [`reentrancyguard`](../src/openzeppelin/security/reentrancyguard.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
 
 ```cairo
-from openzeppelin.security.reentrancy_guard import ReentrancyGuard
+from openzeppelin.security.reentrancyguard import ReentrancyGuard
 
 func test_function{
         syscall_ptr : felt*,

@@ -141,11 +141,10 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Install Nile:
+Install dependencies:
 
 ```bash
-pip install cairo-nile
-nile install
+python -m pip install .
 ```
 
 ### Compile the contracts

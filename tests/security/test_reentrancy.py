@@ -6,6 +6,7 @@ from utils import (
 
 INITIAL_COUNTER = 0
 
+
 @pytest.fixture(scope='module')
 async def reentrancy_mock():
     starknet = await Starknet.empty()
@@ -16,12 +17,14 @@ async def reentrancy_mock():
 
     return contract, starknet
 
+
 @pytest.mark.asyncio
 async def test_reentrancy_guard_deploy(reentrancy_mock):
     contract, _ = reentrancy_mock
     response = await contract.current_count().call()
 
     assert response.result == (INITIAL_COUNTER,)
+
 
 @pytest.mark.asyncio
 async def test_reentrancy_guard_remote_callback(reentrancy_mock):
@@ -32,6 +35,7 @@ async def test_reentrancy_guard_remote_callback(reentrancy_mock):
         contract.count_and_call(attacker.contract_address).invoke(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
+
 
 @pytest.mark.asyncio
 async def test_reentrancy_guard_local_recursion(reentrancy_mock):
@@ -46,6 +50,7 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
         contract.count_this_recursive(10).invoke(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
+
 
 @pytest.mark.asyncio
 async def test_reentrancy_guard(reentrancy_mock):

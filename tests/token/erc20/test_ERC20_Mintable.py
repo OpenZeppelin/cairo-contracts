@@ -1,11 +1,14 @@
 import pytest
+from starkware.starknet.testing.starknet import Starknet
+from signers import MockSigner
 from utils import (
-    TestSigner, to_uint, add_uint, sub_uint, str_to_felt, 
-    MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, get_contract_def, 
+    to_uint, add_uint, sub_uint, str_to_felt, 
+    MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, get_contract_class, 
     cached_contract, assert_revert, assert_event_emitted, State, Account
 )
 
-signer = TestSigner(123456789987654321)
+
+signer = MockSigner(123456789987654321)
 
 # testing vars
 RECIPIENT = 123
@@ -18,43 +21,44 @@ DECIMALS = 18
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = Account.get_def
-    erc20_def = get_contract_def(
+def contract_classes():
+    account_cls = Account.get_def
+    erc20_cls = get_contract_class(
         'openzeppelin/token/erc20/ERC20_Mintable.cairo')
-    return account_def, erc20_def
+
+    return account_cls, erc20_cls
 
 
 @pytest.fixture(scope='module')
-async def erc20_init(contract_defs):
-    _, erc20_def = contract_defs
+async def erc20_init(contract_classes):
+    account_cls, erc20_cls = contract_classes
     starknet = await State.init()
-    account1 = await Account.deploy(signer.public_key)
+    account = await Account.deploy(signer.public_key)
     erc20 = await starknet.deploy(
-        contract_def=erc20_def,
+        contract_class=erc20_cls,
         constructor_calldata=[
             NAME,
             SYMBOL,
             DECIMALS,
             *INIT_SUPPLY,
-            account1.contract_address,        # recipient
-            account1.contract_address         # owner
+            account.contract_address,        # recipient
+            account.contract_address         # owner
         ]
     )
     return (
         starknet.state,
-        account1,
+        account,
         erc20
     )
 
 
 @pytest.fixture
-def token_factory(contract_defs, erc20_init):
-    account_def, erc20_def = contract_defs
+def token_factory(contract_classes, erc20_init):
+    account_cls, erc20_cls = contract_classes
     state, account1, erc20 = erc20_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    erc20 = cached_contract(_state, erc20_def, erc20)
+    account1 = cached_contract(_state, account_cls, account1)
+    erc20 = cached_contract(_state, erc20_cls, erc20)
 
     return erc20, account1
 

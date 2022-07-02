@@ -1,11 +1,13 @@
 import pytest
+from starkware.starknet.testing.starknet import Starknet
+from signers import MockSigner
 from utils import (
-    TestSigner, str_to_felt, TRUE, FALSE, get_contract_def, cached_contract, 
+    str_to_felt, TRUE, FALSE, get_contract_class, cached_contract, 
     assert_revert, to_uint, State, Account
 )
 
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]
@@ -15,24 +17,24 @@ DATA = [0x42, 0x89, 0x55]
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = Account.get_def
-    erc721_def = get_contract_def(
+def contract_classes():
+    account_cls = Account.get_def
+    erc721_cls = get_contract_class(
         'openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo')
-    erc721_holder_def = get_contract_def(
+    erc721_holder_cls = get_contract_class(
         'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
 
-    return account_def, erc721_def, erc721_holder_def
+    return account_cls, erc721_cls, erc721_holder_cls
 
 
 @pytest.fixture(scope='module')
-async def erc721_init(contract_defs):
-    _, erc721_def, erc721_holder_def = contract_defs
+async def erc721_init(contract_classes):
+    account_cls, erc721_cls, erc721_holder_cls = contract_classes
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)
     erc721 = await starknet.deploy(
-        contract_def=erc721_def,
+        contract_class=erc721_cls,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
@@ -40,7 +42,7 @@ async def erc721_init(contract_defs):
         ]
     )
     erc721_holder = await starknet.deploy(
-        contract_def=erc721_holder_def,
+        contract_class=erc721_holder_cls,
         constructor_calldata=[]
     )
     return (
@@ -53,14 +55,14 @@ async def erc721_init(contract_defs):
 
 
 @pytest.fixture
-def erc721_factory(contract_defs, erc721_init):
-    account_def, erc721_def, erc721_holder_def = contract_defs
+def erc721_factory(contract_classes, erc721_init):
+    account_cls, erc721_cls, erc721_holder_cls = contract_classes
     state, account1, account2, erc721, erc721_holder = erc721_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
-    erc721 = cached_contract(_state, erc721_def, erc721)
-    erc721_holder = cached_contract(_state, erc721_holder_def, erc721_holder)
+    account1 = cached_contract(_state, account_cls, account1)
+    account2 = cached_contract(_state, account_cls, account2)
+    erc721 = cached_contract(_state, erc721_cls, erc721)
+    erc721_holder = cached_contract(_state, erc721_holder_cls, erc721_holder)
 
     return erc721, account1, account2, erc721_holder
 

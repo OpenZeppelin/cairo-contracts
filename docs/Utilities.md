@@ -263,10 +263,10 @@ account1 = await Account.deploy(public_key)
 account2 = await Account.deploy(public_key)
 ```
 
-The Account class also provides access to the account contract definition which is useful for following the [`Memoization`](#Memoization) pattern. To fetch the account contract definition:
+The Account class also provides access to the account contract class which is useful for following the [`Memoization`](#Memoization) pattern. To fetch the account contract class:
 
 ```python
-fetch_definition = Account.get_def
+fetch_class = Account.get_class
 ```
 
 ## MockSigner

@@ -13,7 +13,7 @@ signer = MockSigner(12345678987654321)
 async def pausable_factory():
     # class
     pausable_cls = get_contract_class("tests/mocks/Pausable.cairo")
-    account_cls = Account.get_def
+    account_cls = Account.get_class
 
     # deploy
     starknet = await State.init()

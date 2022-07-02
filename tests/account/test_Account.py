@@ -12,7 +12,7 @@ IACCOUNT_ID = 0xf10dbd44
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = Account.get_def
+    account_cls = Account.get_class
     init_cls = get_contract_class("tests/mocks/Initializable.cairo")
     attacker_cls = get_contract_class("tests/mocks/account_reentrancy.cairo")
 

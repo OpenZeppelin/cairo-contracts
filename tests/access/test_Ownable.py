@@ -16,7 +16,7 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     return (
-        Account.get_def,
+        Account.get_class,
         get_contract_class('tests/mocks/Ownable.cairo')
     )
 

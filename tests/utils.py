@@ -165,11 +165,11 @@ class Account:
     >>> account = await Account.deploy(public_key)
 
     """
-    get_def = get_contract_class("openzeppelin/account/Account.cairo")
+    get_class = get_contract_class("openzeppelin/account/Account.cairo")
 
     async def deploy(public_key):
         account = await starknet.deploy(
-            contract_class=Account.get_def,
+            contract_class=Account.get_class,
             constructor_calldata=[public_key]
         )
         return account

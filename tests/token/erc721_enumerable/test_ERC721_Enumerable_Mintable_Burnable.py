@@ -25,7 +25,7 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = Account.get_def
+    account_cls = Account.get_class
     erc721_cls = get_contract_class(
         'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
 

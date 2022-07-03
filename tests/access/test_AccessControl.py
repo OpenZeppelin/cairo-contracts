@@ -20,8 +20,8 @@ def contract_classes():
     return {
         Path(key).stem: get_contract_class(key)
         for key in [
-            'openzeppelin/account/Account.cairo',
-            'tests/mocks/AccessControl.cairo',
+            'Account',
+            'AccessControl',
         ]
     }
 

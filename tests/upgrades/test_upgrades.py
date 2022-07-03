@@ -19,10 +19,10 @@ signer = MockSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    v1_cls = get_contract_class('tests/mocks/upgrades_v1_mock.cairo')
-    v2_cls = get_contract_class('tests/mocks/upgrades_v2_mock.cairo')
-    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
+    account_cls = get_contract_class('Account')
+    v1_cls = get_contract_class('upgrades_v1_mock')
+    v2_cls = get_contract_class('upgrades_v2_mock')
+    proxy_cls = get_contract_class('Proxy')
 
     return account_cls, v1_cls, v2_cls, proxy_cls
 

@@ -207,6 +207,12 @@ A helper method that returns the contract class from the contract's name. To cap
 contract_class = get_contract_class('ContractName')
 ```
 
+If multiple contracts exist with the same name, then the contract's path must be used instead of the name. To pass the contract's path:
+
+```python
+contract_class = get_contract_class('path/to/Contract.cairo', is_path=True)
+```
+
 ### `cached_contract`
 
 A helper method that returns the cached state of a given contract. It's recommended to first deploy all the relevant contracts before caching the state. The requisite contracts in the testing module should each be instantiated with `cached_contract` in a fixture after the state has been copied. The memoization pattern with `cached_contract` should look something like this:

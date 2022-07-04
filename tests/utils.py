@@ -123,9 +123,13 @@ def _get_path_from_name(name):
     raise FileNotFoundError(f"Cannot find '{name}'.")
 
 
-def get_contract_class(name):
-    """Return the contract class from the contract name"""
-    path = _get_path_from_name(name)
+def get_contract_class(name, is_path=False):
+    """Return the contract class from the contract name or path"""
+    if is_path is not False:
+        path = contract_path(name)
+    else:
+        path = _get_path_from_name(name)
+
     contract_class = compile_starknet_files(
         files=[path],
         debug_info=True

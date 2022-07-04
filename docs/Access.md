@@ -224,7 +224,7 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.accesscontrol import AccessControl
 
 # constant
-const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
+const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
 
 @constructor
 func constructor{
@@ -267,8 +267,8 @@ from openzeppelin.token.erc20.library import ERC20
 from openzeppelin.access.accesscontrol import AccessControl
 
 # constants
-const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
-const BURNER_ROLE = 0x1e08e8b65d7fe80efb4e70e2027b1a07702ba4c7af801230c8752a1102bb542
+const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
+const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
 
 @constructor
 func constructor{
@@ -335,8 +335,8 @@ from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
 
 
 # constants
-const MINTER_ROLE = 0x13e5be1fda58eec91bcb0c14998a119a103190b7171435699dddf1b303912ad
-const BURNER_ROLE = 0x1e08e8b65d7fe80efb4e70e2027b1a07702ba4c7af801230c8752a1102bb542
+const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
+const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
 
 @constructor
 func constructor{

@@ -12,7 +12,6 @@ async def reentrancy_mock():
     starknet = await Starknet.empty()
     contract = await starknet.deploy(
         contract_class=get_contract_class("reentrancy_mock"),
-        #"tests/mocks/reentrancy_mock.cairo",
         constructor_calldata=[INITIAL_COUNTER]
     )
 

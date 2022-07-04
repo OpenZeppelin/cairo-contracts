@@ -1,0 +1,8 @@
+{
+    // Disable line length check to enable paragraphs without internal line breaks.
+    // See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md013---line-length
+    "MD013": false,
+    // Disable inline HTML check to enable duplicate headers with separate ids.
+    // See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md033---inline-html
+    "MD033": false
+} 

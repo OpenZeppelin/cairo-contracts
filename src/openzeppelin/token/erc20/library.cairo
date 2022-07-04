@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc20/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (token/erc20/library.cairo)
 
 %lang starknet
 
@@ -153,7 +153,6 @@ namespace ERC20:
             recipient: felt,
             amount: Uint256
         ) -> ():
-        alloc_locals
         let (caller) = get_caller_address()
         # subtract allowance
         _spend_allowance(sender, caller,  amount)
@@ -256,7 +255,6 @@ namespace ERC20:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(account: felt, amount: Uint256):
-        alloc_locals
         with_attr error_message("ERC20: amount is not a valid Uint256"):
             uint256_check(amount)
         end
@@ -284,7 +282,6 @@ namespace ERC20:
             pedersen_ptr : HashBuiltin*,
             range_check_ptr
         }(sender: felt, recipient: felt, amount: Uint256):
-        alloc_locals
         with_attr error_message("ERC20: amount is not a valid Uint256"):
             uint256_check(amount) # almost surely not needed, might remove after confirmation
         end

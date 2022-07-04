@@ -7,7 +7,7 @@ from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.bool import TRUE
 from starkware.starknet.common.syscalls import get_contract_address
 
-from openzeppelin.security.reentrancy_guard import ReentrancyGuard
+from openzeppelin.security.reentrancyguard import ReentrancyGuard
 
 @contract_interface
 namespace IReentrancyGuardAttacker:

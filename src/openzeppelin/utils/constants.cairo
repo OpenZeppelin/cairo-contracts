@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (utils/constants.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.0 (utils/constants.cairo)
 
 %lang starknet
 
@@ -33,3 +33,9 @@ const ON_ERC1155_BATCH_RECEIVED_SELECTOR = 0xbc197c81
 
 # AccessControl
 const IACCESSCONTROL_ID = 0x7965db0b
+
+#
+# Roles
+#
+
+const DEFAULT_ADMIN_ROLE = 0

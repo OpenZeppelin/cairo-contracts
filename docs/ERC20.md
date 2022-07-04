@@ -114,7 +114,7 @@ erc20 = await starknet.deploy(
 As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`). This is why we need an Account contract to interact with it. For example:
 
 ```python
-signer = TestSigner(PRIVATE_KEY)
+signer = MockSigner(PRIVATE_KEY)
 amount = uint(100)
 
 account = await starknet.deploy(

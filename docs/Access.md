@@ -407,19 +407,19 @@ end
 func assert_only_role(role: felt):
 end
 
-func has_role(role: felt, account: felt) -> (has_role: felt):
+func has_role(role: felt, user: felt) -> (has_role: felt):
 end
 
 func get_role_admin(role: felt) -> (admin: felt):
 end
 
-func grant_role(role: felt, account: felt):
+func grant_role(role: felt, user: felt):
 end
 
-func revoke_role(role: felt, account: felt):
+func revoke_role(role: felt, user: felt):
 end
 
-func renounce_role(role: felt, account: felt):
+func renounce_role(role: felt, user: felt):
 end
 
 func _grant_role(role: felt, user: felt):
@@ -460,15 +460,15 @@ Returns:
 
 None.
 
-#### `has_role`
+#### has_role
 
-Returns `TRUE` if `account` has been granted `role`.
+Returns `TRUE` if `user` has been granted `role`.
 
 Parameters:
 
 ```cairo
 role: felt
-account: felt
+user: felt
 ```
 
 Returns:
@@ -497,9 +497,9 @@ admin: felt
 
 #### `grant_role`
 
-Grants `role` to `account`.
+Grants `role` to `user`.
 
-If `account` had not been already granted `role`, emits a [RoleGranted](#rolegranted) event.
+If `user` had not been already granted `role`, emits a [RoleGranted](#rolegranted) event.
 
 Requirements:
 
@@ -509,7 +509,7 @@ Parameters:
 
 ```cairo
 role: felt
-account: felt
+user: felt
 ```
 
 Returns:
@@ -518,9 +518,9 @@ None.
 
 #### `revoke_role`
 
-Revokes `role` from `account`.
+Revokes `role` from `user`.
 
-If `account` had been granted `role`, emits a [RoleRevoked](#rolerevoked) event.
+If `user` had been granted `role`, emits a [RoleRevoked](#rolerevoked) event.
 
 Requirements:
 
@@ -530,7 +530,7 @@ Parameters:
 
 ```cairo
 role: felt
-account: felt
+user: felt
 ```
 
 Returns:
@@ -539,19 +539,22 @@ None.
 
 #### `renounce_role`
 
-Revokes `role` from the calling `account`.
+Revokes `role` from the calling `user`.
 
 Roles are often managed via [grant_role](#grant_role) and [revoke_role](#revoke_role): this function’s purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
 
-If the calling account had been revoked `role`, emits a [RoleRevoked](#revokedrole) event.
+If the calling `user` had been revoked `role`, emits a [RoleRevoked](#revokedrole) event.
 
 Requirements:
 
-* the caller must be `account`.
+* the caller must be `user`.
 
 Parameters:
 
-None.
+```cairo
+role: felt
+user: felt
+```
 
 Returns:
 
@@ -559,7 +562,7 @@ None.
 
 <h4 id="grantrole-internal"><code>_grant_role</code></h4>
 
-Grants `role` to `account`.
+Grants `role` to `user`.
 
 Internal function without access restriction.
 
@@ -567,7 +570,7 @@ Parameters:
 
 ```cairo
 role: felt
-account: felt
+user: felt
 ```
 
 Returns:
@@ -576,7 +579,7 @@ None.
 
 <h4 id="revokerole-internal"><code>_revoke_role</code></h4>
 
-Revokes `role` from `account`.
+Revokes `role` from `user`.
 
 Internal function without access restriction.
 
@@ -584,7 +587,7 @@ Parameters:
 
 ```cairo
 role: felt
-account: felt
+user: felt
 ```
 
 Returns:

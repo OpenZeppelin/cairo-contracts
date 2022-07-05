@@ -419,7 +419,7 @@ end
 func revoke_role(role: felt, account: felt):
 end
 
-func renounce_role():
+func renounce_role(role: felt, account: felt):
 end
 
 func _grant_role(role: felt, user: felt):

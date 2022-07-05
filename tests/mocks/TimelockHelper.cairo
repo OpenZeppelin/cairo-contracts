@@ -9,16 +9,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 func count() -> (res: felt):
 end
 
-@constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(init_count: felt):
-    count.write(init_count)
-    return ()
-end
-
 @external
 func increaseCount{
         syscall_ptr: felt*,

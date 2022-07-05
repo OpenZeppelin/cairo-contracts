@@ -2,12 +2,11 @@ import pytest
 from itertools import count
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.public.abi import get_selector_from_name
-
+from signers import MockSigner
 from utils import (
-    TestSigner,
     assert_event_emitted,
     assert_revert,
-    get_contract_def,
+    get_contract_class,
     cached_contract,
     get_block_timestamp,
     set_block_timestamp,
@@ -20,14 +19,14 @@ from utils import (
     FALSE
 )
 
-signer = TestSigner(123456789987654321)
+signer = MockSigner(123456789987654321)
 
 
-# first 250 bits of the keccak256 role
-TIMELOCK_ADMIN_ROLE = 0x2fac71d118b1a4c91e71bc07c6ac3ed96b91bc576b354130e48b2a27d342365
-PROPOSER_ROLE = 0x2c26a96bacdc0b3f542dad8af114c98124e3c8492289e875729cd820ada0673
-CANCELLER_ROLE = 0x3f590f1c9c4318f00600966ae9acb4151478d646893962d888e4de0215c9bde
-EXECUTOR_ROLE = 0x362a83cc6525c68a84599e7df08243da4e723538068aa35f90755794d451a79
+# first 251 bits of the keccak256 role
+TIMELOCK_ADMIN_ROLE = 0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca
+PROPOSER_ROLE = 0x584d52d759b8167ea85b5b15e229930249c790924513d0eae539b0415b40ce6
+CANCELLER_ROLE = 0x7eb21e39388631e00c012cd5d359682a28f1ac8d1272c5b111c9bc042b937bc
+EXECUTOR_ROLE = 0x6c550798ca4b8d1508b33cfbe10487b49ce46a700d1546bf20eaaf29a8a34f3
 
 # arrays of random numbers to mimic addresses
 PROPOSERS = [111, 112, 113, 114]
@@ -44,15 +43,12 @@ IACCESSCONTROL_ID = 0x7965db0b
 MIN_DELAY = 86400
 NEW_MIN_DELAY = 21600
 BAD_DELAY = 100
-HELPER_CALLDATA = 5
+AMOUNT = 5
 INVALID_ID = 11223344
 TOKEN = to_uint(5042)
 
 # random data (mimicking bytes in Solidity)
 DATA = [0x42, 0x89, 0x55]
-
-# random amount for helper contract
-INIT_COUNT = 100
 
 # to prevent hash id collisions between tests, the salt is incremented for test case
 SALT_IID = count(100)
@@ -96,27 +92,27 @@ async def fast_forward_to_target(operation, predecessor, salt, timelock, state):
 
 
 @pytest.fixture(scope="module")
-async def contract_defs():
-    account_def = get_contract_def("openzeppelin/account/Account.cairo")
-    timelock_def = get_contract_def("tests/mocks/Timelock.cairo")
-    helper_def = get_contract_def("tests/mocks/TimelockHelper.cairo")
-    erc721_def = get_contract_def('openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+async def contract_classes():
+    account_cls = get_contract_class("openzeppelin/account/Account.cairo")
+    timelock_cls = get_contract_class("tests/mocks/Timelock.cairo")
+    helper_cls = get_contract_class("tests/mocks/TimelockHelper.cairo")
+    erc721_cls = get_contract_class('openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
 
-    return account_def, timelock_def, helper_def, erc721_def
+    return account_cls, timelock_cls, helper_cls, erc721_cls
 
 
 @pytest.fixture(scope="module")
-async def timelock_init(contract_defs):
-    account_def, timelock_def, helper_def, erc721_def = contract_defs
+async def timelock_init(contract_classes):
+    account_cls, timelock_cls, helper_cls, erc721_cls = contract_classes
 
     # contract deployments
     starknet = await Starknet.empty()
     proposer = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     executor = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
 
@@ -125,7 +121,7 @@ async def timelock_init(contract_defs):
     EXECUTORS.append(executor.contract_address)
 
     timelock = await starknet.deploy(
-        contract_def=timelock_def,
+        contract_class=timelock_cls,
         constructor_calldata=[
             MIN_DELAY,                  # delay
             proposer.contract_address,  # deployer
@@ -136,11 +132,10 @@ async def timelock_init(contract_defs):
         ],
     )
     helper = await starknet.deploy(
-        contract_def=helper_def,
-        constructor_calldata=[INIT_COUNT]
+        contract_class=helper_cls
     )
     erc721 = await starknet.deploy(
-        contract_def=erc721_def,
+        contract_class=erc721_cls,
         constructor_calldata=[
             str_to_felt("Non Fungible Token"),  # name
             str_to_felt("NFT"),                 # ticker
@@ -148,22 +143,23 @@ async def timelock_init(contract_defs):
         ]
     )
 
-    # cache contracts
-    _state = starknet.state.copy()
-    proposer = cached_contract(_state, account_def, proposer)
-    executor = cached_contract(_state, account_def, executor)
-    timelock = cached_contract(_state, timelock_def, timelock)
-    helper = cached_contract(_state, helper_def, helper)
-    erc721 = cached_contract(_state, erc721_def, erc721)
-
-    return _state, proposer, executor, timelock, helper, erc721
+    return starknet.state, proposer, executor, timelock, helper, erc721
 
 
 @pytest.fixture(scope="module")
-async def timelock_factory(timelock_init):
-    state, proposer, executor, timelock, helper, _ = timelock_init
+async def timelock_factory(contract_classes, timelock_init):
+    account_cls, timelock_cls, helper_cls, erc721_cls = contract_classes
+    state, proposer, executor, timelock, helper, erc721 = timelock_init
 
-    return timelock, proposer, executor, helper, state
+    # cache contracts
+    _state = state.copy()
+    proposer = cached_contract(_state, account_cls, proposer)
+    executor = cached_contract(_state, account_cls, executor)
+    timelock = cached_contract(_state, timelock_cls, timelock)
+    helper = cached_contract(_state, helper_cls, helper)
+    erc721 = cached_contract(_state, erc721_cls, erc721)
+
+    return timelock, proposer, executor, helper, _state
 
 
 @pytest.fixture(scope="module")
@@ -1548,8 +1544,8 @@ async def test_execute_check_target_contract(timelock_factory):
     await fast_forward_to_target(operation, 0, salt, timelock, state)
 
     # fetch initial helper contract value
-    execution_info = await helper.getCount().call()
-    init_amount = execution_info.result.res
+    #execution_info = await helper.getCount().call()
+    #init_amount = execution_info.result.res
 
     # execute
     await signer.send_transaction(
@@ -1560,8 +1556,11 @@ async def test_execute_check_target_contract(timelock_factory):
         ])
 
     # check updated contract value
+    #execution_info = await helper.getCount().call()
+    #assert execution_info.result.res == init_amount + HELPER_CALLDATA
     execution_info = await helper.getCount().call()
-    assert execution_info.result.res == init_amount + HELPER_CALLDATA
+    assert execution_info.result.res == AMOUNT
+
 
 #
 # safe receive

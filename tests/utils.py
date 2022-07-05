@@ -147,6 +147,23 @@ def set_block_timestamp(starknet_state, timestamp):
     )
 
 
+def from_call_to_call_array(calls):
+    """Return calls and calldata arrays."""
+    call_array = []
+    calldata = []
+    for call in calls:
+        assert len(call) == 3, "Invalid call parameters"
+        entry = (
+            call[0],                                # to
+            get_selector_from_name(call[1]),        # selector
+            len(calldata),                          # calldata length
+            len(call[2])                            # calldata
+        )
+        call_array.append(entry)
+        calldata.extend(call[2])
+    return (call_array, calldata)
+
+
 def flatten_calls_for_signer(calls):
     """Format calls for signer invoke."""
     calls_len = len(calls[0])

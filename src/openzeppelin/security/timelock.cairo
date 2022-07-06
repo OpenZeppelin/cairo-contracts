@@ -333,6 +333,12 @@ namespace Timelock:
         Account._from_call_array_to_call(call_array_len, call_array, calldata, calls)
         _execute_calls(id, 0, call_array_len, calls)
 
+        # prevents operation modification in the event of a reentrant call
+        let (ready: felt) = is_operation_ready(id)
+        with_attr error_message("Timelock: operation is not ready"):
+            assert ready = TRUE
+        end
+
         Timelock_timestamps.write(id, DONE_TIMESTAMP)
         return ()
     end

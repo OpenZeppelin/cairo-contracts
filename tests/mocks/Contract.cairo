@@ -1,31 +1,28 @@
-# SPDX-License-Identifier: MIT
-
 %lang starknet
 
-from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @storage_var
-func count() -> (res: felt):
+func balance() -> (res : felt):
 end
 
 @external
-func increaseCount{
+func increase_balance{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(amount: felt):
-    let (oldCount) = count.read()
-    count.write(oldCount + amount)
+    }(amount : felt):
+    let (res) = balance.read()
+    balance.write(res + amount)
     return ()
 end
 
 @view
-func getCount{
+func get_balance{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = count.read()
+    }() -> (res : felt):
+    let (res) = balance.read()
     return (res)
 end

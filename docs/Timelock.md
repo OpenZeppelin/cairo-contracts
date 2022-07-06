@@ -7,18 +7,20 @@ When this contract is used as the owner of a contract, it enforces a timelock on
 By default this contract is self administered meaning maintainance tasks should be timelocked too (eg. changing the minimum delay between a proposal and its execution).
 
 ## Table of Contents
+
 * [Quickstart](#quickstart)
 * [Proposals and execution](#proposals-and-execution)
 * [Access control](#access-control)
 * [API Specification](#api-specification)
 
 ## Quickstart
+
 A basic usage of this contract is:
 
 1. The `Timelock` contract is deployed specifying:
-    - a minimum delay between proposal and execution of operations
-    - a proposer account, able to propose batches of transactions
-    - an executor account, able to execute proposed batches of transactions
+    * a minimum delay between proposal and execution of operations
+    * a proposer account, able to propose batches of transactions
+    * an executor account, able to execute proposed batches of transactions
 
 2. Batches of transactions can now be proposed (or cancelled) by the proposer account
 
@@ -74,12 +76,13 @@ await proposer_signer.send_transaction(proposer_account, timelock.contract_addre
 ```
 
 ## Proposals and execution
+
 The idea behind proposals is to batch transactions that needs a timelock before execution. A proposal consists of:
 
-- a list of transactions
-- a predecessor proposal hash (in case there is a dependency to another proposal)
-- a delay specifying when in the future the proposal should be executed starting from the time it's scheduled
-- a salt (used to hash the proposal)
+* a list of transactions
+* a predecessor proposal hash (in case there is a dependency to another proposal)
+* a delay specifying when in the future the proposal should be executed starting from the time it's scheduled
+* a salt (used to hash the proposal)
 
 An unique hash to identify the proposal is produced starting from these parameters (eg. in case it is needed as a dependency).
 
@@ -113,22 +116,23 @@ Proposers need to pass as arguments a list of `TimelockCall` and calldata separa
 
 A proposal can be in different states:
 
-- **Pending**: proposal can not be executed because delay is not expired.
-- **Ready**: proposal's delay is expired.
-- **Executed**: proposal was executed.
+* **Pending**: proposal can not be executed because delay is not expired.
+* **Ready**: proposal's delay is expired.
+* **Executed**: proposal was executed.
 
 ### Scheduling a proposal
+
 A proposal can be scheduled only by accounts that have the `PROPOSER_ROLE` role.
 
 The execution flow for a proposal starts by proposing it. A proposer can schedule operations by using the `schedule` method that accepts these arguments:
 
-- `call_array_len`: the number of transactions
-- `call_array`: a list of `TimelockCall`
-- `calldata_len`: the length of calldata
-- `calldata`: actual calldata
-- `predecessor`: the hash of the predecessor
-- `salt`
-- `delay`: the delay needed for this proposal to be ready to execute (should be greater than or equal to minimum delay)  
+* `call_array_len`: the number of transactions
+* `call_array`: a list of `TimelockCall`
+* `calldata_len`: the length of calldata
+* `calldata`: actual calldata
+* `predecessor`: the hash of the predecessor
+* `salt`
+* `delay`: the delay needed for this proposal to be ready to execute (should be greater than or equal to minimum delay)  
 
 We illustrate the process by using Python and the `Signer` utility class to send transactions with an account:
 
@@ -230,15 +234,16 @@ await signer.send_transaction(
 ```
 
 ## Access Control
+
 By default the `Timelock` contract implements access control on the timelock.
 
 There are three roles:
 
-- **Proposer** (`PROPOSER_ROLE`), able to propose and cancel batches of transactions. This role is assigned on deploy of the contract by the deployer.
+* **Proposer** (`PROPOSER_ROLE`), able to propose and cancel batches of transactions. This role is assigned on deploy of the contract by the deployer.
 
-- **Executor** (`EXECUTOR_ROLE`), able to execute batches of transactions. This role is assigned on deploy of the contract by the deployer.
+* **Executor** (`EXECUTOR_ROLE`), able to execute batches of transactions. This role is assigned on deploy of the contract by the deployer.
 
-- **Timelock admin** (`TIMELOCK_ADMIN_ROLE`), able to change the timelock minimum delay. This role is assigned on deploy to the contract itself and to the deployer. Deployer should later renounce this role.
+* **Timelock admin** (`TIMELOCK_ADMIN_ROLE`), able to change the timelock minimum delay. This role is assigned on deploy to the contract itself and to the deployer. Deployer should later renounce this role.
 
 *Note that access control is implemented by the `Timelock` contract and is not implicit in the timelock library (`contracts/governance/timelock/library.cairo`) so that developers can implement their own authentication model.*
 
@@ -250,13 +255,13 @@ There are three roles:
 
 Returns `TRUE` if a given operation was proposed.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id : felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 is_operation : felt
@@ -266,13 +271,13 @@ is_operation : felt
 
 Returns `TRUE` if a given operation is in a pending state.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id : felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 is_pending : felt
@@ -282,13 +287,13 @@ is_pending : felt
 
 Returns `TRUE` if a given operation is in a ready state.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id : felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 is_ready : felt
@@ -298,13 +303,13 @@ is_ready : felt
 
 Returns `TRUE` if a given operation is executed.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id : felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 is_done : felt
@@ -316,13 +321,13 @@ Returns the operation timestamp.
 Returns 0 if the operation does not exist.
 Returns 1 if the operation is executed.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id : felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 timestamp : felt
@@ -332,11 +337,11 @@ timestamp : felt
 
 Returns the minimum delay.
 
-##### Parameters:
+Parameters:
 
 None.
 
-##### Returns:
+Returns:
 
 ```jsx
 min_delay : felt
@@ -346,7 +351,7 @@ min_delay : felt
 
 Returns `TRUE` if a given operation is in a pending state.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 call_array_len: felt
@@ -357,7 +362,7 @@ predecessor: felt
 salt: felt
 ```
 
-##### Returns:
+Returns:
 
 ```jsx
 hash : felt
@@ -367,7 +372,7 @@ hash : felt
 
 Schedules an operation.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 call_array_len: felt
@@ -379,7 +384,7 @@ salt: felt
 delay: felt
 ```
 
-##### Returns:
+Returns:
 
 Nothing.
 
@@ -387,13 +392,13 @@ Nothing.
 
 Cancels an operation.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id: felt
 ```
 
-##### Returns:
+Returns:
 
 Nothing.
 
@@ -401,7 +406,7 @@ Nothing.
 
 Executes an operation.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 call_array_len: felt
@@ -412,7 +417,7 @@ predecessor: felt
 salt: felt
 ```
 
-##### Returns:
+Returns:
 
 Nothing.
 
@@ -420,16 +425,15 @@ Nothing.
 
 Updates the minimum delay.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 new_delay: felt
 ```
 
-##### Returns:
+Returns:
 
 Nothing.
-
 
 ### Events
 
@@ -437,7 +441,7 @@ Nothing.
 
 Emitted when a call is scheduled.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id: felt
@@ -453,7 +457,7 @@ predecessor: felt
 
 Emitted when the call at position `index` of operation `id` is executed.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id: felt
@@ -468,7 +472,7 @@ calldata: felt*
 
 Emitted when the operation `id` is cancelled.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 id: felt
@@ -478,12 +482,9 @@ id: felt
 
 Emitted when the minimum delay is changed.
 
-##### Parameters:
+Parameters:
 
 ```jsx
 old_duration: felt
 new_duration: felt
 ```
-
-
-

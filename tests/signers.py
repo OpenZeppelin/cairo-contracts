@@ -25,7 +25,7 @@ class MockSigner():
 
     Sending multiple transactions
 
-    >>> await signer.send_transaction(
+    >>> await signer.send_transactions(
             account, [
                 (contract_address, 'contract_method', [arg_1]),
                 (contract_address, 'another_method', [arg_1, arg_2])

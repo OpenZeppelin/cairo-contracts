@@ -7,7 +7,6 @@ from utils import (
     assert_revert,
     get_contract_class,
     cached_contract,
-    get_block_timestamp,
     set_block_timestamp,
     from_call_to_call_array,
     flatten_calls_for_signer,
@@ -24,12 +23,13 @@ signer = MockSigner(123456789987654321)
 # first 251 bits of the keccak256 role
 TIMELOCK_ADMIN_ROLE = 0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca
 PROPOSER_ROLE = 0x584d52d759b8167ea85b5b15e229930249c790924513d0eae539b0415b40ce6
-CANCELLER_ROLE = 0x7eb21e39388631e00c012cd5d359682a28f1ac8d1272c5b111c9bc042b937bc
 EXECUTOR_ROLE = 0x6c550798ca4b8d1508b33cfbe10487b49ce46a700d1546bf20eaaf29a8a34f3
+CANCELLER_ROLE = 0x7eb21e39388631e00c012cd5d359682a28f1ac8d1272c5b111c9bc042b937bc
 
 # arrays of random numbers to mimic addresses
-PROPOSERS = [111, 112, 113, 114]
-EXECUTORS = [221, 222, 223, 224]
+PROPOSERS = [0x10, 0x11, 0x12]
+EXECUTORS = [0x20, 0x21]
+CANCELLERS = [0x30]
 
 # selector ids
 IERC165_ID = 0x01ffc9a7
@@ -108,9 +108,10 @@ async def timelock_init(contract_classes):
         constructor_calldata=[signer.public_key]
     )
 
-    # add accounts to proposers and executors arrays
+    # add accounts to proposers, executors, and cancellers arrays
     PROPOSERS.append(proposer.contract_address)
     EXECUTORS.append(executor.contract_address)
+    CANCELLERS.append(proposer.contract_address)
 
     timelock = await starknet.deploy(
         contract_class=timelock_cls,
@@ -120,7 +121,9 @@ async def timelock_init(contract_classes):
             len(PROPOSERS),             # proposers length
             *PROPOSERS,                 # proposers array
             len(EXECUTORS),             # executors length
-            *EXECUTORS                  # executors array
+            *EXECUTORS,                 # executors array
+            len(CANCELLERS),            # cancellers length
+            *CANCELLERS                 # cancellers array
         ],
     )
     helper = await starknet.deploy(
@@ -138,7 +141,7 @@ async def timelock_init(contract_classes):
     return starknet.state, proposer, executor, timelock, helper, erc721
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def timelock_factory(contract_classes, timelock_init):
     account_cls, timelock_cls, helper_cls, erc721_cls = contract_classes
     state, proposer, executor, timelock, helper, erc721 = timelock_init
@@ -175,7 +178,7 @@ async def timelock_with_erc721(timelock_init):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('role, addresses, not_role', [
     [PROPOSER_ROLE, PROPOSERS, EXECUTOR_ROLE],
-    [CANCELLER_ROLE, PROPOSERS, EXECUTOR_ROLE],
+    [CANCELLER_ROLE, CANCELLERS, EXECUTOR_ROLE],
     [EXECUTOR_ROLE, EXECUTORS, PROPOSER_ROLE],
 ])
 async def test_constructor_roles_arrays(timelock_factory, role, addresses, not_role):

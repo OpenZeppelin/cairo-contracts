@@ -16,7 +16,6 @@ from openzeppelin.security.timelock import (
     PROPOSER_ROLE,
     CANCELLER_ROLE,
     EXECUTOR_ROLE,
-    _iter_roles
 )
 
 from openzeppelin.introspection.ERC165 import ERC165
@@ -32,21 +31,23 @@ func constructor{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
-        delay: felt,
+        minDelay: felt,
         deployer: felt,
         proposers_len: felt,
         proposers: felt*,
         executors_len: felt,
-        executors: felt*
+        executors: felt*,
+        cancellers_len: felt,
+        cancellers: felt*
     ):
     alloc_locals
     AccessControl.initializer()
-    Timelock.initializer(delay, deployer)
+    Timelock.initializer(minDelay, deployer)
 
-    # register proposers, cancellers, and executors
-    _iter_roles(proposers_len, proposers, PROPOSER_ROLE)
-    _iter_roles(proposers_len, proposers, CANCELLER_ROLE)
-    _iter_roles(executors_len, executors, EXECUTOR_ROLE)
+    # grant proposer, executor, and canceller roles
+    Timelock._iter_roles(proposers_len, proposers, PROPOSER_ROLE)
+    Timelock._iter_roles(executors_len, executors, EXECUTOR_ROLE)
+    Timelock._iter_roles(cancellers_len, cancellers, CANCELLER_ROLE)
     return ()
 end
 

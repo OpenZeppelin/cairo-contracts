@@ -17,7 +17,7 @@ from starkware.cairo.common.hash_state import (
     hash_init,
     hash_finalize,
     hash_update,
-    hash_update_single,
+    hash_update_single
 )
 
 from openzeppelin.account.library import Call, AccountCallArray, Account
@@ -100,7 +100,7 @@ namespace Timelock:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(delay: felt, deployer: felt):
+        }(min_delay: felt, deployer: felt):
         AccessControl._set_role_admin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE)
         AccessControl._set_role_admin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE)
@@ -115,7 +115,7 @@ namespace Timelock:
         ERC165.register_interface(IERC721_RECEIVER_ID)
         ERC165.register_interface(IERC1155_RECEIVER_ID)
 
-        _update_delay(delay)
+        _update_delay(min_delay)
         return ()
     end
 
@@ -141,7 +141,7 @@ namespace Timelock:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(id: felt) -> (operation: felt):
+        }(id: felt) -> (registered: felt):
         let (timestamp: felt) = get_timestamp(id)
         let (operation: felt) = is_not_zero(timestamp)
         return (operation)
@@ -197,7 +197,7 @@ namespace Timelock:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }() -> (min_delay: felt):
+        }() -> (duration: felt):
         let (min_delay: felt) = Timelock_min_delay.read()
         return (min_delay)
     end
@@ -212,7 +212,7 @@ namespace Timelock:
             calldata_len: felt,
             calldata: felt*,
             predecessor: felt,
-            salt: felt,
+            salt: felt
         ) -> (hash: felt):
         alloc_locals
         let (calls_hash_array: felt*) = _get_calls_hash_array(call_array_len, call_array, calldata)
@@ -245,7 +245,7 @@ namespace Timelock:
             calldata: felt*,
             predecessor: felt,
             salt: felt,
-            delay: felt,
+            delay: felt
         ):
         alloc_locals
         AccessControl.assert_only_role(PROPOSER_ROLE)
@@ -304,7 +304,7 @@ namespace Timelock:
             calldata_len: felt,
             calldata: felt*,
             predecessor: felt,
-            salt: felt,
+            salt: felt
         ):
         alloc_locals
         # check if role is public or for only executor
@@ -347,7 +347,7 @@ namespace Timelock:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }(min_delay: felt):
+        }(new_delay: felt):
         # checks that the caller is the timelock itself
         let (self) = get_caller_address()
         let (this) = get_contract_address()
@@ -355,7 +355,29 @@ namespace Timelock:
             assert self = this
         end
 
-        _update_delay(min_delay)
+        _update_delay(new_delay)
+        return ()
+    end
+
+    func _iter_roles{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(
+            addresses_len: felt,
+            addresses: felt*,
+            role: felt
+        ):
+        if addresses_len == 0:
+            return ()
+        end
+
+        # grant role to address
+        let address = [addresses]
+        AccessControl._grant_role(role, address)
+
+        # recursive call
+        _iter_roles(addresses_len - 1, addresses + 1, role)
         return ()
     end
 
@@ -364,24 +386,6 @@ end
 #
 # Internals
 #
-
-func _iter_roles{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(addresses_len: felt, addresses: felt*, role):
-    if addresses_len == 0:
-        return ()
-    end
-
-    # grant role to address
-    let address = [addresses]
-    AccessControl._grant_role(role, address)
-
-    # recursive call
-    _iter_roles(addresses_len - 1, addresses + 1, role)
-    return ()
-end
 
 func _get_calls_hash_array{
         syscall_ptr: felt*,

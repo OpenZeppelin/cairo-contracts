@@ -125,7 +125,7 @@ def _get_path_from_name(name):
 
 def get_contract_class(contract, is_path=False):
     """Return the contract class from the contract name or path"""
-    if is_path is not False:
+    if is_path:
         path = contract_path(contract)
     else:
         path = _get_path_from_name(contract)

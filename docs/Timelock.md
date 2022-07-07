@@ -1,341 +1,250 @@
 # Timelock
 
-In a governance system, the `Timelock` contract is in charge of introducing a delay between a proposal and its execution.
+The Timelock library provides a means of enforcing time delays on the execution of transactions. This is considered good practice regarding governance systems because it allows users the opportunity to exit the system if they disagree with a decision before it is executed.
 
-When this contract is used as the owner of a contract, it enforces a timelock on all operations requiring ownership. This gives time to users of the controlled contract to take action before a potentially dangerous operation is applied.
-
-By default this contract is self administered meaning maintainance tasks should be timelocked too (eg. changing the minimum delay between a proposal and its execution).
+> Note that the Timelock contract itself executes transactions, not the user. The Timelock should, therefore, hold associated funds, ownership, and access control roles.
 
 ## Table of Contents
 
-* [Quickstart](#quickstart)
-* [Proposals and execution](#proposals-and-execution)
-* [Access control](#access-control)
-* [API Specification](#api-specification)
+* [AccessControl and roles](#accesscontrol-and-roles)
+* [Setup](#setup)
+* [Standard lifecycle](#standard-lifecycle)
+  * [Scheduling](#scheduling)
+  * [Executing](#scheduling)
+  * [Canceling](#scheduling)
+* [Batching and dependencies](batching-and-dependencies)
+* [Updating the minimum delay](#updating-the-minimum-delay)
+* [Timelock library API](#timelock-library-api)
+  * [Methods](#methods)
+    * [initializer](#initializer)
+    * [assert_only_role_or_open_role](#assert_only_role_or_open_role)
+    * [is_operation](#is_operation)
+    * [is_operation_pending](#is_operation_pending)
+    * [is_operation_ready](#is_operation_ready)
+    * [is_operation_done](#is_operation_done)
+    * [get_timestamp](#get_timestamp)
+    * [get_min_delay](#get_min_delay)
+    * [hash_operation](#hash_operation)
+    * [schedule](#schedule)
+    * [cancel](#cancel)
+    * [execute](#execute)
+    * [update_delay](#update_delay)
+    * [_iter_role](#_iter_role)
+  * [Events](#events)
+    * [CallScheduled](#callscheduled)
+    * [CallExecuted](#callexecuted)
+    * [Cancelled](#cancelled)
+    * [MinDelayChange](#mindelaychange)
 
-## Quickstart
+## AccessControl and roles
 
-A basic usage of this contract is:
+The Timelock library leverages the AccessControl library to grant roles and restrict access to sensitive functions. Timelock utilizes the following roles:
 
-1. The `Timelock` contract is deployed specifying:
-    * a minimum delay between proposal and execution of operations
-    * a proposer account, able to propose batches of transactions
-    * an executor account, able to execute proposed batches of transactions
+* **Proposer** - The Proposer role is in charge of queueing operations.
 
-2. Batches of transactions can now be proposed (or cancelled) by the proposer account
+* **Executor** - The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
 
-3. Proposed batches of transactions can now be executed by the executor account
+* **Canceller** - The Canceller role is in charge of cancelling operations.
 
-In Python, proposing a batch of transactions looks like:
+* **Timelock admin** - Lastly, there is the Admin role, which can grant and revoke the three previous roles: this is a very sensitive role that will be granted automatically to both the deployer and timelock itself. The deployer should, however, renounce after setup.
+
+## Setup
+
+In order to deploy a timelock implementation, we need to set up a constructor to both pass the `minDelay` and `deployer` account address and grant the 'proposer', 'executor', and 'canceller' roles. Here's an example constructor:
+
+```cairo
+from openzeppelin.security.timelock import (
+    Timelock,
+    PROPOSER_ROLE,
+    CANCELLER_ROLE,
+    EXECUTOR_ROLE
+)
+
+from openzeppelin.access.accesscontrol import AccessControl
+
+@constructor
+func constructor{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        minDelay: felt,         # the minimum delay
+        deployer: felt,         # deployer account address
+        proposers_len: felt,    # proposer array length
+        proposers: felt*,       # array of addresses to grant 'PROPOSER_ROLE'
+        executors_len: felt,    # executor array length
+        executors: felt*,       # array of addresses to grant 'EXECUTOR_ROLE'
+        cancellers_len: felt,   # canceller array length
+        cancellers: felt*       # array of addresses to grant 'CANCELLER_ROLE'
+    ):
+    alloc_locals
+    AccessControl.initializer()
+    Timelock.initializer(minDelay, deployer)
+
+    # grant proposer, executor, and canceller roles
+    Timelock._iter_roles(proposers_len, proposers, PROPOSER_ROLE)
+    Timelock._iter_roles(executors_len, executors, EXECUTOR_ROLE)
+    Timelock._iter_roles(cancellers_len, cancellers, CANCELLER_ROLE)
+    return ()
+end
+```
+
+To deploy the contract in Python:
 
 ```python
-from starkware.starknet.testing.starknet import Starknet
-proposer_signer = Signer(456)
-executor_signer = Signer(789)
-
-# 1. Deploy accounts
-proposer_account = await starknet.deploy(
-    "contracts/Account.cairo",
-    constructor_calldata=[proposer_signer.public_key]
-)
-
-executor_account = await starknet.deploy(
-    "contracts/Account.cairo",
-    constructor_calldata=[executor_signer.public_key]
-)
-
-# 2. Deploy Timelock contract (specifies 1 day as minimum delay)
+starknet = Starknet.empty()
 timelock = await starknet.deploy(
-    "contracts/governance/timelock/Timelock.cairo",
+    "path/to/Timelock.cairo",
     constructor_calldata=[
-        proposer_account.contract_address, 
-        executor_account.contract_address, 
-        86400
+        12345,                        # minimum delay (in seconds)
+        deployer.contract_address,    # deployer address
+        1,                            # number of proposers
+        proposer_1.contract_address
+        2,                            # number of executors
+        executor_1.contract_address
+        executor_2.contract_address
+        3,                            # number of cancellers
+        canceller_1.contract_address
+        canceller_2.contract_address
+        canceller_3.contract_address
     ]
 )
 
-# 3. Propose a batch of transactions
 
-await proposer_signer.send_transaction(proposer_account, timelock.contract_address, 'schedule', [some_parameters])
 ```
 
-You can then execute the proposal (when specified delay passed) as:
+## Standard lifecycle
 
-```python
+### Scheduling
 
-await executor_signer.send_transaction(executor_account, timelock.contract_address, 'execute', [some_parameters])
-```
+### Executing
 
-Or, you can cancel the proposal like this:
+### Cancelling
 
-```python
-execution_info = await timelock.hashOperation(parameters...).call()
-(operation_id,) = execution_info.result
+## Batching and dependencies
 
-await proposer_signer.send_transaction(proposer_account, timelock.contract_address, 'cancel', [operation_id])
-```
-
-## Proposals and execution
-
-The idea behind proposals is to batch transactions that needs a timelock before execution. A proposal consists of:
-
-* a list of transactions
-* a predecessor proposal hash (in case there is a dependency to another proposal)
-* a delay specifying when in the future the proposal should be executed starting from the time it's scheduled
-* a salt (used to hash the proposal)
-
-An unique hash to identify the proposal is produced starting from these parameters (eg. in case it is needed as a dependency).
-
-A proposer can use the `schedule` method to make a proposal. The hash associated to the scheduled proposal can be retrieved by calling the `hashOperation` method.
-
-### `TimelockCall` and `Call`
-
-Timelock contract need a `TimelockCall` type to represent calls that can be made by it. The idea is similar to the one in the [Account](./Account.md#call-and-multicall-format) contract:
-
-```c#
-# Internal representation
-struct Call:
-    member to: felt
-    member selector: felt
-    member calldata_len: felt
-    member calldata: felt*
-end
-
-# External calls arguments
-struct TimelockCall:
-    member to: felt
-    member selector: felt
-    member data_offset: felt
-    member data_len: felt
-end
-```
-
-Proposers need to pass as arguments a list of `TimelockCall` and calldata separately.
-
-### Proposals state
-
-A proposal can be in different states:
-
-* **Pending**: proposal can not be executed because delay is not expired.
-* **Ready**: proposal's delay is expired.
-* **Executed**: proposal was executed.
-
-### Scheduling a proposal
-
-A proposal can be scheduled only by accounts that have the `PROPOSER_ROLE` role.
-
-The execution flow for a proposal starts by proposing it. A proposer can schedule operations by using the `schedule` method that accepts these arguments:
-
-* `call_array_len`: the number of transactions
-* `call_array`: a list of `TimelockCall`
-* `calldata_len`: the length of calldata
-* `calldata`: actual calldata
-* `predecessor`: the hash of the predecessor
-* `salt`
-* `delay`: the delay needed for this proposal to be ready to execute (should be greater than or equal to minimum delay)  
-
-We illustrate the process by using Python and the `Signer` utility class to send transactions with an account:
-
-```python
-
-# At this point the proposer account should already be deployed
-
-DAY = 86400
-
-call_arguments = [
-    1, # call_array_len
-    *[ # call_array
-        *(
-            contract_to_call.contract_address, # to
-            get_selector_from_name('method_to_call'), # selector
-            0, # calldata offset
-            0, # calldata len
-        ),
-    ],
-    *[0], # [calldata_len | ...calldata]
-    0, # predecessor
-    0, # salt
-    DAY # delay
-]
-
-await proposer.send_transaction(
-    proposer_account, 
-    timelock.contract_address, 
-    'schedule', 
-    call_arguments
-)
-```
-
-You can also retrieve the hash assigned to the proposal by calling `hashOperation`:
-
-```python
-call = (
-    contract_to_call.contract_address,
-    get_selector_from_name("method_to_call"),
-    0,
-    0,
-)
-
-execution_info = await timelock.hashOperation([call], [], 0, 0).call()
-(operation_hash,) = execution_info.result
-
-print(f'proposal hash: {operation_hash}')
-```
-
-### Cancelling a proposal
-
-It is possible to delete **pending** proposals by users with `PROPOSER_ROLE` role:
-
-```python
-call = (
-    contract_to_call.contract_address,
-    get_selector_from_name("method_to_call"),
-    0,
-    0,
-)
-
-execution_info = await timelock.hashOperation([call], [], 0, 0).call()
-(operation_hash,) = execution_info.result
-
-await signer.send_transaction(
-    proposer_account, 
-    timelock.contract_address, 
-    'cancel', 
-    [operation_hash]
-)
-```
-
-### Executing a proposal
-
-It is possible to execute **ready** proposals by users with `EXECUTOR_ROLE` role:
-
-```python
-call = (
-    contract_to_call.contract_address,
-    get_selector_from_name("method_to_call"),
-    0,
-    0,
-)
-
-execute_arguments = [
-    1, # call_array_len
-    *[call], # call_array
-    *[0], # [calldata_size | ...calldata]
-    0, # predecessor
-    0 # salt
-]
-
-await signer.send_transaction(
-    executor_account, 
-    timelock.contract_address, 
-    'execute', 
-    execute_arguments
-)
-```
-
-## Access Control
-
-By default the `Timelock` contract implements access control on the timelock.
-
-There are three roles:
-
-* **Proposer** (`PROPOSER_ROLE`), able to propose and cancel batches of transactions. This role is assigned on deploy of the contract by the deployer.
-
-* **Executor** (`EXECUTOR_ROLE`), able to execute batches of transactions. This role is assigned on deploy of the contract by the deployer.
-
-* **Timelock admin** (`TIMELOCK_ADMIN_ROLE`), able to change the timelock minimum delay. This role is assigned on deploy to the contract itself and to the deployer. Deployer should later renounce this role.
-
-*Note that access control is implemented by the `Timelock` contract and is not implicit in the timelock library (`contracts/governance/timelock/library.cairo`) so that developers can implement their own authentication model.*
+## Updating the minimum delay
 
 ## API Specification
 
 ### Methods
 
-#### `isOperation`
+#### `initializer`
 
-Returns `TRUE` if a given operation was proposed.
+Initializes the timelock contract and sets the `min_delay` and `deployer` account. Role assignments must take place within the implementing contract's constructor (the same constructor invoking this method).
+
+> At construction, both the `deployer` and the timelock itself are administrators. This helps further configuration of the timelock by the `deployer`. After configuration is done, it is recommended that the `deployer` renounces its admin position and relies on timelocked operations to perform future maintenance.
 
 Parameters:
 
-```jsx
-id : felt
+```cairo
+min_delay: felt
+deployer: felt
 ```
 
 Returns:
 
-```jsx
-is_operation : felt
-```
+None.
 
-#### `isOperationPending`
+#### `assert_only_role_or_open_role`
 
-Returns `TRUE` if a given operation is in a pending state.
+Reverts if caller does not have the specified `role`. In addition to checking the sender’s role, the zero address's role is also considered. Granting a role to the zero address is equivalent to enabling this role for everyone.
 
 Parameters:
 
-```jsx
-id : felt
+```cairo
+role: felt
 ```
 
 Returns:
 
-```jsx
-is_pending : felt
-```
+None.
 
-#### `isOperationReady`
+#### `is_operation`
 
-Returns `TRUE` if a given operation is in a ready state.
+Returns whether an id corresponds to a registered operation. This includes both Pending, Ready and Done operations.
 
 Parameters:
 
-```jsx
-id : felt
+```cairo
+id: felt
 ```
 
 Returns:
 
-```jsx
-is_ready : felt
+```cairo
+registered: felt
 ```
 
-#### `isOperationDone`
+#### `is_operation_pending`
 
-Returns `TRUE` if a given operation is executed.
+Returns whether an operation is pending or not.
 
 Parameters:
 
-```jsx
-id : felt
+```cairo
+id: felt
 ```
 
 Returns:
 
-```jsx
-is_done : felt
+```cairo
+pending: felt
 ```
 
-#### `getTimestamp`
+#### `is_operation_ready`
 
-Returns the operation timestamp.
-Returns 0 if the operation does not exist.
-Returns 1 if the operation is executed.
+Returns whether an operation is ready or not.
 
 Parameters:
 
-```jsx
-id : felt
+```cairo
+id: felt
 ```
 
 Returns:
 
-```jsx
-timestamp : felt
+```cairo
+ready: felt
 ```
 
-#### `getMinDelay`
+#### `is_operation_done`
 
-Returns the minimum delay.
+Returns whether an operation is done or not.
+
+Parameters:
+
+```cairo
+id: felt
+```
+
+Returns:
+
+```cairo
+done: felt
+```
+
+#### `get_timestamp`
+
+Returns the timestamp at with an operation becomes ready (`0` for unset operations, `1` for done operations).
+
+Parameters:
+
+```cairo
+id: felt
+```
+
+Returns:
+
+```cairo
+timestamp: felt
+```
+
+#### `get_min_delay`
+
+Returns the minimum delay for an operation to become valid.
+
+This value can be changed by executing an operation that calls [update_delay](#update_delay).
 
 Parameters:
 
@@ -343,19 +252,19 @@ None.
 
 Returns:
 
-```jsx
-min_delay : felt
+```cairo
+duration: felt
 ```
 
-#### `hashOperation`
+#### `hash_operation`
 
-Returns `TRUE` if a given operation is in a pending state.
+Returns the identifier of an operation containing one or more transactions.
 
 Parameters:
 
-```jsx
+```cairo
 call_array_len: felt
-call_array: TimelockCall*
+call_array: AccountCallArray*
 calldata_len: felt
 calldata: felt*
 predecessor: felt
@@ -364,19 +273,25 @@ salt: felt
 
 Returns:
 
-```jsx
-hash : felt
+```cairo
+hash: felt
 ```
 
 #### `schedule`
 
-Schedules an operation.
+Schedule an operation containing one or more transactions.
+
+Emits a [CallScheduled](#callscheduled) event.
+
+Requirements:
+
+* the caller must have the 'proposer' role.
 
 Parameters:
 
-```jsx
+```cairo
 call_array_len: felt
-call_array: TimelockCall*
+call_array: AccountCallArray*
 calldata_len: felt
 calldata: felt*
 predecessor: felt
@@ -386,31 +301,41 @@ delay: felt
 
 Returns:
 
-Nothing.
+None.
 
 #### `cancel`
 
-Cancels an operation.
+Cancel an operation.
+
+Requirements:
+
+* the caller must have the 'canceller' role.
 
 Parameters:
 
-```jsx
+```cairo
 id: felt
 ```
 
 Returns:
 
-Nothing.
+None.
 
 #### `execute`
 
-Executes an operation.
+Execute an (ready) operation containing one or more transactions.
+
+Emits a [CallExecuted](#callexecuted) event for each transaction.
+
+Requirements:
+
+* the caller must have the 'executor' role.
 
 Parameters:
 
-```jsx
+```cairo
 call_array_len: felt
-call_array: TimelockCall*
+call_array: AccountCallArray*
 calldata_len: felt
 calldata: felt*
 predecessor: felt
@@ -419,31 +344,53 @@ salt: felt
 
 Returns:
 
-Nothing.
+None.
 
-#### `updateDelay`
+#### `update_delay`
 
-Updates the minimum delay.
+Changes the minimum timelock duration for future operations.
+
+Emits a [MinDelayChange](#mindelaychange) event.
+
+Requirements:
+
+* the caller must be the timelock itself. This can only be achieved by scheduling and later executing an operation where the timelock is the target and the data is the ABI-encoded call to this function.
 
 Parameters:
 
-```jsx
+```cairo
 new_delay: felt
 ```
 
 Returns:
 
-Nothing.
+None.
 
-### Events
+#### `_iter_role`
 
-#### `CallScheduled` (event)
-
-Emitted when a call is scheduled.
+Iterates `addresses` array and grants `role` to each address. A helper function for assigning timelock roles during construction.
 
 Parameters:
 
-```jsx
+```cairo
+addresses_len: felt,
+addresses: felt*,
+role: felt
+```
+
+Returns:
+
+None.
+
+### Events
+
+#### `CallScheduled`
+
+Emitted when a call is scheduled as part of operation `id`.
+
+Parameters:
+
+```cairo
 id: felt
 index: felt
 target: felt
@@ -451,40 +398,41 @@ selector: felt
 calldata_len: felt
 calldata: felt*
 predecessor: felt
+delay: felt
 ```
 
-#### `CallExecuted` (event)
+#### `CallExecuted`
 
-Emitted when the call at position `index` of operation `id` is executed.
+Emitted when a call is performed as part of operation `id`.
 
 Parameters:
 
-```jsx
+```cairo
 id: felt
-index: felt 
-target: felt 
-selector: felt 
-calldata_len: felt 
+index: felt
+target: felt
+selector: felt
+calldata_len: felt
 calldata: felt*
 ```
 
-#### `Cancelled` (event)
+#### `Cancelled`
 
-Emitted when the operation `id` is cancelled.
+Emitted when operation `id` is cancelled.
 
 Parameters:
 
-```jsx
+```cairo
 id: felt
 ```
 
-#### `MinDelayChange` (event)
+#### `MinDelayChange`
 
-Emitted when the minimum delay is changed.
+Emitted when the minimum delay for future operations is modified.
 
 Parameters:
 
-```jsx
-old_duration: felt
-new_duration: felt
+```cairo
+oldDuration: felt
+newDuration: felt
 ```

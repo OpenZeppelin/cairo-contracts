@@ -6,12 +6,12 @@ The Timelock library provides a means of enforcing time delays on the execution 
 
 ## Table of Contents
 
+* [Terminology](#terminology)
+* [Operation structure](#operation-structure)
+* [Operation lifecycle](#operation-lifecycle)
 * [AccessControl and roles](#accesscontrol-and-roles)
 * [Setup](#setup)
-* [Standard lifecycle](#standard-lifecycle)
-  * [Scheduling](#scheduling)
-  * [Executing](#scheduling)
-  * [Canceling](#scheduling)
+* [Usage](#usage)
 * [Batching and dependencies](batching-and-dependencies)
 * [Updating the minimum delay](#updating-the-minimum-delay)
 * [Timelock library API](#timelock-library-api)
@@ -36,17 +36,74 @@ The Timelock library provides a means of enforcing time delays on the execution 
     * [Cancelled](#cancelled)
     * [MinDelayChange](#mindelaychange)
 
+## Terminology
+
+* **Operation**: A transaction (or a set of transactions) that is the subject of the timelock. It has to be scheduled by a proposer and executed by an executor. The timelock enforces a minimum delay between the proposition and the execution (see operation lifecycle). If the operation contains multiple transactions, they are executed atomically. Operations are identified by the hash of their content.
+
+* **Operation status**:
+
+  * _Unset_: An operation that is not part of the timelock mechanism.
+  * _Pending_: An operation that has been scheduled, before the timer expires.
+  * _Ready_: An operation that has been scheduled, after the timer expires.
+  * _Done_: An operation that has been executed.
+
+* **Predecessor**: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
+
+* **Role**:
+
+  * _Admin_: An address (smart contract or account) that is in charge of granting the roles of Proposer and Executor.
+
+  * _Proposer_: An address (smart contract or account) that is in charge of scheduling operations.
+
+  * _Executor_: An address (smart contract or account) that is in charge of executing operations once the timelock has expired. This role can be given to the zero address to allow anyone to execute operations.
+
+  * _Canceller_: An address (smart contract or account) that is in charge of cancelling operations.
+
+## Operation Structure
+
+Operations executed by the Timelock can contain one or multiple subsequent calls. All calls must be passed within an array.
+
+Operations contain:
+
+1. `call_array_len`: number of calls.
+
+2. `call_array`: list of calls formatted in [AccountCallArray](#./Account.md#accountcallarray).
+
+3. `calldata_len`: length of total calldata elements.
+
+4. `calldata`: list of all calldata elements with all calls.
+
+5. `predecessor`: specifies a dependency between operations. This dependency is optional. Use `0` if the operation does not have any dependency.
+
+6. `salt`: used to disambiguate two otherwise identical operations. This can be any random value.
+
+## Operaton lifecycle
+
+Timelocked operations are identified by a unique id (their hash) and follow a specific lifecycle:
+
+`Unset` → `Pending` → `Pending` + `Ready` → `Done`
+
+* By calling schedule, a proposer moves the operation from the Unset to the Pending state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the [get_timestamp](#get_timestamp) method.
+
+* Once the timer expires, the operation automatically gets the `Ready` state. At this point, it can be executed.
+
+* By calling [execute](#execute), an executor triggers the operation’s underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
+
+* [cancel](#cancel) allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is re-scheduled.
+
 ## AccessControl and roles
 
 The Timelock library leverages the AccessControl library to grant roles and restrict access to sensitive functions. Timelock utilizes the following roles:
 
-* **Proposer** - The Proposer role is in charge of queueing operations.
+* **Admin** - The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, both the timelock and the deployer have this role. After further configuration and testing, the deployer can renounce this role such that all further maintenance operations have to go through the timelock process.
 
-* **Executor** - The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
+* **Proposer** - The proposers are in charge of scheduling operations. This is a critical role, that should be given to governing entities. This could be an account, a multisig, or a DAO.
+
+* **Executor** - The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow any address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
 
 * **Canceller** - The Canceller role is in charge of cancelling operations.
 
-* **Timelock admin** - Lastly, there is the Admin role, which can grant and revoke the three previous roles: this is a very sensitive role that will be granted automatically to both the deployer and timelock itself. The deployer should, however, renounce after setup.
+> **Warning** A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the [AccessControl](#./Access.md#accesscontrol) documentation to learn more about role management.
 
 ## Setup
 
@@ -109,23 +166,165 @@ timelock = await starknet.deploy(
         canceller_3.contract_address
     ]
 )
-
-
 ```
 
-## Standard lifecycle
+## Usage
 
-### Scheduling
+> Note that the following examples use the [Timelock mock contract](../tests/mocks/Timelock.cairo) which exposes all of the Timelock methods.
 
-### Executing
+To start off the Timelock lifecycle, a proposer must first schedule an operation. In the following snippets, we'll use the basic [Contract.cairo contract](../tests/mocks/Contract.cairo). To ease the readbility of these operations, here are the transaction details of which the following examples will be using.
 
-### Cancelling
+```python
+from starkware.starknet.public.abi import get_selector_from_name
+
+ACCOUNT_CALL_ARRAY = [
+    1,                                           # number of calls
+    CONTRACT.contract_address,                   # target contract
+    get_selector_from_name("increase_balance"),  # selector
+    0,                                           # calldata offset
+    1,                                           # calldata length in call
+]
+
+CALLDATA = [
+    1,              # calldata length
+    123,            # calldata value
+]
+
+PREDECESSOR = 0     # `0` if no predecessor
+SALT = 5417         # random number associated with this operation
+DELAY = 12345       # time before operation can be executed
+```
+
+Before scheduling an operation, users may want to track an operation's status. To do so, we'll need to get the operation's hash.
+
+```python
+hash_id = await timelock.hashOperation(
+    *ACCOUNT_CALL_ARRAY,
+    *CALLDATA,
+    PREDECESSOR,
+    SALT
+    ).call()
+```
+
+To schedule an operation resulting in the same hash id as above, a proposer must pass the exact same arguments (with `DELAY`) to `schedule`.
+
+```python
+await signer.send_transaction(
+    proposer, timelock.contract_address, "schedule", [
+       *ACCOUNT_CALL_ARRAY,
+       *CALLDATA,
+       PREDECESSOR,
+       SALT,
+       DELAY
+    ]
+)
+```
+
+After the operation is scheduled and at least `DELAY` time has passed (12,345 seconds in this example), an executor can execute the operation.
+
+```python
+await signer.send_transaction(
+    executor, timelock.contract_address, "execute", [
+        *ACCOUNT_CALL_ARRAY,
+        *CALLDATA,
+        PREDECESSOR,
+        SALT
+    ]
+)
+```
+
+Cancelling an operation that's still pending requires that the canceller first acquires the target operation's hash.
+
+```python
+# acquire operation's hash id
+hash_id = await timelock.hashOperation(
+    *ACCOUNT_CALL_ARRAY,
+    *CALLDATA,
+    PREDECESSOR,
+    SALT
+    ).call()
+
+# cancel operation
+await signer.send_transaction(
+    canceller, timelock.contract_address, "cancel", [hash_id]
+)
+```
 
 ## Batching and dependencies
 
 ## Updating the minimum delay
 
-## API Specification
+## Timelock library API
+
+```cairo
+func initializer(min_delay: felt, deployer: felt):
+end
+
+func assert_only_role_or_open_role(role: felt):
+end
+
+func is_operation(id: felt) -> (registered: felt):
+end
+
+func is_operation_pending(id: felt) -> (pending: felt):
+end
+
+func is_operation_ready(id: felt) -> (ready: felt):
+end
+
+func is_operation_done(id_ felt) -> (done: felt):
+end
+
+func get_timestamp(id: felt) -> (timestamp: felt):
+end
+
+func get_min_delay() -> (duration: felt):
+end
+
+func hash_operation(
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*,
+        predecessor: felt,
+        salt: felt
+    ) -> (hash: felt):
+end
+
+func schedule(
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*,
+        predecessor: felt,
+        salt: felt,
+        delay: felt
+    ):
+end
+
+func cancel(id: felt):
+end
+
+func execute(
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*,
+        predecessor: felt,
+        salt: felt
+    ):
+end
+
+func update_delay(new_delay: felt):
+end
+
+func _iter_role(
+        addresses_len: felt,
+        addresses: felt*,
+        role: felt
+    ):
+end
+```
 
 ### Methods
 

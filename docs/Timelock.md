@@ -12,7 +12,8 @@ The Timelock library provides a means of enforcing time delays on the execution 
 * [AccessControl and roles](#accesscontrol-and-roles)
 * [Setup](#setup)
 * [Usage](#usage)
-* [Batching and dependencies](batching-and-dependencies)
+* [Batching calls](batching-calls)
+* [Predecessors](#predecessors)
 * [Updating the minimum delay](#updating-the-minimum-delay)
 * [Timelock library API](#timelock-library-api)
   * [Methods](#methods)
@@ -190,12 +191,12 @@ CALLDATA = [
     123,            # calldata value
 ]
 
-PREDECESSOR = 0     # `0` if no predecessor
+PREDECESSOR = 0     # predecessor is `0` if none
 SALT = 5417         # random number associated with this operation
 DELAY = 12345       # time before operation can be executed
 ```
 
-Before scheduling an operation, users may want to track an operation's status. To do so, we'll need to get the operation's hash.
+Before scheduling an operation, users may want to track an operation's status. To do so, we'll need to get the operation's hash identifier.
 
 ```python
 hash_id = await timelock.hashOperation(
@@ -233,7 +234,7 @@ await signer.send_transaction(
 )
 ```
 
-Cancelling an operation that's still pending requires that the canceller first acquires the target operation's hash.
+Cancelling an operation that's still pending requires that the canceller first acquires the target operation's hash identifier.
 
 ```python
 # acquire operation's hash id
@@ -250,9 +251,120 @@ await signer.send_transaction(
 )
 ```
 
-## Batching and dependencies
+## Batching calls
+
+An operation can consist of multiple calls (batched calls). These calls will be executed in the order they're passed. To set up an operation with batched calls, let's add a second call to the example operation:
+
+```python
+from starkware.starknet.public.abi import get_selector_from_name
+
+ACCOUNT_CALL_ARRAY_2 = [
+    2,                                           # number of calls
+
+    # call #1
+    CONTRACT.contract_address,                   # target contract
+    get_selector_from_name("increase_balance"),  # selector
+    0,                                           # calldata offset
+    1,                                           # calldata length in call
+
+    # call #2
+    CONTRACT.contract_address,                   # target contract
+    get_selector_from_name("increase_balance"),  # selector
+    1,                                           # calldata offset
+    1,                                           # calldata length in call
+]
+
+CALLDATA_2 = [
+    2,              # calldata length
+    123,            # call #1 calldata value
+    456             # call #2 calldata value
+]
+
+PREDECESSOR = 0     # predecessor is `0` if none
+SALT = 5417         # random number associated with this operation
+DELAY = 12345       # time before operation can be executed
+```
+
+And the proposer makes the function call to the Timelock contract just as before.
+
+```python
+await signer.send_transaction(
+    proposer, timelock.contract_address, "schedule", [
+       *ACCOUNT_CALL_ARRAY_2,
+       *CALLDATA_2,
+       PREDECESSOR,
+       SALT,
+       DELAY
+    ]
+)
+```
+
+## Predecessors
+
+Suppose you wanted to execute an operation after and only after the execution of another operation—this is the perfect opportunity to include a predecessor. To further exemplify, imagine setting up a timelock mechanism that mints and transfers tokens to users. Before the contract can transfer tokens, they first need to be minted. In this example, the mint function must be the predecessor in the transfer operation.
+
+We can retrieve the hash identifier of an operation with `hash_operation` and insert this id as the predecessor of the dependent call.
+
+```python
+# schedule predecessor call
+await signer.send_transaction(
+    proposer, timelock.contract_address, "schedule", [
+       *ACCOUNT_CALL_ARRAY,
+       *CALLDATA,
+       0,        # predecessor is `0` if none
+       SALT,
+       DELAY
+    ]
+)
+
+# get predecessor's hash id
+hash_id = await timelock.hashOperation(
+    *ACCOUNT_CALL_ARRAY,
+    *CALLDATA,
+    0,           # predecessor is `0` if none
+    SALT
+    ).call()
+
+# schedule new call with the predecessor's hash id
+await signer.send_transaction(
+    proposer, timelock.contract_address, "schedule", [
+       *ACCOUNT_CALL_ARRAY,
+       *CALLDATA,
+       hash_id,   # predecessor's hash id
+       SALT,
+       DELAY
+    ]
+)
+```
+
+> Note that [utils.py](../tests/utils.py) includes `timelock_hash_chain()` which also computes the operation hash identifier.
 
 ## Updating the minimum delay
+
+In the event that changing the minimum delay appears necessary, the timelock contract and only the timelock contract can update the delay. In other words, the proposers and executors must schedule and execute an operation with the timelock contract set as the target address; therefore, the [update_delay](#update_delay) call comes from the timelock contract itself.
+
+```python
+    update_delay_call = from_call_to_call_array(
+        [[timelock.contract_address, "updateDelay", [NEW_MIN_DELAY]]]
+    )
+
+    # schedule operation
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            1,                                      # number of calls
+            timelock.contract_address,              # target address
+            get_selector_from_name("updateDelay"),  # selector
+            0,                                      # calldata offset
+            1,                                      # total calldata length
+
+            1,                                      # call's calldata length
+            86400,                                  # new minimum delay
+
+            0,                                      # predecessor
+            SALT,                                   # SALT
+            MIN_DELAY                               # delay
+        ])
+```
 
 ## Timelock library API
 

@@ -164,7 +164,7 @@ def from_call_to_call_array(calls):
     return (call_array, calldata)
 
 
-def flatten_calls_for_signer(calls):
+def flatten_calls(calls):
     """Format calls for signer invoke."""
     calls_len = len(calls[0])
     flatten_calls = [e for call in calls[0] for e in call]

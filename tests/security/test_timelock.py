@@ -9,7 +9,7 @@ from utils import (
     cached_contract,
     set_block_timestamp,
     from_call_to_call_array,
-    flatten_calls_for_signer,
+    flatten_calls,
     timelock_hash_chain,
     to_uint,
     str_to_felt,
@@ -26,7 +26,7 @@ PROPOSER_ROLE = 0x584d52d759b8167ea85b5b15e229930249c790924513d0eae539b0415b40ce
 EXECUTOR_ROLE = 0x6c550798ca4b8d1508b33cfbe10487b49ce46a700d1546bf20eaaf29a8a34f3
 CANCELLER_ROLE = 0x7eb21e39388631e00c012cd5d359682a28f1ac8d1272c5b111c9bc042b937bc
 
-# arrays of random numbers to mimic addresses
+# arrays of mock addresses
 PROPOSERS = [0x10, 0x11, 0x12]
 EXECUTORS = [0x20, 0x21]
 CANCELLERS = [0x30]
@@ -51,23 +51,25 @@ SALT = 5417
 # random data (mimicking bytes in Solidity)
 DATA = [0x42, 0x89, 0x55]
 
+#
+# formatted calls
+#
+
 def build_call(address):
-    """Format test call for `from_call_to_call_array`."""
+    """Return formatted call for `from_call_to_call_array` and hash chain."""
     return [
         [address, "increase_balance", [AMOUNT]]
     ]
 
+
 def build_batch(address):
-    """Format batched test calls for `from_call_to_call_array`."""
+    """Return formatted calls for `from_call_to_call_array` and hash chain."""
     return [
         *build_call(address),
         *build_call(address),
         *build_call(address)
     ]
 
-#
-# calculating hash operations
-#
 
 def single_operation(address):
     """Return single callable test operation."""
@@ -76,12 +78,15 @@ def single_operation(address):
     ])
 
 
-def batch_operations(address):
+def batched_operations(address):
     """Return batched callable test operations."""
     return from_call_to_call_array([
         *build_batch(address)
     ])
 
+#
+# fixtures
+#
 
 @pytest.fixture(scope="module")
 async def contract_classes():
@@ -250,7 +255,7 @@ async def test_hashOperation_batch(timelock_factory):
     timelock, _, _, helper, _ = timelock_factory
 
     # hash batched operations
-    operation = batch_operations(helper.contract_address)
+    operation = batched_operations(helper.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
 
     # fetch hash id
@@ -270,7 +275,7 @@ async def test_hashOperation_batch_with_predecessor(timelock_factory):
     predecessor = 9999
 
     # hash batched operations with predecessor
-    operation = batch_operations(helper.contract_address)
+    operation = batched_operations(helper.contract_address)
     execution_info = await timelock.hashOperation(*operation, predecessor, SALT).invoke()
 
     calculate_hash_operation = timelock_hash_chain(
@@ -314,7 +319,7 @@ async def test_schedule_is_scheduled(timelock_factory):
     ]
 
     # format call array and schedule operation
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -369,7 +374,7 @@ async def test_schedule_prevents_overwriting_active_operation(timelock_factory):
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -399,7 +404,7 @@ async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
     timelock, _, nonproposer, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -420,7 +425,7 @@ async def test_schedule_enforce_minimum_delay(timelock_factory):
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -444,7 +449,7 @@ async def test_execute_when_operation_not_scheduled(timelock_factory):
     timelock, _, executor, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -464,7 +469,7 @@ async def test_execute_when_too_early(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -495,7 +500,7 @@ async def test_execute(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -571,7 +576,7 @@ async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
     timelock, proposer, _, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -605,7 +610,7 @@ async def test_schedule_batch_is_scheduled(timelock_factory):
     timelock, proposer, _, helper, state = timelock_factory
 
     # get hash id
-    operation = batch_operations(helper.contract_address)
+    operation = batched_operations(helper.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -629,8 +634,8 @@ async def test_schedule_batch_is_scheduled(timelock_factory):
     ]
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -668,13 +673,13 @@ async def test_schedule_batch_emits_events(timelock_factory):
     timelock, proposer, _, helper, _ = timelock_factory
 
     # get hash id
-    operation = batch_operations(helper.contract_address)
+    operation = batched_operations(helper.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operations
@@ -712,8 +717,8 @@ async def test_schedule_batch_prevents_overwriting_active_operation(timelock_fac
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -746,8 +751,8 @@ async def test_schedule_batch_mismatched_calldata_params(timelock_factory, bad_p
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # add/remove last calldata element
@@ -759,7 +764,7 @@ async def test_schedule_batch_mismatched_calldata_params(timelock_factory, bad_p
             call_array.pop()
         return call_array
 
-    # wrong calldata length should throw
+    # wrong calldata length should revert
     await assert_revert(signer.send_transaction(
         proposer, timelock.contract_address, "schedule", [
             *bad_calldata_len(bad_params),           # bad call array
@@ -779,8 +784,8 @@ async def test_schedule_batch_mismatched_address_params(timelock_factory, bad_pa
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format bad array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # increase/decrease address length
@@ -792,7 +797,7 @@ async def test_schedule_batch_mismatched_address_params(timelock_factory, bad_pa
             x[0] = call_array[0] - 1
         return x
 
-    # wrong address length should throw
+    # wrong address length should revert
     await assert_revert(signer.send_transaction(
         proposer, timelock.contract_address, "schedule", [
             *bad_address_len(bad_params),            # call array
@@ -808,8 +813,8 @@ async def test_schedule_batch_prevents_nonproposer_from_committing(timelock_fact
     timelock, _, nonproposer, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # non-proposer invocation should fail
@@ -829,8 +834,8 @@ async def test_schedule_batch_enforce_minimum_delay(timelock_factory):
     timelock, proposer, _, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # delay under threshold should fail
@@ -853,8 +858,8 @@ async def test_execute_batch(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -867,7 +872,7 @@ async def test_execute_batch(timelock_factory):
         ])
 
     # get hash id
-    operation = batch_operations(helper.contract_address)
+    operation = batched_operations(helper.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -930,8 +935,8 @@ async def test_execute_batch_when_operation_not_scheduled(timelock_factory):
     timelock, _, executor, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # execute should fail when not scheduled
@@ -950,8 +955,8 @@ async def test_execute_batch_when_too_early_PART_ONE(timelock_factory):
     timelock, proposer, executor, helper, _ = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -979,7 +984,7 @@ async def test_execute_batch_when_too_early_PART_TWO(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1014,8 +1019,8 @@ async def test_execute_batch_mismatched_calldata_params(timelock_factory, bad_pa
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -1037,7 +1042,7 @@ async def test_execute_batch_mismatched_calldata_params(timelock_factory, bad_pa
             call_array.pop()
         return call_array
 
-    # wrong calldata length should throw
+    # wrong calldata length should revert
     await assert_revert(signer.send_transaction(
         executor, timelock.contract_address, "execute", [
             *bad_calldata_len(bad_params),           # call array
@@ -1056,8 +1061,8 @@ async def test_execute_batch_mismatched_address_params(timelock_factory, bad_par
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
-        batch_operations(helper.contract_address)
+    call_array = flatten_calls(
+        batched_operations(helper.contract_address)
     )
 
     # schedule operation
@@ -1079,7 +1084,7 @@ async def test_execute_batch_mismatched_address_params(timelock_factory, bad_par
             x[0] = call_array[0] - 1
         return x
 
-    # wrong address len should throw
+    # wrong address len should revert
     await assert_revert(signer.send_transaction(
         executor, timelock.contract_address, "execute", [
             *bad_address_len(bad_params),            # call array
@@ -1101,7 +1106,7 @@ async def test_execute_batch_partial_execution(timelock_factory):
         ])
 
     # format call array
-    bad_array = flatten_calls_for_signer(
+    bad_array = flatten_calls(
         bad_batch(helper.contract_address)
     )
 
@@ -1140,7 +1145,7 @@ async def test_canceller_can_cancel(timelock_factory):
     hash_id = execution_info.result.hash
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1207,7 +1212,7 @@ async def test_cancel_from_noncanceller(timelock_factory):
     hash_id = execution_info.result.hash
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1250,7 +1255,7 @@ async def test_updateDelay_scheduled_maintenance(timelock_factory):
     )
 
     # format call array
-    call_array = flatten_calls_for_signer(update_delay_call)
+    call_array = flatten_calls(update_delay_call)
 
     # schedule operation
     await signer.send_transaction(
@@ -1295,7 +1300,7 @@ async def test_execute_before_dependency(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1335,7 +1340,7 @@ async def test_execute_after_dependency(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1384,7 +1389,7 @@ async def test_execute_check_target_contract(timelock_factory):
     timelock, proposer, executor, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 
@@ -1437,7 +1442,7 @@ async def test_schedule_enforce_overflow_check(timelock_factory):
     timelock, proposer, _, helper, state = timelock_factory
 
     # format call array
-    call_array = flatten_calls_for_signer(
+    call_array = flatten_calls(
         single_operation(helper.contract_address)
     )
 

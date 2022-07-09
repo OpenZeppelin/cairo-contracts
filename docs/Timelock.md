@@ -7,14 +7,17 @@ The Timelock library provides a means of enforcing time delays on the execution 
 ## Table of Contents
 
 * [Terminology](#terminology)
-* [Operation structure](#operation-structure)
-* [Operation lifecycle](#operation-lifecycle)
+* [Operations](#operations)
+  * [Structure](#structure)
+  * [Lifecycle](#lifecycle)
 * [AccessControl and roles](#accesscontrol-and-roles)
+  * [Calculating role identifiers](#calculating-role-identifiers)
 * [Setup](#setup)
 * [Usage](#usage)
-* [Batching calls](batching-calls)
+* [Batching calls](#batching-calls)
 * [Predecessors](#predecessors)
 * [Updating the minimum delay](#updating-the-minimum-delay)
+* [Notable differences with Solidity](#notable-differences-with-solidity)
 * [Timelock library API](#timelock-library-api)
   * [Methods](#methods)
     * [initializer](#initializer)
@@ -60,9 +63,11 @@ The Timelock library provides a means of enforcing time delays on the execution 
 
   * _Canceller_: An address (smart contract or account) that is in charge of cancelling operations.
 
-## Operation Structure
+## Operations
 
-Operations executed by the Timelock can contain one or multiple subsequent calls. All calls must be passed within an array.
+### Structure
+
+Operations executed by the Timelock can contain one or multiple subsequent calls. All calls must be passed within an array. This implementation utilizes the [AccountCallArray](./Account.md#accountcallarray) struct from the [Account library](../src/openzeppelin/account/library.cairo). For a more in-depth look at the struct, see the [Account docs](./Account.md).
 
 Operations contain:
 
@@ -78,7 +83,7 @@ Operations contain:
 
 6. `salt`: used to disambiguate two otherwise identical operations. This can be any random value.
 
-## Operaton lifecycle
+### Lifecycle
 
 Timelocked operations are identified by a unique id (their hash) and follow a specific lifecycle:
 
@@ -94,7 +99,7 @@ Timelocked operations are identified by a unique id (their hash) and follow a sp
 
 ## AccessControl and roles
 
-The Timelock library leverages the AccessControl library to grant roles and restrict access to sensitive functions. Timelock utilizes the following roles:
+The Timelock library leverages the [AccessControl](../src/openzeppelin/access/accesscontrol.cairo) library to grant roles and restrict access to sensitive functions. Timelock utilizes the following roles:
 
 * **Admin** - The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, both the timelock and the deployer have this role. After further configuration and testing, the deployer can renounce this role such that all further maintenance operations have to go through the timelock process.
 
@@ -102,9 +107,13 @@ The Timelock library leverages the AccessControl library to grant roles and rest
 
 * **Executor** - The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow any address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
 
-* **Canceller** - The Canceller role is in charge of cancelling operations.
+* **Canceller** - The Canceller role is in charge of cancelling operations. The Solidity implementation of Timelock appoints proposers as cancellers as well for backwards compatibility. This implementation, nevertheless, does not enforce this approach.
 
 > **Warning** A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the [AccessControl](#./Access.md#accesscontrol) documentation to learn more about role management.
+
+### Calculating role identifiers
+
+FINISH ME!!!!!!!!!!!!
 
 ## Setup
 
@@ -173,7 +182,7 @@ timelock = await starknet.deploy(
 
 > Note that the following examples use the [Timelock mock contract](../tests/mocks/Timelock.cairo) which exposes all of the Timelock methods.
 
-To start off the Timelock lifecycle, a proposer must first schedule an operation. In the following snippets, we'll use the basic [Contract.cairo contract](../tests/mocks/Contract.cairo). To ease the readbility of these operations, here are the transaction details of which the following examples will be using.
+To start off the Timelock lifecycle, a proposer must first schedule an operation. We'll use the basic [Contract.cairo contract](../tests/mocks/Contract.cairo) for the following snippets. To ease the readbility of these operations, here are the transaction details of which the following examples will be using.
 
 ```python
 from starkware.starknet.public.abi import get_selector_from_name
@@ -365,6 +374,10 @@ In the event that changing the minimum delay appears necessary, the timelock con
             MIN_DELAY                               # delay
         ])
 ```
+
+## Notable differences with Solidity
+
+FINISH ME!!!!!!!!!!!!!!
 
 ## Timelock library API
 

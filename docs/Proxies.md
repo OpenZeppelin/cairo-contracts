@@ -46,9 +46,8 @@ In Python, this would look as follows:
 
     # users should only interact with the proxy contract
     await signer.send_transaction(
-        account, PROXY.contract_address, 'initialize', [
-            arg_1,
-            arg_2
+        account, PROXY.contract_address, 'initializer', [
+            proxy_admin
         ]
     )
 ```

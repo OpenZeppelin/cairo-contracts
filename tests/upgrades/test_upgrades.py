@@ -204,6 +204,26 @@ async def test_upgrade_from_non_admin(proxy_factory):
 
 
 @pytest.mark.asyncio
+async def test__set_implementation_as_zero(proxy_factory):
+    admin, _, proxy, _, _ = proxy_factory
+
+    # initialize implementation
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'initializer', [
+            admin.contract_address
+        ]
+    )
+
+    # upgrade should revert
+    await assert_revert(
+        signer.send_transaction(
+            admin, proxy.contract_address, 'upgrade', [0]
+        ),
+        reverted_with="Proxy: implementation hash cannot be zero"
+    )
+
+
+@pytest.mark.asyncio
 async def test_implementation_v2(after_upgrade):
     admin, _, proxy, _, v2_decl = after_upgrade
 

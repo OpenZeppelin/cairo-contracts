@@ -87,6 +87,17 @@ def div_rem_uint(a, b):
     return (to_uint(c), to_uint(m))
 
 
+def role_repr(val, prime):
+    """
+    Returns a (possibly negative) decimal representation of the role id.
+    """
+    if isinstance(val, int):
+        # Shift val to the range (-prime // 2, prime // 2).
+        return str((val + prime // 2) % prime - (prime // 2))
+    else:
+        return str(val)
+
+
 async def assert_revert(fun, reverted_with=None):
     try:
         await fun

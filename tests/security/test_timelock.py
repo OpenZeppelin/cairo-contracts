@@ -1,6 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.crypto.signature.signature import FIELD_PRIME
 from signers import MockSigner
 from utils import (
     assert_event_emitted,
@@ -13,6 +14,7 @@ from utils import (
     timelock_hash_chain,
     to_uint,
     str_to_felt,
+    role_repr,
     TRUE,
     FALSE
 )
@@ -44,7 +46,6 @@ NEW_MIN_DELAY = 21600
 BAD_DELAY = 100
 FF_PAST_DELAY = MIN_DELAY + 10
 AMOUNT = 5
-INVALID_ID = 11223344
 TOKEN = to_uint(5042)
 SALT = 5417
 
@@ -416,7 +417,7 @@ async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
             SALT,                                    # SALT
             MIN_DELAY                                # delay
         ]),
-        reverted_with=f"AccessControl: caller is missing role"
+        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE, FIELD_PRIME)}"
     )
 
 
@@ -598,7 +599,7 @@ async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
             0,                                       # predecessor
             SALT,                                    # SALT
         ]),
-        reverted_with=f"AccessControl: caller is missing role"
+        f"AccessControl: caller is missing role {role_repr(EXECUTOR_ROLE, FIELD_PRIME)}"
     )
 
 #
@@ -825,7 +826,7 @@ async def test_schedule_batch_prevents_nonproposer_from_committing(timelock_fact
             SALT,                                    # SALT
             MIN_DELAY                                # delay
         ]),
-        reverted_with=f"AccessControl: caller is missing role"
+        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE, FIELD_PRIME)}"
     )
 
 
@@ -1228,7 +1229,7 @@ async def test_cancel_from_noncanceller(timelock_factory):
     # cancel (proposer also has canceller role)
     await assert_revert(signer.send_transaction(
         noncanceller, timelock.contract_address, "cancel", [hash_id]),
-        reverted_with=f"AccessControl: caller is missing role"
+        f"AccessControl: caller is missing role {role_repr(CANCELLER_ROLE, FIELD_PRIME)}"
     )
 
 #

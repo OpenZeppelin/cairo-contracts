@@ -138,7 +138,7 @@ async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
     
     # bump nonce 
-    _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res

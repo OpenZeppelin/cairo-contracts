@@ -94,6 +94,7 @@ func __execute__{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
+        ecdsa_ptr: SignatureBuiltin*,
         bitwise_ptr: BitwiseBuiltin*
     }(
         call_array_len: felt,
@@ -101,7 +102,7 @@ func __execute__{
         calldata_len: felt,
         calldata: felt*,
         nonce: felt
-    ) -> (response_len: felt, response: felt*):    
+    ) -> (response_len: felt, response: felt*):
     let (response_len, response) = Account.eth_execute(
         call_array_len,
         call_array,

@@ -126,6 +126,9 @@ async def test_return_value(account_factory):
 async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
 
+    # bump nonce
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res
 

@@ -146,7 +146,7 @@ namespace Account:
         return (is_valid=TRUE)
     end
 
- func is_valid_eth_signature{
+    func is_valid_eth_signature{
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             bitwise_ptr: BitwiseBuiltin*,
@@ -169,7 +169,7 @@ namespace Account:
         let sig_s : Uint256 = Uint256(low=signature[3], high=signature[4])
         let (high, low) = split_felt(hash)
         let msg_hash : Uint256 = Uint256(low=low, high=high)
-        
+
         let (local keccak_ptr : felt*) = alloc()
 
         with keccak_ptr:
@@ -178,7 +178,7 @@ namespace Account:
                 r=sig_r,
                 s=sig_s,
                 v=sig_v,
-                eth_address=_public_key)                        
+                eth_address=_public_key)
         end
 
         return (is_valid=TRUE)
@@ -188,6 +188,7 @@ namespace Account:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
+            ecdsa_ptr: SignatureBuiltin*,
             bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
@@ -200,14 +201,12 @@ namespace Account:
 
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
-        let (local ecdsa_ptr : SignatureBuiltin*) = alloc()
-        with ecdsa_ptr:
-            # validate transaction
-            with_attr error_message("Account: invalid signature"):
-                let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
-                assert is_valid = TRUE
-            end
-        end        
+
+        # validate transaction
+        with_attr error_message("Account: invalid signature"):
+            let (is_valid) = is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
+            assert is_valid = TRUE
+        end
 
         return _unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
@@ -216,6 +215,7 @@ namespace Account:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
+            ecdsa_ptr: SignatureBuiltin*,
             bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
@@ -229,12 +229,12 @@ namespace Account:
         let (__fp__, _) = get_fp_and_pc()
         let (tx_info) = get_tx_info()
 
-        # validate transaction        
+        # validate transaction
         with_attr error_message("Account: invalid secp256k1 signature"):
             let (is_valid) = is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature)
             assert is_valid = TRUE
         end
-                
+
         return _unsafe_execute(call_array_len, call_array, calldata_len, calldata, nonce)
     end
 
@@ -242,16 +242,17 @@ namespace Account:
             syscall_ptr : felt*,
             pedersen_ptr : HashBuiltin*,
             range_check_ptr,
+            ecdsa_ptr: SignatureBuiltin*,
             bitwise_ptr: BitwiseBuiltin*
         }(
             call_array_len: felt,
             call_array: AccountCallArray*,
             calldata_len: felt,
-            calldata: felt*, 
+            calldata: felt*,
             nonce: felt
         ) -> (response_len: felt, response: felt*):
         alloc_locals
-        
+
         let (caller) = get_caller_address()
         with_attr error_message("Account: no reentrant call"):
             assert caller = 0
@@ -260,7 +261,7 @@ namespace Account:
         # validate nonce
 
         let (_current_nonce) = Account_current_nonce.read()
-        
+
         with_attr error_message("Account: nonce is invalid"):
             assert _current_nonce = nonce
         end

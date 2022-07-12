@@ -11,7 +11,7 @@ The Timelock library provides a means of enforcing time delays on the execution 
   * [Structure](#structure)
   * [Lifecycle](#lifecycle)
 * [AccessControl and roles](#accesscontrol-and-roles)
-  * [Calculating role identifiers](#calculating-role-identifiers)
+  * [Precalculated role identifiers](#precalculated-role-identifiers)
 * [Setup](#setup)
 * [Usage](#usage)
 * [Batching calls](#batching-calls)
@@ -111,9 +111,16 @@ The Timelock library leverages the [AccessControl](../src/openzeppelin/access/ac
 
 > **Warning** A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the [AccessControl](#./Access.md#accesscontrol) documentation to learn more about role management.
 
-### Calculating role identifiers
+### Precalculated role identifiers
 
-FINISH ME!!!!!!!!!!!!
+The Timelock library uses [AccessControl](./Access.md#accesscontrol) role identifiers within its core logic; therefore, the role ids have been already calculated. This implementation uses the first 251 bits of the keccak256 hashed role's name.
+
+```python
+TIMELOCK_ADMIN_ROLE = 0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca
+PROPOSER_ROLE = 0x584d52d759b8167ea85b5b15e229930249c790924513d0eae539b0415b40ce6
+EXECUTOR_ROLE = 0x6c550798ca4b8d1508b33cfbe10487b49ce46a700d1546bf20eaaf29a8a34f3
+CANCELLER_ROLE = 0x7eb21e39388631e00c012cd5d359682a28f1ac8d1272c5b111c9bc042b937bc
+```
 
 ## Setup
 
@@ -377,7 +384,7 @@ In the event that changing the minimum delay appears necessary, the timelock con
 
 ## Notable differences with Solidity
 
-FINISH ME!!!!!!!!!!!!!!
+Much of the Timelock library follows the Solidity implementation. Due to compatibility constraints between the Solidity and Cairo programming languages, this library includes some notable differences.
 
 ## Timelock library API
 

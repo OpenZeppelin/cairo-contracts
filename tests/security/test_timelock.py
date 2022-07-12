@@ -1,7 +1,6 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.crypto.signature.signature import FIELD_PRIME
 from signers import MockSigner
 from utils import (
     assert_event_emitted,
@@ -417,7 +416,7 @@ async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
             SALT,                                    # SALT
             MIN_DELAY                                # delay
         ]),
-        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE, FIELD_PRIME)}"
+        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE)}"
     )
 
 
@@ -599,7 +598,7 @@ async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
             0,                                       # predecessor
             SALT,                                    # SALT
         ]),
-        f"AccessControl: caller is missing role {role_repr(EXECUTOR_ROLE, FIELD_PRIME)}"
+        f"AccessControl: caller is missing role {role_repr(EXECUTOR_ROLE)}"
     )
 
 #
@@ -826,7 +825,7 @@ async def test_schedule_batch_prevents_nonproposer_from_committing(timelock_fact
             SALT,                                    # SALT
             MIN_DELAY                                # delay
         ]),
-        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE, FIELD_PRIME)}"
+        f"AccessControl: caller is missing role {role_repr(PROPOSER_ROLE)}"
     )
 
 
@@ -1229,7 +1228,7 @@ async def test_cancel_from_noncanceller(timelock_factory):
     # cancel (proposer also has canceller role)
     await assert_revert(signer.send_transaction(
         noncanceller, timelock.contract_address, "cancel", [hash_id]),
-        f"AccessControl: caller is missing role {role_repr(CANCELLER_ROLE, FIELD_PRIME)}"
+        f"AccessControl: caller is missing role {role_repr(CANCELLER_ROLE)}"
     )
 
 #

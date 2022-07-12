@@ -9,6 +9,7 @@ from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.business_logic.state.state import BlockInfo
 from starkware.cairo.common.hash_state import compute_hash_on_elements
+from starkware.crypto.signature.signature import FIELD_PRIME
 
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
@@ -87,13 +88,13 @@ def div_rem_uint(a, b):
     return (to_uint(c), to_uint(m))
 
 
-def role_repr(val, prime):
+def role_repr(val):
     """
     Returns a (possibly negative) decimal representation of the role id.
     """
     if isinstance(val, int):
         # Shift val to the range (-prime // 2, prime // 2).
-        return str((val + prime // 2) % prime - (prime // 2))
+        return str((val + FIELD_PRIME // 2) % FIELD_PRIME - (FIELD_PRIME // 2))
     else:
         return str(val)
 

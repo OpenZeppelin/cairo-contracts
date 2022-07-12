@@ -18,11 +18,9 @@ DATA = [0x42, 0x89, 0x55]
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc721_cls = get_contract_class(
-        'openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo')
-    erc721_holder_cls = get_contract_class(
-        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
+    account_cls = get_contract_class('Account')
+    erc721_cls = get_contract_class('ERC721_Mintable_Pausable')
+    erc721_holder_cls = get_contract_class('ERC721_Holder')
 
     return account_cls, erc721_cls, erc721_holder_cls
 

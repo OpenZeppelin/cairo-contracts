@@ -12,8 +12,8 @@ signer = MockSigner(12345678987654321)
 @pytest.fixture
 async def pausable_factory():
     # class
-    pausable_cls = get_contract_class("tests/mocks/Pausable.cairo")
-    account_cls = get_contract_class("openzeppelin/account/Account.cairo")
+    pausable_cls = get_contract_class("Pausable")
+    account_cls = get_contract_class("Account")
 
     starknet = await Starknet.empty()
     pausable = await starknet.deploy(

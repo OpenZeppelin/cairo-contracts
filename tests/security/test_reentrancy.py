@@ -1,7 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    assert_revert
+    assert_revert, get_contract_class
 )
 
 INITIAL_COUNTER = 0
@@ -11,7 +11,7 @@ INITIAL_COUNTER = 0
 async def reentrancy_mock():
     starknet = await Starknet.empty()
     contract = await starknet.deploy(
-        "tests/mocks/reentrancy_mock.cairo",
+        contract_class=get_contract_class("reentrancy_mock"),
         constructor_calldata=[INITIAL_COUNTER]
     )
 

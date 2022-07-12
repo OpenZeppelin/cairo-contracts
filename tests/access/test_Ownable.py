@@ -15,8 +15,8 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     return (
-        get_contract_class('openzeppelin/account/Account.cairo'),
-        get_contract_class('tests/mocks/Ownable.cairo')
+        get_contract_class('Account'),
+        get_contract_class('Ownable')
     )
 
 

@@ -226,7 +226,7 @@ from utils import get_contract_class, cached_contract
 @pytest.fixture(scope='module')
 def foo_factory():
     # get contract class
-    foo_cls = get_contract_class('path/to/foo.cairo')
+    foo_cls = get_contract_class('Foo')
 
     # deploy contract
     starknet = await Starknet.empty()

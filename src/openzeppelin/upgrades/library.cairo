@@ -120,8 +120,10 @@ namespace Proxy:
             range_check_ptr
         }(new_implementation: felt):
         with_attr error_message("Proxy: implementation hash cannot be zero"):
-            Proxy_implementation_hash.write(new_implementation)
+            assert_not_zero(new_implementation)
         end
+
+        Proxy_implementation_hash.write(new_implementation)
         Upgraded.emit(new_implementation)
         return ()
     end

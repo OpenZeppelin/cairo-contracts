@@ -207,7 +207,7 @@ A helper method that returns the contract class from the contract's name. To cap
 contract_class = get_contract_class('ContractName')
 ```
 
-If multiple contracts exist with the same name, then the contract's path must be used instead of the name. To pass the contract's path:
+If multiple contracts exist with the same name, then the contract's path must be passed along with the `is_path` flag instead of the name. To pass the contract's path:
 
 ```python
 contract_class = get_contract_class('path/to/Contract.cairo', is_path=True)

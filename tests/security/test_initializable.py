@@ -1,9 +1,7 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import TRUE, FALSE, assert_revert, get_contract_class
-from signers import MockSigner
 
-signer = MockSigner(12345678987654321)
 
 @pytest.mark.asyncio
 async def test_initializer():

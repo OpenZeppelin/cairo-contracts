@@ -353,7 +353,7 @@ await signer.send_transaction(
 )
 ```
 
-> Note that [utils.py](../tests/utils.py) includes `timelock_hash_chain()` which also computes the operation hash identifier.
+> Note that [utils.py](../tests/utils.py) includes `timelock_hash_chain` which also computes the operation hash identifier.
 
 ## Updating the minimum delay
 
@@ -384,7 +384,13 @@ In the event that changing the minimum delay appears necessary, the timelock con
 
 ## Notable differences with Solidity
 
-Much of the Timelock library follows the Solidity implementation. Due to compatibility constraints between the Solidity and Cairo programming languages, this library includes some notable differences.
+Much of the Timelock library follows the Solidity implementation. Due to compatibility constraints between the Solidity and Cairo programming languages, this library includes a few notable differences:
+
+* role identifiers use the first 251 bits of its keccak256 hash as opposed to Solidity which uses all 256 bits
+
+* `hash_operation`, `schedule`, and `execute` accept both single and batched operations
+
+* `_beforeCall` and `_afterCall` are not included because hooks are not supported in Cairo
 
 ## Timelock library API
 

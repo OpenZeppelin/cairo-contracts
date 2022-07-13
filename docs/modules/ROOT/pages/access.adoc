@@ -1,34 +1,41 @@
-# Access
+= Access
 
-> Expect these modules to evolve.
+____
+Expect these modules to evolve.
+____
 
-Access control—that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts. The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things. It is therefore critical to understand how you implement it, lest someone else [steals your whole system](https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/).
+Access control--that is, "who is allowed to do this thing"--is incredibly important in the world of smart contracts.
+The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things.
+It is therefore critical to understand how you implement it, lest someone else https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/[steals your whole system].
 
-## Table of Contents
+== Table of Contents
 
-* [Ownable](#ownable)
-  * [Quickstart](#quickstart)
-  * [Ownable library API](#ownable-library-api)
-    * [`initializer`](#initializer)
-    * [`assert_only_owner`](#assert_only_owner)
-    * [`owner`](#owner)
-    * [`transfer_ownership`](#transfer_ownership)
-    * [`renounce_ownership`](#renounce_ownership)
-    * [`_transfer_ownership`](#transfer-ownership-internal)
-  * [Ownable events](#ownable-events)
-    * [`OwnershipTransferred`](#ownershiptransferred)
+* <<ownable,Ownable>>
+ ** <<quickstart,Quickstart>>
+ ** <<ownable-library-api,Ownable library API>>
+  *** <<initializer,`initializer`>>
+  *** <<assert_only_owner,`assert_only_owner`>>
+  *** <<owner,`owner`>>
+  *** <<transfer_ownership,`transfer_ownership`>>
+  *** <<renounce_ownership,`renounce_ownership`>>
+  *** <<transfer-ownership-internal,`_transfer_ownership`>>
+ ** <<ownable-events,Ownable events>>
+  *** <<ownershiptransferred,`OwnershipTransferred`>>
 
-## Ownable
+== Ownable
 
-The most common and basic form of access control is the concept of ownership: there’s an account that is the `owner` of a contract and can do administrative tasks on it. This approach is perfectly reasonable for contracts that have a single administrative user.
+The most common and basic form of access control is the concept of ownership: there's an account that is the `owner` of a contract and can do administrative tasks on it.
+This approach is perfectly reasonable for contracts that have a single administrative user.
 
-OpenZeppelin Contracts for Cairo provides [Ownable](../src/openzeppelin/access/ownable.cairo) for implementing ownership in your contracts.
+OpenZeppelin Contracts for Cairo provides link:../src/openzeppelin/access/ownable.cairo[Ownable] for implementing ownership in your contracts.
 
-### Quickstart
+=== Quickstart
 
-Integrating [Ownable](../src/openzeppelin/access/ownable.cairo) into a contract first requires assigning an owner. The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's [initializer](#initializer) like this:
+Integrating link:../src/openzeppelin/access/ownable.cairo[Ownable] into a contract first requires assigning an owner.
+The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<initializer,initializer>> like this:
 
-```cairo
+[,cairo]
+----
 from openzeppelin.access.ownable import Ownable
 
 @constructor
@@ -40,11 +47,12 @@ func constructor{
     Ownable.initializer(owner)
     return ()
 end
-```
+----
 
 To restrict a function's access to the owner only, add in the `assert_only_owner` method:
 
-```cairo
+[,cairo]
+----
 from openzeppelin.access.ownable import Ownable
 
 func protected_function{
@@ -55,11 +63,12 @@ func protected_function{
     Ownable.assert_only_owner()
     return ()
 end
-```
+----
 
-### Ownable library API
+=== Ownable library API
 
-```cairo
+[,cairo]
+----
 func initializer(owner: felt):
 end
 
@@ -77,25 +86,27 @@ end
 
 func _transfer_ownership(new_owner: felt):
 end
-```
+----
 
-#### `initializer`
+==== `initializer`
 
-Initializes Ownable access control and should be called in the implementing contract's constructor. Assigns `owner` as the initial owner address of the contract.
+Initializes Ownable access control and should be called in the implementing contract's constructor.
+Assigns `owner` as the initial owner address of the contract.
 
 This must be called only once.
 
 Parameters:
 
-```cairo
+[,cairo]
+----
 owner: felt
-```
+----
 
 Returns:
 
 None.
 
-#### `assert_only_owner`
+==== `assert_only_owner`
 
 Reverts if called by any account other than the owner.
 
@@ -107,7 +118,7 @@ Returns:
 
 None.
 
-#### `owner`
+==== `owner`
 
 Returns the address of the current owner.
 
@@ -117,31 +128,36 @@ None.
 
 Returns:
 
-```cairo
+[,cairo]
+----
 owner: felt
-```
+----
 
-#### `transfer_ownership`
+==== `transfer_ownership`
 
-Transfers ownership of the contract to a new account (`new_owner`). Can only be called by the current owner.
+Transfers ownership of the contract to a new account (`new_owner`).
+Can only be called by the current owner.
 
-Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
-```cairo
+[,cairo]
+----
 new_owner: felt
-```
+----
 
 Returns:
 
 None.
 
-#### `renounce_ownership`
+==== `renounce_ownership`
 
-Leaves the contract without owner. It will not be possible to call functions with `assert_only_owner` anymore. Can only be called by the current owner.
+Leaves the contract without owner.
+It will not be possible to call functions with `assert_only_owner` anymore.
+Can only be called by the current owner.
 
-Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -151,36 +167,41 @@ Returns:
 
 None.
 
-<h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
+[#transfer-ownership-internal]
+==== `_transfer_ownership`
 
-Transfers ownership of the contract to a new account (`new_owner`). Unprotected method without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`).
+Unprotected method without access restriction.
 
-Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
-```cairo
+[,cairo]
+----
 new_owner: felt
-```
+----
 
 Returns:
 
 None.
 
-### Ownable events
+=== Ownable events
 
-```cairo
+[,cairo]
+----
 func OwnershipTransferred(previousOwner: felt, newOwner: felt):
 end
-```
+----
 
-#### OwnershipTransferred
+==== OwnershipTransferred
 
 Emitted when ownership of a contract is transferred from `previousOwner` to `newOwner`.
 
 Parameters:
 
-```cairo
+[,cairo]
+----
 previousOwner: felt
 newOwner: felt
-```
+----

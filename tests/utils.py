@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import math
+import os
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
@@ -110,9 +111,25 @@ def assert_event_emitted(tx_exec_info, from_address, name, data):
     ) in tx_exec_info.raw_events
 
 
-def get_contract_class(path):
-    """Return the contract class from the contract path"""
-    path = contract_path(path)
+def _get_path_from_name(name):
+    """Return the contract path by contract name."""
+    dirs = ["src", "tests/mocks"]
+    for dir in dirs:
+        for (dirpath, _, filenames) in os.walk(dir):
+            for file in filenames:
+                if file == f"{name}.cairo":
+                    return os.path.join(dirpath, file)
+
+    raise FileNotFoundError(f"Cannot find '{name}'.")
+
+
+def get_contract_class(contract, is_path=False):
+    """Return the contract class from the contract name or path"""
+    if is_path:
+        path = contract_path(contract)
+    else:
+        path = _get_path_from_name(contract)
+
     contract_class = compile_starknet_files(
         files=[path],
         debug_info=True

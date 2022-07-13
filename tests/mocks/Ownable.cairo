@@ -5,6 +5,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from openzeppelin.access.ownable import Ownable
+from starkware.cairo.common.bool import TRUE
 
 @constructor
 func constructor{
@@ -44,4 +45,14 @@ func renounceOwnership{
     }():
     Ownable.renounce_ownership()
     return ()
+end
+
+@external
+func protected_function{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (res: felt):
+    Ownable.assert_only_owner()
+    return (TRUE)
 end

@@ -90,10 +90,10 @@ def batched_operations(address):
 
 @pytest.fixture(scope="module")
 async def contract_classes():
-    account_cls = get_contract_class("openzeppelin/account/Account.cairo")
-    timelock_cls = get_contract_class("tests/mocks/Timelock.cairo")
-    helper_cls = get_contract_class("tests/mocks/Contract.cairo")
-    erc721_cls = get_contract_class('openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
+    account_cls = get_contract_class("Account")
+    timelock_cls = get_contract_class("Timelock")
+    helper_cls = get_contract_class("Contract")
+    erc721_cls = get_contract_class('ERC721_Mintable_Burnable')
 
     return account_cls, timelock_cls, helper_cls, erc721_cls
 

@@ -42,7 +42,7 @@ Then:
 
 * Must implement `public` and `external` functions under a namespace
 * Must implement `private` functions outside the namespace to avoid exposing them
-* Must prefix `public` functions with an underscore (e.g. `ERC20._mint`)
+* Must prefix `internal` functions with an underscore (e.g. `ERC20._mint`)
 * Must not prefix `external` functions with an underscore (e.g. `ERC20.transfer`)
 * Must prefix `storage` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions

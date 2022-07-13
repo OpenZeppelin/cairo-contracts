@@ -231,10 +231,10 @@ async def test_registered_interfaces(timelock_factory, interface_id, result):
 
 
 #
-# hashOperation
+# hash_operation
 #
 
-async def test_hashOperation(timelock_factory):
+async def test_hash_operation(timelock_factory):
     timelock, _, _, helper, _ = timelock_factory
 
     # hash single operation
@@ -251,7 +251,7 @@ async def test_hashOperation(timelock_factory):
 
 
 @pytest.mark.asyncio
-async def test_hashOperation_batch(timelock_factory):
+async def test_hash_operation_batch(timelock_factory):
     timelock, _, _, helper, _ = timelock_factory
 
     # hash batched operations
@@ -269,7 +269,7 @@ async def test_hashOperation_batch(timelock_factory):
 
 
 @pytest.mark.asyncio
-async def test_hashOperation_batch_with_predecessor(timelock_factory):
+async def test_hash_operation_batch_with_predecessor(timelock_factory):
     timelock, _, _, helper, _ = timelock_factory
 
     predecessor = 9999
@@ -1232,11 +1232,11 @@ async def test_cancel_from_noncanceller(timelock_factory):
     )
 
 #
-# updateDelay
+# update_delay
 #
 
 @pytest.mark.asyncio
-async def test_updateDelay_from_unauthorized(timelock_factory):
+async def test_update_delay_from_unauthorized(timelock_factory):
     timelock, other, _, _, _ = timelock_factory
 
     # should fail since timelock contract must be the caler
@@ -1247,7 +1247,7 @@ async def test_updateDelay_from_unauthorized(timelock_factory):
 
 
 @pytest.mark.asyncio
-async def test_updateDelay_scheduled_maintenance(timelock_factory):
+async def test_update_delay_scheduled_maintenance(timelock_factory):
     timelock, proposer, executor, _, state = timelock_factory
 
     update_delay_call = from_call_to_call_array(

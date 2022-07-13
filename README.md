@@ -4,10 +4,6 @@
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-## Security Advisory ⚠️
-
-- A critical [vulnerability](https://github.com/OpenZeppelin/cairo-contracts/issues/344) was found in an **unreleased** version of the Account contract. It was [introduced in March 25th](https://github.com/OpenZeppelin/cairo-contracts/pull/233) and has been [patched as of June 1st](https://github.com/OpenZeppelin/cairo-contracts/pull/347). If you copied the Account contract code into your project during that period, please update to the patched version. Note that 0.1.0 users are not affected.
-
 ## Usage
 
 > ## ⚠️ WARNING! ⚠️
@@ -230,7 +226,7 @@ from utils import get_contract_class, cached_contract
 @pytest.fixture(scope='module')
 def foo_factory():
     # get contract class
-    foo_cls = get_contract_class('path/to/foo.cairo')
+    foo_cls = get_contract_class('Foo')
 
     # deploy contract
     starknet = await Starknet.empty()

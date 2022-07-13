@@ -18,7 +18,7 @@ OTHER_ID = 0x12345678
 @pytest.fixture(scope='module')
 async def erc165_factory():
     # class
-    erc165_cls = get_contract_class("tests/mocks/ERC165.cairo")
+    erc165_cls = get_contract_class("tests/mocks/ERC165.cairo", is_path=True)
 
     # deployment
     starknet = await Starknet.empty()

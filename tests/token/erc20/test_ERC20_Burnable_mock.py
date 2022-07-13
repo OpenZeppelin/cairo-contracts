@@ -20,9 +20,8 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc20_cls = get_contract_class(
-        'tests/mocks/ERC20_Burnable_mock.cairo')
+    account_cls = get_contract_class('Account')
+    erc20_cls = get_contract_class('ERC20_Burnable_mock')
 
     return account_cls, erc20_cls
 

@@ -152,7 +152,15 @@ func schedule{
         salt: felt,
         delay: felt,
     ):
-    Timelock.schedule(call_array_len, call_array, calldata_len, calldata, predecessor, salt, delay)
+    Timelock.schedule(
+        call_array_len,
+        call_array,
+        calldata_len,
+        calldata,
+        predecessor,
+        salt,
+        delay
+    )
     return ()
 end
 
@@ -179,7 +187,14 @@ func execute{
         predecessor: felt,
         salt: felt,
     ):
-    Timelock.execute(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
+    Timelock.execute(
+        call_array_len,
+        call_array,
+        calldata_len,
+        calldata,
+        predecessor,
+        salt
+    )
     return ()
 end
 

@@ -5,7 +5,6 @@
 
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.math import assert_le
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math_cmp import is_le, is_not_zero, is_in_range
@@ -13,7 +12,6 @@ from starkware.starknet.common.syscalls import call_contract, get_block_timestam
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from starkware.cairo.common.hash_state import (
-    HashState,
     hash_init,
     hash_finalize,
     hash_update,

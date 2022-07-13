@@ -22,8 +22,7 @@ DECIMALS = 18
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    erc20_cls = get_contract_class(
-        'tests/mocks/ERC20_Burnable_mock.cairo')
+    erc20_cls = get_contract_class('ERC20_Burnable_mock')
 
     return account_cls, erc20_cls
 

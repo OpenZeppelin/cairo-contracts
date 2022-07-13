@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     State,
@@ -22,9 +21,9 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    v1_cls = get_contract_class('tests/mocks/upgrades_v1_mock.cairo')
-    v2_cls = get_contract_class('tests/mocks/upgrades_v2_mock.cairo')
-    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
+    v1_cls = get_contract_class('upgrades_v1_mock')
+    v2_cls = get_contract_class('upgrades_v2_mock')
+    proxy_cls = get_contract_class('Proxy')
 
     return account_cls, v1_cls, v2_cls, proxy_cls
 
@@ -201,6 +200,26 @@ async def test_upgrade_from_non_admin(proxy_factory):
 
 
 @pytest.mark.asyncio
+async def test__set_implementation_as_zero(proxy_factory):
+    admin, _, proxy, _, _ = proxy_factory
+
+    # initialize implementation
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'initializer', [
+            admin.contract_address
+        ]
+    )
+
+    # upgrade should revert
+    await assert_revert(
+        signer.send_transaction(
+            admin, proxy.contract_address, 'upgrade', [0]
+        ),
+        reverted_with="Proxy: implementation hash cannot be zero"
+    )
+
+
+@pytest.mark.asyncio
 async def test_implementation_v2(after_upgrade):
     admin, _, proxy, _, v2_decl = after_upgrade
 
@@ -269,7 +288,7 @@ async def test_v2_functions_pre_and_post_upgrade(proxy_factory):
     await assert_revert_entry_point(
         signer.send_transaction(
             admin, proxy.contract_address, 'getValue2', []
-        ), 
+        ),
         invalid_selector='getValue2'
     )
 

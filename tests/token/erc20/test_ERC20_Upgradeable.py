@@ -21,9 +21,8 @@ DECIMALS = 18
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    token_cls = get_contract_class(
-        'openzeppelin/token/erc20/ERC20_Upgradeable.cairo')
-    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
+    token_cls = get_contract_class('ERC20_Upgradeable')
+    proxy_cls = get_contract_class('Proxy')
 
     return account_cls, token_cls, proxy_cls
 

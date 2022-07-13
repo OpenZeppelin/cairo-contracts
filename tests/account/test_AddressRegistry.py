@@ -11,7 +11,7 @@ ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 @pytest.fixture(scope='module')
 async def registry_factory():
     # contract classes
-    registry_cls = get_contract_class("openzeppelin/account/AddressRegistry.cairo")
+    registry_cls = get_contract_class("AddressRegistry")
     account_cls = Account.get_class
 
     # deployments

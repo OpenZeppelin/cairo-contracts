@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     assert_revert,
@@ -20,10 +19,8 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    implementation_cls = get_contract_class(
-        'tests/mocks/proxiable_implementation.cairo'
-    )
-    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
+    implementation_cls = get_contract_class('proxiable_implementation')
+    proxy_cls = get_contract_class('Proxy')
 
     return account_cls, implementation_cls, proxy_cls
 
@@ -63,7 +60,7 @@ def proxy_factory(contract_classes, proxy_init):
 
 @pytest.fixture
 async def after_initialized(proxy_factory):
-    admin, other, proxy = proxy_factory 
+    admin, other, proxy = proxy_factory
 
     # initialize proxy
     await signer.send_transaction(
@@ -78,7 +75,7 @@ async def after_initialized(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_initializer(proxy_factory):
-    admin, _, proxy = proxy_factory 
+    admin, _, proxy = proxy_factory
 
     await signer.send_transaction(
         admin, proxy.contract_address, 'initializer', [admin.contract_address]
@@ -93,7 +90,7 @@ async def test_initializer(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_initializer_after_initialized(after_initialized):
-    admin, _, proxy = after_initialized 
+    admin, _, proxy = after_initialized
 
     await assert_revert(signer.send_transaction(
         admin, proxy.contract_address, 'initializer', [admin.contract_address]),
@@ -106,7 +103,7 @@ async def test_initializer_after_initialized(after_initialized):
 
 @pytest.mark.asyncio
 async def test_set_admin(after_initialized):
-    admin, _, proxy = after_initialized 
+    admin, _, proxy = after_initialized
 
     # set admin
     tx_exec_info = await signer.send_transaction(
@@ -133,7 +130,7 @@ async def test_set_admin(after_initialized):
 
 @pytest.mark.asyncio
 async def test_set_admin_from_unauthorized(after_initialized):
-    _, non_admin, proxy = after_initialized 
+    _, non_admin, proxy = after_initialized
 
     # set admin
     await assert_revert(signer.send_transaction(
@@ -147,7 +144,7 @@ async def test_set_admin_from_unauthorized(after_initialized):
 
 @pytest.mark.asyncio
 async def test_default_fallback(proxy_factory):
-    admin, _, proxy = proxy_factory 
+    admin, _, proxy = proxy_factory
 
     # set value through proxy
     await signer.send_transaction(
@@ -163,7 +160,7 @@ async def test_default_fallback(proxy_factory):
 
 @pytest.mark.asyncio
 async def test_fallback_when_selector_does_not_exist(proxy_factory):
-    admin, _, proxy = proxy_factory 
+    admin, _, proxy = proxy_factory
 
     # should fail with entry point error
     await assert_revert_entry_point(

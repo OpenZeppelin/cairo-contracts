@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     str_to_felt, MAX_UINT256, get_contract_class, cached_contract,
@@ -26,10 +25,10 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    erc721_cls = get_contract_class(
-        'openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo')
+    erc721_cls = get_contract_class('ERC721_Enumerable_Mintable_Burnable')
 
     return account_cls, erc721_cls
+
 
 @pytest.fixture(scope='module')
 async def erc721_init(contract_classes):

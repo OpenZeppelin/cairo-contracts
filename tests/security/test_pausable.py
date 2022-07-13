@@ -12,7 +12,7 @@ signer = MockSigner(12345678987654321)
 @pytest.fixture
 async def pausable_factory():
     # class
-    pausable_cls = get_contract_class("tests/mocks/Pausable.cairo")
+    pausable_cls = get_contract_class("Pausable")
     account_cls = Account.get_class
 
     # deploy

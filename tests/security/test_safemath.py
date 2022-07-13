@@ -2,7 +2,8 @@ import pytest
 from starkware.starknet.testing.starknet import Starknet
 from utils import (
     MAX_UINT256, assert_revert, add_uint, sub_uint,
-    mul_uint, div_rem_uint, to_uint, contract_path
+    mul_uint, div_rem_uint, to_uint, contract_path,
+    get_contract_class
 )
 
 
@@ -10,7 +11,7 @@ from utils import (
 async def safemath_mock():
     starknet = await Starknet.empty()
     safemath = await starknet.deploy(
-        contract_path("tests/mocks/safemath_mock.cairo")
+        contract_class=get_contract_class("safemath_mock")
     )
 
     return safemath

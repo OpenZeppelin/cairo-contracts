@@ -20,8 +20,7 @@ DECIMALS = 18
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = Account.get_class
-    erc20_cls = get_contract_class(
-        'openzeppelin/token/erc20/ERC20_Pausable.cairo')
+    erc20_cls = get_contract_class('ERC20_Pausable')
 
     return account_cls, erc20_cls
 

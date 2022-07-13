@@ -271,7 +271,7 @@ async def test_hashOperation_batch(timelock_factory):
 @pytest.mark.asyncio
 async def test_hashOperation_batch_with_predecessor(timelock_factory):
     timelock, _, _, helper, _ = timelock_factory
-    
+
     predecessor = 9999
 
     # hash batched operations with predecessor
@@ -349,7 +349,7 @@ async def test_schedule_is_scheduled(timelock_factory):
         FALSE,      # isOperationReady
         FALSE,      # isOperationDone
         MIN_DELAY   # getTimestamp
-    ]  
+    ]
 
     # check event
     assert_event_emitted(
@@ -1033,7 +1033,7 @@ async def test_execute_batch_mismatched_calldata_params(timelock_factory, bad_pa
         ])
 
     set_block_timestamp(state, FF_PAST_DELAY)
-    
+
     def bad_calldata_len(param):
         if param == "add":
             x = call_array[-1]
@@ -1293,7 +1293,7 @@ async def test_updateDelay_scheduled_maintenance(timelock_factory):
 
 #
 # dependency
-# 
+#
 
 @pytest.mark.asyncio
 async def test_execute_before_dependency(timelock_factory):

@@ -134,7 +134,8 @@ func hashOperation{
         predecessor: felt,
         salt: felt,
     ) -> (hash: felt):
-    let (hash) = Timelock.hash_operation(call_array_len, call_array, calldata_len, calldata, predecessor, salt)
+    let (hash) = Timelock.hash_operation(
+        call_array_len, call_array, calldata_len, calldata, predecessor, salt)
     return (hash)
 end
 

@@ -164,7 +164,7 @@ namespace Timelock:
         alloc_locals
         let (timestamp) = get_timestamp(id)
         let (current_timestamp) = get_block_timestamp()
-        
+
         let (ready: felt) = is_in_range(timestamp, DONE_TIMESTAMP + 1, current_timestamp)
         return (ready)
     end
@@ -223,7 +223,7 @@ namespace Timelock:
                 calls_hash_array,
                 call_array_len
             )
-            let (hash_state_ptr) = hash_update_single(hash_state_ptr, calldata_len) 
+            let (hash_state_ptr) = hash_update_single(hash_state_ptr, calldata_len)
             let (hash_state_ptr) = hash_update_single(hash_state_ptr, predecessor)
             let (hash_state_ptr) = hash_update_single(hash_state_ptr, salt)
             let (res) = hash_finalize(hash_state_ptr)
@@ -291,7 +291,7 @@ namespace Timelock:
         Cancelled.emit(id)
         return ()
     end
-      
+
     func execute{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,

@@ -1,7 +1,6 @@
 import pytest
 from pathlib import Path
 from signers import MockSigner
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TRUE, FALSE,
     assert_event_emitted, assert_revert,

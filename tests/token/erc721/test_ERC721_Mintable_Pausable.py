@@ -1,7 +1,7 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    str_to_felt, TRUE, FALSE, get_contract_class, cached_contract, 
+    str_to_felt, TRUE, FALSE, get_contract_class, cached_contract,
     assert_revert, to_uint, State, Account
 )
 

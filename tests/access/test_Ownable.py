@@ -1,6 +1,5 @@
 import pytest
 from signers import MockSigner
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     ZERO_ADDRESS,
     assert_event_emitted,
@@ -16,13 +15,8 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     return (
-<<<<<<< HEAD
         Account.get_class,
-        get_contract_class('tests/mocks/Ownable.cairo')
-=======
-        get_contract_class('Account'),
         get_contract_class('Ownable')
->>>>>>> origin
     )
 
 

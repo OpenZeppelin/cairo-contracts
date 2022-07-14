@@ -172,7 +172,7 @@ None.
 
 <h4 id="transfer-ownership-internal"><code>_transfer_ownership</code></h4>
 
-Transfers ownership of the contract to a new account (`new_owner`). Internal function without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`). [`internal`](./Extensibility.md#the-pattern) function without access restriction.
 
 Emits a [`OwnershipTransferred`](#ownershiptransferred) event.
 
@@ -316,7 +316,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 
 ### Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grant_role`, an [`internal`](./Extensibility.md#the-pattern) function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role’s *admin*.
 
@@ -586,7 +586,9 @@ None.
 
 Grants `role` to `user`.
 
-[Internal function](./Extensibility.md#the-pattern) without access restriction.
+[`internal`](./Extensibility.md#the-pattern) function without access restriction.
+
+Emits a [RoleGranted](#rolegranted) event.
 
 Parameters:
 
@@ -603,7 +605,9 @@ None.
 
 Revokes `role` from `user`.
 
-[Internal function](./Extensibility.md#the-pattern) without access restriction.
+[`internal`](./Extensibility.md#the-pattern) function without access restriction.
+
+Emits a [RoleRevoked](#rolerevoked) event.
 
 Parameters:
 
@@ -618,7 +622,7 @@ None.
 
 <h4 id="setroleadmin"><code>_set_role_admin</code></h4>
 
-[Internal function](./Extensibility.md#the-pattern) that sets `admin_role` as `role`'s admin role.
+[`internal`](./Extensibility.md#the-pattern) function that sets `admin_role` as `role`'s admin role.
 
 Emits a [RoleAdminChanged](#roleadminchanged) event.
 

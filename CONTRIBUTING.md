@@ -25,14 +25,13 @@ And make sure to always include tests and documentation for the new developments
     - `openzeppelin.token.erc20.presets.ERC20Mintable`
   - And a visual guide:
 
-    ```bash
+    ```
     openzeppelin
           └──token
                └── erc20
+                     ├── library.cairo
                      ├── interfaces
                             └── IERC20.cairo
-                     ├── library
-                            └── ERC20.cairo
                      └── presets
                             └── ERC20Mintable.cairo
     ```

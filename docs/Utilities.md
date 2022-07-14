@@ -1,6 +1,6 @@
 # Utilities
 
-The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.  
+The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.
 
 > Expect this module to evolve (as it has already done).
 
@@ -27,7 +27,7 @@ The following documentation provides context, reasoning, and examples for method
 
 ## Constants
 
-To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/Introspection.md#interface-calculations).
+To ease the readability of Cairo contracts, this project includes reusable [constants variables](../src/openzeppelin/utils/constants/library.cairo) like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`. For more information on how interface ids are calculated, see the [ERC165 documentation](../docs/Introspection.md#interface-calculations).
 
 ## Strings
 

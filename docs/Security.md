@@ -82,7 +82,7 @@ For a list of full implementations utilizing the Pausable library, see:
 
 A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4) occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
 
-Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/library/reentrancy_guard.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
+Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/reentrancyguard/library.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
 
 ```cairo
 from openzeppelin.security.library.ReentrancyGuard import ReentrancyGuard
@@ -103,7 +103,7 @@ end
 
 ### SafeUint256
 
-The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/library/safemath.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
+The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/safemath/library.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
 
 Using SafeUint256 methods is rather straightforward. Simply import SafeUint256 and insert the arithmetic method like this:
 

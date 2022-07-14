@@ -77,7 +77,7 @@ In the case of contract upgrades, it is achieved by simply changing the proxy's 
 
 ### Proxy contract
 
-The [Proxy contract](../src/openzeppelin/upgrades/presets/Proxy.cairo) includes two core methods:
+The [Proxy contract](../src/openzeppelin/upgrades/proxy/presets/Proxy.cairo) includes two core methods:
 
 1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 
@@ -89,7 +89,7 @@ When interacting with the contract, function calls should be sent by the user to
 
 ### Implementation contract
 
-The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [Extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../src/openzeppelin/upgrades/library/Proxy.cairo).
+The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract. The implementation contract should follow the [Extensibility pattern](../docs/Extensibility.md#the-pattern) and import directly from the [Proxy library](../src/openzeppelin/upgrades/proxy/library.cairo).
 
 The implementation contract should:
 

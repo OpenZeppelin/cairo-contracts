@@ -21,7 +21,7 @@ The ERC165 standard allows smart contracts to exercise [type introspection](http
 
 Cairo contracts, like Ethereum contracts, have no native concept of an interface, so applications must usually simply trust they are not making an incorrect call. For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with. There may even not be any direct calls to them! (e.g. ERC20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever). In these cases, a contract declaring its interface can be very helpful in preventing errors.
 
-It should be noted that the [constants library](../src/openzeppelin/utils/constants.cairo) includes constant variables referencing all of the interface ids used in these contracts. This allows for more legible code i.e. using `IERC165_ID` instead of `0x01ffc9a7`.
+It should be noted that the [constants library](../src/openzeppelin/utils/constants/library.cairo) includes constant variables referencing all of the interface ids used in these contracts. This allows for more legible code i.e. using `IERC165_ID` instead of `0x01ffc9a7`.
 
 ### Interface calculations
 
@@ -68,7 +68,7 @@ func check_support{
 end
 ```
 
-> Please note that `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface. This differs from library methods (such as `supports_interface` from the [ERC165 library](../src/openzeppelin/introspection/library/ERC165.cairo)) which are snake_cased and not exposed. See the [Function names and coding style](../docs/Extensibility.md#function-names-and-coding-style) for more details.
+> Please note that `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface. This differs from library methods (such as `supports_interface` from the [ERC165 library](../src/openzeppelin/introspection/erc165/library.cairo)) which are snake_cased and not exposed. See the [Function names and coding style](../docs/Extensibility.md#function-names-and-coding-style) for more details.
 
 ### IERC165
 

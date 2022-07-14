@@ -456,11 +456,11 @@ The following contract presets are ready to deploy and can be used as-is for qui
 
 ### Account
 
-The [`Account`](../src/openzeppelin/account/Account.cairo) preset uses StarkNet keys to validate transactions.
+The [`Account`](../src/openzeppelin/account/presets/Account.cairo) preset uses StarkNet keys to validate transactions.
 
 ### Eth Account
 
-The [`EthAccount`](../src/openzeppelin/account/EthAccount.cairo) preset supports Ethereum addresses, validating transactions with secp256k1 keys.
+The [`EthAccount`](../src/openzeppelin/account/presets/EthAccount.cairo) preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 ## Account differentiation with ERC165
 

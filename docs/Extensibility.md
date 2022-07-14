@@ -72,7 +72,7 @@ Some presets are:
 * [ERC20](../src/openzeppelin/token/erc20/presets/ERC20.cairo)
 * [ERC721MintableBurnable](../src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo)
 * [ERC721MintablePausable](../src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo)
-* [ERC721EnumerableMintableBurnable](../src/openzeppelin/token/erc721/presets/ERC721EnumerableMintableBurnable.cairo)
+* [ERC721EnumerableMintableBurnable](../src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo)
 
 ## Function names and coding style
 

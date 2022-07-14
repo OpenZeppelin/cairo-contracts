@@ -382,6 +382,29 @@ Note that, unlike the previous examples, no accounts are granted the 'minter' or
 
 Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as [KYC](https://en.wikipedia.org/wiki/Know_your_customer), where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
+The following example uses the [AccessControl mock contract](../tests/mocks/AccessControl.cairo) which exposes the functions. To grant and revoke roles in Python, for example:
+
+```python
+MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
+BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
+
+# grants MINTER_ROLE and BURNER_ROLE to account1 and account2 respectively
+await signer.send_transactions(
+    admin, [
+        (accesscontrol.contract_address, 'grantRole', [MINTER_ROLE, account1.contract_address]),
+        (accesscontrol.contract_address, 'grantRole', [BURNER_ROLE, account2.contract_address])
+    ]
+)
+
+# revokes MINTER_ROLE from account1
+await signer.send_transaction(
+    admin,
+    accesscontrol.contract_address,
+    'revokeRole',
+    [MINTER_ROLE, account1.contract_address]
+)
+```
+
 ### Creating role identifiers
 
 In the Solidity implementation of AccessControl, contracts generally refer to the [keccak256 hash](https://docs.soliditylang.org/en/latest/units-and-global-variables.html?highlight=keccak256#mathematical-and-cryptographic-functions) of a role as the role identifier. For example:

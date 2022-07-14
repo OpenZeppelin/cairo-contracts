@@ -89,9 +89,9 @@ Timelocked operations are identified by a unique id (their hash) and follow a sp
 
 `Unset` → `Pending` + `Ready` → `Done`
 
-* By calling schedule, a proposer moves the operation from the Unset to the Pending state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the [get_timestamp](#get_timestamp) method.
+* By calling schedule, a proposer moves the operation from the Unset to the Pending state. This starts a timer that must be greater than or equal to the minimum delay. The timer expires at a timestamp accessible through the [get_timestamp](#get_timestamp) method.
 
-* Once the timer expires, the operation automatically gets the `Ready` state. At this point, it can be executed.
+* Once the timer expires, the operation automatically moves to the `Ready` state. At this point, it can be executed.
 
 * By calling [execute](#execute), an executor triggers the operation’s underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
 
@@ -105,9 +105,9 @@ The Timelock library leverages the [AccessControl](../src/openzeppelin/access/ac
 
 * **Proposer** - The proposers are in charge of scheduling operations. This is a critical role, that should be given to governing entities. This could be an account, a multisig, or a DAO.
 
-* **Executor** - The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow any address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
+* **Executor** - The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisigs or DAOs that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow any address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
 
-* **Canceller** - The Canceller role is in charge of cancelling operations. The Solidity implementation of Timelock appoints proposers as cancellers as well for backwards compatibility. This implementation, nevertheless, does not enforce this approach.
+* **Canceller** - The Canceller role is in charge of cancelling operations. The Solidity implementation of Timelock appoints proposers also as cancellers for backwards compatibility. This implementation, nevertheless, does not enforce this approach.
 
 > **Warning** A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the [AccessControl](#./Access.md#accesscontrol) documentation to learn more about role management.
 
@@ -357,7 +357,7 @@ await signer.send_transaction(
 
 ## Updating the minimum delay
 
-In the event that changing the minimum delay appears necessary, the timelock contract and only the timelock contract can update the delay. In other words, the proposers and executors must schedule and execute an operation with the timelock contract set as the target address; therefore, the [update_delay](#update_delay) call comes from the timelock contract itself.
+In the event that changing the minimum delay appears necessary and the timelock is self-governed (meaning no one has admin privileges aside from the contract itself), the timelock contract and only the timelock contract can update the delay. In other words, the proposers and executors must schedule and execute an operation with the timelock contract set as the target address; therefore, the [update_delay](#update_delay) call comes from the timelock contract itself.
 
 ```python
     update_delay_call = from_call_to_call_array(
@@ -468,7 +468,7 @@ end
 
 #### `initializer`
 
-Initializes the timelock contract and sets the `min_delay` and `deployer` account. Role assignments must take place within the implementing contract's constructor (the same constructor invoking this method).
+Initializes the timelock contract and sets the `min_delay` and `deployer` account.
 
 > At construction, both the `deployer` and the timelock itself are administrators. This helps further configuration of the timelock by the `deployer`. After configuration is done, it is recommended that the `deployer` renounces its admin position and relies on timelocked operations to perform future maintenance.
 
@@ -499,7 +499,7 @@ None.
 
 #### `is_operation`
 
-Returns whether an id corresponds to a registered operation. This includes both Pending, Ready and Done operations.
+Returns whether an id corresponds to a registered operation. This includes both `Pending`, `Ready` and `Done` operations.
 
 Parameters:
 
@@ -563,7 +563,7 @@ done: felt
 
 #### `get_timestamp`
 
-Returns the timestamp at with an operation becomes ready (`0` for unset operations, `1` for done operations).
+Returns the timestamp at which an operation becomes ready (`0` for unset operations, `1` for done operations).
 
 Parameters:
 
@@ -644,9 +644,11 @@ None.
 
 Cancel an operation.
 
+Emits a [Cancelled](#cancelled) event.
+
 Requirements:
 
-* the caller must have the 'canceller' role.
+* the caller must have been assigned 'canceller' role.
 
 Parameters:
 
@@ -691,7 +693,10 @@ Emits a [MinDelayChange](#mindelaychange) event.
 
 Requirements:
 
-* the caller must be the timelock itself. This can only be achieved by scheduling and later executing an operation where the timelock is the target and the data is the ABI-encoded call to this function.
+* if the timelock is self-governed (meaning no one has admin privileges aside from the contract itself), the caller must be the timelock itself. This can only be achieved by scheduling and later executing an operation where:
+  * the timelock is the target
+  * the selector is the keccak256 hash of `update_delay`
+  * the proposed minimum delay is `new_delay`
 
 Parameters:
 

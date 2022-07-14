@@ -87,7 +87,7 @@ Operations contain:
 
 Timelocked operations are identified by a unique id (their hash) and follow a specific lifecycle:
 
-`Unset` → `Pending` → `Pending` + `Ready` → `Done`
+`Unset` → `Pending` + `Ready` → `Done`
 
 * By calling schedule, a proposer moves the operation from the Unset to the Pending state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the [get_timestamp](#get_timestamp) method.
 

@@ -17,24 +17,24 @@ And make sure to always include tests and documentation for the new developments
   - test modules should begin with `test_` followed by the contract name i.e. `test_MyContract.py`
 
 - Structure
-  - preset contracts and interfaces should be the in their respective directories
   - libraries should cede their names to their parent directory and are named `library.cairo` instead
+  - interfaces should be alongside the library that the interface defines
+  - preset contracts should be within a `presets` directory of the library to which they are a preset
   - Here are example paths:
     - `openzeppelin.token.erc20.library`
-    - `openzeppelin.token.erc20.interfaces.IERC20`
+    - `openzeppelin.token.erc20.IERC20`
     - `openzeppelin.token.erc20.presets.ERC20Mintable`
   - And a visual guide:
 
-    ```
+```python
     openzeppelin
           └──token
                └── erc20
                      ├── library.cairo
-                     ├── interfaces
-                            └── IERC20.cairo
+                     ├── IERC20.cairo
                      └── presets
                             └── ERC20Mintable.cairo
-    ```
+```
 
 ## Creating Pull Requests (PRs)
 

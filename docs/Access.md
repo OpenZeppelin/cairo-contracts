@@ -669,8 +669,9 @@ sender: felt
 Emitted when account is revoked role.
 
 `sender` is the account that originated the contract call:
-- if using [revoke_role](#revoke_role), it is the admin role bearer
-- if using [renounce_role](#renounce_role), it is the role bearer (i.e. `account`).
+
+* if using [revoke_role](#revoke_role), it is the admin role bearer
+* if using [renounce_role](#renounce_role), it is the role bearer (i.e. `account`).
 
 ```cairo
 role: felt

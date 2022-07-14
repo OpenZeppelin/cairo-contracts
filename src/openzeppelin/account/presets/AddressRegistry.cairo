@@ -12,7 +12,7 @@ end
 
 @external
 func get_L1_address{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(L2_address: felt) -> (res: felt):
@@ -22,7 +22,7 @@ end
 
 @external
 func set_L1_address{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_L1_address: felt):

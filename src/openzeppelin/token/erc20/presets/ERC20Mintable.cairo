@@ -7,9 +7,9 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.bool import TRUE
 
-from openzeppelin.token.erc20.library.ERC20 import ERC20
+from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.library.Ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 @constructor
 func constructor{

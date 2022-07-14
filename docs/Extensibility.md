@@ -30,18 +30,19 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-Considering four types of functions:
+Considering the following types of functions:
 
-* `internal`: internal to a library, not meant to be used outside the module or imported
+* `private`: private to a library, not meant to be used outside the module or imported
 * `public`: part of the public API of a library
-* `external`: subset of `public` that is ready to be exported as-is by contracts
+* `internal`: subset of `public` that is either discouraged or potentially unsafe (e.g. `_transfer` on ERC20)
+* `external`: subset of `public` that is ready to be exported as-is by contracts (e.g. `transfer` on ERC20)
 * `storage`: storage variable functions
 
 Then:
 
 * Must implement `public` and `external` functions under a namespace
-* Must implement `internal` functions outside the namespace to avoid exposing them
-* Must prefix `public` functions with an underscore (e.g. `ERC20._mint`)
+* Must implement `private` functions outside the namespace to avoid exposing them
+* Must prefix `internal` functions with an underscore (e.g. `ERC20._mint`)
 * Must not prefix `external` functions with an underscore (e.g. `ERC20.transfer`)
 * Must prefix `storage` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions

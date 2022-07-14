@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.access.library.Ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 @constructor
 func constructor{

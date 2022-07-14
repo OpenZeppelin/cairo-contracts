@@ -4,10 +4,6 @@
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-## Security Advisory ⚠️
-
-- A critical [vulnerability](https://github.com/OpenZeppelin/cairo-contracts/issues/344) was found in an **unreleased** version of the Account contract. It was [introduced in March 25th](https://github.com/OpenZeppelin/cairo-contracts/pull/233) and has been [patched as of June 1st](https://github.com/OpenZeppelin/cairo-contracts/pull/347). If you copied the Account contract code into your project during that period, please update to the patched version. Note that 0.1.0 users are not affected.
-
 ## Usage
 
 > ## ⚠️ WARNING! ⚠️
@@ -141,11 +137,10 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Install Nile:
+Install dependencies:
 
 ```bash
-pip install cairo-nile
-nile install
+python -m pip install .
 ```
 
 ### Compile the contracts
@@ -231,20 +226,20 @@ docker run cairo-tests
 This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests do not run in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
 
 ```python
-from utils import get_contract_def, cached_contract
+from utils import get_contract_class, cached_contract
 
 @pytest.fixture(scope='module')
 def foo_factory():
-    # get contract definition
-    foo_def = get_contract_def('path/to/foo.cairo')
+    # get contract class
+    foo_cls = get_contract_class('Foo')
 
     # deploy contract
     starknet = await Starknet.empty()
-    foo = await starknet.deploy(contract_def=foo_def)
+    foo = await starknet.deploy(contract_class=foo_cls)
 
     # copy the state and cache contract
     state = starknet.state.copy()
-    cached_foo = cached_contract(state, foo_def, foo)
+    cached_foo = cached_contract(state, foo_cls, foo)
 
     return cached_foo
 ```

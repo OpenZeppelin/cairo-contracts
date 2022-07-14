@@ -6,9 +6,9 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.utils.constants import IERC721_RECEIVER_ID
+from openzeppelin.utils.constants.library import IERC721_RECEIVER_ID
 
-from openzeppelin.introspection.library.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
 @view
 func onERC721Received(

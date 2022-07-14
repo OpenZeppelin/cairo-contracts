@@ -3,11 +3,11 @@
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
 
-from openzeppelin.account.library.Account import Account, AccountCallArray
+from openzeppelin.account.library import Account, AccountCallArray
 
-from openzeppelin.introspection.library.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
 #
 # Constructor
@@ -39,7 +39,7 @@ end
 
 @view
 func get_nonce{
-        syscall_ptr : felt*, 
+        syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }() -> (res: felt):
@@ -95,7 +95,8 @@ func __execute__{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*
+        ecdsa_ptr: SignatureBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*
     }(
         call_array_len: felt,
         call_array: AccountCallArray*,

@@ -8,9 +8,9 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.token.erc20.library.ERC20 import ERC20
+from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.upgrades.library.Proxy import Proxy
+from openzeppelin.upgrades.proxy.library import Proxy
 
 #
 # Initializer
@@ -42,7 +42,7 @@ func upgrade{
         range_check_ptr
     }(new_implementation: felt):
     Proxy.assert_only_admin()
-    Proxy._set_implementation(new_implementation)
+    Proxy._set_implementation_hash(new_implementation)
     return ()
 end
 

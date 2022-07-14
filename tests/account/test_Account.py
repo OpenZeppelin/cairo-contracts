@@ -1,48 +1,47 @@
 import pytest
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from utils import TestSigner, assert_revert, get_contract_def, cached_contract, TRUE
+from signers import MockSigner
+from utils import assert_revert, get_contract_class, cached_contract, TRUE
 
 
-signer = TestSigner(123456789987654321)
-other = TestSigner(987654321123456789)
+signer = MockSigner(123456789987654321)
+other = MockSigner(987654321123456789)
 
 IACCOUNT_ID = 0xf10dbd44
 
 
 @pytest.fixture(scope='module')
-def contract_defs():
-    account_def = get_contract_def('openzeppelin/account/presets/Account.cairo')
-    init_def = get_contract_def("tests/mocks/Initializable.cairo")
-    attacker_def = get_contract_def("tests/mocks/AccountReentrancy.cairo")
+def contract_classes():
+    account_cls = get_contract_class('Account')
+    init_cls = get_contract_class("Initializable")
+    attacker_cls = get_contract_class("AccountReentrancy")
 
-    return account_def, init_def, attacker_def
+    return account_cls, init_cls, attacker_cls
 
 
 @pytest.fixture(scope='module')
-async def account_init(contract_defs):
-    account_def, init_def, attacker_def = contract_defs
+async def account_init(contract_classes):
+    account_cls, init_cls, attacker_cls = contract_classes
     starknet = await Starknet.empty()
 
     account1 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     account2 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     initializable1 = await starknet.deploy(
-        contract_def=init_def,
+        contract_class=init_cls,
         constructor_calldata=[],
     )
     initializable2 = await starknet.deploy(
-        contract_def=init_def,
+        contract_class=init_cls,
         constructor_calldata=[],
     )
     attacker = await starknet.deploy(
-        contract_def=attacker_def,
+        contract_class=attacker_cls,
         constructor_calldata=[],
     )
 
@@ -50,15 +49,15 @@ async def account_init(contract_defs):
 
 
 @pytest.fixture
-def account_factory(contract_defs, account_init):
-    account_def, init_def, attacker_def = contract_defs
+def account_factory(contract_classes, account_init):
+    account_cls, init_cls, attacker_cls = contract_classes
     state, account1, account2, initializable1, initializable2, attacker = account_init
     _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
-    initializable1 = cached_contract(_state, init_def, initializable1)
-    initializable2 = cached_contract(_state, init_def, initializable2)
-    attacker = cached_contract(_state, attacker_def, attacker)
+    account1 = cached_contract(_state, account_cls, account1)
+    account2 = cached_contract(_state, account_cls, account2)
+    initializable1 = cached_contract(_state, init_cls, initializable1)
+    initializable2 = cached_contract(_state, init_cls, initializable2)
+    attacker = cached_contract(_state, attacker_cls, attacker)
 
     return account1, account2, initializable1, initializable2, attacker
 
@@ -126,6 +125,9 @@ async def test_return_value(account_factory):
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
+
+    # bump nonce
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res

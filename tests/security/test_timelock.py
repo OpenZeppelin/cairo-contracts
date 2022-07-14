@@ -1101,7 +1101,7 @@ async def test_execute_batch_partial_execution(timelock_factory):
     def bad_batch(address):
         return from_call_to_call_array([
             *build_call(address),               # call
-            [address, "increase_balance", []],     # bad call
+            [address, "increase_balance", []],  # bad call
             *build_call(address)                # call
         ])
 
@@ -1239,7 +1239,7 @@ async def test_cancel_from_noncanceller(timelock_factory):
 async def test_update_delay_from_unauthorized(timelock_factory):
     timelock, other, _, _, _ = timelock_factory
 
-    # should fail since timelock contract must be the caler
+    # should fail since timelock contract must be the caller
     await assert_revert(signer.send_transaction(
         other, timelock.contract_address, "updateDelay", [NEW_MIN_DELAY]),
         reverted_with="Timelock: caller must be timelock"

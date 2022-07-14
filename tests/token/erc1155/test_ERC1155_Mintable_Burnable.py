@@ -1,14 +1,26 @@
 import pytest
-import asyncio
 from starkware.starknet.testing.starknet import Starknet
-from utils import (
-    uint, add_uint, sub_uint, MAX_UINT256, cached_contract, assert_revert, assert_event_emitted, get_contract_class)
 from signers import MockSigner
+from utils import (
+    uint, to_uint, add_uint, sub_uint,
+    MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, TRUE, FALSE,
+    get_contract_class, cached_contract,
+    assert_revert, assert_event_emitted
+)
 
 signer = MockSigner(123456789987654321)
 
+#
+# Helpers
+#
+
+
 def uint_array(arr):
     return list(map(uint, arr))
+
+
+def to_uint_array(arr):
+    return list(map(to_uint, arr))
 
 
 def uarr2cd(arr):
@@ -18,57 +30,55 @@ def uarr2cd(arr):
         acc.append(hi)
     return acc
 
+#
 # Constants
+#
 
 
-TRUE = 1
-FALSE = 0
-NON_BOOLEAN = 2
-ZERO_ADDRESS = 0
-
-DATA = []
-
-TOKEN_ID = uint(111)
-MINT_AMOUNT = uint(1000)
-BURN_AMOUNT = uint(500)
-TRANSFER_AMOUNT = uint(500)
-INVALID_UINT = uint(MAX_UINT256[0]+1)
-
+NOT_BOOLEAN = 3
 ACCOUNT = 123
+TOKEN_ID = to_uint(111)
+MINT_AMOUNT = to_uint(1000)
+BURN_AMOUNT = to_uint(500)
+TRANSFER_AMOUNT = to_uint(500)
+
 ACCOUNTS = [123, 234, 345]
-TOKEN_IDS = uint_array([111, 222, 333])
-MINT_AMOUNTS = uint_array([1000, 2000, 3000])
-BURN_AMOUNTS = uint_array([500, 1000, 1500])
-TRANSFER_AMOUNTS = uint_array([500, 1000, 1500])
-TRANSFER_DIFFERENCE = [uint(m[0]-t[0])
-                       for m, t in zip(MINT_AMOUNTS, TRANSFER_AMOUNTS)]
+TOKEN_IDS = [TOKEN_ID, to_uint(222), to_uint(333)]
+MINT_AMOUNTS = [MINT_AMOUNT, to_uint(2000), to_uint(3000)]
+BURN_AMOUNTS = [BURN_AMOUNT, to_uint(1000), to_uint(1500)]
+BURN_DIFFERENCES = [sub_uint(m, b) for m, b in zip(MINT_AMOUNTS, BURN_AMOUNTS)]
+TRANSFER_AMOUNTS = [TRANSFER_AMOUNT, to_uint(1000), to_uint(1500)]
+TRANSFER_DIFFERENCES = [sub_uint(m, t)
+                        for m, t in zip(MINT_AMOUNTS, TRANSFER_AMOUNTS)]
+MAX_UINT_AMOUNTS = [to_uint(1), MAX_UINT256, to_uint(1)]
 INVALID_AMOUNTS = uint_array([1, MAX_UINT256[0]+1, 1])
 INVALID_IDS = uint_array([111, MAX_UINT256[0]+1, 333])
 
-MAX_UINT_AMOUNTS = [uint(1), MAX_UINT256, uint(1)]
 
-id_ERC165 = int('0x01ffc9a7', 16)
-id_IERC1155 = int('0xd9b67a26', 16)
-id_IERC1155_MetadataURI = int('0x0e89341c', 16)
-id_mandatory_unsupported = int('0xffffffff', 16)
-id_random = int('0xaabbccdd', 16)
+DATA = 0
+REJECT_DATA = [1, 0]
 
-SUPPORTED_INTERFACES = [id_ERC165, id_IERC1155, id_IERC1155_MetadataURI]
-UNSUPPORTED_INTERFACES = [id_mandatory_unsupported, id_random]
+IERC165_ID = int('0x01ffc9a7', 16)
+IERC1155_ID = int('0xd9b67a26', 16)
+IERC1155_MetadataURI = int('0x0e89341c', 16)
+ERC165_UNSUPPORTED = int('0xffffffff', 16)
+UNSUPPORTED_ID = int('0xaabbccdd', 16)
 
+SUPPORTED_INTERFACES = [IERC165_ID, IERC1155_ID, IERC1155_MetadataURI]
+UNSUPPORTED_INTERFACES = [ERC165_UNSUPPORTED, UNSUPPORTED_ID]
 
+#
 # Fixtures
-
-@pytest.fixture(scope='module')
-def event_loop():
-    return asyncio.new_event_loop()
+#
 
 
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc1155_cls = get_contract_class('openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo')
-    receiver_cls = get_contract_class('../tests/mocks/ERC1155_Receiver_mock.cairo')
+    erc1155_cls = get_contract_class(
+        'openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo')
+    receiver_cls = get_contract_class(
+        '../tests/mocks/ERC1155_Receiver_mock.cairo')
     return account_cls, erc1155_cls, receiver_cls
 
 
@@ -112,8 +122,8 @@ def erc1155_factory(contract_classes, erc1155_init):
     return erc1155, account1, account2, receiver
 
 
-@pytest.fixture(scope='module')
-async def erc1155_minted_init(contract_classes, erc1155_init):
+@pytest.fixture
+async def erc1155_minted_factory(contract_classes, erc1155_init):
     account_cls, erc1155_cls, receiver_cls = contract_classes
     state, owner, account, erc1155, receiver = erc1155_init
     _state = state.copy()
@@ -130,26 +140,12 @@ async def erc1155_minted_init(contract_classes, erc1155_init):
             0  # data
         ]
     )
-    return _state, erc1155, owner, account, receiver
-
-
-@pytest.fixture
-def erc1155_minted_factory(contract_classes, erc1155_minted_init):
-    account_cls, erc1155_cls, receiver_cls = contract_classes
-    state, erc1155, owner, account, receiver = erc1155_minted_init
-    _state = state.copy()
-    owner = cached_contract(_state, account_cls, owner)
-    account = cached_contract(_state, account_cls, account)
-    erc1155 = cached_contract(_state, erc1155_cls, erc1155)
-    receiver = cached_contract(_state, receiver_cls, receiver)
     return erc1155, owner, account, receiver
-
-
-# Tests
 
 #
 # Constructor
 #
+
 
 @pytest.mark.asyncio
 async def test_constructor(erc1155_factory):
@@ -162,21 +158,23 @@ async def test_constructor(erc1155_factory):
 # ERC165
 #
 
+
 @pytest.mark.asyncio
-async def test_supports_interface(erc1155_factory):
+@pytest.mark.parametrize("supported_id", SUPPORTED_INTERFACES)
+async def test_supports_interface(erc1155_factory, supported_id):
     erc1155, _, _, _ = erc1155_factory
 
-    for supported_id in SUPPORTED_INTERFACES:
-        execution_info = await erc1155.supportsInterface(
-            supported_id
-        ).invoke()
-        assert execution_info.result.success == TRUE
+    execution_info = await erc1155.supportsInterface(supported_id).invoke()
+    assert execution_info.result.success == TRUE
 
-    for unsupported_id in UNSUPPORTED_INTERFACES:
-        execution_info = await erc1155.supportsInterface(
-            unsupported_id
-        ).invoke()
-        assert execution_info.result.success == FALSE
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("unsupported_id", UNSUPPORTED_INTERFACES)
+async def test_supports_interface_unsupported(erc1155_factory, unsupported_id):
+    erc1155, _, _, _ = erc1155_factory
+
+    execution_info = await erc1155.supportsInterface(unsupported_id).invoke()
+    assert execution_info.result.success == FALSE
 
 #
 # Set/Get approval
@@ -184,50 +182,31 @@ async def test_supports_interface(erc1155_factory):
 
 
 @pytest.mark.asyncio
-async def test_set_approval_for_all(erc1155_factory):
+@pytest.mark.parametrize("approval", [TRUE, FALSE])
+async def test_set_approval_for_all(erc1155_factory, approval):
     erc1155, account, _, _ = erc1155_factory
 
-    operator = ACCOUNT
-    approval = TRUE
+    approver = account.contract_address
 
     await signer.send_transaction(
         account, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval]
+        [ACCOUNT, approval]
     )
 
     execution_info = await erc1155.isApprovedForAll(
-        account.contract_address,
-        operator
-    ).invoke()
-
-    assert execution_info.result.is_approved == approval
-
-    operator = ACCOUNT
-    approval = FALSE
-
-    await signer.send_transaction(
-        account, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval]
-    )
-
-    execution_info = await erc1155.isApprovedForAll(
-        account.contract_address,
-        operator
-    ).invoke()
+        approver, ACCOUNT).invoke()
 
     assert execution_info.result.is_approved == approval
 
 
 @pytest.mark.asyncio
-async def test_set_approval_for_all_emits_event(erc1155_factory):
+@pytest.mark.parametrize("approval", [TRUE, FALSE])
+async def test_set_approval_for_all_emits_event(erc1155_factory, approval):
     erc1155, account, _, _ = erc1155_factory
 
-    operator = ACCOUNT
-    approval = TRUE
-
     execution_info = await signer.send_transaction(
         account, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval]
+        [ACCOUNT, approval]
     )
     assert_event_emitted(
         execution_info,
@@ -235,25 +214,7 @@ async def test_set_approval_for_all_emits_event(erc1155_factory):
         name='ApprovalForAll',
         data=[
             account.contract_address,
-            operator,  # operator
-            approval
-        ]
-    )
-
-    operator = ACCOUNT
-    approval = FALSE
-
-    execution_info = await signer.send_transaction(
-        account, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval]
-    )
-    assert_event_emitted(
-        execution_info,
-        from_address=erc1155.contract_address,
-        name='ApprovalForAll',
-        data=[
-            account.contract_address,
-            operator,  # operator
+            ACCOUNT,
             approval
         ]
     )
@@ -263,12 +224,9 @@ async def test_set_approval_for_all_emits_event(erc1155_factory):
 async def test_set_approval_for_all_non_boolean(erc1155_factory):
     erc1155, account, _, _ = erc1155_factory
 
-    operator = ACCOUNT
-    approval = NON_BOOLEAN
-
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval]
+        [ACCOUNT, NOT_BOOLEAN]
     ))
 
 #
@@ -279,9 +237,11 @@ async def test_set_approval_for_all_non_boolean(erc1155_factory):
 @pytest.mark.asyncio
 async def test_balance_of(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
+
     user = account.contract_address
-    execution_info = await erc1155.balanceOf(user, TOKEN_IDS[0]).invoke()
-    assert execution_info.result.balance == MINT_AMOUNTS[0]
+
+    execution_info = await erc1155.balanceOf(user, TOKEN_ID).invoke()
+    assert execution_info.result.balance == MINT_AMOUNT
 
 
 @pytest.mark.asyncio
@@ -296,7 +256,9 @@ async def test_balance_of_zero_address(erc1155_factory):
 @pytest.mark.asyncio
 async def test_balance_of_batch(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
+
     accounts = [account.contract_address]*3
+
     execution_info = await erc1155.balanceOfBatch(accounts, TOKEN_IDS).invoke()
     assert execution_info.result.balances == MINT_AMOUNTS
 
@@ -312,62 +274,40 @@ async def test_balance_of_batch_zero_address(erc1155_factory):
 
 
 @pytest.mark.asyncio
-async def test_balance_of_batch_uneven_arrays(erc1155_factory):
+@pytest.mark.parametrize(
+    "accounts,ids",
+    [(ACCOUNTS[:2], TOKEN_IDS), (ACCOUNTS, TOKEN_IDS[:2])])
+async def test_balance_of_batch_uneven_arrays(erc1155_factory, accounts, ids):
     erc1155, _, _, _ = erc1155_factory
 
-    accounts = ACCOUNTS
-    ids = TOKEN_IDS
-
-    # len(accounts) != len(ids)
     await assert_revert(
-        erc1155.balanceOfBatch(accounts[:2], ids).invoke(),
-        "ERC1155: accounts and ids length mismatch")
-    await assert_revert(
-        erc1155.balanceOfBatch(accounts, ids[:2]).invoke(),
+        erc1155.balanceOfBatch(accounts, ids).invoke(),
         "ERC1155: accounts and ids length mismatch")
 
-
-#
-# Minting
-#
 
 @pytest.mark.asyncio
 async def test_mint(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
+
     recipient = account.contract_address
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
 
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
-        [
-            recipient,
-            *token_id,
-            *amount,
-            0  # data
-        ]
-    )
+        [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(recipient, token_id).invoke()
-    assert execution_info.result.balance == amount
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == MINT_AMOUNT
 
 
 @pytest.mark.asyncio
 async def test_mint_emits_event(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
+
     recipient = account.contract_address
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
 
     execution_info = await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
-        [
-            recipient,
-            *token_id,
-            *amount,
-            0  # data
-        ]
-    )
+        [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
 
     assert_event_emitted(
         execution_info,
@@ -377,8 +317,8 @@ async def test_mint_emits_event(erc1155_factory):
             owner.contract_address,  # operator
             ZERO_ADDRESS,  # from
             recipient,  # to
-            *token_id,
-            *amount
+            *TOKEN_ID,
+            *MINT_AMOUNT
         ]
     )
 
@@ -387,23 +327,11 @@ async def test_mint_emits_event(erc1155_factory):
 async def test_mint_to_zero_address(erc1155_factory):
     erc1155, owner, _, _ = erc1155_factory
 
-    recipient = ZERO_ADDRESS
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
-
-    # minting to 0 address should fail
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *token_id,
-                *amount,
-                0  # data
-            ]
-        ),
-        "ERC1155: mint to the zero address"
-    )
+            [ZERO_ADDRESS, *TOKEN_ID, *MINT_AMOUNT, DATA]),
+        "ERC1155: mint to the zero address")
 
 
 @pytest.mark.asyncio
@@ -411,71 +339,79 @@ async def test_mint_overflow(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
-    token_id = TOKEN_ID
 
-    # Bring recipient's balance to max possible, should pass (recipient's balance is 0)
-    amount = MAX_UINT256
+    # Bring recipient's balance to max possible
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
-        [
-            recipient,  # to
-            *token_id,
-            *amount,
-            0  # data
-        ]
-    )
+        [recipient, *TOKEN_ID, *MAX_UINT256, DATA])
 
     # Issuing recipient any more should revert due to overflow
-    amount = uint(1)
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *token_id,
-                *amount,
-                0  # data
-            ]
-        ),
-        "ERC1155: balance overflow"
-    )
+            [recipient, *TOKEN_ID, *to_uint(1), DATA]),
+        "ERC1155: balance overflow")
 
 
 @pytest.mark.asyncio
-async def test_mint_invalid_uint(erc1155_factory):
+@pytest.mark.parametrize(
+    "amount,token_id,error",
+    [
+        (MINT_AMOUNT, INVALID_UINT256, "ERC1155: id is not a valid Uint256"),
+        (INVALID_UINT256, TOKEN_ID, "ERC1155: amount is not a valid Uint256")
+    ]
+)
+async def test_mint_invalid_uint(erc1155_factory, amount, token_id, error):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
-    token_id = TOKEN_ID
-    invalid_id = INVALID_UINT
-    amount = MINT_AMOUNT
-    invalid_amount = INVALID_UINT
 
-    # issuing an invalid uint256 (i.e. either the low or high felts >= 2**128) should revert
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *token_id,
-                *invalid_amount,
-                0  # data
-            ]
-        ),
-        "ERC1155: amount is not a valid Uint256"
-    )
+            [recipient, *token_id, *amount, DATA]),
+        error)
+
+
+@pytest.mark.asyncio
+async def test_mint_receiver(erc1155_factory):
+    erc1155, owner, _, receiver = erc1155_factory
+
+    recipient = receiver.contract_address
+
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'mint',
+        [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
+
+    execution_info = await erc1155.balanceOf(
+        recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == MINT_AMOUNT
+
+
+@pytest.mark.asyncio
+async def test_mint_receiver_rejection(erc1155_factory):
+    erc1155, owner, _, receiver = erc1155_factory
+
+    recipient = receiver.contract_address
+
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *invalid_id,
-                *amount,
-                0  # data
-            ]
-        ),
-        "ERC1155: id is not a valid Uint256"
-    )
+            [recipient, *TOKEN_ID, *MINT_AMOUNT, *REJECT_DATA]),
+        "ERC1155: ERC1155Receiver rejected tokens")
+
+
+@pytest.mark.asyncio
+async def test_mint_to_unsafe_contract(erc1155_factory):
+    erc1155, owner, _, _ = erc1155_factory
+
+    recipient = erc1155.contract_address
+
+    await assert_revert(
+        signer.send_transaction(
+            owner, erc1155.contract_address, 'mint',
+            [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA]),
+        "ERC1155: transfer to non ERC1155Receiver implementer")
 
 #
 # Burning
@@ -487,16 +423,13 @@ async def test_burn(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     subject = account.contract_address
-    token_id = TOKEN_ID
-    burn_amount = BURN_AMOUNT
 
     await signer.send_transaction(
         account, erc1155.contract_address, 'burn',
-        [subject, *token_id, *burn_amount]
-    )
+        [subject, *TOKEN_ID, *BURN_AMOUNT])
 
-    execution_info = await erc1155.balanceOf(subject, token_id).invoke()
-    assert execution_info.result.balance == sub_uint(MINT_AMOUNT, burn_amount)
+    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).invoke()
+    assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
 
 
 @pytest.mark.asyncio
@@ -504,13 +437,10 @@ async def test_burn_emits_event(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     subject = account.contract_address
-    token_id = TOKEN_ID
-    burn_amount = BURN_AMOUNT
 
     execution_info = await signer.send_transaction(
         account, erc1155.contract_address, 'burn',
-        [subject, *token_id, *burn_amount]
-    )
+        [subject, *TOKEN_ID, *BURN_AMOUNT])
 
     assert_event_emitted(
         execution_info,
@@ -520,8 +450,8 @@ async def test_burn_emits_event(erc1155_minted_factory):
             subject,  # operator
             subject,  # from
             ZERO_ADDRESS,  # to
-            *token_id,
-            *burn_amount
+            *TOKEN_ID,
+            *BURN_AMOUNT
         ]
     )
 
@@ -532,22 +462,18 @@ async def test_burn_approved(erc1155_minted_factory):
 
     operator = account1.contract_address
     subject = account2.contract_address
-    token_id = TOKEN_ID
-    burn_amount = BURN_AMOUNT
-    approval = TRUE
 
     # account2 approves account
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     await signer.send_transaction(
         account1, erc1155.contract_address, 'burn',
-        [subject, *token_id, *burn_amount]
-    )
+        [subject, *TOKEN_ID, *BURN_AMOUNT])
 
-    execution_info = await erc1155.balanceOf(subject, token_id).invoke()
-    assert execution_info.result.balance == sub_uint(MINT_AMOUNT, burn_amount)
+    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).invoke()
+    assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
 
 
 @pytest.mark.asyncio
@@ -556,18 +482,16 @@ async def test_burn_approved_emits_event(erc1155_minted_factory):
 
     operator = account1.contract_address
     subject = account2.contract_address
-    token_id = TOKEN_ID
-    burn_amount = BURN_AMOUNT
-    approval = TRUE
 
     # account2 approves account
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE]
+    )
 
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'burn',
-        [subject, *token_id, *burn_amount]
+        [subject, *TOKEN_ID, *BURN_AMOUNT]
     )
 
     assert_event_emitted(
@@ -578,29 +502,59 @@ async def test_burn_approved_emits_event(erc1155_minted_factory):
             operator,  # operator
             subject,  # from
             ZERO_ADDRESS,  # to
-            *token_id,
-            *burn_amount
+            *TOKEN_ID,
+            *BURN_AMOUNT
         ]
     )
 
 
 @pytest.mark.asyncio
-async def test_burn_insufficient_balance(erc1155_factory):
-    erc1155, _, account, _ = erc1155_factory
+async def test_burn_insufficient_balance(erc1155_minted_factory):
+    erc1155, _, account, _ = erc1155_minted_factory
 
     subject = account.contract_address
-    token_id = TOKEN_ID
-    burn_amount = BURN_AMOUNT
+    burn_amount = add_uint(MINT_AMOUNT, to_uint(1))
 
-    # Burn non-0 amount w/ 0 balance
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burn',
-            [subject, *token_id, *burn_amount]),
-        "ERC1155: burn amount exceeds balance"
-    )
+            [subject, *TOKEN_ID, *burn_amount]),
+        "ERC1155: burn amount exceeds balance")
 
-# batch minting
+
+@pytest.mark.asyncio
+async def test_burn_invalid_amount(erc1155_factory):
+    erc1155, owner, account, _ = erc1155_factory
+
+    burner = account.contract_address
+
+    # mint max possible to avoid insufficient balance
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'mint',
+        [burner, *TOKEN_ID, *MAX_UINT256, DATA])
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'burn',
+            [burner, *TOKEN_ID, *INVALID_UINT256]),
+        "ERC1155: amount is not a valid Uint256")
+
+
+@pytest.mark.asyncio
+async def test_burn_invalid_id(erc1155_minted_factory):
+    erc1155, owner, account, _ = erc1155_minted_factory
+
+    burner = account.contract_address
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'burn',
+            [burner, *INVALID_UINT256, *to_uint(0)]),
+        "ERC1155: id is not a valid Uint256")
+
+#
+# Batch Minting
+#
 
 
 @pytest.mark.asyncio
@@ -608,16 +562,14 @@ async def test_mint_batch(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
 
-    # mint amount[i] of token_id[i] to recipient
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0])
+        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA])
 
-    execution_info = await erc1155.balanceOfBatch([recipient]*3, token_ids).invoke()
-    assert execution_info.result.balances == amounts
+    execution_info = await erc1155.balanceOfBatch(
+        [recipient]*3, TOKEN_IDS).invoke()
+    assert execution_info.result.balances == MINT_AMOUNTS
 
 
 @pytest.mark.asyncio
@@ -625,13 +577,10 @@ async def test_mint_batch_emits_event(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
 
-    # mint amount[i] of token_id[i] to recipient
     execution_info = await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0])
+        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA])
 
     assert_event_emitted(
         execution_info,
@@ -641,8 +590,8 @@ async def test_mint_batch_emits_event(erc1155_factory):
             owner.contract_address,  # operator
             ZERO_ADDRESS,  # from
             recipient,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(amounts),
+            *uarr2cd(TOKEN_IDS),
+            *uarr2cd(MINT_AMOUNTS),
         ]
     )
 
@@ -651,17 +600,11 @@ async def test_mint_batch_emits_event(erc1155_factory):
 async def test_mint_batch_to_zero_address(erc1155_factory):
     erc1155, owner, _, _ = erc1155_factory
 
-    recipient = ZERO_ADDRESS
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
-
-    # mint amount[i] of token_id[i] to recipient
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0]),
-        "ERC1155: mint to the zero address"
-    )
+            [ZERO_ADDRESS, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA]),
+        "ERC1155: mint to the zero address")
 
 
 @pytest.mark.asyncio
@@ -669,76 +612,110 @@ async def test_mint_batch_overflow(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
-    token_ids = TOKEN_IDS
-    amounts = MAX_UINT_AMOUNTS
 
-    # Bring 1 recipient's balance to max possible, should pass (recipient's balance is 0)
+    # Bring recipient's balance to max possible
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0])
+        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA])
 
-    # Issuing recipient any more on just 1 token_id should revert due to overflow
+    # Issuing recipient any more on just 1 token_id
+    # should revert due to overflow
     amounts = uint_array([0, 1, 0])
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0]),
-        "ERC1155: balance overflow"
-    )
+            [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts), DATA]),
+        "ERC1155: balance overflow")
 
 
 @pytest.mark.asyncio
-async def test_mint_batch_invalid_uint(erc1155_factory):
-    erc1155, owner, _, _ = erc1155_factory
+@pytest.mark.parametrize(
+    "amounts,token_ids,error",
+    [
+        (INVALID_AMOUNTS, TOKEN_IDS, "ERC1155: amount is not a valid Uint256"),
+        (MINT_AMOUNTS, INVALID_IDS, "ERC1155: id is not a valid Uint256")
+    ])
+async def test_mint_batch_invalid_uint(
+        erc1155_factory, amounts, token_ids, error):
+    erc1155, owner, account, _ = erc1155_factory
 
-    recipient = ACCOUNT
-    token_ids = TOKEN_IDS
-    invalid_ids = INVALID_IDS
-    amounts = MINT_AMOUNTS
-    invalid_amounts = INVALID_AMOUNTS
+    recipient = account.contract_address
 
-    # attempt passing an invalid amount in batch
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(invalid_amounts), 0]),
-        "ERC1155: amount is not a valid Uint256"
-    )
-
-    # attempt passing an invalid id in batch
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(invalid_ids), *uarr2cd(amounts), 0]),
-        "ERC1155: id is not a valid Uint256"
-    )
+            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+        error)
 
 
 @pytest.mark.asyncio
-async def test_mint_batch_uneven_arrays(erc1155_factory):
+@pytest.mark.parametrize(
+    "amounts,token_ids",
+    [
+        (MINT_AMOUNTS[:2], TOKEN_IDS),
+        (MINT_AMOUNTS, TOKEN_IDS[:2])
+    ])
+async def test_mint_batch_uneven_arrays(erc1155_factory, amounts, token_ids):
+    erc1155, owner, account, _ = erc1155_factory
+
+    recipient = account.contract_address
+
+    await assert_revert(
+        signer.send_transaction(
+            owner, erc1155.contract_address, 'mintBatch',
+            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+        "ERC1155: ids and amounts length mismatch")
+
+
+@pytest.mark.asyncio
+async def test_mint_batch_to_receiver(erc1155_factory):
+    erc1155, owner, _, receiver = erc1155_factory
+
+    recipient = receiver.contract_address
+
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'mintBatch',
+        [
+            recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(MINT_AMOUNTS), DATA
+        ])
+
+    execution_info = await erc1155.balanceOfBatch(
+        [recipient]*3, TOKEN_IDS).invoke()
+    assert execution_info.result.balances == MINT_AMOUNTS
+
+
+@pytest.mark.asyncio
+async def test_mint_batch_to_receiver_rejection(erc1155_factory):
+    erc1155, owner, _, receiver = erc1155_factory
+
+    recipient = receiver.contract_address
+
+    await assert_revert(signer.send_transaction(
+        owner, erc1155.contract_address, 'mintBatch',
+        [
+            recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(MINT_AMOUNTS), *REJECT_DATA
+        ]),
+        "ERC1155: ERC1155Receiver rejected tokens")
+
+
+@pytest.mark.asyncio
+async def test_mint_batch_to_non_receiver(erc1155_factory):
     erc1155, owner, _, _ = erc1155_factory
 
-    recipient = ACCOUNT
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
+    recipient = erc1155.contract_address
 
-    # uneven token_ids vs amounts
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts[:2]), 0]),
-        "ERC1155: ids and amounts length mismatch"
-    )
-
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids[:2]), *uarr2cd(amounts), 0]),
-        "ERC1155: ids and amounts length mismatch"
-    )
+    await assert_revert(signer.send_transaction(
+        owner, erc1155.contract_address, 'mintBatch',
+        [
+            recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(MINT_AMOUNTS), DATA
+        ]),
+        "ERC1155: transfer to non ERC1155Receiver implementer")
 
 #
-# batch burning
+# Batch Burning
 #
 
 
@@ -747,16 +724,14 @@ async def test_burn_batch(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     burner = account.contract_address
-    token_ids = TOKEN_IDS
-    burn_amounts = BURN_AMOUNTS
 
     await signer.send_transaction(
         account, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)])
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
 
-    execution_info = await erc1155.balanceOfBatch([burner]*3, token_ids).invoke()
-    assert execution_info.result.balances == [
-        sub_uint(m, b) for m, b in zip(MINT_AMOUNTS, burn_amounts)]
+    execution_info = await erc1155.balanceOfBatch(
+        [burner]*3, TOKEN_IDS).invoke()
+    assert execution_info.result.balances == BURN_DIFFERENCES
 
 
 @pytest.mark.asyncio
@@ -764,12 +739,10 @@ async def test_burn_batch_emits_event(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     burner = account.contract_address
-    token_ids = TOKEN_IDS
-    burn_amounts = BURN_AMOUNTS
 
     execution_info = await signer.send_transaction(
         account, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)])
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
 
     assert_event_emitted(
         execution_info,
@@ -779,8 +752,8 @@ async def test_burn_batch_emits_event(erc1155_minted_factory):
             burner,  # operator
             burner,  # from
             ZERO_ADDRESS,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(burn_amounts),
+            *uarr2cd(TOKEN_IDS),
+            *uarr2cd(BURN_AMOUNTS),
         ]
     )
 
@@ -791,22 +764,18 @@ async def test_burn_batch_from_approved(erc1155_minted_factory):
 
     burner = account2.contract_address
     operator = account1.contract_address
-    token_ids = TOKEN_IDS
-    burn_amounts = BURN_AMOUNTS
-    approval = TRUE
 
-    # account approves account2
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     await signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)])
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
 
-    execution_info = await erc1155.balanceOfBatch([burner]*3, token_ids).invoke()
-    assert execution_info.result.balances == [
-        sub_uint(m, b) for m, b in zip(MINT_AMOUNTS, burn_amounts)]
+    execution_info = await erc1155.balanceOfBatch(
+        [burner]*3, TOKEN_IDS).invoke()
+    assert execution_info.result.balances == BURN_DIFFERENCES
 
 
 @pytest.mark.asyncio
@@ -815,18 +784,14 @@ async def test_burn_batch_from_approved_emits_event(erc1155_minted_factory):
 
     burner = account2.contract_address
     operator = account1.contract_address
-    token_ids = TOKEN_IDS
-    burn_amounts = BURN_AMOUNTS
-    approval = TRUE
 
-    # account approves account2
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)])
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
 
     assert_event_emitted(
         execution_info,
@@ -836,8 +801,8 @@ async def test_burn_batch_from_approved_emits_event(erc1155_minted_factory):
             operator,  # operator
             burner,  # from
             ZERO_ADDRESS,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(burn_amounts),
+            *uarr2cd(TOKEN_IDS),
+            *uarr2cd(BURN_AMOUNTS),
         ]
     )
 
@@ -848,33 +813,28 @@ async def test_burn_batch_from_unapproved(erc1155_minted_factory):
 
     burner = account2.contract_address
     operator = account1.contract_address
-    token_ids = TOKEN_IDS
-    burn_amounts = BURN_AMOUNTS
-    approval = FALSE
 
-    # account approves account2
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, FALSE])
 
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)]),
-        )
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)]),
+        "ERC1155: caller is not owner nor approved")
 
 
 @pytest.mark.asyncio
 async def test_burn_batch_from_zero_address(erc1155_minted_factory):
     erc1155, _, _, _ = erc1155_minted_factory
-    burner = ZERO_ADDRESS
-    token_ids = TOKEN_IDS
-    amounts = [uint(0)]*3
+
+    amounts = [to_uint(0)]*3
 
     # Attempt to burn nothing (since cannot mint non_zero balance to burn)
-    # call from 0 address
+    # note invoking this way (without signer) gives caller address of 0
     await assert_revert(
-        erc1155.burnBatch(burner, token_ids, amounts).invoke()
-    )
+        erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, amounts).invoke(),
+        "ERC1155: called from zero address")
 
 
 @pytest.mark.asyncio
@@ -882,61 +842,68 @@ async def test_burn_batch_insufficent_balance(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     burner = account.contract_address
-    token_ids = TOKEN_IDS
-    amounts = [MINT_AMOUNTS[0], add_uint(
-        MINT_AMOUNTS[1], uint(1)), MINT_AMOUNTS[2]]
+    amounts = MINT_AMOUNTS.copy()
+    amounts[1] = add_uint(amounts[1], to_uint(1))
 
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(token_ids), *uarr2cd(amounts)]),
-        "ERC1155: burn amount exceeds balance"
-    )
+            [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts)]),
+        "ERC1155: burn amount exceeds balance")
 
 
 @pytest.mark.asyncio
-async def test_burn_batch_invalid_uint(erc1155_factory):
+async def test_burn_batch_invalid_amount(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
+
     burner = account.contract_address
-    token_ids = TOKEN_IDS
-    mint_amounts = MAX_UINT_AMOUNTS
-    burn_amounts = INVALID_AMOUNTS
 
     # mint max possible to avoid insufficient balance
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [burner, *uarr2cd(token_ids), *uarr2cd(mint_amounts), 0])
+        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), 0])
 
     # attempt passing an invalid uint in batch
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(token_ids), *uarr2cd(burn_amounts)]),
-        "ERC1155: amount is not a valid Uint256"
-    )
+            [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(INVALID_AMOUNTS)]),
+        "ERC1155: amount is not a valid Uint256")
 
 
 @pytest.mark.asyncio
-async def test_burn_batch_uneven_arrays(erc1155_minted_factory):
+async def test_burn_batch_invalid_id(erc1155_minted_factory):
+    erc1155, owner, account, _ = erc1155_minted_factory
+
+    burner = account.contract_address
+    burn_amounts = [to_uint(0)]*3
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'burnBatch',
+            [burner, *uarr2cd(INVALID_IDS), *uarr2cd(burn_amounts)]),
+        "ERC1155: id is not a valid Uint256")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "amounts,token_ids",
+    [
+        (BURN_AMOUNTS[:2], TOKEN_IDS),
+        (BURN_AMOUNTS, TOKEN_IDS[:2])
+    ]
+)
+async def test_burn_batch_uneven_arrays(
+        erc1155_minted_factory, amounts, token_ids):
     erc1155, _, account, _ = erc1155_minted_factory
 
     burner = account.contract_address
-    amounts = BURN_AMOUNTS
-    token_ids = TOKEN_IDS
 
-    # uneven token_ids vs amounts
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(token_ids), *uarr2cd(amounts[:2])]),
-        "ERC1155: ids and amounts length mismatch"
-    )
-    await assert_revert(
-        signer.send_transaction(
-            account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(token_ids[:2]), *uarr2cd(amounts)]),
-        "ERC1155: ids and amounts length mismatch"
-    )
+            [burner, *uarr2cd(token_ids), *uarr2cd(amounts)]),
+        "ERC1155: ids and amounts length mismatch")
 
 #
 # Transfer
@@ -949,18 +916,17 @@ async def test_safe_transfer_from(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
 
     await signer.send_transaction(
         account2, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0])
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(sender, token_id).invoke()
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
     assert execution_info.result.balance == sub_uint(
-        MINT_AMOUNTS[0], transfer_amount)
-    execution_info = await erc1155.balanceOf(recipient, token_id).invoke()
-    assert execution_info.result.balance == transfer_amount
+        MINT_AMOUNT, TRANSFER_AMOUNT)
+
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == TRANSFER_AMOUNT
 
 
 @pytest.mark.asyncio
@@ -969,12 +935,10 @@ async def test_safe_transfer_from_emits_event(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
 
     execution_info = await signer.send_transaction(
         account2, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0])
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
     assert_event_emitted(
         execution_info,
@@ -984,8 +948,8 @@ async def test_safe_transfer_from_emits_event(erc1155_minted_factory):
             sender,  # operator
             sender,  # from
             recipient,  # to
-            *token_id,
-            *transfer_amount
+            *TOKEN_ID,
+            *TRANSFER_AMOUNT
         ]
     )
 
@@ -997,25 +961,23 @@ async def test_safe_transfer_from_approved(erc1155_minted_factory):
     operator = account1.contract_address
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-    approval = TRUE
 
-    # account2 approves account
+    # account2 approves account1
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     # account sends transaction
     await signer.send_transaction(
         account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0])
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(sender, token_id).invoke()
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
     assert execution_info.result.balance == sub_uint(
-        MINT_AMOUNTS[0], transfer_amount)
-    execution_info = await erc1155.balanceOf(recipient, token_id).invoke()
-    assert execution_info.result.balance == transfer_amount
+        MINT_AMOUNT, TRANSFER_AMOUNT)
+
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == TRANSFER_AMOUNT
 
 
 @pytest.mark.asyncio
@@ -1025,19 +987,15 @@ async def test_safe_transfer_from_approved_emits_event(erc1155_minted_factory):
     operator = account1.contract_address
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-    approval = TRUE
 
-    # account2 approves account
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
-    # account sends transaction
+    # account1/operator sends transaction
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0])
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
     assert_event_emitted(
         execution_info,
@@ -1047,40 +1005,44 @@ async def test_safe_transfer_from_approved_emits_event(erc1155_minted_factory):
             operator,  # operator
             sender,  # from
             recipient,  # to
-            *token_id,
-            *transfer_amount
+            *TOKEN_ID,
+            *TRANSFER_AMOUNT
         ]
     )
 
 
 @pytest.mark.asyncio
-async def test_safe_transfer_from_invalid_uint(erc1155_factory):
+async def test_safe_transfer_from_invalid_amount(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     sender = account.contract_address
     recipient = owner.contract_address
-    token_id = TOKEN_ID
-    invalid_id = INVALID_UINT
-    mint_amount = MAX_UINT256
-    transfer_amount = uint(0)
-    invalid_amount = INVALID_UINT
 
     # mint max uint to avoid possible insufficient balance error
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
-        [sender, *token_id, *mint_amount, 0])
+        [sender, *TOKEN_ID, *MAX_UINT256, DATA])
 
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *token_id, *invalid_amount, 0]),
+            [sender, recipient, *TOKEN_ID, *INVALID_UINT256, DATA]),
         "ERC1155: amount is not a valid Uint256"
     )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_invalid_id(erc1155_factory):
+    erc1155, owner, account, _ = erc1155_factory
+
+    sender = account.contract_address
+    recipient = owner.contract_address
+
     # transfer 0 amount
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *invalid_id, *transfer_amount, 0]),
+            [sender, recipient, *INVALID_UINT256, *to_uint(0), DATA]),
         "ERC1155: id is not a valid Uint256"
     )
 
@@ -1091,13 +1053,13 @@ async def test_safe_transfer_from_insufficient_balance(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = add_uint(MINT_AMOUNTS[0], uint(1))
+
+    transfer_amount = add_uint(MINT_AMOUNTS[0], to_uint(1))
 
     await assert_revert(
         signer.send_transaction(
             account2, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *token_id, *transfer_amount, 0]),
+            [sender, recipient, *TOKEN_ID, *transfer_amount, DATA]),
         "ERC1155: insufficient balance for transfer"
     )
 
@@ -1108,13 +1070,11 @@ async def test_safe_transfer_from_unapproved(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
 
-    # unapproved account sends transaction, should fail
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0]))
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
+        "ERC1155: caller is not owner nor approved")
 
 
 @pytest.mark.asyncio
@@ -1122,13 +1082,11 @@ async def test_safe_transfer_from_to_zero_address(erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     sender = account.contract_address
-    recipient = ZERO_ADDRESS
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
 
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0]))
+        [sender, ZERO_ADDRESS, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
+        "ERC1155: transfer to the zero address")
 
 
 @pytest.mark.asyncio
@@ -1137,52 +1095,56 @@ async def test_safe_transfer_from_overflow(erc1155_minted_factory):
 
     sender = account.contract_address
     recipient = owner.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-    max_amount = MAX_UINT256
 
-    # Bring recipient's balance to max possible, should pass (recipient's balance is 0)
+    # Bring recipient's balance to max possible
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mint',
-        [recipient, *token_id, *max_amount, 0])
+        [recipient, *TOKEN_ID, *MAX_UINT256, DATA])
 
     # Issuing recipient any more should revert due to overflow
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0]
-    ))
+        [sender, recipient, *TOKEN_ID, *to_uint(1), DATA]),
+        "ERC1155: balance overflow")
+
+#
+# Batch Transfers
+#
 
 
-# Batch Transfer
 @pytest.mark.asyncio
 async def test_safe_batch_transfer_from(erc1155_minted_factory):
     erc1155, account1, account2, _ = erc1155_minted_factory
+
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
-    difference = TRANSFER_DIFFERENCE
 
     await signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0])
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ])
 
-    execution_info = await erc1155.balanceOfBatch([sender]*3+[recipient]*3, token_ids*2).invoke()
-    assert execution_info.result.balances[:3] == difference
-    assert execution_info.result.balances[3:] == transfer_amounts
+    execution_info = await erc1155.balanceOfBatch(
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+    assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
+    assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 
 
 @pytest.mark.asyncio
 async def test_safe_batch_transfer_from_emits_event(erc1155_minted_factory):
     erc1155, account1, account2, _ = erc1155_minted_factory
+
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
 
     execution_info = await signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0])
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ])
 
     assert_event_emitted(
         execution_info,
@@ -1192,8 +1154,8 @@ async def test_safe_batch_transfer_from_emits_event(erc1155_minted_factory):
             sender,  # operator
             sender,  # from
             recipient,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(transfer_amounts),
+            *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS),
         ]
     )
 
@@ -1205,44 +1167,43 @@ async def test_safe_batch_transfer_from_approved(erc1155_minted_factory):
     sender = account2.contract_address
     operator = account1.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
-    difference = TRANSFER_DIFFERENCE
-    approval = TRUE
 
-    # account approves account2
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     await signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0])
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ])
 
-    execution_info = await erc1155.balanceOfBatch([sender]*3+[recipient]*3, token_ids*2).invoke()
-    assert execution_info.result.balances[:3] == difference
-    assert execution_info.result.balances[3:] == transfer_amounts
+    execution_info = await erc1155.balanceOfBatch(
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+    assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
+    assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_approved_emits_event(erc1155_minted_factory):
+async def test_safe_batch_transfer_from_approved_emits_event(
+        erc1155_minted_factory):
     erc1155, account1, account2, _ = erc1155_minted_factory
 
     sender = account2.contract_address
     operator = account1.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
-    approval = TRUE
 
-    # account approves account2
     await signer.send_transaction(
         account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, approval])
+        [operator, TRUE])
 
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0])
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ])
 
     assert_event_emitted(
         execution_info,
@@ -1252,50 +1213,65 @@ async def test_safe_batch_transfer_from_approved_emits_event(erc1155_minted_fact
             operator,  # operator
             sender,  # from
             recipient,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(transfer_amounts),
+            *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS),
         ]
     )
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_invalid_uint(erc1155_factory):
+async def test_safe_batch_transfer_from_invalid_amount(erc1155_factory):
     erc1155, owner, account, _ = erc1155_factory
 
     sender = account.contract_address
     recipient = owner.contract_address
-    token_ids = TOKEN_IDS
-    invalid_ids = INVALID_IDS
-    mint_amounts = MAX_UINT_AMOUNTS
-    invalid_amounts = INVALID_AMOUNTS
-    transfer_amounts = TRANSFER_AMOUNTS
 
-    # mint amount[i] of token_id[i] to sender
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [sender, *uarr2cd(token_ids), *uarr2cd(mint_amounts), 0])
+        [sender, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA])
 
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(invalid_amounts), 0]))
-    # attempt transfer 0 due to insufficient balance error
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(invalid_ids), *uarr2cd(transfer_amounts), 0]))
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(INVALID_AMOUNTS), DATA
+        ]),
+        "ERC1155: amount is not a valid Uint256")
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_insufficient_balance(erc1155_minted_factory):
+async def test_safe_batch_transfer_from_invalid_id(erc1155_minted_factory):
+    erc1155, owner, account, _ = erc1155_minted_factory
+
+    sender = account.contract_address
+    recipient = owner.contract_address
+    transfer_amounts = [to_uint(0)]*3
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'safeBatchTransferFrom',
+            [
+                sender, recipient, *uarr2cd(INVALID_IDS),
+                *uarr2cd(transfer_amounts), DATA
+            ]),
+        "ERC1155: id is not a valid Uint256")
+
+
+@pytest.mark.asyncio
+async def test_safe_batch_transfer_from_insufficient_balance(
+        erc1155_minted_factory):
     erc1155, account1, account2, _ = erc1155_minted_factory
+
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = [MINT_AMOUNTS[0], add_uint(
-        MINT_AMOUNTS[1], uint(1)), MINT_AMOUNTS[2]]
+
+    amounts = amounts = MINT_AMOUNTS.copy()
+    amounts[1] = add_uint(amounts[1], to_uint(1))
 
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0]))
+        [sender, recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts), DATA]),
+        "ERC1155: insufficient balance for transfer")
 
 
 @pytest.mark.asyncio
@@ -1304,49 +1280,48 @@ async def test_safe_batch_transfer_from_unapproved(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
 
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0]))
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ]),
+        "ERC1155: caller is not owner nor approved")
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_to_zero_address(erc1155_minted_factory):
+async def test_safe_batch_transfer_from_to_zero_address(
+        erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     sender = account.contract_address
-    recipient = ZERO_ADDRESS
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
 
     await assert_revert(signer.send_transaction(
-        account,
-        erc1155.contract_address,
-        'safeBatchTransferFrom', [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0]))
+        account, erc1155.contract_address, 'safeBatchTransferFrom',
+        [
+            sender, ZERO_ADDRESS, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ]),
+        "ERC1155: transfer to the zero address")
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_uneven_arrays(erc1155_minted_factory):
+@pytest.mark.parametrize(
+    "amounts,token_ids",
+    [(TRANSFER_AMOUNTS[:2], TOKEN_IDS), (TRANSFER_AMOUNTS, TOKEN_IDS[:2])]
+)
+async def test_safe_batch_transfer_from_uneven_arrays(
+        erc1155_minted_factory, amounts, token_ids):
     erc1155, account1, account2, _ = erc1155_minted_factory
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    transfer_amounts = TRANSFER_AMOUNTS
-    token_ids = TOKEN_IDS
 
-    # uneven token_ids vs amounts
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids),
-         *uarr2cd(transfer_amounts[:2]), 0]
-    ))
-    await assert_revert(signer.send_transaction(
-        account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids[:2]),
-         *uarr2cd(transfer_amounts), 0]
-    ))
+        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+        "ERC1155: ids and amounts length mismatch")
 
 
 @pytest.mark.asyncio
@@ -1355,198 +1330,74 @@ async def test_safe_batch_transfer_from_overflow(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    token_ids = TOKEN_IDS
-    max_amounts = MAX_UINT_AMOUNTS
     transfer_amounts = uint_array([0, 1, 0])
 
-    # Bring 1 recipient's balance to max possible, should pass (recipient's balance is 0)
+    # Bring 1 recipient's balance to max possible
     await signer.send_transaction(
         account1, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(token_ids), *uarr2cd(max_amounts), 0]
+        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA]
     )
 
-    # Issuing recipient any more on just 1 token_id should revert due to overflow
+    # Issuing recipient any more on just 1 token_id
+    # should revert due to overflow
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0]
-    ))
-
-#
-# Unsafe recipients
-#
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_to_uninstantiated_contract(erc1155_minted_factory):
-    erc1155, _, account, _ = erc1155_minted_factory
-
-    sender = account.contract_address
-    recipient = 123
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0]))
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_to_unsafe_contract(erc1155_minted_factory):
-    erc1155, _, account, _ = erc1155_minted_factory
-
-    sender = account.contract_address
-    recipient = erc1155.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, 0]),
-        "ERC1155: transfer to non ERC1155Receiver implementer")
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_receiver(erc1155_minted_factory):
-    erc1155, _, account, receiver = erc1155_minted_factory
-    # mock ERC1155_receiver accepts iff data = []
-
-    sender = account.contract_address
-    recipient = receiver.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-    data_cd = [0]
-    await signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, *data_cd])
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_receiver_rejection(erc1155_minted_factory):
-    erc1155, _, account, receiver = erc1155_minted_factory
-    # mock ERC1155_receiver accepts iff data = []
-
-    sender = account.contract_address
-    recipient = receiver.contract_address
-    token_id = TOKEN_ID
-    transfer_amount = TRANSFER_AMOUNT
-    data_cd = [1, 0]
-    # data = [0], mock receiver should reject
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *token_id, *transfer_amount, *data_cd]),
-        "ERC1155: ERC1155Receiver rejected tokens"
-    )
-
-
-@pytest.mark.asyncio
-async def test_mint_to_unsafe_contract(erc1155_factory):
-    erc1155, owner, _, _ = erc1155_factory
-
-    recipient = erc1155.contract_address
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
-
-    # minting to 0 address should fail
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *token_id,
-                *amount,
-                0  # data
-            ]
-        ),
-        "ERC1155: transfer to non ERC1155Receiver implementer"
-    )
-
-
-@pytest.mark.asyncio
-async def test_mint_receiver_rejection(erc1155_factory):
-    erc1155, owner, _, receiver = erc1155_factory
-
-    recipient = receiver.contract_address
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
-
-    # minting to 0 address should fail
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mint',
-            [
-                recipient,  # to
-                *token_id,
-                *amount,
-                1, 0  # data
-            ]
-        ),
-        "ERC1155: ERC1155Receiver rejected tokens"
-    )
-
-
-@pytest.mark.asyncio
-async def test_mint_receiver(erc1155_factory):
-    erc1155, owner, _, receiver = erc1155_factory
-    recipient = receiver.contract_address
-    token_id = TOKEN_ID
-    amount = MINT_AMOUNT
-
-    await signer.send_transaction(
-        owner, erc1155.contract_address, 'mint',
         [
-            recipient,  # to
-            *token_id,
-            *amount,
-            0  # data
-        ]
-    )
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(transfer_amounts), DATA
+        ]),
+        "ERC1155: balance overflow")
 
 
 @pytest.mark.asyncio
-async def test_mint_batch_to_unsafe_contract(erc1155_factory):
-    erc1155, owner, _, _ = erc1155_factory
+async def test_safe_batch_transfer_from_to_receiver(erc1155_minted_factory):
+    erc1155, _, account2, receiver = erc1155_minted_factory
 
-    recipient = erc1155.contract_address
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
-
-    # mint amount[i] of token_id[i] to recipient
-    await assert_revert(
-        signer.send_transaction(
-            owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), 0]),
-        "ERC1155: transfer to non ERC1155Receiver implementer"
-    )
-
-
-@pytest.mark.asyncio
-async def test_mint_batch_receiver(erc1155_factory):
-    erc1155, owner, _, receiver = erc1155_factory
+    sender = account2.contract_address
     recipient = receiver.contract_address
-    token_ids = TOKEN_IDS
-    amounts = MINT_AMOUNTS
 
     await signer.send_transaction(
-        owner, erc1155.contract_address, 'mintBatch',
+        account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            recipient,  # to
-            *uarr2cd(token_ids),
-            *uarr2cd(amounts),
-            0  # data
-        ]
-    )
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ])
+
+    execution_info = await erc1155.balanceOfBatch(
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+    assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
+    assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 
 
 @pytest.mark.asyncio
-async def test_safe_batch_transfer_from_to_unsafe_contract(erc1155_minted_factory):
+async def test_safe_batch_transfer_from_to_receiver_rejection(
+        erc1155_minted_factory):
+    erc1155, _, account2, receiver = erc1155_minted_factory
+
+    sender = account2.contract_address
+    recipient = receiver.contract_address
+
+    await assert_revert(signer.send_transaction(
+        account2, erc1155.contract_address, 'safeBatchTransferFrom',
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), *REJECT_DATA
+        ]),
+        "ERC1155: ERC1155Receiver rejected tokens")
+
+
+@pytest.mark.asyncio
+async def test_safe_batch_transfer_from_to_non_receiver(
+        erc1155_minted_factory):
     erc1155, _, account, _ = erc1155_minted_factory
 
     sender = account.contract_address
     recipient = erc1155.contract_address
-    token_ids = TOKEN_IDS
-    transfer_amounts = TRANSFER_AMOUNTS
 
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(transfer_amounts), 0]),
+        [
+            sender, recipient, *uarr2cd(TOKEN_IDS),
+            *uarr2cd(TRANSFER_AMOUNTS), DATA
+        ]),
         "ERC1155: transfer to non ERC1155Receiver implementer")

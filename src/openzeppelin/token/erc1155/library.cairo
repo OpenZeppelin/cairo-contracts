@@ -445,6 +445,14 @@ namespace ERC1155:
             assert_not_zero(from_)
         end
 
+        # Check uints valid
+        with_attr error_message("ERC1155: id is not a valid Uint256"):
+            uint256_check(id)
+        end
+        with_attr error_message("ERC1155: amount is not a valid Uint256"):
+            uint256_check(amount)
+        end
+
         # Deduct from burner
         let (from_balance: Uint256) = ERC1155_balances.read(id, from_)
         with_attr error_message("ERC1155: burn amount exceeds balance"):

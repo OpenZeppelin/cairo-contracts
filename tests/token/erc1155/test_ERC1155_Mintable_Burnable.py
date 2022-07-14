@@ -553,6 +553,209 @@ async def test_burn_invalid_id(erc1155_minted_factory):
         "ERC1155: id is not a valid Uint256")
 
 #
+# Transfer
+#
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from(erc1155_minted_factory):
+    erc1155, account1, account2, _ = erc1155_minted_factory
+
+    sender = account2.contract_address
+    recipient = account1.contract_address
+
+    await signer.send_transaction(
+        account2, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
+
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
+    assert execution_info.result.balance == sub_uint(
+        MINT_AMOUNT, TRANSFER_AMOUNT)
+
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == TRANSFER_AMOUNT
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_emits_event(erc1155_minted_factory):
+    erc1155, account1, account2, _ = erc1155_minted_factory
+
+    sender = account2.contract_address
+    recipient = account1.contract_address
+
+    execution_info = await signer.send_transaction(
+        account2, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
+
+    assert_event_emitted(
+        execution_info,
+        from_address=erc1155.contract_address,
+        name='TransferSingle',
+        data=[
+            sender,  # operator
+            sender,  # from
+            recipient,  # to
+            *TOKEN_ID,
+            *TRANSFER_AMOUNT
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_approved(erc1155_minted_factory):
+    erc1155, account1, account2, _ = erc1155_minted_factory
+
+    operator = account1.contract_address
+    sender = account2.contract_address
+    recipient = account1.contract_address
+
+    # account2 approves account1
+    await signer.send_transaction(
+        account2, erc1155.contract_address, 'setApprovalForAll',
+        [operator, TRUE])
+
+    # account sends transaction
+    await signer.send_transaction(
+        account1, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
+
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
+    assert execution_info.result.balance == sub_uint(
+        MINT_AMOUNT, TRANSFER_AMOUNT)
+
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    assert execution_info.result.balance == TRANSFER_AMOUNT
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_approved_emits_event(erc1155_minted_factory):
+    erc1155, account1, account2, _ = erc1155_minted_factory
+
+    operator = account1.contract_address
+    sender = account2.contract_address
+    recipient = account1.contract_address
+
+    await signer.send_transaction(
+        account2, erc1155.contract_address, 'setApprovalForAll',
+        [operator, TRUE])
+
+    # account1/operator sends transaction
+    execution_info = await signer.send_transaction(
+        account1, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
+
+    assert_event_emitted(
+        execution_info,
+        from_address=erc1155.contract_address,
+        name='TransferSingle',
+        data=[
+            operator,  # operator
+            sender,  # from
+            recipient,  # to
+            *TOKEN_ID,
+            *TRANSFER_AMOUNT
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_invalid_amount(erc1155_factory):
+    erc1155, owner, account, _ = erc1155_factory
+
+    sender = account.contract_address
+    recipient = owner.contract_address
+
+    # mint max uint to avoid possible insufficient balance error
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'mint',
+        [sender, *TOKEN_ID, *MAX_UINT256, DATA])
+
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *TOKEN_ID, *INVALID_UINT256, DATA]),
+        "ERC1155: amount is not a valid Uint256"
+    )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_invalid_id(erc1155_factory):
+    erc1155, owner, account, _ = erc1155_factory
+
+    sender = account.contract_address
+    recipient = owner.contract_address
+
+    # transfer 0 amount of invalid id to avoid 
+    # insufficient balance error
+    await assert_revert(
+        signer.send_transaction(
+            account, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *INVALID_UINT256, *to_uint(0), DATA]),
+        "ERC1155: id is not a valid Uint256"
+    )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_insufficient_balance(erc1155_minted_factory):
+    erc1155, account, account2, _ = erc1155_minted_factory
+
+    sender = account2.contract_address
+    recipient = account.contract_address
+
+    transfer_amount = add_uint(MINT_AMOUNTS[0], to_uint(1))
+
+    await assert_revert(
+        signer.send_transaction(
+            account2, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *TOKEN_ID, *transfer_amount, DATA]),
+        "ERC1155: insufficient balance for transfer"
+    )
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_unapproved(erc1155_minted_factory):
+    erc1155, account1, account2, _ = erc1155_minted_factory
+
+    sender = account2.contract_address
+    recipient = account1.contract_address
+
+    await assert_revert(signer.send_transaction(
+        account1, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
+        "ERC1155: caller is not owner nor approved")
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_to_zero_address(erc1155_minted_factory):
+    erc1155, _, account, _ = erc1155_minted_factory
+
+    sender = account.contract_address
+
+    await assert_revert(signer.send_transaction(
+        account, erc1155.contract_address, 'safeTransferFrom',
+        [sender, ZERO_ADDRESS, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
+        "ERC1155: transfer to the zero address")
+
+
+@pytest.mark.asyncio
+async def test_safe_transfer_from_overflow(erc1155_minted_factory):
+    erc1155, owner, account, _ = erc1155_minted_factory
+
+    sender = account.contract_address
+    recipient = owner.contract_address
+
+    # Bring recipient's balance to max possible
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'mint',
+        [recipient, *TOKEN_ID, *MAX_UINT256, DATA])
+
+    # Issuing recipient any more should revert due to overflow
+    await assert_revert(signer.send_transaction(
+        account, erc1155.contract_address, 'safeTransferFrom',
+        [sender, recipient, *TOKEN_ID, *to_uint(1), DATA]),
+        "ERC1155: balance overflow")
+
+#
 # Batch Minting
 #
 
@@ -904,208 +1107,6 @@ async def test_burn_batch_uneven_arrays(
             account, erc1155.contract_address, 'burnBatch',
             [burner, *uarr2cd(token_ids), *uarr2cd(amounts)]),
         "ERC1155: ids and amounts length mismatch")
-
-#
-# Transfer
-#
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from(erc1155_minted_factory):
-    erc1155, account1, account2, _ = erc1155_minted_factory
-
-    sender = account2.contract_address
-    recipient = account1.contract_address
-
-    await signer.send_transaction(
-        account2, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
-
-    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
-    assert execution_info.result.balance == sub_uint(
-        MINT_AMOUNT, TRANSFER_AMOUNT)
-
-    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
-    assert execution_info.result.balance == TRANSFER_AMOUNT
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_emits_event(erc1155_minted_factory):
-    erc1155, account1, account2, _ = erc1155_minted_factory
-
-    sender = account2.contract_address
-    recipient = account1.contract_address
-
-    execution_info = await signer.send_transaction(
-        account2, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
-
-    assert_event_emitted(
-        execution_info,
-        from_address=erc1155.contract_address,
-        name='TransferSingle',
-        data=[
-            sender,  # operator
-            sender,  # from
-            recipient,  # to
-            *TOKEN_ID,
-            *TRANSFER_AMOUNT
-        ]
-    )
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_approved(erc1155_minted_factory):
-    erc1155, account1, account2, _ = erc1155_minted_factory
-
-    operator = account1.contract_address
-    sender = account2.contract_address
-    recipient = account1.contract_address
-
-    # account2 approves account1
-    await signer.send_transaction(
-        account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, TRUE])
-
-    # account sends transaction
-    await signer.send_transaction(
-        account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
-
-    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
-    assert execution_info.result.balance == sub_uint(
-        MINT_AMOUNT, TRANSFER_AMOUNT)
-
-    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
-    assert execution_info.result.balance == TRANSFER_AMOUNT
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_approved_emits_event(erc1155_minted_factory):
-    erc1155, account1, account2, _ = erc1155_minted_factory
-
-    operator = account1.contract_address
-    sender = account2.contract_address
-    recipient = account1.contract_address
-
-    await signer.send_transaction(
-        account2, erc1155.contract_address, 'setApprovalForAll',
-        [operator, TRUE])
-
-    # account1/operator sends transaction
-    execution_info = await signer.send_transaction(
-        account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
-
-    assert_event_emitted(
-        execution_info,
-        from_address=erc1155.contract_address,
-        name='TransferSingle',
-        data=[
-            operator,  # operator
-            sender,  # from
-            recipient,  # to
-            *TOKEN_ID,
-            *TRANSFER_AMOUNT
-        ]
-    )
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_invalid_amount(erc1155_factory):
-    erc1155, owner, account, _ = erc1155_factory
-
-    sender = account.contract_address
-    recipient = owner.contract_address
-
-    # mint max uint to avoid possible insufficient balance error
-    await signer.send_transaction(
-        owner, erc1155.contract_address, 'mint',
-        [sender, *TOKEN_ID, *MAX_UINT256, DATA])
-
-    await assert_revert(
-        signer.send_transaction(
-            account, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *INVALID_UINT256, DATA]),
-        "ERC1155: amount is not a valid Uint256"
-    )
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_invalid_id(erc1155_factory):
-    erc1155, owner, account, _ = erc1155_factory
-
-    sender = account.contract_address
-    recipient = owner.contract_address
-
-    # transfer 0 amount
-    await assert_revert(
-        signer.send_transaction(
-            account, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *INVALID_UINT256, *to_uint(0), DATA]),
-        "ERC1155: id is not a valid Uint256"
-    )
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_insufficient_balance(erc1155_minted_factory):
-    erc1155, account, account2, _ = erc1155_minted_factory
-
-    sender = account2.contract_address
-    recipient = account.contract_address
-
-    transfer_amount = add_uint(MINT_AMOUNTS[0], to_uint(1))
-
-    await assert_revert(
-        signer.send_transaction(
-            account2, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *transfer_amount, DATA]),
-        "ERC1155: insufficient balance for transfer"
-    )
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_unapproved(erc1155_minted_factory):
-    erc1155, account1, account2, _ = erc1155_minted_factory
-
-    sender = account2.contract_address
-    recipient = account1.contract_address
-
-    await assert_revert(signer.send_transaction(
-        account1, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
-        "ERC1155: caller is not owner nor approved")
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_to_zero_address(erc1155_minted_factory):
-    erc1155, _, account, _ = erc1155_minted_factory
-
-    sender = account.contract_address
-
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, ZERO_ADDRESS, *TOKEN_ID, *TRANSFER_AMOUNT, DATA]),
-        "ERC1155: transfer to the zero address")
-
-
-@pytest.mark.asyncio
-async def test_safe_transfer_from_overflow(erc1155_minted_factory):
-    erc1155, owner, account, _ = erc1155_minted_factory
-
-    sender = account.contract_address
-    recipient = owner.contract_address
-
-    # Bring recipient's balance to max possible
-    await signer.send_transaction(
-        owner, erc1155.contract_address, 'mint',
-        [recipient, *TOKEN_ID, *MAX_UINT256, DATA])
-
-    # Issuing recipient any more should revert due to overflow
-    await assert_revert(signer.send_transaction(
-        account, erc1155.contract_address, 'safeTransferFrom',
-        [sender, recipient, *TOKEN_ID, *to_uint(1), DATA]),
-        "ERC1155: balance overflow")
 
 #
 # Batch Transfers

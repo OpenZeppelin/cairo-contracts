@@ -11,15 +11,18 @@ Also, consider that snake case is used for Cairo development in general due to i
 And make sure to always include tests and documentation for the new developments. Please consider the following conventions:
 
 - Naming
-  - contracts and libraries should be PascalCased i.e. `MyContract.cairo`
+  - libraries should be named `library.cairo`, e.g. `erc20/library.cairo`
+  - contracts should be PascalCased i.e. `MyContract.cairo`
+  - interfaces should be prefixed with an `I`, as in `IAccount.cairo`
   - test modules should begin with `test_` followed by the contract name i.e. `test_MyContract.py`
 
 - Structure
-  - preset contracts and libraries should live in their respective `presets` and `library` directories
+  - preset contracts and interfaces should be the in their respective directories
+  - libraries should cede their names to their parent directory and are named `library.cairo` instead
   - Here are example paths:
-    - `openzeppelin.token.erc20.interfaces.IERC20.cairo`
-    - `openzeppelin.token.erc20.library.ERC20.cairo`
-    - `openzeppelin.token.erc20.presets.ERC20Mintable.cairo`
+    - `openzeppelin.token.erc20.library`
+    - `openzeppelin.token.erc20.interfaces.IERC20`
+    - `openzeppelin.token.erc20.presets.ERC20Mintable`
   - And a visual guide:
 
     ```bash

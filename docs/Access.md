@@ -563,7 +563,7 @@ None.
 
 Grants `role` to `user`.
 
-Internal function without access restriction.
+[Internal function](./Extensibility.md#the-pattern) without access restriction.
 
 Parameters:
 
@@ -580,7 +580,7 @@ None.
 
 Revokes `role` from `user`.
 
-Internal function without access restriction.
+[Internal function](./Extensibility.md#the-pattern) without access restriction.
 
 Parameters:
 
@@ -595,7 +595,7 @@ None.
 
 <h4 id="setroleadmin"><code>_set_role_admin</code></h4>
 
-Internal function that sets `admin_role` as `role`'s admin role.
+[Internal function](./Extensibility.md#the-pattern) that sets `admin_role` as `role`'s admin role.
 
 Emits a [RoleAdminChanged](#roleadminchanged) event.
 

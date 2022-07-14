@@ -249,7 +249,7 @@ func mint{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(to: felt, amount: Uint256):
-    AccessControl.assert_only_role(MINTER)
+    AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
 end
@@ -295,7 +295,7 @@ func mint{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(to: felt, amount: Uint256):
-    AccessControl.assert_only_role(MINTER)
+    AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
 end
@@ -306,7 +306,7 @@ func burn{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(from_: felt, amount: Uint256):
-    AccessControl.assert_only_role(BURNER)
+    AccessControl.assert_only_role(BURNER_ROLE)
     ERC20._burn(from_, amount)
     return ()
 end
@@ -316,9 +316,9 @@ So clean! By splitting concerns this way, more granular levels of permission may
 
 ### Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an internal function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grant_role`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
-By default, accounts with a role cannot grant it or revoke it from other accounts: all having a role does is making the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role’s *admin*.
+By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role’s *admin*.
 
 Every role has an associated admin role, which grants permission to call the `grant_role` and `revoke_role` functions. A role can be granted or revoked by using these if the calling account has the corresponding admin role. Multiple roles may have the same admin role to make management easier. A role’s admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.
 
@@ -361,7 +361,7 @@ func mint{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(to: felt, amount: Uint256):
-    AccessControl.assert_only_role(MINTER)
+    AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
 end
@@ -372,7 +372,7 @@ func burn{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(from_: felt, amount: Uint256):
-    AccessControl.assert_only_role(BURNER)
+    AccessControl.assert_only_role(BURNER_ROLE)
     ERC20._burn(from_, amount)
     return ()
 end
@@ -435,7 +435,7 @@ end
 
 Initializes AccessControl and should be called in the implementing contract's constructor.
 
-This can only be called once.
+This must only be called once.
 
 Parameters:
 
@@ -447,7 +447,7 @@ None.
 
 #### `assert_only_role`
 
-Checks that an account has a specific role. Reverts with a standardized message including the required role.
+Checks that an account has a specific role. Reverts with a message including the required role.
 
 Parameters:
 
@@ -461,7 +461,7 @@ None.
 
 #### has_role
 
-Returns `TRUE` if `user` has been granted `role`.
+Returns `TRUE` if `user` has been granted `role`, `FALSE` otherwise.
 
 Parameters:
 
@@ -542,7 +542,7 @@ Revokes `role` from the calling `user`.
 
 Roles are often managed via [grant_role](#grant_role) and [revoke_role](#revoke_role): this function’s purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
 
-If the calling `user` had been revoked `role`, emits a [RoleRevoked](#revokedrole) event.
+If the calling `user` had been revoked `role`, emits a [RoleRevoked](#rolerevoked) event.
 
 Requirements:
 
@@ -620,9 +620,9 @@ func RoleRevoked(role: felt, account: felt, sender: felt):
 end
 
 func RoleAdminChanged(
-  role: felt,
-  previousAdminRole: felt,
-  newAdminRole: felt
+    role: felt,
+    previousAdminRole: felt,
+    newAdminRole: felt
   ):
 end
 ```
@@ -645,7 +645,9 @@ sender: felt
 
 Emitted when account is revoked role.
 
-`sender` is the account that originated the contract call: - if using [revoke_role](#revoke_role), it is the admin role bearer - if using [renounce_role](#renounce_role), it is the role bearer (i.e. `account`).
+`sender` is the account that originated the contract call:
+- if using [revoke_role](#revoke_role), it is the admin role bearer
+- if using [renounce_role](#renounce_role), it is the role bearer (i.e. `account`).
 
 ```cairo
 role: felt

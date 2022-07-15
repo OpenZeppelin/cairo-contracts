@@ -2,13 +2,6 @@
 
 *A library for secure smart contract development* written in Cairo for https://starkware.co/product/starknet/[StarkNet], a decentralized ZK Rollup.
 
-== Security Advisory ⚠️
-
-* A critical https://github.com/OpenZeppelin/cairo-contracts/issues/344[vulnerability] was found in an *unreleased* version of the Account contract.
-It was https://github.com/OpenZeppelin/cairo-contracts/pull/233[introduced in March 25th] and has been https://github.com/OpenZeppelin/cairo-contracts/pull/347[patched as of June 1st].
-If you copied the Account contract code into your project during that period, please update to the patched version.
-Note that 0.1.0 users are not affected.
-
 == Usage
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*

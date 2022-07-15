@@ -1,5 +1,5 @@
 * xref:index.adoc[Overview]
-// * xref:wizard.adoc[Wizard]
+* https://wizard.openzeppelin.com/cairo[Wizard]
 * xref:extensibility.adoc[Extensibility]
 * xref:proxies.adoc[Proxies and Upgrades]
 

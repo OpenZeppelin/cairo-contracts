@@ -20,20 +20,12 @@ to
 
 (3) Update documentation version in `docs/antora.yml`
 
-```yml
-name: cairo-contracts
-title: Contracts for Cairo
-version: 0.1
-(...)
-```
-
-to
-
-```yml
-name: cairo-contracts
-title: Contracts for Cairo
-version: 0.2
-(...)
+```diff
+ name: cairo-contracts
+ title: Contracts for Cairo
+-version: 0.1
++version: 0.2
+ (...)
 ```
 
 (4) Create a release branch and add a tag to it. This branch can be useful if we need to push a hot fix on top of an existing release in the case of a bug.

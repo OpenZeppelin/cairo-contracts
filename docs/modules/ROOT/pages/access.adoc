@@ -67,7 +67,7 @@ end
 
 === Ownable library API
 
-[,cairo]
+[.hljs-theme-light.nopadding,cairo]
 ----
 func initializer(owner: felt):
 end

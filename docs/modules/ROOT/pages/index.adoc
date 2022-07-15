@@ -11,13 +11,7 @@ Note that 0.1.0 users are not affected.
 
 == Usage
 
-____
-== ⚠️ WARNING! ⚠️
-
-This repo contains highly experimental code.
-Expect rapid iteration.
-*Use at your own risk.*
-____
+WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
 === First time?
 

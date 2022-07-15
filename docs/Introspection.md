@@ -32,7 +32,7 @@ In order to ensure EVM/StarkNet compatibility, interface identifiers are not cal
 For a contract to declare its support for a given interface, the contract should import the ERC165 library and register its support. It's recommended to register interface support upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
 
 ```cairo
-from openzeppelin.introspection.library.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
 INTERFACE_ID = 0x12345678
 
@@ -52,7 +52,7 @@ end
 To query a target contract's support for an interface, the querying contract should call `supportsInterface` through IERC165 with the target contract's address and the queried interface id. Here's an example:
 
 ```cairo
-from openzeppelin.introspection.interfaces.IERC165 import IERC165
+from openzeppelin.introspection.erc165.IERC165 import IERC165
 
 INTERFACE_ID = 0x12345678
 

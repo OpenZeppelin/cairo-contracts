@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.1 (token/erc721_enumerable/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (token/erc721/enumerable/library.cairo)
 
 %lang starknet
 
@@ -9,10 +9,10 @@ from starkware.cairo.common.uint256 import (
     Uint256, uint256_lt, uint256_eq, uint256_check
 )
 
-from openzeppelin.introspection.ERC165 import ERC165
-from openzeppelin.security.safemath import SafeUint256
+from openzeppelin.introspection.erc165.library import ERC165
+from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.library import ERC721
-from openzeppelin.utils.constants import IERC721_ENUMERABLE_ID
+from openzeppelin.utils.constants.library import IERC721_ENUMERABLE_ID
 
 #
 # Storage

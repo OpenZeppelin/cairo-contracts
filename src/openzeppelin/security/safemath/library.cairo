@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.1 (security/safemath.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (security/safemath/library.cairo)
 
 %lang starknet
 

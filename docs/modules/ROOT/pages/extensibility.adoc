@@ -1,8 +1,6 @@
 = Extensibility
 
-____
-Expect this pattern to evolve (as it has already done) or even disappear if https://community.starknet.io/t/contract-extensibility-pattern/210/11?u=martriay[proper extensibility features] are implemented into Cairo.
-____
+NOTE: Expect this pattern to evolve (as it has already done) or even disappear if https://community.starknet.io/t/contract-extensibility-pattern/210/11?u=martriay[proper extensibility features] are implemented into Cairo.
 
 * <<the-extensibility-problem,The extensibility problem>>
 * <<the-pattern,The pattern ™️>>
@@ -107,7 +105,7 @@ The main reason being that Cairo does not support overriding functions.
 
 This is what a hook looks like in Solidity:
 
-[,js]
+[,solidity]
 ----
 abstract contract ERC20Pausable is ERC20, Pausable {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
@@ -121,7 +119,7 @@ abstract contract ERC20Pausable is ERC20, Pausable {
 Instead, the extensibility pattern allows us to simply extend the library implementation of a function (namely `transfer`) by adding lines before or after calling it.
 This way, we can get away with:
 
-[,python]
+[,cairo]
 ----
 @external
 func transfer{

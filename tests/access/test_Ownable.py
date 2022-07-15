@@ -86,6 +86,11 @@ async def test_renounceOwnership(ownable_factory):
     executed_info = await ownable.owner().call()
     assert executed_info.result == (ZERO_ADDRESS,)
 
+@pytest.mark.asyncio
+async def test_contract_post_renounceOwnership_(ownable_factory):
+    ownable, owner = ownable_factory
+    await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
+
     # Protected function cannot be called from zero address
     await assert_revert(
         ownable.protected_function().call(),

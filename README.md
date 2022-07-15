@@ -78,8 +78,8 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from openzeppelin.security.library.Pausable import Pausable
-from openzeppelin.token.erc20.library.ERC20 import ERC20
+from openzeppelin.security.pausable.library import Pausable
+from openzeppelin.token.erc20.library import ERC20
 
 (...)
 
@@ -149,36 +149,37 @@ python -m pip install .
 nile compile --directory src
 
 🤖 Compiling all Cairo contracts in the src directory
-🔨 Compiling src/openzeppelin/token/erc20/library/ERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc20/library.cairo
 🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo
 🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo
 🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo
 🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20.cairo
-🔨 Compiling src/openzeppelin/token/erc20/interfaces/IERC20.cairo
-🔨 Compiling src/openzeppelin/token/erc721/library/ERC721Enumerable.cairo
-🔨 Compiling src/openzeppelin/token/erc721/library/ERC721.cairo
+🔨 Compiling src/openzeppelin/token/erc20/IERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/library.cairo
+🔨 Compiling src/openzeppelin/token/erc721/library.cairo
 🔨 Compiling src/openzeppelin/token/erc721/utils/ERC721Holder.cairo
 🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo
 🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo
 🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721EnumerableMintableBurnable.cairo
-🔨 Compiling src/openzeppelin/token/erc721/interfaces/IERC721.cairo
-🔨 Compiling src/openzeppelin/token/erc721/interfaces/IERC721Metadata.cairo
-🔨 Compiling src/openzeppelin/token/erc721/interfaces/IERC721Receiver.cairo
-🔨 Compiling src/openzeppelin/token/erc721/interfaces/IERC721Enumerable.cairo
-🔨 Compiling src/openzeppelin/access/library/Ownable.cairo
-🔨 Compiling src/openzeppelin/security/library/ReentrancyGuard.cairo
-🔨 Compiling src/openzeppelin/security/library/SafeMath.cairo
-🔨 Compiling src/openzeppelin/security/library/Pausable.cairo
-🔨 Compiling src/openzeppelin/security/library/Initializable.cairo
-🔨 Compiling src/openzeppelin/utils/constants.cairo
-🔨 Compiling src/openzeppelin/introspection/library/ERC165.cairo
-🔨 Compiling src/openzeppelin/introspection/interfaces/IERC165.cairo
-🔨 Compiling src/openzeppelin/upgrades/library/Proxy.cairo
-🔨 Compiling src/openzeppelin/upgrades/presets/Proxy.cairo
-🔨 Compiling src/openzeppelin/account/library/Account.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Metadata.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Receiver.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/IERC721Enumerable.cairo
+🔨 Compiling src/openzeppelin/access/ownable/library.cairo
+🔨 Compiling src/openzeppelin/security/reentrancyguard/library.cairo
+🔨 Compiling src/openzeppelin/security/safemath/library.cairo
+🔨 Compiling src/openzeppelin/security/pausable/library.cairo
+🔨 Compiling src/openzeppelin/security/initializable/library.cairo
+🔨 Compiling src/openzeppelin/utils/constants/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/IERC165.cairo
+🔨 Compiling src/openzeppelin/upgrades/proxy/library.cairo
+🔨 Compiling src/openzeppelin/upgrades/proxy/presets/Proxy.cairo
+🔨 Compiling src/openzeppelin/account/library.cairo
+🔨 Compiling src/openzeppelin/account/presets/EthAccount.cairo
 🔨 Compiling src/openzeppelin/account/presets/Account.cairo
 🔨 Compiling src/openzeppelin/account/presets/AddressRegistry.cairo
-🔨 Compiling src/openzeppelin/account/interfaces/IAccount.cairo
+🔨 Compiling src/openzeppelin/account/IAccount.cairo
 ✅ Done
 ```
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.0 (security/timelock.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (security/timelock.cairo)
 
 %lang starknet
 
@@ -90,6 +90,7 @@ func Timelock_timestamps(id: felt) -> (timestamp: felt):
 end
 
 namespace Timelock:
+
     #
     # Initializer
     #
@@ -134,6 +135,10 @@ namespace Timelock:
 
         return ()
     end
+
+    #
+    # Getters
+    #
 
     func is_operation{
             syscall_ptr: felt*,
@@ -231,6 +236,10 @@ namespace Timelock:
             return (res)
         end
     end
+
+    #
+    # Externals
+    #
 
     func schedule{
             syscall_ptr: felt*,
@@ -357,6 +366,10 @@ namespace Timelock:
         return ()
     end
 
+    #
+    # Internal
+    #
+
     func _iter_roles{
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
@@ -382,7 +395,7 @@ namespace Timelock:
 end
 
 #
-# Internals
+# Private
 #
 
 func _get_calls_hash_array{
@@ -455,7 +468,7 @@ func _hash_calldata{pedersen_ptr: HashBuiltin*}(
         )
         let (res) = hash_finalize(hash_state_ptr)
         let pedersen_ptr = hash_ptr
-        return (res=res)
+        return (res)
     end
 end
 

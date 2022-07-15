@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.0 (introspection/erc165/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (introspection/ERC165.cairo)
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_equal
 from starkware.cairo.common.bool import TRUE
 

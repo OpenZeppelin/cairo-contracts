@@ -258,7 +258,7 @@ symbol: felt
 ==== `decimals`
 
 Returns the number of decimals the token uses - e.g.
-8 means to divide the token amount by 100000000 to get its user representation.
+`8` means to divide the token amount by `100000000` to get its user representation.
 
 Parameters: None.
 

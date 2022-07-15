@@ -192,18 +192,16 @@ The `safeTransferFrom` method incorporates the following conditional logic:
 . if the calling address is not an account contract, the safe function will check that the contract supports ERC721 tokens
 
 The current implementation of `safeTansferFrom` checks for `onERC721Received` and requires that the recipient contract supports ERC165 and exposes the `supportsInterface` method.
-See <<erc721received,ERC721Received>>
+See <<erc721received,ERC721Received>>.
 
 === Interpreting ERC721 URIs
 
 Token URIs in Cairo are stored as single field elements.
 Each field element equates to 252-bits (or  31.5 bytes) which means that a token's URI can be no longer than 31 characters.
 
-____
-Note that storing the URI as an array of felts was considered to accommodate larger strings.
+NOTE: Storing the URI as an array of felts was considered to accommodate larger strings.
 While this approach is more flexible regarding URIs, a returned array further deviates from the standard set in https://eips.ethereum.org/EIPS/eip-721[EIP721].
 Therefore, this library's ERC721 implementation sets URIs as a single field element.
-____
 
 The `utils.py` module includes utility methods for converting to/from Cairo field elements.
 To properly interpret a URI from ERC721, simply trim the null bytes and decode the remaining bits as an ASCII string.

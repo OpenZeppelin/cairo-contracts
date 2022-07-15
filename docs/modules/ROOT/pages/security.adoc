@@ -2,9 +2,7 @@
 
 The following documentation provides context, reasoning, and examples of methods and constants found in `openzeppelin/security/`.
 
-____
-Expect this module to evolve.
-____
+CAUTION: Expect this module to evolve.
 
 == Table of Contents
 
@@ -39,9 +37,7 @@ func foo{
 end
 ----
 
-____
-Please note that this Initializable pattern should only be used on one function.
-____
+CAUTION: This Initializable pattern should only be used on one function.
 
 == Pausable
 
@@ -82,10 +78,8 @@ func whenPaused{
 end
 ----
 
-____
-Note that `pause` and `unpause` already include these assertions.
+NOTE: `pause` and `unpause` already include these assertions.
 In other words, `pause` cannot be invoked when already paused and vice versa.
-____
 
 For a list of full implementations utilizing the Pausable library, see:
 

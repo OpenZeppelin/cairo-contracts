@@ -16,9 +16,7 @@ sudo apt install -y libgmp3-dev # linux
 brew install gmp # mac
 ----
 
-____
-If you have any troubles installing gmp on your Apple M1 computer, https://github.com/OpenZeppelin/nile/issues/22[here's a list of potential solutions].
-____
+TIP: If you have any troubles installing gmp on your Apple M1 computer, https://github.com/OpenZeppelin/nile/issues/22[here's a list of potential solutions].
 
 === Set up your project
 
@@ -72,11 +70,9 @@ nile compile
 nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --alias my_token
 ----
 
-____
-Note that `<initial_supply>` is expected to be two integers i.e.
+NOTE: `<initial_supply>` is expected to be two integers i.e.
 `1` `0`.
 See link:docs/Utilities.md#Uint256[Uint256] for more information.
-____
 
 === Write a custom contract using library modules
 

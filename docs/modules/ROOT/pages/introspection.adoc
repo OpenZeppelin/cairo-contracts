@@ -1,8 +1,6 @@
 = Introspection
 
-____
-Expect this module to evolve.
-____
+CAUTION: Expect this module to evolve.
 
 == Table of Contents
 
@@ -85,11 +83,9 @@ func check_support{
 end
 ----
 
-____
-Please note that `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
+NOTE: `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
 This differs from library methods (such as `supports_interface` from the link:../src/openzeppelin/introspection/ERC165.cairo[ERC165 library]) which are snake_cased and not exposed.
 See the link:../docs/Extensibility.md#function-names-and-coding-style[Function names and coding style] for more details.
-____
 
 === IERC165
 

@@ -25,7 +25,7 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
  ** <<get_nonce,`get_nonce`>>
  ** <<set_public_key,`set_public_key`>>
  ** <<is_valid_signature,`is_valid_signature`>>
- ** <<__execute__,`__execute__`>>
+ ** <<\\__execute__,`\\__execute__`>>
  ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
  ** <<eth_execute,`eth_execute`>>
  ** <<_unsafe_execute,`_unsafe_execute`>>
@@ -144,7 +144,7 @@ The hexadecimal conversion is necessary because Nile's `Signer` converts the add
 Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
 
 The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature.
-Finally, the `MockSigner` instance invokes the account contract's `__execute__` with the transaction data.
+Finally, the `MockSigner` instance invokes the account contract's `\\__execute__` with the transaction data.
 
 Users only need to interact with the following exposed methods to perform a transaction:
 
@@ -191,7 +191,7 @@ It differs from the `MockSigner` implementation by:
 
 == Account entrypoint
 
-`__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself.
+`\\__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself.
 That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
 
 [,python]
@@ -209,7 +209,7 @@ await signer.send_transaction(account, registry.contract_address, 'set_L1_addres
 You can read more about how messages are structured and hashed in the https://github.com/OpenZeppelin/cairo-contracts/discussions/24[Account message scheme  discussion].
 For more information on the design choices and implementation of multicall, you can read the https://github.com/OpenZeppelin/cairo-contracts/discussions/27[How should Account multicall work discussion].
 
-The `__execute__` method has the following interface:
+The `\\__execute__` method has the following interface:
 
 [,cairo]
 ----
@@ -233,15 +233,15 @@ Where:
 Current implementation requires nonces to be incremental
 
 ____
-Note that the scheme of building multicall transactions within the `__execute__` method will change once StarkNet allows for pointers in struct arrays.
-In which case, multiple transactions can be passed to (as opposed to built within) `__execute__`.
+Note that the scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
+In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
 ____
 
 == `Call` and `AccountCallArray` format
 
 The idea is for all user intent to be encoded into a `Call` representing a smart contract call.
 Users can also pack multiple messages into a single transaction (creating a multicall transaction).
-Cairo currently does not support arrays of structs with pointers which means the `__execute__` function cannot properly iterate through mutiple ``Call``s.
+Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through mutiple ``Call``s.
 Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
 See <<multicall-transactions,Multicall transactions>>.
 
@@ -290,7 +290,7 @@ Where:
 == Multicall transactions
 
 A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array.
-The `__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call).
+The `\\__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call).
 The rebuilding logic is set in the internal `_from_call_array_to_call`.
 
 This is the basic flow:
@@ -309,9 +309,9 @@ This is the basic flow:
 +
 The `_from_call_to_call_array` method in link:../tests/utils.py[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
 Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
-The Signer then invokes `__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
+The Signer then invokes `\\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
-. The `__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
+. The `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
 
 ____
 It should be noted that every transaction utilizes `AccountCallArray`.
@@ -422,7 +422,7 @@ Otherwise, reverts.
 In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
 ____
 
-=== `__execute__`
+=== `\\__execute__`
 
 This is the only external entrypoint to interact with the Account contract.
 It:

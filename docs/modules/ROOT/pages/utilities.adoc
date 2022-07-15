@@ -2,9 +2,7 @@
 
 The following documentation provides context, reasoning, and examples for methods and constants found in `tests/utils.py`.
 
-____
-Expect this module to evolve (as it has already done).
-____
+CAUTION: Expect this module to evolve (as it has already done).
 
 == Table of Contents
 
@@ -285,5 +283,5 @@ def foo_factory(contract_classes, foo_init):
 == MockSigner
 
 `MockSigner` is used to perform transactions with an instance of https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's Signer] on a given Account, crafting the transaction and managing nonces.
-The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `__execute__` method.
+The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `\\__execute__` method.
 See link:../docs/Account.md#mocksigner-utility[MockSigner utility] for more information.

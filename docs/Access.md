@@ -382,7 +382,7 @@ Note that, unlike the previous examples, no accounts are granted the 'minter' or
 
 Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time. It can also be used to support use cases such as [KYC](https://en.wikipedia.org/wiki/Know_your_customer), where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
-The following example uses the [AccessControl mock contract](../tests/mocks/AccessControl.cairo) which exposes the functions. To grant and revoke roles in Python, for example:
+The following example uses the [AccessControl mock contract](../tests/mocks/AccessControl.cairo) which exposes the role management functions. To grant and revoke roles in Python, for example:
 
 ```python
 MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5

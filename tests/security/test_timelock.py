@@ -56,6 +56,7 @@ DATA = [0x42, 0x89, 0x55]
 # formatted calls
 #
 
+
 def build_call(address):
     """Return formatted call for `from_call_to_call_array` and hash chain."""
     return [
@@ -88,6 +89,7 @@ def batched_operations(address):
 #
 # fixtures
 #
+
 
 @pytest.fixture(scope="module")
 async def contract_classes():
@@ -199,6 +201,7 @@ async def timelock_reentrancy(timelock_init):
 # constructor
 #
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize('role, addresses, not_role', [
     [PROPOSER_ROLE, PROPOSERS, EXECUTOR_ROLE],
@@ -252,6 +255,7 @@ async def test_registered_interfaces(timelock_factory, interface_id, result):
 #
 # hash_operation
 #
+
 
 async def test_hash_operation(timelock_factory):
     timelock, _, _, target, _ = timelock_factory
@@ -308,6 +312,7 @@ async def test_hash_operation_batch_with_predecessor(timelock_factory):
 #
 # schedule
 #
+
 
 @pytest.mark.asyncio
 async def test_schedule_is_scheduled(timelock_factory):
@@ -462,6 +467,7 @@ async def test_schedule_enforce_minimum_delay(timelock_factory):
 #
 # execute
 #
+
 
 @pytest.mark.asyncio
 async def test_execute_when_operation_not_scheduled(timelock_factory):
@@ -624,6 +630,7 @@ async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
 # batch schedule
 #
 
+
 @pytest.mark.asyncio
 async def test_schedule_batch_is_scheduled(timelock_factory):
     timelock, proposer, _, target, state = timelock_factory
@@ -678,7 +685,6 @@ async def test_schedule_batch_is_scheduled(timelock_factory):
         ]
     )
 
-
     assert execution_info.result.response == [
         TRUE,       # isOperation
         TRUE,       # isOperationPending
@@ -719,14 +725,14 @@ async def test_schedule_batch_emits_events(timelock_factory):
             from_address=timelock.contract_address,
             name='CallScheduled',
             data=[
-                hash_id,                                 # id
-                index,                                   # index
-                target.contract_address,                 # target
-                get_selector_from_name("increase_balance"), # selector
-                1,                                       # calldata length
-                AMOUNT,                         # calldata
-                0,                                       # predecessor
-                MIN_DELAY                                # delay
+                hash_id,                                     # id
+                index,                                       # index
+                target.contract_address,                     # target
+                get_selector_from_name("increase_balance"),  # selector
+                1,                                           # calldata length
+                AMOUNT,                                      # calldata
+                0,                                           # predecessor
+                MIN_DELAY                                    # delay
             ]
         )
 
@@ -872,6 +878,7 @@ async def test_schedule_batch_enforce_minimum_delay(timelock_factory):
 # execute batch
 #
 
+
 @pytest.mark.asyncio
 async def test_execute_batch(timelock_factory):
     timelock, proposer, executor, target, state = timelock_factory
@@ -939,12 +946,12 @@ async def test_execute_batch(timelock_factory):
             from_address=timelock.contract_address,
             name='CallExecuted',
             data=[
-                hash_id,                                    # id
-                index,                                      # index
-                target.contract_address,                    # target
-                get_selector_from_name("increase_balance"), # selector
-                1,                                          # calldata length
-                AMOUNT,                                     # calldata
+                hash_id,                                     # id
+                index,                                       # index
+                target.contract_address,                     # target
+                get_selector_from_name("increase_balance"),  # selector
+                1,                                           # calldata length
+                AMOUNT,                                      # calldata
             ]
         )
 
@@ -1154,6 +1161,7 @@ async def test_execute_batch_partial_execution(timelock_factory):
 # cancel
 #
 
+
 @pytest.mark.asyncio
 async def test_canceller_can_cancel(timelock_factory):
     timelock, proposer, _, target, _ = timelock_factory
@@ -1254,6 +1262,7 @@ async def test_cancel_from_noncanceller(timelock_factory):
 # update_delay
 #
 
+
 @pytest.mark.asyncio
 async def test_update_delay_from_unauthorized(timelock_factory):
     timelock, other, _, _, _ = timelock_factory
@@ -1314,6 +1323,7 @@ async def test_update_delay_scheduled_maintenance(timelock_factory):
 # dependency
 #
 
+
 @pytest.mark.asyncio
 async def test_execute_before_dependency(timelock_factory):
     timelock, proposer, executor, target, state = timelock_factory
@@ -1332,12 +1342,8 @@ async def test_execute_before_dependency(timelock_factory):
     await signer.send_transactions(
         proposer,
         [
-            (timelock.contract_address, 'schedule',
-                [*call_array, 0, SALT, MIN_DELAY]
-            ),
-            (timelock.contract_address, 'schedule',
-                [*call_array, hash_id_1, SALT, MIN_DELAY]
-            ),
+            (timelock.contract_address, 'schedule', [*call_array, 0, SALT, MIN_DELAY]),
+            (timelock.contract_address, 'schedule', [*call_array, hash_id_1, SALT, MIN_DELAY]),
         ]
     )
 
@@ -1402,6 +1408,7 @@ async def test_execute_after_dependency(timelock_factory):
 #
 # usage scenario
 #
+
 
 @pytest.mark.asyncio
 async def test_execute_check_target_contract(timelock_factory):
@@ -1468,6 +1475,7 @@ async def test_execute_reentrancy(timelock_reentrancy):
 # safe receive
 #
 
+
 @pytest.mark.asyncio
 async def test_receive_erc721_safe_transfer(timelock_with_erc721):
     timelock, owner, erc721 = timelock_with_erc721
@@ -1485,6 +1493,7 @@ async def test_receive_erc721_safe_transfer(timelock_with_erc721):
 #
 # timestamp overflow
 #
+
 
 @pytest.mark.asyncio
 async def test_schedule_enforce_overflow_check(timelock_factory):

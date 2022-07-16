@@ -14,6 +14,7 @@ from utils import (
     to_uint,
     str_to_felt,
     role_repr,
+    ZERO_ADDRESS,
     TRUE,
     FALSE
 )
@@ -92,15 +93,16 @@ def batched_operations(address):
 async def contract_classes():
     account_cls = get_contract_class("Account")
     timelock_cls = get_contract_class("Timelock")
-    helper_cls = get_contract_class("Contract")
+    target_cls = get_contract_class("Contract")
     erc721_cls = get_contract_class('ERC721_Mintable_Burnable')
+    mal_target_cls = get_contract_class("TimelockReentrancy")
 
-    return account_cls, timelock_cls, helper_cls, erc721_cls
+    return account_cls, timelock_cls, target_cls, erc721_cls, mal_target_cls
 
 
 @pytest.fixture(scope="module")
 async def timelock_init(contract_classes):
-    account_cls, timelock_cls, helper_cls, erc721_cls = contract_classes
+    account_cls, timelock_cls, target_cls, erc721_cls, mal_target_cls = contract_classes
 
     # contract deployments
     starknet = await Starknet.empty()
@@ -131,8 +133,8 @@ async def timelock_init(contract_classes):
             *CANCELLERS                 # cancellers array
         ],
     )
-    helper = await starknet.deploy(
-        contract_class=helper_cls
+    target = await starknet.deploy(
+        contract_class=target_cls
     )
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
@@ -142,29 +144,31 @@ async def timelock_init(contract_classes):
             proposer.contract_address           # owner
         ]
     )
+    mal_target = await starknet.deploy(
+        contract_class=mal_target_cls
+    )
 
-    return starknet.state, proposer, executor, timelock, helper, erc721
+    return starknet.state, proposer, executor, timelock, target, erc721, mal_target
 
 
 @pytest.fixture
 async def timelock_factory(contract_classes, timelock_init):
-    account_cls, timelock_cls, helper_cls, erc721_cls = contract_classes
-    state, proposer, executor, timelock, helper, erc721 = timelock_init
+    account_cls, timelock_cls, target_cls, *_ = contract_classes
+    state, proposer, executor, timelock, target, *_ = timelock_init
 
     # cache contracts
     _state = state.copy()
     proposer = cached_contract(_state, account_cls, proposer)
     executor = cached_contract(_state, account_cls, executor)
     timelock = cached_contract(_state, timelock_cls, timelock)
-    helper = cached_contract(_state, helper_cls, helper)
-    erc721 = cached_contract(_state, erc721_cls, erc721)
+    target = cached_contract(_state, target_cls, target)
 
-    return timelock, proposer, executor, helper, _state
+    return timelock, proposer, executor, target, _state
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def timelock_with_erc721(timelock_init):
-    _, account, _, timelock, _, erc721 = timelock_init
+    _, account, _, timelock, _, erc721, _ = timelock_init
 
     # mint token to account
     await signer.send_transaction(
@@ -175,6 +179,21 @@ async def timelock_with_erc721(timelock_init):
     )
 
     return timelock, account, erc721
+
+
+@pytest.fixture
+async def timelock_reentrancy(timelock_init):
+    state, proposer, _, timelock, _, _, mal_target = timelock_init
+
+    # grant zero address the executor role to test reentrant call
+    await signer.send_transaction(
+        proposer, timelock.contract_address, 'grantRole', [
+            EXECUTOR_ROLE,
+            ZERO_ADDRESS,
+        ]
+    )
+
+    return timelock, proposer, mal_target, state
 
 #
 # constructor
@@ -235,14 +254,14 @@ async def test_registered_interfaces(timelock_factory, interface_id, result):
 #
 
 async def test_hash_operation(timelock_factory):
-    timelock, _, _, helper, _ = timelock_factory
+    timelock, _, _, target, _ = timelock_factory
 
     # hash single operation
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
 
     calculate_hash_operation = timelock_hash_chain(
-        build_call(helper.contract_address),
+        build_call(target.contract_address),
         0,
         SALT
     )
@@ -252,15 +271,15 @@ async def test_hash_operation(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_hash_operation_batch(timelock_factory):
-    timelock, _, _, helper, _ = timelock_factory
+    timelock, _, _, target, _ = timelock_factory
 
     # hash batched operations
-    operation = batched_operations(helper.contract_address)
+    operation = batched_operations(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
 
     # fetch hash id
     calculate_hash_operation = timelock_hash_chain(
-        build_batch(helper.contract_address),
+        build_batch(target.contract_address),
         0,
         SALT
     )
@@ -270,16 +289,16 @@ async def test_hash_operation_batch(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_hash_operation_batch_with_predecessor(timelock_factory):
-    timelock, _, _, helper, _ = timelock_factory
+    timelock, _, _, target, _ = timelock_factory
 
     predecessor = 9999
 
     # hash batched operations with predecessor
-    operation = batched_operations(helper.contract_address)
+    operation = batched_operations(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, predecessor, SALT).invoke()
 
     calculate_hash_operation = timelock_hash_chain(
-        build_batch(helper.contract_address),
+        build_batch(target.contract_address),
         predecessor,
         SALT
     )
@@ -292,10 +311,10 @@ async def test_hash_operation_batch_with_predecessor(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_is_scheduled(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -320,7 +339,7 @@ async def test_schedule_is_scheduled(timelock_factory):
 
     # format call array and schedule operation
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     tx_exec_info = await signer.send_transaction(
@@ -359,7 +378,7 @@ async def test_schedule_is_scheduled(timelock_factory):
         data=[
             hash_id,                                     # id
             0,                                           # index
-            helper.contract_address,                     # target
+            target.contract_address,                     # target
             get_selector_from_name("increase_balance"),  # selector
             1,                                           # calldata length
             AMOUNT,                                      # calldata
@@ -371,11 +390,11 @@ async def test_schedule_is_scheduled(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_prevents_overwriting_active_operation(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -401,11 +420,11 @@ async def test_schedule_prevents_overwriting_active_operation(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
-    timelock, _, nonproposer, helper, _ = timelock_factory
+    timelock, _, nonproposer, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # non-proposer invocation should fail
@@ -422,11 +441,11 @@ async def test_schedule_prevents_nonproposer_from_committing(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_enforce_minimum_delay(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # delay under threshold should fail
@@ -446,11 +465,11 @@ async def test_schedule_enforce_minimum_delay(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_when_operation_not_scheduled(timelock_factory):
-    timelock, _, executor, helper, _ = timelock_factory
+    timelock, _, executor, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # execute should fail when not ready
@@ -466,11 +485,11 @@ async def test_execute_when_operation_not_scheduled(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_when_too_early(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -497,11 +516,11 @@ async def test_execute_when_too_early(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -514,7 +533,7 @@ async def test_execute(timelock_factory):
         ])
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -563,7 +582,7 @@ async def test_execute(timelock_factory):
         data=[
             hash_id,                                     # id
             0,                                           # index
-            helper.contract_address,                     # target
+            target.contract_address,                     # target
             get_selector_from_name("increase_balance"),  # selector
             1,                                           # calldata length
             AMOUNT,                                      # calldata
@@ -573,11 +592,11 @@ async def test_execute(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
-    timelock, proposer, _, helper, state = timelock_factory
+    timelock, proposer, _, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -607,10 +626,10 @@ async def test_execute_prevent_nonexecutor_from_reveal(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_batch_is_scheduled(timelock_factory):
-    timelock, proposer, _, helper, state = timelock_factory
+    timelock, proposer, _, target, state = timelock_factory
 
     # get hash id
-    operation = batched_operations(helper.contract_address)
+    operation = batched_operations(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -635,7 +654,7 @@ async def test_schedule_batch_is_scheduled(timelock_factory):
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -670,16 +689,16 @@ async def test_schedule_batch_is_scheduled(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_batch_emits_events(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # get hash id
-    operation = batched_operations(helper.contract_address)
+    operation = batched_operations(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operations
@@ -702,7 +721,7 @@ async def test_schedule_batch_emits_events(timelock_factory):
             data=[
                 hash_id,                                 # id
                 index,                                   # index
-                helper.contract_address,                 # target
+                target.contract_address,                 # target
                 get_selector_from_name("increase_balance"), # selector
                 1,                                       # calldata length
                 AMOUNT,                         # calldata
@@ -714,11 +733,11 @@ async def test_schedule_batch_emits_events(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_schedule_batch_prevents_overwriting_active_operation(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -748,11 +767,11 @@ async def test_schedule_batch_prevents_overwriting_active_operation(timelock_fac
     ["sub"]
 ])
 async def test_schedule_batch_mismatched_calldata_params(timelock_factory, bad_params):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # add/remove last calldata element
@@ -781,11 +800,11 @@ async def test_schedule_batch_mismatched_calldata_params(timelock_factory, bad_p
     ["sub"]
 ])
 async def test_schedule_batch_mismatched_address_params(timelock_factory, bad_params):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format bad array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # increase/decrease address length
@@ -810,11 +829,11 @@ async def test_schedule_batch_mismatched_address_params(timelock_factory, bad_pa
 
 @pytest.mark.asyncio
 async def test_schedule_batch_prevents_nonproposer_from_committing(timelock_factory):
-    timelock, _, nonproposer, helper, _ = timelock_factory
+    timelock, _, nonproposer, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # non-proposer invocation should fail
@@ -831,11 +850,11 @@ async def test_schedule_batch_prevents_nonproposer_from_committing(timelock_fact
 
 @pytest.mark.asyncio
 async def test_schedule_batch_enforce_minimum_delay(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # delay under threshold should fail
@@ -855,11 +874,11 @@ async def test_schedule_batch_enforce_minimum_delay(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_batch(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -872,7 +891,7 @@ async def test_execute_batch(timelock_factory):
         ])
 
     # get hash id
-    operation = batched_operations(helper.contract_address)
+    operation = batched_operations(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
@@ -922,7 +941,7 @@ async def test_execute_batch(timelock_factory):
             data=[
                 hash_id,                                    # id
                 index,                                      # index
-                helper.contract_address,                    # target
+                target.contract_address,                    # target
                 get_selector_from_name("increase_balance"), # selector
                 1,                                          # calldata length
                 AMOUNT,                                     # calldata
@@ -932,11 +951,11 @@ async def test_execute_batch(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_batch_when_operation_not_scheduled(timelock_factory):
-    timelock, _, executor, helper, _ = timelock_factory
+    timelock, _, executor, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # execute should fail when not scheduled
@@ -952,11 +971,11 @@ async def test_execute_batch_when_operation_not_scheduled(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_batch_when_too_early_PART_ONE(timelock_factory):
-    timelock, proposer, executor, helper, _ = timelock_factory
+    timelock, proposer, executor, target, _ = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -981,11 +1000,11 @@ async def test_execute_batch_when_too_early_PART_ONE(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_batch_when_too_early_PART_TWO(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -1016,11 +1035,11 @@ async def test_execute_batch_when_too_early_PART_TWO(timelock_factory):
     ["sub"]
 ])
 async def test_execute_batch_mismatched_calldata_params(timelock_factory, bad_params):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -1058,11 +1077,11 @@ async def test_execute_batch_mismatched_calldata_params(timelock_factory, bad_pa
     ["sub"]
 ])
 async def test_execute_batch_mismatched_address_params(timelock_factory, bad_params):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        batched_operations(helper.contract_address)
+        batched_operations(target.contract_address)
     )
 
     # schedule operation
@@ -1096,7 +1115,7 @@ async def test_execute_batch_mismatched_address_params(timelock_factory, bad_par
 
 @pytest.mark.asyncio
 async def test_execute_batch_partial_execution(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     def bad_batch(address):
         return from_call_to_call_array([
@@ -1107,7 +1126,7 @@ async def test_execute_batch_partial_execution(timelock_factory):
 
     # format call array
     bad_array = flatten_calls(
-        bad_batch(helper.contract_address)
+        bad_batch(target.contract_address)
     )
 
     # schedule operation
@@ -1137,16 +1156,16 @@ async def test_execute_batch_partial_execution(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_canceller_can_cancel(timelock_factory):
-    timelock, proposer, _, helper, _ = timelock_factory
+    timelock, proposer, _, target, _ = timelock_factory
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -1204,16 +1223,16 @@ async def test_cancel_invalid_operation(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_cancel_from_noncanceller(timelock_factory):
-    timelock, proposer, noncanceller, helper, _ = timelock_factory
+    timelock, proposer, noncanceller, target, _ = timelock_factory
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id = execution_info.result.hash
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -1297,15 +1316,15 @@ async def test_update_delay_scheduled_maintenance(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_before_dependency(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id_1 = execution_info.result.hash
 
@@ -1337,15 +1356,15 @@ async def test_execute_before_dependency(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_after_dependency(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # get hash id
-    operation = single_operation(helper.contract_address)
+    operation = single_operation(target.contract_address)
     execution_info = await timelock.hashOperation(*operation, 0, SALT).invoke()
     hash_id_1 = execution_info.result.hash
 
@@ -1386,11 +1405,11 @@ async def test_execute_after_dependency(timelock_factory):
 
 @pytest.mark.asyncio
 async def test_execute_check_target_contract(timelock_factory):
-    timelock, proposer, executor, helper, state = timelock_factory
+    timelock, proposer, executor, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # schedule operation
@@ -1412,8 +1431,38 @@ async def test_execute_check_target_contract(timelock_factory):
             SALT,                                    # SALT
         ])
 
-    execution_info = await helper.get_balance().invoke()
+    execution_info = await target.get_balance().invoke()
     assert execution_info.result.res == AMOUNT
+
+
+@pytest.mark.asyncio
+async def test_execute_reentrancy(timelock_reentrancy):
+    timelock, proposer, mal_target, state = timelock_reentrancy
+
+    # format call array and schedule malicious operation
+    call_array = flatten_calls(
+        single_operation(mal_target.contract_address)
+    )
+
+    await signer.send_transaction(
+        proposer, timelock.contract_address, "schedule", [
+            *call_array,    # call array
+            0,              # predecessor
+            SALT,           # SALT
+            MIN_DELAY       # delay
+        ])
+
+    set_block_timestamp(state, FF_PAST_DELAY)
+
+    # execute malicious operation
+    mal_operation = single_operation(mal_target.contract_address)
+    await assert_revert(
+        timelock.execute(*mal_operation, 0, SALT).invoke(),
+        reverted_with="Timelock: operation is not ready"
+    )
+
+    execution_info = await mal_target.get_balance().invoke()
+    assert execution_info.result.res == 0
 
 #
 # safe receive
@@ -1439,11 +1488,11 @@ async def test_receive_erc721_safe_transfer(timelock_with_erc721):
 
 @pytest.mark.asyncio
 async def test_schedule_enforce_overflow_check(timelock_factory):
-    timelock, proposer, _, helper, state = timelock_factory
+    timelock, proposer, _, target, state = timelock_factory
 
     # format call array
     call_array = flatten_calls(
-        single_operation(helper.contract_address)
+        single_operation(target.contract_address)
     )
 
     # set timestamp otherwise felt can't hold overflowing int

@@ -242,6 +242,16 @@ func onERC1155BatchReceived(
     return (ON_ERC1155_BATCH_RECEIVED_SELECTOR)
 end
 
+@external
+func grantRole{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(role: felt, user: felt):
+    AccessControl.grant_role(role, user)
+    return ()
+end
+
 @view
 func hasRole{
         syscall_ptr: felt*,

@@ -23,6 +23,13 @@ The following documentation provides context, reasoning, and examples for method
 * [Memoization](#memoization)
   * [`get_contract_class`](#get_contract_class)
   * [`cached_contract`](#cached_contract)
+* [Time](#time)
+  * [`get_block_timestamp`](#get_block_timestamp)
+  * [`set_block_timestamp`](#set_block_timestamp)
+* [Timelock utils](#timelock-utils)
+  * [`from_call_to_call_array`](#from_call_to_call_array)
+  * [`flatten_calls`](#flatten_calls)
+  * [`timelock_hash_chain`](#timelock_hash_chain)
 * [MockSigner](#mocksigner)
 
 ## Constants
@@ -243,6 +250,120 @@ def foo_factory(contract_classes, foo_init):
     _state = state.copy()                               # copy the state
     cached_foo = cached_contract(_state, foo_cls, foo)  # cache contracts
     return cached_foo                                   # return cached contracts
+```
+
+## Time
+
+### `get_block_timestamp`
+
+Returns the current timestamp. Use of the function requires the `state` object from contract deployments.
+
+### `set_block_timestamp`
+
+Sets the timestamp which allows for testing functionality reliant or involved with the passage of time. Use of the function requires the `state` object from contract deployments.
+
+```python
+TARGET_TIME = 1234
+
+starknet = await Starknet.empty()
+my_contract = await starknet.deploy(
+    contract_class=get_contract_class("MyContract")
+)
+
+set_block_timestamp(starknet.state, TARGET_TIME)
+```
+
+## Timelock utils
+
+### `from_call_to_call_array`
+
+Formats a list of calls into AccountCallArray format (slightly modified from [Nile](https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py)'s function of the same name).
+
+```python
+list_of_calls = [
+    [
+        100,            # to
+        "selector_1",   # selector
+        [101, 102]      # calldata for this call
+    ], [
+        200,            # to
+        "selector_2",   # selector
+        [201]           # calldata for this call
+    ]
+]
+
+call_array = from_call_to_call_array(list_of_calls)
+print(call_array)
+
+# (
+#   [
+#       (100, 7515639606...599879, 0, 2),       Call #1
+#       (200, 1495144701...200756, 2, 1)        Call #2
+#   ], [101, 102, 201]                          Total calldata
+# )
+
+```
+
+### `flatten_calls`
+
+Flattens the return value of `from_call_to_call_array` into a single list.
+
+```python
+list_of_calls = [
+    [
+        100,            # to
+        "selector_1",   # selector
+        [101, 102]      # calldata for this call
+    ], [
+        200,            # to
+        "selector_2",   # selector
+        [201]           # calldata for this call
+    ]
+]
+
+call_array = from_call_to_call_array(list_of_calls)
+
+flattened_call_array = flatten_calls(call_array)
+print(flattened_call_array)
+# [
+#   2,                      number of calls
+#   100,                    to
+#   7515639606...599879,    selector
+#   0,                      calldata offset
+#   2,                      calldata length
+#   200,                    to
+#   1495144701...200756,    selector
+#   2,                      calldata offset
+#   1,                      calldata length
+#   3,                      total calldata
+#   101,                    calldata
+#   102,                    calldata
+#   201                     calldata
+# ]
+```
+
+### `timelock_hash_chain`
+
+Returns the equivalent hash as [Timelock's hash_operation](./Timelock.md#hash_operation).
+
+```python
+list_of_calls = [
+    [
+        100,            # to
+        "selector_1",   # selector
+        [101, 102]      # calldata for this call
+    ], [
+        200,            # to
+        "selector_2",   # selector
+        [201]           # calldata for this call
+    ]
+]
+
+calculate_hash_operation = timelock_hash_chain(
+    list_of_calls,
+    <PREDECESSOR>,
+    <SALT>
+)
 ```
 
 ## MockSigner

@@ -319,7 +319,7 @@ await signer.send_transaction(
 
 Suppose you wanted to execute an operation after and only after the execution of another operation—this is the perfect opportunity to include a predecessor. To further exemplify, imagine setting up a timelock mechanism that mints and transfers tokens to users. Before the contract can transfer tokens, they first need to be minted. In this example, the mint function must be the predecessor in the transfer operation.
 
-We can retrieve the hash identifier of an operation with `hash_operation` and insert this id as the predecessor of the dependent call.
+We can retrieve the hash identifier of an operation with [hash_operation](#hash_operation) and insert this id as the predecessor of the dependent call.
 
 ```python
 # schedule predecessor call

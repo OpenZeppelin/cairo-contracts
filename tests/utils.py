@@ -166,13 +166,13 @@ def get_block_timestamp(starknet_state):
     return starknet_state.state.block_info.block_timestamp
 
 
-def set_block_timestamp(starknet_state, timestamp):
+def set_block_timestamp(starknet_state, timestamp, gas_price=0, sequenceer_address=None):
     """Set the block timestamp."""
     starknet_state.state.block_info = BlockInfo(
         starknet_state.state.block_info.block_number,   # block number
         timestamp,                                      # new timestamp
-        2000,                                           # gas price
-        123                                             # sequencer address
+        gas_price,                                      # gas price
+        sequenceer_address                              # sequencer address
     )
 
 
@@ -198,7 +198,7 @@ def flatten_calls(calls):
     calls_len = len(calls[0])
     flatten_calls = [e for call in calls[0] for e in call]
     flatten_calldata = [e for e in calls[-1]]
-    
+
     return [
         calls_len,                      # calls length
         *flatten_calls,                 # flattened calls

@@ -93,7 +93,7 @@ async def test_contract_post_renounceOwnership_(ownable_factory):
 
     # Protected function cannot be called from zero address
     await assert_revert(
-        ownable.protected_function().call(),
+        ownable.protected_function().invoke(),
         reverted_with="Ownable: caller is not the owner"
     )
 

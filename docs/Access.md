@@ -97,7 +97,7 @@ None.
 
 #### `assert_only_owner`
 
-Reverts if called by any account other than the owner, in case of renounced ownership any call from the default zero address will also be reverted.
+Reverts if called by any account other than the owner. In case of renounced ownership, any call from the default zero address will also be reverted.
 
 Parameters:
 

@@ -87,7 +87,7 @@ async def test_renounceOwnership(ownable_factory):
     assert executed_info.result == (ZERO_ADDRESS,)
 
 @pytest.mark.asyncio
-async def test_contract_post_renounceOwnership_(ownable_factory):
+async def test_contract_post_renounceOwnership(ownable_factory):
     ownable, owner = ownable_factory
     await signer.send_transaction(owner, ownable.contract_address, 'renounceOwnership', [])
 

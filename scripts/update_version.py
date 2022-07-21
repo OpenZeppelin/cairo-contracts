@@ -7,8 +7,8 @@ CURRENT_VERSION = "v0.2.1"
 
 def main():
     new_version = str(sys.argv[1])
-    path = Path('src')
-    for p in path.glob(f"**/*.cairo"):
+    path = Path("src")
+    for p in path.glob("**/*.cairo"):
         _update_version(p, new_version)
     _update_version("scripts/update_version.py", new_version)
 

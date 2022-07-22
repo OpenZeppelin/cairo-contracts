@@ -79,7 +79,7 @@ print(x)
 
 === `from_uint`
 
-Converts a uin256-ish tuple into an integer.
+Converts a uint256-ish tuple into an integer.
 
 [,python]
 ----

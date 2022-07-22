@@ -6,38 +6,7 @@ Access control--that is, "who is allowed to do this thing"--is incredibly import
 The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things.
 It is therefore critical to understand how you implement it, lest someone else https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/[steals your whole system].
 
-== Table of Contents
-
-* <<ownable,Ownable>>
- ** <<quickstart,Quickstart>>
- ** <<ownable-library-api,Ownable library API>>
-  *** <<initializer,`initializer`>>
-  *** <<assert_only_owner,`assert_only_owner`>>
-  *** <<owner,`owner`>>
-  *** <<transfer_ownership,`transfer_ownership`>>
-  *** <<renounce_ownership,`renounce_ownership`>>
-  *** <<transfer-ownership-internal,`_transfer_ownership`>>
- ** <<ownable-events,Ownable events>>
-  *** <<ownershiptransferred,`OwnershipTransferred`>>
-* <<accesscontrol,AccessControl>>
- ** <<usage,Usage>>
- ** <<granting-and-revoking-roles,Granting and revoking roles>>
- ** <<creating-role-identifiers,Creating role identifiers>>
- ** <<accesscontrol-library-api,AccessControl library API>>
-  *** <<initializer-accesscontrol,`initializer`>>
-  *** <<assert_only_role,`assert_only_role`>>
-  *** <<has_role,`has_role`>>
-  *** <<get_role_admin,`get_role_admin`>>
-  *** <<grant_role,`grant_role`>>
-  *** <<revoke_role,`revoke_role`>>
-  *** <<renounce_role,`renounce_role`>>
-  *** <<grantrole-internal,`_grant_role`>>
-  *** <<revokerole-internal,`_revoke_role`>>
-  *** <<setroleadmin,`_set_role_admin`>>
- ** <<accesscontrol-events,AccessControl events>>
-  *** <<rolegranted,`RoleGranted`>>
-  *** <<rolerevoked,`RoleRevoked`>>
-  *** <<roleadminchanged,`RoleAdminChanged`>>
+:toc:
 
 == Ownable
 
@@ -84,7 +53,7 @@ end
 
 === Ownable library API
 
-[.hljs-theme-light.nopaddingq,cairo]
+[,cairo]
 ----
 func initializer(owner: felt):
 end

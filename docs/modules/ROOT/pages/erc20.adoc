@@ -149,7 +149,7 @@ func transfer{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable_when_not_paused()            # imported extended logic
+    Pausable.assert_not_paused()          # imported extended logic
     ERC20_transfer(recipient, amount)     # imported library method
     return (TRUE)
 end

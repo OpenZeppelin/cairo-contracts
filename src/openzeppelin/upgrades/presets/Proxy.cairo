@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.1 (upgrades/proxy/presets/Proxy.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (upgrades/presets/Proxy.cairo)
 
 %lang starknet
 
@@ -8,7 +8,7 @@ from starkware.starknet.common.syscalls import (
     library_call,
     library_call_l1_handler
 )
-from openzeppelin.upgrades.proxy.library import Proxy
+from openzeppelin.upgrades.library import Proxy
 
 #
 # Constructor

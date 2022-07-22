@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from openzeppelin.upgrades.proxy.library import Proxy
+from openzeppelin.upgrades.library import Proxy
 
 #
 # Storage

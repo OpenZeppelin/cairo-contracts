@@ -173,8 +173,8 @@ nile compile --directory src
 🔨 Compiling src/openzeppelin/utils/constants/library.cairo
 🔨 Compiling src/openzeppelin/introspection/erc165/library.cairo
 🔨 Compiling src/openzeppelin/introspection/erc165/IERC165.cairo
-🔨 Compiling src/openzeppelin/upgrades/proxy/library.cairo
-🔨 Compiling src/openzeppelin/upgrades/proxy/presets/Proxy.cairo
+🔨 Compiling src/openzeppelin/upgrades/library.cairo
+🔨 Compiling src/openzeppelin/upgrades/presets/Proxy.cairo
 🔨 Compiling src/openzeppelin/account/library.cairo
 🔨 Compiling src/openzeppelin/account/presets/EthAccount.cairo
 🔨 Compiling src/openzeppelin/account/presets/Account.cairo

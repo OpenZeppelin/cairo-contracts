@@ -5,7 +5,7 @@ NOTE: Expect rapid iteration as this pattern matures and more patterns potential
 == Table of Contents
 
 * <<quickstart,Quickstart>>
-* <<solidity\/cairo_upgrades_comparison,Solidity/Cairo upgrades comparison>>
+* <<soliditycairo_upgrades_comparison,Solidity/Cairo upgrades comparison>>
  ** <<constructors,Constructors>>
  ** <<storage,Storage>>
 * <<proxies2,Proxies>>
@@ -338,7 +338,7 @@ For more information on declaring classes, see https://starknet.io/docs/hello_st
 
 === Handling method calls
 
-As with most StarkNet contracts, interacting with a proxy contract requires an xref:eccount.adoc#quickstart[account abstraction].
+As with most StarkNet contracts, interacting with a proxy contract requires an xref:accounts.adoc#quickstart[account abstraction].
 One notable difference with proxy contracts versus other contract implementations is that calling `@view` methods also requires an account abstraction.
 As of now, direct calls to default entrypoints are only supported by StarkNet's `syscalls` from other contracts i.e.
 account contracts.

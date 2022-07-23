@@ -284,4 +284,4 @@ def foo_factory(contract_classes, foo_init):
 
 `MockSigner` is used to perform transactions with an instance of https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's Signer] on a given Account, crafting the transaction and managing nonces.
 The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `\\__execute__` method.
-See xref:account.adoc#mocksigner_utility[MockSigner utility] for more information.
+See xref:accounts.adoc#mocksigner_utility[MockSigner utility] for more information.

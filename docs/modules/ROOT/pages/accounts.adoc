@@ -27,10 +27,10 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
  ** <<get_nonce,`get_nonce`>>
  ** <<set_public_key,`set_public_key`>>
  ** <<is_valid_signature,`is_valid_signature`>>
- ** <<\\__execute__,`\\__execute__`>>
+ ** <<execute,`\\__execute__`>>
  ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
  ** <<eth_execute,`eth_execute`>>
- ** <<_unsafe_execute,`_unsafe_execute`>>
+ ** <<unsafe_execute,`_unsafe_execute`>>
 * <<presets,Presets>>
  ** <<account,Account>>
  ** <<eth_account,Eth Account>>
@@ -295,8 +295,8 @@ The rebuilding logic is set in the internal `_from_call_array_to_call`.
 
 This is the basic flow:
 
-. The user sends the messages for the transaction through a Signer instantiation which looks like this:
-+
+First, the user sends the messages for the transaction through a Signer instantiation which looks like this:
+
 [,python]
 ----
  await signer.send_transaction(
@@ -306,12 +306,12 @@ This is the basic flow:
          ]
      )
 ----
-+
-The `_from_call_to_call_array` method in {test-utils}[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
+
+Then the `_from_call_to_call_array` method in {test-utils}[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
 Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
 The Signer then invokes `\\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
-. The `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
+Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
 
 NOTE: Every transaction utilizes `AccountCallArray`.
 A single `Call` is treated as a bundle with one message.
@@ -496,7 +496,7 @@ NOTE: The current signature scheme expects a 7-element array like `[sig_v, uint2
 
 === `_unsafe_execute`
 
-It's an internal method that performs the following tasks:
+It's an xref:extensibility.adoc#the_pattern[internal] method that performs the following tasks:
 
 . Increments the nonce.
 . Takes the input and builds a `Call` for each iterated message.

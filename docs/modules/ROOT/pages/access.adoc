@@ -103,30 +103,22 @@ Parameters:
 owner: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `assert_only_owner`
 
 Reverts if called by any account other than the owner.
 In case of renounced ownership, any call from the default zero address will also be reverted.
 
-Parameters:
+Parameters: None.
 
-None.
-
-Returns:
-
-None.
+Returns: None.
 
 ==== `owner`
 
 Returns the address of the current owner.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -149,9 +141,7 @@ Parameters:
 new_owner: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `renounce_ownership`
 
@@ -161,13 +151,9 @@ Can only be called by the current owner.
 
 Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
-Parameters:
+Parameters: None.
 
-None.
-
-Returns:
-
-None.
+Returns: None.
 
 [#transfer-ownership-internal]
 ==== `_transfer_ownership`
@@ -183,9 +169,7 @@ Parameters:
 new_owner: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 === Ownable events
 
@@ -493,13 +477,9 @@ Initializes AccessControl and should be called in the implementing contract's co
 
 This must only be called once.
 
-Parameters:
+Parameters: None.
 
-None.
-
-Returns:
-
-None.
+Returns: None.
 
 ==== `assert_only_role`
 
@@ -513,9 +493,7 @@ Parameters:
 role: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== has_role
 
@@ -575,9 +553,7 @@ role: felt
 user: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `revoke_role`
 
@@ -597,9 +573,7 @@ role: felt
 user: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `renounce_role`
 
@@ -621,9 +595,7 @@ role: felt
 user: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 [#grantrole-internal]
 ==== `_grant_role`
@@ -642,9 +614,7 @@ role: felt
 user: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 [#revokerole-internal]
 ==== `_revoke_role`
@@ -663,9 +633,7 @@ role: felt
 user: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 [#setroleadmin]
 ==== `_set_role_admin`
@@ -682,9 +650,7 @@ role: felt
 admin_role: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 === AccessControl events
 

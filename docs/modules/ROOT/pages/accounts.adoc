@@ -351,9 +351,7 @@ end
 
 Returns the public key associated with the Account contract.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -366,9 +364,7 @@ public_key: felt
 
 Returns the current transaction nonce for the Account.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -389,9 +385,7 @@ Parameters:
 public_key: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 === `is_valid_signature`
 

@@ -494,9 +494,7 @@ data_len: felt
 data: felt*
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `transferFrom`
 
@@ -514,9 +512,7 @@ to: felt
 tokenId: Uint256
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `approve`
 
@@ -533,9 +529,7 @@ to: felt
 tokenId: Uint256
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `getApproved`
 
@@ -569,9 +563,7 @@ Parameters:
 operator: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `isApprovedForAll`
 
@@ -653,9 +645,7 @@ end
 
 Returns the token collection name.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -668,9 +658,7 @@ name: felt
 
 Returns the token collection symbol.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 

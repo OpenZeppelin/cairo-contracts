@@ -178,29 +178,21 @@ Parameters:
 proxy_admin: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `assert_only_admin`
 
 Reverts if called by any account other than the admin.
 
-Parameters:
+Parameters: None.
 
-None.
-
-Returns:
-
-None.
+Returns: None.
 
 ==== `get_implementation`
 
 Returns the current implementation hash.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -213,9 +205,7 @@ implementation: felt
 
 Returns the current admin.
 
-Parameters:
-
-None.
+Parameters: None.
 
 Returns:
 
@@ -235,9 +225,7 @@ Parameters:
 new_admin: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 ==== `_set_implementation_hash`
 
@@ -251,9 +239,7 @@ Parameters:
 new_implementation: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 === Events
 

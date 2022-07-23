@@ -4,16 +4,16 @@ CAUTION: Expect this module to evolve.
 
 == Table of Contents
 
-* <<erc165,ERC165>>
- ** <<interface-calculations,Interface calculations>>
- ** <<registering-interfaces,Registering interfaces>>
- ** <<querying-interfaces,Querying interfaces>>
- ** <<ierc165,IERC165>>
- ** <<ierc165-api-specification,IERC165 API Specification>>
-  *** <<supportsinterface,`supportsInterface`>>
- ** <<erc165-library-functions,ERC165 Library Functions>>
-  *** <<supportsinterface2,`supports_interface`>>
-  *** <<register_interface,`register_interface`>>
+* <<_erc165,ERC165>>
+ ** <<_interface_calculations,Interface calculations>>
+ ** <<_registering_interfaces,Registering interfaces>>
+ ** <<_querying_interfaces,Querying interfaces>>
+ ** <<_ierc165,IERC165>>
+ ** <<_ierc165_api_specification,IERC165 API Specification>>
+  *** <<_supportsinterface,`supportsInterface`>>
+ ** <<_erc165_library_functions,ERC165 Library Functions>>
+  *** <<_supportsinterface2,`supports_interface`>>
+  *** <<_register_interface,`register_interface`>>
 
 == ERC165
 
@@ -27,7 +27,7 @@ There may even not be any direct calls to them!
 ERC20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever).
 In these cases, a contract declaring its interface can be very helpful in preventing errors.
 
-It should be noted that the link:../src/openzeppelin/utils/constants.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
+It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/constants.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
 This allows for more legible code i.e.
 using `IERC165_ID` instead of `0x01ffc9a7`.
 
@@ -84,8 +84,8 @@ end
 ----
 
 NOTE: `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
-This differs from library methods (such as `supports_interface` from the link:../src/openzeppelin/introspection/ERC165.cairo[ERC165 library]) which are snake_cased and not exposed.
-See the link:../docs/Extensibility.md#function-names-and-coding-style[Function names and coding style] for more details.
+This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/introspection/ERC165.cairo[ERC165 library]) which are snake_cased and not exposed.
+See the xref:extensibility.adoc#function_names_and_coding_style[Function names and coding style] for more details.
 
 === IERC165
 

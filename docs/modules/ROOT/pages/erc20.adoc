@@ -327,7 +327,7 @@ remaining: Uint256
 Moves `amount` tokens from the caller's account to `recipient`.
 It returns `1` representing a bool if it succeeds.
 
-Emits a <<_transfer-event,Transfer>> event.
+Emits a <<_transfer_event,Transfer>> event.
 
 Parameters:
 
@@ -350,7 +350,7 @@ Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism
 `amount` is then deducted from the caller's allowance.
 It returns `1` representing a bool if it succeeds.
 
-Emits a <<_transfer-event,Transfer>> event.
+Emits a <<_transfer_event,Transfer>> event.
 
 Parameters:
 
@@ -373,7 +373,7 @@ success: felt
 Sets `amount` as the allowance of `spender` over the caller's tokens.
 It returns `1` representing a bool if it succeeds.
 
-Emits an <<_approval-event,Approval>> event.
+Emits an <<_approval_event,Approval>> event.
 
 Parameters:
 

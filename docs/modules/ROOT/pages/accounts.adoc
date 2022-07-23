@@ -243,7 +243,7 @@ The idea is for all user intent to be encoded into a `Call` representing a smart
 Users can also pack multiple messages into a single transaction (creating a multicall transaction).
 Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through mutiple ``Call``s.
 Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
-See <<_multicall-transactions,Multicall transactions>>.
+See <<_multicall_transactions,Multicall transactions>>.
 
 === `Call`
 
@@ -500,7 +500,7 @@ It's an internal method that performs the following tasks:
 
 . Increments the nonce.
 . Takes the input and builds a `Call` for each iterated message.
-See <<_multicall-transactions,Multicall transactions>> for more information.
+See <<_multicall_transactions,Multicall transactions>> for more information.
 . Calls the target contract with the intended function selector and calldata parameters
 . Forwards the contract call response data as return value
 

@@ -4,21 +4,21 @@ NOTE: Expect rapid iteration as this pattern matures and more patterns potential
 
 == Table of Contents
 
-* <<quickstart,Quickstart>>
-* <<solidity/cairo-upgrades-comparison,Solidity/Cairo upgrades comparison>>
- ** <<constructors,Constructors>>
- ** <<storage,Storage>>
-* <<proxies2,Proxies>>
- ** <<proxy-contract,Proxy contract>>
- ** <<implementation-contract,Implementation contract>>
-* <<upgrades-library-api,Upgrades library API>>
- ** <<methods,Methods>>
- ** <<events,Events>>
-* <<using-proxies,Using proxies>>
- ** <<contract-upgrades,Contract upgrades>>
- ** <<declaring-contracts,Declaring contracts>>
- ** <<handling-method-calls,Handling method calls>>
-* <<presets,Presets>>
+* <<_quickstart,Quickstart>>
+* <<_solidity\/cairo_upgrades_comparison,Solidity/Cairo upgrades comparison>>
+ ** <<_constructors,Constructors>>
+ ** <<_storage,Storage>>
+* <<_proxies2,Proxies>>
+ ** <<_proxy_contract,Proxy contract>>
+ ** <<_implementation_contract,Implementation contract>>
+* <<_upgrades_library_api,Upgrades library API>>
+ ** <<_methods,Methods>>
+ ** <<_events,Events>>
+* <<_using_proxies,Using proxies>>
+ ** <<_contract_upgrades,Contract upgrades>>
+ ** <<_declaring_contracts,Declaring contracts>>
+ ** <<_handling_method_calls,Handling method calls>>
+* <<_presets,Presets>>
 
 == Quickstart
 
@@ -97,7 +97,7 @@ This allows developers to add features, update logic, and fix bugs without touch
 
 === Proxy contract
 
-The link:../src/openzeppelin/upgrades/Proxy.cairo[Proxy contract] includes two core methods:
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/Proxy.cairo[Proxy contract] includes two core methods:
 
 . The `\\__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 . The `\\__l1_default__` method is also a fallback method;
@@ -114,7 +114,7 @@ The proxy's fallback function redirects the function call to the implementation 
 === Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract.
-The implementation contract should follow the link:../docs/Extensibility.md#the-pattern[Extensibility pattern] and import directly from the link:../src/openzeppelin/upgrades/library.cairo[Proxy library].
+The implementation contract should follow the xref:extensibility.md#the-pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/library.cairo[Proxy library].
 
 The implementation contract should:
 
@@ -136,11 +136,11 @@ Instead, use an initializer method that invokes the Proxy `constructor`.
 
 NOTE: The Proxy `constructor` includes a check the ensures the initializer can only be called once;
 however, `_set_implementation` does not include this check.
-It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<assert_only_admin,`assert_only_admin`>>.
+It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<_assert_only_admin,`assert_only_admin`>>.
 
 For a full implementation contract example, please see:
 
-* link:../tests/mocks/proxiable_implementation.cairo[Proxiable implementation]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/proxiable_implementation.cairo[Proxiable implementation]
 
 == Upgrades library API
 
@@ -325,8 +325,8 @@ To upgrade a contract, the implementation contract should include an `upgrade` m
 
 For a full deployment and upgrade implementation, please see:
 
-* link:../tests/mocks/upgrades_v1_mock.cairo[Upgrades V1]
-* link:../tests/mocks/upgrades_v2_mock.cairo[Upgrades V2]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/upgrades_v1_mock.cairo[Upgrades V1]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/upgrades_v2_mock.cairo[Upgrades V2]
 
 === Declaring contracts
 
@@ -338,7 +338,7 @@ For more information on declaring classes, see https://starknet.io/docs/hello_st
 
 === Handling method calls
 
-As with most StarkNet contracts, interacting with a proxy contract requires an link:../docs/Account.md#quickstart[account abstraction].
+As with most StarkNet contracts, interacting with a proxy contract requires an xref:eccount.md#quickstart[account abstraction].
 One notable difference with proxy contracts versus other contract implementations is that calling `@view` methods also requires an account abstraction.
 As of now, direct calls to default entrypoints are only supported by StarkNet's `syscalls` from other contracts i.e.
 account contracts.
@@ -362,7 +362,7 @@ They can be deployed as-is or used as templates for customization.
 
 Some presets include:
 
-* link:../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[ERC20_Upgradeable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[ERC20_Upgradeable]
 * more to come!
 have an idea?
 https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose[open an issue]!

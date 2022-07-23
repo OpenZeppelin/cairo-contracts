@@ -6,29 +6,29 @@ CAUTION: Expect this module to evolve (as it has already done).
 
 == Table of Contents
 
-* <<constants,Constants>>
-* <<strings,Strings>>
- ** <<str_to_felt,`str_to_felt`>>
- ** <<felt_to_str,`felt_to_str`>>
-* <<uint256,Uint256>>
- ** <<uint,`uint`>>
- ** <<to_uint,`to_uint`>>
- ** <<from_uint,`from_uint`>>
- ** <<add_uint,`add_uint`>>
- ** <<sub_uint,`sub_uint`>>
-* <<assertions,Assertions>>
- ** <<assert_revert,`assert_revert`>>
- ** <<assert_revert_entry_point,`assert_revert_entry_point`>>
- ** <<assert_event_emitted,`assert_events_emitted`>>
-* <<memoization,Memoization>>
- ** <<get_contract_class,`get_contract_class`>>
- ** <<cached_contract,`cached_contract`>>
-* <<mocksigner,MockSigner>>
+* <<_constants,Constants>>
+* <<_strings,Strings>>
+ ** <<_str_to_felt,`str_to_felt`>>
+ ** <<_felt_to_str,`felt_to_str`>>
+* <<_uint256,Uint256>>
+ ** <<_uint,`uint`>>
+ ** <<_to_uint,`to_uint`>>
+ ** <<_from_uint,`from_uint`>>
+ ** <<_add_uint,`add_uint`>>
+ ** <<_sub_uint,`sub_uint`>>
+* <<_assertions,Assertions>>
+ ** <<_assert_revert,`assert_revert`>>
+ ** <<_assert_revert_entry_point,`assert_revert_entry_point`>>
+ ** <<_assert_event_emitted,`assert_events_emitted`>>
+* <<_memoization,Memoization>>
+ ** <<_get_contract_class,`get_contract_class`>>
+ ** <<_cached_contract,`cached_contract`>>
+* <<_mocksigner,MockSigner>>
 
 == Constants
 
-To ease the readability of Cairo contracts, this project includes reusable link:../src/openzeppelin/utils/constants.cairo[constants variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
-For more information on how interface ids are calculated, see the link:../docs/Introspection.md#interface-calculations[ERC165 documentation].
+To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/constants.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
+For more information on how interface ids are calculated, see the xref:introspection.md#interface-calculations[ERC165 documentation].
 
 == Strings
 
@@ -284,4 +284,4 @@ def foo_factory(contract_classes, foo_init):
 
 `MockSigner` is used to perform transactions with an instance of https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's Signer] on a given Account, crafting the transaction and managing nonces.
 The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `\\__execute__` method.
-See link:../docs/Account.md#mocksigner-utility[MockSigner utility] for more information.
+See xref:account.md#mocksigner-utility[MockSigner utility] for more information.

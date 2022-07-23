@@ -47,12 +47,15 @@ In Python, this would look as follows:
 
 ```python
 from starkware.starknet.testing.starknet import Starknet
+from utils import get_contract_class
+from signers import MockSigner
+
 signer = MockSigner(123456789987654321)
 starknet = await Starknet.empty()
 
 # 1. Deploy Account
 account = await starknet.deploy(
-    "contracts/Account.cairo",
+    get_contract_class("Account"),
     constructor_calldata=[signer.public_key]
 )
 
@@ -478,7 +481,7 @@ Account contract developers are encouraged to implement the [standard Account in
 
 To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block, as each of the current presets is doing. Do not expose `_unsafe_execute` directly.
 
-> Please note that the `ecdsa_ptr` implicit argument should be included in new methods that invoke `_unsafe_execute` (even if the `ecdsa_ptr` is not being used). Otherwise, it's possible that an account's functionalty can work in both the testing and local devnet environments; however, it could fail on public networks on account of the [SignatureBuiltinRunner](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/lang/builtins/signature/signature_builtin_runner.py). See [issue #386](https://github.com/OpenZeppelin/cairo-contracts/issues/386) for more information.
+> Please note that the `ecdsa_ptr` implicit argument should be included in new methods that invoke `_unsafe_execute` (even if the `ecdsa_ptr` is not being used). Otherwise, it's possible that an account's functionality can work in both the testing and local devnet environments; however, it could fail on public networks on account of the [SignatureBuiltinRunner](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/lang/builtins/signature/signature_builtin_runner.py). See [issue #386](https://github.com/OpenZeppelin/cairo-contracts/issues/386) for more information.
 
 Some other validation schemes to look out for in the future:
 

@@ -4,21 +4,21 @@ NOTE: Expect rapid iteration as this pattern matures and more patterns potential
 
 == Table of Contents
 
-* <<_quickstart,Quickstart>>
-* <<_solidity\/cairo_upgrades_comparison,Solidity/Cairo upgrades comparison>>
- ** <<_constructors,Constructors>>
- ** <<_storage,Storage>>
-* <<_proxies2,Proxies>>
- ** <<_proxy_contract,Proxy contract>>
- ** <<_implementation_contract,Implementation contract>>
-* <<_upgrades_library_api,Upgrades library API>>
- ** <<_methods,Methods>>
- ** <<_events,Events>>
-* <<_using_proxies,Using proxies>>
- ** <<_contract_upgrades,Contract upgrades>>
- ** <<_declaring_contracts,Declaring contracts>>
- ** <<_handling_method_calls,Handling method calls>>
-* <<_presets,Presets>>
+* <<quickstart,Quickstart>>
+* <<solidity\/cairo_upgrades_comparison,Solidity/Cairo upgrades comparison>>
+ ** <<constructors,Constructors>>
+ ** <<storage,Storage>>
+* <<proxies2,Proxies>>
+ ** <<proxy_contract,Proxy contract>>
+ ** <<implementation_contract,Implementation contract>>
+* <<upgrades_library_api,Upgrades library API>>
+ ** <<methods,Methods>>
+ ** <<events,Events>>
+* <<using_proxies,Using proxies>>
+ ** <<contract_upgrades,Contract upgrades>>
+ ** <<declaring_contracts,Declaring contracts>>
+ ** <<handling_method_calls,Handling method calls>>
+* <<presets,Presets>>
 
 == Quickstart
 
@@ -114,7 +114,7 @@ The proxy's fallback function redirects the function call to the implementation 
 === Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract.
-The implementation contract should follow the xref:extensibility.adoc#the-pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/library.cairo[Proxy library].
+The implementation contract should follow the xref:extensibility.adoc#the_pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/library.cairo[Proxy library].
 
 The implementation contract should:
 
@@ -136,7 +136,7 @@ Instead, use an initializer method that invokes the Proxy `constructor`.
 
 NOTE: The Proxy `constructor` includes a check the ensures the initializer can only be called once;
 however, `_set_implementation` does not include this check.
-It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<_assert_only_admin,`assert_only_admin`>>.
+It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<assert_only_admin,`assert_only_admin`>>.
 
 For a full implementation contract example, please see:
 

@@ -5,49 +5,49 @@ The `ERC721.cairo` contract implements an approximation of https://eips.ethereum
 
 == Table of Contents
 
-* <<_ierc721,IERC721>>
-* <<_erc721_compatibility,ERC721 Compatibility>>
-* <<_usage,Usage>>
- ** <<_token_transfers,Token Transfers>>
- ** <<_interpreting_erc721_uris,Interpreting ERC721 URIs>>
- ** <<_erc721received,ERC721Received>>
-  *** <<_ierc721_receiver,IERC721_Receiver>>
- ** <<_supporting_interfaces,Supporting Interfaces>>
- ** <<_ready_to_use_presets,Ready_to_Use Presets>>
-* <<_extensibility,Extensibility>>
-* <<_presets,Presets>>
- ** <<_erc721_mintable_burnable,ERC721_Mintable_Burnable>>
- ** <<_erc721_mintable_pausable,ERC721_Mintable_Pausable>>
- ** <<_erc721_enumerable_mintable_burnable,ERC721_Enumerable_Mintable_Burnable>>
-  *** <<_ierc721_enumerable,IERC721_Enumerable>>
- ** <<_erc721_metadata,ERC721_Metadata>>
-  *** <<_ierc721_metadata,IERC721_Metadata>>
-* <<_utilities,Utilities>>
- ** <<_erc721_holder,ERC721_Holder>>
-* <<_api_specification,API Specification>>
- ** <<_ierc721_api,`IERC721`>>
-  *** <<_balanceof,`balanceOf`>>
-  *** <<_ownerof,`ownerOf`>>
-  *** <<_safetransferfrom,`safeTransferFrom`>>
-  *** <<_transferfrom,`transferFrom`>>
-  *** <<_approve,`approve`>>
-  *** <<_setapprovalforall,`setApprovalForAll`>>
-  *** <<_getapproved,`getApproved`>>
-  *** <<_isapprovedforall,`isApprovedForAll`>>
- ** <<_events,Events>>
-  *** <<_approval_event,`Approval (event)`>>
-  *** <<_approvalforall_event,`ApprovalForAll (event)`>>
-  *** <<_transfer_event,`Transfer (event)`>>
- ** <<_ierc721_metadata,`IERC721_Metadata`>>
-  *** <<_name,`name`>>
-  *** <<_symbol,`symbol`>>
-  *** <<_tokenuri,`tokenURI`>>
- ** <<_ierc721_enumerable,`IERC721_Enumerable`>>
-  *** <<_totalsupply,`totalSupply`>>
-  *** <<_tokenbyindex,`tokenByIndex`>>
-  *** <<_tokenofownerbyindex,`tokenOfOwnerByIndex`>>
- ** <<_ierc721_receiver,`IERC721_Receiver`>>
-  *** <<_onerc721received,`onERC721Received`>>
+* <<ierc721,IERC721>>
+* <<erc721_compatibility,ERC721 Compatibility>>
+* <<usage,Usage>>
+ ** <<token_transfers,Token Transfers>>
+ ** <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
+ ** <<erc721received,ERC721Received>>
+  *** <<ierc721_receiver,IERC721_Receiver>>
+ ** <<supporting_interfaces,Supporting Interfaces>>
+ ** <<ready_to_use_presets,Ready_to_Use Presets>>
+* <<extensibility,Extensibility>>
+* <<presets,Presets>>
+ ** <<erc721_mintable_burnable,ERC721_Mintable_Burnable>>
+ ** <<erc721_mintable_pausable,ERC721_Mintable_Pausable>>
+ ** <<erc721_enumerable_mintable_burnable,ERC721_Enumerable_Mintable_Burnable>>
+  *** <<ierc721_enumerable,IERC721_Enumerable>>
+ ** <<erc721_metadata,ERC721_Metadata>>
+  *** <<ierc721_metadata,IERC721_Metadata>>
+* <<utilities,Utilities>>
+ ** <<erc721_holder,ERC721_Holder>>
+* <<api_specification,API Specification>>
+ ** <<ierc721_api,`IERC721`>>
+  *** <<balanceof,`balanceOf`>>
+  *** <<ownerof,`ownerOf`>>
+  *** <<safetransferfrom,`safeTransferFrom`>>
+  *** <<transferfrom,`transferFrom`>>
+  *** <<approve,`approve`>>
+  *** <<setapprovalforall,`setApprovalForAll`>>
+  *** <<getapproved,`getApproved`>>
+  *** <<isapprovedforall,`isApprovedForAll`>>
+ ** <<events,Events>>
+  *** <<approval_event,`Approval (event)`>>
+  *** <<approvalforall_event,`ApprovalForAll (event)`>>
+  *** <<transfer_event,`Transfer (event)`>>
+ ** <<ierc721_metadata,`IERC721_Metadata`>>
+  *** <<name,`name`>>
+  *** <<symbol,`symbol`>>
+  *** <<tokenuri,`tokenURI`>>
+ ** <<ierc721_enumerable,`IERC721_Enumerable`>>
+  *** <<totalsupply,`totalSupply`>>
+  *** <<tokenbyindex,`tokenByIndex`>>
+  *** <<tokenofownerbyindex,`tokenOfOwnerByIndex`>>
+ ** <<ierc721_receiver,`IERC721_Receiver`>>
+  *** <<onerc721received,`onERC721Received`>>
 
 == IERC721
 
@@ -105,10 +105,10 @@ But some differences can still be found, such as:
 The EIP721 standard, however, states that the return value should be of type string.
 If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters.
-See <<_interpreting_erc721_uris,Interpreting ERC721 URIs>>
+See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Solidity's selector calculations.
-See <<_supporting_interfaces,Supporting Interfaces>>
+See <<supporting_interfaces,Supporting Interfaces>>
 * `safeTransferFrom` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
 The difference between both functions consists of accepting `data` as an argument.
 Because function overloading is currently not possible in Cairo, `safeTransferFrom` by default accepts the `data` argument.
@@ -122,7 +122,7 @@ hence, the method accepts `data_len` and `data` respectively as types `felt` and
 This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
 * `IERC721_Receiver` compliant contracts (`ERC721_Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
 This is in line with the ERC165 interfaces design choice towards EVM compatibility.
-See the xref:./Introspection.adoc[Introspection docs] for more info
+See the xref:introspection.adoc[Introspection docs] for more info
 * `IERC721_Receiver` compliant contracts (`ERC721_Holder`) must support ERC165 by registering the `IERC721_Receiver` selector id in its constructor and exposing the `supportsInterface` method.
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers
 * `ERC721_Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
@@ -192,7 +192,7 @@ The `safeTransferFrom` method incorporates the following conditional logic:
 . if the calling address is not an account contract, the safe function will check that the contract supports ERC721 tokens
 
 The current implementation of `safeTansferFrom` checks for `onERC721Received` and requires that the recipient contract supports ERC165 and exposes the `supportsInterface` method.
-See <<_erc721received,ERC721Received>>.
+See <<erc721received,ERC721Received>>.
 
 === Interpreting ERC721 URIs
 
@@ -280,16 +280,16 @@ For example:
 
 * `ERC721_Mintable_Burnable` includes `mint` and `burn`
 * `ERC721_Mintable_Pausable` includes `mint`, `pause`, and `unpause`
-* `ERC721_Enumerable_Mintable_Burnable` includes `mint`, `burn`, and <<_ierc721_enumerable,IERC721_Enumerable>> methods
+* `ERC721_Enumerable_Mintable_Burnable` includes `mint`, `burn`, and <<ierc721_enumerable,IERC721_Enumerable>> methods
 
 Ready-to-use presets are a great option for testing and prototyping.
-See <<_presets,Presets>>.
+See <<presets,Presets>>.
 
 == Extensibility
 
-Following the xref:Extensibility.adoc[contracts extensibility pattern], this implementation is set up to include all ERC721 related storage and business logic under a namespace.
+Following the xref:extensibility.adoc[contracts extensibility pattern], this implementation is set up to include all ERC721 related storage and business logic under a namespace.
 Developers should be mindful of manually exposing the required methods from the namespace to comply with the standard interface.
-This is already done in the <<_presets,preset contracts>>;
+This is already done in the <<presets,preset contracts>>;
 however, additional functionality can be added.
 For instance, you could:
 
@@ -401,7 +401,7 @@ Accepts all token transfers.
 Make sure the contract is able to use its token with `IERC721.safeTransferFrom`, `IERC721.approve` or `IERC721.setApprovalForAll`.
 
 Also utilizes the ERC165 method `supportsInterface` to determine if the contract is an account.
-See <<_erc721received,ERC721Received>>
+See <<erc721received,ERC721Received>>
 
 == API Specification
 
@@ -479,9 +479,9 @@ owner: felt
 ==== `safeTransferFrom`
 
 Safely transfers `tokenId` token from `from_` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
-For information regarding how contracts communicate their awareness of the ERC721 protocol, see <<_erc721received,ERC721Received>>.
+For information regarding how contracts communicate their awareness of the ERC721 protocol, see <<erc721received,ERC721Received>>.
 
-Emits a <<_transfer_event,Transfer>> event.
+Emits a <<transfer_event,Transfer>> event.
 
 Parameters:
 
@@ -503,7 +503,7 @@ None.
 Transfers `tokenId` token from `from_` to `to`.
 *The caller is responsible to confirm that `to` is capable of receiving NFTs or else they may be permanently lost*.
 
-Emits a <<_transfer_event,Transfer>> event.
+Emits a <<transfer_event,Transfer>> event.
 
 Parameters:
 
@@ -523,7 +523,7 @@ None.
 Gives permission to `to` to transfer `tokenId` token to another account.
 The approval is cleared when the token is transferred.
 
-Emits an <<_approval_event,Approval>> event.
+Emits an <<approval_event,Approval>> event.
 
 Parameters:
 
@@ -560,7 +560,7 @@ operator: felt
 Approve or remove `operator` as an operator for the caller.
 Operators can call `transferFrom` or `safeTransferFrom` for any token owned by the caller.
 
-Emits an <<_approvalforall_event,ApprovalForAll>> event.
+Emits an <<approvalforall_event,ApprovalForAll>> event.
 
 Parameters:
 
@@ -731,7 +731,7 @@ totalSupply: Uint256
 ==== `tokenByIndex`
 
 Returns a token ID owned by `owner` at a given `index` of its token list.
-Use along with <<_balanceof,balanceOf>> to enumerate all of ``owner``'s tokens.
+Use along with <<balanceof,balanceOf>> to enumerate all of ``owner``'s tokens.
 
 Parameters:
 
@@ -750,7 +750,7 @@ tokenId: Uint256
 ==== `tokenOfOwnerByIndex`
 
 Returns a token ID at a given `index` of all the tokens stored by the contract.
-Use along with <<_totalsupply,totalSupply>> to enumerate all tokens.
+Use along with <<totalsupply,totalSupply>> to enumerate all tokens.
 
 Parameters:
 

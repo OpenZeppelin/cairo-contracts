@@ -4,16 +4,16 @@ CAUTION: Expect this module to evolve.
 
 == Table of Contents
 
-* <<_erc165,ERC165>>
- ** <<_interface_calculations,Interface calculations>>
- ** <<_registering_interfaces,Registering interfaces>>
- ** <<_querying_interfaces,Querying interfaces>>
- ** <<_ierc165,IERC165>>
- ** <<_ierc165_api_specification,IERC165 API Specification>>
-  *** <<_supportsinterface,`supportsInterface`>>
- ** <<_erc165_library_functions,ERC165 Library Functions>>
-  *** <<_supportsinterface2,`supports_interface`>>
-  *** <<_register_interface,`register_interface`>>
+* <<erc165,ERC165>>
+ ** <<interface_calculations,Interface calculations>>
+ ** <<registering_interfaces,Registering interfaces>>
+ ** <<querying_interfaces,Querying interfaces>>
+ ** <<ierc165,IERC165>>
+ ** <<ierc165_api_specification,IERC165 API Specification>>
+  *** <<supportsinterface,`supportsInterface`>>
+ ** <<erc165_library_functions,ERC165 Library Functions>>
+  *** <<supportsinterface2,`supports_interface`>>
+  *** <<register_interface,`register_interface`>>
 
 == ERC165
 

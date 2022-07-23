@@ -6,24 +6,24 @@ CAUTION: Expect this module to evolve (as it has already done).
 
 == Table of Contents
 
-* <<_constants,Constants>>
-* <<_strings,Strings>>
- ** <<_str_to_felt,`str_to_felt`>>
- ** <<_felt_to_str,`felt_to_str`>>
-* <<_uint256,Uint256>>
- ** <<_uint,`uint`>>
- ** <<_to_uint,`to_uint`>>
- ** <<_from_uint,`from_uint`>>
- ** <<_add_uint,`add_uint`>>
- ** <<_sub_uint,`sub_uint`>>
-* <<_assertions,Assertions>>
- ** <<_assert_revert,`assert_revert`>>
- ** <<_assert_revert_entry_point,`assert_revert_entry_point`>>
- ** <<_assert_event_emitted,`assert_events_emitted`>>
-* <<_memoization,Memoization>>
- ** <<_get_contract_class,`get_contract_class`>>
- ** <<_cached_contract,`cached_contract`>>
-* <<_mocksigner,MockSigner>>
+* <<constants,Constants>>
+* <<strings,Strings>>
+ ** <<str_to_felt,`str_to_felt`>>
+ ** <<felt_to_str,`felt_to_str`>>
+* <<uint256,Uint256>>
+ ** <<uint,`uint`>>
+ ** <<to_uint,`to_uint`>>
+ ** <<from_uint,`from_uint`>>
+ ** <<add_uint,`add_uint`>>
+ ** <<sub_uint,`sub_uint`>>
+* <<assertions,Assertions>>
+ ** <<assert_revert,`assert_revert`>>
+ ** <<assert_revert_entry_point,`assert_revert_entry_point`>>
+ ** <<assert_event_emitted,`assert_events_emitted`>>
+* <<memoization,Memoization>>
+ ** <<get_contract_class,`get_contract_class`>>
+ ** <<cached_contract,`cached_contract`>>
+* <<mocksigner,MockSigner>>
 
 == Constants
 

@@ -1,6 +1,6 @@
 :ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/access/ownable.cairo[Ownable]
 
-:extensibility-pattern: xref:extensibility.adoc#the-pattern
+:extensibility-pattern: xref:extensibility.adoc#the_pattern
 
 = Access
 
@@ -12,16 +12,16 @@ It is therefore critical to understand how you implement it, lest someone else h
 
 == Table of Contents
 
-* <<_ownable,Ownable>>
- ** <<_quickstart,Quickstart>>
- ** <<_ownable_library_api,Ownable library API>>
- ** <<_ownable_events,Ownable events>>
-* <<_accesscontrol,AccessControl>>
- ** <<_usage,Usage>>
- ** <<_granting_and_revoking_roles,Granting and revoking roles>>
- ** <<_creating_role_identifiers,Creating role identifiers>>
- ** <<_accesscontrol_library_api,AccessControl library API>>
- ** <<_accesscontrol_events,AccessControl events>>
+* <<ownable,Ownable>>
+ ** <<quickstart,Quickstart>>
+ ** <<ownable_library_api,Ownable library API>>
+ ** <<ownable_events,Ownable events>>
+* <<accesscontrol,AccessControl>>
+ ** <<usage,Usage>>
+ ** <<granting_and_revoking_roles,Granting and revoking roles>>
+ ** <<creating_role_identifiers,Creating role identifiers>>
+ ** <<accesscontrol_library_api,AccessControl library API>>
+ ** <<accesscontrol_events,AccessControl events>>
 
 == Ownable
 
@@ -33,7 +33,7 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 === Quickstart
 
 Integrating {ownable-cairo} into a contract first requires assigning an owner.
-The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<_initializer,initializer>> like this:
+The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<initializer,initializer>> like this:
 
 [,cairo]
 ----
@@ -140,7 +140,7 @@ owner: felt
 Transfers ownership of the contract to a new account (`new_owner`).
 Can only be called by the current owner.
 
-Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -159,7 +159,7 @@ Leaves the contract without owner.
 It will not be possible to call functions with `assert_only_owner` anymore.
 Can only be called by the current owner.
 
-Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -174,7 +174,7 @@ None.
 
 Transfers ownership of the contract to a new account (`new_owner`). {extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -214,15 +214,15 @@ You may want for an account to have permission to ban users from a system, but n
 https://en.wikipedia.org/wiki/Role-based_access_control[Role-Based Access Control (RBAC)] offers flexibility in this regard.
 
 In essence, we will be defining multiple roles, each allowed to perform different sets of actions.
-An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <<_assert_only_owner,assert_only_owner>>.
-This check can be enforced through <<_assert_only_role,assert_only_role>>.
+An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <<assert_only_owner,assert_only_owner>>.
+This check can be enforced through <<assert_only_role,assert_only_role>>.
 Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
 Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
 === Usage
 
-For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<_creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
+For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
 
 Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
 
@@ -264,9 +264,9 @@ func mint{
 end
 ----
 
-CAUTION: Make sure you fully understand how <<_accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
+CAUTION: Make sure you fully understand how <<accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
 
-While clear and explicit, this isn't anything we wouldn't have been able to achieve with <<_ownable,Ownable>>.
+While clear and explicit, this isn't anything we wouldn't have been able to achieve with <<ownable,Ownable>>.
 Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using `assert_only_role`:
@@ -539,9 +539,9 @@ has_role: felt
 ==== `get_role_admin`
 
 Returns the admin role that controls `role`.
-See <<_grant_role,grant_role>> and <<_revoke_role,revoke_role>>.
+See <<grant_role,grant_role>> and <<revoke_role,revoke_role>>.
 
-To change a role's admin, use <<_set_role_admin,`_set_role_admin`>>.
+To change a role's admin, use <<set_role_admin,`_set_role_admin`>>.
 
 Parameters:
 
@@ -561,7 +561,7 @@ admin: felt
 
 Grants `role` to `user`.
 
-If `user` had not been already granted `role`, emits a <<_rolegranted,RoleGranted>> event.
+If `user` had not been already granted `role`, emits a <<rolegranted,RoleGranted>> event.
 
 Requirements:
 
@@ -583,7 +583,7 @@ None.
 
 Revokes `role` from `user`.
 
-If `user` had been granted `role`, emits a <<_rolerevoked,RoleRevoked>> event.
+If `user` had been granted `role`, emits a <<rolerevoked,RoleRevoked>> event.
 
 Requirements:
 
@@ -605,9 +605,9 @@ None.
 
 Revokes `role` from the calling `user`.
 
-Roles are often managed via <<_grant_role,grant_role>> and <<_revoke_role,revoke_role>>: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
+Roles are often managed via <<grant_role,grant_role>> and <<revoke_role,revoke_role>>: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
 
-If the calling `user` had been revoked `role`, emits a <<_rolerevoked,RoleRevoked>> event.
+If the calling `user` had been revoked `role`, emits a <<rolerevoked,RoleRevoked>> event.
 
 Requirements:
 
@@ -632,7 +632,7 @@ Grants `role` to `user`.
 
 {extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<_rolegranted,RoleGranted>> event.
+Emits a <<rolegranted,RoleGranted>> event.
 
 Parameters:
 
@@ -653,7 +653,7 @@ Revokes `role` from `user`.
 
 {extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<_rolerevoked,RoleRevoked>> event.
+Emits a <<rolerevoked,RoleRevoked>> event.
 
 Parameters:
 
@@ -672,7 +672,7 @@ None.
 
 {extensibility-pattern}[`internal`] function that sets `admin_role` as ``role``'s admin role.
 
-Emits a <<_roleadminchanged,RoleAdminChanged>> event.
+Emits a <<roleadminchanged,RoleAdminChanged>> event.
 
 Parameters:
 
@@ -725,8 +725,8 @@ Emitted when account is revoked role.
 
 `sender` is the account that originated the contract call:
 
-* if using <<_revoke_role,revoke_role>>, it is the admin role bearer
-* if using <<_renounce_role,renounce_role>>, it is the role bearer (i.e.
+* if using <<revoke_role,revoke_role>>, it is the admin role bearer
+* if using <<renounce_role,renounce_role>>, it is the role bearer (i.e.
 `account`).
 
 [,cairo]

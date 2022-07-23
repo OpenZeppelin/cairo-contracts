@@ -6,11 +6,11 @@ CAUTION: Expect this module to evolve.
 
 == Table of Contents
 
-* <<_initializable,Initializable>>
-* <<_pausable,Pausable>>
-* <<_reentrancy_guard,Reentrancy Guard>>
-* <<_safemath,SafeMath>>
- ** <<_safeuint256,SafeUint256>>
+* <<initializable,Initializable>>
+* <<pausable,Pausable>>
+* <<reentrancy_guard,Reentrancy Guard>>
+* <<safemath,SafeMath>>
+ ** <<safeuint256,SafeUint256>>
 
 == Initializable
 

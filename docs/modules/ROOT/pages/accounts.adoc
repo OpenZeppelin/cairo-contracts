@@ -11,33 +11,33 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
 
 == Table of Contents
 
-* <<_quickstart,Quickstart>>
-* <<_standard_interface,Standard Interface>>
-* <<_keys_signatures_and_signers,Keys, signatures and signers>>
- ** <<_signer,Signer>>
- ** <<_mocksigner_utility,MockSigner utility>>
- ** <<_mockethsigner_utility,MockEthSigner utility>>
-* <<_account_entrypoint,Account entrypoint>>
-* <<_call_and_accountcallarray_format,Call and AccountCallArray format>>
- ** <<_call,Call>>
- ** <<_accountcallarray,AccountCallArray>>
-* <<_multicall_transactions,Multicall transactions>>
-* <<_api_specification,API Specification>>
- ** <<_get_public_key,`get_public_key`>>
- ** <<_get_nonce,`get_nonce`>>
- ** <<_set_public_key,`set_public_key`>>
- ** <<_is_valid_signature,`is_valid_signature`>>
+* <<quickstart,Quickstart>>
+* <<standard_interface,Standard Interface>>
+* <<keys_signatures_and_signers,Keys, signatures and signers>>
+ ** <<signer,Signer>>
+ ** <<mocksigner_utility,MockSigner utility>>
+ ** <<mockethsigner_utility,MockEthSigner utility>>
+* <<account_entrypoint,Account entrypoint>>
+* <<call_and_accountcallarray_format,Call and AccountCallArray format>>
+ ** <<call,Call>>
+ ** <<accountcallarray,AccountCallArray>>
+* <<multicall_transactions,Multicall transactions>>
+* <<api_specification,API Specification>>
+ ** <<get_public_key,`get_public_key`>>
+ ** <<get_nonce,`get_nonce`>>
+ ** <<set_public_key,`set_public_key`>>
+ ** <<is_valid_signature,`is_valid_signature`>>
  ** <<\\__execute__,`\\__execute__`>>
- ** <<_is_valid_eth_signature,`is_valid_eth_signature`>>
- ** <<_eth_execute,`eth_execute`>>
- ** <<__unsafe_execute,`_unsafe_execute`>>
-* <<_presets,Presets>>
- ** <<_account,Account>>
- ** <<_eth_account,Eth Account>>
-* <<_account_differentiation_with_erc165,Account differentiation with ERC165>>
-* <<_extending_the_account_contract,Extending the Account contract>>
-* <<_l1_escape_hatch_mechanism,L1 escape hatch mechanism>>
-* <<_paying_for_gas,Paying for gas>>
+ ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
+ ** <<eth_execute,`eth_execute`>>
+ ** <<_unsafe_execute,`_unsafe_execute`>>
+* <<presets,Presets>>
+ ** <<account,Account>>
+ ** <<eth_account,Eth Account>>
+* <<account_differentiation_with_erc165,Account differentiation with ERC165>>
+* <<extending_the_account_contract,Extending the Account contract>>
+* <<l1_escape_hatch_mechanism,L1 escape hatch mechanism>>
+* <<paying_for_gas,Paying for gas>>
 
 == Quickstart
 
@@ -243,7 +243,7 @@ The idea is for all user intent to be encoded into a `Call` representing a smart
 Users can also pack multiple messages into a single transaction (creating a multicall transaction).
 Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through mutiple ``Call``s.
 Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
-See <<_multicall_transactions,Multicall transactions>>.
+See <<multicall_transactions,Multicall transactions>>.
 
 === `Call`
 
@@ -500,7 +500,7 @@ It's an internal method that performs the following tasks:
 
 . Increments the nonce.
 . Takes the input and builds a `Call` for each iterated message.
-See <<_multicall_transactions,Multicall transactions>> for more information.
+See <<multicall_transactions,Multicall transactions>> for more information.
 . Calls the target contract with the intended function selector and calldata parameters
 . Forwards the contract call response data as return value
 
@@ -529,7 +529,7 @@ In the case of account contracts, querying `supportsInterface` of an account's a
 
 == Extending the Account contract
 
-Account contracts can be extended by following the xref:extensibility.adoc#the-pattern[extensibility pattern].
+Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 
 To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed.
 This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.

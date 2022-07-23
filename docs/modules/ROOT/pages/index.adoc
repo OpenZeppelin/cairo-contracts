@@ -72,7 +72,7 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 NOTE: `<initial_supply>` is expected to be two integers i.e.
 `1` `0`.
-See xref:utilities.adoc#Uint256[Uint256] for more information.
+See xref:utilities.adoc#uint256[uint256] for more information.
 
 === Write a custom contract using library modules
 

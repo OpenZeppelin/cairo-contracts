@@ -2,13 +2,13 @@
 
 NOTE: Expect this pattern to evolve (as it has already done) or even disappear if https://community.starknet.io/t/contract-extensibility-pattern/210/11?u=martriay[proper extensibility features] are implemented into Cairo.
 
-* <<_the_extensibility_problem,The extensibility problem>>
-* <<_the_pattern,The pattern ™️>>
- ** <<_libraries,Libraries>>
- ** <<_contracts,Contracts>>
-* <<_presets,Presets>>
-* <<_function_names_and_coding_style,Function names and coding style>>
-* <<_emulating_hooks,Emulating hooks>>
+* <<the_extensibility_problem,The extensibility problem>>
+* <<the_pattern,The pattern ™️>>
+ ** <<libraries,Libraries>>
+ ** <<contracts,Contracts>>
+* <<presets,Presets>>
+* <<function_names_and_coding_style,Function names and coding style>>
+* <<emulating_hooks,Emulating hooks>>
 
 == The extensibility problem
 

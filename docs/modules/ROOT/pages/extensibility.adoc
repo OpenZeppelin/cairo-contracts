@@ -2,13 +2,13 @@
 
 NOTE: Expect this pattern to evolve (as it has already done) or even disappear if https://community.starknet.io/t/contract-extensibility-pattern/210/11?u=martriay[proper extensibility features] are implemented into Cairo.
 
-* <<the-extensibility-problem,The extensibility problem>>
-* <<the-pattern,The pattern ™️>>
- ** <<libraries,Libraries>>
- ** <<contracts,Contracts>>
-* <<presets,Presets>>
-* <<function-names-and-coding-style,Function names and coding style>>
-* <<emulating-hooks,Emulating hooks>>
+* <<_the_extensibility_problem,The extensibility problem>>
+* <<_the_pattern,The pattern ™️>>
+ ** <<_libraries,Libraries>>
+ ** <<_contracts,Contracts>>
+* <<_presets,Presets>>
+* <<_function_names_and_coding_style,Function names and coding style>>
+* <<_emulating_hooks,Emulating hooks>>
 
 == The extensibility problem
 
@@ -79,15 +79,15 @@ They can be deployed as-is or used as templates for customization.
 
 Some presets are:
 
-* link:../src/openzeppelin/account/Account.cairo[Account]
-* link:../tests/mocks/ERC165.cairo[ERC165]
-* link:../src/openzeppelin/token/erc20/ERC20_Mintable.cairo[ERC20_Mintable]
-* link:../src/openzeppelin/token/erc20/ERC20_Pausable.cairo[ERC20_Pausable]
-* link:../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[ERC20_Upgradeable]
-* link:../src/openzeppelin/token/erc20/ERC20.cairo[ERC20]
-* link:../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo[ERC721_Mintable_Burnable]
-* link:../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo[ERC721_Mintable_Pausable]
-* link:../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo[ERC721_Enumerable_Mintable_Burnable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/Account.cairo[Account]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/ERC165.cairo[ERC165]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Mintable.cairo[ERC20_Mintable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Pausable.cairo[ERC20_Pausable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[ERC20_Upgradeable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20.cairo[ERC20]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo[ERC721_Mintable_Burnable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo[ERC721_Mintable_Pausable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo[ERC721_Enumerable_Mintable_Burnable]
 
 == Function names and coding style
 

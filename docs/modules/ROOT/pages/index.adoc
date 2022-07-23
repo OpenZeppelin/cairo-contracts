@@ -50,7 +50,7 @@ pip install openzeppelin-cairo-contracts
 
 Presets are ready-to-use contracts that you can deploy right away.
 They also serve as examples of how to use library modules.
-link:docs/Extensibility.md#presets[Read more about presets].
+xref:extensibility.adoc#presets[Read more about presets].
 
 [,cairo]
 ----
@@ -72,11 +72,11 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 NOTE: `<initial_supply>` is expected to be two integers i.e.
 `1` `0`.
-See link:docs/Utilities.md#Uint256[Uint256] for more information.
+See xref:utilities.adoc#Uint256[Uint256] for more information.
 
 === Write a custom contract using library modules
 
-link:docs/Extensibility.md#libraries[Read more about libraries].
+xref:extensibility.adoc#libraries[Read more about libraries].
 
 [,cairo]
 ----

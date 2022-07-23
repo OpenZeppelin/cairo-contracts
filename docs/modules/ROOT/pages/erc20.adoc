@@ -5,29 +5,29 @@ The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.
 
 == Table of Contents
 
-* <<interface,Interface>>
- ** <<erc20-compatibility,ERC20 compatibility>>
-* <<usage,Usage>>
-* <<extensibility,Extensibility>>
-* <<presets,Presets>>
- ** <<erc20-basic,ERC20 (basic)>>
- ** <<erc20_mintable,ERC20_Mintable>>
- ** <<erc20_pausable,ERC20_Pausable>>
- ** <<erc20_upgradeable,ERC20_Upgradeable>>
-* <<api-specification,API Specification>>
- ** <<methods,Methods>>
-  *** <<name,`name`>>
-  *** <<symbol,`symbol`>>
-  *** <<decimals,`decimals`>>
-  *** <<totalsupply,`totalSupply`>>
-  *** <<balanceof,`balanceOf`>>
-  *** <<allowance,`allowance`>>
-  *** <<transfer,`transfer`>>
-  *** <<transferfrom,`transferFrom`>>
-  *** <<approve,`approve`>>
- ** <<events,Events>>
-  *** <<transfer-event,`Transfer (event)`>>
-  *** <<approval-event,`Approval (event)`>>
+* <<_interface,Interface>>
+ ** <<_erc20_compatibility,ERC20 compatibility>>
+* <<_usage,Usage>>
+* <<_extensibility,Extensibility>>
+* <<_presets,Presets>>
+ ** <<_erc20_basic,ERC20 (basic)>>
+ ** <<_erc20_mintable,ERC20_Mintable>>
+ ** <<_erc20_pausable,ERC20_Pausable>>
+ ** <<_erc20_upgradeable,ERC20_Upgradeable>>
+* <<_api_specification,API Specification>>
+ ** <<_methods,Methods>>
+  *** <<_name,`name`>>
+  *** <<_symbol,`symbol`>>
+  *** <<_decimals,`decimals`>>
+  *** <<_totalsupply,`totalSupply`>>
+  *** <<_balanceof,`balanceOf`>>
+  *** <<_allowance,`allowance`>>
+  *** <<_transfer,`transfer`>>
+  *** <<_transferfrom,`transferFrom`>>
+  *** <<_approve,`approve`>>
+ ** <<_events,Events>>
+  *** <<_transfer_event,`Transfer (event)`>>
+  *** <<_approval_event,`Approval (event)`>>
 
 == Interface
 
@@ -134,10 +134,10 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 
 == Extensibility
 
-ERC20 contracts can be extended by following the link:../docs/Extensibility.md#the-pattern[extensibility pattern].
+ERC20 contracts can be extended by following the xref:extensibility.adoc#the-pattern[extensibility pattern].
 The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter.
 For example, let's say you wanted to implement a pausing mechanism.
-The contract should first import the ERC20 methods and the extended logic from the link:../src/openzeppelin/security/pausable.cairo[pausable library] i.e.
+The contract should first import the ERC20 methods and the extended logic from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/security/pausable.cairo[pausable library] i.e.
 `Pausable_pause`, `Pausable_unpause`.
 Next, the contract should expose the methods with the extended logic therein like this:
 
@@ -164,7 +164,7 @@ Some other ways to extend ERC20 contracts may include:
 * Creating a timelock
 * Adding roles such as owner or minter
 
-For full examples of the extensibility pattern being used in ERC20 contracts, see <<presets,Presets>>.
+For full examples of the extensibility pattern being used in ERC20 contracts, see <<_presets,Presets>>.
 
 == Presets
 
@@ -173,23 +173,23 @@ Each preset mints an initial supply which is especially necessary for presets th
 
 === ERC20 (basic)
 
-The link:../src/openzeppelin/token/erc20/ERC20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
 
 === ERC20_Mintable
 
-The link:../src/openzeppelin/token/erc20/ERC20_Mintable.cairo[`ERC20_Mintable`] preset allows the contract owner to mint new tokens.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Mintable.cairo[`ERC20_Mintable`] preset allows the contract owner to mint new tokens.
 
 === ERC20_Pausable
 
-The link:../src/openzeppelin/token/erc20/ERC20_Pausable.cairo[`ERC20_Pausable`] preset allows the contract owner to pause/unpause all state-modifying methods i.e.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Pausable.cairo[`ERC20_Pausable`] preset allows the contract owner to pause/unpause all state-modifying methods i.e.
 `transfer`, `approve`, etc.
 This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
 
 === ERC20_Upgradeable
 
-The link:../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[`ERC20_Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo[`ERC20_Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state.
 This preset proves useful for scenarios such as eliminating bugs and adding new features.
-For more on upgradeability, see link:Proxies.md#contract-upgrades[Contract upgrades].
+For more on upgradeability, see xref:proxies.adoc#contract-upgrades[Contract upgrades].
 
 == API Specification
 
@@ -327,7 +327,7 @@ remaining: Uint256
 Moves `amount` tokens from the caller's account to `recipient`.
 It returns `1` representing a bool if it succeeds.
 
-Emits a <<transfer-event,Transfer>> event.
+Emits a <<_transfer-event,Transfer>> event.
 
 Parameters:
 
@@ -350,7 +350,7 @@ Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism
 `amount` is then deducted from the caller's allowance.
 It returns `1` representing a bool if it succeeds.
 
-Emits a <<transfer-event,Transfer>> event.
+Emits a <<_transfer-event,Transfer>> event.
 
 Parameters:
 
@@ -373,7 +373,7 @@ success: felt
 Sets `amount` as the allowance of `spender` over the caller's tokens.
 It returns `1` representing a bool if it succeeds.
 
-Emits an <<approval-event,Approval>> event.
+Emits an <<_approval-event,Approval>> event.
 
 Parameters:
 
@@ -418,7 +418,7 @@ value: Uint256
 
 ==== `Approval (event)`
 
-Emitted when the allowance of a `spender` for an `owner` is set by a call to <<approve,approve>>.
+Emitted when the allowance of a `spender` for an `owner` is set by a call to <<_approve,approve>>.
 `value` is the new allowance.
 
 Parameters:

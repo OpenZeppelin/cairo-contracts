@@ -1,3 +1,5 @@
+:test-utils: https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/utils.py
+
 = Accounts
 
 Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
@@ -9,33 +11,33 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
 
 == Table of Contents
 
-* <<quickstart,Quickstart>>
-* <<standard-interface,Standard Interface>>
-* <<keys-signatures-and-signers,Keys, signatures and signers>>
- ** <<signer,Signer>>
- ** <<mocksigner-utility,MockSigner utility>>
- ** <<mockethsigner-utility,MockEthSigner utility>>
-* <<account-entrypoint,Account entrypoint>>
-* <<call-and-accountcallarray-format,Call and AccountCallArray format>>
- ** <<call,Call>>
- ** <<accountcallarray,AccountCallArray>>
-* <<multicall-transactions,Multicall transactions>>
-* <<api-specification,API Specification>>
- ** <<get_public_key,`get_public_key`>>
- ** <<get_nonce,`get_nonce`>>
- ** <<set_public_key,`set_public_key`>>
- ** <<is_valid_signature,`is_valid_signature`>>
+* <<_quickstart,Quickstart>>
+* <<_standard_interface,Standard Interface>>
+* <<_keys_signatures_and_signers,Keys, signatures and signers>>
+ ** <<_signer,Signer>>
+ ** <<_mocksigner_utility,MockSigner utility>>
+ ** <<_mockethsigner_utility,MockEthSigner utility>>
+* <<_account_entrypoint,Account entrypoint>>
+* <<_call_and_accountcallarray_format,Call and AccountCallArray format>>
+ ** <<_call,Call>>
+ ** <<_accountcallarray,AccountCallArray>>
+* <<_multicall_transactions,Multicall transactions>>
+* <<_api_specification,API Specification>>
+ ** <<_get_public_key,`get_public_key`>>
+ ** <<_get_nonce,`get_nonce`>>
+ ** <<_set_public_key,`set_public_key`>>
+ ** <<_is_valid_signature,`is_valid_signature`>>
  ** <<\\__execute__,`\\__execute__`>>
- ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
- ** <<eth_execute,`eth_execute`>>
- ** <<_unsafe_execute,`_unsafe_execute`>>
-* <<presets,Presets>>
- ** <<account,Account>>
- ** <<eth-account,Eth Account>>
-* <<account-differentiation-with-erc165,Account differentiation with ERC165>>
-* <<extending-the-account-contract,Extending the Account contract>>
-* <<l1-escape-hatch-mechanism,L1 escape hatch mechanism>>
-* <<paying-for-gas,Paying for gas>>
+ ** <<_is_valid_eth_signature,`is_valid_eth_signature`>>
+ ** <<_eth_execute,`eth_execute`>>
+ ** <<__unsafe_execute,`_unsafe_execute`>>
+* <<_presets,Presets>>
+ ** <<_account,Account>>
+ ** <<_eth_account,Eth Account>>
+* <<_account_differentiation_with_erc165,Account differentiation with ERC165>>
+* <<_extending_the_account_contract,Extending the Account contract>>
+* <<_l1_escape_hatch_mechanism,L1 escape hatch mechanism>>
+* <<_paying_for_gas,Paying for gas>>
 
 == Quickstart
 
@@ -64,7 +66,7 @@ await signer.send_transaction(account, some_contract_address, 'some_function', [
 
 == Standard Interface
 
-The link:../src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
 It implements https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and it is agnostic of signature validation and nonce management strategies.
 
 [,cairo]
@@ -137,7 +139,7 @@ To simplify Account management, most of this is abstracted away with `MockSigner
 
 === MockSigner utility
 
-The `MockSigner` class in link:../tests/utils.py[utils.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+The `MockSigner` class in {test-utils}[utils.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
 The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format.
 The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument).
@@ -183,7 +185,7 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 
 === MockEthSigner utility
 
-The `MockEthSigner` class in link:../tests/utils.py[utils.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
+The `MockEthSigner` class in {test-utils}[utils.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
 It differs from the `MockSigner` implementation by:
 
 * not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
@@ -232,10 +234,8 @@ Where:
 * `nonce` is an unique identifier of this message to prevent transaction replays.
 Current implementation requires nonces to be incremental
 
-____
-Note that the scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
+NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
-____
 
 == `Call` and `AccountCallArray` format
 
@@ -243,7 +243,7 @@ The idea is for all user intent to be encoded into a `Call` representing a smart
 Users can also pack multiple messages into a single transaction (creating a multicall transaction).
 Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through mutiple ``Call``s.
 Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
-See <<multicall-transactions,Multicall transactions>>.
+See <<_multicall-transactions,Multicall transactions>>.
 
 === `Call`
 
@@ -307,16 +307,14 @@ This is the basic flow:
      )
 ----
 +
-The `_from_call_to_call_array` method in link:../tests/utils.py[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
+The `_from_call_to_call_array` method in {test-utils}[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
 Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
 The Signer then invokes `\\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
 . The `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
 
-____
-It should be noted that every transaction utilizes `AccountCallArray`.
+NOTE: Every transaction utilizes `AccountCallArray`.
 A single `Call` is treated as a bundle with one message.
-____
 
 == API Specification
 
@@ -416,11 +414,7 @@ Returns:
 is_valid: felt
 ----
 
-____
-returns `TRUE` if a given signature is valid.
-Otherwise, reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-____
+NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
 
 === `\\__execute__`
 
@@ -443,9 +437,7 @@ calldata: felt*
 nonce: felt
 ----
 
-____
-Note that the current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
-____
+NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
 Returns:
 
@@ -475,11 +467,7 @@ Returns:
 is_valid: felt
 ----
 
-____
-returns `TRUE` if a given signature is valid.
-Otherwise, reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-____
+NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
 
 === `eth_execute`
 
@@ -496,10 +484,6 @@ calldata: felt*
 nonce: felt
 ----
 
-____
-Note that the current signature scheme expects a 7-element array like `[sig_v, uint256_sig_r_low, uint256_sig_r_high, uint256_sig_s_low, uint256_sig_s_high, uint256_hash_low, uint256_hash_high]` given that the parameters of the verification are bigger than a felt.
-____
-
 Returns:
 
 [,cairo]
@@ -508,13 +492,15 @@ response_len: felt
 response: felt*
 ----
 
+NOTE: The current signature scheme expects a 7-element array like `[sig_v, uint256_sig_r_low, uint256_sig_r_high, uint256_sig_s_low, uint256_sig_s_high, uint256_hash_low, uint256_hash_high]` given that the parameters of the verification are bigger than a felt.
+
 === `_unsafe_execute`
 
 It's an internal method that performs the following tasks:
 
 . Increments the nonce.
 . Takes the input and builds a `Call` for each iterated message.
-See <<multicall-transactions,Multicall transactions>> for more information.
+See <<_multicall-transactions,Multicall transactions>> for more information.
 . Calls the target contract with the intended function selector and calldata parameters
 . Forwards the contract call response data as return value
 
@@ -525,11 +511,11 @@ Each preset differs on the signature type being used by the Account.
 
 === Account
 
-The link:../src/openzeppelin/account/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
 
 === Eth Account
 
-The link:../src/openzeppelin/account/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 == Account differentiation with ERC165
 
@@ -543,7 +529,7 @@ In the case of account contracts, querying `supportsInterface` of an account's a
 
 == Extending the Account contract
 
-Account contracts can be extended by following the link:../docs/Extensibility.md#the-pattern[extensibility pattern].
+Account contracts can be extended by following the xref:extensibility.adoc#the-pattern[extensibility pattern].
 
 To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed.
 This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
@@ -553,12 +539,10 @@ Account contract developers are encouraged to implement the https://github.com/O
 To implement alternative `execute` functions, make sure to check their corresponding `validate` function before calling the `_unsafe_execute` building block, as each of the current presets is doing.
 Do not expose `_unsafe_execute` directly.
 
-____
-Please note that the `ecdsa_ptr` implicit argument should be included in new methods that invoke `_unsafe_execute` (even if the `ecdsa_ptr` is not being used).
+IMPORTANT: The `ecdsa_ptr` implicit argument should be included in new methods that invoke `_unsafe_execute` (even if the `ecdsa_ptr` is not being used).
 Otherwise, it's possible that an account's functionalty can work in both the testing and local devnet environments;
 however, it could fail on public networks on account of the https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/lang/builtins/signature/signature_builtin_runner.py[SignatureBuiltinRunner].
 See https://github.com/OpenZeppelin/cairo-contracts/issues/386[issue #386] for more information.
-____
 
 Some other validation schemes to look out for in the future:
 

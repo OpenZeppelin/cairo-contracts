@@ -70,7 +70,7 @@ Thus, OpenZeppelin offers an https://github.com/OpenZeppelin/openzeppelin-contra
 See OpenZeppelin's https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable[Writing Upgradeable Contracts] for more info.
 
 The Cairo programming language does not support inheritance.
-Instead, Cairo contracts follow the xref:../docs/Extensibility.adoc[Extensibility Pattern] which already uses initializer methods to mimic constructors.
+Instead, Cairo contracts follow the xref:extensibility.adoc[Extensibility Pattern] which already uses initializer methods to mimic constructors.
 Upgradeable contracts do not, therefore, require a separate library with refactored constructor logic.
 
 === Storage

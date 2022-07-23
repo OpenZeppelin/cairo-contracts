@@ -28,7 +28,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 == Constants
 
 To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/utils/constants.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
-For more information on how interface ids are calculated, see the xref:introspection.adoc#interface-calculations[ERC165 documentation].
+For more information on how interface ids are calculated, see the xref:introspection.adoc#interface_calculations[ERC165 documentation].
 
 == Strings
 
@@ -284,4 +284,4 @@ def foo_factory(contract_classes, foo_init):
 
 `MockSigner` is used to perform transactions with an instance of https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's Signer] on a given Account, crafting the transaction and managing nonces.
 The `Signer` instance manages signatures and is leveraged by `MockSigner` to operate with the Account contract's `\\__execute__` method.
-See xref:account.adoc#mocksigner-utility[MockSigner utility] for more information.
+See xref:account.adoc#mocksigner_utility[MockSigner utility] for more information.

@@ -11,7 +11,7 @@ from utils import (
 async def safemath_mock():
     starknet = await Starknet.empty()
     safemath = await starknet.deploy(
-        contract_class=get_contract_class("safemath_mock")
+        contract_class=get_contract_class("SafeMathMock")
     )
 
     return safemath

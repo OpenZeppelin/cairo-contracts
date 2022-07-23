@@ -41,14 +41,14 @@ Access control—that is, "who is allowed to do this thing"—is incredibly impo
 
 The most common and basic form of access control is the concept of ownership: there’s an account that is the `owner` of a contract and can do administrative tasks on it. This approach is perfectly reasonable for contracts that have a single administrative user.
 
-OpenZeppelin Contracts for Cairo provides [Ownable](../src/openzeppelin/access/ownable.cairo) for implementing ownership in your contracts.
+OpenZeppelin Contracts for Cairo provides [Ownable](../src/openzeppelin/access/ownable/library.cairo) for implementing ownership in your contracts.
 
 ### Quickstart
 
-Integrating [Ownable](../src/openzeppelin/access/ownable.cairo) into a contract first requires assigning an owner. The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's [initializer](#initializer) like this:
+Integrating [Ownable](../src/openzeppelin/access/library.cairo) into a contract first requires assigning an owner. The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's [initializer](#initializer) like this:
 
 ```cairo
-from openzeppelin.access.ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 @constructor
 func constructor{
@@ -64,7 +64,7 @@ end
 To restrict a function's access to the owner only, add in the `assert_only_owner` method:
 
 ```cairo
-from openzeppelin.access.ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 func protected_function{
         syscall_ptr : felt*,
@@ -216,12 +216,12 @@ Most software uses access control systems that are role-based: some users are re
 
 For each role that you want to define, you will create a new *role identifier* that is used to grant, revoke, and check if an account has that role (see [Creating role identifiers](#creating-role-identifiers) for information on creating identifiers).
 
-Here's a simple example of implementing `AccessControl` on a portion of an [ERC20 token contract](../src/openzeppelin/token/erc20/ERC20.cairo) which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an [ERC20 token contract](../src/openzeppelin/token/erc20/presets/ERC20.cairo) which defines and sets the 'minter' role:
 
 ```cairo
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
@@ -264,7 +264,7 @@ Let’s augment our ERC20 token example by also defining a 'burner' role, which 
 ```cairo
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
@@ -331,7 +331,7 @@ from openzeppelin.token.erc20.library import ERC20
 
 from openzeppelin.access.accesscontrol import AccessControl
 
-from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
+from openzeppelin.utils.constants.library import DEFAULT_ADMIN_ROLE
 
 
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5

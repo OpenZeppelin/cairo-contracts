@@ -1,3 +1,7 @@
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/access/ownable.cairo[Ownable]
+
+:extensibility-pattern: xref:extensibility.adoc#the-pattern
+
 = Access
 
 CAUTION: Expect these modules to evolve.
@@ -8,28 +12,28 @@ It is therefore critical to understand how you implement it, lest someone else h
 
 == Table of Contents
 
-* <<Ownable,Ownable>>
- ** <<Quickstart,Quickstart>>
- ** <<Ownable library API,Ownable library API>>
- ** <<Ownable events,Ownable events>>
-* <<AccessControl,AccessControl>>
- ** <<Usage,Usage>>
- ** <<Granting and revoking roles,Granting and revoking roles>>
- ** <<Creating role identifiers,Creating role identifiers>>
- ** <<AccessControl library API,AccessControl library API>>
- ** <<AccessControl events,AccessControl events>>
+* <<_ownable,Ownable>>
+ ** <<_quickstart,Quickstart>>
+ ** <<_ownable_library_api,Ownable library API>>
+ ** <<_ownable_events,Ownable events>>
+* <<_accesscontrol,AccessControl>>
+ ** <<_usage,Usage>>
+ ** <<_granting_and_revoking_roles,Granting and revoking roles>>
+ ** <<_creating_role_identifiers,Creating role identifiers>>
+ ** <<_accesscontrol_library_api,AccessControl library API>>
+ ** <<_accesscontrol_events,AccessControl events>>
 
 == Ownable
 
 The most common and basic form of access control is the concept of ownership: there's an account that is the `owner` of a contract and can do administrative tasks on it.
 This approach is perfectly reasonable for contracts that have a single administrative user.
 
-OpenZeppelin Contracts for Cairo provides link:../src/openzeppelin/access/ownable.cairo[Ownable] for implementing ownership in your contracts.
+OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing ownership in your contracts.
 
 === Quickstart
 
-Integrating link:../src/openzeppelin/access/ownable.cairo[Ownable] into a contract first requires assigning an owner.
-The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<initializer,initializer>> like this:
+Integrating {ownable-cairo} into a contract first requires assigning an owner.
+The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<_initializer,initializer>> like this:
 
 [,cairo]
 ----
@@ -136,7 +140,7 @@ owner: felt
 Transfers ownership of the contract to a new account (`new_owner`).
 Can only be called by the current owner.
 
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -155,7 +159,7 @@ Leaves the contract without owner.
 It will not be possible to call functions with `assert_only_owner` anymore.
 Can only be called by the current owner.
 
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -168,10 +172,9 @@ None.
 [#transfer-ownership-internal]
 ==== `_transfer_ownership`
 
-Transfers ownership of the contract to a new account (`new_owner`).
-link:./Extensibility.md#the-pattern[`internal`] function without access restriction.
+Transfers ownership of the contract to a new account (`new_owner`). {extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
+Emits a <<_ownershiptransferred,`OwnershipTransferred`>> event.
 
 Parameters:
 
@@ -211,17 +214,17 @@ You may want for an account to have permission to ban users from a system, but n
 https://en.wikipedia.org/wiki/Role-based_access_control[Role-Based Access Control (RBAC)] offers flexibility in this regard.
 
 In essence, we will be defining multiple roles, each allowed to perform different sets of actions.
-An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <<assert_only_owner,assert_only_owner>>.
-This check can be enforced through <<assert_only_role,assert_only_role>>.
+An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <<_assert_only_owner,assert_only_owner>>.
+This check can be enforced through <<_assert_only_role,assert_only_role>>.
 Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
 Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
 
 === Usage
 
-For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating-role-identifiers,Creating role identifiers>> for information on creating identifiers).
+For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<_creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
 
-Here's a simple example of implementing `AccessControl` on a portion of an link:../src/openzeppelin/token/erc20/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
 
 [,cairo]
 ----
@@ -261,9 +264,9 @@ func mint{
 end
 ----
 
-CAUTION: Make sure you fully understand how <<accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
+CAUTION: Make sure you fully understand how <<_accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
 
-While clear and explicit, this isn't anything we wouldn't have been able to achieve with <<ownable,Ownable>>.
+While clear and explicit, this isn't anything we wouldn't have been able to achieve with <<_ownable,Ownable>>.
 Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using `assert_only_role`:
@@ -327,7 +330,7 @@ Note that each account may still have more than one role, if so desired.
 
 === Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an link:./Extensibility.md#the-pattern[`internal`] function that is useful when programmatically assigning roles (such as during construction).
+The ERC20 token example above uses `_grant_role`, an {extensibility-pattern}[`internal`] function that is useful when programmatically assigning roles (such as during construction).
 But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, *accounts with a role cannot grant it or revoke it from other accounts*: all having a role does is making the `assert_only_role` check pass.
@@ -403,7 +406,7 @@ However, because those roles' admin role is the default admin role, and that rol
 Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time.
 It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
-The following example uses the link:../tests/mocks/AccessControl.cairo[AccessControl mock contract] which exposes the role management functions.
+The following example uses the link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/AccessControl.cairo[AccessControl mock contract] which exposes the role management functions.
 To grant and revoke roles in Python, for example:
 
 [,python]
@@ -536,9 +539,9 @@ has_role: felt
 ==== `get_role_admin`
 
 Returns the admin role that controls `role`.
-See <<grant_role,grant_role>> and <<revoke_role,revoke_role>>.
+See <<_grant_role,grant_role>> and <<_revoke_role,revoke_role>>.
 
-To change a role's admin, use <<_set_role_admin,_set_role_admin>>.
+To change a role's admin, use <<_set_role_admin,`_set_role_admin`>>.
 
 Parameters:
 
@@ -558,7 +561,7 @@ admin: felt
 
 Grants `role` to `user`.
 
-If `user` had not been already granted `role`, emits a <<rolegranted,RoleGranted>> event.
+If `user` had not been already granted `role`, emits a <<_rolegranted,RoleGranted>> event.
 
 Requirements:
 
@@ -580,7 +583,7 @@ None.
 
 Revokes `role` from `user`.
 
-If `user` had been granted `role`, emits a <<rolerevoked,RoleRevoked>> event.
+If `user` had been granted `role`, emits a <<_rolerevoked,RoleRevoked>> event.
 
 Requirements:
 
@@ -602,9 +605,9 @@ None.
 
 Revokes `role` from the calling `user`.
 
-Roles are often managed via <<grant_role,grant_role>> and <<revoke_role,revoke_role>>: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
+Roles are often managed via <<_grant_role,grant_role>> and <<_revoke_role,revoke_role>>: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
 
-If the calling `user` had been revoked `role`, emits a <<rolerevoked,RoleRevoked>> event.
+If the calling `user` had been revoked `role`, emits a <<_rolerevoked,RoleRevoked>> event.
 
 Requirements:
 
@@ -627,9 +630,9 @@ None.
 
 Grants `role` to `user`.
 
-link:./Extensibility.md#the-pattern[`internal`] function without access restriction.
+{extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<rolegranted,RoleGranted>> event.
+Emits a <<_rolegranted,RoleGranted>> event.
 
 Parameters:
 
@@ -648,9 +651,9 @@ None.
 
 Revokes `role` from `user`.
 
-link:./Extensibility.md#the-pattern[`internal`] function without access restriction.
+{extensibility-pattern}[`internal`] function without access restriction.
 
-Emits a <<rolerevoked,RoleRevoked>> event.
+Emits a <<_rolerevoked,RoleRevoked>> event.
 
 Parameters:
 
@@ -667,9 +670,9 @@ None.
 [#setroleadmin]
 ==== `_set_role_admin`
 
-link:./Extensibility.md#the-pattern[`internal`] function that sets `admin_role` as ``role``'s admin role.
+{extensibility-pattern}[`internal`] function that sets `admin_role` as ``role``'s admin role.
 
-Emits a <<roleadminchanged,RoleAdminChanged>> event.
+Emits a <<_roleadminchanged,RoleAdminChanged>> event.
 
 Parameters:
 
@@ -722,8 +725,8 @@ Emitted when account is revoked role.
 
 `sender` is the account that originated the contract call:
 
-* if using <<revoke_role,revoke_role>>, it is the admin role bearer
-* if using <<renounce_role,renounce_role>>, it is the role bearer (i.e.
+* if using <<_revoke_role,revoke_role>>, it is the admin role bearer
+* if using <<_renounce_role,renounce_role>>, it is the role bearer (i.e.
 `account`).
 
 [,cairo]

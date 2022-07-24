@@ -8,6 +8,9 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.business_logic.execution.objects import Event
+from starkware.starknet.business_logic.state.state import BlockInfo
+from starkware.cairo.common.hash_state import compute_hash_on_elements
+from starkware.crypto.signature.signature import FIELD_PRIME
 
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
@@ -86,6 +89,17 @@ def div_rem_uint(a, b):
     return (to_uint(c), to_uint(m))
 
 
+def role_repr(val):
+    """
+    Returns a (possibly negative) decimal representation of the role id.
+    """
+    if isinstance(val, int):
+        # Shift val to the range (-prime // 2, prime // 2).
+        return str((val + FIELD_PRIME // 2) % FIELD_PRIME - (FIELD_PRIME // 2))
+    else:
+        return str(val)
+
+
 async def assert_revert(fun, reverted_with=None):
     try:
         await fun
@@ -146,3 +160,64 @@ def cached_contract(state, _class, deployed):
         deploy_execution_info=deployed.deploy_execution_info
     )
     return contract
+
+def get_block_timestamp(starknet_state):
+    """Return the block timestamp."""
+    return starknet_state.state.block_info.block_timestamp
+
+
+def set_block_timestamp(starknet_state, timestamp, gas_price=0, sequenceer_address=None):
+    """Set the block timestamp."""
+    starknet_state.state.block_info = BlockInfo(
+        starknet_state.state.block_info.block_number,   # block number
+        timestamp,                                      # new timestamp
+        gas_price,                                      # gas price
+        sequenceer_address                              # sequencer address
+    )
+
+
+def from_call_to_call_array(calls):
+    """Return calls and calldata arrays."""
+    call_array = []
+    calldata = []
+    for call in calls:
+        assert len(call) == 3, "Invalid call parameters"
+        entry = (
+            call[0],                                # to
+            get_selector_from_name(call[1]),        # selector
+            len(calldata),                          # calldata length
+            len(call[2])                            # calldata
+        )
+        call_array.append(entry)
+        calldata.extend(call[2])
+    return (call_array, calldata)
+
+
+def flatten_calls(calls):
+    """Format calls for signer invoke."""
+    calls_len = len(calls[0])
+    flatten_calls = [e for call in calls[0] for e in call]
+    flatten_calldata = [e for e in calls[-1]]
+
+    return [
+        calls_len,                      # calls length
+        *flatten_calls,                 # flattened calls
+        len(flatten_calldata),          # calldata length
+        *flatten_calldata               # flattened calldata
+    ]
+
+
+def timelock_hash_chain(calls, predecessor, salt):
+    """Return the hash id for timelock hash operations."""
+    calldata_len = 0
+    hashed_calls = []
+    for call in calls:
+        calldata_len = calldata_len + len(call[2])
+        hashed_calls.append(
+            compute_hash_on_elements([
+                call[0],                            # to
+                get_selector_from_name(call[1]),    # selector
+                compute_hash_on_elements(call[2])   # calldata
+            ])
+        )
+    return compute_hash_on_elements([*hashed_calls, calldata_len, predecessor, salt])

@@ -5,22 +5,22 @@
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from openzeppelin.utils.constants import (
+from openzeppelin.utils.constants.library import (
     IERC721_RECEIVER_ID,
     ON_ERC1155_RECEIVED_SELECTOR,
     ON_ERC1155_BATCH_RECEIVED_SELECTOR
 )
 
-from openzeppelin.security.timelock import (
+from openzeppelin.security.timelock.library import (
     Timelock,
     PROPOSER_ROLE,
     CANCELLER_ROLE,
     EXECUTOR_ROLE,
 )
 
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 from openzeppelin.account.library import AccountCallArray
 

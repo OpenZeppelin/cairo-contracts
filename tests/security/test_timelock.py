@@ -96,7 +96,7 @@ async def contract_classes():
     account_cls = get_contract_class("Account")
     timelock_cls = get_contract_class("Timelock")
     target_cls = get_contract_class("Contract")
-    erc721_cls = get_contract_class('ERC721_Mintable_Burnable')
+    erc721_cls = get_contract_class('ERC721MintableBurnable')
     mal_target_cls = get_contract_class("TimelockReentrancy")
 
     return account_cls, timelock_cls, target_cls, erc721_cls, mal_target_cls

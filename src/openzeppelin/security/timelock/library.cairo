@@ -20,11 +20,11 @@ from starkware.cairo.common.hash_state import (
 
 from openzeppelin.account.library import Call, AccountCallArray, Account
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
-from openzeppelin.utils.constants import IERC1155_RECEIVER_ID, IERC721_RECEIVER_ID
+from openzeppelin.utils.constants.library import IERC1155_RECEIVER_ID, IERC721_RECEIVER_ID
 
 #
 # Constants

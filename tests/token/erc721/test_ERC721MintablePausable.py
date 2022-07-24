@@ -17,15 +17,9 @@ DATA = [0x42, 0x89, 0x55]
 
 @pytest.fixture(scope='module')
 def contract_classes():
-<<<<<<< HEAD:tests/token/erc721/test_ERC721_Mintable_Pausable.py
     account_cls = Account.get_class
-    erc721_cls = get_contract_class('ERC721_Mintable_Pausable')
-    erc721_holder_cls = get_contract_class('ERC721_Holder')
-=======
-    account_cls = get_contract_class('Account')
     erc721_cls = get_contract_class('ERC721MintablePausable')
     erc721_holder_cls = get_contract_class('ERC721Holder')
->>>>>>> main:tests/token/erc721/test_ERC721MintablePausable.py
 
     return account_cls, erc721_cls, erc721_holder_cls
 

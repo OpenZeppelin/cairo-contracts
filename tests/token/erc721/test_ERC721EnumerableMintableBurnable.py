@@ -24,13 +24,8 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 @pytest.fixture(scope='module')
 def contract_classes():
-<<<<<<< HEAD:tests/token/erc721_enumerable/test_ERC721_Enumerable_Mintable_Burnable.py
     account_cls = Account.get_class
-    erc721_cls = get_contract_class('ERC721_Enumerable_Mintable_Burnable')
-=======
-    account_cls = get_contract_class('Account')
     erc721_cls = get_contract_class('ERC721EnumerableMintableBurnable')
->>>>>>> main:tests/token/erc721/test_ERC721EnumerableMintableBurnable.py
 
     return account_cls, erc721_cls
 

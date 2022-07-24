@@ -1,26 +1,21 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
-from utils import get_contract_class, cached_contract
+from utils import get_contract_class, cached_contract, State, Account
 
 
 signer = MockSigner(123456789987654321)
 L1_ADDRESS = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984
 ANOTHER_ADDRESS = 0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f
 
-
 @pytest.fixture(scope='module')
 async def registry_factory():
     # contract classes
     registry_cls = get_contract_class("AddressRegistry")
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
 
     # deployments
-    starknet = await Starknet.empty()
-    account = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account = await Account.deploy(signer.public_key)
     registry = await starknet.deploy(
         contract_class=registry_cls,
         constructor_calldata=[]

@@ -1,11 +1,11 @@
 import pytest
 from pathlib import Path
 from signers import MockSigner
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     TRUE, FALSE,
     assert_event_emitted, assert_revert,
-    get_contract_class, cached_contract
+    get_contract_class, cached_contract,
+    State, Account
 )
 
 DEFAULT_ADMIN_ROLE = 0
@@ -28,15 +28,9 @@ def contract_classes():
 
 @pytest.fixture(scope='module')
 async def accesscontrol_init(contract_classes):
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=contract_classes['Account'],
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=contract_classes['Account'],
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     accesscontrol = await starknet.deploy(
         contract_class=contract_classes['AccessControl'],
         constructor_calldata=[account1.contract_address]
@@ -50,8 +44,8 @@ def accesscontrol_factory(contract_classes, accesscontrol_init):
     _state = state.copy()
     accesscontrol = cached_contract(
         _state, contract_classes['AccessControl'], accesscontrol)
-    account1 = cached_contract(_state, contract_classes['Account'], account1)
-    account2 = cached_contract(_state, contract_classes['Account'], account2)
+    account1 = cached_contract(_state, Account.get_class, account1)
+    account2 = cached_contract(_state, Account.get_class, account2)
     return accesscontrol, account1, account2
 
 

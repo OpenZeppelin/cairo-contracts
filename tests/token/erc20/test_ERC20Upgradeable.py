@@ -1,9 +1,8 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     to_uint, sub_uint, str_to_felt, assert_revert,
-    get_contract_class, cached_contract
+    get_contract_class, cached_contract, State, Account
 )
 
 
@@ -20,7 +19,7 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     token_cls = get_contract_class('ERC20Upgradeable')
     proxy_cls = get_contract_class('Proxy')
 
@@ -30,15 +29,9 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def token_init(contract_classes):
     account_cls, token_cls, proxy_cls = contract_classes
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     token_v1 = await starknet.declare(
         contract_class=token_cls,
     )

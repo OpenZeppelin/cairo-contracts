@@ -1,10 +1,9 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
-    to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, 
-    ZERO_ADDRESS, INVALID_UINT256, TRUE, get_contract_class, cached_contract, 
-    assert_revert, assert_event_emitted, contract_path
+    to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
+    INVALID_UINT256, TRUE, get_contract_class, cached_contract, assert_revert,
+    assert_event_emitted, contract_path, State, Account
 )
 
 
@@ -23,7 +22,7 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     erc20_cls = get_contract_class('ERC20')
 
     return account_cls, erc20_cls
@@ -32,15 +31,9 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def erc20_init(contract_classes):
     account_cls, erc20_cls = contract_classes
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     erc20 = await starknet.deploy(
         contract_class=erc20_cls,
         constructor_calldata=[
@@ -94,7 +87,7 @@ async def test_constructor_exceed_max_decimals(erc20_factory):
 
     bad_decimals = 2**8 + 1
 
-    starknet = await Starknet.empty()
+    starknet = await State.init()
     await assert_revert(
         starknet.deploy(
             contract_path("openzeppelin/token/erc20/presets/ERC20.cairo"),

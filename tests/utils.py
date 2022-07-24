@@ -7,6 +7,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
+from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.business_logic.execution.objects import Event
 
 
@@ -146,3 +147,46 @@ def cached_contract(state, _class, deployed):
         deploy_execution_info=deployed.deploy_execution_info
     )
     return contract
+
+
+class State:
+    """
+    Utility helper for Account class to initialize and return StarkNet state.
+
+    Example
+    ---------
+    Initalize StarkNet state
+
+    >>> starknet = await State.init()
+
+    """
+    async def init():
+        global starknet
+        starknet = await Starknet.empty()
+        return starknet
+
+
+class Account:
+    """
+    Utility for deploying Account contract.
+
+    Parameters
+    ----------
+
+    public_key : int
+
+    Examples
+    ----------
+
+    >>> starknet = await State.init()
+    >>> account = await Account.deploy(public_key)
+
+    """
+    get_class = get_contract_class("Account")
+
+    async def deploy(public_key):
+        account = await starknet.deploy(
+            contract_class=Account.get_class,
+            constructor_calldata=[public_key]
+        )
+        return account

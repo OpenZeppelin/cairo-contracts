@@ -182,7 +182,7 @@ class Account:
     >>> account = await Account.deploy(public_key)
 
     """
-    get_class = get_contract_class("openzeppelin/account/Account.cairo", is_path=True)
+    get_class = get_contract_class("Account")
 
     async def deploy(public_key):
         account = await starknet.deploy(

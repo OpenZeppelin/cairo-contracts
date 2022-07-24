@@ -11,7 +11,7 @@ INITIAL_COUNTER = 0
 async def reentrancy_mock():
     starknet = await Starknet.empty()
     contract = await starknet.deploy(
-        contract_class=get_contract_class("reentrancy_mock"),
+        contract_class=get_contract_class("ReentrancyMock"),
         constructor_calldata=[INITIAL_COUNTER]
     )
 
@@ -29,7 +29,7 @@ async def test_reentrancy_guard_deploy(reentrancy_mock):
 @pytest.mark.asyncio
 async def test_reentrancy_guard_remote_callback(reentrancy_mock):
     contract, starknet = reentrancy_mock
-    attacker = await starknet.deploy("tests/mocks/reentrancy_attacker_mock.cairo")
+    attacker = await starknet.deploy("tests/mocks/ReentrancyAttackerMock.cairo")
     # should not allow remote callback
     await assert_revert(
         contract.count_and_call(attacker.contract_address).invoke(),

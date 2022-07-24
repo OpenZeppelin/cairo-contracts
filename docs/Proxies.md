@@ -77,7 +77,7 @@ In the case of contract upgrades, it is achieved by simply changing the proxy's 
 
 ### Proxy contract
 
-The [Proxy contract](../src/openzeppelin/upgrades/Proxy.cairo) includes two core methods:
+The [Proxy contract](../src/openzeppelin/upgrades/presets/Proxy.cairo) includes two core methods:
 
 1. The `__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 
@@ -110,7 +110,7 @@ The implementation contract should NOT:
 
 For a full implementation contract example, please see:
 
-* [Proxiable implementation](../tests/mocks/proxiable_implementation.cairo)
+* [Proxiable implementation](../tests/mocks/ProxiableImplementation.cairo)
 
 ## Upgrades library API
 
@@ -284,8 +284,8 @@ To upgrade a contract, the implementation contract should include an `upgrade` m
 
 For a full deployment and upgrade implementation, please see:
 
-* [Upgrades V1](../tests/mocks/upgrades_v1_mock.cairo)
-* [Upgrades V2](../tests/mocks/upgrades_v2_mock.cairo)
+* [Upgrades V1](../tests/mocks/UpgradesMockV1.cairo)
+* [Upgrades V2](../tests/mocks/UpgradesMockV2.cairo)
 
 ### Declaring contracts
 
@@ -311,5 +311,5 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets include:
 
-* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
+* [ERC20Upgradeable](../src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo)
 * more to come! have an idea? [open an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose)!

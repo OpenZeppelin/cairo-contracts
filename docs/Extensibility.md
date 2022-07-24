@@ -64,15 +64,15 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets are:
 
-* [Account](../src/openzeppelin/account/Account.cairo)
+* [Account](../src/openzeppelin/account/presets/Account.cairo)
 * [ERC165](../tests/mocks/ERC165.cairo)
-* [ERC20_Mintable](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo)
-* [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
-* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-* [ERC20](../src/openzeppelin/token/erc20/ERC20.cairo)
-* [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
-* [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
-* [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+* [ERC20Mintable](../src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo)
+* [ERC20Pausable](../src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo)
+* [ERC20Upgradeable](../src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo)
+* [ERC20](../src/openzeppelin/token/erc20/presets/ERC20.cairo)
+* [ERC721MintableBurnable](../src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo)
+* [ERC721MintablePausable](../src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo)
+* [ERC721EnumerableMintableBurnable](../src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo)
 
 ## Function names and coding style
 

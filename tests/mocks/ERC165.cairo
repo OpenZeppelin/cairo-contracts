@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
 @view
 func supportsInterface{

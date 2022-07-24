@@ -14,7 +14,7 @@ IACCOUNT_ID = 0xf10dbd44
 def contract_classes():
     account_cls = get_contract_class('Account')
     init_cls = get_contract_class("Initializable")
-    attacker_cls = get_contract_class("account_reentrancy")
+    attacker_cls = get_contract_class("AccountReentrancy")
 
     return account_cls, init_cls, attacker_cls
 

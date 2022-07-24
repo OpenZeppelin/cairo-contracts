@@ -31,12 +31,12 @@ class MockSigner():
                 (contract_address, 'another_method', [arg_1, arg_2])
             ]
         )
-                           
+
     """
     def __init__(self, private_key):
         self.signer = Signer(private_key)
         self.public_key = self.signer.public_key
-        
+
     async def send_transaction(self, account, to, selector_name, calldata, nonce=None, max_fee=0):
         return await self.send_transactions(account, [(to, selector_name, calldata)], nonce, max_fee)
 
@@ -60,10 +60,10 @@ class MockEthSigner():
     Parameters
     ----------
     private_key : int
-                  
+
     """
     def __init__(self, private_key):
-        self.signer = eth_keys.keys.PrivateKey(private_key)        
+        self.signer = eth_keys.keys.PrivateKey(private_key)
         self.eth_address = int(self.signer.public_key.to_checksum_address(),0)
 
     async def send_transaction(self, account, to, selector_name, calldata, nonce=None, max_fee=0):
@@ -84,8 +84,8 @@ class MockEthSigner():
         message_hash = get_transaction_hash(
             account.contract_address, call_array, calldata, nonce, max_fee
         )
-        
-        signature = self.signer.sign_msg_hash((message_hash).to_bytes(32, byteorder="big"))        
+
+        signature = self.signer.sign_msg_hash((message_hash).to_bytes(32, byteorder="big"))
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
 

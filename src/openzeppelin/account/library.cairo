@@ -14,9 +14,9 @@ from starkware.cairo.common.math import split_felt
 from starkware.cairo.common.bool import TRUE
 from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
-from openzeppelin.utils.constants import IACCOUNT_ID
+from openzeppelin.utils.constants.library import IACCOUNT_ID
 
 #
 # Storage
@@ -162,7 +162,7 @@ namespace Account:
 
         # This interface expects a signature pointer and length to make
         # no assumption about signature validation schemes.
-        # But this implementation does, and it expects a the sig_v, sig_r, 
+        # But this implementation does, and it expects a the sig_v, sig_r,
         # sig_s, and hash elements.
         let sig_v : felt = signature[0]
         let sig_r : Uint256 = Uint256(low=signature[1], high=signature[2])
@@ -330,5 +330,5 @@ namespace Account:
         _from_call_array_to_call(call_array_len - 1, call_array + AccountCallArray.SIZE, calldata, calls + Call.SIZE)
         return ()
     end
-    
+
 end

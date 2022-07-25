@@ -11,19 +11,19 @@ The `ERC721.cairo` contract implements an approximation of https://eips.ethereum
  ** <<token_transfers,Token Transfers>>
  ** <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
  ** <<erc721received,ERC721Received>>
-  *** <<ierc721_receiver,IERC721_Receiver>>
+  *** <<ierc721receiver,IERC721Receiver>>
  ** <<supporting_interfaces,Supporting Interfaces>>
  ** <<ready_to_use_presets,Ready_to_Use Presets>>
 * <<extensibility,Extensibility>>
 * <<presets,Presets>>
- ** <<erc721_mintable_burnable,ERC721_Mintable_Burnable>>
- ** <<erc721_mintable_pausable,ERC721_Mintable_Pausable>>
- ** <<erc721_enumerable_mintable_burnable,ERC721_Enumerable_Mintable_Burnable>>
-  *** <<ierc721_enumerable,IERC721_Enumerable>>
- ** <<erc721_metadata,ERC721_Metadata>>
-  *** <<ierc721_metadata,IERC721_Metadata>>
+ ** <<erc721mintableburnable,ERC721MintableBurnable>>
+ ** <<erc721mintablepausable,ERC721MintablePausable>>
+ ** <<erc721enumerablemintableburnable,ERC721EnumerableMintableBurnable>>
+  *** <<ierc721enumerable,IERC721Enumerable>>
+ ** <<erc721metadata,ERC721Metadata>>
+  *** <<ierc721metadata,IERC721Metadata>>
 * <<utilities,Utilities>>
- ** <<erc721_holder,ERC721_Holder>>
+ ** <<erc721_holder,ERC721Holder>>
 * <<api_specification,API Specification>>
  ** <<ierc721_api,`IERC721`>>
   *** <<balanceof,`balanceOf`>>
@@ -38,15 +38,15 @@ The `ERC721.cairo` contract implements an approximation of https://eips.ethereum
   *** <<approval_event,`Approval (event)`>>
   *** <<approvalforall_event,`ApprovalForAll (event)`>>
   *** <<transfer_event,`Transfer (event)`>>
- ** <<ierc721_metadata,`IERC721_Metadata`>>
+ ** <<ierc721metadata,`IERC721Metadata`>>
   *** <<name,`name`>>
   *** <<symbol,`symbol`>>
   *** <<tokenuri,`tokenURI`>>
- ** <<ierc721_enumerable,`IERC721_Enumerable`>>
+ ** <<ierc721enumerable,`IERC721Enumerable`>>
   *** <<totalsupply,`totalSupply`>>
   *** <<tokenbyindex,`tokenByIndex`>>
   *** <<tokenofownerbyindex,`tokenOfOwnerByIndex`>>
- ** <<ierc721_receiver,`IERC721_Receiver`>>
+ ** <<ierc721receiver_api,`IERC721Receiver`>>
   *** <<onerc721received,`onERC721Received`>>
 
 == IERC721
@@ -120,18 +120,18 @@ In Cairo, arrays are expressed with the array length preceding the actual array;
 hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`
 * `ERC165.register_interface` allows contracts to set and communicate which interfaces they support.
 This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
-* `IERC721_Receiver` compliant contracts (`ERC721_Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
+* `IERC721Receiver` compliant contracts (`ERC721Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
 This is in line with the ERC165 interfaces design choice towards EVM compatibility.
 See the xref:introspection.adoc[Introspection docs] for more info
-* `IERC721_Receiver` compliant contracts (`ERC721_Holder`) must support ERC165 by registering the `IERC721_Receiver` selector id in its constructor and exposing the `supportsInterface` method.
+* `IERC721Receiver` compliant contracts (`ERC721Holder`) must support ERC165 by registering the `IERC721Receiver` selector id in its constructor and exposing the `supportsInterface` method.
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers
-* `ERC721_Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
+* `ERC721Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
 
 == Usage
 
 Use cases go from artwork, digital collectibles, physical property, and many more.
 
-To show a standard use case, we'll use the `ERC721_Mintable` preset which allows for only the owner to `mint` and `burn` tokens.
+To show a standard use case, we'll use the `ERC721Mintable` preset which allows for only the owner to `mint` and `burn` tokens.
 To create a token you need to first deploy both Account and ERC721 contracts respectively.
 As most StarkNet contracts, ERC721 expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
 This is why we need an Account contract to interact with it.
@@ -157,7 +157,7 @@ account = await starknet.deploy(
 )
 
 erc721 = await starknet.deploy(
-    "contracts/token/ERC721_Mintable.cairo",
+    "contracts/token/erc721/presets/ERC721Mintable.cairo",
     constructor_calldata=[
         str_to_felt("Token"),                       # name
         str_to_felt("TKN"),                         # symbol
@@ -240,18 +240,18 @@ StarkNet contracts that support safe transfers, however, must also support xref:
 `safeTransferFrom` requires a means of differentiating between account and non-account contracts.
 Currently, StarkNet does not support error handling from the contract level;
 therefore, the current ERC721 implementation requires that all contracts that support safe ERC721 transfers (both accounts and non-accounts) include the `supportsInterface` method.
-Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC721_Receiver` magic value `0x150b7a02` (which invokes `onERC721Received`).
+Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC721Receiver` magic value `0x150b7a02` (which invokes `onERC721Received`).
 If the recipient contract supports the `IAccount` magic value `0x50b70dcb`, `supportsInterface` should return `TRUE`.
 Otherwise, `safeTransferFrom` should fail.
 
-==== IERC721_Receiver
+==== IERC721Receiver
 
 Interface for any contract that wants to support safeTransfers from ERC721 asset contracts.
 
 [,cairo]
 ----
 @contract_interface
-namespace IERC721_Receiver:
+namespace IERC721Receiver:
     func onERC721Received(
         operator: felt,
         from_: felt,
@@ -278,9 +278,9 @@ ERC721 presets have been created to allow for quick deployments as-is.
 To be as explicit as possible, each preset includes the additional features they offer in the contract name.
 For example:
 
-* `ERC721_Mintable_Burnable` includes `mint` and `burn`
-* `ERC721_Mintable_Pausable` includes `mint`, `pause`, and `unpause`
-* `ERC721_Enumerable_Mintable_Burnable` includes `mint`, `burn`, and <<ierc721_enumerable,IERC721_Enumerable>> methods
+* `ERC721MintableBurnable` includes `mint` and `burn`
+* `ERC721MintablePausable` includes `mint`, `pause`, and `unpause`
+* `ERC721EnumerableMintableBurnable` includes `mint`, `burn`, and <<ierc721enumerable,IERC721Enumerable>> methods
 
 Ready-to-use presets are a great option for testing and prototyping.
 See <<presets,Presets>>.
@@ -320,41 +320,41 @@ end
 The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing.
 Each preset includes a contract owner, which is set in the `constructor`, to offer simple access control on sensitive methods such as `mint` and `burn`.
 
-=== ERC721_Mintable_Burnable
+=== ERC721MintableBurnable
 
-The `ERC721_Mintable_Burnable` preset offers a quick and easy setup for creating NFTs.
+The `ERC721MintableBurnable` preset offers a quick and easy setup for creating NFTs.
 The contract owner can create tokens with `mint`, whereas token owners can destroy their tokens with `burn`.
 
-=== ERC721_Mintable_Pausable
+=== ERC721MintablePausable
 
-The `ERC721_Mintable_Pausable` preset creates a contract with pausable token transfers and minting capabilities.
+The `ERC721MintablePausable` preset creates a contract with pausable token transfers and minting capabilities.
 This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
 In this preset, only the contract owner can `mint`, `pause`, and `unpause`.
 
-=== ERC721_Enumerable_Mintable_Burnable
+=== ERC721EnumerableMintableBurnable
 
-The `ERC721_Enumerable_Mintable_Burnable` preset adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
+The `ERC721EnumerableMintableBurnable` preset adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
 This allows contracts to publish its full list of NFTs and make them discoverable.
 
 In regard to implementation, contracts should expose the following view methods:
 
-* `ERC721_Enumerable.total_supply`
-* `ERC721_Enumerable.token_by_index`
-* `ERC721_Enumerable.token_of_owner_by_index`
+* `ERC721Enumerable.total_supply`
+* `ERC721Enumerable.token_by_index`
+* `ERC721Enumerable.token_of_owner_by_index`
 
 In order for the tokens to be correctly indexed, the contract should also use the following methods (which supercede some of the base `ERC721` methods):
 
-* `ERC721_Enumerable.transfer_from`
-* `ERC721_Enumerable.safe_transfer_from`
-* `ERC721_Enumerable._mint`
-* `ERC721_Enumerable._burn`
+* `ERC721Enumerable.transfer_from`
+* `ERC721Enumerable.safe_transfer_from`
+* `ERC721Enumerable._mint`
+* `ERC721Enumerable._burn`
 
-==== IERC721_Enumerable
+==== IERC721Enumerable
 
 [,cairo]
 ----
 @contract_interface
-namespace IERC721_Enumerable:
+namespace IERC721Enumerable:
     func totalSupply() -> (totalSupply: Uint256):
     end
 
@@ -366,20 +366,20 @@ namespace IERC721_Enumerable:
 end
 ----
 
-=== ERC721_Metadata
+=== ERC721Metadata
 
-The `ERC721_Metadata` extension allows your smart contract to be interrogated for its name and for details about the assets which your NFTs represent.
+The `ERC721Metadata` extension allows your smart contract to be interrogated for its name and for details about the assets which your NFTs represent.
 
 We follow OpenZeppelin's Solidity approach of integrating the Metadata methods `name`, `symbol`, and `tokenURI` into all ERC721 implementations.
-If preferred, a contract can be created that does not import the Metadata methods from the `ERC721_base` library.
-Note that the `IERC721_Metadata` interface id should be removed from the constructor as well.
+If preferred, a contract can be created that does not import the Metadata methods from the `ERC721` library.
+Note that the `IERC721Metadata` interface id should be removed from the constructor as well.
 
-==== IERC721_Metadata
+==== IERC721Metadata
 
 [,cairo]
 ----
 @contract_interface
-namespace IERC721_Metadata:
+namespace IERC721Metadata:
     func name() -> (name: felt):
     end
 
@@ -393,7 +393,7 @@ end
 
 == Utilities
 
-=== ERC721_Holder
+=== ERC721Holder
 
 Implementation of the `IERC721Receiver` interface.
 
@@ -627,7 +627,7 @@ tokenId: Uint256
 
 '''
 
-=== IERC721_Metadata API
+=== IERC721Metadata API
 
 [,cairo]
 ----
@@ -688,7 +688,7 @@ tokenURI: felt
 
 '''
 
-=== IERC721_Enumerable API
+=== IERC721Enumerable API
 
 [,cairo]
 ----
@@ -757,7 +757,7 @@ tokenId: Uint256
 
 '''
 
-=== IERC721_Receiver API
+=== IERC721Receiver API
 
 [,cairo]
 ----

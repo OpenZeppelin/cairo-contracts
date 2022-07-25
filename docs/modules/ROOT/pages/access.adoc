@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/access/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/access/ownable/library.cairo[Ownable]
 
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -37,7 +37,7 @@ The implementing contract's constructor should set the initial owner by passing 
 
 [,cairo]
 ----
-from openzeppelin.access.ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 @constructor
 func constructor{
@@ -54,7 +54,7 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 
 [,cairo]
 ----
-from openzeppelin.access.ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 
 func protected_function{
         syscall_ptr : felt*,
@@ -208,13 +208,13 @@ Most software uses access control systems that are role-based: some users are re
 
 For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
 
-Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
 
 [,cairo]
 ----
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
@@ -259,7 +259,7 @@ Let's augment our ERC20 token example by also defining a 'burner' role, which le
 ----
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
@@ -335,7 +335,7 @@ Let's take a look at the ERC20 token example, this time taking advantage of the 
 ----
 from openzeppelin.token.erc20.library import ERC20
 
-from openzeppelin.access.accesscontrol import AccessControl
+from openzeppelin.access.accesscontrol.library import AccessControl
 
 from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
 

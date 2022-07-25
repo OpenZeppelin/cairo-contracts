@@ -97,7 +97,7 @@ async def test_constructor_exceed_max_decimals(erc20_factory):
     starknet = await Starknet.empty()
     await assert_revert(
         starknet.deploy(
-            contract_path("openzeppelin/token/erc20/ERC20.cairo"),
+            contract_path("openzeppelin/token/erc20/presets/ERC20.cairo"),
             constructor_calldata=[
                 NAME,
                 SYMBOL,

@@ -78,7 +78,7 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from openzeppelin.security.pausable import Pausable
+from openzeppelin.security.pausable.library import Pausable
 from openzeppelin.token.erc20.library import ERC20
 
 (...)
@@ -148,32 +148,38 @@ python -m pip install .
 ```bash
 nile compile --directory src
 
-🤖 Compiling all Cairo contracts in the openzeppelin directory
-🔨 Compiling openzeppelin/introspection/ERC165.cairo
-🔨 Compiling openzeppelin/introspection/IERC165.cairo
-🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
-🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo
-🔨 Compiling openzeppelin/token/erc721/library.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Metadata.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Receiver.cairo
-🔨 Compiling openzeppelin/token/erc721/utils/ERC721_Holder.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20_Mintable.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20.cairo
-🔨 Compiling openzeppelin/token/erc20/library.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20_Pausable.cairo
-🔨 Compiling openzeppelin/token/erc20/interfaces/IERC20.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/library.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/interfaces/IERC721_Enumerable.cairo
-🔨 Compiling openzeppelin/security/pausable.cairo
-🔨 Compiling openzeppelin/security/safemath.cairo
-🔨 Compiling openzeppelin/security/initializable.cairo
-🔨 Compiling openzeppelin/access/ownable.cairo
-🔨 Compiling openzeppelin/account/IAccount.cairo
-🔨 Compiling openzeppelin/account/Account.cairo
-🔨 Compiling openzeppelin/account/AddressRegistry.cairo
-🔨 Compiling openzeppelin/utils/constants.cairo
+🤖 Compiling all Cairo contracts in the src directory
+🔨 Compiling src/openzeppelin/token/erc20/library.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc20/IERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/library.cairo
+🔨 Compiling src/openzeppelin/token/erc721/library.cairo
+🔨 Compiling src/openzeppelin/token/erc721/utils/ERC721Holder.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721EnumerableMintableBurnable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Metadata.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Receiver.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/IERC721Enumerable.cairo
+🔨 Compiling src/openzeppelin/access/ownable/library.cairo
+🔨 Compiling src/openzeppelin/security/reentrancyguard/library.cairo
+🔨 Compiling src/openzeppelin/security/safemath/library.cairo
+🔨 Compiling src/openzeppelin/security/pausable/library.cairo
+🔨 Compiling src/openzeppelin/security/initializable/library.cairo
+🔨 Compiling src/openzeppelin/utils/constants/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/IERC165.cairo
+🔨 Compiling src/openzeppelin/upgrades/library.cairo
+🔨 Compiling src/openzeppelin/upgrades/presets/Proxy.cairo
+🔨 Compiling src/openzeppelin/account/library.cairo
+🔨 Compiling src/openzeppelin/account/presets/EthAccount.cairo
+🔨 Compiling src/openzeppelin/account/presets/Account.cairo
+🔨 Compiling src/openzeppelin/account/presets/AddressRegistry.cairo
+🔨 Compiling src/openzeppelin/account/IAccount.cairo
 ✅ Done
 ```
 

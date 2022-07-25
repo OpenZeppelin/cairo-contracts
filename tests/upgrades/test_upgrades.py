@@ -20,8 +20,8 @@ signer = MockSigner(123456789987654321)
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = get_contract_class('Account')
-    v1_cls = get_contract_class('upgrades_v1_mock')
-    v2_cls = get_contract_class('upgrades_v2_mock')
+    v1_cls = get_contract_class('UpgradesMockV1')
+    v2_cls = get_contract_class('UpgradesMockV2')
     proxy_cls = get_contract_class('Proxy')
 
     return account_cls, v1_cls, v2_cls, proxy_cls

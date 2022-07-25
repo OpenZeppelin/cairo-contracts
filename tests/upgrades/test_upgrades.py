@@ -19,10 +19,10 @@ signer = MockSigner(123456789987654321)
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    v1_cls = get_contract_class('tests/mocks/upgrades_v1_mock.cairo')
-    v2_cls = get_contract_class('tests/mocks/upgrades_v2_mock.cairo')
-    proxy_cls = get_contract_class('openzeppelin/upgrades/Proxy.cairo')
+    account_cls = get_contract_class('Account')
+    v1_cls = get_contract_class('UpgradesMockV1')
+    v2_cls = get_contract_class('UpgradesMockV2')
+    proxy_cls = get_contract_class('Proxy')
 
     return account_cls, v1_cls, v2_cls, proxy_cls
 
@@ -200,6 +200,26 @@ async def test_upgrade_from_non_admin(proxy_factory):
             ]
         ),
         reverted_with="Proxy: caller is not admin"
+    )
+
+
+@pytest.mark.asyncio
+async def test__set_implementation_as_zero(proxy_factory):
+    admin, _, proxy, _, _ = proxy_factory
+
+    # initialize implementation
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'initializer', [
+            admin.contract_address
+        ]
+    )
+
+    # upgrade should revert
+    await assert_revert(
+        signer.send_transaction(
+            admin, proxy.contract_address, 'upgrade', [0]
+        ),
+        reverted_with="Proxy: implementation hash cannot be zero"
     )
 
 

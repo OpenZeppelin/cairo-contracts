@@ -14,9 +14,9 @@ IACCOUNT_ID = 0xf10dbd44
 
 @pytest.fixture(scope='module')
 def contract_defs():
-    account_cls = get_contract_class('openzeppelin/account/EthAccount.cairo')
-    init_cls = get_contract_class("tests/mocks/Initializable.cairo")
-    attacker_cls = get_contract_class("tests/mocks/account_reentrancy.cairo")
+    account_cls = get_contract_class('EthAccount')
+    init_cls = get_contract_class("Initializable")
+    attacker_cls = get_contract_class("AccountReentrancy")
 
     return account_cls, init_cls, attacker_cls
 
@@ -138,7 +138,7 @@ async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
     
     # bump nonce 
-    _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     execution_info = await account.get_nonce().call()
     current_nonce = execution_info.result.res

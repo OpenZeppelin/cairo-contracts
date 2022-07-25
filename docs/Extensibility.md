@@ -30,18 +30,19 @@ To minimize risk, boilerplate, and avoid function naming clashes, we follow thes
 
 ### Libraries
 
-Considering four types of functions:
+Considering the following types of functions:
 
-* `internal`: internal to a library, not meant to be used outside the module or imported
+* `private`: private to a library, not meant to be used outside the module or imported
 * `public`: part of the public API of a library
-* `external`: subset of `public` that is ready to be exported as-is by contracts
+* `internal`: subset of `public` that is either discouraged or potentially unsafe (e.g. `_transfer` on ERC20)
+* `external`: subset of `public` that is ready to be exported as-is by contracts (e.g. `transfer` on ERC20)
 * `storage`: storage variable functions
 
 Then:
 
 * Must implement `public` and `external` functions under a namespace
-* Must implement `internal` functions outside the namespace to avoid exposing them
-* Must prefix `public` functions with an underscore (e.g. `ERC20._mint`)
+* Must implement `private` functions outside the namespace to avoid exposing them
+* Must prefix `internal` functions with an underscore (e.g. `ERC20._mint`)
 * Must not prefix `external` functions with an underscore (e.g. `ERC20.transfer`)
 * Must prefix `storage` functions with the name of the namespace to prevent clashing with other libraries (e.g. `ERC20_balances`)
 * Must not implement any `@external`, `@view`, or `@constructor` functions
@@ -63,15 +64,15 @@ Presets are pre-written contracts that extend from our library of contracts. The
 
 Some presets are:
 
-* [Account](../src/openzeppelin/account/Account.cairo)
+* [Account](../src/openzeppelin/account/presets/Account.cairo)
 * [ERC165](../tests/mocks/ERC165.cairo)
-* [ERC20_Mintable](../src/openzeppelin/token/erc20/ERC20_Mintable.cairo)
-* [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
-* [ERC20_Upgradeable](../src/openzeppelin/token/erc20/ERC20_Upgradeable.cairo)
-* [ERC20](../src/openzeppelin/token/erc20/ERC20.cairo)
-* [ERC721_Mintable_Burnable](../src/openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo)
-* [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
-* [ERC721_Enumerable_Mintable_Burnable](../src/openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo)
+* [ERC20Mintable](../src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo)
+* [ERC20Pausable](../src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo)
+* [ERC20Upgradeable](../src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo)
+* [ERC20](../src/openzeppelin/token/erc20/presets/ERC20.cairo)
+* [ERC721MintableBurnable](../src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo)
+* [ERC721MintablePausable](../src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo)
+* [ERC721EnumerableMintableBurnable](../src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo)
 
 ## Function names and coding style
 

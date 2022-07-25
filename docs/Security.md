@@ -19,7 +19,7 @@ The Initializable library provides a simple mechanism that mimics the functional
 The recommended pattern with Initializable is to include a check that the Initializable state is `False` and invoke `initialize` in the target function like this:
 
 ```cairo
-from openzeppelin.security.initializable import Initializable
+from openzeppelin.security.initializable.library import Initializable
 
 @external
 func foo{
@@ -44,7 +44,7 @@ The Pausable library allows contracts to implement an emergency stop mechanism. 
 To use the Pausable library, the contract should include `pause` and `unpause` functions (which should be protected). For methods that should be available only when not paused, insert `assert_not_paused`. For methods that should be available only when paused, insert `assert_paused`. For example:
 
 ```cairo
-from openzeppelin.security.pausable import Pausable
+from openzeppelin.security.pausable.library import Pausable
 
 @external
 func whenNotPaused{
@@ -75,17 +75,17 @@ end
 
 For a list of full implementations utilizing the Pausable library, see:
 
-* [ERC20_Pausable](../src/openzeppelin/token/erc20/ERC20_Pausable.cairo)
-* [ERC721_Mintable_Pausable](../src/openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo)
+* [ERC20Pausable](../src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo)
+* [ERC721MintablePausable](../src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo)
 
 ## Reentrancy Guard
 
 A [reentrancy attack](https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4) occurs when the caller is able to obtain more resources than allowed by recursively calling a target’s function.
 
-Since Cairo does not support modifiers like Solidity, the [`reentrancyguard`](../src/openzeppelin/security/reentrancyguard.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
+Since Cairo does not support modifiers like Solidity, the [`reentrancy_guard`](../src/openzeppelin/security/reentrancyguard/library.cairo) library exposes two methods `_start` and `_end` to protect functions against reentrancy attacks. The protected function must call `ReentrancyGuard._start` before the first function statement, and `ReentrancyGuard._end` before the return statement, as shown below:
 
 ```cairo
-from openzeppelin.security.reentrancyguard import ReentrancyGuard
+from openzeppelin.security.reentrancyguard.library import ReentrancyGuard
 
 func test_function{
         syscall_ptr : felt*,
@@ -103,12 +103,12 @@ end
 
 ### SafeUint256
 
-The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/safemath.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
+The SafeUint256 namespace in the [SafeMath library](../src/openzeppelin/security/safemath/library.cairo) offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks. Some of Cairo's Uint256 functions do not revert upon overflows. For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits. This library includes an additional assertion ensuring values do not overflow.
 
 Using SafeUint256 methods is rather straightforward. Simply import SafeUint256 and insert the arithmetic method like this:
 
 ```cairo
-from openzeppelin.security.safemath import SafeUint256
+from openzeppelin.security.safemath.library import SafeUint256
 
 func add_two_uints{
         syscall_ptr: felt*,

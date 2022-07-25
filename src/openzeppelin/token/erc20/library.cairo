@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.2.0 (token/erc20/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (token/erc20/library.cairo)
 
 %lang starknet
 
 from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_lt
-from starkware.cairo.common.bool import TRUE, FALSE
+from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, uint256_not
 
-from openzeppelin.utils.constants import UINT8_MAX
-from openzeppelin.security.safemath import SafeUint256
+from openzeppelin.security.safemath.library import SafeUint256
+from openzeppelin.utils.constants.library import UINT8_MAX
 
 #
 # Events

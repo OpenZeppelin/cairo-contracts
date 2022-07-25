@@ -23,9 +23,8 @@ DECIMALS = 18
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc20_cls = get_contract_class(
-        'openzeppelin/token/erc20/ERC20.cairo')
+    account_cls = get_contract_class('Account')
+    erc20_cls = get_contract_class('ERC20')
 
     return account_cls, erc20_cls
 
@@ -98,7 +97,7 @@ async def test_constructor_exceed_max_decimals(erc20_factory):
     starknet = await Starknet.empty()
     await assert_revert(
         starknet.deploy(
-            contract_path("openzeppelin/token/erc20/ERC20.cairo"),
+            contract_path("openzeppelin/token/erc20/presets/ERC20.cairo"),
             constructor_calldata=[
                 NAME,
                 SYMBOL,

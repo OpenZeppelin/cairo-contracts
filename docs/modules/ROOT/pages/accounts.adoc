@@ -51,9 +51,10 @@ In Python, this would look as follows:
 [,python]
 ----
 from starkware.starknet.testing.starknet import Starknet
-signer = MockSigner(123456789987654321)
 from utils import get_contract_class
 from signers import MockSigner
+
+signer = MockSigner(123456789987654321)
 
 starknet = await Starknet.empty()
 

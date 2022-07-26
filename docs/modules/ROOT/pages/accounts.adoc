@@ -111,8 +111,6 @@ While the interface is agnostic of signature validation schemes, this implementa
 That's why the `constructor` function expects a `public_key` parameter to set it.
 Since there's also a `set_public_key()` method, accounts can be effectively transferred.
 
-Note that although the current implementation works only with StarkKeys, support for Ethereum's ECDSA algorithm will be added in the future.
-
 === Signer
 
 The signer is responsible for creating a transaction signature with the user's private key for a given transaction.

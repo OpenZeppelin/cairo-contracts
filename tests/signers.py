@@ -2,6 +2,7 @@ from nile.signer import Signer, from_call_to_call_array, get_transaction_hash
 from utils import to_uint
 import eth_keys
 
+
 class MockSigner():
     """
     Utility for sending signed transactions to an Account on Starknet.
@@ -33,6 +34,7 @@ class MockSigner():
         )
 
     """
+
     def __init__(self, private_key):
         self.signer = Signer(private_key)
         self.public_key = self.signer.public_key
@@ -51,8 +53,10 @@ class MockSigner():
             build_call[0] = hex(build_call[0])
             build_calls.append(build_call)
 
-        (call_array, calldata, sig_r, sig_s) = self.signer.sign_transaction(hex(account.contract_address), build_calls, nonce, max_fee)
+        (call_array, calldata, sig_r, sig_s) = self.signer.sign_transaction(
+            hex(account.contract_address), build_calls, nonce, max_fee)
         return await account.__execute__(call_array, calldata, nonce).invoke(signature=[sig_r, sig_s])
+
 
 class MockEthSigner():
     """
@@ -62,9 +66,10 @@ class MockEthSigner():
     private_key : int
 
     """
+
     def __init__(self, private_key):
         self.signer = eth_keys.keys.PrivateKey(private_key)
-        self.eth_address = int(self.signer.public_key.to_checksum_address(),0)
+        self.eth_address = int(self.signer.public_key.to_checksum_address(), 0)
 
     async def send_transaction(self, account, to, selector_name, calldata, nonce=None, max_fee=0):
         return await self.send_transactions(account, [(to, selector_name, calldata)], nonce, max_fee)
@@ -85,7 +90,8 @@ class MockEthSigner():
             account.contract_address, call_array, calldata, nonce, max_fee
         )
 
-        signature = self.signer.sign_msg_hash((message_hash).to_bytes(32, byteorder="big"))
+        signature = self.signer.sign_msg_hash(
+            (message_hash).to_bytes(32, byteorder="big"))
         sig_r = to_uint(signature.r)
         sig_s = to_uint(signature.s)
 

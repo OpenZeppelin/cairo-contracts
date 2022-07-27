@@ -4,9 +4,9 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
-from openzeppelin.access.accesscontrol import AccessControl
-from openzeppelin.introspection.ERC165 import ERC165
-from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
+from openzeppelin.access.accesscontrol.library import AccessControl
+from openzeppelin.introspection.erc165.library import ERC165
+from openzeppelin.utils.constants.library import DEFAULT_ADMIN_ROLE
 
 @constructor
 func constructor{

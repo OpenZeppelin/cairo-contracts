@@ -99,7 +99,7 @@ async def assert_revert(fun, reverted_with=None):
 async def assert_revert_entry_point(fun, invalid_selector):
     selector_hex = hex(get_selector_from_name(invalid_selector))
     entry_point_msg = f"Entry point {selector_hex} not found in contract"
-    
+
     await assert_revert(fun, entry_point_msg)
 
 

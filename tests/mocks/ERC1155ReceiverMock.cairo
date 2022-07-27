@@ -33,7 +33,7 @@ func onERC1155BatchReceived(
         operator : felt,
         from_ : felt,
         ids_len : felt,
-        ids : Uint256*, 
+        ids : Uint256*,
         amounts_len : felt,
         amounts : Uint256*,
         data_len : felt,

@@ -5,7 +5,7 @@
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.bool import TRUE, FALSE
 
-from openzeppelin.utils.constants import (
+from openzeppelin.utils.constants.library import (
     IERC1155_RECEIVER_ID, IACCOUNT_ID, ON_ERC1155_RECEIVED_SELECTOR, ON_ERC1155_BATCH_RECEIVED_SELECTOR 
 )
 

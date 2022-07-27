@@ -10,11 +10,11 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 from starkware.cairo.common.bool import TRUE, FALSE
 
-from openzeppelin.introspection.IERC165 import IERC165
-from openzeppelin.introspection.ERC165 import ERC165
-from openzeppelin.token.erc1155.interfaces.IERC1155_Receiver import IERC1155_Receiver
-from openzeppelin.security.safemath import SafeUint256
-from openzeppelin.utils.constants import (
+from openzeppelin.introspection.erc165.IERC165 import IERC165
+from openzeppelin.introspection.erc165.library import ERC165
+from openzeppelin.token.erc1155.IERC1155Receiver import IERC1155_Receiver
+from openzeppelin.security.safemath.library import SafeUint256
+from openzeppelin.utils.constants.library import (
     IERC1155_ID,
     IERC1155_METADATA_ID,
     IERC1155_RECEIVER_ID,

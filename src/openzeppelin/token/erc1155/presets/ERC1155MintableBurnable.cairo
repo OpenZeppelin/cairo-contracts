@@ -9,9 +9,9 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.bool import TRUE, FALSE
 
-from openzeppelin.access.ownable import Ownable
+from openzeppelin.access.ownable.library import Ownable
 from openzeppelin.token.erc1155.library import ERC1155
-from openzeppelin.introspection.ERC165 import ERC165
+from openzeppelin.introspection.erc165.library import ERC165
 
 #
 # Constructor

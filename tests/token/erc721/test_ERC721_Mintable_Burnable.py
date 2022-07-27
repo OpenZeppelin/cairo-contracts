@@ -32,13 +32,10 @@ UNSUPPORTED_ID = 0xabcd1234
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc721_cls = get_contract_class(
-        'openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo')
-    erc721_holder_cls = get_contract_class(
-        'openzeppelin/token/erc721/utils/ERC721_Holder.cairo')
-    unsupported_cls = get_contract_class(
-        'tests/mocks/Initializable.cairo')
+    account_cls = get_contract_class('Account')
+    erc721_cls = get_contract_class('ERC721_Mintable_Burnable')
+    erc721_holder_cls = get_contract_class('ERC721_Holder')
+    unsupported_cls = get_contract_class('Initializable')
 
     return account_cls, erc721_cls, erc721_holder_cls, unsupported_cls
 

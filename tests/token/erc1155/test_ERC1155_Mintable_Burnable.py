@@ -74,11 +74,9 @@ UNSUPPORTED_INTERFACES = [ERC165_UNSUPPORTED, UNSUPPORTED_ID]
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('openzeppelin/account/Account.cairo')
-    erc1155_cls = get_contract_class(
-        'openzeppelin/token/erc1155/ERC1155_Mintable_Burnable.cairo')
-    receiver_cls = get_contract_class(
-        '../tests/mocks/ERC1155_Receiver_mock.cairo')
+    account_cls = get_contract_class('Account')
+    erc1155_cls = get_contract_class('ERC1155_Mintable_Burnable')
+    receiver_cls = get_contract_class('ERC1155_Receiver_mock')
     return account_cls, erc1155_cls, receiver_cls
 
 

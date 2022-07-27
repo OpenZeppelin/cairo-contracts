@@ -201,10 +201,16 @@ Memoizing functions allow for quicker and computationally cheaper calculations w
 
 ### `get_contract_class`
 
-A helper method that returns the contract class from the given path. To capture the contract class, simply add the contract path as an argument like this:
+A helper method that returns the contract class from the contract's name. To capture the contract class, simply add the contract's name as an argument like this:
 
 ```python
-contract_class = get_contract_class('path/to/contract.cairo')
+contract_class = get_contract_class('ContractName')
+```
+
+If multiple contracts exist with the same name, then the contract's path must be passed along with the `is_path` flag instead of the name. To pass the contract's path:
+
+```python
+contract_class = get_contract_class('path/to/Contract.cairo', is_path=True)
 ```
 
 ### `cached_contract`
@@ -215,7 +221,7 @@ A helper method that returns the cached state of a given contract. It's recommen
 # get contract classes
 @pytest.fixture(scope='module')
 def contract_classes():
-  foo_cls = get_contract_class('path/to/foo.cairo')
+  foo_cls = get_contract_class('Foo')
   return foo_cls
 
 # deploy contracts

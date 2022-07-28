@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.1.0 (token/erc1155/library.cairo)
+# OpenZeppelin Contracts for Cairo v0.2.1 (token/erc1155/library.cairo)
 
 %lang starknet
 
@@ -8,7 +8,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256, uint256_check
-from starkware.cairo.common.bool import TRUE, FALSE
+from starkware.cairo.common.bool import TRUE
 
 from openzeppelin.introspection.erc165.IERC165 import IERC165
 from openzeppelin.introspection.erc165.library import ERC165
@@ -20,7 +20,7 @@ from openzeppelin.utils.constants.library import (
     IERC1155_RECEIVER_ID,
     IACCOUNT_ID,
     ON_ERC1155_RECEIVED_SELECTOR,
-    ON_ERC1155_BATCH_RECEIVED_SELECTOR 
+    ON_ERC1155_BATCH_RECEIVED_SELECTOR
 )
 
 
@@ -265,14 +265,14 @@ namespace ERC1155:
         let (operator) = get_caller_address()
         TransferSingle.emit(
             operator,
-            from_, 
+            from_,
             to,
             id,
             amount
         )
         _do_safe_transfer_acceptance_check(
-            operator, 
-            from_, 
+            operator,
+            from_,
             to,
             id,
             amount,
@@ -316,7 +316,8 @@ namespace ERC1155:
             to,
             ids_len,
             ids,
-            amounts_len,amounts
+            amounts_len,
+            amounts
         )
         _do_safe_batch_transfer_acceptance_check(
             operator,
@@ -355,7 +356,7 @@ namespace ERC1155:
             uint256_check(amount)
         end
 
-        # add to minter check for overflow
+        # add to minter, check for overflow
         let (to_balance: Uint256) = ERC1155_balances.read(id, to)
         with_attr error_message("ERC1155: balance overflow"):
             let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
@@ -420,7 +421,7 @@ namespace ERC1155:
             ids=ids,
             values_len=amounts_len,
             values=amounts,
-        ) 
+        )
         _do_safe_batch_transfer_acceptance_check(
             operator=operator,
             from_=0,
@@ -577,7 +578,7 @@ func _do_safe_transfer_acceptance_check{
         return ()
     end
 
-    # Alternatively confirm EOA
+    # Alternatively confirm account
     let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
     with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
         assert_not_zero(is_account)
@@ -610,8 +611,8 @@ func _do_safe_batch_transfer_acceptance_check{
             ids_len=ids_len,
             ids=ids,
             amounts_len=amounts_len,
-            amounts=amounts, 
-            data_len=data_len, 
+            amounts=amounts,
+            data_len=data_len,
             data=data
         )
         # Confirm onBatchERC1155Recieved selector returned
@@ -621,7 +622,7 @@ func _do_safe_batch_transfer_acceptance_check{
         return ()
     end
 
-    # Alternatively confirm EOA
+    # Alternatively confirm account
     let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID)
     with_attr error_message("ERC1155: transfer to non ERC1155Receiver implementer"):
         assert is_account = TRUE
@@ -713,9 +714,9 @@ func mint_batch_iter{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(
-        to: felt, 
-        len: felt, 
-        ids: Uint256*, 
+        to: felt,
+        len: felt,
+        ids: Uint256*,
         amounts: Uint256*
     ):
     # Base case

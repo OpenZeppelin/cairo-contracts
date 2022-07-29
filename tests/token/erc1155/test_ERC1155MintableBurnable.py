@@ -5,7 +5,8 @@ from utils import (
     uint, to_uint, add_uint, sub_uint,
     MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, TRUE, FALSE,
     get_contract_class, cached_contract,
-    assert_revert, assert_event_emitted
+    assert_revert, assert_event_emitted,
+    str_to_felt
 )
 
 signer = MockSigner(123456789987654321)
@@ -54,6 +55,9 @@ MAX_UINT_AMOUNTS = [to_uint(1), MAX_UINT256, to_uint(1)]
 INVALID_AMOUNTS = uint_array([1, MAX_UINT256[0]+1, 1])
 INVALID_IDS = uint_array([111, MAX_UINT256[0]+1, 333])
 
+DEFAULT_URI = str_to_felt('mock://mytoken.v1')
+URI = str_to_felt('mock://mytoken.v2')
+
 
 DATA = 0
 REJECT_DATA = [1, 0]
@@ -94,7 +98,7 @@ async def erc1155_init(contract_classes):
     )
     erc1155 = await starknet.deploy(
         contract_class=erc1155_cls,
-        constructor_calldata=[0, account1.contract_address]
+        constructor_calldata=[DEFAULT_URI, account1.contract_address]
     )
     receiver = await starknet.deploy(
         contract_class=receiver_cls
@@ -135,7 +139,7 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
             account.contract_address,  # to
             *uarr2cd(TOKEN_IDS),  # ids
             *uarr2cd(MINT_AMOUNTS),  # amounts
-            0  # data
+            DATA  # data
         ]
     )
     return erc1155, owner, account, receiver
@@ -150,7 +154,7 @@ async def test_constructor(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
 
     execution_info = await erc1155.uri().invoke()
-    assert execution_info.result.uri == 0
+    assert execution_info.result.uri == DEFAULT_URI
 
 #
 # ERC165
@@ -173,6 +177,32 @@ async def test_supports_interface_unsupported(erc1155_factory, unsupported_id):
 
     execution_info = await erc1155.supportsInterface(unsupported_id).invoke()
     assert execution_info.result.success == FALSE
+
+#
+# Set URI
+#
+
+
+@pytest.mark.asyncio
+async def test_set_uri(erc1155_factory):
+    erc1155, owner, _, _ = erc1155_factory
+
+    await signer.send_transaction(
+        owner, erc1155.contract_address, 'setURI',
+        [URI]
+    )
+
+    execution_info = await erc1155.uri().invoke()
+    assert execution_info.result.uri == URI
+
+@pytest.mark.asyncio
+async def test_set_uri_not_owner(erc1155_factory):
+    erc1155, _, account, _ = erc1155_factory
+
+    await assert_revert(signer.send_transaction(
+        account, erc1155.contract_address, 'setURI',
+        [URI]),
+        "Ownable: caller is not the owner")
 
 #
 # Set/Get approval

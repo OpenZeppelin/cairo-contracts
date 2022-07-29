@@ -88,6 +88,17 @@ end
 #
 
 @external
+func setURI{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(uri : felt):
+    Ownable.assert_only_owner()
+    ERC1155._set_uri(uri)
+    return ()
+end
+
+@external
 func setApprovalForAll{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,

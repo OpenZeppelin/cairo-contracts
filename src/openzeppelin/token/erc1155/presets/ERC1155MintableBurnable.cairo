@@ -83,6 +83,16 @@ func isApprovedForAll{
     return (is_approved)
 end
 
+@view
+func owner{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner: felt) = Ownable.owner()
+    return (owner)
+end
+
 #
 # Externals
 #
@@ -217,6 +227,26 @@ func burnBatch{
         assert_not_zero(caller)
     end
     ERC1155._burn_batch(from_, ids_len, ids, amounts_len, amounts)
+    return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(newOwner: felt):
+    Ownable.transfer_ownership(newOwner)
+    return ()
+end
+
+@external
+func renounceOwnership{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }():
+    Ownable.renounce_ownership()
     return ()
 end
 

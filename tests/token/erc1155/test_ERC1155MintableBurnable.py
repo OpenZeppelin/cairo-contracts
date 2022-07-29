@@ -224,7 +224,7 @@ async def test_set_approval_for_all(erc1155_factory):
     execution_info = await erc1155.isApprovedForAll(
         approver, ACCOUNT).invoke()
 
-    assert execution_info.result.is_approved == TRUE
+    assert execution_info.result.isApproved == TRUE
 
     # Unset approval
     await signer.send_transaction(
@@ -235,7 +235,7 @@ async def test_set_approval_for_all(erc1155_factory):
     execution_info = await erc1155.isApprovedForAll(
         approver, ACCOUNT).invoke()
 
-    assert execution_info.result.is_approved == FALSE
+    assert execution_info.result.isApproved == FALSE
 
 
 @pytest.mark.asyncio

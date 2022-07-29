@@ -78,7 +78,7 @@ func isApprovedForAll{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(account: felt, operator: felt) -> (is_approved: felt):
+    }(account: felt, operator: felt) -> (isApproved: felt):
     let (is_approved) = ERC1155.is_approved_for_all(account, operator)
     return (is_approved)
 end

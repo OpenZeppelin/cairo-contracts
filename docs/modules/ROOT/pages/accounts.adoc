@@ -311,7 +311,7 @@ First, the user sends the messages for the transaction through a Signer instanti
 
 Then the `\_from_call_to_call_array` method in {test-utils}[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
 Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
-The Signer then invokes `\\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
+The Signer then invokes `\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
 Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
 

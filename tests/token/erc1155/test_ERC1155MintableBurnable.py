@@ -210,21 +210,32 @@ async def test_set_uri_not_owner(erc1155_factory):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("approval", [TRUE, FALSE])
-async def test_set_approval_for_all(erc1155_factory, approval):
+async def test_set_approval_for_all(erc1155_factory):
     erc1155, account, _, _ = erc1155_factory
 
     approver = account.contract_address
 
+    # Set approval
     await signer.send_transaction(
         account, erc1155.contract_address, 'setApprovalForAll',
-        [ACCOUNT, approval]
+        [ACCOUNT, TRUE]
     )
 
     execution_info = await erc1155.isApprovedForAll(
         approver, ACCOUNT).invoke()
 
-    assert execution_info.result.is_approved == approval
+    assert execution_info.result.is_approved == TRUE
+
+    # Unset approval
+    await signer.send_transaction(
+        account, erc1155.contract_address, 'setApprovalForAll',
+        [ACCOUNT, FALSE]
+    )
+
+    execution_info = await erc1155.isApprovedForAll(
+        approver, ACCOUNT).invoke()
+
+    assert execution_info.result.is_approved == FALSE
 
 
 @pytest.mark.asyncio
@@ -256,6 +267,28 @@ async def test_set_approval_for_all_non_boolean(erc1155_factory):
         account, erc1155.contract_address, 'setApprovalForAll',
         [ACCOUNT, NOT_BOOLEAN]
     ))
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all_self(erc1155_factory):
+    erc1155, account, _, _ = erc1155_factory
+
+    approvee = account.contract_address
+
+    # Set approval
+    await assert_revert(signer.send_transaction(
+        account, erc1155.contract_address, 'setApprovalForAll',
+        [approvee, TRUE]),
+        "ERC1155: setting approval status for self")
+
+@pytest.mark.asyncio
+async def test_set_approval_for_all_zero_address(erc1155_factory):
+    erc1155, account, _, _ = erc1155_factory
+
+    # Set approval
+    await assert_revert(signer.send_transaction(
+        account, erc1155.contract_address, 'setApprovalForAll',
+        [ZERO_ADDRESS, TRUE]),
+        "ERC1155: setting approval status for zero address")
 
 #
 # Balance getters

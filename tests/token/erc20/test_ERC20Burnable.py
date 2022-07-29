@@ -21,7 +21,7 @@ DECIMALS = 18
 @pytest.fixture(scope='module')
 def contract_classes():
     account_cls = get_contract_class('Account')
-    erc20_cls = get_contract_class('ERC20BurnableMock')
+    erc20_cls = get_contract_class('ERC20Burnable')
 
     return account_cls, erc20_cls
 
@@ -35,7 +35,7 @@ async def erc20_init(contract_classes):
         constructor_calldata=[signer.public_key]
     )
     account2 = await starknet.deploy(
-        contract_def=account_def,
+        contract_class=account_cls,
         constructor_calldata=[signer.public_key]
     )
     erc20 = await starknet.deploy(
@@ -58,32 +58,15 @@ async def erc20_init(contract_classes):
 
 
 @pytest.fixture
-<< << << < HEAD: tests/token/erc20/test_ERC20_Burnable.py
-
-
-def erc20_factory(contract_defs, erc20_init):
-    account_def, erc20_def = contract_defs
-    state, account1, account2, erc20 = erc20_init
-    _state = state.copy()
-    account1 = cached_contract(_state, account_def, account1)
-    account2 = cached_contract(_state, account_def, account2)
-    erc20 = cached_contract(_state, erc20_def, erc20)
-
-
-== == == =
-
-
 def erc20_factory(contract_classes, erc20_init):
     account_cls, erc20_cls = contract_classes
-    state, account1, erc20 = erc20_init
+    state, account1, account2, erc20 = erc20_init
     _state = state.copy()
     account1 = cached_contract(_state, account_cls, account1)
+    account2 = cached_contract(_state, account_cls, account2)
     erc20 = cached_contract(_state, erc20_cls, erc20)
 
-
->>>>>> > main: tests/token/erc20/test_ERC20BurnableMock.py
-
-return erc20, account1, account2
+    return erc20, account1, account2
 
 
 @pytest.mark.asyncio

@@ -4,10 +4,6 @@
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-## Security Advisory ⚠️
-
-- A critical [vulnerability](https://github.com/OpenZeppelin/cairo-contracts/issues/344) was found in an **unreleased** version of the Account contract. It was [introduced in March 25th](https://github.com/OpenZeppelin/cairo-contracts/pull/233) and has been [patched as of June 1st](https://github.com/OpenZeppelin/cairo-contracts/pull/347). If you copied the Account contract code into your project during that period, please update to the patched version. Note that 0.1.0 users are not affected.
-
 ## Usage
 
 > ## ⚠️ WARNING! ⚠️
@@ -82,7 +78,7 @@ nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --al
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from openzeppelin.security.pausable import Pausable
+from openzeppelin.security.pausable.library import Pausable
 from openzeppelin.token.erc20.library import ERC20
 
 (...)
@@ -141,11 +137,10 @@ python3 -m venv env
 source env/bin/activate
 ```
 
-Install Nile:
+Install dependencies:
 
 ```bash
-pip install cairo-nile
-nile install
+python -m pip install .
 ```
 
 ### Compile the contracts
@@ -153,32 +148,38 @@ nile install
 ```bash
 nile compile --directory src
 
-🤖 Compiling all Cairo contracts in the openzeppelin directory
-🔨 Compiling openzeppelin/introspection/ERC165.cairo
-🔨 Compiling openzeppelin/introspection/IERC165.cairo
-🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Burnable.cairo
-🔨 Compiling openzeppelin/token/erc721/ERC721_Mintable_Pausable.cairo
-🔨 Compiling openzeppelin/token/erc721/library.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Metadata.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721.cairo
-🔨 Compiling openzeppelin/token/erc721/interfaces/IERC721_Receiver.cairo
-🔨 Compiling openzeppelin/token/erc721/utils/ERC721_Holder.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20_Mintable.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20.cairo
-🔨 Compiling openzeppelin/token/erc20/library.cairo
-🔨 Compiling openzeppelin/token/erc20/ERC20_Pausable.cairo
-🔨 Compiling openzeppelin/token/erc20/interfaces/IERC20.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/ERC721_Enumerable_Mintable_Burnable.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/library.cairo
-🔨 Compiling openzeppelin/token/erc721_enumerable/interfaces/IERC721_Enumerable.cairo
-🔨 Compiling openzeppelin/security/pausable.cairo
-🔨 Compiling openzeppelin/security/safemath.cairo
-🔨 Compiling openzeppelin/security/initializable.cairo
-🔨 Compiling openzeppelin/access/ownable.cairo
-🔨 Compiling openzeppelin/account/IAccount.cairo
-🔨 Compiling openzeppelin/account/Account.cairo
-🔨 Compiling openzeppelin/account/AddressRegistry.cairo
-🔨 Compiling openzeppelin/utils/constants.cairo
+🤖 Compiling all Cairo contracts in the src directory
+🔨 Compiling src/openzeppelin/token/erc20/library.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo
+🔨 Compiling src/openzeppelin/token/erc20/presets/ERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc20/IERC20.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/library.cairo
+🔨 Compiling src/openzeppelin/token/erc721/library.cairo
+🔨 Compiling src/openzeppelin/token/erc721/utils/ERC721Holder.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/presets/ERC721EnumerableMintableBurnable.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Metadata.cairo
+🔨 Compiling src/openzeppelin/token/erc721/IERC721Receiver.cairo
+🔨 Compiling src/openzeppelin/token/erc721/enumerable/IERC721Enumerable.cairo
+🔨 Compiling src/openzeppelin/access/ownable/library.cairo
+🔨 Compiling src/openzeppelin/security/reentrancyguard/library.cairo
+🔨 Compiling src/openzeppelin/security/safemath/library.cairo
+🔨 Compiling src/openzeppelin/security/pausable/library.cairo
+🔨 Compiling src/openzeppelin/security/initializable/library.cairo
+🔨 Compiling src/openzeppelin/utils/constants/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/library.cairo
+🔨 Compiling src/openzeppelin/introspection/erc165/IERC165.cairo
+🔨 Compiling src/openzeppelin/upgrades/library.cairo
+🔨 Compiling src/openzeppelin/upgrades/presets/Proxy.cairo
+🔨 Compiling src/openzeppelin/account/library.cairo
+🔨 Compiling src/openzeppelin/account/presets/EthAccount.cairo
+🔨 Compiling src/openzeppelin/account/presets/Account.cairo
+🔨 Compiling src/openzeppelin/account/presets/AddressRegistry.cairo
+🔨 Compiling src/openzeppelin/account/IAccount.cairo
 ✅ Done
 ```
 
@@ -226,20 +227,20 @@ docker run cairo-tests
 This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/) plugin which runs tests in parallel. This feature increases testing speed; however, conflicts with a shared state can occur since tests do not run in order. To overcome this, independent cached versions of contracts being tested should be provisioned to each test case. Here's a simple fixture example:
 
 ```python
-from utils import get_contract_def, cached_contract
+from utils import get_contract_class, cached_contract
 
 @pytest.fixture(scope='module')
 def foo_factory():
-    # get contract definition
-    foo_def = get_contract_def('path/to/foo.cairo')
+    # get contract class
+    foo_cls = get_contract_class('Foo')
 
     # deploy contract
     starknet = await Starknet.empty()
-    foo = await starknet.deploy(contract_def=foo_def)
+    foo = await starknet.deploy(contract_class=foo_cls)
 
     # copy the state and cache contract
     state = starknet.state.copy()
-    cached_foo = cached_contract(state, foo_def, foo)
+    cached_foo = cached_contract(state, foo_cls, foo)
 
     return cached_foo
 ```

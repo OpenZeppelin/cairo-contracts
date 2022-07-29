@@ -1,7 +1,7 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    TRUE, FALSE, assert_revert, assert_event_emitted, 
+    TRUE, FALSE, assert_revert, assert_event_emitted,
     get_contract_class, cached_contract, State, Account
 )
 
@@ -39,7 +39,7 @@ async def test_pausable_when_unpaused(pausable_factory):
 
     execution_info = await contract.getCount().call()
     assert execution_info.result.res == 0
-    
+
     # check that function executes when unpaused
     await contract.normalProcess().invoke()
 

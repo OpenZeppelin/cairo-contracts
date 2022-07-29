@@ -5,7 +5,8 @@ from utils import (
     get_contract_class,
     cached_contract,
     TRUE,
-    FALSE
+    FALSE,
+    State
 )
 
 
@@ -15,13 +16,13 @@ INVALID_ID = 0xffffffff
 OTHER_ID = 0x12345678
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 async def erc165_factory():
     # class
     erc165_cls = get_contract_class("tests/mocks/ERC165.cairo", is_path=True)
 
     # deployment
-    starknet = await Starknet.empty()
+    starknet = await State.init()
     erc165 = await starknet.deploy(contract_class=erc165_cls)
 
     # cache

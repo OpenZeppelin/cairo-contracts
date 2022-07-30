@@ -5,18 +5,18 @@
 
 @contract_interface
 namespace IAccessControl:
-    func has_role(role: felt, user: felt) -> (has_role: felt):
+    func hasRole(role: felt, account: felt) -> (hasRole: felt):
     end
 
-    func get_role_admin(role: felt) -> (admin: felt):
+    func getRoleAdmin(role: felt) -> (admin: felt):
     end
 
-    func grant_role(role: felt, user: felt):
+    func grantRole(role: felt, account: felt):
     end
 
-    func revoke_role(role: felt, user: felt):
+    func revokeRole(role: felt, account: felt):
     end
 
-    func renounce_role(role: felt, user: felt):
+    func renounceRole(role: felt, account: felt):
     end
 end

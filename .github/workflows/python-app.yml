@@ -31,6 +31,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [version]
     steps:
     - uses: actions/checkout@v2
     - name: Markdown Linter

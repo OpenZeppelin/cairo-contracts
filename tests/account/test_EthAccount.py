@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, State
 from signers import MockEthSigner
 
@@ -90,7 +89,8 @@ async def test_execute(account_factory):
 
     # should revert if signature is not correct
     await assert_revert(
-        signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash-1, len(signature), *signature])]),
+        signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [
+                                 hash-1, len(signature), *signature])]),
         reverted_with="Invalid signature"
     )
 
@@ -134,8 +134,8 @@ async def test_return_value(account_factory):
 @ pytest.mark.asyncio
 async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
-    
-    # bump nonce 
+
+    # bump nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     execution_info = await account.get_nonce().call()
@@ -143,13 +143,15 @@ async def test_nonce(account_factory):
 
     # lower nonce
     await assert_revert(
-        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
+        signer.send_transactions(
+            account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
         reverted_with="Account: nonce is invalid"
     )
 
     # higher nonce
     await assert_revert(
-        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
+        signer.send_transactions(
+            account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
         reverted_with="Account: nonce is invalid"
     )
 
@@ -193,9 +195,10 @@ async def test_account_takeover_with_reentrant_call(account_factory):
     account, _, _, _, attacker = account_factory
 
     await assert_revert(
-        signer.send_transaction(account, attacker.contract_address, 'account_takeover', []),
+        signer.send_transaction(
+            account, attacker.contract_address, 'account_takeover', []),
         reverted_with="Account: no reentrant call"
     )
-    
+
     execution_info = await account.get_eth_address().call()
     assert execution_info.result == (signer.eth_address,)

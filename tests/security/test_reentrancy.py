@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     assert_revert, get_contract_class, State
 )

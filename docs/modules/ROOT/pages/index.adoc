@@ -16,7 +16,7 @@ sudo apt install -y libgmp3-dev # linux
 brew install gmp # mac
 ----
 
-TIP: If you have any troubles installing gmp on your Apple M1 computer, https://github.com/OpenZeppelin/nile/issues/22[here's a list of potential solutions].
+TIP: If you have any trouble installing gmp on your Apple M1 computer, https://github.com/OpenZeppelin/nile/issues/22[here's a list of potential solutions].
 
 === Set up your project
 

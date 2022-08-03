@@ -23,8 +23,11 @@ CAUTION: Expect this module to evolve (as it has already done).
 * <<memoization,Memoization>>
  ** <<get_contract_class,`get_contract_class`>>
  ** <<cached_contract,`cached_contract`>>
+<<<<<<< HEAD
 * <<state,State>>
 * <<account,Account>>
+=======
+>>>>>>> main
 * <<mocksigner,MockSigner>>
 
 == Constants

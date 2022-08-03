@@ -1,9 +1,8 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     str_to_felt, MAX_UINT256, get_contract_class, cached_contract,
-    TRUE, assert_revert, to_uint, sub_uint, add_uint
+    TRUE, assert_revert, to_uint, sub_uint, add_uint, State, Account
 )
 
 
@@ -25,7 +24,7 @@ ENUMERABLE_INTERFACE_ID = 0x780e9d63
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     erc721_cls = get_contract_class('ERC721EnumerableMintableBurnable')
 
     return account_cls, erc721_cls
@@ -34,15 +33,9 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def erc721_init(contract_classes):
     account_cls, erc721_cls = contract_classes
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
         constructor_calldata=[

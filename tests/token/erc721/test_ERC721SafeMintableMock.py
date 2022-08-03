@@ -1,9 +1,9 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
     str_to_felt, ZERO_ADDRESS, INVALID_UINT256, assert_revert,
-    assert_event_emitted, get_contract_class, cached_contract, to_uint
+    assert_event_emitted, get_contract_class, cached_contract, to_uint,
+    State, Account
 )
 
 
@@ -17,7 +17,7 @@ DATA = [0x42, 0x89, 0x55]
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     erc721_cls = get_contract_class('ERC721SafeMintableMock')
     erc721_holder_cls = get_contract_class('ERC721Holder')
     unsupported_cls = get_contract_class('Initializable')
@@ -28,15 +28,9 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def erc721_init(contract_classes):
     account_cls, erc721_cls, erc721_holder_cls, unsupported_cls = contract_classes
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
         constructor_calldata=[

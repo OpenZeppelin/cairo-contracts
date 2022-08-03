@@ -1,22 +1,22 @@
 import pytest
 from signers import MockSigner
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     ZERO_ADDRESS,
     assert_event_emitted,
     get_contract_class,
     cached_contract,
+    State,
+    Account,
     assert_revert
 )
 
 
 signer = MockSigner(123456789987654321)
 
-
 @pytest.fixture(scope='module')
 def contract_classes():
     return (
-        get_contract_class('Account'),
+        Account.get_class,
         get_contract_class('Ownable')
     )
 
@@ -24,11 +24,8 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def ownable_init(contract_classes):
     account_cls, ownable_cls = contract_classes
-    starknet = await Starknet.empty()
-    owner = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    owner = await Account.deploy(signer.public_key)
     ownable = await starknet.deploy(
         contract_class=ownable_cls,
         constructor_calldata=[owner.contract_address]

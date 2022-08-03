@@ -1,15 +1,14 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     MAX_UINT256, assert_revert, add_uint, sub_uint,
-    mul_uint, div_rem_uint, to_uint, contract_path,
-    get_contract_class
+    mul_uint, div_rem_uint, to_uint,
+    get_contract_class, State
 )
 
 
 @pytest.fixture(scope='module')
 async def safemath_mock():
-    starknet = await Starknet.empty()
+    starknet = await State.init()
     safemath = await starknet.deploy(
         contract_class=get_contract_class("SafeMathMock")
     )

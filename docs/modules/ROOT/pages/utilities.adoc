@@ -23,6 +23,8 @@ CAUTION: Expect this module to evolve (as it has already done).
 * <<memoization,Memoization>>
  ** <<get_contract_class,`get_contract_class`>>
  ** <<cached_contract,`cached_contract`>>
+* <<state,State>>
+* <<account,Account>>
 * <<mocksigner,MockSigner>>
 
 == Constants
@@ -278,6 +280,37 @@ def foo_factory(contract_classes, foo_init):
     _state = state.copy()                               # copy the state
     cached_foo = cached_contract(_state, foo_cls, foo)  # cache contracts
     return cached_foo                                   # return cached contracts
+----
+
+== State
+
+The `State` class provides a wrapper for initializing the StarkNet state which acts as a helper for the `Account` class. This wrapper allows `Account` deployments to share the same initialized state without explicitly passing the instantiated StarkNet state to `Account`. Initializing the state should look like this:
+
+[,python]
+----
+from utils import State
+
+starknet = await State.init()
+----
+
+== Account
+
+The `Account` class abstracts away most of the boilerplate for deploying accounts. Instantiating accounts with this class requires the StarkNet state to be instantiated first with the `State.init()` method like this:
+
+[,python]
+----
+from utils import State, Account
+
+starknet = await State.init()
+account1 = await Account.deploy(public_key)
+account2 = await Account.deploy(public_key)
+----
+
+The Account class also provides access to the account contract class which is useful for following the <<memoization,Memoization>> pattern. To fetch the account contract class:
+
+[,python]
+----
+fetch_class = Account.get_class
 ----
 
 == MockSigner

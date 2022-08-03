@@ -97,7 +97,7 @@ This allows developers to add features, update logic, and fix bugs without touch
 
 === Proxy contract
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/presets/Proxy.cairo[Proxy contract] includes two core methods:
+The https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/upgrades/presets/Proxy.cairo[Proxy contract] includes two core methods:
 
 . The `\\__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 . The `\\__l1_default__` method is also a fallback method;
@@ -114,7 +114,7 @@ The proxy's fallback function redirects the function call to the implementation 
 === Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract.
-The implementation contract should follow the xref:extensibility.adoc#the_pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/upgrades/library.cairo[Proxy library].
+The implementation contract should follow the xref:extensibility.adoc#the_pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/upgrades/library.cairo[Proxy library].
 
 The implementation contract should:
 
@@ -348,7 +348,7 @@ They can be deployed as-is or used as templates for customization.
 
 Some presets include:
 
-* https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[ERC20Upgradeable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[ERC20Upgradeable]
 * more to come!
 have an idea?
 https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose[open an issue]!

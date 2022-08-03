@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/access/ownable/library.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/access/ownable/library.cairo[Ownable]
 
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -208,7 +208,7 @@ Most software uses access control systems that are role-based: some users are re
 
 For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
 
-Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
 
 [,cairo]
 ----

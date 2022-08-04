@@ -2,7 +2,7 @@ import fileinput
 import sys
 from pathlib import Path
 
-CURRENT_VERSION = "v0.2.1"
+CURRENT_VERSION = "v0.3.0"
 ANTORA_PATH = "docs/antora.yml"
 
 

@@ -23,7 +23,7 @@ jobs:
           ssh-key: ${{ secrets.SSH_KEY }}
       - name: Set version
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: Run script
+      - name: Update version
         run: python scripts/update_version.py ${{ env.RELEASE_VERSION }}
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80

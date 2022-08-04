@@ -31,7 +31,11 @@ jobs:
           commit_message: Apply version bump
           create_branch: true
           branch: release-${{ env.RELEASE_VERSION }}
-          tagging_message: ${{ env.RELEASE_VERSION }}
+      - name: Merge changes to main
+        run: |
+          git checkout "main"
+          git merge "release-${{ env.RELEASE_VERSION }}" --no-edit
+          git push
 
   test:
     runs-on: ubuntu-latest

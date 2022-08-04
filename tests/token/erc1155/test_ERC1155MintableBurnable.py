@@ -137,9 +137,9 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
         owner, erc1155.contract_address, 'mintBatch',
         [
             account.contract_address,  # to
-            *uarr2cd(TOKEN_IDS),  # ids
-            *uarr2cd(MINT_AMOUNTS),  # amounts
-            DATA  # data
+            *uarr2cd(TOKEN_IDS),      # ids
+            *uarr2cd(MINT_AMOUNTS),   # amounts
+            DATA
         ]
     )
     return erc1155, owner, account, receiver
@@ -194,6 +194,7 @@ async def test_set_uri(erc1155_factory):
 
     execution_info = await erc1155.uri().invoke()
     assert execution_info.result.uri == URI
+
 
 @pytest.mark.asyncio
 async def test_set_uri_not_owner(erc1155_factory):
@@ -268,6 +269,7 @@ async def test_set_approval_for_all_non_boolean(erc1155_factory):
         [ACCOUNT, NOT_BOOLEAN]
     ))
 
+
 @pytest.mark.asyncio
 async def test_set_approval_for_all_self(erc1155_factory):
     erc1155, account, _, _ = erc1155_factory
@@ -279,6 +281,7 @@ async def test_set_approval_for_all_self(erc1155_factory):
         account, erc1155.contract_address, 'setApprovalForAll',
         [approvee, TRUE]),
         "ERC1155: setting approval status for self")
+
 
 @pytest.mark.asyncio
 async def test_set_approval_for_all_zero_address(erc1155_factory):
@@ -376,8 +379,8 @@ async def test_mint_emits_event(erc1155_factory):
         name='TransferSingle',
         data=[
             owner.contract_address,  # operator
-            ZERO_ADDRESS,  # from
-            recipient,  # to
+            ZERO_ADDRESS,            # from
+            recipient,               # to
             *TOKEN_ID,
             *MINT_AMOUNT
         ]
@@ -508,8 +511,8 @@ async def test_burn_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferSingle',
         data=[
-            subject,  # operator
-            subject,  # from
+            subject,       # operator
+            subject,       # from
             ZERO_ADDRESS,  # to
             *TOKEN_ID,
             *BURN_AMOUNT
@@ -560,8 +563,8 @@ async def test_burn_approved_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferSingle',
         data=[
-            operator,  # operator
-            subject,  # from
+            operator,      # operator
+            subject,       # from
             ZERO_ADDRESS,  # to
             *TOKEN_ID,
             *BURN_AMOUNT
@@ -653,8 +656,8 @@ async def test_safe_transfer_from_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferSingle',
         data=[
-            sender,  # operator
-            sender,  # from
+            sender,     # operator
+            sender,     # from
             recipient,  # to
             *TOKEN_ID,
             *TRANSFER_AMOUNT
@@ -710,8 +713,8 @@ async def test_safe_transfer_from_approved_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferSingle',
         data=[
-            operator,  # operator
-            sender,  # from
+            operator,   # operator
+            sender,     # from
             recipient,  # to
             *TOKEN_ID,
             *TRANSFER_AMOUNT
@@ -746,7 +749,7 @@ async def test_safe_transfer_from_invalid_id(erc1155_factory):
     sender = account.contract_address
     recipient = owner.contract_address
 
-    # transfer 0 amount of invalid id to avoid 
+    # transfer 0 amount of invalid id to avoid
     # insufficient balance error
     await assert_revert(
         signer.send_transaction(
@@ -852,8 +855,8 @@ async def test_mint_batch_emits_event(erc1155_factory):
         name='TransferBatch',
         data=[
             owner.contract_address,  # operator
-            ZERO_ADDRESS,  # from
-            recipient,  # to
+            ZERO_ADDRESS,            # from
+            recipient,               # to
             *uarr2cd(TOKEN_IDS),
             *uarr2cd(MINT_AMOUNTS),
         ]
@@ -1013,8 +1016,8 @@ async def test_burn_batch_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferBatch',
         data=[
-            burner,  # operator
-            burner,  # from
+            burner,        # operator
+            burner,        # from
             ZERO_ADDRESS,  # to
             *uarr2cd(TOKEN_IDS),
             *uarr2cd(BURN_AMOUNTS),
@@ -1062,8 +1065,8 @@ async def test_burn_batch_from_approved_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferBatch',
         data=[
-            operator,  # operator
-            burner,  # from
+            operator,      # operator
+            burner,        # from
             ZERO_ADDRESS,  # to
             *uarr2cd(TOKEN_IDS),
             *uarr2cd(BURN_AMOUNTS),
@@ -1213,8 +1216,8 @@ async def test_safe_batch_transfer_from_emits_event(erc1155_minted_factory):
         from_address=erc1155.contract_address,
         name='TransferBatch',
         data=[
-            sender,  # operator
-            sender,  # from
+            sender,     # operator
+            sender,     # from
             recipient,  # to
             *uarr2cd(TOKEN_IDS),
             *uarr2cd(TRANSFER_AMOUNTS),
@@ -1272,8 +1275,8 @@ async def test_safe_batch_transfer_from_approved_emits_event(
         from_address=erc1155.contract_address,
         name='TransferBatch',
         data=[
-            operator,  # operator
-            sender,  # from
+            operator,   # operator
+            sender,     # from
             recipient,  # to
             *uarr2cd(TOKEN_IDS),
             *uarr2cd(TRANSFER_AMOUNTS),

@@ -29,6 +29,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80
         with:
           commit_message: Apply version bump
+          create_branch: true
+          branch: release-${{ env.RELEASE_VERSION }}
+          tagging_message: ${{ env.RELEASE_VERSION }}
 
   test:
     runs-on: ubuntu-latest

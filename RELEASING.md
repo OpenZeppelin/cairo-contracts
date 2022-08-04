@@ -4,7 +4,7 @@ Releasing checklist:
 
 (1) Write a changelog.
 
-(2) Checkout the branch to be released. This should be `main` except in the event of a hotfix. For hotfixes, checkout the release branch.
+(2) Checkout the branch to be released. This should be `main` except in the event of a hotfix. For hotfixes, checkout the latest release branch.
 
 (3) Create a tag for the release.
 

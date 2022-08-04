@@ -16,7 +16,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-> Note that the CI automatically:
+Note that the CI automatically:
 
 - Updates the SPDX identifiers and antora.yml versions with the pushed tag
 - Creates a release branch and adds a tag to it. This can be useful if we need to push a hot fix on top of an existing release in the case of a bug.

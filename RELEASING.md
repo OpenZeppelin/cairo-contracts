@@ -4,13 +4,15 @@ Releasing checklist:
 
 (1) Write a changelog.
 
-(2) Create a tag for the release.
+(2) Checkout the branch to be released. This should be `main` except in the event of a hotfix. For hotfixes, checkout the release branch.
+
+(3) Create a tag for the release.
 
 ```sh
 git tag v0.2.0
 ```
 
-(3) Push the tag to the main repository, [triggering the CI and release process](https://github.com/OpenZeppelin/cairo-contracts/blob/b27101eb826fae73f49751fa384c2a0ff3377af2/.github/workflows/python-app.yml#L60).
+(4) Push the tag to the main repository, [triggering the CI and release process](https://github.com/OpenZeppelin/cairo-contracts/blob/b27101eb826fae73f49751fa384c2a0ff3377af2/.github/workflows/python-app.yml#L60).
 
 ```sh
 git push origin v0.2.0

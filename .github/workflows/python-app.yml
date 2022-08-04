@@ -12,8 +12,35 @@ on:
     types: [published]
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: 'main'
+          ssh-key: ${{ secrets.SSH_KEY }}
+      - name: Set version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Update version
+        run: python scripts/update_version.py ${{ env.RELEASE_VERSION }}
+      - name: Auto-commit changes
+        uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80
+        with:
+          commit_message: Bump version to ${{ env.RELEASE_VERSION }}
+          create_branch: true
+          branch: release-${{ env.RELEASE_VERSION }}
+      - name: Merge changes to main
+        run: |
+          git checkout "main"
+          git merge "release-${{ env.RELEASE_VERSION }}" --no-edit
+          git push
+
   test:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [version]
     steps:
     - uses: actions/checkout@v2
     - name: Markdown Linter

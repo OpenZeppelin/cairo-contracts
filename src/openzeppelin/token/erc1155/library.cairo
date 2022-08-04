@@ -507,7 +507,9 @@ namespace ERC1155:
             range_check_ptr
         }(owner: felt, operator: felt, approved: felt):
         # check approved is bool
-        assert approved * (approved - 1) = 0
+        with_attr error_message("ERC1155: approval is not boolean"):
+            assert approved * (approved - 1) = 0
+        end
         # caller/owner already checked  non-0
         with_attr error_message("ERC1155: setting approval status for zero address"):
             assert_not_zero(operator)

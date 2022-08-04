@@ -266,8 +266,8 @@ async def test_set_approval_for_all_non_boolean(erc1155_factory):
 
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'setApprovalForAll',
-        [ACCOUNT, NOT_BOOLEAN]
-    ))
+        [ACCOUNT, NOT_BOOLEAN]), 
+        "ERC1155: approval is not boolean")
 
 
 @pytest.mark.asyncio

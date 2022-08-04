@@ -26,7 +26,7 @@ jobs:
       - name: Run script
         run: python scripts/update_version.py ${{ env.RELEASE_VERSION }}
       - name: Auto-commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80
         with:
           commit_message: Apply version bump
 

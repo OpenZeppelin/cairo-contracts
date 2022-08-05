@@ -49,7 +49,7 @@ pip install openzeppelin-cairo-contracts
 
 ### Use a basic preset
 
-Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.2.1/extensibility#presets).
+Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.3.0/extensibility#presets).
 
 ```cairo
 # contracts/MyToken.cairo
@@ -67,11 +67,11 @@ nile compile
 nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --alias my_token
 ```
 
-> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.2.1/utilities#uint256) for more information.
+> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.3.0/utilities#uint256) for more information.
 
 ### Write a custom contract using library modules
 
-[Read more about libraries](https://docs.openzeppelin.com/contracts-cairo/0.2.1/extensibility#libraries).
+[Read more about libraries](https://docs.openzeppelin.com/contracts-cairo/0.3.0/extensibility#libraries).
 
 ```cairo
 %lang starknet
@@ -101,13 +101,13 @@ end
 
 Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)! Featuring:
 
-- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.2.1/accounts)
-- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.2.1/erc20)
-- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.2.1/erc721)
-- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.2.1/extensibility)
-- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.2.1/proxies)
-- [Security](https://docs.openzeppelin.com/contracts-cairo/0.2.1/security)
-- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.2.1/utilities)
+- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.3.0/accounts)
+- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.3.0/erc20)
+- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.3.0/erc721)
+- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.3.0/extensibility)
+- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.3.0/proxies)
+- [Security](https://docs.openzeppelin.com/contracts-cairo/0.3.0/security)
+- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.3.0/utilities)
 
 ### Cairo
 
@@ -247,7 +247,7 @@ def foo_factory():
     return cached_foo
 ```
 
-See [Memoization](https://docs.openzeppelin.com/contracts-cairo/0.2.1/utilities#memoization) in the Utilities documentation for a more thorough example on caching contracts.
+See [Memoization](https://docs.openzeppelin.com/contracts-cairo/0.3.0/utilities#memoization) in the Utilities documentation for a more thorough example on caching contracts.
 
 > Note that this does not apply for stateless libraries such as SafeMath.
 

@@ -1,4 +1,5 @@
 import fileinput
+import itertools
 import sys
 from pathlib import Path
 
@@ -9,9 +10,7 @@ DOC_PATHS = ["docs/antora.yml", "README.md"]
 def main():
     new_version = str(sys.argv[1])
     path = Path("src")
-    for p in path.glob("**/*.cairo"):
-        _update_version(p, new_version)
-    for p in DOC_PATHS:
+    for p in itertools.chain(path.glob("**/*.cairo"), DOC_PATHS):
         _update_version(p, new_version)
     _update_version("scripts/update_version.py", new_version)
 

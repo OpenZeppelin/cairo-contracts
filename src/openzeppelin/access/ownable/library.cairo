@@ -48,8 +48,10 @@ namespace Ownable:
         }():
         let (owner) = Ownable.owner()
         let (caller) = get_caller_address()
-        with_attr error_message("Ownable: caller is not the owner"):
+        with_attr error_message("Ownable: caller is the zero address"):
             assert_not_zero(caller)
+        end
+        with_attr error_message("Ownable: caller is not the owner"):
             assert owner = caller
         end
         return ()

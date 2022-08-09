@@ -91,7 +91,7 @@ async def test_contract_without_owner(ownable_factory):
     # Protected function should not be called from zero address
     await assert_revert(
         ownable.protected_function().invoke(),
-        reverted_with="Ownable: caller is not the owner"
+        reverted_with="Ownable: caller is the zero address"
     )
 
 

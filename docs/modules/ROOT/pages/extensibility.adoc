@@ -79,8 +79,8 @@ They can be deployed as-is or used as templates for customization.
 
 Some presets are:
 
-* https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/account/Account.cairo[Account]
-* https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/mocks/ERC165.cairo[ERC165]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/account/presets/Account.cairo[Account]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/tests/mocks/ERC165.cairo[ERC165]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo[ERC20Mintable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[ERC20Pausable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[ERC20Upgradeable]

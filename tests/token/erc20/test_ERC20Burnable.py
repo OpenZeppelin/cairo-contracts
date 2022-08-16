@@ -149,6 +149,28 @@ async def test_burn_from(erc20_factory):
             *AMOUNT
         ])
 
+    await signer.send_transaction(
+        account2, erc20.contract_address, 'burnFrom', [
+            account1.contract_address,
+            *AMOUNT
+        ])
+
+    new_balance = sub_uint(INIT_SUPPLY, AMOUNT)
+
+    execution_info = await erc20.balanceOf(account1.contract_address).invoke()
+    assert execution_info.result.balance == new_balance
+
+
+@pytest.mark.asyncio
+async def test_burn_from_emits_event(erc20_factory):
+    erc20, account1, account2 = erc20_factory
+
+    await signer.send_transaction(
+        account1, erc20.contract_address, 'increaseAllowance', [
+            account2.contract_address,
+            *AMOUNT
+        ])
+
     tx_exec_info = await signer.send_transaction(
         account2, erc20.contract_address, 'burnFrom', [
             account1.contract_address,
@@ -165,11 +187,6 @@ async def test_burn_from(erc20_factory):
             *AMOUNT
         ]
     )
-
-    new_balance = sub_uint(INIT_SUPPLY, AMOUNT)
-
-    execution_info = await erc20.balanceOf(account1.contract_address).invoke()
-    assert execution_info.result.balance == new_balance
 
 
 @pytest.mark.asyncio

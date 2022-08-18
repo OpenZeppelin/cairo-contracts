@@ -167,7 +167,7 @@ async def test_safeMint_from_zero_address(erc721_factory):
             TOKEN,
             DATA
         ).invoke(),
-        reverted_with="Ownable: caller is not the owner"
+        reverted_with="Ownable: caller is the zero address"
     )
 
 

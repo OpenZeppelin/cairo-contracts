@@ -17,7 +17,7 @@ NOTE: Expect rapid iteration as this pattern matures and more patterns potential
 * <<using_proxies,Using proxies>>
  ** <<contract_upgrades,Contract upgrades>>
  ** <<declaring_contracts,Declaring contracts>>
- ** <<handling_method_calls,Handling method calls>>
+ ** <<testing_method_calls,Testing method calls>>
 * <<presets,Presets>>
 
 == Quickstart
@@ -322,12 +322,10 @@ whereas, contract instances are instantiated and include the state.
 Since the Proxy contract references the implementation contract by its class hash, declaring an implementation contract proves sufficient (as opposed to a full deployment).
 For more information on declaring classes, see https://starknet.io/docs/hello_starknet/intro.html#declare-contract[StarkNet's documentation].
 
-=== Handling method calls
+=== Testing method calls
 
 As with most StarkNet contracts, interacting with a proxy contract requires an xref:accounts.adoc#quickstart[account abstraction].
-One notable difference with proxy contracts versus other contract implementations is that calling `@view` methods also requires an account abstraction.
-As of now, direct calls to default entrypoints are only supported by StarkNet's `syscalls` from other contracts i.e.
-account contracts.
+Due to limitations in the StarkNet testing framework, however, `@view` methods also require an account abstraction. This is only a requirement when testing.
 The differences in getter methods written in Python, for example, are as follows:
 
 [,python]

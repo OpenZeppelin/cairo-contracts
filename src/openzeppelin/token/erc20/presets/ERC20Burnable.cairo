@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Cairo Contracts v0.2.1 (token/erc20/presets/ERC20Burnable.cairo)
+# OpenZeppelin Cairo Contracts v0.3.1 (token/erc20/presets/ERC20Burnable.cairo)
 
 %lang starknet
 
@@ -20,8 +20,7 @@ func constructor{
         symbol: felt,
         decimals: felt,
         initial_supply: Uint256,
-        recipient: felt,
-        owner: felt
+        recipient: felt
     ):
     ERC20.initializer(name, symbol, decimals)
     ERC20._mint(recipient, initial_supply)

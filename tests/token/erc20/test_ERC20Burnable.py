@@ -46,7 +46,6 @@ async def erc20_init(contract_classes):
             DECIMALS,
             *INIT_SUPPLY,
             account1.contract_address,        # recipient
-            account1.contract_address,        # owner
         ]
     )
     return (

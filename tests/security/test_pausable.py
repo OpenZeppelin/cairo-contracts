@@ -1,9 +1,8 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
 from utils import (
-    TRUE, FALSE, assert_revert, assert_event_emitted, 
-    get_contract_class, cached_contract
+    TRUE, FALSE, assert_revert, assert_event_emitted,
+    get_contract_class, cached_contract, State, Account
 )
 
 
@@ -13,21 +12,21 @@ signer = MockSigner(12345678987654321)
 async def pausable_factory():
     # class
     pausable_cls = get_contract_class("Pausable")
-    account_cls = get_contract_class("Account")
+    account_cls = Account.get_class
 
-    starknet = await Starknet.empty()
+    # deploy
+    starknet = await State.init()
+    account = await Account.deploy(signer.public_key)
     pausable = await starknet.deploy(
         contract_class=pausable_cls,
         constructor_calldata=[]
     )
-    account = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
     state = starknet.state.copy()
 
+    # cache
     pausable = cached_contract(state, pausable_cls, pausable)
     account = cached_contract(state, account_cls, account)
+
     return pausable, account
 
 
@@ -40,7 +39,7 @@ async def test_pausable_when_unpaused(pausable_factory):
 
     execution_info = await contract.getCount().call()
     assert execution_info.result.res == 0
-    
+
     # check that function executes when unpaused
     await contract.normalProcess().invoke()
 

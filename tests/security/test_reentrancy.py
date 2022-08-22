@@ -1,7 +1,6 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
-    assert_revert, get_contract_class
+    assert_revert, get_contract_class, State
 )
 
 INITIAL_COUNTER = 0
@@ -9,7 +8,7 @@ INITIAL_COUNTER = 0
 
 @pytest.fixture(scope='module')
 async def reentrancy_mock():
-    starknet = await Starknet.empty()
+    starknet = await State.init()
     contract = await starknet.deploy(
         contract_class=get_contract_class("ReentrancyMock"),
         constructor_calldata=[INITIAL_COUNTER]

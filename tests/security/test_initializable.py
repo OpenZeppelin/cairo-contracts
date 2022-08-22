@@ -1,11 +1,10 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
-from utils import TRUE, FALSE, assert_revert, get_contract_class
+from utils import TRUE, FALSE, assert_revert, get_contract_class, State
 
 
 @pytest.mark.asyncio
 async def test_initializer():
-    starknet = await Starknet.empty()
+    starknet = await State.init()
     initializable = await starknet.deploy(
         contract_class=get_contract_class("Initializable")
     )

@@ -1,6 +1,5 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
-from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE
+from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, State
 from signers import MockEthSigner
 
 private_key = b'\x01' * 32
@@ -22,7 +21,7 @@ def contract_defs():
 @pytest.fixture(scope='module')
 async def account_init(contract_defs):
     account_cls, init_cls, attacker_cls = contract_defs
-    starknet = await Starknet.empty()
+    starknet = await State.init()
 
     account1 = await starknet.deploy(
         contract_class=account_cls,

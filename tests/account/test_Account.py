@@ -1,7 +1,6 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from signers import MockSigner
-from utils import assert_revert, get_contract_class, cached_contract, TRUE
+from utils import assert_revert, get_contract_class, cached_contract, TRUE, State, Account
 
 
 signer = MockSigner(123456789987654321)
@@ -12,7 +11,7 @@ IACCOUNT_ID = 0xf10dbd44
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     init_cls = get_contract_class("Initializable")
     attacker_cls = get_contract_class("AccountReentrancy")
 
@@ -22,16 +21,10 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def account_init(contract_classes):
     account_cls, init_cls, attacker_cls = contract_classes
-    starknet = await Starknet.empty()
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
 
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
     initializable1 = await starknet.deploy(
         contract_class=init_cls,
         constructor_calldata=[],

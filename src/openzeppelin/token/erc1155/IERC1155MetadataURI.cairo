@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import Uint256
 @contract_interface
 namespace IERC1155MetadataURI:
 
-    func uri(id: felt) -> (uri: felt):
+    func uri(id: Uint256) -> (uri: felt):
     end
 
 end

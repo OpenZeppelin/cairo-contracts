@@ -6,7 +6,7 @@
 from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
-namespace IERC1155_Receiver:
+namespace IERC1155Receiver:
 
     func onERC1155Received(
             operator: felt,

@@ -12,7 +12,7 @@ from starkware.cairo.common.bool import TRUE
 
 from openzeppelin.introspection.erc165.IERC165 import IERC165
 from openzeppelin.introspection.erc165.library import ERC165
-from openzeppelin.token.erc1155.IERC1155Receiver import IERC1155_Receiver
+from openzeppelin.token.erc1155.IERC1155Receiver import IERC1155Receiver
 from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.utils.constants.library import (
     IERC1155_ID,
@@ -569,7 +569,7 @@ func _do_safe_transfer_acceptance_check{
     # Confirm supports IERC1155Reciever interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
     if is_supported == TRUE:
-        let (selector) = IERC1155_Receiver.onERC1155Received(
+        let (selector) = IERC1155Receiver.onERC1155Received(
             to, operator, from_, id, amount, data_len, data
         )
 
@@ -606,7 +606,7 @@ func _do_safe_batch_transfer_acceptance_check{
     # Confirm supports IERC1155Reciever interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID)
     if is_supported == TRUE:
-        let (selector) = IERC1155_Receiver.onERC1155BatchReceived(
+        let (selector) = IERC1155Receiver.onERC1155BatchReceived(
             contract_address=to,
             operator=operator,
             from_=from_,

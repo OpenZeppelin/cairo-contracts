@@ -85,9 +85,9 @@ namespace ERC1155:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(
-            uri_: felt
+            uri: felt
         ):
-        _set_uri(uri_)
+        _set_uri(uri)
         ERC165.register_interface(IERC1155_ID)
         ERC165.register_interface(IERC1155_METADATA_ID)
         return ()

@@ -153,7 +153,7 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
 async def test_constructor(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
 
-    execution_info = await erc1155.uri().invoke()
+    execution_info = await erc1155.uri(TOKEN_ID).invoke()
     assert execution_info.result.uri == DEFAULT_URI
 
 #
@@ -192,7 +192,7 @@ async def test_set_uri(erc1155_factory):
         [URI]
     )
 
-    execution_info = await erc1155.uri().invoke()
+    execution_info = await erc1155.uri(TOKEN_ID).invoke()
     assert execution_info.result.uri == URI
 
 

@@ -45,8 +45,8 @@ func uri{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }() -> (uri: felt):
-    return ERC1155.uri()
+    }(id: Uint256) -> (uri: felt):
+    return ERC1155.uri(id)
 end
 
 @view

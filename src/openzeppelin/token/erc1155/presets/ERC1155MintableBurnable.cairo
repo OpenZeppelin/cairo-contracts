@@ -169,7 +169,6 @@ func mint{
         data: felt*
     ):
     Ownable.assert_only_owner()
-    let (caller) = get_caller_address()
     ERC1155._mint(to, id, amount, data_len, data)
     return ()
 end
@@ -189,7 +188,6 @@ func mintBatch{
         data: felt*
     ):
     Ownable.assert_only_owner()
-    let (caller) = get_caller_address()
     ERC1155._mint_batch(to, ids_len, ids, amounts_len, amounts, data_len, data)
     return ()
 end

@@ -77,7 +77,7 @@ end
 namespace ERC1155:
 
     #
-    # Constructor
+    # Initializer
     #
 
     func initializer{
@@ -101,7 +101,7 @@ namespace ERC1155:
             syscall_ptr: felt*,
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
-        }() -> (uri: felt):
+        }(id: Uint256) -> (uri: felt):
         let (uri) = ERC1155_uri.read()
         return (uri)
     end
@@ -348,7 +348,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: mint to the zero address"):
             assert_not_zero(to)
         end
-        # Check uints valid
+        # Check uints validity
         with_attr error_message("ERC1155: id is not a valid Uint256"):
             uint256_check(id)
         end
@@ -446,7 +446,7 @@ namespace ERC1155:
             assert_not_zero(from_)
         end
 
-        # Check uints valid
+        # Check uints validity
         with_attr error_message("ERC1155: id is not a valid Uint256"):
             uint256_check(id)
         end
@@ -510,7 +510,9 @@ namespace ERC1155:
         with_attr error_message("ERC1155: approval is not boolean"):
             assert approved * (approved - 1) = 0
         end
-        # caller/owner already checked  non-0
+
+        # caller/owner already checked non-0
+
         with_attr error_message("ERC1155: setting approval status for zero address"):
             assert_not_zero(operator)
         end
@@ -681,7 +683,7 @@ func safe_batch_transfer_from_iter{
         return ()
     end
 
-    # Read current entries,  perform Uint256 checks
+    # Read current entries, perform Uint256 checks
     let id = [ids]
     with_attr error_message("ERC1155: id is not a valid Uint256"):
         uint256_check(id)

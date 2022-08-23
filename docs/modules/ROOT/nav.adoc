@@ -1,17 +1,17 @@
-* xref:index.adoc[Overview]
-* xref:extensibility.adoc[Extensibility]
-* xref:proxies.adoc[Proxies and Upgrades]
+* xref:pages/index.adoc[Overview]
+* xref:pages/extensibility.adoc[Extensibility]
+* xref:pages/proxies.adoc[Proxies and Upgrades]
 
-* xref:accounts.adoc[Accounts]
-* xref:access.adoc[Access Control]
+* xref:pages/accounts.adoc[Accounts]
+* xref:pages/access.adoc[Access Control]
 
 * Tokens
-** xref:erc20.adoc[ERC20]
-** xref:erc721.adoc[ERC721]
+** xref:pages/erc20.adoc[ERC20]
+** xref:pages/erc721.adoc[ERC721]
 
-* xref:security.adoc[Security]
-* xref:introspection.adoc[Introspection]
-* xref:utilities.adoc[Utilities]
+* xref:pages/security.adoc[Security]
+* xref:pages/introspection.adoc[Introspection]
+* xref:pages/utilities.adoc[Utilities]
 
-* xref:contracts::index.adoc[Contracts for Solidity]
+* xref:contracts::pages/index.adoc[Contracts for Solidity]
 * https://wizard.openzeppelin.com/cairo[Wizard]

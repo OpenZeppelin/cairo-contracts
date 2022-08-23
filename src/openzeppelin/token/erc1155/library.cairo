@@ -187,9 +187,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: cannot call transfer from the zero address"):
             assert_not_zero(caller)
         end
-        with_attr error_message("ERC1155: caller is not owner nor approved"):
-            assert_owner_or_approved(from_)
-        end
+        assert_owner_or_approved(from_)
         _safe_transfer_from(from_, to, id, amount, data_len, data)
         return ()
     end
@@ -212,9 +210,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: cannot call transfer from the zero address"):
             assert_not_zero(caller)
         end
-        with_attr error_message("ERC1155: transfer caller is not owner nor approved"):
-            assert_owner_or_approved(from_)
-        end
+        assert_owner_or_approved(from_)
         _safe_batch_transfer_from(from_, to, ids_len, ids, amounts_len, amounts, data_len, data)
         return ()
     end

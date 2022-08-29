@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.3.1 (token/erc721/presets/utils/ERC721Holder.cairo)
+# OpenZeppelin Contracts for Cairo v0.3.2 (token/erc721/presets/utils/ERC721Holder.cairo)
 
 %lang starknet
 

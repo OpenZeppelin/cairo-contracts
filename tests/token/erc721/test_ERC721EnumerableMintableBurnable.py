@@ -1,8 +1,10 @@
 import pytest
 from signers import MockSigner
+from nile.utils import (
+    str_to_felt, MAX_UINT256, TRUE, assert_revert, to_uint, sub_uint, add_uint
+)
 from utils import (
-    str_to_felt, MAX_UINT256, get_contract_class, cached_contract,
-    TRUE, assert_revert, to_uint, sub_uint, add_uint, State, Account
+    get_contract_class, cached_contract, State, Account
 )
 
 

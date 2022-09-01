@@ -1,5 +1,5 @@
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash
-from utils import to_uint
+from nile.utils import to_uint
 import eth_keys
 
 

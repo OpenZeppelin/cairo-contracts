@@ -1,14 +1,9 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    State,
-    Account,
-    assert_revert,
-    assert_revert_entry_point,
-    assert_event_emitted,
-    get_contract_class,
-    cached_contract
+from nile.utils import (
+    assert_revert, assert_revert_entry_point, assert_event_emitted
 )
+from utils import State, Account, get_contract_class, cached_contract
 
 
 # random value

@@ -1,5 +1,6 @@
 import pytest
-from utils import TRUE, FALSE, assert_revert, get_contract_class, State
+from nile.utils import TRUE, FALSE, assert_revert
+from utils import get_contract_class, State
 
 
 @pytest.mark.asyncio

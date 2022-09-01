@@ -1,11 +1,8 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
+from nile.utils import assert_revert, TRUE, FALSE
 from utils import (
-    assert_revert,
     get_contract_class,
     cached_contract,
-    TRUE,
-    FALSE,
     State
 )
 

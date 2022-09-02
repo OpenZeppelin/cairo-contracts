@@ -19,7 +19,6 @@ VALUE_2 = 987
 signer = MockSigner(123456789987654321)
 
 
-@pytest.mark.only
 class TestUpgrades:
     @pytest.fixture(scope='module')
     def contract_classes(self):
@@ -46,7 +45,9 @@ class TestUpgrades:
         )
 
         selector = get_selector_from_name('initializer')
-        params = [account1.contract_address]
+        params = [
+            account1.contract_address   # admin account
+        ]
         proxy = await starknet.deploy(
             contract_class=proxy_cls,
             constructor_calldata=[

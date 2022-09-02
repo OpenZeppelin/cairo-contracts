@@ -44,7 +44,7 @@ class MockSigner():
 
     async def send_transactions(self, account, calls, nonce=None, max_fee=0):
         if nonce is None:
-            execution_info = await account.get_nonce().call()
+            execution_info = await account.getNonce().call()
             nonce, = execution_info.result
 
         build_calls = []
@@ -76,7 +76,7 @@ class MockEthSigner():
 
     async def send_transactions(self, account, calls, nonce=None, max_fee=0):
         if nonce is None:
-            execution_info = await account.get_nonce().call()
+            execution_info = await account.getNonce().call()
             nonce, = execution_info.result
 
         build_calls = []

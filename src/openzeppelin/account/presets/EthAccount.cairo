@@ -16,8 +16,8 @@ func constructor{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(eth_address: felt):
-    Account.initializer(eth_address)
+    }(ethAddress: felt):
+    Account.initializer(ethAddress)
     return ()
 end
 
@@ -26,23 +26,23 @@ end
 #
 
 @view
-func get_eth_address{
+func getEthAddress{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_public_key()
-    return (res=res)
+    }() -> (publicKey: felt):
+    let (publicKey) = Account.get_public_key()
+    return (publicKey=publicKey)
 end
 
 @view
-func get_nonce{
+func getNonce{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_nonce()
-    return (res=res)
+    }() -> (nonce: felt):
+    let (nonce) = Account.get_nonce()
+    return (nonce=nonce)
 end
 
 @view
@@ -60,12 +60,12 @@ end
 #
 
 @external
-func set_eth_address{
+func setEthAddress{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(new_eth_address: felt):
-    Account.set_public_key(new_eth_address)
+    }(newEthAddress: felt):
+    Account.set_public_key(newEthAddress)
     return ()
 end
 
@@ -74,7 +74,7 @@ end
 #
 
 @view
-func is_valid_signature{
+func isValidSignature{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
@@ -84,9 +84,9 @@ func is_valid_signature{
         hash: felt,
         signature_len: felt,
         signature: felt*
-    ) -> (is_valid: felt):
-    let (is_valid) = Account.is_valid_eth_signature(hash, signature_len, signature)
-    return (is_valid=is_valid)
+    ) -> (isValid: felt):
+    let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature)
+    return (isValid=isValid)
 end
 
 @external

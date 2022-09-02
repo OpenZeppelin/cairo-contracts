@@ -59,7 +59,7 @@ def account_factory(contract_classes, account_init):
 async def test_constructor(account_factory):
     account, *_ = account_factory
 
-    execution_info = await account.get_public_key().call()
+    execution_info = await account.getPublicKey().call()
     assert execution_info.result == (signer.public_key,)
 
     execution_info = await account.supportsInterface(IACCOUNT_ID).call()
@@ -122,18 +122,20 @@ async def test_nonce(account_factory):
     # bump nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
-    execution_info = await account.get_nonce().call()
-    current_nonce = execution_info.result.res
+    execution_info = await account.getNonce().call()
+    current_nonce = execution_info.result.nonce
 
     # lower nonce
     await assert_revert(
-        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
+        signer.send_transactions(
+            account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
         reverted_with="Account: nonce is invalid"
     )
 
     # higher nonce
     await assert_revert(
-        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
+        signer.send_transactions(
+            account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
         reverted_with="Account: nonce is invalid"
     )
 
@@ -148,13 +150,13 @@ async def test_nonce(account_factory):
 async def test_public_key_setter(account_factory):
     account, *_ = account_factory
 
-    execution_info = await account.get_public_key().call()
+    execution_info = await account.getPublicKey().call()
     assert execution_info.result == (signer.public_key,)
 
     # set new pubkey
-    await signer.send_transactions(account, [(account.contract_address, 'set_public_key', [other.public_key])])
+    await signer.send_transactions(account, [(account.contract_address, 'setPublicKey', [other.public_key])])
 
-    execution_info = await account.get_public_key().call()
+    execution_info = await account.getPublicKey().call()
     assert execution_info.result == (other.public_key,)
 
 
@@ -166,7 +168,7 @@ async def test_public_key_setter_different_account(account_factory):
     await assert_revert(
         signer.send_transactions(
             bad_account,
-            [(account.contract_address, 'set_public_key', [other.public_key])]
+            [(account.contract_address, 'setPublicKey', [other.public_key])]
         ),
         reverted_with="Account: caller is not this account"
     )
@@ -177,9 +179,10 @@ async def test_account_takeover_with_reentrant_call(account_factory):
     account, _, _, _, attacker = account_factory
 
     await assert_revert(
-        signer.send_transaction(account, attacker.contract_address, 'account_takeover', []),
+        signer.send_transaction(
+            account, attacker.contract_address, 'account_takeover', []),
         reverted_with="Account: no reentrant call"
     )
-    
-    execution_info = await account.get_public_key().call()
+
+    execution_info = await account.getPublicKey().call()
     assert execution_info.result == (signer.public_key,)

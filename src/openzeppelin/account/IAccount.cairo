@@ -12,14 +12,14 @@ namespace IAccount:
     # Getters
     #
 
-    func get_nonce() -> (res : felt):
+    func getNonce() -> (res : felt):
     end
 
     #
     # Business logic
     #
 
-    func is_valid_signature(
+    func isValidSignature(
             hash: felt,
             signature_len: felt,
             signature: felt*

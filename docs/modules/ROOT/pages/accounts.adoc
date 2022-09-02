@@ -22,15 +22,8 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
  ** <<call,Call>>
  ** <<accountcallarray,AccountCallArray>>
 * <<multicall_transactions,Multicall transactions>>
-* <<api_specification,API Specification>>
- ** <<get_public_key,`get_public_key`>>
- ** <<get_nonce,`get_nonce`>>
- ** <<set_public_key,`set_public_key`>>
- ** <<is_valid_signature,`is_valid_signature`>>
- ** <<execute,`\\__execute__`>>
- ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
- ** <<eth_execute,`eth_execute`>>
- ** <<unsafe_execute,`_unsafe_execute`>>
+* <<contract_api_specification,Contract API Specification>>
+* <<library_api_specification,Library API Specification>>
 * <<presets,Presets>>
  ** <<account,Account>>
  ** <<eth_account,Eth Account>>
@@ -81,14 +74,14 @@ namespace IAccount:
     # Getters
     #
 
-    func get_nonce() -> (res : felt):
+    func getNonce() -> (res : felt):
     end
 
     #
     # Business logic
     #
 
-    func is_valid_signature(
+    func isValidSignature(
             hash: felt,
             signature_len: felt,
             signature: felt*
@@ -110,7 +103,7 @@ end
 
 While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account.
 That's why the `constructor` function expects a `public_key` parameter to set it.
-Since there's also a `set_public_key()` method, accounts can be effectively transferred.
+Since there's also a `setPublicKey()` method, accounts can be effectively transferred.
 
 === Signer
 
@@ -200,7 +193,7 @@ That's why if you want to change the public key controlling the Account, you wou
 
 [,python]
 ----
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
+await signer.send_transaction(account, account.contract_address, 'setPublicKey', [NEW_KEY])
 ----
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
@@ -318,25 +311,25 @@ Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata an
 NOTE: Every transaction utilizes `AccountCallArray`.
 A single `Call` is treated as a bundle with one message.
 
-== API Specification
+== Contract API Specification
 
-This in a nutshell is the Account contract public API:
+This in a nutshell is the Account contract public API, followed by the `Account` and `EthAccount` presets:
 
 [,cairo]
 ----
-func get_public_key() -> (res: felt):
+func getPublicKey() -> (publicKey: felt):
 end
 
-func get_nonce() -> (res: felt):
+func getNonce() -> (nonce: felt):
 end
 
-func set_public_key(new_public_key: felt):
+func setPublicKey(newPublicKey: felt):
 end
 
-func is_valid_signature(hash: felt,
+func isValidSignature(hash: felt,
         signature_len: felt,
         signature: felt*
-    ) -> (is_valid: felt):
+    ) -> (isValid: felt):
 end
 
 func __execute__(
@@ -349,7 +342,7 @@ func __execute__(
 end
 ----
 
-=== `get_public_key`
+=== `getPublicKey`
 
 Returns the public key associated with the Account contract.
 
@@ -359,10 +352,10 @@ Returns:
 
 [,cairo]
 ----
-public_key: felt
+publicKey: felt
 ----
 
-=== `get_nonce`
+=== `getNonce`
 
 Returns the current transaction nonce for the Account.
 
@@ -375,7 +368,7 @@ Returns:
 nonce: felt
 ----
 
-=== `set_public_key`
+=== `setPublicKey`
 
 Sets the public key that will control this Account.
 It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
@@ -384,12 +377,12 @@ Parameters:
 
 [,cairo]
 ----
-public_key: felt
+publicKey: felt
 ----
 
 Returns: None.
 
-=== `is_valid_signature`
+=== `isValidSignature`
 
 This function is inspired by https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and returns `TRUE` if a given signature is valid, otherwise it reverts.
 In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
@@ -407,7 +400,7 @@ Returns:
 
 [,cairo]
 ----
-is_valid: felt
+isValid: felt
 ----
 
 NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
@@ -443,10 +436,61 @@ response_len: felt
 response: felt*
 ----
 
+
+== Library API Specification
+
+
+=== `is_valid_signature`
+
+Returns `TRUE` if a given StarkKey signature is valid, otherwise it reverts.
+
+Parameters:
+
+[,cairo]
+----
+signature_len: felt
+signature: felt*
+----
+
+Returns:
+
+[,cairo]
+----
+is_valid: felt
+----
+
+NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+
+
+=== `execute`
+
+This function calls the target contract with the intended function selector and calldata parameters. It uses `is_valid_signature` to validate the nonce and if the signature matches the message represented by `call_array` and `calldata`.
+
+Parameters:
+
+[,cairo]
+----
+call_array_len: felt
+call_array: AccountCallArray*
+calldata_len: felt
+calldata: felt*
+nonce: felt
+----
+
+NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
+
+Returns:
+
+[,cairo]
+----
+response_len: felt
+response: felt*
+----
+
+
 === `is_valid_eth_signature`
 
 Returns `TRUE` if a given signature in the secp256k1 curve is valid, otherwise it reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
 
 Parameters:
 
@@ -467,7 +511,7 @@ NOTE: It may return `FALSE` in the future if a given signature is invalid (follo
 
 === `eth_execute`
 
-This follows the same idea as the vanilla version of `execute` with the sole difference that signature verification is on the secp256k1 curve.
+Same as `execute` with the sole difference that it uses `is_valid_eth_signature` for validation.
 
 Parameters:
 
@@ -528,7 +572,7 @@ In the case of account contracts, querying `supportsInterface` of an account's a
 Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 
 To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed.
-This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
+This is why the Account library comes with different flavors of such pairs, like the vanilla `isValidSignature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
 
 Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.
 

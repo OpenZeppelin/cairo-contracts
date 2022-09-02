@@ -18,8 +18,8 @@ func constructor{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(public_key: felt):
-    Account.initializer(public_key)
+    }(publicKey: felt):
+    Account.initializer(publicKey)
     return ()
 end
 
@@ -28,23 +28,23 @@ end
 #
 
 @view
-func get_public_key{
+func getPublicKey{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_public_key()
-    return (res=res)
+    }() -> (publicKey: felt):
+    let (publicKey) = Account.get_public_key()
+    return (publicKey=publicKey)
 end
 
 @view
-func get_nonce{
+func getNonce{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_nonce()
-    return (res=res)
+    }() -> (nonce: felt):
+    let (nonce) = Account.get_nonce()
+    return (nonce=nonce)
 end
 
 @view
@@ -53,8 +53,7 @@ func supportsInterface{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     } (interfaceId: felt) -> (success: felt):
-    let (success) = ERC165.supports_interface(interfaceId)
-    return (success)
+    return ERC165.supports_interface(interfaceId)
 end
 
 #
@@ -62,12 +61,12 @@ end
 #
 
 @external
-func set_public_key{
+func setPublicKey{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(new_public_key: felt):
-    Account.set_public_key(new_public_key)
+    }(newPublicKey: felt):
+    Account.set_public_key(newPublicKey)
     return ()
 end
 
@@ -76,7 +75,7 @@ end
 #
 
 @view
-func is_valid_signature{
+func isValidSignature{
         syscall_ptr : felt*,
         pedersen_ptr : HashBuiltin*,
         range_check_ptr,
@@ -85,9 +84,9 @@ func is_valid_signature{
         hash: felt,
         signature_len: felt,
         signature: felt*
-    ) -> (is_valid: felt):
-    let (is_valid) = Account.is_valid_signature(hash, signature_len, signature)
-    return (is_valid=is_valid)
+    ) -> (isValid: felt):
+    let (isValid) = Account.is_valid_signature(hash, signature_len, signature)
+    return (isValid=isValid)
 end
 
 @external

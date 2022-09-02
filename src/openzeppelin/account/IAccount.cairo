@@ -12,7 +12,7 @@ namespace IAccount:
     # Getters
     #
 
-    func getNonce() -> (res : felt):
+    func getNonce() -> (nonce : felt):
     end
 
     #
@@ -23,7 +23,7 @@ namespace IAccount:
             hash: felt,
             signature_len: felt,
             signature: felt*
-        ) -> (is_valid: felt):
+        ) -> (isValid: felt):
     end
 
     func __execute__(

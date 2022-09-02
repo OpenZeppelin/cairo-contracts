@@ -572,7 +572,7 @@ In the case of account contracts, querying `supportsInterface` of an account's a
 Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 
 To implement custom account contracts, a pair of `validate` and `execute` functions should be exposed.
-This is why the Account library comes with different flavors of such pairs, like the vanilla `isValidSignature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
+This is why the Account library comes with different flavors of such pairs, like the vanilla `is_valid_signature` and `execute`, or the Ethereum flavored `is_valid_eth_signature` and `eth_execute` pair.
 
 Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.
 

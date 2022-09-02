@@ -10,10 +10,13 @@ from starkware.starknet.common.syscalls import (
 )
 from openzeppelin.upgrades.library import Proxy
 
-#
-# Constructor
-#
 
+# @dev Cairo doesn't support native decoding like Solidity yet,
+#      that's why we pass the three arguments for calldata instead of one
+# @param implementation_hash the implementation contract hash 
+# @param selector the implementation initializer function selector
+# @param calldata_len the calldata length for the initializer
+# @param calldata an array of felt containing the raw calldata
 @constructor
 func constructor{
         syscall_ptr: felt*,

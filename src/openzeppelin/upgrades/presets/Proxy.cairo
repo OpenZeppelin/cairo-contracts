@@ -12,7 +12,7 @@ from openzeppelin.upgrades.library import Proxy
 
 
 # @dev Cairo doesn't support native decoding like Solidity yet,
-#      that's why we pass the three arguments for calldata instead of one
+#      that's why we pass three arguments for calldata instead of one
 # @param implementation_hash the implementation contract hash 
 # @param selector the implementation initializer function selector
 # @param calldata_len the calldata length for the initializer
@@ -28,6 +28,7 @@ func constructor{
         calldata_len: felt,
         calldata: felt*
     ):
+    alloc_locals
     Proxy._set_implementation_hash(implementation_hash)
     
     if selector != 0:
@@ -35,7 +36,7 @@ func constructor{
         library_call(
             class_hash=implementation_hash, 
             function_selector=selector,
-            calldata_size=calldata_size,
+            calldata_size=calldata_len,
             calldata=calldata,
         )
     end

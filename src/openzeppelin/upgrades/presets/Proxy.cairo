@@ -19,8 +19,24 @@ func constructor{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
-    }(implementation_hash: felt):
+    }(
+        implementation_hash: felt,
+        selector: felt,
+        calldata_len: felt,
+        calldata: felt*
+    ):
     Proxy._set_implementation_hash(implementation_hash)
+    
+    if selector != 0:
+        # Initialize proxy from implementation 
+        library_call(
+            class_hash=implementation_hash, 
+            function_selector=selector,
+            calldata_size=calldata_size,
+            calldata=calldata,
+        )
+    end
+
     return ()
 end
 

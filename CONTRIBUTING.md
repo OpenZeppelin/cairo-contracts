@@ -93,7 +93,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
 ## Documentation
 
-Before submitting the PR, you must update the corresponding documentation entries in the docs folder. In the future we may use something similar to solidity-docgen to automatically generate docs, but for now we are updating .adoc entries manually. 
+Before submitting the PR, you must update the corresponding documentation entries in the docs folder. In the future we may use something similar to solidity-docgen to automatically generate docs, but for now we are updating .adoc entries manually.
 
 If you want to run the documentation UI locally:
 

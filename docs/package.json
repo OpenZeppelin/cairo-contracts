@@ -1,0 +1,15 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "scripts": {
+    "docs": "node_modules/@openzeppelin/docs-utils/oz-docs.js -c .",
+    "docs:watch": "npm run docs watch ../src",
+    "prepare-docs": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openzeppelin/docs-utils": "^0.1.2"
+  }
+}

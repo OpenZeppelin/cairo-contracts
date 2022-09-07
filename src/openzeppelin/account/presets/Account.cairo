@@ -4,7 +4,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
-from starkware.starknet.common.syscalls import call_contract, get_caller_address, get_tx_info
+from starkware.starknet.common.syscalls import get_tx_info
 
 from openzeppelin.account.library import Account, AccountCallArray
 

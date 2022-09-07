@@ -26,7 +26,7 @@ from openzeppelin.utils.constants.library import IACCOUNT_ID
 //
 
 @storage_var
-func Account_public_key() -> (res: felt) {
+func Account_public_key() -> (public_key: felt) {
 }
 
 //
@@ -80,10 +80,9 @@ namespace Account {
     //
 
     func get_public_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-        res: felt
+        public_key: felt
     ) {
-        let (res) = Account_public_key.read();
-        return (res=res);
+        return Account_public_key.read();
     }
 
     //
@@ -126,8 +125,8 @@ namespace Account {
     func is_valid_eth_signature{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
+        bitwise_ptr: BitwiseBuiltin*,
     }(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
         alloc_locals;
         let (_public_key) = get_public_key();

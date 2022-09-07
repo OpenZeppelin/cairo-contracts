@@ -11,7 +11,7 @@ namespace IAccount {
     // Business logic
     //
 
-    func is_valid_signature(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
+    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
     }
 
     func __validate__(

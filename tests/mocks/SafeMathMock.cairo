@@ -11,32 +11,28 @@ from openzeppelin.security.safemath.library import SafeUint256
 func uint256_add{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256
 ) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.add(a, b);
-    return (c,);
+    return SafeUint256.add(a, b);
 }
 
 @view
 func uint256_sub_le{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256
 ) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.sub_le(a, b);
-    return (c,);
+    return SafeUint256.sub_le(a, b);
 }
 
 @view
 func uint256_sub_lt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256
 ) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.sub_lt(a, b);
-    return (c,);
+    return SafeUint256.sub_lt(a, b);
 }
 
 @view
 func uint256_mul{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256
 ) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.mul(a, b);
-    return (c,);
+    return SafeUint256.mul(a, b);
 }
 
 @view

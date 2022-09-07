@@ -11,11 +11,11 @@ from openzeppelin.upgrades.library import Proxy
 //
 
 @storage_var
-func value_1() -> (res: felt) {
+func value_1() -> (val: felt) {
 }
 
 @storage_var
-func value_2() -> (res: felt) {
+func value_2() -> (val: felt) {
 }
 
 //
@@ -49,28 +49,24 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func getValue1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
-    let (val) = value_1.read();
-    return (val,);
+    return value_1.read();
 }
 
 @view
 func getValue2{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
-    let (val) = value_2.read();
-    return (val,);
+    return value_2.read();
 }
 
 @view
 func getImplementationHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    address: felt
+    implementation: felt
 ) {
-    let (address) = Proxy.get_implementation_hash();
-    return (address,);
+    return Proxy.get_implementation_hash();
 }
 
 @view
 func getAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (admin: felt) {
-    let (admin) = Proxy.get_admin();
-    return (admin,);
+    return Proxy.get_admin();
 }
 
 //

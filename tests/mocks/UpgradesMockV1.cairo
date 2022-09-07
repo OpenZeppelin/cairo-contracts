@@ -11,7 +11,7 @@ from openzeppelin.upgrades.library import Proxy
 //
 
 @storage_var
-func value_1() -> (res: felt) {
+func value_1() -> (val: felt) {
 }
 
 //
@@ -45,8 +45,7 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func getValue1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
-    let (val) = value_1.read();
-    return (val,);
+    return value_1.read();
 }
 
 //

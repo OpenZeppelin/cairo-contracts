@@ -15,8 +15,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
 @external
 func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    let (owner) = Ownable.owner();
-    return (owner=owner);
+    return Ownable.owner();
 }
 
 @external
@@ -35,8 +34,8 @@ func renounceOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @external
 func protected_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
+    success: felt
 ) {
     Ownable.assert_only_owner();
-    return (TRUE,);
+    return (success=TRUE);
 }

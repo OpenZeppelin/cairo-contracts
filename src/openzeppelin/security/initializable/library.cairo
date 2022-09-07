@@ -12,10 +12,10 @@ func Initializable_initialized() -> (res: felt) {
 
 namespace Initializable {
     func initialized{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-        res: felt
+        success: felt
     ) {
-        let (res) = Initializable_initialized.read();
-        return (res=res);
+        let (success) = Initializable_initialized.read();
+        return (success=success);
     }
 
     func initialize{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {

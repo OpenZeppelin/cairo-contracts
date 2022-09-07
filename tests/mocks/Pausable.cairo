@@ -9,11 +9,11 @@ from starkware.cairo.common.bool import TRUE, FALSE
 from openzeppelin.security.pausable.library import Pausable
 
 @storage_var
-func drastic_measure_taken() -> (res: felt) {
+func drastic_measure_taken() -> (success: felt) {
 }
 
 @storage_var
-func count() -> (res: felt) {
+func counter() -> (count: felt) {
 }
 
 @view
@@ -21,29 +21,27 @@ func isPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
     isPaused: felt
 ) {
     let (isPaused) = Pausable.is_paused();
-    return (isPaused,);
+    return (isPaused=isPaused);
 }
 
 @view
-func getCount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
-    let (res) = count.read();
-    return (res,);
+func getCount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (count: felt) {
+    return counter.read();
 }
 
 @view
 func getDrasticMeasureTaken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
+    success: felt
 ) {
-    let (res) = drastic_measure_taken.read();
-    return (res,);
+    return drastic_measure_taken.read();
 }
 
 @external
 func normalProcess{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     Pausable.assert_not_paused();
 
-    let (currentCount) = count.read();
-    count.write(currentCount + 1);
+    let (currentCount) = counter.read();
+    counter.write(currentCount + 1);
     return ();
 }
 

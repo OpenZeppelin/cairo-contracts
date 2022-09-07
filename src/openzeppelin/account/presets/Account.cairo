@@ -27,19 +27,18 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 
 @view
-func get_public_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
+func getPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    publicKey: felt
 ) {
-    let (res) = Account.get_public_key();
-    return (res=res);
+    let (public_key: felt) = Account.get_public_key();
+    return (publicKey=public_key);
 }
 
 @view
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }
 
 //
@@ -47,10 +46,10 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 //
 
 @external
-func set_public_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    new_public_key: felt
+func setPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    newPublicKey: felt
 ) {
-    Account.set_public_key(new_public_key);
+    Account.set_public_key(newPublicKey);
     return ();
 }
 
@@ -59,11 +58,11 @@ func set_public_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 //
 
 @view
-func is_valid_signature{
+func isValidSignature{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, ecdsa_ptr: SignatureBuiltin*
-}(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
-    let (is_valid) = Account.is_valid_signature(hash, signature_len, signature);
-    return (is_valid=is_valid);
+}(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    let (isValid: felt) = Account.is_valid_signature(hash, signature_len, signature);
+    return(isValid=isValid);
 }
 
 @external

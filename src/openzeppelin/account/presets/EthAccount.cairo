@@ -3,6 +3,7 @@
 
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
+from starkware.starknet.common.syscalls import get_tx_info
 
 from openzeppelin.account.library import Account, AccountCallArray
 from openzeppelin.introspection.erc165.library import ERC165
@@ -24,19 +25,18 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 
 @view
-func get_eth_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
+func getEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    ethAddress: felt
 ) {
-    let (res) = Account.get_public_key();
-    return (res=res);
+    let (ethAddress: felt) = Account.get_public_key();
+    return (ethAddress=ethAddress);
 }
 
 @view
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }
 
 //
@@ -44,10 +44,10 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 //
 
 @external
-func set_eth_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    new_eth_address: felt
+func setEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    newEthAddress: felt
 ) {
-    Account.set_public_key(new_eth_address);
+    Account.set_public_key(newEthAddress);
     return ();
 }
 
@@ -56,15 +56,14 @@ func set_eth_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 //
 
 @view
-func is_valid_signature{
+func isValidSignature{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
-    ecdsa_ptr: SignatureBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
-}(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
-    let (is_valid) = Account.is_valid_eth_signature(hash, signature_len, signature);
-    return (is_valid=is_valid);
+}(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature);
+    return (isValid=isValid);
 }
 
 @external

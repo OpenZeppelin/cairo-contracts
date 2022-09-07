@@ -30,20 +30,17 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }
 
 @view
 func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-    let (name) = ERC721.name();
-    return (name,);
+    return ERC721.name();
 }
 
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (symbol: felt) {
-    let (symbol) = ERC721.symbol();
-    return (symbol,);
+    return ERC721.symbol();
 }
 
 @view
@@ -51,23 +48,21 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     balance: Uint256
 ) {
     let (balance: Uint256) = ERC721.balance_of(owner);
-    return (balance,);
+    return balance;
 }
 
 @view
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
     owner: felt
 ) {
-    let (owner: felt) = ERC721.owner_of(tokenId);
-    return (owner,);
+    return ERC721.owner_of(tokenId);
 }
 
 @view
 func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256
 ) -> (approved: felt) {
-    let (approved: felt) = ERC721.get_approved(tokenId);
-    return (approved,);
+    return ERC721.get_approved(tokenId);
 }
 
 @view
@@ -75,7 +70,7 @@ func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     owner: felt, operator: felt
 ) -> (isApproved: felt) {
     let (isApproved: felt) = ERC721.is_approved_for_all(owner, operator);
-    return (isApproved,);
+    return (isApproved=isApproved);
 }
 
 @view
@@ -83,7 +78,7 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256
 ) -> (tokenURI: felt) {
     let (tokenURI: felt) = ERC721.token_uri(tokenId);
-    return (tokenURI,);
+    return (tokenURI=tokenURI);
 }
 
 //

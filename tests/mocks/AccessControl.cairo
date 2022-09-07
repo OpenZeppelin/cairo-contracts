@@ -20,7 +20,7 @@ func hasRole{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     role: felt, user: felt
 ) -> (hasRole: felt) {
     let (hasRole) = AccessControl.has_role(role, user);
-    return (hasRole,);
+    return (hasRole=hasRole);
 }
 
 @view
@@ -67,6 +67,5 @@ func setRoleAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }

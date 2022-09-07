@@ -11,7 +11,7 @@ from openzeppelin.upgrades.library import Proxy
 //
 
 @storage_var
-func value() -> (res: felt) {
+func value() -> (val: felt) {
 }
 
 //
@@ -32,16 +32,14 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
 @view
 func getValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
-    let (val) = value.read();
-    return (val,);
+    return value.read();
 }
 
 @view
 func getAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    address: felt
+    admin: felt
 ) {
-    let (address) = Proxy.get_admin();
-    return (address,);
+    return Proxy.get_admin();
 }
 
 //

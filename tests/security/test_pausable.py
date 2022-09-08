@@ -38,16 +38,16 @@ async def test_pausable_when_unpaused(pausable_factory):
     assert execution_info.result.isPaused == FALSE
 
     execution_info = await contract.getCount().call()
-    assert execution_info.result.res == 0
+    assert execution_info.result.count == 0
 
     # check that function executes when unpaused
-    await contract.normalProcess().invoke()
+    await contract.normalProcess().execute()
 
     execution_info = await contract.getCount().call()
-    assert execution_info.result.res == 1
+    assert execution_info.result.count == 1
 
     await assert_revert(
-        contract.drasticMeasure().invoke(),
+        contract.drasticMeasure().execute(),
         reverted_with="Pausable: not paused"
     )
 
@@ -59,39 +59,39 @@ async def test_pausable_when_paused(pausable_factory):
     assert execution_info.result.isPaused == FALSE
 
     # pause
-    await contract.pause().invoke()
+    await contract.pause().execute()
 
     execution_info = await contract.isPaused().call()
     assert execution_info.result.isPaused == TRUE
 
     await assert_revert(
-        contract.normalProcess().invoke(),
+        contract.normalProcess().execute(),
         reverted_with="Pausable: paused"
     )
 
     execution_info = await contract.getDrasticMeasureTaken().call()
-    assert execution_info.result.res == FALSE
+    assert execution_info.result.success == FALSE
 
     # drastic measure
-    await contract.drasticMeasure().invoke()
+    await contract.drasticMeasure().execute()
 
     execution_info = await contract.getDrasticMeasureTaken().call()
-    assert execution_info.result.res == TRUE
+    assert execution_info.result.success == TRUE
 
     # unpause
-    await contract.unpause().invoke()
+    await contract.unpause().execute()
 
     execution_info = await contract.isPaused().call()
     assert execution_info.result.isPaused == FALSE
 
     # check normal process after unpausing
-    await contract.normalProcess().invoke()
+    await contract.normalProcess().execute()
 
     execution_info = await contract.getCount().call()
-    assert execution_info.result.res == 1
+    assert execution_info.result.count == 1
 
     await assert_revert(
-        contract.drasticMeasure().invoke(),
+        contract.drasticMeasure().execute(),
         reverted_with="Pausable: not paused"
     )
 
@@ -100,20 +100,20 @@ async def test_pausable_pause_when_paused(pausable_factory):
     contract, _ = pausable_factory
 
     # pause
-    await contract.pause().invoke()
+    await contract.pause().execute()
 
     # re-pause
     await assert_revert(
-        contract.pause().invoke(),
+        contract.pause().execute(),
         reverted_with="Pausable: paused"
     )
 
     # unpause
-    await contract.unpause().invoke()
+    await contract.unpause().execute()
 
     # re-unpause
     await assert_revert(
-        contract.unpause().invoke(),
+        contract.unpause().execute(),
         reverted_with="Pausable: not paused"
     )
 
@@ -128,7 +128,6 @@ async def test_pausable_emits_events(pausable_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=contract.contract_address,
         name='Paused',
         data=[account.contract_address]
     )
@@ -140,7 +139,6 @@ async def test_pausable_emits_events(pausable_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=contract.contract_address,
         name='Unpaused',
         data=[account.contract_address]
     )

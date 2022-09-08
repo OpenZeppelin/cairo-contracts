@@ -132,7 +132,7 @@ async def test_upgrade(proxy_factory):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getValue1', []
     )
-    assert execution_info.result.response == [VALUE_1]
+    assert execution_info.call_info.retdata[1] == VALUE_1
 
     # upgrade
     await signer.send_transaction(
@@ -145,7 +145,7 @@ async def test_upgrade(proxy_factory):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getValue1', []
     )
-    assert execution_info.result.response == [VALUE_1]
+    assert execution_info.call_info.retdata[1] == VALUE_1
 
 
 @pytest.mark.asyncio
@@ -169,7 +169,6 @@ async def test_upgrade_event(proxy_factory):
     # check event
     assert_event_emitted(
         tx_exec_info,
-        from_address=proxy.contract_address,
         name='Upgraded',
         data=[
             v2_decl.class_hash          # new class hash
@@ -233,12 +232,13 @@ async def test_implementation_v2(after_upgrade):
     )
 
     expected = [
+        3,                              # number of return values
         v2_decl.class_hash,             # getImplementationHash
         admin.contract_address,         # getAdmin
         VALUE_1                         # getValue1
     ]
 
-    assert execution_info.result.response == expected
+    assert execution_info.call_info.retdata == expected
 
 #
 # v2 functions
@@ -259,7 +259,7 @@ async def test_set_admin(after_upgrade):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [new_admin.contract_address]
+    assert execution_info.call_info.retdata[1] == new_admin.contract_address
 
 
 @pytest.mark.asyncio
@@ -342,7 +342,8 @@ async def test_v2_functions_pre_and_post_upgrade(proxy_factory):
     )
 
     expected = [
+        2,                              # number of return values
         VALUE_2,                        # getValue2
         new_admin.contract_address      # getAdmin
     ]
-    assert execution_info.result.response == expected
+    assert execution_info.call_info.retdata == expected

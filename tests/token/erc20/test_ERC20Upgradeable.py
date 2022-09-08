@@ -6,7 +6,6 @@ from utils import (
 )
 
 
-
 signer = MockSigner(123456789987654321)
 
 USER = 999
@@ -108,8 +107,8 @@ async def test_constructor(token_factory):
     )
 
     # check values
-    expected = [NAME, SYMBOL, DECIMALS, *INIT_SUPPLY]
-    assert execution_info.result.response == expected
+    expected = [5, NAME, SYMBOL, DECIMALS, *INIT_SUPPLY]
+    assert execution_info.call_info.retdata == expected
 
 
 @pytest.mark.asyncio
@@ -137,12 +136,13 @@ async def test_upgrade(after_initializer):
     )
 
     expected = [
+        6,                                      # number of return values
         *sub_uint(INIT_SUPPLY, AMOUNT),         # balanceOf admin
         *AMOUNT,                                # balanceOf USER
         *INIT_SUPPLY                            # totalSupply
     ]
 
-    assert execution_info.result.response == expected
+    assert execution_info.call_info.retdata == expected
 
 
 @pytest.mark.asyncio

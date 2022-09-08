@@ -38,6 +38,7 @@ async def proxy_init(contract_classes):
         contract_class=proxy_cls,
         constructor_calldata=[implementation_decl.class_hash]
     )
+    proxy = proxy.replace_abi(implementation_decl.abi)
     return (
         starknet.state,
         account1,
@@ -85,7 +86,7 @@ async def test_initializer(proxy_factory):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [admin.contract_address]
+    assert execution_info.call_info.retdata[1] == admin.contract_address
 
 
 @pytest.mark.asyncio
@@ -113,7 +114,6 @@ async def test_set_admin(after_initialized):
     # check event
     assert_event_emitted(
         tx_exec_info,
-        from_address=proxy.contract_address,
         name='AdminChanged',
         data=[
             admin.contract_address,       # old admin
@@ -125,7 +125,7 @@ async def test_set_admin(after_initialized):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [VALUE]
+    assert execution_info.call_info.retdata[1] == VALUE
 
 
 @pytest.mark.asyncio
@@ -155,7 +155,7 @@ async def test_default_fallback(proxy_factory):
     execution_info = execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getValue', []
     )
-    assert execution_info.result.response == [VALUE]
+    assert execution_info.call_info.retdata[1] == VALUE
 
 
 @pytest.mark.asyncio

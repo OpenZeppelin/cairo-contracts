@@ -3,7 +3,7 @@ from signers import MockSigner
 from utils import (
     to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
     INVALID_UINT256, TRUE, get_contract_class, cached_contract, assert_revert,
-    assert_event_emitted, contract_path, State, Account
+    assert_event_emitted, assert_events_emitted, contract_path, State, Account
 )
 
 
@@ -73,11 +73,11 @@ async def test_constructor(erc20_factory):
     erc20, account, _ = erc20_factory
 
     # balanceOf recipient
-    execution_info = await erc20.balanceOf(account.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == INIT_SUPPLY
 
     # totalSupply
-    execution_info = await erc20.totalSupply().invoke()
+    execution_info = await erc20.totalSupply().execute()
     assert execution_info.result.totalSupply == INIT_SUPPLY
 
 
@@ -105,21 +105,21 @@ async def test_constructor_exceed_max_decimals(erc20_factory):
 @pytest.mark.asyncio
 async def test_name(erc20_factory):
     erc20, _, _ = erc20_factory
-    execution_info = await erc20.name().invoke()
+    execution_info = await erc20.name().execute()
     assert execution_info.result.name == NAME
 
 
 @pytest.mark.asyncio
 async def test_symbol(erc20_factory):
     erc20, _, _ = erc20_factory
-    execution_info = await erc20.symbol().invoke()
+    execution_info = await erc20.symbol().execute()
     assert execution_info.result.symbol == SYMBOL
 
 
 @pytest.mark.asyncio
 async def test_decimals(erc20_factory):
     erc20, _, _ = erc20_factory
-    execution_info = await erc20.decimals().invoke()
+    execution_info = await erc20.decimals().execute()
     assert execution_info.result.decimals == DECIMALS
 
 
@@ -133,7 +133,7 @@ async def test_approve(erc20_factory):
     erc20, account, spender = erc20_factory
 
     # check spender's allowance starts at zero
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == UINT_ZERO
 
     # set approval
@@ -143,10 +143,10 @@ async def test_approve(erc20_factory):
             *AMOUNT
         ]
     )
-    assert return_bool.result.response == [TRUE]
+    assert return_bool.call_info.retdata[1] == TRUE
 
     # check spender's allowance
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == AMOUNT
 
 
@@ -162,7 +162,6 @@ async def test_approve_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -179,7 +178,7 @@ async def test_approve_from_zero_address(erc20_factory):
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
     await assert_revert(
-        erc20.approve(spender.contract_address, AMOUNT).invoke(),
+        erc20.approve(spender.contract_address, AMOUNT).execute(),
         reverted_with="ERC20: cannot approve from the zero address"
     )
 
@@ -221,11 +220,11 @@ async def test_transfer(erc20_factory):
     erc20, account, _ = erc20_factory
 
     # check original totalSupply
-    execution_info = await erc20.balanceOf(account.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == INIT_SUPPLY
 
     # check recipient original balance
-    execution_info = await erc20.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc20.balanceOf(RECIPIENT).execute()
     assert execution_info.result.balance == UINT_ZERO
 
     # transfer
@@ -235,18 +234,18 @@ async def test_transfer(erc20_factory):
             *AMOUNT
         ]
     )
-    assert return_bool.result.response == [TRUE]
+    assert return_bool.call_info.retdata[1] == TRUE
 
     # check account balance
-    execution_info = await erc20.balanceOf(account.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == sub_uint(INIT_SUPPLY, AMOUNT)
 
     # check recipient balance
-    execution_info = await erc20.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc20.balanceOf(RECIPIENT).execute()
     assert execution_info.result.balance == AMOUNT
 
     # check totalSupply
-    execution_info = await erc20.totalSupply().invoke()
+    execution_info = await erc20.totalSupply().execute()
     assert execution_info.result.totalSupply == INIT_SUPPLY
 
 
@@ -262,7 +261,6 @@ async def test_transfer_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
         name='Transfer',
         data=[
             account.contract_address,
@@ -305,7 +303,7 @@ async def test_transfer_from_zero_address(erc20_factory):
     # Without using an account abstraction, the caller address
     # (get_caller_address) is zero
     await assert_revert(
-        erc20.transfer(RECIPIENT, UINT_ONE).invoke(),
+        erc20.transfer(RECIPIENT, UINT_ONE).execute(),
         reverted_with="ERC20: cannot transfer from the zero address"
     )
 
@@ -347,18 +345,18 @@ async def test_transferFrom(erc20_factory):
             *AMOUNT
         ]
     )
-    assert return_bool.result.response == [TRUE]
+    assert return_bool.call_info.retdata[1] == TRUE
 
     # check account balance
-    execution_info = await erc20.balanceOf(account.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == sub_uint(INIT_SUPPLY, AMOUNT)
 
     # check recipient balance
-    execution_info = await erc20.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc20.balanceOf(RECIPIENT).execute()
     assert execution_info.result.balance == AMOUNT
 
     # check spender allowance after tx
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == UINT_ZERO
 
 
@@ -381,14 +379,12 @@ async def test_transferFrom_emits_event(erc20_factory):
             *AMOUNT
         ])
 
-    assert_event_emitted(
+    # check events
+    assert_events_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
-        name='Transfer',
-        data=[
-            account.contract_address,
-            RECIPIENT,
-            *AMOUNT
+        [
+            [0, 'Approval', [account.contract_address, spender.contract_address, *UINT_ZERO]],
+            [1, 'Transfer', [account.contract_address, RECIPIENT, *AMOUNT]]
         ]
     )
 
@@ -486,7 +482,7 @@ async def test_transferFrom_to_zero_address(erc20_factory):
 async def test_increaseAllowance(erc20_factory):
     erc20, account, spender = erc20_factory
 
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == UINT_ZERO
 
     # set approve
@@ -498,7 +494,7 @@ async def test_increaseAllowance(erc20_factory):
     )
 
     # check allowance
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == AMOUNT
 
     # increase allowance
@@ -508,10 +504,10 @@ async def test_increaseAllowance(erc20_factory):
             *AMOUNT
         ]
     )
-    assert return_bool.result.response == [TRUE]
+    assert return_bool.call_info.retdata[1] == TRUE
 
     # check spender's allowance increased
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == add_uint(AMOUNT, AMOUNT)
 
 
@@ -537,7 +533,6 @@ async def test_increaseAllowance_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -600,7 +595,7 @@ async def test_increaseAllowance_from_zero_address(erc20_factory):
     )
 
     await assert_revert(
-        erc20.increaseAllowance(RECIPIENT, AMOUNT).invoke()
+        erc20.increaseAllowance(RECIPIENT, AMOUNT).execute()
     )
 
 
@@ -613,7 +608,7 @@ async def test_increaseAllowance_from_zero_address(erc20_factory):
 async def test_decreaseAllowance(erc20_factory):
     erc20, account, spender = erc20_factory
 
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == UINT_ZERO
 
     # set approve
@@ -624,7 +619,7 @@ async def test_decreaseAllowance(erc20_factory):
         ]
     )
 
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == AMOUNT
 
     # decrease allowance
@@ -634,11 +629,11 @@ async def test_decreaseAllowance(erc20_factory):
             *UINT_ONE
         ]
     )
-    assert return_bool.result.response == [TRUE]
+    assert return_bool.call_info.retdata[1] == TRUE
 
     new_allowance = sub_uint(AMOUNT, UINT_ONE)
 
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == new_allowance
 
 
@@ -664,7 +659,6 @@ async def test_decreaseAllowance_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -685,7 +679,7 @@ async def test_decreaseAllowance_overflow(erc20_factory):
         ]
     )
 
-    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).invoke()
+    execution_info = await erc20.allowance(account.contract_address, spender.contract_address).execute()
     assert execution_info.result.remaining == AMOUNT
 
     allowance_plus_one = add_uint(AMOUNT, UINT_ONE)
@@ -731,7 +725,7 @@ async def test_decreaseAllowance_from_zero_address(erc20_factory):
     )
 
     await assert_revert(
-        erc20.decreaseAllowance(RECIPIENT, AMOUNT).invoke()
+        erc20.decreaseAllowance(RECIPIENT, AMOUNT).execute()
     )
 
 

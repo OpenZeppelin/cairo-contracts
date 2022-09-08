@@ -108,7 +108,6 @@ async def test_safeMint_emits_event(erc721_factory):
 
     assert_event_emitted(
         tx_exec_info,
-        from_address=erc721.contract_address,
         name='Transfer',
         data=[
             ZERO_ADDRESS,
@@ -166,7 +165,7 @@ async def test_safeMint_from_zero_address(erc721_factory):
             erc721_holder.contract_address,
             TOKEN,
             DATA
-        ).invoke(),
+        ).execute(),
         reverted_with="Ownable: caller is the zero address"
     )
 

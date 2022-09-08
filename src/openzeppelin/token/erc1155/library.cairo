@@ -107,7 +107,7 @@ namespace ERC1155:
             pedersen_ptr: HashBuiltin*,
             range_check_ptr
         }(account: felt, id: Uint256) -> (balance: Uint256):
-        with_attr error_message("ERC1155: balance query for the zero address"):
+        with_attr error_message("ERC1155: address zero is not a valid owner"):
             assert_not_zero(account)
         end
         let (balance) = ERC1155_balances.read(id, account)

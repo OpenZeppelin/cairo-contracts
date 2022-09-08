@@ -314,7 +314,7 @@ async def test_balance_of_zero_address(erc1155_factory):
 
     await assert_revert(
         erc1155.balanceOf(ZERO_ADDRESS, TOKEN_ID).invoke(),
-        "ERC1155: balance query for the zero address")
+        "ERC1155: address zero is not a valid owner")
 
 
 @pytest.mark.asyncio
@@ -334,7 +334,7 @@ async def test_balance_of_batch_zero_address(erc1155_factory):
 
     await assert_revert(
         erc1155.balanceOfBatch(accounts, TOKEN_IDS).invoke(),
-        "ERC1155: balance query for the zero address")
+        "ERC1155: address zero is not a valid owner")
 
 
 @pytest.mark.asyncio

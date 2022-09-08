@@ -136,7 +136,7 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
-            account.contract_address,  # to
+            account.contract_address, # to
             *uarr2cd(TOKEN_IDS),      # ids
             *uarr2cd(MINT_AMOUNTS),   # amounts
             DATA
@@ -1101,7 +1101,7 @@ async def test_burn_batch_from_zero_address(erc1155_minted_factory):
     # note invoking this way (without signer) gives caller address of 0
     await assert_revert(
         erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, amounts).invoke(),
-        "ERC1155: called from zero address")
+        "ERC1155: burn from the zero address")
 
 
 @pytest.mark.asyncio

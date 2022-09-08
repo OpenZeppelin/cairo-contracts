@@ -6,7 +6,7 @@ private_key = b'\x01' * 32
 signer = MockEthSigner(b'\x01' * 32)
 other = MockEthSigner(b'\x02' * 32)
 
-IACCOUNT_ID = 0x962a66d0
+IACCOUNT_ID = 0xa7941cd2
 
 
 @pytest.fixture(scope='module')

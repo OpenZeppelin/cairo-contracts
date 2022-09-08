@@ -6,7 +6,7 @@ from utils import assert_revert, get_contract_class, cached_contract, TRUE, Stat
 signer = MockSigner(123456789987654321)
 other = MockSigner(987654321123456789)
 
-IACCOUNT_ID = 0x962a66d0
+IACCOUNT_ID = 0xa7941cd2
 
 
 @pytest.fixture(scope='module')

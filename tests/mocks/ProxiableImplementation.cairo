@@ -58,3 +58,11 @@ func setAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(a
     Proxy._set_admin(address);
     return ();
 }
+
+@external
+func set_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    new_implementation: felt
+) {
+    Proxy._set_implementation_hash(new_implementation);
+    return();
+}

@@ -36,7 +36,7 @@ func getEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    return ERC165.supports_interface(interfaceId);
+    return Account.supports_interface(interfaceId);
 }
 
 //

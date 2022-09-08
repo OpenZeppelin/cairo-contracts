@@ -10,7 +10,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.math import split_felt
-from starkware.cairo.common.bool import TRUE
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.starknet.common.syscalls import (
     call_contract,
     get_caller_address,
@@ -19,7 +19,7 @@ from starkware.starknet.common.syscalls import (
 )
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
 from openzeppelin.introspection.erc165.library import ERC165
-from openzeppelin.utils.constants.library import IACCOUNT_ID
+from openzeppelin.utils.constants.library import IACCOUNT_ID, IERC165_ID
 
 //
 // Storage
@@ -58,7 +58,6 @@ namespace Account {
         _public_key: felt
     ) {
         Account_public_key.write(_public_key);
-        ERC165.register_interface(IACCOUNT_ID);
         return ();
     }
 
@@ -83,6 +82,18 @@ namespace Account {
         public_key: felt
     ) {
         return Account_public_key.read();
+    }
+
+    func supports_interface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(interface_id: felt) -> (
+        success: felt
+    ) {
+        if (interface_id == IERC165_ID) {
+            return (TRUE,);
+        }
+        if (interface_id == IACCOUNT_ID) {
+            return (TRUE,);
+        }
+        return (FALSE,);
     }
 
     //

@@ -8,7 +8,6 @@ from starkware.starknet.common.syscalls import get_tx_info
 
 from openzeppelin.account.library import Account, AccountCallArray
 
-from openzeppelin.introspection.erc165.library import ERC165
 
 //
 // Constructor
@@ -38,7 +37,7 @@ func getPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    return ERC165.supports_interface(interfaceId);
+    return Account.supports_interface(interfaceId);
 }
 
 //

@@ -2,7 +2,7 @@
   "name": "docs",
   "version": "0.0.1",
   "scripts": {
-    "docs": "node_modules/@openzeppelin/docs-utils/oz-docs.js -c .",
+    "docs": "oz-docs -c .",
     "docs:watch": "npm run docs watch",
     "prepare-docs": ""
   },

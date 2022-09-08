@@ -134,11 +134,9 @@ namespace ERC1155:
         end
         # Allocate memory
         let (local batch_balances: Uint256*) = alloc()
-        let len = accounts_len
         # Call iterator
-        balance_of_batch_iter(len, accounts, ids, batch_balances)
-        let batch_balances_len = len
-        return (batch_balances_len, batch_balances)
+        balance_of_batch_iter(accounts_len, accounts, ids, batch_balances)
+        return (accounts_len, batch_balances)
     end
 
     func is_approved_for_all{
@@ -297,8 +295,7 @@ namespace ERC1155:
             assert ids_len = amounts_len
         end
         # Recursive call
-        let len = ids_len
-        safe_batch_transfer_from_iter(from_, to, len, ids, amounts)
+        safe_batch_transfer_from_iter(from_, to, ids_len, ids, amounts)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -400,8 +397,7 @@ namespace ERC1155:
         end
 
         # Recursive call
-        let len = ids_len
-        mint_batch_iter(to, len, ids, amounts)
+        mint_batch_iter(to, ids_len, ids, amounts)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -478,8 +474,7 @@ namespace ERC1155:
         end
 
         # Recursive call
-        let len = ids_len
-        burn_batch_iter(from_, len, ids, amounts)
+        burn_batch_iter(from_, ids_len, ids, amounts)
         let (operator) = get_caller_address()
         TransferBatch.emit(
             operator=operator,

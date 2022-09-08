@@ -13,8 +13,9 @@ func L1_address(L2_address: felt) -> (res: felt) {
 @external
 func get_L1_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     L2_address: felt
-) -> (L1_address: felt) {
-    return L1_address.read(L2_address);
+) -> (address: felt) {
+    let (address) = L1_address.read(L2_address);
+    return (address=address);
 }
 
 @external

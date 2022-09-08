@@ -53,7 +53,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
     > NOTE: The directory `cairo-contracts` represents your fork's local copy.
 
-2. Branch out from `main` into `fix/some-bug-short-description-#123`:
+2. Branch out from `main` into `fix/some-bug-short-description-#123` (ex: `fix/typos-in-docs-#123`):
 
     (Postfixing #123 will associate your PR with the issue #123 and make everyone's life easier =D)
 
@@ -69,7 +69,7 @@ As a contributor, you are expected to fork this repository, work on your own for
     git push origin fix/some-bug-short-description-#123
     ```
 
-4. Run tests, linter, etc. This can be done by running local continuous integration and make sure it passes. We recommend to use a python virtual environment.
+4. Run tests, linter, etc. This can be done by running local continuous integration and make sure it passes. We recommend to use a [python virtual environment](https://docs.python.org/3/tutorial/venv.html).
 
     ```bash
     # install tox from testing dependencies

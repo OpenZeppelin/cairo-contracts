@@ -18,7 +18,7 @@ const IERC165_ID = 0x01ffc9a7;
 const INVALID_ID = 0xffffffff;
 
 // Account
-const IACCOUNT_ID = 0xf10dbd44;
+const IACCOUNT_ID = 0x962a66d0;
 
 // ERC721
 const IERC721_ID = 0x80ac58cd;

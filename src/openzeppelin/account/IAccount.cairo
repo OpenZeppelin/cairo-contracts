@@ -7,9 +7,9 @@ from openzeppelin.account.library import AccountCallArray
 
 @contract_interface
 namespace IAccount {
-    //
-    // Business logic
-    //
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 
     func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
     }

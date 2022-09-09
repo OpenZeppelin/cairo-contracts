@@ -33,7 +33,7 @@ namespace SafeUint256 {
     }
 
     // Subtracts two integers.
-    // Reverts if minuend (`b`) is greater than subtrahend (`a`).
+    // Reverts if subtrahend (`b`) is greater than minuend (`a`).
     func sub_le{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         a: Uint256, b: Uint256
     ) -> (c: Uint256) {
@@ -49,7 +49,7 @@ namespace SafeUint256 {
     }
 
     // Subtracts two integers.
-    // Reverts if minuend (`b`) is greater than or equal to subtrahend (`a`).
+    // Reverts if subtrahend (`b`) is greater than or equal to minuend (`a`).
     func sub_lt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         a: Uint256, b: Uint256
     ) -> (c: Uint256) {

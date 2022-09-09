@@ -65,16 +65,7 @@ class MockSigner():
         if nonce is None:
             nonce = await state.state.get_nonce_at(account.contract_address)
 
-        transaction_hash = get_transaction_hash(
-            prefix=TransactionHashPrefix.INVOKE,
-            account=account.contract_address,
-            calldata=raw_invocation.calldata,
-            nonce=nonce,
-            max_fee=max_fee
-        )
-
-        # get signature
-        sig_r, sig_s = self.signer.sign(message_hash=transaction_hash)
+        _, sig_r, sig_s = self.signer.sign_transaction(int(account.contract_address), build_calls, nonce, max_fee)
 
         # craft invoke and execute tx
         external_tx = InvokeFunction(
@@ -179,18 +170,25 @@ class Signer:
         return sign(msg_hash=message_hash, priv_key=self.private_key)
 
     def sign_transaction(self, sender, calls, nonce, max_fee):
-        raw_invocation = get_raw_invoke(sender, calls)
+        """Sign a transaction."""
+        call_array, calldata = from_call_to_call_array(calls)
+        execute_calldata = [
+            len(call_array),
+            *[x for t in call_array for x in t],
+            len(calldata),
+            *calldata,
+        ]
 
         transaction_hash = get_transaction_hash(
             prefix=TransactionHashPrefix.INVOKE,
-            account=sender.contract_address,
-            calldata=raw_invocation.calldata,
+            account=sender,
+            calldata=execute_calldata,
             nonce=nonce,
-            max_fee=max_fee
+            max_fee=max_fee,
         )
 
         sig_r, sig_s = self.sign(message_hash=transaction_hash)
-        return (sig_r, sig_s)
+        return execute_calldata, sig_r, sig_s
 
 
 # Auxiliary functions
@@ -214,15 +212,16 @@ def from_call_to_call_array(calls):
 
 
 def get_transaction_hash(prefix, account, calldata, nonce, max_fee):
+    """Compute the hash of a transaction."""
     return calculate_transaction_hash_common(
-            tx_hash_prefix=prefix,
-            version=TRANSACTION_VERSION,
-            contract_address=account,
-            entry_point_selector=0,
-            calldata=calldata,
-            max_fee=max_fee,
-            chain_id=StarknetChainId.TESTNET.value,
-            additional_data=[nonce],
+        tx_hash_prefix=prefix,
+        version=TRANSACTION_VERSION,
+        contract_address=account,
+        entry_point_selector=0,
+        calldata=calldata,
+        max_fee=max_fee,
+        chain_id=StarknetChainId.TESTNET.value,
+        additional_data=[nonce],
     )
 
 

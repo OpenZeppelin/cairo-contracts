@@ -103,7 +103,7 @@ If you want to run the documentation UI locally:
     cd docs && npm i
     ```
 
-2. Build de docs and run the local server (default to localhost:8080). This will watch for changes in the docs/module folder, and update the UI accordingly.
+2. Build the docs and run the local server (default to localhost:8080). This will watch for changes in the docs/module folder, and update the UI accordingly.
 
     ```bash
     npm run docs:watch

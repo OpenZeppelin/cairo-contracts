@@ -38,7 +38,6 @@ async def proxy_init(contract_classes):
         contract_class=proxy_cls,
         constructor_calldata=[implementation_decl.class_hash]
     )
-    proxy = proxy.replace_abi(implementation_decl.abi)
     return (
         starknet.state,
         account1,

@@ -1,4 +1,5 @@
 * xref:index.adoc[Overview]
+* xref:wizard.adoc[Wizard]
 * xref:extensibility.adoc[Extensibility]
 * xref:proxies.adoc[Proxies and Upgrades]
 

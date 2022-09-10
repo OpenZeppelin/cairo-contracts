@@ -17,7 +17,7 @@ from openzeppelin.utils.constants.library import IERC721_ENUMERABLE_ID
 //
 
 @storage_var
-func ERC721Enumerable_all_tokens_len() -> (res: Uint256) {
+func ERC721Enumerable_all_tokens_len() -> (length: Uint256) {
 }
 
 @storage_var

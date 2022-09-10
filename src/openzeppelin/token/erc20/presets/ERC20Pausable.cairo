@@ -53,28 +53,24 @@ func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
 func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(account: felt) -> (
     balance: Uint256
 ) {
-    let (balance: Uint256) = ERC20.balance_of(account);
-    return (balance,);
+    return ERC20.balance_of(account);
 }
 
 @view
 func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     owner: felt, spender: felt
 ) -> (remaining: Uint256) {
-    let (remaining: Uint256) = ERC20.allowance(owner, spender);
-    return (remaining,);
+    return ERC20.allowance(owner, spender);
 }
 
 @view
 func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    let (owner: felt) = Ownable.owner();
-    return (owner,);
+    return Ownable.owner();
 }
 
 @view
 func paused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (paused: felt) {
-    let (paused) = Pausable.is_paused();
-    return (paused,);
+    return Pausable.is_paused();
 }
 
 //

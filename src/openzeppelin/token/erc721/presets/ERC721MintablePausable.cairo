@@ -49,8 +49,7 @@ func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -
 func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) -> (
     balance: Uint256
 ) {
-    let (balance: Uint256) = ERC721.balance_of(owner);
-    return (balance,);
+    return ERC721.balance_of(owner);
 }
 
 @view
@@ -89,9 +88,8 @@ func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() ->
 }
 
 @view
-func paused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (is_paused: felt) {
-    let (paused) = Pausable.is_paused();
-    return (paused,);
+func paused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (paused: felt) {
+    return Pausable.is_paused();
 }
 
 //

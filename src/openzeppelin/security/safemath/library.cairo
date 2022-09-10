@@ -29,7 +29,7 @@ namespace SafeUint256 {
         with_attr error_message("SafeUint256: addition overflow") {
             assert is_overflow = FALSE;
         }
-        return (c=c);
+        return (c,);
     }
 
     // Subtracts two integers.
@@ -45,7 +45,7 @@ namespace SafeUint256 {
             assert is_le = TRUE;
         }
         let (c: Uint256) = uint256_sub(a, b);
-        return (c=c);
+        return (c,);
     }
 
     // Subtracts two integers.
@@ -62,7 +62,7 @@ namespace SafeUint256 {
             assert is_lt = TRUE;
         }
         let (c: Uint256) = uint256_sub(a, b);
-        return (c=c);
+        return (c,);
     }
 
     // Multiplies two integers.
@@ -75,19 +75,19 @@ namespace SafeUint256 {
         uint256_check(b);
         let (a_zero) = uint256_eq(a, Uint256(0, 0));
         if (a_zero == TRUE) {
-            return (c=a);
+            return (a,);
         }
 
         let (b_zero) = uint256_eq(b, Uint256(0, 0));
         if (b_zero == TRUE) {
-            return (c=b);
+            return (b,);
         }
 
         let (c: Uint256, overflow: Uint256) = uint256_mul(a, b);
         with_attr error_message("SafeUint256: multiplication overflow") {
             assert overflow = Uint256(0, 0);
         }
-        return (c=c);
+        return (c,);
     }
 
     // Integer division of two numbers. Returns uint256 quotient and remainder.
@@ -108,6 +108,6 @@ namespace SafeUint256 {
         }
 
         let (c: Uint256, rem: Uint256) = uint256_unsigned_div_rem(a, b);
-        return (c=c, rem=rem);
+        return (c, rem,);
     }
 }

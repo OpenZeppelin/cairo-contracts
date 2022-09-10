@@ -69,8 +69,7 @@ namespace ERC721Enumerable {
             assert is_lt = TRUE;
         }
 
-        let (token_id: Uint256) = ERC721Enumerable_all_tokens.read(index);
-        return (token_id,);
+        return ERC721Enumerable_all_tokens.read(index);
     }
 
     func token_of_owner_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

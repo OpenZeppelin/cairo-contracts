@@ -95,5 +95,5 @@ func __execute__{
     let (response_len, response) = Account.execute(
         call_array_len, call_array, calldata_len, calldata
     );
-    return (response_len=response_len, response=response);
+    return (response_len, response);
 }

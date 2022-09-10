@@ -174,7 +174,6 @@ namespace Account {
     ) {
         alloc_locals;
 
-        // assert version != 0
         let (tx_info) = get_tx_info();
         with_attr error_message("Account: invalid tx version") {
             assert tx_info.version = 1;

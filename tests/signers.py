@@ -65,7 +65,7 @@ class MockSigner():
         if nonce is None:
             nonce = await state.state.get_nonce_at(account.contract_address)
 
-        _, sig_r, sig_s = self.signer.sign_transaction(int(account.contract_address), build_calls, nonce, max_fee)
+        _, sig_r, sig_s = self.signer.sign_transaction(account.contract_address, build_calls, nonce, max_fee)
 
         # craft invoke and execute tx
         external_tx = InvokeFunction(

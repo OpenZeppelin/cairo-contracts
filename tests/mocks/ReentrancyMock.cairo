@@ -37,8 +37,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func current_count{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     count: felt
 ) {
-    let (count) = counter.read();
-    return (count=count);
+    return counter.read();
 }
 
 @external

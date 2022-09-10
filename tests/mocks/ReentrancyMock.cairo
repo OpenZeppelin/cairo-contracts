@@ -22,7 +22,7 @@ namespace IReentrancyGuard {
 }
 
 @storage_var
-func counter() -> (res: felt) {
+func counter() -> (count: felt) {
 }
 
 @constructor
@@ -99,7 +99,7 @@ func count_and_call{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 ) {
     ReentrancyGuard._start();
     _count();
-    IReentrancyGuardAttacker.call_sender(contract_address=attacker);
+    IReentrancyGuardAttacker.call_sender(attacker);
     ReentrancyGuard._end();
     return ();
 }

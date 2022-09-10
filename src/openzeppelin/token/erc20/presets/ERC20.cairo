@@ -29,8 +29,9 @@ func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> 
 
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (symbol: felt) {
-    let (symbol) = ERC20.symbol();
-    return (symbol,);
+    //let (symbol) = ERC20.symbol();
+    //return (symbol,);
+    return ERC20.symbol();
 }
 
 @view
@@ -45,8 +46,9 @@ func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     decimals: felt
 ) {
-    let (decimals) = ERC20.decimals();
-    return (decimals,);
+    //let (decimals) = ERC20.decimals();
+    //return (decimals,);
+    return ERC20.decimals();
 }
 
 @view

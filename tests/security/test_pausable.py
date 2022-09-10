@@ -35,7 +35,7 @@ async def test_pausable_when_unpaused(pausable_factory):
     contract, _ = pausable_factory
 
     execution_info = await contract.isPaused().call()
-    assert execution_info.result.isPaused == FALSE
+    assert execution_info.result.paused == FALSE
 
     execution_info = await contract.getCount().call()
     assert execution_info.result.count == 0
@@ -56,13 +56,13 @@ async def test_pausable_when_paused(pausable_factory):
     contract, _ = pausable_factory
 
     execution_info = await contract.isPaused().call()
-    assert execution_info.result.isPaused == FALSE
+    assert execution_info.result.paused == FALSE
 
     # pause
     await contract.pause().execute()
 
     execution_info = await contract.isPaused().call()
-    assert execution_info.result.isPaused == TRUE
+    assert execution_info.result.paused == TRUE
 
     await assert_revert(
         contract.normalProcess().execute(),
@@ -82,7 +82,7 @@ async def test_pausable_when_paused(pausable_factory):
     await contract.unpause().execute()
 
     execution_info = await contract.isPaused().call()
-    assert execution_info.result.isPaused == FALSE
+    assert execution_info.result.paused == FALSE
 
     # check normal process after unpausing
     await contract.normalProcess().execute()

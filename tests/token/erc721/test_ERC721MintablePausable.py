@@ -85,7 +85,7 @@ async def test_pause(erc721_minted):
     await signer.send_transaction(owner, erc721.contract_address, 'pause', [])
 
     execution_info = await erc721.paused().execute()
-    assert execution_info.result.is_paused == TRUE
+    assert execution_info.result.paused == TRUE
 
     await assert_revert(signer.send_transaction(
         owner, erc721.contract_address, 'approve', [
@@ -143,7 +143,7 @@ async def test_unpause(erc721_minted):
     await signer.send_transaction(owner, erc721.contract_address, 'unpause', [])
 
     execution_info = await erc721.paused().execute()
-    assert execution_info.result.is_paused == FALSE
+    assert execution_info.result.paused == FALSE
 
     await signer.send_transaction(
         owner, erc721.contract_address, 'approve', [

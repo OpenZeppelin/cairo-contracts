@@ -5,7 +5,7 @@
 
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_not_zero, assert_lt
+from starkware.cairo.common.math import assert_not_zero, assert_le
 from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, uint256_not
 
@@ -63,7 +63,7 @@ namespace ERC20 {
         ERC20_name.write(name);
         ERC20_symbol.write(symbol);
         with_attr error_message("ERC20: decimals exceed 2^8") {
-            assert_lt(decimals, UINT8_MAX);
+            assert_le(decimals, UINT8_MAX);
         }
         ERC20_decimals.write(decimals);
         return ();

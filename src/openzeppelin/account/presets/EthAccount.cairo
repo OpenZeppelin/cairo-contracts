@@ -6,7 +6,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin,
 from starkware.starknet.common.syscalls import get_tx_info
 
 from openzeppelin.account.library import Account, AccountCallArray
-from openzeppelin.introspection.erc165.library import ERC165
 
 //
 // Constructor
@@ -71,7 +70,6 @@ func __validate__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
-    ecdsa_ptr: SignatureBuiltin*,
     bitwise_ptr: BitwiseBuiltin*
 }(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
     let (tx_info) = get_tx_info();
@@ -84,7 +82,6 @@ func __validate_declare__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
-    ecdsa_ptr: SignatureBuiltin*,
     bitwise_ptr: BitwiseBuiltin*
 }(class_hash: felt) {
     let (tx_info) = get_tx_info();

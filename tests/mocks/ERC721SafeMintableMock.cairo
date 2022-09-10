@@ -55,8 +55,7 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
     owner: felt
 ) {
-    let (owner: felt) = ERC721.owner_of(tokenId);
-    return (owner=owner);
+    return ERC721.owner_of(tokenId);
 }
 
 @view

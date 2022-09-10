@@ -71,15 +71,13 @@ namespace AccessControl {
     func has_role{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         role: felt, user: felt
     ) -> (has_role: felt) {
-        let (authorized: felt) = AccessControl_role_member.read(role, user);
-        return (authorized,);
+        return AccessControl_role_member.read(role, user);
     }
 
     func get_role_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         role: felt
     ) -> (admin: felt) {
-        let (admin: felt) = AccessControl_role_admin.read(role);
-        return (admin=admin);
+        return AccessControl_role_admin.read(role);
     }
 
     //

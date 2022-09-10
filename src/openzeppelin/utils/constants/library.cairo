@@ -7,7 +7,7 @@
 // Numbers
 //
 
-const UINT8_MAX = 256;
+const UINT8_MAX = 255;
 
 //
 // Interface Ids

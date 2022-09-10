@@ -39,6 +39,5 @@ func uint256_mul{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func uint256_div{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256
 ) -> (c: Uint256, rem: Uint256) {
-    let (c: Uint256, rem: Uint256) = SafeUint256.div_rem(a, b);
-    return (c, rem);
+    return SafeUint256.div_rem(a, b);
 }

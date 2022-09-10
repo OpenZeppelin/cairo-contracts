@@ -25,7 +25,7 @@ func Ownable_owner() -> (owner: felt) {
 
 namespace Ownable {
     //
-    // Constructor
+    // Initializer
     //
 
     func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) {
@@ -34,7 +34,7 @@ namespace Ownable {
     }
 
     //
-    // Protector (Modifier)
+    // Guards
     //
 
     func assert_only_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {

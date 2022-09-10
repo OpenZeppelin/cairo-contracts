@@ -74,8 +74,7 @@ namespace ERC20 {
     //
 
     func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-        let (name) = ERC20_name.read();
-        return (name,);
+        return ERC20_name.read();
     }
 
     func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (

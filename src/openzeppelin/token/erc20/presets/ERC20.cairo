@@ -24,8 +24,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
 @view
 func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-    let (name) = ERC20.name();
-    return (name,);
+    return ERC20.name();
 }
 
 @view

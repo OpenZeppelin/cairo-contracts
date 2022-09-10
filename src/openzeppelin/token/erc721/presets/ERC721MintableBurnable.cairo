@@ -84,8 +84,6 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    //let (owner: felt) = Ownable.owner();
-    //return (owner,);
     return Ownable.owner();
 }
 

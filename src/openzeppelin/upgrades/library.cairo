@@ -29,7 +29,7 @@ func Proxy_implementation_hash() -> (class_hash: felt) {
 }
 
 @storage_var
-func Proxy_admin() -> (proxy_admin: felt) {
+func Proxy_admin() -> (admin: felt) {
 }
 
 @storage_var
@@ -72,16 +72,14 @@ namespace Proxy {
     //
 
     func get_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        ) -> (implementation: felt) {
-        let (implementation) = Proxy_implementation_hash.read();
-        return (implementation,);
+        ) -> (class_hash: felt) {
+        return Proxy_implementation_hash.read();
     }
 
     func get_admin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         admin: felt
     ) {
-        let (admin) = Proxy_admin.read();
-        return (admin,);
+        return Proxy_admin.read();
     }
 
     //

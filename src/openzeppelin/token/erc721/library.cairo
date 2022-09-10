@@ -57,11 +57,11 @@ func ERC721_balances(account: felt) -> (balance: Uint256) {
 }
 
 @storage_var
-func ERC721_token_approvals(token_id: Uint256) -> (res: felt) {
+func ERC721_token_approvals(token_id: Uint256) -> (approved: felt) {
 }
 
 @storage_var
-func ERC721_operator_approvals(owner: felt, operator: felt) -> (res: felt) {
+func ERC721_operator_approvals(owner: felt, operator: felt) -> (is_approved: felt) {
 }
 
 @storage_var
@@ -231,7 +231,7 @@ namespace ERC721 {
             uint256_check(token_id);
         }
         let (caller) = get_caller_address();
-        let (is_approved) = _is_approved_or_owner(caller, token_id);
+        let is_approved = _is_approved_or_owner(caller, token_id);
         with_attr error_message(
                 "ERC721: either is not approved or the caller is the zero address") {
             assert_not_zero(caller * is_approved);
@@ -254,7 +254,7 @@ namespace ERC721 {
             uint256_check(token_id);
         }
         let (caller) = get_caller_address();
-        let (is_approved) = _is_approved_or_owner(caller, token_id);
+        let is_approved = _is_approved_or_owner(caller, token_id);
         with_attr error_message(
                 "ERC721: either is not approved or the caller is the zero address") {
             assert_not_zero(caller * is_approved);
@@ -288,7 +288,7 @@ namespace ERC721 {
 
     func _is_approved_or_owner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         spender: felt, token_id: Uint256
-    ) -> (res: felt) {
+    ) -> felt {
         alloc_locals;
 
         let exists = _exists(token_id);
@@ -298,20 +298,20 @@ namespace ERC721 {
 
         let (owner) = owner_of(token_id);
         if (owner == spender) {
-            return (TRUE,);
+            return TRUE;
         }
 
         let (approved_addr) = get_approved(token_id);
         if (approved_addr == spender) {
-            return (TRUE,);
+            return TRUE;
         }
 
         let (is_operator) = is_approved_for_all(owner, spender);
         if (is_operator == TRUE) {
-            return (TRUE,);
+            return TRUE;
         }
 
-        return (FALSE,);
+        return FALSE;
     }
 
     func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

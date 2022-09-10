@@ -82,8 +82,7 @@ func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     recipient: felt, amount: Uint256
 ) -> (success: felt) {
     Pausable.assert_not_paused();
-    let (success) = ERC20.transfer(recipient, amount);
-    return (success,);
+    return ERC20.transfer(recipient, amount);
 }
 
 @external
@@ -91,8 +90,7 @@ func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     sender: felt, recipient: felt, amount: Uint256
 ) -> (success: felt) {
     Pausable.assert_not_paused();
-    let (success) = ERC20.transfer_from(sender, recipient, amount);
-    return (success,);
+    return ERC20.transfer_from(sender, recipient, amount);
 }
 
 @external
@@ -100,8 +98,7 @@ func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     spender: felt, amount: Uint256
 ) -> (success: felt) {
     Pausable.assert_not_paused();
-    let (success) = ERC20.approve(spender, amount);
-    return (success,);
+    return ERC20.approve(spender, amount);
 }
 
 @external
@@ -109,8 +106,7 @@ func increaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     spender: felt, added_value: Uint256
 ) -> (success: felt) {
     Pausable.assert_not_paused();
-    let (success) = ERC20.increase_allowance(spender, added_value);
-    return (success,);
+    return ERC20.increase_allowance(spender, added_value);
 }
 
 @external
@@ -118,8 +114,7 @@ func decreaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     spender: felt, subtracted_value: Uint256
 ) -> (success: felt) {
     Pausable.assert_not_paused();
-    let (success) = ERC20.decrease_allowance(spender, subtracted_value);
-    return (success,);
+    return ERC20.decrease_allowance(spender, subtracted_value);
 }
 
 @external

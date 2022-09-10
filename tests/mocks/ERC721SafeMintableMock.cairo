@@ -47,16 +47,14 @@ func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -
 func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) -> (
     balance: Uint256
 ) {
-    let (balance: Uint256) = ERC721.balance_of(owner);
-    return (balance=balance);
+    return ERC721.balance_of(owner);
 }
 
 @view
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
     owner: felt
 ) {
-    let (owner: felt) = ERC721.owner_of(tokenId);
-    return (owner=owner);
+    return ERC721.owner_of(tokenId);
 }
 
 @view

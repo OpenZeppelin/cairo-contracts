@@ -58,8 +58,8 @@ func setEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 func isValidSignature{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
-    range_check_ptr,
     bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
 }(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
     let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature);
     return (isValid=isValid);
@@ -69,8 +69,8 @@ func isValidSignature{
 func __validate__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-    bitwise_ptr: BitwiseBuiltin*
 }(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
@@ -81,8 +81,8 @@ func __validate__{
 func __validate_declare__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-    bitwise_ptr: BitwiseBuiltin*
 }(class_hash: felt) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
@@ -93,9 +93,9 @@ func __validate_declare__{
 func __execute__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
-    range_check_ptr,
     ecdsa_ptr: SignatureBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
 }(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) -> (
     response_len: felt, response: felt*
 ) {

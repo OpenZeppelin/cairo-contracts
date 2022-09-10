@@ -114,8 +114,8 @@ namespace Account {
     func is_valid_signature{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*,
+        range_check_ptr,
     }(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
         let (_public_key) = Account_public_key.read();
 
@@ -129,14 +129,14 @@ namespace Account {
             message=hash, public_key=_public_key, signature_r=sig_r, signature_s=sig_s
         );
 
-        return (is_valid=TRUE);
+        return (TRUE,);
     }
 
     func is_valid_eth_signature{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
         bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
         alloc_locals;
         let (_public_key) = get_public_key();
@@ -166,9 +166,9 @@ namespace Account {
     func execute{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
         ecdsa_ptr: SignatureBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) -> (
         response_len: felt, response: felt*
     ) {

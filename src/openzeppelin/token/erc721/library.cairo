@@ -88,15 +88,13 @@ namespace ERC721 {
     //
 
     func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-        let (name) = ERC721_name.read();
-        return (name,);
+        return ERC721_name.read();
     }
 
     func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         symbol: felt
     ) {
-        let (symbol) = ERC721_symbol.read();
-        return (symbol,);
+        return ERC721_symbol.read();
     }
 
     func balance_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -105,8 +103,7 @@ namespace ERC721 {
         with_attr error_message("ERC721: balance query for the zero address") {
             assert_not_zero(owner);
         }
-        let (balance: Uint256) = ERC721_balances.read(owner);
-        return (balance,);
+        return ERC721_balances.read(owner);
     }
 
     func owner_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

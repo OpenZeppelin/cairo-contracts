@@ -18,12 +18,12 @@ namespace ERC165 {
         interface_id: felt
     ) -> (success: felt) {
         if (interface_id == IERC165_ID) {
-            return (success=TRUE);
+            return (TRUE,);
         }
 
         // Checks interface registry
         let (is_supported) = ERC165_supported_interfaces.read(interface_id);
-        return (success=is_supported);
+        return (is_supported,);
     }
 
     func register_interface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

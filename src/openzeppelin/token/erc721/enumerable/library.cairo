@@ -17,7 +17,7 @@ from openzeppelin.utils.constants.library import IERC721_ENUMERABLE_ID
 //
 
 @storage_var
-func ERC721Enumerable_all_tokens_len() -> (length: Uint256) {
+func ERC721Enumerable_all_tokens_len() -> (total_supply: Uint256) {
 }
 
 @storage_var
@@ -53,8 +53,9 @@ namespace ERC721Enumerable {
     func total_supply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         total_supply: Uint256
     ) {
-        let (total_supply) = ERC721Enumerable_all_tokens_len.read();
-        return (total_supply,);
+        //let (total_supply) = ERC721Enumerable_all_tokens_len.read();
+        //return (total_supply,);
+        return ERC721Enumerable_all_tokens_len.read();
     }
 
     func token_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -84,8 +85,9 @@ namespace ERC721Enumerable {
             assert is_lt = TRUE;
         }
 
-        let (token_id: Uint256) = ERC721Enumerable_owned_tokens.read(owner, index);
-        return (token_id,);
+        //let (token_id: Uint256) = ERC721Enumerable_owned_tokens.read(owner, index);
+        //return (token_id,);
+        return ERC721Enumerable_owned_tokens.read(owner, index);
     }
 
     //

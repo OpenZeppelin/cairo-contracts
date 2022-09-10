@@ -49,7 +49,7 @@ func ERC20_balances(account: felt) -> (balance: Uint256) {
 }
 
 @storage_var
-func ERC20_allowances(owner: felt, spender: felt) -> (allowance: Uint256) {
+func ERC20_allowances(owner: felt, spender: felt) -> (remaining: Uint256) {
 }
 
 namespace ERC20 {
@@ -80,36 +80,31 @@ namespace ERC20 {
     func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         symbol: felt
     ) {
-        let (symbol) = ERC20_symbol.read();
-        return (symbol,);
+        return ERC20_symbol.read();
     }
 
     func total_supply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         total_supply: Uint256
     ) {
-        let (total_supply: Uint256) = ERC20_total_supply.read();
-        return (total_supply,);
+        return ERC20_total_supply.read();
     }
 
     func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         decimals: felt
     ) {
-        let (decimals) = ERC20_decimals.read();
-        return (decimals,);
+        return ERC20_decimals.read();
     }
 
     func balance_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         account: felt
     ) -> (balance: Uint256) {
-        let (balance: Uint256) = ERC20_balances.read(account);
-        return (balance,);
+        return ERC20_balances.read(account);
     }
 
     func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, spender: felt
     ) -> (remaining: Uint256) {
-        let (remaining: Uint256) = ERC20_allowances.read(owner, spender);
-        return (remaining,);
+        return ERC20_allowances.read(owner, spender);
     }
 
     func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

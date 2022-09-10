@@ -37,7 +37,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
         calldata_size=calldata_size,
         calldata=calldata,
     );
-    return (retdata_size=retdata_size, retdata=retdata);
+    return (retdata_size, retdata);
 }
 
 @l1_handler

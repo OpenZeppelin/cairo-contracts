@@ -133,15 +133,13 @@ namespace ERC721 {
             assert exists = TRUE;
         }
 
-        let (approved) = ERC721_token_approvals.read(token_id);
-        return (approved,);
+        return ERC721_token_approvals.read(token_id);
     }
 
     func is_approved_for_all{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, operator: felt
     ) -> (is_approved: felt) {
-        let (is_approved) = ERC721_operator_approvals.read(owner=owner, operator=operator);
-        return (is_approved,);
+        return ERC721_operator_approvals.read(owner, operator);
     }
 
     func token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -153,8 +151,7 @@ namespace ERC721 {
         }
 
         // if tokenURI is not set, it will return 0
-        let (token_uri) = ERC721_token_uri.read(token_id);
-        return (token_uri,);
+        return ERC721_token_uri.read(token_id);
     }
 
     //

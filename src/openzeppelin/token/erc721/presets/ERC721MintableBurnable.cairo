@@ -31,20 +31,17 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }
 
 @view
 func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-    let (name) = ERC721.name();
-    return (name,);
+    return ERC721.name();
 }
 
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (symbol: felt) {
-    let (symbol) = ERC721.symbol();
-    return (symbol,);
+    return ERC721.symbol();
 }
 
 @view
@@ -59,16 +56,14 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
     owner: felt
 ) {
-    let (owner: felt) = ERC721.owner_of(tokenId);
-    return (owner,);
+    return ERC721.owner_of(tokenId);
 }
 
 @view
 func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256
 ) -> (approved: felt) {
-    let (approved: felt) = ERC721.get_approved(tokenId);
-    return (approved,);
+    return ERC721.get_approved(tokenId);
 }
 
 @view
@@ -89,8 +84,9 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    let (owner: felt) = Ownable.owner();
-    return (owner,);
+    //let (owner: felt) = Ownable.owner();
+    //return (owner,);
+    return Ownable.owner();
 }
 
 //

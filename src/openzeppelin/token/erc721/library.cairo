@@ -116,7 +116,7 @@ namespace ERC721 {
         with_attr error_message("ERC721: owner query for nonexistent token") {
             assert_not_zero(owner);
         }
-        return (owner,);
+        return (owner=owner);
     }
 
     func get_approved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -463,9 +463,9 @@ func _check_onERC721Received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ran
         with_attr error_message("ERC721: transfer to non ERC721Receiver implementer") {
             assert selector = IERC721_RECEIVER_ID;
         }
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
-    return (is_account,);
+    return (success=is_account);
 }

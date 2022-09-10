@@ -71,7 +71,7 @@ func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     owner: felt, operator: felt
 ) -> (isApproved: felt) {
     let (isApproved: felt) = ERC721.is_approved_for_all(owner, operator);
-    return (isApproved,);
+    return (isApproved=isApproved);
 }
 
 @view
@@ -79,7 +79,7 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256
 ) -> (tokenURI: felt) {
     let (tokenURI: felt) = ERC721.token_uri(tokenId);
-    return (tokenURI,);
+    return (tokenURI=tokenURI);
 }
 
 @view

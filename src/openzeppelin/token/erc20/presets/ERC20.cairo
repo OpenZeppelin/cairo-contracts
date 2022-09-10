@@ -36,7 +36,7 @@ func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     totalSupply: Uint256
 ) {
     let (totalSupply: Uint256) = ERC20.total_supply();
-    return (totalSupply,);
+    return (totalSupply=totalSupply);
 }
 
 @view

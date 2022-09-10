@@ -112,7 +112,7 @@ namespace ERC20 {
     ) -> (success: felt) {
         let (sender) = get_caller_address();
         _transfer(sender, recipient, amount);
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     func transfer_from{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -121,7 +121,7 @@ namespace ERC20 {
         let (caller) = get_caller_address();
         _spend_allowance(sender, caller, amount);
         _transfer(sender, recipient, amount);
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -133,7 +133,7 @@ namespace ERC20 {
 
         let (caller) = get_caller_address();
         _approve(caller, spender, amount);
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     func increase_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -152,7 +152,7 @@ namespace ERC20 {
         }
 
         _approve(caller, spender, new_allowance);
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     func decrease_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -171,7 +171,7 @@ namespace ERC20 {
         }
 
         _approve(caller, spender, new_allowance);
-        return (TRUE,);
+        return (success=TRUE);
     }
 
     //

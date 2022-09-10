@@ -87,12 +87,12 @@ namespace Account {
         success: felt
     ) {
         if (interface_id == IERC165_ID) {
-            return (TRUE,);
+            return (success=TRUE);
         }
         if (interface_id == IACCOUNT_ID) {
-            return (TRUE,);
+            return (success=TRUE);
         }
-        return (FALSE,);
+        return (success=FALSE);
     }
 
     //
@@ -129,7 +129,7 @@ namespace Account {
             message=hash, public_key=_public_key, signature_r=sig_r, signature_s=sig_s
         );
 
-        return (TRUE,);
+        return (is_valid=TRUE);
     }
 
     func is_valid_eth_signature{
@@ -204,7 +204,7 @@ namespace Account {
 
         // if no more calls
         if (calls_len == 0) {
-            return (0,);
+            return (response_len=0);
         }
 
         // do the current call
@@ -221,7 +221,7 @@ namespace Account {
         let (response_len) = _execute_list(
             calls_len - 1, calls + Call.SIZE, response + res.retdata_size
         );
-        return (response_len + res.retdata_size,);
+        return (response_len=response_len + res.retdata_size);
     }
 
     func _from_call_array_to_call{syscall_ptr: felt*}(

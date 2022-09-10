@@ -34,7 +34,7 @@ func totalSupply{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
     totalSupply: Uint256
 ) {
     let (totalSupply: Uint256) = ERC721Enumerable.total_supply();
-    return (totalSupply,);
+    return (totalSupply=totalSupply);
 }
 
 @view
@@ -42,7 +42,7 @@ func tokenByIndex{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
     index: Uint256
 ) -> (tokenId: Uint256) {
     let (tokenId: Uint256) = ERC721Enumerable.token_by_index(index);
-    return (tokenId,);
+    return (tokenId=tokenId);
 }
 
 @view
@@ -50,7 +50,7 @@ func tokenOfOwnerByIndex{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_c
     owner: felt, index: Uint256
 ) -> (tokenId: Uint256) {
     let (tokenId: Uint256) = ERC721Enumerable.token_of_owner_by_index(owner, index);
-    return (tokenId,);
+    return (tokenId=tokenId);
 }
 
 @view
@@ -96,7 +96,7 @@ func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     owner: felt, operator: felt
 ) -> (isApproved: felt) {
     let (isApproved: felt) = ERC721.is_approved_for_all(owner, operator);
-    return (isApproved,);
+    return (isApproved=isApproved);
 }
 
 @view
@@ -104,7 +104,7 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256
 ) -> (tokenURI: felt) {
     let (tokenURI: felt) = ERC721.token_uri(tokenId);
-    return (tokenURI,);
+    return (tokenURI=tokenURI);
 }
 
 @view

@@ -14,7 +14,7 @@ from openzeppelin.introspection.erc165.library import ERC165
 func onERC721Received(
     operator: felt, from_: felt, tokenId: Uint256, data_len: felt, data: felt*
 ) -> (selector: felt) {
-    return (IERC721_RECEIVER_ID,);
+    return (selector=IERC721_RECEIVER_ID);
 }
 
 @view

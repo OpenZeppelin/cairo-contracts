@@ -61,7 +61,7 @@ func isValidSignature{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ecdsa_ptr: SignatureBuiltin*, range_check_ptr
 }(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
     let (isValid: felt) = Account.is_valid_signature(hash, signature_len, signature);
-    return (isValid,);
+    return (isValid=isValid);
 }
 
 @external

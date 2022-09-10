@@ -6,7 +6,7 @@
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_zero, assert_le
-from starkware.cairo.common.bool import FALSE
+from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, uint256_not
 
 from openzeppelin.security.safemath.library import SafeUint256
@@ -114,38 +114,36 @@ namespace ERC20 {
 
     func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         recipient: felt, amount: Uint256
-    ) {
+    ) -> (success: felt) {
         let (sender) = get_caller_address();
         _transfer(sender, recipient, amount);
-        return ();
+        return (TRUE,);
     }
 
     func transfer_from{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         sender: felt, recipient: felt, amount: Uint256
-    ) -> () {
+    ) -> (success: felt) {
         let (caller) = get_caller_address();
-        // subtract allowance
         _spend_allowance(sender, caller, amount);
-        // execute transfer
         _transfer(sender, recipient, amount);
-        return ();
+        return (TRUE,);
     }
 
     func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, amount: Uint256
-    ) {
+    ) -> (success: felt) {
         with_attr error_message("ERC20: amount is not a valid Uint256") {
             uint256_check(amount);
         }
 
         let (caller) = get_caller_address();
         _approve(caller, spender, amount);
-        return ();
+        return (TRUE,);
     }
 
     func increase_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, added_value: Uint256
-    ) -> () {
+    ) -> (success: felt) {
         with_attr error("ERC20: added_value is not a valid Uint256") {
             uint256_check(added_value);
         }
@@ -159,12 +157,12 @@ namespace ERC20 {
         }
 
         _approve(caller, spender, new_allowance);
-        return ();
+        return (TRUE,);
     }
 
     func decrease_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, subtracted_value: Uint256
-    ) -> () {
+    ) -> (success: felt) {
         alloc_locals;
         with_attr error_message("ERC20: subtracted_value is not a valid Uint256") {
             uint256_check(subtracted_value);
@@ -178,7 +176,7 @@ namespace ERC20 {
         }
 
         _approve(caller, spender, new_allowance);
-        return ();
+        return (TRUE,);
     }
 
     //

@@ -45,14 +45,12 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
-    let (name) = ERC20.name();
-    return (name,);
+    return ERC20.name();
 }
 
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (symbol: felt) {
-    let (symbol) = ERC20.symbol();
-    return (symbol,);
+    return ERC20.symbol();
 }
 
 @view
@@ -67,8 +65,7 @@ func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     decimals: felt
 ) {
-    let (decimals) = ERC20.decimals();
-    return (decimals,);
+    return ERC20.decimals();
 }
 
 @view
@@ -95,8 +92,8 @@ func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     recipient: felt, amount: Uint256
 ) -> (success: felt) {
-    ERC20.transfer(recipient, amount);
-    return (TRUE,);
+    let (success) = ERC20.transfer(recipient, amount);
+    return (success,);
 }
 
 @external
@@ -104,29 +101,30 @@ func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     sender: felt, recipient: felt, amount: Uint256
 ) -> (success: felt) {
     ERC20.transfer_from(sender, recipient, amount);
-    return (TRUE,);
+    let (success) = ERC20.transfer_from(sender, recipient, amount);
+    return (success,);
 }
 
 @external
 func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     spender: felt, amount: Uint256
 ) -> (success: felt) {
-    ERC20.approve(spender, amount);
-    return (TRUE,);
+    let (success) = ERC20.approve(spender, amount);
+    return (success,);
 }
 
 @external
 func increaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     spender: felt, added_value: Uint256
 ) -> (success: felt) {
-    ERC20.increase_allowance(spender, added_value);
-    return (TRUE,);
+    let (success) = ERC20.increase_allowance(spender, added_value);
+    return (success,);
 }
 
 @external
 func decreaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     spender: felt, subtracted_value: Uint256
 ) -> (success: felt) {
-    ERC20.decrease_allowance(spender, subtracted_value);
-    return (TRUE,);
+    let (success) = ERC20.decrease_allowance(spender, subtracted_value);
+    return (success,);
 }

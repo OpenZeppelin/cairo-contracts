@@ -31,8 +31,6 @@ namespace Pausable {
     func is_paused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         paused: felt
     ) {
-        //let (is_paused) = Pausable_paused.read();
-        //return (is_paused,);
         return Pausable_paused.read();
     }
 

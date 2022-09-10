@@ -25,7 +25,7 @@ func AdminChanged(previousAdmin: felt, newAdmin: felt) {
 //
 
 @storage_var
-func Proxy_implementation_hash() -> (class_hash: felt) {
+func Proxy_implementation_hash() -> (implementation: felt) {
 }
 
 @storage_var
@@ -72,7 +72,7 @@ namespace Proxy {
     //
 
     func get_implementation_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        ) -> (class_hash: felt) {
+        ) -> (implementation: felt) {
         return Proxy_implementation_hash.read();
     }
 

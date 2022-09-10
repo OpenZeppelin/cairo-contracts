@@ -237,6 +237,7 @@ async def test_mint_emits_event(erc721_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc721.contract_address,
         name='Transfer',
         data=[
             ZERO_ADDRESS,
@@ -366,8 +367,10 @@ async def test_burn_emits_event(erc721_minted):
     assert_events_emitted(
         tx_exec_info,
         [
-            [0, 'Approval', [account.contract_address, ZERO_ADDRESS, *TOKEN]],
-            [1, 'Transfer', [account.contract_address, ZERO_ADDRESS, *TOKEN]]
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]]
         ]
     )
 
@@ -444,6 +447,7 @@ async def test_approve_emits_event(erc721_minted):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc721.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -592,6 +596,7 @@ async def test_setApprovalForAll_emits_event(erc721_minted):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc721.contract_address,
         name='ApprovalForAll',
         data=[
             account.contract_address,
@@ -733,8 +738,10 @@ async def test_transferFrom_emits_events(erc721_minted):
     assert_events_emitted(
         tx_exec_info,
         [
-            [0, 'Approval', [account.contract_address, ZERO_ADDRESS, *TOKEN]],
-            [1, 'Transfer', [account.contract_address, RECIPIENT, *TOKEN]]
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, RECIPIENT, *TOKEN]]
         ]
     )
 
@@ -920,8 +927,10 @@ async def test_safeTransferFrom_emits_events(erc721_minted):
     assert_events_emitted(
         tx_exec_info,
         [
-            [0, 'Approval', [account.contract_address, ZERO_ADDRESS, *TOKEN]],
-            [1, 'Transfer', [account.contract_address, erc721_holder.contract_address, *TOKEN]]
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, erc721_holder.contract_address, *TOKEN]]
         ]
     )
 

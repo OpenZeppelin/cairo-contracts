@@ -69,6 +69,7 @@ async def test_transferOwnership_emits_event(ownable_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=ownable.contract_address,
         name='OwnershipTransferred',
         data=[
             owner.contract_address,
@@ -113,6 +114,7 @@ async def test_renounceOwnership_emits_event(ownable_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=ownable.contract_address,
         name='OwnershipTransferred',
         data=[
             owner.contract_address,

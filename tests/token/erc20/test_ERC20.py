@@ -162,6 +162,7 @@ async def test_approve_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -261,6 +262,7 @@ async def test_transfer_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Transfer',
         data=[
             account.contract_address,
@@ -383,8 +385,10 @@ async def test_transferFrom_emits_event(erc20_factory):
     assert_events_emitted(
         tx_exec_info,
         [
-            [0, 'Approval', [account.contract_address, spender.contract_address, *UINT_ZERO]],
-            [1, 'Transfer', [account.contract_address, RECIPIENT, *AMOUNT]]
+            [0, erc20.contract_address, 'Approval', [
+                account.contract_address, spender.contract_address, *UINT_ZERO]],
+            [1, erc20.contract_address, 'Transfer', [
+                    account.contract_address, RECIPIENT, *AMOUNT]]
         ]
     )
 
@@ -533,6 +537,7 @@ async def test_increaseAllowance_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,
@@ -659,6 +664,7 @@ async def test_decreaseAllowance_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Approval',
         data=[
             account.contract_address,

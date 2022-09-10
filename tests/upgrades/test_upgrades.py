@@ -169,6 +169,7 @@ async def test_upgrade_event(proxy_factory):
     # check event
     assert_event_emitted(
         tx_exec_info,
+        from_address=proxy.contract_address,
         name='Upgraded',
         data=[
             v2_decl.class_hash          # new class hash

@@ -89,6 +89,7 @@ async def test_burn_emits_event(erc20_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Transfer',
         data=[
             account.contract_address,
@@ -174,8 +175,10 @@ async def test_burn_from_emits_event(erc20_factory):
     assert_events_emitted(
         tx_exec_info,
         [
-            [0, 'Approval', [account1.contract_address, account2.contract_address, *UINT_ZERO]],
-            [1, 'Transfer', [account1.contract_address, ZERO_ADDRESS, *AMOUNT]]
+            [0, erc20.contract_address, 'Approval', [
+                account1.contract_address, account2.contract_address, *UINT_ZERO]],
+            [1, erc20.contract_address, 'Transfer', [
+                account1.contract_address, ZERO_ADDRESS, *AMOUNT]]
         ]
     )
 

@@ -104,26 +104,28 @@ async def assert_revert_entry_point(fun, invalid_selector):
     await assert_revert(fun, entry_point_msg)
 
 
-def assert_event_emitted(tx_exec_info, name, data, order=0):
+def assert_event_emitted(tx_exec_info, from_address, name, data, order=0):
     """Assert one single event is fired with correct data."""
-    assert_events_emitted(tx_exec_info, [(order, name, data)])
+    assert_events_emitted(tx_exec_info, [(order, from_address, name, data)])
 
 
 def assert_events_emitted(tx_exec_info, events):
     """Assert events are fired with correct data."""
     for event in events:
-        order, name, data = event
+        order, from_address, name, data = event
         event_obj = OrderedEvent(
             order=order,
             keys=[get_selector_from_name(name)],
             data=data,
         )
 
-        if event_obj in tx_exec_info.call_info.internal_calls[0].events:
+        base = tx_exec_info.call_info.internal_calls[0]
+        if event_obj in base.events and from_address == base.contract_address:
             return
 
         try:
-            if event_obj in tx_exec_info.call_info.internal_calls[0].internal_calls[0].events:
+            base2 = base.internal_calls[0]
+            if event_obj in base2.events and from_address == base2.contract_address:
                 return
         except IndexError:
             pass

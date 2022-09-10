@@ -113,6 +113,7 @@ async def test_set_admin(after_initialized):
     # check event
     assert_event_emitted(
         tx_exec_info,
+        from_address=proxy.contract_address,
         name='AdminChanged',
         data=[
             admin.contract_address,       # old admin

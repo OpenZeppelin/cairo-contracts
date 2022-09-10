@@ -128,6 +128,7 @@ async def test_pausable_emits_events(pausable_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=contract.contract_address,
         name='Paused',
         data=[account.contract_address]
     )
@@ -139,6 +140,7 @@ async def test_pausable_emits_events(pausable_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=contract.contract_address,
         name='Unpaused',
         data=[account.contract_address]
     )

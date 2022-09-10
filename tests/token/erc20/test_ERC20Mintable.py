@@ -106,6 +106,7 @@ async def test_mint_emits_event(token_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=erc20.contract_address,
         name='Transfer',
         data=[
             ZERO_ADDRESS,

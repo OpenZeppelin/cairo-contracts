@@ -73,6 +73,7 @@ async def test_grant_role(accesscontrol_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=accesscontrol.contract_address,
         name='RoleGranted',
         data=[
             DEFAULT_ADMIN_ROLE,         # role
@@ -106,6 +107,7 @@ async def test_revoke_role(accesscontrol_factory):
     tx_exec_info = await signer.send_transaction(account2, accesscontrol.contract_address, 'revokeRole', [DEFAULT_ADMIN_ROLE, account1.contract_address])
     assert_event_emitted(
         tx_exec_info,
+        from_address=accesscontrol.contract_address,
         name='RoleRevoked',
         data=[
             DEFAULT_ADMIN_ROLE,         # role
@@ -153,6 +155,7 @@ async def test_renounce_role(accesscontrol_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=accesscontrol.contract_address,
         name='RoleRevoked',
         data=[
             DEFAULT_ADMIN_ROLE,         # role
@@ -196,6 +199,7 @@ async def test_set_role_admin(accesscontrol_factory):
 
     assert_event_emitted(
         tx_exec_info,
+        from_address=accesscontrol.contract_address,
         name='RoleAdminChanged',
         data=[
             DEFAULT_ADMIN_ROLE,  # role

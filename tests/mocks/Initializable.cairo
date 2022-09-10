@@ -7,9 +7,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from openzeppelin.security.initializable.library import Initializable
 
 @view
-func initialized{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
-    let (res) = Initializable.initialized();
-    return (res=res);
+func initialized{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (initialized: felt) {
+    return Initializable.initialized();
 }
 
 @external

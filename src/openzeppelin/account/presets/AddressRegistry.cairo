@@ -7,7 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 
 @storage_var
-func L1_address(L2_address: felt) -> (res: felt) {
+func L1_address(L2_address: felt) -> (address: felt) {
 }
 
 @external

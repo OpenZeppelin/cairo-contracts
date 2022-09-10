@@ -7,7 +7,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
 
 @storage_var
-func ReentrancyGuard_entered() -> (res: felt) {
+func ReentrancyGuard_entered() -> (entered: felt) {
 }
 
 namespace ReentrancyGuard {

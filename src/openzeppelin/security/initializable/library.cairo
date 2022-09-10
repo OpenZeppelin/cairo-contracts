@@ -7,15 +7,14 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import TRUE, FALSE
 
 @storage_var
-func Initializable_initialized() -> (res: felt) {
+func Initializable_initialized() -> (initialized: felt) {
 }
 
 namespace Initializable {
     func initialized{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-        success: felt
+        felt
     ) {
-        let (success) = Initializable_initialized.read();
-        return (success=success);
+        return Initializable_initialized.read();
     }
 
     func initialize{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {

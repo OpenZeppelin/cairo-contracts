@@ -128,7 +128,7 @@ namespace ERC721 {
         with_attr error_message("ERC721: token_id is not a valid Uint256") {
             uint256_check(token_id);
         }
-        let (exists) = _exists(token_id);
+        let exists = _exists(token_id);
         with_attr error_message("ERC721: approved query for nonexistent token") {
             assert exists = TRUE;
         }
@@ -147,7 +147,7 @@ namespace ERC721 {
     func token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_id: Uint256
     ) -> (token_uri: felt) {
-        let (exists) = _exists(token_id);
+        let exists = _exists(token_id);
         with_attr error_message("ERC721_Metadata: URI query for nonexistent token") {
             assert exists = TRUE;
         }
@@ -291,7 +291,7 @@ namespace ERC721 {
     ) -> (res: felt) {
         alloc_locals;
 
-        let (exists) = _exists(token_id);
+        let exists = _exists(token_id);
         with_attr error_message("ERC721: token id does not exist") {
             assert exists = TRUE;
         }
@@ -316,14 +316,13 @@ namespace ERC721 {
 
     func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_id: Uint256
-    ) -> (res: felt) {
-        let (res) = ERC721_owners.read(token_id);
-
-        if (res == 0) {
-            return (FALSE,);
-        } else {
-            return (TRUE,);
+    ) -> felt {
+        let (exists) = ERC721_owners.read(token_id);
+        if (exists == FALSE) {
+            return FALSE;
         }
+
+        return TRUE;
     }
 
     func _approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -390,7 +389,7 @@ namespace ERC721 {
         }
 
         // Ensures token_id is unique
-        let (exists) = _exists(token_id);
+        let exists = _exists(token_id);
         with_attr error_message("ERC721: token already minted") {
             assert exists = FALSE;
         }
@@ -443,7 +442,7 @@ namespace ERC721 {
         token_id: Uint256, token_uri: felt
     ) {
         uint256_check(token_id);
-        let (exists) = _exists(token_id);
+        let exists = _exists(token_id);
         with_attr error_message("ERC721_Metadata: set token URI for nonexistent token") {
             assert exists = TRUE;
         }

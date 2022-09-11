@@ -3,7 +3,7 @@ from signers import MockSigner
 from utils import (
     to_uint, add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
     get_contract_class, cached_contract, assert_revert, assert_event_emitted,
-    State, Account
+    assert_events_emitted, State, Account
 )
 
 
@@ -12,6 +12,7 @@ signer = MockSigner(123456789987654321)
 # testing vars
 INIT_SUPPLY = to_uint(1000)
 AMOUNT = to_uint(200)
+UINT_ZERO = to_uint(0)
 UINT_ONE = to_uint(1)
 NAME = str_to_felt("Mintable Token")
 SYMBOL = str_to_felt("MTKN")
@@ -73,7 +74,7 @@ async def test_burn(erc20_factory):
 
     new_balance = sub_uint(INIT_SUPPLY, AMOUNT)
 
-    execution_info = await erc20.balanceOf(account.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == new_balance
 
 
@@ -117,7 +118,7 @@ async def test_burn_from_zero_address(erc20_factory):
     erc20, _, _ = erc20_factory
 
     await assert_revert(
-        erc20.burn(UINT_ONE).invoke(),
+        erc20.burn(UINT_ONE).execute(),
         reverted_with="ERC20: cannot burn from the zero address"
     )
 
@@ -127,7 +128,7 @@ async def test_burn_invalid_uint256(erc20_factory):
     erc20, _, _ = erc20_factory
 
     await assert_revert(
-        erc20.burn(INVALID_UINT256).invoke(),
+        erc20.burn(INVALID_UINT256).execute(),
         reverted_with="ERC20: amount is not a valid Uint256"
     )
 
@@ -150,7 +151,7 @@ async def test_burn_from(erc20_factory):
 
     new_balance = sub_uint(INIT_SUPPLY, AMOUNT)
 
-    execution_info = await erc20.balanceOf(account1.contract_address).invoke()
+    execution_info = await erc20.balanceOf(account1.contract_address).execute()
     assert execution_info.result.balance == new_balance
 
 
@@ -170,14 +171,14 @@ async def test_burn_from_emits_event(erc20_factory):
             *AMOUNT
         ])
 
-    assert_event_emitted(
+    # events
+    assert_events_emitted(
         tx_exec_info,
-        from_address=erc20.contract_address,
-        name='Transfer',
-        data=[
-            account1.contract_address,
-            ZERO_ADDRESS,
-            *AMOUNT
+        [
+            [0, erc20.contract_address, 'Approval', [
+                account1.contract_address, account2.contract_address, *UINT_ZERO]],
+            [1, erc20.contract_address, 'Transfer', [
+                account1.contract_address, ZERO_ADDRESS, *AMOUNT]]
         ]
     )
 

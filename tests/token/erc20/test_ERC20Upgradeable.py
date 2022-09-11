@@ -1,10 +1,9 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    to_uint, sub_uint, str_to_felt, assert_revert,
+    to_uint, sub_uint, str_to_felt, assert_revert, TRUE,
     get_contract_class, cached_contract, State, Account
 )
-
 
 
 signer = MockSigner(123456789987654321)
@@ -108,8 +107,8 @@ async def test_constructor(token_factory):
     )
 
     # check values
-    expected = [NAME, SYMBOL, DECIMALS, *INIT_SUPPLY]
-    assert execution_info.result.response == expected
+    expected = [5, NAME, SYMBOL, DECIMALS, *INIT_SUPPLY]
+    assert execution_info.call_info.retdata == expected
 
 
 @pytest.mark.asyncio
@@ -137,12 +136,13 @@ async def test_upgrade(after_initializer):
     )
 
     expected = [
+        6,                                      # number of return values
         *sub_uint(INIT_SUPPLY, AMOUNT),         # balanceOf admin
         *AMOUNT,                                # balanceOf USER
         *INIT_SUPPLY                            # totalSupply
     ]
 
-    assert execution_info.result.response == expected
+    assert execution_info.call_info.retdata == expected
 
 
 @pytest.mark.asyncio
@@ -158,4 +158,37 @@ async def test_upgrade_from_nonadmin(after_initializer):
     # should upgrade from admin
     await signer.send_transaction(
         admin, proxy.contract_address, 'upgrade', [token_v2.class_hash]
+    )
+
+
+@pytest.mark.asyncio
+async def test_upgrade_transferFrom(after_initializer):
+    admin, non_admin, proxy, _, _ = after_initializer
+
+    # approve
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'approve', [
+            non_admin.contract_address,
+            *AMOUNT
+        ]
+    )
+
+    # transferFrom
+    return_bool = await signer.send_transaction(
+        non_admin, proxy.contract_address, 'transferFrom', [
+            admin.contract_address,
+            non_admin.contract_address,
+            *AMOUNT
+        ]
+    )
+    assert return_bool.call_info.retdata[1] == TRUE
+
+    # should fail
+    await assert_revert(signer.send_transaction(
+        non_admin, proxy.contract_address, 'transferFrom', [
+            admin.contract_address,
+            non_admin.contract_address,
+            *AMOUNT
+            ]
+        )
     )

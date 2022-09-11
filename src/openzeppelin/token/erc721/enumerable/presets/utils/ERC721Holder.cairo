@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.3.2 (token/erc721/presets/utils/ERC721Holder.cairo)
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.3.2 (token/erc721/presets/utils/ERC721Holder.cairo)
 
 %lang starknet
 
@@ -12,31 +12,20 @@ from openzeppelin.introspection.erc165.library import ERC165
 
 @view
 func onERC721Received(
-        operator: felt,
-        from_: felt,
-        tokenId: Uint256,
-        data_len: felt,
-        data: felt*
-    ) -> (selector: felt): 
-    return (IERC721_RECEIVER_ID)
-end
+    operator: felt, from_: felt, tokenId: Uint256, data_len: felt, data: felt*
+) -> (selector: felt) {
+    return (selector=IERC721_RECEIVER_ID);
+}
 
 @view
-func supportsInterface{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(interfaceId: felt) -> (success: felt):
-    let (success) = ERC165.supports_interface(interfaceId)
-    return (success)
-end
+func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    interfaceId: felt
+) -> (success: felt) {
+    return ERC165.supports_interface(interfaceId);
+}
 
 @constructor
-func constructor{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    ERC165.register_interface(IERC721_RECEIVER_ID)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    ERC165.register_interface(IERC721_RECEIVER_ID);
+    return ();
+}

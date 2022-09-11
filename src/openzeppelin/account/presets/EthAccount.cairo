@@ -1,114 +1,106 @@
-# SPDX-License-Identifier: MIT
-# OpenZeppelin Contracts for Cairo v0.3.2 (account/presets/EthAccount.cairo)
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.3.2 (account/presets/EthAccount.cairo)
 
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
+from starkware.starknet.common.syscalls import get_tx_info
 
 from openzeppelin.account.library import Account, AccountCallArray
-from openzeppelin.introspection.erc165.library import ERC165
 
-#
-# Constructor
-#
+//
+// Constructor
+//
 
 @constructor
-func constructor{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(eth_address: felt):
-    Account.initializer(eth_address)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    eth_address: felt
+) {
+    Account.initializer(eth_address);
+    return ();
+}
 
-#
-# Getters
-#
+//
+// Getters
+//
 
 @view
-func get_eth_address{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_public_key()
-    return (res=res)
-end
+func getEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    ethAddress: felt
+) {
+    let (ethAddress: felt) = Account.get_public_key();
+    return (ethAddress=ethAddress);
+}
 
 @view
-func get_nonce{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res) = Account.get_nonce()
-    return (res=res)
-end
+func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    interfaceId: felt
+) -> (success: felt) {
+    return Account.supports_interface(interfaceId);
+}
 
-@view
-func supportsInterface{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    } (interfaceId: felt) -> (success: felt):
-    let (success) = ERC165.supports_interface(interfaceId)
-    return (success)
-end
-
-#
-# Setters
-#
+//
+// Setters
+//
 
 @external
-func set_eth_address{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(new_eth_address: felt):
-    Account.set_public_key(new_eth_address)
-    return ()
-end
+func setEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    newEthAddress: felt
+) {
+    Account.set_public_key(newEthAddress);
+    return ();
+}
 
-#
-# Business logic
-#
+//
+// Business logic
+//
 
 @view
-func is_valid_signature{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*
-    }(
-        hash: felt,
-        signature_len: felt,
-        signature: felt*
-    ) -> (is_valid: felt):
-    let (is_valid) = Account.is_valid_eth_signature(hash, signature_len, signature)
-    return (is_valid=is_valid)
-end
+func isValidSignature{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
+}(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature);
+    return (isValid=isValid);
+}
+
+@external
+func __validate__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
+}(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
+    let (tx_info) = get_tx_info();
+    Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
+    return ();
+}
+
+@external
+func __validate_declare__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
+}(class_hash: felt) {
+    let (tx_info) = get_tx_info();
+    Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
+    return ();
+}
 
 @external
 func __execute__{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr,
-        ecdsa_ptr: SignatureBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*
-    }(
-        call_array_len: felt,
-        call_array: AccountCallArray*,
-        calldata_len: felt,
-        calldata: felt*,
-        nonce: felt
-    ) -> (response_len: felt, response: felt*):
-    let (response_len, response) = Account.eth_execute(
-        call_array_len,
-        call_array,
-        calldata_len,
-        calldata,
-        nonce
-    )
-    return (response_len=response_len, response=response)
-end
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr,
+}(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) -> (
+    response_len: felt, response: felt*
+) {
+    let (response_len, response) = Account.execute(
+        call_array_len, call_array, calldata_len, calldata
+    );
+    return (response_len, response);
+}

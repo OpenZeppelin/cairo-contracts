@@ -65,19 +65,19 @@ def token_factory(contract_classes, erc20_init):
 async def test_constructor(token_factory):
     token, owner, _ = token_factory
 
-    execution_info = await token.name().invoke()
+    execution_info = await token.name().execute()
     assert execution_info.result == (NAME,)
 
-    execution_info = await token.symbol().invoke()
+    execution_info = await token.symbol().execute()
     assert execution_info.result == (SYMBOL,)
 
-    execution_info = await token.decimals().invoke()
+    execution_info = await token.decimals().execute()
     assert execution_info.result.decimals == DECIMALS
 
-    execution_info = await token.balanceOf(owner.contract_address).invoke()
+    execution_info = await token.balanceOf(owner.contract_address).execute()
     assert execution_info.result.balance == INIT_SUPPLY
 
-    execution_info = await token.paused().invoke()
+    execution_info = await token.paused().execute()
     assert execution_info.result.paused == FALSE
 
 
@@ -87,7 +87,7 @@ async def test_pause(token_factory):
 
     await signer.send_transaction(owner, token.contract_address, 'pause', [])
 
-    execution_info = await token.paused().invoke()
+    execution_info = await token.paused().execute()
     assert execution_info.result.paused == TRUE
 
     await assert_revert(signer.send_transaction(
@@ -143,7 +143,7 @@ async def test_unpause(token_factory):
     await signer.send_transaction(owner, token.contract_address, 'pause', [])
     await signer.send_transaction(owner, token.contract_address, 'unpause', [])
 
-    execution_info = await token.paused().invoke()
+    execution_info = await token.paused().execute()
     assert execution_info.result.paused == FALSE
 
     success = await signer.send_transaction(
@@ -152,7 +152,7 @@ async def test_unpause(token_factory):
         'transfer',
         [other.contract_address, *AMOUNT]
     )
-    assert success.result.response == [TRUE]
+    assert success.call_info.retdata[1] == TRUE
 
     success = await signer.send_transaction(
         owner,
@@ -160,7 +160,7 @@ async def test_unpause(token_factory):
         'approve',
         [other.contract_address, *AMOUNT]
     )
-    assert success.result.response == [TRUE]
+    assert success.call_info.retdata[1] == TRUE
 
     success = await signer.send_transaction(
         other,
@@ -168,7 +168,7 @@ async def test_unpause(token_factory):
         'transferFrom',
         [owner.contract_address, other.contract_address, *AMOUNT]
     )
-    assert success.result.response == [TRUE]
+    assert success.call_info.retdata[1] == TRUE
 
     success = await signer.send_transaction(
         owner,
@@ -176,7 +176,7 @@ async def test_unpause(token_factory):
         'increaseAllowance',
         [other.contract_address, *AMOUNT]
     )
-    assert success.result.response == [TRUE]
+    assert success.call_info.retdata[1] == TRUE
 
     success = await signer.send_transaction(
         owner,
@@ -184,7 +184,7 @@ async def test_unpause(token_factory):
         'decreaseAllowance',
         [other.contract_address, *AMOUNT]
     )
-    assert success.result.response == [TRUE]
+    assert success.call_info.retdata[1] == TRUE
 
 
 @pytest.mark.asyncio

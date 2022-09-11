@@ -85,7 +85,7 @@ async def test_initializer(proxy_factory):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [admin.contract_address]
+    assert execution_info.call_info.retdata[1] == admin.contract_address
 
 
 @pytest.mark.asyncio
@@ -125,7 +125,7 @@ async def test_set_admin(after_initialized):
     execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getAdmin', []
     )
-    assert execution_info.result.response == [VALUE]
+    assert execution_info.call_info.retdata[1] == VALUE
 
 
 @pytest.mark.asyncio
@@ -155,7 +155,7 @@ async def test_default_fallback(proxy_factory):
     execution_info = execution_info = await signer.send_transaction(
         admin, proxy.contract_address, 'getValue', []
     )
-    assert execution_info.result.response == [VALUE]
+    assert execution_info.call_info.retdata[1] == VALUE
 
 
 @pytest.mark.asyncio

@@ -53,7 +53,7 @@ def accesscontrol_factory(contract_classes, accesscontrol_init):
 async def test_initializer(accesscontrol_factory):
     accesscontrol, _, _ = accesscontrol_factory
 
-    execution_info = await accesscontrol.supportsInterface(IACCESSCONTROL_ID).invoke()
+    execution_info = await accesscontrol.supportsInterface(IACCESSCONTROL_ID).execute()
     assert execution_info.result == (TRUE,)
 
 
@@ -82,7 +82,7 @@ async def test_grant_role(accesscontrol_factory):
         ]
     )
 
-    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account2.contract_address).invoke()
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account2.contract_address).execute()
     assert expected.result.hasRole == TRUE
 
 
@@ -115,7 +115,7 @@ async def test_revoke_role(accesscontrol_factory):
             account2.contract_address   # sender
         ]
     )
-    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).invoke()
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).execute()
     assert expected.result.hasRole == FALSE
 
 
@@ -164,7 +164,7 @@ async def test_renounce_role(accesscontrol_factory):
         ]
     )
 
-    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).invoke()
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).execute()
     assert expected.result.hasRole == FALSE
 
 
@@ -208,7 +208,7 @@ async def test_set_role_admin(accesscontrol_factory):
         ]
     )
 
-    expected = await accesscontrol.getRoleAdmin(DEFAULT_ADMIN_ROLE).invoke()
+    expected = await accesscontrol.getRoleAdmin(DEFAULT_ADMIN_ROLE).execute()
     assert expected.result.admin == SOME_OTHER_ROLE
 
     # test role admin cycle
@@ -219,7 +219,7 @@ async def test_set_role_admin(accesscontrol_factory):
         [SOME_OTHER_ROLE, account2.contract_address]
     )
 
-    expected = await accesscontrol.hasRole(SOME_OTHER_ROLE, account2.contract_address).invoke()
+    expected = await accesscontrol.hasRole(SOME_OTHER_ROLE, account2.contract_address).execute()
     assert expected.result.hasRole == TRUE
 
     await signer.send_transaction(
@@ -229,5 +229,5 @@ async def test_set_role_admin(accesscontrol_factory):
         [DEFAULT_ADMIN_ROLE, account1.contract_address]
     )
 
-    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).invoke()
+    expected = await accesscontrol.hasRole(DEFAULT_ADMIN_ROLE, account1.contract_address).execute()
     assert expected.result.hasRole == FALSE

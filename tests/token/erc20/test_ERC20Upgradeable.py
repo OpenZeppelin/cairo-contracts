@@ -1,7 +1,7 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    to_uint, sub_uint, str_to_felt, assert_revert,
+    to_uint, sub_uint, str_to_felt, assert_revert, TRUE,
     get_contract_class, cached_contract, State, Account
 )
 
@@ -158,4 +158,37 @@ async def test_upgrade_from_nonadmin(after_initializer):
     # should upgrade from admin
     await signer.send_transaction(
         admin, proxy.contract_address, 'upgrade', [token_v2.class_hash]
+    )
+
+
+@pytest.mark.asyncio
+async def test_upgrade_transferFrom(after_initializer):
+    admin, non_admin, proxy, _, _ = after_initializer
+
+    # approve
+    await signer.send_transaction(
+        admin, proxy.contract_address, 'approve', [
+            non_admin.contract_address,
+            *AMOUNT
+        ]
+    )
+
+    # transferFrom
+    return_bool = await signer.send_transaction(
+        non_admin, proxy.contract_address, 'transferFrom', [
+            admin.contract_address,
+            non_admin.contract_address,
+            *AMOUNT
+        ]
+    )
+    assert return_bool.call_info.retdata[1] == TRUE
+
+    # should fail
+    await assert_revert(signer.send_transaction(
+        non_admin, proxy.contract_address, 'transferFrom', [
+            admin.contract_address,
+            non_admin.contract_address,
+            *AMOUNT
+            ]
+        )
     )

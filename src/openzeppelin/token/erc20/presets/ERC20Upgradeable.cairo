@@ -96,7 +96,6 @@ func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     sender: felt, recipient: felt, amount: Uint256
 ) -> (success: felt) {
-    ERC20.transfer_from(sender, recipient, amount);
     return ERC20.transfer_from(sender, recipient, amount);
 }
 

@@ -29,8 +29,8 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func getPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     publicKey: felt
 ) {
-    let (public_key: felt) = Account.get_public_key();
-    return (publicKey=public_key);
+    let (publicKey: felt) = Account.get_public_key();
+    return (publicKey=publicKey);
 }
 
 @view

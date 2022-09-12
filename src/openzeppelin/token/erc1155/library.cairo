@@ -245,11 +245,7 @@ namespace ERC1155:
         ERC1155_balances.write(id, from_, new_balance)
 
         # Add to receiver
-        let (to_balance: Uint256) = ERC1155_balances.read(id, to)
-        with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
-        end
-        ERC1155_balances.write(id, to, new_balance)
+        add_to_receiver(id, amount, to)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -346,11 +342,8 @@ namespace ERC1155:
         end
 
         # add to minter, check for overflow
-        let (to_balance: Uint256) = ERC1155_balances.read(id, to)
-        with_attr error_message("ERC1155: balance overflow"):
-            let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
-        end
-        ERC1155_balances.write(id, to, new_balance)
+        add_to_receiver(id, amount, to)
+
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -687,12 +680,7 @@ func safe_batch_transfer_from_iter{
     end
     ERC1155_balances.write(id, from_, new_balance)
 
-    # add to
-    let (to_balance: Uint256) = ERC1155_balances.read(id, to)
-    with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
-    end
-    ERC1155_balances.write(id, to, new_balance)
+    add_to_receiver(id, amount, to)
 
     # Recursive call
     return safe_batch_transfer_from_iter(
@@ -726,12 +714,7 @@ func mint_batch_iter{
         uint256_check(amount)
     end
 
-    # add to
-    let (to_balance: Uint256) = ERC1155_balances.read(id, to)
-    with_attr error_message("ERC1155: balance overflow"):
-        let (new_balance: Uint256) = SafeUint256.add(to_balance, amount)
-    end
-    ERC1155_balances.write(id, to, new_balance)
+    add_to_receiver(id, amount, to)
 
     # Recursive call
     return mint_batch_iter(to, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
@@ -772,4 +755,21 @@ func burn_batch_iter{
 
     # Recursive call
     return burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
+end
+
+func add_to_receiver{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        id: Uint256,
+        amount: Uint256, 
+        receiver: felt
+    ):
+    let (receiver_balance: Uint256) = ERC1155_balances.read(id, receiver)
+    with_attr error_message("ERC1155: balance overflow"):
+        let (new_balance: Uint256) = SafeUint256.add(receiver_balance, amount)
+    end
+    ERC1155_balances.write(id, receiver, new_balance)
+    return ()
 end

@@ -29,10 +29,12 @@ func deployContract{
     let (deployer) = get_caller_address();
 
     if (unique == TRUE) {
-        let (_salt) = hash2{hash_ptr=pedersen_ptr}(deployer, salt);
+        let (prefix) = deployer;
     } else {
-        let (_salt) = hash2{hash_ptr=pedersen_ptr}('UniversalDeployerContract', salt);
+        let (prefix) = 'UniversalDeployerContract'
     }
+
+    let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
 
     let (contract_address) = deploy(
         class_hash=class_hash,

@@ -1,12 +1,12 @@
 import pytest
 from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, State
-from signers import MockEthSigner
+from signers import MockEthSigner, get_raw_invoke
 
 private_key = b'\x01' * 32
 signer = MockEthSigner(b'\x01' * 32)
 other = MockEthSigner(b'\x02' * 32)
 
-IACCOUNT_ID = 0xf10dbd44
+IACCOUNT_ID = 0xa66bd575
 
 
 @pytest.fixture(scope='module')
@@ -65,7 +65,7 @@ def account_factory(contract_defs, account_init):
 async def test_constructor(account_factory):
     account, *_ = account_factory
 
-    execution_info = await account.get_eth_address().call()
+    execution_info = await account.getEthAddress().call()
     assert execution_info.result == (signer.eth_address,)
 
     execution_info = await account.supportsInterface(IACCOUNT_ID).call()
@@ -81,15 +81,15 @@ async def test_execute(account_factory):
 
     _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    validity_info, *_ = await signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [hash, len(signature), *signature])])
-    assert validity_info.result.response[0] == TRUE
+    validity_info, *_ = await signer.send_transactions(account, [(account.contract_address, 'isValidSignature', [hash, len(signature), *signature])])
+    assert validity_info.call_info.retdata[1] == TRUE
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (TRUE,)
 
     # should revert if signature is not correct
     await assert_revert(
-        signer.send_transactions(account, [(account.contract_address, 'is_valid_signature', [
+        signer.send_transactions(account, [(account.contract_address, 'isValidSignature', [
                                  hash-1, len(signature), *signature])]),
         reverted_with="Invalid signature"
     )
@@ -128,7 +128,7 @@ async def test_return_value(account_factory):
     read_info, *_ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
-    assert read_info.result.response == [call_result]  # 1
+    assert read_info.call_info.retdata[1] == call_result  # 1
 
 
 @ pytest.mark.asyncio
@@ -138,21 +138,26 @@ async def test_nonce(account_factory):
     # bump nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
-    execution_info = await account.get_nonce().call()
-    current_nonce = execution_info.result.res
+    hex_args = [(hex(initializable.contract_address), 'initialized', [])]
+    raw_invocation = get_raw_invoke(account, hex_args)
+    current_nonce = await raw_invocation.state.state.get_nonce_at(account.contract_address)
 
     # lower nonce
     await assert_revert(
         signer.send_transactions(
             account, [(initializable.contract_address, 'initialize', [])], current_nonce - 1),
-        reverted_with="Account: nonce is invalid"
+        reverted_with="Invalid transaction nonce. Expected: {}, got: {}.".format(
+            current_nonce, current_nonce - 1
+        )
     )
 
     # higher nonce
     await assert_revert(
         signer.send_transactions(
             account, [(initializable.contract_address, 'initialize', [])], current_nonce + 1),
-        reverted_with="Account: nonce is invalid"
+        reverted_with="Invalid transaction nonce. Expected: {}, got: {}.".format(
+            current_nonce, current_nonce + 1
+        )
     )
 
     # right nonce
@@ -166,13 +171,13 @@ async def test_nonce(account_factory):
 async def test_eth_address_setter(account_factory):
     account, *_ = account_factory
 
-    execution_info = await account.get_eth_address().call()
+    execution_info = await account.getEthAddress().call()
     assert execution_info.result == (signer.eth_address,)
 
     # set new pubkey
-    await signer.send_transactions(account, [(account.contract_address, 'set_eth_address', [other.eth_address])])
+    await signer.send_transactions(account, [(account.contract_address, 'setEthAddress', [other.eth_address])])
 
-    execution_info = await account.get_eth_address().call()
+    execution_info = await account.getEthAddress().call()
     assert execution_info.result == (other.eth_address,)
 
 
@@ -184,7 +189,7 @@ async def test_eth_address_setter_different_account(account_factory):
     await assert_revert(
         signer.send_transactions(
             bad_account,
-            [(account.contract_address, 'set_eth_address', [other.eth_address])]
+            [(account.contract_address, 'setEthAddress', [other.eth_address])]
         ),
         reverted_with="Account: caller is not this account"
     )
@@ -200,5 +205,5 @@ async def test_account_takeover_with_reentrant_call(account_factory):
         reverted_with="Account: no reentrant call"
     )
 
-    execution_info = await account.get_eth_address().call()
+    execution_info = await account.getEthAddress().call()
     assert execution_info.result == (signer.eth_address,)

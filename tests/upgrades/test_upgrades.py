@@ -83,7 +83,7 @@ class TestUpgrades:
     async def after_upgrade(self, proxy_factory):
         admin, other, proxy, v1_decl, v2_decl = proxy_factory
 
-        # initialize, set value, and upgrade to v2
+        # set value, and upgrade to v2
         await signer.send_transactions(
             admin,
             [
@@ -125,7 +125,7 @@ class TestUpgrades:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getValue1', []
         )
-        assert execution_info.result.response == [VALUE_1]
+        assert execution_info.call_info.retdata[1] == VALUE_1
 
         # upgrade
         await signer.send_transaction(
@@ -138,7 +138,7 @@ class TestUpgrades:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getValue1', []
         )
-        assert execution_info.result.response == [VALUE_1]
+        assert execution_info.call_info.retdata[1] == VALUE_1
 
 
     @pytest.mark.asyncio
@@ -204,12 +204,13 @@ class TestUpgrades:
         )
 
         expected = [
+            3,                              # number of return values
             v2_decl.class_hash,             # getImplementationHash
             admin.contract_address,         # getAdmin
             VALUE_1                         # getValue1
         ]
 
-        assert execution_info.result.response == expected
+        assert execution_info.call_info.retdata == expected
 
     #
     # v2 functions
@@ -230,7 +231,7 @@ class TestUpgrades:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getAdmin', []
         )
-        assert execution_info.result.response == [new_admin.contract_address]
+        assert execution_info.call_info.retdata[1] == new_admin.contract_address
 
 
     @pytest.mark.asyncio
@@ -306,7 +307,8 @@ class TestUpgrades:
         )
 
         expected = [
+            2,                              # number of return values
             VALUE_2,                        # getValue2
             new_admin.contract_address      # getAdmin
         ]
-        assert execution_info.result.response == expected
+        assert execution_info.call_info.retdata == expected

@@ -31,7 +31,7 @@ async def test_reentrancy_guard_remote_callback(reentrancy_mock):
     attacker = await starknet.deploy("tests/mocks/ReentrancyAttackerMock.cairo")
     # should not allow remote callback
     await assert_revert(
-        contract.count_and_call(attacker.contract_address).invoke(),
+        contract.count_and_call(attacker.contract_address).execute(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
 
@@ -41,12 +41,12 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
     contract, _ = reentrancy_mock
     # should not allow local recursion
     await assert_revert(
-        contract.count_local_recursive(10).invoke(),
+        contract.count_local_recursive(10).execute(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
     # should not allow indirect local recursion
     await assert_revert(
-        contract.count_this_recursive(10).invoke(),
+        contract.count_this_recursive(10).execute(),
         reverted_with="ReentrancyGuard: reentrant call"
     )
 
@@ -55,7 +55,7 @@ async def test_reentrancy_guard_local_recursion(reentrancy_mock):
 async def test_reentrancy_guard(reentrancy_mock):
     contract, _ = reentrancy_mock
     # should allow non reentrant call
-    await contract.callback().invoke()
+    await contract.callback().execute()
     response = await contract.current_count().call()
 
     assert response.result == (1,)

@@ -132,3 +132,9 @@ dmypy.json
 
 # nile
 *node.json*
+
+# node
+**/node_modules/
+
+# docs
+docs/build/

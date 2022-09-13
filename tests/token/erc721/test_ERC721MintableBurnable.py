@@ -2,8 +2,8 @@ import pytest
 from signers import MockSigner
 from utils import (
     str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert, INVALID_UINT256,
-    assert_event_emitted, get_contract_class, cached_contract, to_uint, sub_uint,
-    add_uint, State, Account
+    assert_event_emitted, assert_events_emitted, get_contract_class, cached_contract,
+    to_uint, sub_uint, add_uint, State, Account
 )
 
 
@@ -122,10 +122,10 @@ async def erc721_unsupported(erc721_factory):
 @pytest.mark.asyncio
 async def test_constructor(erc721_factory):
     erc721, _, _, _, _ = erc721_factory
-    execution_info = await erc721.name().invoke()
+    execution_info = await erc721.name().execute()
     assert execution_info.result == (str_to_felt("Non Fungible Token"),)
 
-    execution_info = await erc721.symbol().invoke()
+    execution_info = await erc721.symbol().execute()
     assert execution_info.result == (str_to_felt("NFT"),)
 
 
@@ -145,12 +145,12 @@ async def test_balanceOf(erc721_factory):
                 account.contract_address, *token]
         )
 
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     n_tokens = len(TOKENS)
     assert execution_info.result == (to_uint(n_tokens),)
 
     # user should have zero tokens
-    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc721.balanceOf(RECIPIENT).execute()
     assert execution_info.result == (to_uint(0),)
 
 
@@ -166,7 +166,7 @@ async def test_balanceOf_zero_address(erc721_factory):
 
     # should revert when querying zero address
     await assert_revert(
-        erc721.balanceOf(ZERO_ADDRESS).invoke(),
+        erc721.balanceOf(ZERO_ADDRESS).execute(),
         reverted_with="ERC721: balance query for the zero address"
     )
 
@@ -188,7 +188,7 @@ async def test_ownerOf(erc721_factory):
         )
 
         # should return account's address
-        execution_info = await erc721.ownerOf(token).invoke()
+        execution_info = await erc721.ownerOf(token).execute()
         assert execution_info.result == (account.contract_address,)
 
 
@@ -204,7 +204,7 @@ async def test_ownerOf_nonexistent_token(erc721_factory):
 
     # should revert when querying nonexistent token
     await assert_revert(
-        erc721.ownerOf(NONEXISTENT_TOKEN).invoke(),
+        erc721.ownerOf(NONEXISTENT_TOKEN).execute(),
         reverted_with="ERC721: owner query for nonexistent token"
     )
 
@@ -215,7 +215,7 @@ async def test_ownerOf_invalid_uint256(erc721_factory):
 
     # should revert when querying nonexistent token
     await assert_revert(
-        erc721.ownerOf(INVALID_UINT256).invoke(),
+        erc721.ownerOf(INVALID_UINT256).execute(),
         reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
@@ -253,12 +253,12 @@ async def test_mint(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
     # checks balance
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     assert execution_info.result == (to_uint(2),)
 
     # checks that account owns correct tokens
     for token in TOKENS:
-        execution_info = await erc721.ownerOf(token).invoke()
+        execution_info = await erc721.ownerOf(token).execute()
         assert execution_info.result == (account.contract_address,)
 
 
@@ -296,7 +296,7 @@ async def test_mint_approve_should_be_zero_address(erc721_minted):
 
     # approved address should be zero for newly minted tokens
     for token in TOKENS:
-        execution_info = await erc721.getApproved(token).invoke()
+        execution_info = await erc721.getApproved(token).execute()
         assert execution_info.result == (0,)
 
 
@@ -323,7 +323,7 @@ async def test_mint_by_not_owner(erc721_factory):
 async def test_burn(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     previous_balance = execution_info.result.balance
 
     # burn token
@@ -332,7 +332,7 @@ async def test_burn(erc721_minted):
     )
 
     # account balance should subtract one
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == sub_uint(
         previous_balance, to_uint(1)
     )
@@ -340,14 +340,14 @@ async def test_burn(erc721_minted):
     # approve should be cleared to zero, therefore,
     # 'getApproved()' call should fail
     await assert_revert(
-        erc721.getApproved(TOKEN).invoke(),
+        erc721.getApproved(TOKEN).execute(),
         reverted_with="ERC721: approved query for nonexistent token"
     )
 
     # 'token_to_burn' owner should be zero; therefore,
     # 'ownerOf()' call should fail
     await assert_revert(
-        erc721.ownerOf(TOKEN).invoke(),
+        erc721.ownerOf(TOKEN).execute(),
         reverted_with="ERC721: owner query for nonexistent token"
     )
 
@@ -363,14 +363,14 @@ async def test_burn_emits_event(erc721_minted):
         ]
     )
 
-    assert_event_emitted(
+    # events
+    assert_events_emitted(
         tx_exec_info,
-        from_address=erc721.contract_address,
-        name='Transfer',
-        data=[
-            account.contract_address,
-            ZERO_ADDRESS,
-            *TOKEN
+        [
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]]
         ]
     )
 
@@ -410,7 +410,7 @@ async def test_burn_from_zero_address(erc721_minted):
     erc721, _, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.burn(TOKEN).invoke(),
+        erc721.burn(TOKEN).execute(),
         reverted_with="ERC721: caller is not the token owner"
     )
 
@@ -429,7 +429,7 @@ async def test_approve(erc721_minted):
             spender.contract_address, *TOKEN]
     )
 
-    execution_info = await erc721.getApproved(TOKEN).invoke()
+    execution_info = await erc721.getApproved(TOKEN).execute()
     assert execution_info.result == (spender.contract_address,)
 
 
@@ -473,7 +473,7 @@ async def test_approve_on_setApprovalForAll(erc721_minted):
             RECIPIENT, *TOKEN]
     )
 
-    execution_info = await erc721.getApproved(TOKEN).invoke()
+    execution_info = await erc721.getApproved(TOKEN).execute()
     assert execution_info.result == (RECIPIENT,)
 
 
@@ -485,7 +485,7 @@ async def test_approve_from_zero_address(erc721_minted):
     # (get_caller_address) is zero
     await assert_revert(
         erc721.approve(
-            spender.contract_address, TOKEN).invoke(),
+            spender.contract_address, TOKEN).execute(),
         reverted_with="ERC721: cannot approve from the zero address"
     )
 
@@ -542,7 +542,7 @@ async def test_approve_on_already_approved(erc721_minted):
     )
 
     # check that approval does not change
-    execution_info = await erc721.getApproved(TOKEN).invoke()
+    execution_info = await erc721.getApproved(TOKEN).execute()
     assert execution_info.result == (spender.contract_address,)
 
 
@@ -551,7 +551,7 @@ async def test_getApproved_nonexistent_token(erc721_minted):
     erc721, _, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.getApproved(NONEXISTENT_TOKEN).invoke(),
+        erc721.getApproved(NONEXISTENT_TOKEN).execute(),
         reverted_with="ERC721: approved query for nonexistent token"
     )
 
@@ -561,7 +561,7 @@ async def test_getApproved_invalid_uint256(erc721_minted):
     erc721, _, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.getApproved(INVALID_UINT256).invoke(),
+        erc721.getApproved(INVALID_UINT256).execute(),
         reverted_with="ERC721: token_id is not a valid Uint256"
     )
 
@@ -581,7 +581,7 @@ async def test_setApprovalForAll(erc721_minted):
     )
 
     execution_info = await erc721.isApprovedForAll(
-        account.contract_address, spender.contract_address).invoke()
+        account.contract_address, spender.contract_address).execute()
     assert execution_info.result == (TRUE,)
 
 
@@ -621,7 +621,7 @@ async def test_setApprovalForAll_when_operator_was_set_as_not_approved(erc721_mi
     )
 
     execution_info = await erc721.isApprovedForAll(
-        account.contract_address, spender.contract_address).invoke()
+        account.contract_address, spender.contract_address).execute()
     assert execution_info.result == (TRUE,)
 
 
@@ -659,7 +659,7 @@ async def test_setApprovalForAll_from_zero_address(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
     await assert_revert(
-        erc721.setApprovalForAll(account.contract_address, TRUE).invoke(),
+        erc721.setApprovalForAll(account.contract_address, TRUE).execute(),
         reverted_with="ERC721: either the caller or operator is the zero address"
     )
 
@@ -688,7 +688,7 @@ async def test_transferFrom_owner(erc721_minted):
     erc721, account, _, _ = erc721_minted
 
     # get account's previous balance
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     previous_balance = execution_info.result.balance
 
     # transfers token from account to recipient
@@ -698,20 +698,20 @@ async def test_transferFrom_owner(erc721_minted):
     )
 
     # checks recipient balance
-    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc721.balanceOf(RECIPIENT).execute()
     assert execution_info.result == (to_uint(1),)
 
     # checks account balance
-    execution_info = await erc721.balanceOf(account.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account.contract_address).execute()
     assert execution_info.result.balance == sub_uint(
         previous_balance, to_uint(1))
 
     # checks token has new owner
-    execution_info = await erc721.ownerOf(TOKEN).invoke()
+    execution_info = await erc721.ownerOf(TOKEN).execute()
     assert execution_info.result == (RECIPIENT,)
 
     # checks approval is cleared for token_id
-    execution_info = await erc721.getApproved(TOKEN).invoke()
+    execution_info = await erc721.getApproved(TOKEN).execute()
     assert execution_info.result == (0,)
 
 
@@ -734,25 +734,14 @@ async def test_transferFrom_emits_events(erc721_minted):
         ]
     )
 
-    assert_event_emitted(
+    # events
+    assert_events_emitted(
         tx_exec_info,
-        from_address=erc721.contract_address,
-        name='Transfer',
-        data=[
-            account.contract_address,
-            RECIPIENT,
-            *TOKEN
-        ]
-    )
-
-    assert_event_emitted(
-        tx_exec_info,
-        from_address=erc721.contract_address,
-        name='Approval',
-        data=[
-            account.contract_address,
-            ZERO_ADDRESS,
-            *TOKEN
+        [
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, RECIPIENT, *TOKEN]]
         ]
     )
 
@@ -774,7 +763,7 @@ async def test_transferFrom_approved_user(erc721_minted):
     )
 
     # checks user balance
-    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc721.balanceOf(RECIPIENT).execute()
     assert execution_info.result == (to_uint(1),)
 
 
@@ -795,7 +784,7 @@ async def test_transferFrom_operator(erc721_minted):
     )
 
     # checks user balance
-    execution_info = await erc721.balanceOf(RECIPIENT).invoke()
+    execution_info = await erc721.balanceOf(RECIPIENT).execute()
     assert execution_info.result == (to_uint(1),)
 
 
@@ -866,7 +855,7 @@ async def test_transferFrom_from_zero_address(erc721_minted):
             account.contract_address,
             RECIPIENT,
             TOKEN
-        ).invoke(),
+        ).execute(),
         reverted_with="ERC721: either is not approved or the caller is the zero address"
     )
 
@@ -887,7 +876,7 @@ async def test_transferFrom_from_zero_address(erc721_minted):
 async def test_supportsInterface(erc721_factory, interface_id, result):
     erc721, _, _, _, _ = erc721_factory
 
-    execution_info = await erc721.supportsInterface(interface_id).invoke()
+    execution_info = await erc721.supportsInterface(interface_id).execute()
     assert execution_info.result == (result,)
 
 
@@ -911,11 +900,11 @@ async def test_safeTransferFrom(erc721_minted):
     )
 
     # check balance
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).execute()
     assert execution_info.result == (to_uint(1),)
 
     # check owner
-    execution_info = await erc721.ownerOf(TOKEN).invoke()
+    execution_info = await erc721.ownerOf(TOKEN).execute()
     assert execution_info.result == (erc721_holder.contract_address,)
 
 
@@ -933,25 +922,15 @@ async def test_safeTransferFrom_emits_events(erc721_minted):
         ]
     )
 
-    assert_event_emitted(
-        tx_exec_info,
-        from_address=erc721.contract_address,
-        name='Transfer',
-        data=[
-            account.contract_address,
-            erc721_holder.contract_address,
-            *TOKEN
-        ]
-    )
 
-    assert_event_emitted(
+    # events
+    assert_events_emitted(
         tx_exec_info,
-        from_address=erc721.contract_address,
-        name='Approval',
-        data=[
-            account.contract_address,
-            ZERO_ADDRESS,
-            *TOKEN
+        [
+            [0, erc721.contract_address, 'Approval', [
+                account.contract_address, ZERO_ADDRESS, *TOKEN]],
+            [1, erc721.contract_address, 'Transfer', [
+                account.contract_address, erc721_holder.contract_address, *TOKEN]]
         ]
     )
 
@@ -960,7 +939,7 @@ async def test_safeTransferFrom_emits_events(erc721_minted):
 async def test_safeTransferFrom_from_approved(erc721_minted):
     erc721, account, spender, erc721_holder = erc721_minted
 
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).execute()
     previous_balance = execution_info.result.balance
 
     # approve spender
@@ -981,7 +960,7 @@ async def test_safeTransferFrom_from_approved(erc721_minted):
     )
 
     # erc721_holder balance check
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).execute()
     assert execution_info.result.balance == add_uint(
         previous_balance, to_uint(1)
     )
@@ -991,7 +970,7 @@ async def test_safeTransferFrom_from_approved(erc721_minted):
 async def test_safeTransferFrom_from_operator(erc721_minted):
     erc721, account, spender, erc721_holder = erc721_minted
 
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).execute()
     previous_balance = execution_info.result.balance
 
     # setApprovalForAll
@@ -1012,7 +991,7 @@ async def test_safeTransferFrom_from_operator(erc721_minted):
     )
 
     # erc721_holder balance check
-    execution_info = await erc721.balanceOf(erc721_holder.contract_address).invoke()
+    execution_info = await erc721.balanceOf(erc721_holder.contract_address).execute()
     assert execution_info.result.balance == add_uint(
         previous_balance, to_uint(1)
     )
@@ -1063,7 +1042,7 @@ async def test_safeTransferFrom_from_zero_address(erc721_minted):
             erc721_holder.contract_address,
             TOKEN,
             DATA
-        ).invoke(),
+        ).execute(),
         reverted_with="ERC721: either is not approved or the caller is the zero address"
     )
 
@@ -1099,11 +1078,11 @@ async def test_safeTransferFrom_to_account(erc721_minted):
     )
 
     # check balance
-    execution_info = await erc721.balanceOf(account2.contract_address).invoke()
+    execution_info = await erc721.balanceOf(account2.contract_address).execute()
     assert execution_info.result == (to_uint(1),)
 
     # check owner
-    execution_info = await erc721.ownerOf(TOKEN).invoke()
+    execution_info = await erc721.ownerOf(TOKEN).execute()
     assert execution_info.result == (account2.contract_address,)
 
 
@@ -1137,7 +1116,7 @@ async def test_tokenURI(erc721_minted):
     token_2 = TOKENS[1]
 
     # should be zero when tokenURI is not set
-    execution_info = await erc721.tokenURI(token_1).invoke()
+    execution_info = await erc721.tokenURI(token_1).execute()
     assert execution_info.result == (0,)
 
     # setTokenURI for token_1
@@ -1148,7 +1127,7 @@ async def test_tokenURI(erc721_minted):
         ]
     )
 
-    execution_info = await erc721.tokenURI(token_1).invoke()
+    execution_info = await erc721.tokenURI(token_1).execute()
     assert execution_info.result == (SAMPLE_URI_1,)
 
     # setTokenURI for token_2
@@ -1159,7 +1138,7 @@ async def test_tokenURI(erc721_minted):
         ]
     )
 
-    execution_info = await erc721.tokenURI(token_2).invoke()
+    execution_info = await erc721.tokenURI(token_2).execute()
     assert execution_info.result == (SAMPLE_URI_2,)
 
 
@@ -1169,7 +1148,7 @@ async def test_tokenURI_should_revert_for_nonexistent_token(erc721_minted):
 
     # should revert for nonexistent token
     await assert_revert(
-        erc721.tokenURI(NONEXISTENT_TOKEN).invoke(),
+        erc721.tokenURI(NONEXISTENT_TOKEN).execute(),
         reverted_with="ERC721_Metadata: URI query for nonexistent token"
     )
 

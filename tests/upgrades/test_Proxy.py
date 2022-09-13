@@ -16,7 +16,6 @@ VALUE = 123
 
 signer = MockSigner(123456789987654321)
 
-
 class TestProxy:
     @pytest.fixture(scope='module')
     def contract_classes(self):
@@ -81,7 +80,7 @@ class TestProxy:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getAdmin', []
         )
-        assert execution_info.result.response == [admin.contract_address]
+        assert execution_info.call_info.retdata[1] == admin.contract_address
 
 
     @pytest.mark.asyncio
@@ -121,7 +120,7 @@ class TestProxy:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getAdmin', []
         )
-        assert execution_info.result.response == [VALUE]
+        assert execution_info.call_info.retdata[1] == VALUE
 
 
     @pytest.mark.asyncio
@@ -148,10 +147,10 @@ class TestProxy:
         )
 
         # get value through proxy
-        execution_info = execution_info = await signer.send_transaction(
+        execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'getValue', []
         )
-        assert execution_info.result.response == [VALUE]
+        assert execution_info.call_info.retdata[1] == VALUE
 
 
     @pytest.mark.asyncio

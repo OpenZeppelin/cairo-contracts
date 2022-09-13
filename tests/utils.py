@@ -8,7 +8,7 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.business_logic.execution.objects import Event
+from starkware.starknet.business_logic.execution.objects import OrderedEvent
 
 
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
@@ -104,12 +104,33 @@ async def assert_revert_entry_point(fun, invalid_selector):
     await assert_revert(fun, entry_point_msg)
 
 
-def assert_event_emitted(tx_exec_info, from_address, name, data):
-    assert Event(
-        from_address=from_address,
-        keys=[get_selector_from_name(name)],
-        data=data,
-    ) in tx_exec_info.raw_events
+def assert_event_emitted(tx_exec_info, from_address, name, data, order=0):
+    """Assert one single event is fired with correct data."""
+    assert_events_emitted(tx_exec_info, [(order, from_address, name, data)])
+
+
+def assert_events_emitted(tx_exec_info, events):
+    """Assert events are fired with correct data."""
+    for event in events:
+        order, from_address, name, data = event
+        event_obj = OrderedEvent(
+            order=order,
+            keys=[get_selector_from_name(name)],
+            data=data,
+        )
+
+        base = tx_exec_info.call_info.internal_calls[0]
+        if event_obj in base.events and from_address == base.contract_address:
+            return
+
+        try:
+            base2 = base.internal_calls[0]
+            if event_obj in base2.events and from_address == base2.contract_address:
+                return
+        except IndexError:
+            pass
+
+        raise BaseException("Event not fired or not fired correctly")
 
 
 def _get_path_from_name(name):
@@ -144,7 +165,7 @@ def cached_contract(state, _class, deployed):
         state=state,
         abi=_class.abi,
         contract_address=deployed.contract_address,
-        deploy_execution_info=deployed.deploy_execution_info
+        deploy_call_info=deployed.deploy_call_info
     )
     return contract
 

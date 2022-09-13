@@ -193,4 +193,4 @@ async def test_account_takeover_with_reentrant_call(account_factory):
 
 
 async def test_interface():
-    assert get_contract_class("IAccount.cairo")
+    assert get_contract_class("IAccount")

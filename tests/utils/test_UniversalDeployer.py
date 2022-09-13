@@ -9,11 +9,10 @@ from utils import (
     get_contract_class,
     cached_contract,
     assert_event_emitted,
+    IACCOUNT_ID,
     FALSE,
     TRUE,
 )
-
-IACCOUNT_ID = 0xa66bd575
 
 signer = MockSigner(123456789987654321)
 

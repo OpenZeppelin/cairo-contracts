@@ -1,5 +1,5 @@
 import pytest
-from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, State
+from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, IACCOUNT_ID, State
 from signers import MockEthSigner, get_raw_invoke
 
 private_key = b'\x01' * 32

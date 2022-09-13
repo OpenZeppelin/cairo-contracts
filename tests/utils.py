@@ -16,9 +16,7 @@ INVALID_UINT256 = (MAX_UINT256[0] + 1, MAX_UINT256[1])
 ZERO_ADDRESS = 0
 TRUE = 1
 FALSE = 0
-
-TRANSACTION_VERSION = 0
-
+IACCOUNT_ID = 0xa66bd575
 
 _root = Path(__file__).parent.parent
 

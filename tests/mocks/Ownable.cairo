@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 %lang starknet
 
@@ -8,51 +8,34 @@ from openzeppelin.access.ownable.library import Ownable
 from starkware.cairo.common.bool import TRUE
 
 @constructor
-func constructor{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(owner: felt):
-    Ownable.initializer(owner)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) {
+    Ownable.initializer(owner);
+    return ();
+}
 
 @external
-func owner{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (owner: felt):
-    let (owner) = Ownable.owner()
-    return (owner=owner)
-end
+func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
+    return Ownable.owner();
+}
 
 @external
-func transferOwnership{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(new_owner: felt):
-    Ownable.transfer_ownership(new_owner)
-    return ()
-end
+func transferOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    new_owner: felt
+) {
+    Ownable.transfer_ownership(new_owner);
+    return ();
+}
 
 @external
-func renounceOwnership{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    Ownable.renounce_ownership()
-    return ()
-end
+func renounceOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Ownable.renounce_ownership();
+    return ();
+}
 
 @external
-func protected_function{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    Ownable.assert_only_owner()
-    return (TRUE)
-end
+func protected_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    success: felt
+) {
+    Ownable.assert_only_owner();
+    return (success=TRUE);
+}

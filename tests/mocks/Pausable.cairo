@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 %lang starknet
 
@@ -9,84 +9,57 @@ from starkware.cairo.common.bool import TRUE, FALSE
 from openzeppelin.security.pausable.library import Pausable
 
 @storage_var
-func drastic_measure_taken() -> (res: felt):
-end
+func drastic_measure_taken() -> (success: felt) {
+}
 
 @storage_var
-func count() -> (res: felt):
-end
+func counter() -> (count: felt) {
+}
 
 @view
-func isPaused{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (isPaused: felt):
-    let (isPaused) = Pausable.is_paused()
-    return (isPaused)
-end
+func isPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    paused: felt
+) {
+    return Pausable.is_paused();
+}
 
 @view
-func getCount{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res) = count.read()
-    return (res)
-end
+func getCount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (count: felt) {
+    return counter.read();
+}
 
 @view
-func getDrasticMeasureTaken{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }() -> (res: felt):
-    let (res) = drastic_measure_taken.read()
-    return (res)
-end
+func getDrasticMeasureTaken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    success: felt
+) {
+    return drastic_measure_taken.read();
+}
 
 @external
-func normalProcess{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    Pausable.assert_not_paused()
+func normalProcess{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Pausable.assert_not_paused();
 
-    let (currentCount) = count.read()
-    count.write(currentCount + 1)
-    return ()
-end
+    let (currentCount) = counter.read();
+    counter.write(currentCount + 1);
+    return ();
+}
 
 @external
-func drasticMeasure{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    Pausable.assert_paused()
+func drasticMeasure{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Pausable.assert_paused();
 
-    drastic_measure_taken.write(TRUE)
-    return ()
-end
+    drastic_measure_taken.write(TRUE);
+    return ();
+}
 
 @external
-func pause{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    Pausable._pause()
-    return ()
-end
+func pause{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Pausable._pause();
+    return ();
+}
 
 @external
-func unpause{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    Pausable._unpause()
-    return ()
-end
+func unpause{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Pausable._unpause();
+    return ();
+}

@@ -11,13 +11,13 @@ async def test_initializer():
     expected = await initializable.initialized().call()
     assert expected.result == (FALSE,)
 
-    await initializable.initialize().invoke()
+    await initializable.initialize().execute()
 
     expected = await initializable.initialized().call()
     assert expected.result == (TRUE,)
 
     # second initialize invocation should revert
     await assert_revert(
-        initializable.initialize().invoke(),
+        initializable.initialize().execute(),
         reverted_with="Initializable: contract already initialized"
     )

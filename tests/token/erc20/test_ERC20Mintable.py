@@ -89,7 +89,7 @@ async def test_mint(token_factory):
         ])
 
     # check new supply
-    execution_info = await erc20.totalSupply().invoke()
+    execution_info = await erc20.totalSupply().execute()
     new_supply = execution_info.result.totalSupply
     assert new_supply == add_uint(INIT_SUPPLY, UINT_ONE)
 

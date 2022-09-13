@@ -1,5 +1,4 @@
 import pytest
-from starkware.starknet.testing.starknet import Starknet
 from utils import (
     assert_revert,
     get_contract_class,
@@ -55,7 +54,7 @@ async def test_register_interface(erc165_factory):
     assert execution_info.result == (FALSE,)
 
     # register interface
-    await erc165.registerInterface(OTHER_ID).invoke()
+    await erc165.registerInterface(OTHER_ID).execute()
 
     execution_info = await erc165.supportsInterface(OTHER_ID).call()
     assert execution_info.result == (TRUE,)
@@ -66,6 +65,6 @@ async def test_register_invalid_interface(erc165_factory):
     erc165 = erc165_factory
 
     await assert_revert(
-        erc165.registerInterface(INVALID_ID).invoke(),
+        erc165.registerInterface(INVALID_ID).execute(),
         reverted_with="ERC165: invalid interface id"
     )

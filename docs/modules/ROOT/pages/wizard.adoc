@@ -4,7 +4,8 @@
 Not sure where to start? Use the interactive generator below to bootstrap your
 contract and learn about the components offered in OpenZeppelin Cairo Contracts.
 
-TIP: Place the resulting contract in your `contracts` directory in order to compile it with a tool like Nile.
+
+CAUTION: If you haven’t yet, before moving forward, we strongly recommend checking the xref:extensibility.adoc[Extensibility Pattern] section to understand how we manage extensibility in a language lacking inheritance.
 
 ++++
 <script async src="https://wizard.openzeppelin.com/build/embed.js"></script>

@@ -230,7 +230,9 @@ namespace ERC1155:
         with_attr error_message("ERC1155: transfer to the zero address"):
             assert_not_zero(to)
         end
-        with_attr error_message("ERC1155: id is not a valid Uint256"):
+        let id_low = id.low
+        let id_high = id.high
+        with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
             uint256_check(id)
         end
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
@@ -334,7 +336,9 @@ namespace ERC1155:
             assert_not_zero(to)
         end
         # Check uints validity
-        with_attr error_message("ERC1155: id is not a valid Uint256"):
+        let id_low = id.low
+        let id_high = id.high
+        with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
             uint256_check(id)
         end
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
@@ -428,7 +432,9 @@ namespace ERC1155:
         end
 
         # Check uints validity
-        with_attr error_message("ERC1155: id is not a valid Uint256"):
+        let id_low = id.low
+        let id_high = id.high
+        with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
             uint256_check(id)
         end
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
@@ -665,7 +671,9 @@ func safe_batch_transfer_from_iter{
 
     # Read current entries, perform Uint256 checks
     let id = [ids]
-    with_attr error_message("ERC1155: id is not a valid Uint256"):
+    let id_low = id.low
+    let id_high = id.high
+    with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
         uint256_check(id)
     end
     let amount = [amounts]
@@ -706,7 +714,9 @@ func mint_batch_iter{
 
     # Read current entries
     let id: Uint256 = [ids]
-    with_attr error_message("ERC1155: id is not a valid Uint256"):
+    let id_low = id.low
+    let id_high = id.high
+    with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
         uint256_check(id)
     end
     let amount: Uint256 = [amounts]
@@ -738,7 +748,9 @@ func burn_batch_iter{
 
     # Read current entries
     let id: Uint256 = [ids]
-    with_attr error_message("ERC1155: id is not a valid Uint256"):
+    let id_low = id.low
+    let id_high = id.high
+    with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
         uint256_check(id)
     end
     let amount: Uint256 = [amounts]

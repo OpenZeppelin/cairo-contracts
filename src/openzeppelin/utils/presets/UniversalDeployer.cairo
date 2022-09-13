@@ -31,7 +31,7 @@ func deployContract{
     if (unique == TRUE) {
         let (prefix) = deployer;
     } else {
-        let (prefix) = 'UniversalDeployerContract'
+        let (prefix) = 'UniversalDeployerContract';
     }
 
     let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);

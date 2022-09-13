@@ -26,12 +26,14 @@ func deployContract{
     constructor_calldata_len: felt,
     constructor_calldata: felt*
 ) -> (contract_address: felt) {
+    alloc_locals;
+    local prefix;
     let (deployer) = get_caller_address();
 
     if (unique == TRUE) {
-        let (prefix) = deployer;
+        prefix = deployer;
     } else {
-        let (prefix) = 'UniversalDeployerContract';
+        prefix = 'UniversalDeployerContract';
     }
 
     let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);

@@ -75,42 +75,55 @@ It implements https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and it is agnost
 
 [,cairo]
 ----
+struct Call {
+    to: felt,
+    selector: felt,
+    calldata_len: felt,
+    calldata: felt*,
+}
+
+// Tmp struct introduced while we wait for Cairo to support passing `[Call]` to __execute__
+struct CallArray {
+    to: felt,
+    selector: felt,
+    data_offset: felt,
+    data_len: felt,
+}
+
+
 @contract_interface
-namespace IAccount:
-    #
-    # Getters
-    #
+namespace IAccount {
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 
-    func get_nonce() -> (res : felt):
-    end
+    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    }
 
-    #
-    # Business logic
-    #
+    func __validate__(
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) {
+    }
 
-    func is_valid_signature(
-            hash: felt,
-            signature_len: felt,
-            signature: felt*
-        ) -> (is_valid: felt):
-    end
+    func __validate_declare__(class_hash: felt) {
+    }
 
     func __execute__(
-            call_array_len: felt,
-            call_array: AccountCallArray*,
-            calldata_len: felt,
-            calldata: felt*,
-            nonce: felt
-        ) -> (response_len: felt, response: felt*):
-    end
-end
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) -> (response_len: felt, response: felt*) {
+    }
+}
+
+
+
+
+
 ----
 
 == Keys, signatures and signers
 
 While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account.
 That's why the `constructor` function expects a `public_key` parameter to set it.
-Since there's also a `set_public_key()` method, accounts can be effectively transferred.
+Since there's also a `setPublicKey()` method, accounts can be effectively transferred.
 
 === Signer
 
@@ -131,7 +144,6 @@ Current implementation requires nonces to be incremental
 
 Which returns:
 
-* `calls` a list of calls to be bundled in the transaction
 * `calldata` a list of arguments for each call
 * `sig_r` the transaction signature
 * `sig_s` the transaction signature
@@ -149,6 +161,8 @@ Note that directly converting `to` to a string will ultimately result in an inte
 
 The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature.
 Finally, the `MockSigner` instance invokes the account contract's `\\__execute__` with the transaction data.
+
+NOTE: StarkNet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes StarkNet's API gateway to manually execute the `InvokeFunction` for testing.
 
 Users only need to interact with the following exposed methods to perform a transaction:
 
@@ -324,29 +338,32 @@ This in a nutshell is the Account contract public API:
 
 [,cairo]
 ----
-func get_public_key() -> (res: felt):
-end
+    func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
+    }
 
-func get_nonce() -> (res: felt):
-end
+    func setPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(newPublicKey: felt) {
+    }
 
-func set_public_key(new_public_key: felt):
-end
+    func getPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (publicKey: felt) {
+    }
 
-func is_valid_signature(hash: felt,
-        signature_len: felt,
-        signature: felt*
-    ) -> (is_valid: felt):
-end
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 
-func __execute__(
-        call_array_len: felt,
-        call_array: AccountCallArray*,
-        calldata_len: felt,
-        calldata: felt*,
-        nonce: felt
-    ) -> (response_len: felt, response: felt*):
-end
+    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    }
+
+    func __validate__(
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
+    }
+
+    func __validate_declare__(class_hash: felt) {
+    }
+
+    func __execute__(
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) -> (response_len: felt, response: felt*) {
+    }
 ----
 
 === `get_public_key`

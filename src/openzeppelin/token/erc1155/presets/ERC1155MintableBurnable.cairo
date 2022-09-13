@@ -37,7 +37,8 @@ func supportsInterface{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(interfaceId: felt) -> (success: felt):
-    return ERC165.supports_interface(interfaceId)
+    let (success) = ERC165.supports_interface(interfaceId)
+    return (success)
 end
 
 @view
@@ -46,7 +47,8 @@ func uri{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(id: Uint256) -> (uri: felt):
-    return ERC1155.uri(id)
+    let (uri) = ERC1155.uri(id)
+    return (uri)
 end
 
 @view
@@ -55,7 +57,8 @@ func balanceOf{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(account: felt, id: Uint256) -> (balance: Uint256):
-    return ERC1155.balance_of(account, id)
+    let (balance) = ERC1155.balance_of(account, id)
+    return (balance)
 end
 
 @view

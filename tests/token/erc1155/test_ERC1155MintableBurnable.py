@@ -6,7 +6,7 @@ from utils import (
     MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, TRUE, FALSE,
     get_contract_class, cached_contract,
     assert_revert, assert_event_emitted,
-    str_to_felt
+    str_to_felt, State, Account
 )
 
 signer = MockSigner(123456789987654321)
@@ -78,7 +78,7 @@ UNSUPPORTED_INTERFACES = [ERC165_UNSUPPORTED, UNSUPPORTED_ID]
 
 @pytest.fixture(scope='module')
 def contract_classes():
-    account_cls = get_contract_class('Account')
+    account_cls = Account.get_class
     erc1155_cls = get_contract_class('ERC1155MintableBurnable')
     receiver_cls = get_contract_class('ERC1155ReceiverMock')
     return account_cls, erc1155_cls, receiver_cls
@@ -87,15 +87,9 @@ def contract_classes():
 @pytest.fixture(scope='module')
 async def erc1155_init(contract_classes):
     account_cls, erc1155_cls, receiver_cls = contract_classes
-    starknet = await Starknet.empty()
-    account1 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
-    account2 = await starknet.deploy(
-        contract_class=account_cls,
-        constructor_calldata=[signer.public_key]
-    )
+    starknet = await State.init()
+    account1 = await Account.deploy(signer.public_key)
+    account2 = await Account.deploy(signer.public_key)
     erc1155 = await starknet.deploy(
         contract_class=erc1155_cls,
         constructor_calldata=[DEFAULT_URI, account1.contract_address]

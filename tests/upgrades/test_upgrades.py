@@ -19,7 +19,6 @@ VALUE_2 = 987
 
 signer = MockSigner(123456789987654321)
 
-@pytest.mark.only
 class TestUpgrades:
     @pytest.fixture(scope='module')
     def contract_classes(self):
@@ -137,7 +136,7 @@ class TestUpgrades:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'initialized', []
         )
-        assert execution_info.call_info.retdata[1] == False
+        assert execution_info.call_info.retdata[1] == FALSE
 
         # initialize
         await signer.send_transaction(
@@ -148,7 +147,7 @@ class TestUpgrades:
         execution_info = await signer.send_transaction(
             admin, proxy.contract_address, 'initialized', []
         )
-        assert execution_info.call_info.retdata[1] == True
+        assert execution_info.call_info.retdata[1] == TRUE
 
 
     @pytest.mark.asyncio

@@ -14,6 +14,7 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
 * <<quickstart,Quickstart>>
 * <<standard_interface,Standard Interface>>
 * <<keys_signatures_and_signers,Keys, signatures and signers>>
+** <<signature_validation, Signature validation>>
  ** <<signer,Signer>>
  ** <<mocksigner_utility,MockSigner utility>>
  ** <<mockethsigner_utility,MockEthSigner utility>>
@@ -125,6 +126,16 @@ While the interface is agnostic of signature validation schemes, this implementa
 That's why the `constructor` function expects a `public_key` parameter to set it.
 Since there's also a `setPublicKey()` method, accounts can be effectively transferred.
 
+=== Signature validation
+
+Signature validation occurs separately from execution as of Cairo v0.10. Upon receiving transactions, an account contract first calls `\\__validate__`. An account will only execute a transaction if, and only if, the signature proves valid.
+This decoupling allows for a protocol-level distinction between invalid and reverted transactions.
+
+Account contracts must include two signature validation methods:
+
+. `\\__validate__` - called to verify signature prior to transaction execution.
+. `\\__validate_declare__` - called to verify signature prior to contract class declaration.
+
 === Signer
 
 The signer is responsible for creating a transaction signature with the user's private key for a given transaction.
@@ -139,7 +150,6 @@ Each sublist must consist of:
  .. `selector` the function to be called on the target contract
  .. `calldata` the parameters for the given `selector`
 * `nonce` an unique identifier of this message to prevent transaction replays.
-Current implementation requires nonces to be incremental
 * `max_fee` the maximum fee a user will pay
 
 Which returns:
@@ -248,7 +258,6 @@ Where:
 * `calldata_len` is the number of calldata parameters
 * `calldata` is an array representing the function parameters
 * `nonce` is an unique identifier of this message to prevent transaction replays.
-Current implementation requires nonces to be incremental
 
 NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
@@ -338,7 +347,7 @@ This in a nutshell is the Account contract public API:
 
 [,cairo]
 ----
-    func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
+    func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
     }
 
     func setPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(newPublicKey: felt) {

@@ -110,6 +110,11 @@ namespace ERC1155:
         with_attr error_message("ERC1155: address zero is not a valid owner"):
             assert_not_zero(account)
         end
+        let id_low = id.low
+        let id_high = id.high
+        with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
+            uint256_check(id)
+        end
         let (balance) = ERC1155_balances.read(id, account)
         return (balance)
     end
@@ -639,7 +644,9 @@ func balance_of_batch_iter{
     end
     # Read current entries
     let id: Uint256 = [ids]
-    with_attr error_message("ERC1155: id is not a valid Uint256"):
+    let id_low = id.low
+    let id_high = id.high
+    with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
         uint256_check(id)
     end
     let account: felt = [accounts]

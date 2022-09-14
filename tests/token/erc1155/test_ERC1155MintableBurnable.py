@@ -23,12 +23,17 @@ def to_uint_array(arr):
     return list(map(to_uint, arr))
 
 
-def uarr2cd(arr):
+def calldata(arr):
     acc = [len(arr)]
-    for lo, hi in arr:
-        acc.append(lo)
-        acc.append(hi)
-    return acc
+    if acc[0] == 0:
+        return acc
+    if type(arr[0]) == int:
+        return acc + arr
+    if type(arr[0]) == tuple:
+        for elem in arr:
+            acc += [*elem]
+        return acc
+    raise Exception
 
 #
 # Constants
@@ -130,8 +135,8 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
         owner, erc1155.contract_address, 'mintBatch',
         [
             account.contract_address, # to
-            *uarr2cd(TOKEN_IDS),      # ids
-            *uarr2cd(MINT_AMOUNTS),   # amounts
+            *calldata(TOKEN_IDS),      # ids
+            *calldata(MINT_AMOUNTS),   # amounts
             DATA
         ]
     )
@@ -825,7 +830,7 @@ async def test_mint_batch(erc1155_factory):
 
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA])
+        [recipient, *calldata(TOKEN_IDS), *calldata(MINT_AMOUNTS), DATA])
 
     execution_info = await erc1155.balanceOfBatch(
         [recipient]*3, TOKEN_IDS).invoke()
@@ -840,7 +845,7 @@ async def test_mint_batch_emits_event(erc1155_factory):
 
     execution_info = await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA])
+        [recipient, *calldata(TOKEN_IDS), *calldata(MINT_AMOUNTS), DATA])
 
     assert_event_emitted(
         execution_info,
@@ -850,8 +855,8 @@ async def test_mint_batch_emits_event(erc1155_factory):
             owner.contract_address,  # operator
             ZERO_ADDRESS,            # from
             recipient,               # to
-            *uarr2cd(TOKEN_IDS),
-            *uarr2cd(MINT_AMOUNTS),
+            *calldata(TOKEN_IDS),
+            *calldata(MINT_AMOUNTS),
         ]
     )
 
@@ -863,7 +868,7 @@ async def test_mint_batch_to_zero_address(erc1155_factory):
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [ZERO_ADDRESS, *uarr2cd(TOKEN_IDS), *uarr2cd(MINT_AMOUNTS), DATA]),
+            [ZERO_ADDRESS, *calldata(TOKEN_IDS), *calldata(MINT_AMOUNTS), DATA]),
         "ERC1155: mint to the zero address")
 
 
@@ -876,7 +881,7 @@ async def test_mint_batch_overflow(erc1155_factory):
     # Bring recipient's balance to max possible
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA])
+        [recipient, *calldata(TOKEN_IDS), *calldata(MAX_UINT_AMOUNTS), DATA])
 
     # Issuing recipient any more on just 1 token_id
     # should revert due to overflow
@@ -884,7 +889,7 @@ async def test_mint_batch_overflow(erc1155_factory):
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts), DATA]),
+            [recipient, *calldata(TOKEN_IDS), *calldata(amounts), DATA]),
         "ERC1155: balance overflow")
 
 
@@ -904,7 +909,7 @@ async def test_mint_batch_invalid_uint(
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+            [recipient, *calldata(token_ids), *calldata(amounts), DATA]),
         error)
 
 
@@ -923,7 +928,7 @@ async def test_mint_batch_uneven_arrays(erc1155_factory, amounts, token_ids):
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+            [recipient, *calldata(token_ids), *calldata(amounts), DATA]),
         "ERC1155: ids and amounts length mismatch")
 
 
@@ -936,8 +941,8 @@ async def test_mint_batch_to_receiver(erc1155_factory):
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
-            recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(MINT_AMOUNTS), DATA
+            recipient, *calldata(TOKEN_IDS),
+            *calldata(MINT_AMOUNTS), DATA
         ])
 
     execution_info = await erc1155.balanceOfBatch(
@@ -954,8 +959,8 @@ async def test_mint_batch_to_receiver_rejection(erc1155_factory):
     await assert_revert(signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
-            recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(MINT_AMOUNTS), *REJECT_DATA
+            recipient, *calldata(TOKEN_IDS),
+            *calldata(MINT_AMOUNTS), *REJECT_DATA
         ]),
         "ERC1155: ERC1155Receiver rejected tokens")
 
@@ -969,8 +974,8 @@ async def test_mint_batch_to_non_receiver(erc1155_factory):
     await assert_revert(signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
-            recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(MINT_AMOUNTS), DATA
+            recipient, *calldata(TOKEN_IDS),
+            *calldata(MINT_AMOUNTS), DATA
         ]),
         "ERC1155: transfer to non ERC1155Receiver implementer")
 
@@ -987,7 +992,7 @@ async def test_burn_batch(erc1155_minted_factory):
 
     await signer.send_transaction(
         account, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
+        [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     execution_info = await erc1155.balanceOfBatch(
         [burner]*3, TOKEN_IDS).invoke()
@@ -1002,7 +1007,7 @@ async def test_burn_batch_emits_event(erc1155_minted_factory):
 
     execution_info = await signer.send_transaction(
         account, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
+        [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     assert_event_emitted(
         execution_info,
@@ -1012,8 +1017,8 @@ async def test_burn_batch_emits_event(erc1155_minted_factory):
             burner,        # operator
             burner,        # from
             ZERO_ADDRESS,  # to
-            *uarr2cd(TOKEN_IDS),
-            *uarr2cd(BURN_AMOUNTS),
+            *calldata(TOKEN_IDS),
+            *calldata(BURN_AMOUNTS),
         ]
     )
 
@@ -1031,7 +1036,7 @@ async def test_burn_batch_from_approved(erc1155_minted_factory):
 
     await signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
+        [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     execution_info = await erc1155.balanceOfBatch(
         [burner]*3, TOKEN_IDS).invoke()
@@ -1051,7 +1056,7 @@ async def test_burn_batch_from_approved_emits_event(erc1155_minted_factory):
 
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)])
+        [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     assert_event_emitted(
         execution_info,
@@ -1061,8 +1066,8 @@ async def test_burn_batch_from_approved_emits_event(erc1155_minted_factory):
             operator,      # operator
             burner,        # from
             ZERO_ADDRESS,  # to
-            *uarr2cd(TOKEN_IDS),
-            *uarr2cd(BURN_AMOUNTS),
+            *calldata(TOKEN_IDS),
+            *calldata(BURN_AMOUNTS),
         ]
     )
 
@@ -1080,7 +1085,7 @@ async def test_burn_batch_from_unapproved(erc1155_minted_factory):
 
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'burnBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(BURN_AMOUNTS)]),
+        [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)]),
         "ERC1155: caller is not owner nor approved")
 
 
@@ -1108,7 +1113,7 @@ async def test_burn_batch_insufficent_balance(erc1155_minted_factory):
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts)]),
+            [burner, *calldata(TOKEN_IDS), *calldata(amounts)]),
         "ERC1155: burn amount exceeds balance")
 
 
@@ -1121,13 +1126,13 @@ async def test_burn_batch_invalid_amount(erc1155_factory):
     # mint max possible to avoid insufficient balance
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), 0])
+        [burner, *calldata(TOKEN_IDS), *calldata(MAX_UINT_AMOUNTS), 0])
 
     # attempt passing an invalid uint in batch
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(TOKEN_IDS), *uarr2cd(INVALID_AMOUNTS)]),
+            [burner, *calldata(TOKEN_IDS), *calldata(INVALID_AMOUNTS)]),
         "ERC1155: amount is not a valid Uint256")
 
 
@@ -1141,7 +1146,7 @@ async def test_burn_batch_invalid_id(erc1155_minted_factory):
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(INVALID_IDS), *uarr2cd(burn_amounts)]),
+            [burner, *calldata(INVALID_IDS), *calldata(burn_amounts)]),
         f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
 
 
@@ -1162,7 +1167,7 @@ async def test_burn_batch_uneven_arrays(
     await assert_revert(
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *uarr2cd(token_ids), *uarr2cd(amounts)]),
+            [burner, *calldata(token_ids), *calldata(amounts)]),
         "ERC1155: ids and amounts length mismatch")
 
 #
@@ -1180,8 +1185,8 @@ async def test_safe_batch_transfer_from(erc1155_minted_factory):
     await signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ])
 
     execution_info = await erc1155.balanceOfBatch(
@@ -1200,8 +1205,8 @@ async def test_safe_batch_transfer_from_emits_event(erc1155_minted_factory):
     execution_info = await signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ])
 
     assert_event_emitted(
@@ -1212,8 +1217,8 @@ async def test_safe_batch_transfer_from_emits_event(erc1155_minted_factory):
             sender,     # operator
             sender,     # from
             recipient,  # to
-            *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS),
+            *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS),
         ]
     )
 
@@ -1233,8 +1238,8 @@ async def test_safe_batch_transfer_from_approved(erc1155_minted_factory):
     await signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ])
 
     execution_info = await erc1155.balanceOfBatch(
@@ -1259,8 +1264,8 @@ async def test_safe_batch_transfer_from_approved_emits_event(
     execution_info = await signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ])
 
     assert_event_emitted(
@@ -1271,8 +1276,8 @@ async def test_safe_batch_transfer_from_approved_emits_event(
             operator,   # operator
             sender,     # from
             recipient,  # to
-            *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS),
+            *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS),
         ]
     )
 
@@ -1286,13 +1291,13 @@ async def test_safe_batch_transfer_from_invalid_amount(erc1155_factory):
 
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
-        [sender, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA])
+        [sender, *calldata(TOKEN_IDS), *calldata(MAX_UINT_AMOUNTS), DATA])
 
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(INVALID_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(INVALID_AMOUNTS), DATA
         ]),
         "ERC1155: amount is not a valid Uint256")
 
@@ -1309,8 +1314,8 @@ async def test_safe_batch_transfer_from_invalid_id(erc1155_minted_factory):
         signer.send_transaction(
             account, erc1155.contract_address, 'safeBatchTransferFrom',
             [
-                sender, recipient, *uarr2cd(INVALID_IDS),
-                *uarr2cd(transfer_amounts), DATA
+                sender, recipient, *calldata(INVALID_IDS),
+                *calldata(transfer_amounts), DATA
             ]),
         f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
 
@@ -1328,7 +1333,7 @@ async def test_safe_batch_transfer_from_insufficient_balance(
 
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(amounts), DATA]),
+        [sender, recipient, *calldata(TOKEN_IDS), *calldata(amounts), DATA]),
         "ERC1155: insufficient balance for transfer")
 
 
@@ -1342,8 +1347,8 @@ async def test_safe_batch_transfer_from_unapproved(erc1155_minted_factory):
     await assert_revert(signer.send_transaction(
         account1, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ]),
         "ERC1155: caller is not owner nor approved")
 
@@ -1358,8 +1363,8 @@ async def test_safe_batch_transfer_from_to_zero_address(
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, ZERO_ADDRESS, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, ZERO_ADDRESS, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ]),
         "ERC1155: transfer to the zero address")
 
@@ -1378,7 +1383,7 @@ async def test_safe_batch_transfer_from_uneven_arrays(
 
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
-        [sender, recipient, *uarr2cd(token_ids), *uarr2cd(amounts), DATA]),
+        [sender, recipient, *calldata(token_ids), *calldata(amounts), DATA]),
         "ERC1155: ids and amounts length mismatch")
 
 
@@ -1393,7 +1398,7 @@ async def test_safe_batch_transfer_from_overflow(erc1155_minted_factory):
     # Bring 1 recipient's balance to max possible
     await signer.send_transaction(
         account1, erc1155.contract_address, 'mintBatch',
-        [recipient, *uarr2cd(TOKEN_IDS), *uarr2cd(MAX_UINT_AMOUNTS), DATA]
+        [recipient, *calldata(TOKEN_IDS), *calldata(MAX_UINT_AMOUNTS), DATA]
     )
 
     # Issuing recipient any more on just 1 token_id
@@ -1401,8 +1406,8 @@ async def test_safe_batch_transfer_from_overflow(erc1155_minted_factory):
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(transfer_amounts), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(transfer_amounts), DATA
         ]),
         "ERC1155: balance overflow")
 
@@ -1417,8 +1422,8 @@ async def test_safe_batch_transfer_from_to_receiver(erc1155_minted_factory):
     await signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ])
 
     execution_info = await erc1155.balanceOfBatch(
@@ -1438,8 +1443,8 @@ async def test_safe_batch_transfer_from_to_receiver_rejection(
     await assert_revert(signer.send_transaction(
         account2, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), *REJECT_DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), *REJECT_DATA
         ]),
         "ERC1155: ERC1155Receiver rejected tokens")
 
@@ -1455,7 +1460,7 @@ async def test_safe_batch_transfer_from_to_non_receiver(
     await assert_revert(signer.send_transaction(
         account, erc1155.contract_address, 'safeBatchTransferFrom',
         [
-            sender, recipient, *uarr2cd(TOKEN_IDS),
-            *uarr2cd(TRANSFER_AMOUNTS), DATA
+            sender, recipient, *calldata(TOKEN_IDS),
+            *calldata(TRANSFER_AMOUNTS), DATA
         ]),
         "ERC1155: transfer to non ERC1155Receiver implementer")

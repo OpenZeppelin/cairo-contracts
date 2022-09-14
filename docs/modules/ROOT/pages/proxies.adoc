@@ -132,7 +132,7 @@ Instead, the implementation contract should be declared (which creates a `Declar
 * Set its initial state with a traditional constructor (decorated with `@constructor`).
 Instead, use an initializer method that invokes the Proxy `constructor`.
 
-NOTE: The Proxy `constructor` includes a check the ensures the initializer can only be called once;
+NOTE: The Proxy `constructor` includes a check that ensures the initializer can only be called once;
 however, `_set_implementation` does not include this check.
 It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<assert_only_admin,`assert_only_admin`>>.
 

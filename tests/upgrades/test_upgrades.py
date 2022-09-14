@@ -51,9 +51,9 @@ class TestUpgrades:
         proxy = await starknet.deploy(
             contract_class=proxy_cls,
             constructor_calldata=[
-                v1_decl.class_hash, 
-                selector, 
-                len(params), 
+                v1_decl.class_hash,
+                selector,
+                len(params),
                 *params
             ]
         )

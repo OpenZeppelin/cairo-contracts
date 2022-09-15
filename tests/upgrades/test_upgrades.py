@@ -64,7 +64,7 @@ class TestUpgrades:
             constructor_calldata=[
                 v1_decl.class_hash,
                 0,
-                0, 
+                0,
                 *[]
             ]
         )

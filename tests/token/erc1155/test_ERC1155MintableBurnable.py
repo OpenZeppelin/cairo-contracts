@@ -493,7 +493,7 @@ async def test_mint_to_unsafe_contract(erc1155_factory):
         signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
             [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA]),
-        "ERC1155: transfer to non ERC1155Receiver implementer")
+        "ERC1155: transfer to non-ERC1155Receiver implementer")
 
 #
 # Burning
@@ -997,7 +997,7 @@ async def test_mint_batch_to_non_receiver(erc1155_factory):
             recipient, *calldata(TOKEN_IDS),
             *calldata(MINT_AMOUNTS), DATA
         ]),
-        "ERC1155: transfer to non ERC1155Receiver implementer")
+        "ERC1155: transfer to non-ERC1155Receiver implementer")
 
 #
 # Batch Burning
@@ -1483,4 +1483,4 @@ async def test_safe_batch_transfer_from_to_non_receiver(
             sender, recipient, *calldata(TOKEN_IDS),
             *calldata(TRANSFER_AMOUNTS), DATA
         ]),
-        "ERC1155: transfer to non ERC1155Receiver implementer")
+        "ERC1155: transfer to non-ERC1155Receiver implementer")

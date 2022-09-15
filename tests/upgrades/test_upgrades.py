@@ -19,6 +19,7 @@ VALUE_2 = 987
 
 signer = MockSigner(123456789987654321)
 
+
 class TestUpgrades:
     @pytest.fixture(scope='module')
     def contract_classes(self):
@@ -56,7 +57,7 @@ class TestUpgrades:
 
     @pytest.fixture(scope='module')
     async def proxy_deploy(self, implementations_declare):
-        starknet, account1, account2, v1_decl, v2_decl, proxy_cls = implementations_declare
+        starknet, _, _, v1_decl, _, proxy_cls = implementations_declare
 
         # with selector set to 0, internal initialization call must be ignored
         proxy = await starknet.deploy(
@@ -220,7 +221,7 @@ class TestUpgrades:
 
     @pytest.mark.asyncio
     async def test_upgrade_from_non_admin(self, proxy_factory):
-        admin, non_admin, proxy, _, _, v2_decl = proxy_factory
+        _, non_admin, proxy, _, _, v2_decl = proxy_factory
 
         # upgrade should revert
         await assert_revert(

@@ -341,13 +341,13 @@ Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata an
 NOTE: Every transaction utilizes `AccountCallArray`.
 A single `Call` is treated as a bundle with one message.
 
-== API Specification
+== Contract API Specification
 
 This in a nutshell is the Account contract public API:
 
 [,cairo]
 ----
-    func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
+    func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
     }
 
     func setPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(newPublicKey: felt) {
@@ -375,36 +375,9 @@ This in a nutshell is the Account contract public API:
     }
 ----
 
-=== `get_public_key`
+=== `constructor`
 
-Returns the public key associated with the Account contract.
-
-Parameters: None.
-
-Returns:
-
-[,cairo]
-----
-public_key: felt
-----
-
-=== `get_nonce`
-
-Returns the current transaction nonce for the Account.
-
-Parameters: None.
-
-Returns:
-
-[,cairo]
-----
-nonce: felt
-----
-
-=== `set_public_key`
-
-Sets the public key that will control this Account.
-It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
+Initializes the Account contract with the passed public key.
 
 Parameters:
 
@@ -415,7 +388,53 @@ public_key: felt
 
 Returns: None.
 
-=== `is_valid_signature`
+=== `setPublicKey`
+
+Sets the public key that will control this Account.
+It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
+
+Parameters:
+
+[,cairo]
+----
+publicKey: felt
+----
+
+Returns: None.
+
+=== `getPublicKey`
+
+Returns the public key associated with the Account contract.
+
+Parameters: None.
+
+Returns:
+
+[,cairo]
+----
+publicKey: felt
+----
+
+=== `supportsInterface`
+
+Returns true if this contract implements the interface defined by `interfaceId`. Account contracts implement ERC165 through static support. In other words, Account interface support is hardcoded as opposed to ERC165 registration.
+
+Parameters:
+
+[,cairo]
+----
+interfaceId: felt
+----
+
+Returns:
+
+[,cairo]
+----
+success: felt
+----
+
+
+=== `isValidSignature`
 
 This function is inspired by https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and returns `TRUE` if a given signature is valid, otherwise it reverts.
 In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
@@ -433,18 +452,50 @@ Returns:
 
 [,cairo]
 ----
-is_valid: felt
+isValid: felt
 ----
 
 NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+
+=== `\\__validate__`
+
+Validates the transaction signature. The StarkNet protocol calls the function prior to executing transactions.
+The parameters must exactly match those passed to `\\__execute__`.
+
+Parameters:
+
+[,cairo]
+----
+call_array_len: felt
+call_array: AccountCallArray*
+calldata_len: felt
+calldata: felt*
+----
+
+NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
+
+Returns: None.
+
+=== `\\__validate_declare__`
+
+Validates the declared class hash.
+
+Parameters:
+
+[,cairo]
+----
+class_hash: felt
+----
+
+Returns:
+
+None.
 
 === `\\__execute__`
 
 This is the only external entrypoint to interact with the Account contract.
 It:
 
-. Validates the transaction signature matches the message (including the nonce)
-. Increments the nonce
 . Calls the target contract with the intended function selector and calldata parameters
 . Forwards the contract call response data as return value
 
@@ -456,7 +507,6 @@ call_array_len: felt
 call_array: AccountCallArray*
 calldata_len: felt
 calldata: felt*
-nonce: felt
 ----
 
 NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
@@ -469,31 +519,132 @@ response_len: felt
 response: felt*
 ----
 
-=== `is_valid_eth_signature`
+== Library API Specification
 
-Returns `TRUE` if a given signature in the secp256k1 curve is valid, otherwise it reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+[,cairo]
+----
+namespace Account {
+    func initializer(interfaceId: felt) -> (success: felt) {
+    }
+
+    func assert_only_self() {
+    }
+
+    func get_public_key() -> (public_key: felt) {
+    }
+
+    func support_interface(interface_id: felt) -> (success: felt) {
+    }
+
+    func set_public_key(new_public_key: felt) {
+    }
+
+    func is_valid_signature(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
+    }
+
+    func is_valid_eth_signature(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
+    }
+
+    func execute(
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) -> (response_len: felt, response: felt*) {
+    }
+
+    func _execute_list(calls_len: felt, calls: Call*, response: felt*
+    ) -> (response_len: felt) {
+    }
+
+    func _from_call_array_to_call(
+        call_array_len: felt, call_array: AccountCallArray*, calldata: felt*, calls: Call*
+    ) {
+    }
+----
+
+=== `initializer`
+
+Sets the public key for the Account contract. Should be called in the Account contract's constructor.
 
 Parameters:
 
 [,cairo]
 ----
-signature_len: felt
-signature: felt*
+public_key: felt
+----
+
+Returns: None.
+
+=== `assert_only_self`
+
+Guard function that reverts if not called by the contract itself.
+
+Parameters: None.
+
+Returns: None.
+
+=== `get_public_key`
+
+Returns the public key associated with the Account.
+
+Parameters: None.
+
+Returns:
+
+[,cairo]
+----
+public_key: felt
+----
+
+=== `supports_interface`
+
+Returns true if this contract implements the interface defined by `interfaceId`. Account contracts implement ERC165 through static support. In other words, Account interface support is hardcoded as opposed to ERC165 registration.
+
+Parameters:
+
+[,cairo]
+----
+interface_id: felt
 ----
 
 Returns:
 
 [,cairo]
 ----
-is_valid: felt
+success: felt
 ----
 
-NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+=== `set_public_key`
 
-=== `eth_execute`
+Sets the public key that will control this Account.
+It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
 
-This follows the same idea as the vanilla version of `execute` with the sole difference that signature verification is on the secp256k1 curve.
+Parameters:
+
+Returns:
+
+=== `is_valid_signature`
+
+This function is inspired by https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and returns `TRUE` if a given signature is valid, otherwise it reverts.
+In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+
+Parameters:
+
+Returns:
+
+=== `is_valid_eth_signature`
+
+ipsum...
+
+Parameters:
+
+Returns:
+
+=== `execute`
+
+This is the only external entrypoint to interact with the Account contract.
+It:
+
+. Calls the target contract with the intended function selector and calldata parameters
+. Forwards the contract call response data as return value
 
 Parameters:
 
@@ -503,8 +654,9 @@ call_array_len: felt
 call_array: AccountCallArray*
 calldata_len: felt
 calldata: felt*
-nonce: felt
 ----
+
+NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
 
 Returns:
 
@@ -514,17 +666,21 @@ response_len: felt
 response: felt*
 ----
 
-NOTE: The current signature scheme expects a 7-element array like `[sig_v, uint256_sig_r_low, uint256_sig_r_high, uint256_sig_s_low, uint256_sig_s_high, uint256_hash_low, uint256_hash_high]` given that the parameters of the verification are bigger than a felt.
+=== `_execute_list`
 
-=== `_unsafe_execute`
+ipsum...
 
-It's an xref:extensibility.adoc#the_pattern[internal] method that performs the following tasks:
+Parameters:
 
-. Increments the nonce.
-. Takes the input and builds a `Call` for each iterated message.
-See <<multicall_transactions,Multicall transactions>> for more information.
-. Calls the target contract with the intended function selector and calldata parameters
-. Forwards the contract call response data as return value
+Returns:
+
+=== `_from_call_array_to_call`
+
+ipsum...
+
+Parameters:
+
+Returns: None
 
 == Presets
 
@@ -548,6 +704,8 @@ The resulting magic value of `IAccount` is 0x50b70dcb.
 
 Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage] which stores the interfaces that the implementing contract supports.
 In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.
+
+NOTE: for Account contracts, ERC165 support is static and does not require Account contracts to register.
 
 == Extending the Account contract
 

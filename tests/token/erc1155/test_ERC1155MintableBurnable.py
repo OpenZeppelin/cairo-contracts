@@ -1158,7 +1158,7 @@ async def test_burn_batch_invalid_amount(erc1155_factory):
 
 @pytest.mark.asyncio
 async def test_burn_batch_invalid_id(erc1155_minted_factory):
-    erc1155, owner, account, _ = erc1155_minted_factory
+    erc1155, _, account, _ = erc1155_minted_factory
 
     burner = account.contract_address
     burn_amounts = [to_uint(0)]*3

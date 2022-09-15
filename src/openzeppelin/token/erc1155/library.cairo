@@ -487,7 +487,6 @@ namespace ERC1155:
         end
 
         # caller/owner already checked non-0
-
         with_attr error_message("ERC1155: setting approval status for zero address"):
             assert_not_zero(operator)
         end

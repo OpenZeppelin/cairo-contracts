@@ -7,7 +7,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 
 @event
 func ContractDeployed(
-    contractAddress: felt,
+    address: felt,
     deployer: felt,
     classHash: felt,
     salt: felt
@@ -20,12 +20,12 @@ func deployContract{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
 }(
-    class_hash: felt,
+    classHash: felt,
     salt: felt,
     unique: felt,
     calldata_len: felt,
     calldata: felt*
-) -> (contract_address: felt) {
+) -> (address: felt) {
     let (deployer) = get_caller_address();
 
     tempvar prefix;
@@ -37,8 +37,8 @@ func deployContract{
 
     let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
 
-    let (contract_address) = deploy(
-        class_hash=class_hash,
+    let (address) = deploy(
+        class_hash=classHash,
         contract_address_salt=_salt,
         constructor_calldata_size=calldata_len,
         constructor_calldata=calldata,
@@ -46,11 +46,11 @@ func deployContract{
     );
 
     ContractDeployed.emit(
-        contractAddress=contract_address,
+        atddress=address,
         deployer=deployer,
-        classHash=class_hash,
+        classHash=classHash,
         salt=salt
     );
 
-    return (contract_address=contract_address);
+    return (address=address);
 }

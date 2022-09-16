@@ -23,13 +23,12 @@ func deployContract{
     class_hash: felt,
     salt: felt,
     unique: felt,
-    constructor_calldata_len: felt,
-    constructor_calldata: felt*
+    calldata_len: felt,
+    calldata: felt*
 ) -> (contract_address: felt) {
-    alloc_locals;
-    local prefix;
     let (deployer) = get_caller_address();
 
+    tempvar prefix;
     if (unique == TRUE) {
         prefix = deployer;
     } else {
@@ -41,8 +40,8 @@ func deployContract{
     let (contract_address) = deploy(
         class_hash=class_hash,
         contract_address_salt=_salt,
-        constructor_calldata_size=constructor_calldata_len,
-        constructor_calldata=constructor_calldata,
+        constructor_calldata_size=calldata_len,
+        constructor_calldata=calldata,
         deploy_from_zero=FALSE,
     );
 

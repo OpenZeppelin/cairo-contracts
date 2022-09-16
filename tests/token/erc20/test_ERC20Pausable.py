@@ -4,16 +4,14 @@ from utils import (
     TRUE, FALSE, to_uint, str_to_felt, assert_revert,
     get_contract_class, cached_contract, State, Account
 )
+from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, AMOUNT
 
 
 signer = MockSigner(123456789987654321)
 
 # testing vars
-INIT_SUPPLY = to_uint(1000)
-AMOUNT = to_uint(200)
 NAME = str_to_felt("Pausable Token")
 SYMBOL = str_to_felt("PTKN")
-DECIMALS = 18
 
 
 @pytest.fixture(scope='module')
@@ -50,7 +48,7 @@ async def erc20_init(contract_classes):
 
 
 @pytest.fixture
-def token_factory(contract_classes, erc20_init):
+def erc20_factory(contract_classes, erc20_init):
     account_cls, erc20_cls = contract_classes
     state, account1, account2, erc20 = erc20_init
     _state = state.copy()
@@ -61,146 +59,141 @@ def token_factory(contract_classes, erc20_init):
     return erc20, account1, account2
 
 
-@pytest.mark.asyncio
-async def test_constructor(token_factory):
-    token, owner, _ = token_factory
+class TestPausable(ERC20Base):
+    @pytest.mark.asyncio
+    async def test_constructor(self, erc20_factory):
+        erc20, _, _ = erc20_factory
 
-    execution_info = await token.name().execute()
-    assert execution_info.result == (NAME,)
+        execution_info = await erc20.name().execute()
+        assert execution_info.result == (NAME,)
 
-    execution_info = await token.symbol().execute()
-    assert execution_info.result == (SYMBOL,)
+        execution_info = await erc20.symbol().execute()
+        assert execution_info.result == (SYMBOL,)
 
-    execution_info = await token.decimals().execute()
-    assert execution_info.result.decimals == DECIMALS
-
-    execution_info = await token.balanceOf(owner.contract_address).execute()
-    assert execution_info.result.balance == INIT_SUPPLY
-
-    execution_info = await token.paused().execute()
-    assert execution_info.result.paused == FALSE
+        execution_info = await erc20.paused().execute()
+        assert execution_info.result.paused == FALSE
 
 
-@pytest.mark.asyncio
-async def test_pause(token_factory):
-    token, owner, other = token_factory
+    @pytest.mark.asyncio
+    async def test_pause(self, erc20_factory):
+        erc20, owner, other = erc20_factory
 
-    await signer.send_transaction(owner, token.contract_address, 'pause', [])
+        await signer.send_transaction(owner, erc20.contract_address, 'pause', [])
 
-    execution_info = await token.paused().execute()
-    assert execution_info.result.paused == TRUE
+        execution_info = await erc20.paused().execute()
+        assert execution_info.result.paused == TRUE
 
-    await assert_revert(signer.send_transaction(
-        owner,
-        token.contract_address,
-        'transfer',
-        [other.contract_address, *AMOUNT]
-    ),
-        reverted_with="Pausable: paused"
-    )
-
-    await assert_revert(signer.send_transaction(
-        owner,
-        token.contract_address,
-        'transferFrom',
-        [other.contract_address, other.contract_address, *AMOUNT]
-    ),
-        reverted_with="Pausable: paused"
-    )
-
-    await assert_revert(signer.send_transaction(
-        owner,
-        token.contract_address,
-        'approve',
-        [other.contract_address, *AMOUNT]
-    ),
-        reverted_with="Pausable: paused"
-    )
-
-    await assert_revert(signer.send_transaction(
-        owner,
-        token.contract_address,
-        'increaseAllowance',
-        [other.contract_address, *AMOUNT]
-    ),
-        reverted_with="Pausable: paused"
-    )
-
-    await assert_revert(signer.send_transaction(
-        owner,
-        token.contract_address,
-        'decreaseAllowance',
-        [other.contract_address, *AMOUNT]
-    ),
-        reverted_with="Pausable: paused"
-    )
-
-
-@pytest.mark.asyncio
-async def test_unpause(token_factory):
-    token, owner, other = token_factory
-
-    await signer.send_transaction(owner, token.contract_address, 'pause', [])
-    await signer.send_transaction(owner, token.contract_address, 'unpause', [])
-
-    execution_info = await token.paused().execute()
-    assert execution_info.result.paused == FALSE
-
-    success = await signer.send_transaction(
-        owner,
-        token.contract_address,
-        'transfer',
-        [other.contract_address, *AMOUNT]
-    )
-    assert success.call_info.retdata[1] == TRUE
-
-    success = await signer.send_transaction(
-        owner,
-        token.contract_address,
-        'approve',
-        [other.contract_address, *AMOUNT]
-    )
-    assert success.call_info.retdata[1] == TRUE
-
-    success = await signer.send_transaction(
-        other,
-        token.contract_address,
-        'transferFrom',
-        [owner.contract_address, other.contract_address, *AMOUNT]
-    )
-    assert success.call_info.retdata[1] == TRUE
-
-    success = await signer.send_transaction(
-        owner,
-        token.contract_address,
-        'increaseAllowance',
-        [other.contract_address, *AMOUNT]
-    )
-    assert success.call_info.retdata[1] == TRUE
-
-    success = await signer.send_transaction(
-        owner,
-        token.contract_address,
-        'decreaseAllowance',
-        [other.contract_address, *AMOUNT]
-    )
-    assert success.call_info.retdata[1] == TRUE
-
-
-@pytest.mark.asyncio
-async def test_only_owner(token_factory):
-    token, _, other = token_factory
-
-    await assert_revert(
-        signer.send_transaction(
-            other, token.contract_address, 'pause', []
+        await assert_revert(signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'transfer',
+            [other.contract_address, *AMOUNT]
         ),
-        reverted_with="Ownable: caller is not the owner"
-    )
+            reverted_with="Pausable: paused"
+        )
 
-    await assert_revert(
-        signer.send_transaction(
-            other, token.contract_address, 'unpause', []
+        await assert_revert(signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'transferFrom',
+            [other.contract_address, other.contract_address, *AMOUNT]
         ),
-        reverted_with="Ownable: caller is not the owner"
-    )
+            reverted_with="Pausable: paused"
+        )
+
+        await assert_revert(signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'approve',
+            [other.contract_address, *AMOUNT]
+        ),
+            reverted_with="Pausable: paused"
+        )
+
+        await assert_revert(signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'increaseAllowance',
+            [other.contract_address, *AMOUNT]
+        ),
+            reverted_with="Pausable: paused"
+        )
+
+        await assert_revert(signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'decreaseAllowance',
+            [other.contract_address, *AMOUNT]
+        ),
+            reverted_with="Pausable: paused"
+        )
+
+
+    @pytest.mark.asyncio
+    async def test_unpause(self, erc20_factory):
+        erc20, owner, other = erc20_factory
+
+        await signer.send_transaction(owner, erc20.contract_address, 'pause', [])
+        await signer.send_transaction(owner, erc20.contract_address, 'unpause', [])
+
+        execution_info = await erc20.paused().execute()
+        assert execution_info.result.paused == FALSE
+
+        success = await signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'transfer',
+            [other.contract_address, *AMOUNT]
+        )
+        assert success.call_info.retdata[1] == TRUE
+
+        success = await signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'approve',
+            [other.contract_address, *AMOUNT]
+        )
+        assert success.call_info.retdata[1] == TRUE
+
+        success = await signer.send_transaction(
+            other,
+            erc20.contract_address,
+            'transferFrom',
+            [owner.contract_address, other.contract_address, *AMOUNT]
+        )
+        assert success.call_info.retdata[1] == TRUE
+
+        success = await signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'increaseAllowance',
+            [other.contract_address, *AMOUNT]
+        )
+        assert success.call_info.retdata[1] == TRUE
+
+        success = await signer.send_transaction(
+            owner,
+            erc20.contract_address,
+            'decreaseAllowance',
+            [other.contract_address, *AMOUNT]
+        )
+        assert success.call_info.retdata[1] == TRUE
+
+
+    @pytest.mark.asyncio
+    async def test_only_owner(self, erc20_factory):
+        erc20, _, other = erc20_factory
+
+        await assert_revert(
+            signer.send_transaction(
+                other, erc20.contract_address, 'pause', []
+            ),
+            reverted_with="Ownable: caller is not the owner"
+        )
+
+        await assert_revert(
+            signer.send_transaction(
+                other, erc20.contract_address, 'unpause', []
+            ),
+            reverted_with="Ownable: caller is not the owner"
+        )

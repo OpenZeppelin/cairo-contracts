@@ -439,8 +439,10 @@ async def test_mint_overflow(erc1155_factory):
 @pytest.mark.parametrize(
     "amount,token_id,error",
     [
-        (MINT_AMOUNT, INVALID_UINT256, f"ERC1155: id {INVALID_UINT256} is not a valid Uint256"),
-        (INVALID_UINT256, TOKEN_ID, "ERC1155: amount is not a valid Uint256")
+        (MINT_AMOUNT, INVALID_UINT256, 
+        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256"),
+        (INVALID_UINT256, TOKEN_ID, 
+        "ERC1155: amount is not a valid Uint256")
     ]
 )
 async def test_mint_invalid_uint(erc1155_factory, amount, token_id, error):
@@ -917,8 +919,10 @@ async def test_mint_batch_overflow(erc1155_factory):
 @pytest.mark.parametrize(
     "amounts,token_ids,error",
     [
-        (INVALID_AMOUNTS, TOKEN_IDS, "ERC1155: amount is not a valid Uint256"),
-        (MINT_AMOUNTS, INVALID_IDS, f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        (INVALID_AMOUNTS, TOKEN_IDS,
+        "ERC1155: amount is not a valid Uint256"),
+        (MINT_AMOUNTS, INVALID_IDS,
+        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
     ])
 async def test_mint_batch_invalid_uint(
         erc1155_factory, amounts, token_ids, error):
@@ -1392,7 +1396,10 @@ async def test_safe_batch_transfer_from_to_zero_address(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "amounts,token_ids",
-    [(TRANSFER_AMOUNTS[:2], TOKEN_IDS), (TRANSFER_AMOUNTS, TOKEN_IDS[:2])]
+    [
+        (TRANSFER_AMOUNTS[:2], TOKEN_IDS), 
+        (TRANSFER_AMOUNTS, TOKEN_IDS[:2])
+    ]
 )
 async def test_safe_batch_transfer_from_uneven_arrays(
         erc1155_minted_factory, amounts, token_ids):

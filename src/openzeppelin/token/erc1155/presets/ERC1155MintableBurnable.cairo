@@ -138,7 +138,6 @@ func safeTransferFrom{
     return ()
 end
 
-
 @external
 func safeBatchTransferFrom{
         syscall_ptr: felt*,
@@ -242,4 +241,3 @@ func renounceOwnership{
     Ownable.renounce_ownership()
     return ()
 end
-

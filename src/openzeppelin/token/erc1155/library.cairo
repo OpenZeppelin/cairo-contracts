@@ -23,7 +23,6 @@ from openzeppelin.utils.constants.library import (
     ON_ERC1155_BATCH_RECEIVED_SELECTOR
 )
 
-
 #
 # Events
 #

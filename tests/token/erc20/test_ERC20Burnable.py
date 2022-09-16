@@ -47,7 +47,7 @@ async def erc20_init(contract_classes):
 
 
 @pytest.fixture
-def erc20_factory(contract_classes, erc20_init):
+def contract_factory(contract_classes, erc20_init):
     account_cls, erc20_cls = contract_classes
     state, account1, account2, erc20 = erc20_init
     _state = state.copy()
@@ -60,22 +60,22 @@ def erc20_factory(contract_classes, erc20_init):
 
 class TestERC20Burnable(ERC20Base):
     @pytest.mark.asyncio
-    async def test_name(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_name(self, contract_factory):
+        erc20, _, _ = contract_factory
         execution_info = await erc20.name().execute()
         assert execution_info.result.name == NAME
 
 
     @pytest.mark.asyncio
-    async def test_symbol(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_symbol(self, contract_factory):
+        erc20, _, _ = contract_factory
         execution_info = await erc20.symbol().execute()
         assert execution_info.result.symbol == SYMBOL
 
 
     @pytest.mark.asyncio
-    async def test_burn(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_burn(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         await signer.send_transaction(
             account, erc20.contract_address, 'burn', [
@@ -89,8 +89,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_emits_event(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_burn_emits_event(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         tx_exec_info = await signer.send_transaction(
             account, erc20.contract_address, 'burn', [
@@ -110,8 +110,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_not_enough_balance(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_burn_not_enough_balance(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         balance_plus_one = add_uint(INIT_SUPPLY, UINT_ONE)
 
@@ -124,8 +124,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_from_zero_address(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_burn_from_zero_address(self, contract_factory):
+        erc20, _, _ = contract_factory
 
         await assert_revert(
             erc20.burn(UINT_ONE).execute(),
@@ -134,8 +134,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_invalid_uint256(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_burn_invalid_uint256(self, contract_factory):
+        erc20, _, _ = contract_factory
 
         await assert_revert(
             erc20.burn(INVALID_UINT256).execute(),
@@ -144,8 +144,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_from(self, erc20_factory):
-        erc20, account1, account2 = erc20_factory
+    async def test_burn_from(self, contract_factory):
+        erc20, account1, account2 = contract_factory
 
         await signer.send_transaction(
             account1, erc20.contract_address, 'increaseAllowance', [
@@ -166,8 +166,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_from_emits_event(self, erc20_factory):
-        erc20, account1, account2 = erc20_factory
+    async def test_burn_from_emits_event(self, contract_factory):
+        erc20, account1, account2 = contract_factory
 
         await signer.send_transaction(
             account1, erc20.contract_address, 'increaseAllowance', [
@@ -194,8 +194,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_from_over_allowance(self, erc20_factory):
-        erc20, account1, account2 = erc20_factory
+    async def test_burn_from_over_allowance(self, contract_factory):
+        erc20, account1, account2 = contract_factory
 
         await signer.send_transaction(
             account1, erc20.contract_address, 'increaseAllowance', [
@@ -213,8 +213,8 @@ class TestERC20Burnable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_burn_from_no_allowance(self, erc20_factory):
-        erc20, account1, account2 = erc20_factory
+    async def test_burn_from_no_allowance(self, contract_factory):
+        erc20, account1, account2 = contract_factory
 
         await assert_revert(signer.send_transaction(
             account2, erc20.contract_address, 'burnFrom', [

@@ -49,7 +49,7 @@ async def erc20_init(contract_classes):
     )
 
 @pytest.fixture
-def erc20_factory(contract_classes, erc20_init):
+def contract_factory(contract_classes, erc20_init):
     account_cls, erc20_cls = contract_classes
     state, account1, account2, erc20 = erc20_init
     _state = state.copy()
@@ -62,22 +62,22 @@ def erc20_factory(contract_classes, erc20_init):
 
 class TestERC20Mintable(ERC20Base, OwnableBase):
     @pytest.mark.asyncio
-    async def test_name(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_name(self, contract_factory):
+        erc20, _, _ = contract_factory
         execution_info = await erc20.name().execute()
         assert execution_info.result.name == NAME
 
 
     @pytest.mark.asyncio
-    async def test_symbol(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_symbol(self, contract_factory):
+        erc20, _, _ = contract_factory
         execution_info = await erc20.symbol().execute()
         assert execution_info.result.symbol == SYMBOL
 
 
     @pytest.mark.asyncio
-    async def test_mint(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_mint(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         await signer.send_transaction(
             account, erc20.contract_address, 'mint', [
@@ -92,8 +92,8 @@ class TestERC20Mintable(ERC20Base, OwnableBase):
 
 
     @pytest.mark.asyncio
-    async def test_mint_emits_event(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_mint_emits_event(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         tx_exec_info = await signer.send_transaction(
             account, erc20.contract_address, 'mint', [
@@ -114,8 +114,8 @@ class TestERC20Mintable(ERC20Base, OwnableBase):
 
 
     @pytest.mark.asyncio
-    async def test_mint_to_zero_address(self, erc20_factory):
-        erc20, account, _ = erc20_factory
+    async def test_mint_to_zero_address(self, contract_factory):
+        erc20, account, _ = contract_factory
 
         await assert_revert(signer.send_transaction(
             account,
@@ -128,8 +128,8 @@ class TestERC20Mintable(ERC20Base, OwnableBase):
 
 
     @pytest.mark.asyncio
-    async def test_mint_overflow(self, erc20_factory):
-        erc20, account, recipient = erc20_factory
+    async def test_mint_overflow(self, contract_factory):
+        erc20, account, recipient = contract_factory
         # pass_amount subtracts the already minted supply from MAX_UINT256 in order for
         # the minted supply to equal MAX_UINT256
         # (2**128 - 1, 2**128 - 1)
@@ -153,8 +153,8 @@ class TestERC20Mintable(ERC20Base, OwnableBase):
 
 
     @pytest.mark.asyncio
-    async def test_mint_invalid_uint256(self, erc20_factory):
-        erc20, account, recipient = erc20_factory
+    async def test_mint_invalid_uint256(self, contract_factory):
+        erc20, account, recipient = contract_factory
 
         await assert_revert(signer.send_transaction(
             account,

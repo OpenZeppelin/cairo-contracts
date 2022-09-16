@@ -5,6 +5,7 @@ from utils import (
     get_contract_class, cached_contract, State, Account
 )
 from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, AMOUNT
+from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
@@ -48,7 +49,7 @@ async def erc20_init(contract_classes):
 
 
 @pytest.fixture
-def erc20_factory(contract_classes, erc20_init):
+def contract_factory(contract_classes, erc20_init):
     account_cls, erc20_cls = contract_classes
     state, account1, account2, erc20 = erc20_init
     _state = state.copy()
@@ -59,10 +60,10 @@ def erc20_factory(contract_classes, erc20_init):
     return erc20, account1, account2
 
 
-class TestPausable(ERC20Base):
+class TestPausable(ERC20Base, OwnableBase):
     @pytest.mark.asyncio
-    async def test_constructor(self, erc20_factory):
-        erc20, _, _ = erc20_factory
+    async def test_constructor(self, contract_factory):
+        erc20, _, _ = contract_factory
 
         execution_info = await erc20.name().execute()
         assert execution_info.result == (NAME,)
@@ -75,8 +76,8 @@ class TestPausable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_pause(self, erc20_factory):
-        erc20, owner, other = erc20_factory
+    async def test_pause(self, contract_factory):
+        erc20, owner, other = contract_factory
 
         await signer.send_transaction(owner, erc20.contract_address, 'pause', [])
 
@@ -130,8 +131,8 @@ class TestPausable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_unpause(self, erc20_factory):
-        erc20, owner, other = erc20_factory
+    async def test_unpause(self, contract_factory):
+        erc20, owner, other = contract_factory
 
         await signer.send_transaction(owner, erc20.contract_address, 'pause', [])
         await signer.send_transaction(owner, erc20.contract_address, 'unpause', [])
@@ -181,8 +182,8 @@ class TestPausable(ERC20Base):
 
 
     @pytest.mark.asyncio
-    async def test_only_owner(self, erc20_factory):
-        erc20, _, other = erc20_factory
+    async def test_only_owner(self, contract_factory):
+        erc20, _, other = contract_factory
 
         await assert_revert(
             signer.send_transaction(

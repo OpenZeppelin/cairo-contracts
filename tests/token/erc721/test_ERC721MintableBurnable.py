@@ -1,35 +1,15 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert, INVALID_UINT256,
-    assert_event_emitted, assert_events_emitted, get_contract_class, cached_contract,
-    to_uint, sub_uint, add_uint, State, Account
+    str_to_felt, ZERO_ADDRESS, assert_revert, assert_event_emitted,
+    assert_events_emitted, get_contract_class, cached_contract, to_uint,
+    sub_uint, State, Account
 )
-from ERC721BaseSuite import ERC721Base
+from ERC721BaseSuite import ERC721Base, NONEXISTENT_TOKEN, TOKENS, TOKEN
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
-
-NONEXISTENT_TOKEN = to_uint(999)
-# random token IDs
-TOKENS = [to_uint(5042), to_uint(793)]
-# test token
-TOKEN = TOKENS[0]
-# random user address
-RECIPIENT = 555
-# random data (mimicking bytes in Solidity)
-DATA = [0x42, 0x89, 0x55]
-# random URIs
-SAMPLE_URI_1 = str_to_felt('mock://mytoken.v1')
-SAMPLE_URI_2 = str_to_felt('mock://mytoken.v2')
-
-# selector ids
-IERC165_ID = 0x01ffc9a7
-IERC721_ID = 0x80ac58cd
-IERC721_METADATA_ID = 0x5b5e139f
-INVALID_ID = 0xffffffff
-UNSUPPORTED_ID = 0xabcd1234
 
 
 @pytest.fixture(scope='module')

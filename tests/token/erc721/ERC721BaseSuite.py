@@ -2,8 +2,7 @@ import pytest
 from signers import MockSigner
 from utils import (
     str_to_felt, ZERO_ADDRESS, TRUE, FALSE, assert_revert, INVALID_UINT256,
-    assert_event_emitted, assert_events_emitted, get_contract_class, cached_contract,
-    to_uint, sub_uint, add_uint, State, Account
+    assert_event_emitted, assert_events_emitted, to_uint, sub_uint, add_uint,
 )
 
 
@@ -560,15 +559,26 @@ class ERC721Base:
                 spender.contract_address, TRUE]
         )
 
-        # to zero address should be rejected
-        await assert_revert(signer.send_transaction(
-            spender, erc721.contract_address, 'transferFrom', [
-                account.contract_address,
-                ZERO_ADDRESS,
-                *TOKEN
-            ]),
-            reverted_with="ERC721: cannot transfer to the zero address"
-        )
+        try:
+            # erc721
+            await assert_revert(signer.send_transaction(
+                spender, erc721.contract_address, 'transferFrom', [
+                    account.contract_address,
+                    ZERO_ADDRESS,
+                    *TOKEN
+                ]),
+                reverted_with="ERC721: cannot transfer to the zero address"
+            )
+        except AssertionError:
+            # erc721 enumerable
+            await assert_revert(signer.send_transaction(
+                spender, erc721.contract_address, 'transferFrom', [
+                    account.contract_address,
+                    ZERO_ADDRESS,
+                    *TOKEN
+                ]),
+                reverted_with="ERC721: balance query for the zero address"
+            )
 
 
     @pytest.mark.asyncio
@@ -740,16 +750,28 @@ class ERC721Base:
         erc721, account, *_ = erc721_minted
 
         # to zero address should be rejected
-        await assert_revert(signer.send_transaction(
-            account, erc721.contract_address, 'safeTransferFrom', [
-                account.contract_address,
-                ZERO_ADDRESS,
-                *TOKEN,
-                len(DATA),
-                *DATA
-            ]),
-            reverted_with="ERC721: cannot transfer to the zero address"
-        )
+        try:
+            await assert_revert(signer.send_transaction(
+                account, erc721.contract_address, 'safeTransferFrom', [
+                    account.contract_address,
+                    ZERO_ADDRESS,
+                    *TOKEN,
+                    len(DATA),
+                    *DATA
+                ]),
+                reverted_with="ERC721: cannot transfer to the zero address"
+            )
+        except AssertionError:
+            await assert_revert(signer.send_transaction(
+                account, erc721.contract_address, 'safeTransferFrom', [
+                    account.contract_address,
+                    ZERO_ADDRESS,
+                    *TOKEN,
+                    len(DATA),
+                    *DATA
+                ]),
+                reverted_with="ERC721: balance query for the zero address"
+            )
 
 
     @pytest.mark.asyncio

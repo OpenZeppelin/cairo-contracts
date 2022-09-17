@@ -10,7 +10,7 @@ from access.OwnableBaseSuite import OwnableBase
 
 signer = MockSigner(123456789987654321)
 
-# random token IDs
+# testing var
 TOKEN_TO_MINT = to_uint(33)
 
 

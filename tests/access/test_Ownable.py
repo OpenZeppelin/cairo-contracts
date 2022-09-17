@@ -1,14 +1,6 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    ZERO_ADDRESS,
-    assert_event_emitted,
-    get_contract_class,
-    cached_contract,
-    State,
-    Account,
-    assert_revert
-)
+from utils import  get_contract_class, assert_revert, cached_contract, State, Account
 from OwnableBaseSuite import OwnableBase
 
 

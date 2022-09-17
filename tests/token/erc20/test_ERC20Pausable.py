@@ -1,8 +1,8 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    TRUE, FALSE, to_uint, str_to_felt, assert_revert,
-    get_contract_class, cached_contract, State, Account
+    TRUE, FALSE, str_to_felt, assert_revert, get_contract_class,
+    cached_contract, State, Account
 )
 from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, AMOUNT
 from access.OwnableBaseSuite import OwnableBase

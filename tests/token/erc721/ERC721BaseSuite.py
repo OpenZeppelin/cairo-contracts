@@ -31,23 +31,8 @@ UNSUPPORTED_ID = 0xabcd1234
 
 class ERC721Base:
     #
-    # Constructor
-    #
-
-    @pytest.mark.asyncio
-    async def test_constructor(self, contract_factory):
-        erc721, _, _, _, _ = contract_factory
-        execution_info = await erc721.name().execute()
-        assert execution_info.result == (str_to_felt("Non Fungible Token"),)
-
-        execution_info = await erc721.symbol().execute()
-        assert execution_info.result == (str_to_felt("NFT"),)
-
-
-    #
     # supportsInterface
     #
-
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('interface_id, result', [

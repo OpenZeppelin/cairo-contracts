@@ -11,6 +11,8 @@ from access.OwnableBaseSuite import OwnableBase
 
 signer = MockSigner(123456789987654321)
 
+NAME = str_to_felt("MintBurnNFT")
+SYMBOL = str_to_felt("MBNFT")
 
 @pytest.fixture(scope='module')
 def contract_classes():
@@ -31,9 +33,9 @@ async def erc721_init(contract_classes):
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
         constructor_calldata=[
-            str_to_felt("Non Fungible Token"),  # name
-            str_to_felt("NFT"),                 # ticker
-            account1.contract_address           # owner
+            NAME,                       # name
+            SYMBOL,                     # symbol
+            account1.contract_address   # owner
         ]
     )
     erc721_holder = await starknet.deploy(

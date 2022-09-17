@@ -11,6 +11,9 @@ from access.OwnableBaseSuite import OwnableBase
 
 signer = MockSigner(123456789987654321)
 
+
+NAME = str_to_felt("Enumerable")
+SYMBOL = str_to_felt("ENUM")
 # random token IDs
 TOKENS = [
     to_uint(5042), to_uint(793), to_uint(321), MAX_UINT256, to_uint(8)
@@ -41,9 +44,9 @@ async def erc721_init(contract_classes):
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
         constructor_calldata=[
-            str_to_felt("Non Fungible Token"),  # name
-            str_to_felt("NFT"),                 # ticker
-            account1.contract_address           # owner
+            NAME,                       # name
+            SYMBOL,                     # symbol
+            account1.contract_address   # owner
         ]
     )
     erc721_holder = await starknet.deploy(
@@ -92,6 +95,18 @@ async def erc721_minted(contract_factory):
 
 
 class TestERC721EnumerableMintableBurnable(ERC721Base, OwnableBase):
+    #
+    # Constructor
+    #
+
+    @pytest.mark.asyncio
+    async def test_constructor(self, contract_factory):
+        erc721, _, _, _, _ = contract_factory
+        execution_info = await erc721.name().execute()
+        assert execution_info.result == (NAME,)
+
+        execution_info = await erc721.symbol().execute()
+        assert execution_info.result == (SYMBOL,)
     #
     # supportsInterface
     #

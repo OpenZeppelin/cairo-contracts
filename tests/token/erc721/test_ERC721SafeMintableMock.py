@@ -11,6 +11,10 @@ from access.OwnableBaseSuite import OwnableBase
 
 signer = MockSigner(123456789987654321)
 
+# testing vars
+NAME = str_to_felt("SafeMintNFT")
+SYMBOL = str_to_felt("SFNFT")
+
 
 @pytest.fixture(scope='module')
 def contract_classes():
@@ -31,9 +35,9 @@ async def erc721_init(contract_classes):
     erc721 = await starknet.deploy(
         contract_class=erc721_cls,
         constructor_calldata=[
-            str_to_felt("Non Fungible Token"),  # name
-            str_to_felt("NFT"),                 # ticker
-            account1.contract_address
+            NAME,                       # name
+            SYMBOL,                     # ticker
+            account1.contract_address   # owner
         ]
     )
     erc721_holder = await starknet.deploy(

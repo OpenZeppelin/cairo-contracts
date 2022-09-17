@@ -1,10 +1,6 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
-    INVALID_UINT256, TRUE, get_contract_class, cached_contract, assert_revert,
-    assert_event_emitted, assert_events_emitted, contract_path, State, Account
-)
+from utils import get_contract_class, cached_contract, State, Account
 from ERC20BaseSuite import ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY
 
 

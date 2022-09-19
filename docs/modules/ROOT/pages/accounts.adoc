@@ -355,7 +355,7 @@ namespace Account {
     func constructor(publicKey: felt) {
     }
 
-    func getPublicKey() -> (publicKey: felt){
+    func getPublicKey() -> (publicKey: felt) {
     }
 
     func supportsInterface(interfaceId: felt) -> (success: felt) {

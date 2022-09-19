@@ -401,10 +401,10 @@ Some ideas to consider:
 
 [,cairo]
 ----
-func initializer(){
+func initializer() {
 }
 
-func assert_only_role(role: felt){
+func assert_only_role(role: felt) {
 }
 
 func has_role(role: felt, user: felt) -> (has_role: felt) {

@@ -18,20 +18,20 @@ A more detailed writeup on the topic can be found on https://perama-v.github.io/
  ** <<signer,Signer>>
  ** <<mocksigner_utility,MockSigner utility>>
  ** <<mockethsigner_utility,MockEthSigner utility>>
-* <<account_entrypoint,Account entrypoint>>
+* <<account_entrypoints,Account entrypoints>>
 * <<call_and_accountcallarray_format,Call and AccountCallArray format>>
  ** <<call,Call>>
  ** <<accountcallarray,AccountCallArray>>
 * <<multicall_transactions,Multicall transactions>>
 * <<api_specification,API Specification>>
- ** <<get_public_key,`get_public_key`>>
- ** <<get_nonce,`get_nonce`>>
- ** <<set_public_key,`set_public_key`>>
- ** <<is_valid_signature,`is_valid_signature`>>
+ ** <<constructor, `constructor`>>
+ ** <<getpublickey,`getPublicKey`>>
+ ** <<supportsinterface,`supportsInterface`>>
+ ** <<setpublickey,`setPublicKey`>>
+ ** <<isvalidsignature,`isValidSignature`>>
+ ** <<validate,`\\__validate__`>>
+ ** <<validate_declare,`\\__validate_declare__`>>
  ** <<execute,`\\__execute__`>>
- ** <<is_valid_eth_signature,`is_valid_eth_signature`>>
- ** <<eth_execute,`eth_execute`>>
- ** <<unsafe_execute,`_unsafe_execute`>>
 * <<presets,Presets>>
  ** <<account,Account>>
  ** <<eth_account,Eth Account>>
@@ -128,13 +128,11 @@ Since there's also a `setPublicKey()` method, accounts can be effectively transf
 
 === Signature validation
 
-Signature validation occurs separately from execution as of Cairo v0.10. Upon receiving transactions, an account contract first calls `\\__validate__`. An account will only execute a transaction if, and only if, the signature proves valid.
+Signature validation occurs separately from execution as of Cairo v0.10.
+Upon receiving transactions, an account contract first calls `\\__validate__`.
+An account will only execute a transaction if, and only if, the signature proves valid.
 This decoupling allows for a protocol-level distinction between invalid and reverted transactions.
-
-Account contracts must include two signature validation methods:
-
-. `\\__validate__` - called to verify signature prior to transaction execution.
-. `\\__validate_declare__` - called to verify signature prior to contract class declaration.
+See <<account_entrypoints,Account entrypoints>>.
 
 === Signer
 
@@ -217,9 +215,16 @@ It differs from the `MockSigner` implementation by:
 * not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
 * signing the message with a secp256k1 curve address
 
-== Account entrypoint
+== Account entrypoints
 
-`\\__execute__` acts as a single entrypoint for all user interaction with any contract, including managing the account contract itself.
+Account contracts contain three entry points for all user interactions with any contract.
+
+1. <<validate_declare,`\\__validate_declare__`>> validates the contract class hash prior to the declaration.
+As of Cairo v0.10.0, contract classes should be declared from an Account contract.
+
+2. <<validate,`\\__validate__`>> verifies the transaction signature before executing the transaction with `\\__execute__`.
+
+3. <<execute,`\\__execute__`>> acts as the state-changing entry point for all user interaction with any contract, including managing the account contract itself.
 That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
 
 [,python]
@@ -237,18 +242,18 @@ await signer.send_transaction(account, registry.contract_address, 'set_L1_addres
 You can read more about how messages are structured and hashed in the https://github.com/OpenZeppelin/cairo-contracts/discussions/24[Account message scheme  discussion].
 For more information on the design choices and implementation of multicall, you can read the https://github.com/OpenZeppelin/cairo-contracts/discussions/27[How should Account multicall work discussion].
 
-The `\\__execute__` method has the following interface:
+The `\\__validate__` and `\\__execute__` methods accept the same arguments; however, `\\__execute__` returns a transaction response:
 
 [,cairo]
 ----
+func __validate__(
+    call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
+}
+
 func __execute__(
-        call_array_len: felt,
-        call_array: AccountCallArray*,
-        calldata_len: felt,
-        calldata: felt*,
-        nonce: felt
-    ) -> (response_len: felt, response: felt*):
-end
+    call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+) -> (response_len: felt, response: felt*) {
+}
 ----
 
 Where:
@@ -257,7 +262,6 @@ Where:
 * `call_array` is an array representing each `Call`
 * `calldata_len` is the number of calldata parameters
 * `calldata` is an array representing the function parameters
-* `nonce` is an unique identifier of this message to prevent transaction replays.
 
 NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
@@ -276,12 +280,12 @@ A single `Call` is structured as follows:
 
 [,cairo]
 ----
-struct Call:
-    member to: felt
-    member selector: felt
-    member calldata_len: felt
-    member calldata: felt*
-end
+struct Call {
+    to: felt
+    selector: felt
+    calldata_len: felt
+    calldata: felt*
+}
 ----
 
 Where:
@@ -297,12 +301,12 @@ Where:
 
 [,cairo]
 ----
-struct AccountCallArray:
-    member to: felt
-    member selector: felt
-    member data_offset: felt
-    member data_len: felt
-end
+struct AccountCallArray {
+    to: felt
+    selector: felt
+    data_offset: felt
+    data_len: felt
+}
 ----
 
 Where:
@@ -341,32 +345,36 @@ Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata an
 NOTE: Every transaction utilizes `AccountCallArray`.
 A single `Call` is treated as a bundle with one message.
 
-== Contract API Specification
+== API Specification
 
 This in a nutshell is the Account contract public API:
 
 [,cairo]
 ----
-    func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(public_key: felt) {
+namespace Account {
+    func constructor(publicKey: felt) {
     }
 
-    func setPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(newPublicKey: felt) {
-    }
-
-    func getPublicKey{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (publicKey: felt) {
+    func getPublicKey() -> (publicKey: felt){
     }
 
     func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
+
+    func setPublicKey(newPublicKey: felt) {
     }
 
     func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
     }
 
     func __validate__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) -> (response_len: felt, response: felt*) {
     }
 
-    func __validate_declare__(class_hash: felt) {
+    func __validate_declare__(
+        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+    ) -> (response_len: felt, response: felt*) {
     }
 
     func __execute__(
@@ -377,21 +385,7 @@ This in a nutshell is the Account contract public API:
 
 === `constructor`
 
-Initializes the Account contract with the passed public key.
-
-Parameters:
-
-[,cairo]
-----
-public_key: felt
-----
-
-Returns: None.
-
-=== `setPublicKey`
-
-Sets the public key that will control this Account.
-It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
+Initializes and sets the public key for the Account contract.
 
 Parameters:
 
@@ -404,7 +398,7 @@ Returns: None.
 
 === `getPublicKey`
 
-Returns the public key associated with the Account contract.
+Returns the public key associated with the Account.
 
 Parameters: None.
 
@@ -417,7 +411,8 @@ publicKey: felt
 
 === `supportsInterface`
 
-Returns true if this contract implements the interface defined by `interfaceId`. Account contracts implement ERC165 through static support. In other words, Account interface support is hardcoded as opposed to ERC165 registration.
+Returns `TRUE` if this contract implements the interface defined by `interfaceId`.
+Account contracts now implement ERC165 through static support (see <<account_differentiation_with_erc165,Account differentiation with ERC165>>).
 
 Parameters:
 
@@ -433,6 +428,19 @@ Returns:
 success: felt
 ----
 
+=== `setPublicKey`
+
+Sets the public key that will control this Account.
+It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
+
+Parameters:
+
+[,cairo]
+----
+newPublicKey: felt
+----
+
+Returns: None.
 
 === `isValidSignature`
 
@@ -455,12 +463,9 @@ Returns:
 isValid: felt
 ----
 
-NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-
 === `\\__validate__`
 
-Validates the transaction signature. The StarkNet protocol calls the function prior to executing transactions.
-The parameters must exactly match those passed to `\\__execute__`.
+Validates the transaction signature and is called prior to `\\__execute__`.
 
 Parameters:
 
@@ -472,13 +477,11 @@ calldata_len: felt
 calldata: felt*
 ----
 
-NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
-
 Returns: None.
 
 === `\\__validate_declare__`
 
-Validates the declared class hash.
+Validates the declaration class hash and is called prior to declaration.
 
 Parameters:
 
@@ -487,9 +490,7 @@ Parameters:
 class_hash: felt
 ----
 
-Returns:
-
-None.
+Returns: None.
 
 === `\\__execute__`
 
@@ -518,169 +519,6 @@ Returns:
 response_len: felt
 response: felt*
 ----
-
-== Library API Specification
-
-[,cairo]
-----
-namespace Account {
-    func initializer(interfaceId: felt) -> (success: felt) {
-    }
-
-    func assert_only_self() {
-    }
-
-    func get_public_key() -> (public_key: felt) {
-    }
-
-    func support_interface(interface_id: felt) -> (success: felt) {
-    }
-
-    func set_public_key(new_public_key: felt) {
-    }
-
-    func is_valid_signature(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
-    }
-
-    func is_valid_eth_signature(hash: felt, signature_len: felt, signature: felt*) -> (is_valid: felt) {
-    }
-
-    func execute(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
-    }
-
-    func _execute_list(calls_len: felt, calls: Call*, response: felt*
-    ) -> (response_len: felt) {
-    }
-
-    func _from_call_array_to_call(
-        call_array_len: felt, call_array: AccountCallArray*, calldata: felt*, calls: Call*
-    ) {
-    }
-----
-
-=== `initializer`
-
-Sets the public key for the Account contract. Should be called in the Account contract's constructor.
-
-Parameters:
-
-[,cairo]
-----
-public_key: felt
-----
-
-Returns: None.
-
-=== `assert_only_self`
-
-Guard function that reverts if not called by the contract itself.
-
-Parameters: None.
-
-Returns: None.
-
-=== `get_public_key`
-
-Returns the public key associated with the Account.
-
-Parameters: None.
-
-Returns:
-
-[,cairo]
-----
-public_key: felt
-----
-
-=== `supports_interface`
-
-Returns true if this contract implements the interface defined by `interfaceId`. Account contracts implement ERC165 through static support. In other words, Account interface support is hardcoded as opposed to ERC165 registration.
-
-Parameters:
-
-[,cairo]
-----
-interface_id: felt
-----
-
-Returns:
-
-[,cairo]
-----
-success: felt
-----
-
-=== `set_public_key`
-
-Sets the public key that will control this Account.
-It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
-
-Parameters:
-
-Returns:
-
-=== `is_valid_signature`
-
-This function is inspired by https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and returns `TRUE` if a given signature is valid, otherwise it reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-
-Parameters:
-
-Returns:
-
-=== `is_valid_eth_signature`
-
-ipsum...
-
-Parameters:
-
-Returns:
-
-=== `execute`
-
-This is the only external entrypoint to interact with the Account contract.
-It:
-
-. Calls the target contract with the intended function selector and calldata parameters
-. Forwards the contract call response data as return value
-
-Parameters:
-
-[,cairo]
-----
-call_array_len: felt
-call_array: AccountCallArray*
-calldata_len: felt
-calldata: felt*
-----
-
-NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
-
-Returns:
-
-[,cairo]
-----
-response_len: felt
-response: felt*
-----
-
-=== `_execute_list`
-
-ipsum...
-
-Parameters:
-
-Returns:
-
-=== `_from_call_array_to_call`
-
-ipsum...
-
-Parameters:
-
-Returns: None
 
 == Presets
 

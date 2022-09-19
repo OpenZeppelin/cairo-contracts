@@ -148,23 +148,23 @@ For a full implementation contract example, please see:
 
 [,cairo]
 ----
-func initializer(proxy_admin: felt):
-end
+func initializer(proxy_admin: felt) {
+}
 
-func assert_only_admin():
-end
+func assert_only_admin() {
+}
 
-func get_implementation_hash() -> (implementation: felt):
-end
+func get_implementation_hash() -> (implementation: felt) {
+}
 
-func get_admin() -> (admin: felt):
-end
+func get_admin() -> (admin: felt) {
+}
 
-func _set_admin(new_admin: felt):
-end
+func _set_admin(new_admin: felt) {
+}
 
-func _set_implementation_hash(new_implementation: felt):
-end
+func _set_implementation_hash(new_implementation: felt) {
+}
 ----
 
 ==== `initializer`
@@ -245,11 +245,11 @@ Returns: None.
 
 [,cairo]
 ----
-func Upgraded(implementation: felt):
-end
+func Upgraded(implementation: felt) {
+}
 
-func AdminChanged(previousAdmin: felt, newAdmin: felt):
-end
+func AdminChanged(previousAdmin: felt, newAdmin: felt) {
+}
 ----
 
 ==== `Upgraded`

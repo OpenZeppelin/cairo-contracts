@@ -62,24 +62,24 @@ func protected_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 
 [,cairo]
 ----
-func initializer(owner: felt){
+func initializer(owner: felt) {
 }
 
-func assert_only_owner(){
-}
-
-
-func owner() -> (owner: felt){
+func assert_only_owner() {
 }
 
 
-func transfer_ownership(new_owner: felt){
+func owner() -> (owner: felt) {
 }
 
-func renounce_ownership(){
+
+func transfer_ownership(new_owner: felt) {
 }
 
-func _transfer_ownership(new_owner: felt){
+func renounce_ownership() {
+}
+
+func _transfer_ownership(new_owner: felt) {
 }
 ----
 

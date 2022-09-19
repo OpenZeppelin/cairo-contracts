@@ -84,15 +84,12 @@ from openzeppelin.token.erc20.library import ERC20
 (...)
 
 @external
-func transfer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable.assert_not_paused()
-    ERC20.transfer(recipient, amount)
-    return (TRUE)
-end
+func transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+  recipient: felt, amount: Uint256) -> (success: felt) {
+  Pausable.assert_not_paused();
+  ERC20.transfer(recipient, amount);
+  return (TRUE);
+}
 ```
 
 ## Learn
@@ -231,7 +228,7 @@ This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/lat
 ```python
 from utils import get_contract_class, cached_contract
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def foo_factory():
     # get contract class
     foo_cls = get_contract_class('Foo')

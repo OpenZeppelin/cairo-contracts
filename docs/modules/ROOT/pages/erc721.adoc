@@ -745,13 +745,10 @@ tokenId: Uint256
 [,cairo]
 ----
 func onERC721Received(
-        operator: felt,
-        from_: felt,
-        tokenId: Uint256,
-        data_len: felt
-        data: felt*
-    ) -> (selector: felt):
-end
+    operator: felt, from_: felt, tokenId: Uint256, data_len: felt data: felt*
+) -> (selector: felt) {
+}
+
 ----
 
 ==== `onERC721Received`

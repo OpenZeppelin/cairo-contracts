@@ -40,14 +40,10 @@ The implementing contract's constructor should set the initial owner by passing 
 from openzeppelin.access.ownable.library import Ownable
 
 @constructor
-func constructor{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(owner: felt):
-    Ownable.initializer(owner)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) {
+    Ownable.initializer(owner);
+    return ();
+}
 ----
 
 To restrict a function's access to the owner only, add in the `assert_only_owner` method:
@@ -56,37 +52,35 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 ----
 from openzeppelin.access.ownable.library import Ownable
 
-func protected_function{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }():
-    Ownable.assert_only_owner()
-    return ()
-end
+func protected_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Ownable.assert_only_owner();
+    return ();
+}
 ----
 
 === Ownable library API
 
 [,cairo]
 ----
-func initializer(owner: felt):
-end
+func initializer(owner: felt){
+}
 
-func assert_only_owner():
-end
+func assert_only_owner(){
+}
 
-func owner() -> (owner: felt):
-end
 
-func transfer_ownership(new_owner: felt):
-end
+func owner() -> (owner: felt){
+}
 
-func renounce_ownership():
-end
 
-func _transfer_ownership(new_owner: felt):
-end
+func transfer_ownership(new_owner: felt){
+}
+
+func renounce_ownership(){
+}
+
+func _transfer_ownership(new_owner: felt){
+}
 ----
 
 ==== `initializer`
@@ -175,8 +169,8 @@ Returns: None.
 
 [,cairo]
 ----
-func OwnershipTransferred(previousOwner: felt, newOwner: felt):
-end
+func OwnershipTransferred(previousOwner: felt, newOwner: felt) {
+}
 ----
 
 ==== OwnershipTransferred
@@ -220,32 +214,23 @@ from openzeppelin.access.accesscontrol.library import AccessControl
 const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        name: felt,
-        symbol: felt,
-        decimals: felt,
-        minter: felt
-    ):
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    name: felt, symbol: felt, decimals: felt, minter: felt
+) {
     ERC20.initializer(name, symbol, decimals)
     AccessControl.initializer()
     AccessControl._grant_role(MINTER_ROLE, minter)
     return ()
-end
+}
 
 @external
-func mint{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(to: felt, amount: Uint256):
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    to: felt, amount: Uint256
+) {
     AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
-end
+}
 ----
 
 CAUTION: Make sure you fully understand how <<accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
@@ -266,45 +251,33 @@ const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e
 const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        name: felt,
-        symbol: felt,
-        decimals: felt,
-        minter: felt,
-        burner: felt
-    ):
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    name: felt, symbol: felt, decimals: felt, minter: felt, burner: felt
+) {
     ERC20.initializer(name, symbol, decimals)
     AccessControl.initializer()
     AccessControl._grant_role(MINTER_ROLE, minter)
     AccessControl._grant_role(BURNER_ROLE, burner)
     return ()
-end
+}
 
 @external
-func mint{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(to: felt, amount: Uint256):
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    to: felt, amount: Uint256
+) {
     AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
-end
+}
 
 @external
-func burn{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(from_: felt, amount: Uint256):
+func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    from_: felt, amount: Uint256
+) {
     AccessControl.assert_only_role(BURNER_ROLE)
     ERC20._burn(from_, amount)
     return ()
-end
+}
 ----
 
 So clean!
@@ -344,44 +317,33 @@ const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e
 const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        name: felt,
-        symbol: felt,
-        decimals: felt,
-        admin: felt,
-    ):
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    name: felt, symbol: felt, decimals: felt, admin: felt,
+) {
     ERC20.initializer(name, symbol, decimals)
     AccessControl.initializer()
 
     AccessControl._grant_role(DEFAULT_ADMIN_ROLE, admin)
     return ()
-end
+}
 
 @external
-func mint{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(to: felt, amount: Uint256):
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    to: felt, amount: Uint256
+) {
     AccessControl.assert_only_role(MINTER_ROLE)
     ERC20._mint(to, amount)
     return ()
-end
+}
 
 @external
-func burn{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(from_: felt, amount: Uint256):
+func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    from_: felt, amount: Uint256
+) {
     AccessControl.assert_only_role(BURNER_ROLE)
     ERC20._burn(from_, amount)
     return ()
-end
+}
 ----
 
 Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles.
@@ -439,35 +401,36 @@ Some ideas to consider:
 
 [,cairo]
 ----
-func initializer():
-end
+func initializer(){
+}
 
-func assert_only_role(role: felt):
-end
+func assert_only_role(role: felt){
+}
 
-func has_role(role: felt, user: felt) -> (has_role: felt):
-end
+func has_role(role: felt, user: felt) -> (has_role: felt) {
+}
 
-func get_role_admin(role: felt) -> (admin: felt):
-end
+func get_role_admin(role: felt) -> (admin: felt) {
+}
 
-func grant_role(role: felt, user: felt):
-end
+func grant_role(role: felt, user: felt) {
+}
 
-func revoke_role(role: felt, user: felt):
-end
+func revoke_role(role: felt, user: felt) {
+}
 
-func renounce_role(role: felt, user: felt):
-end
+func renounce_role(role: felt, user: felt) {
+}
 
-func _grant_role(role: felt, user: felt):
-end
+func _grant_role(role: felt, user: felt) {
+}
 
-func _revoke_role(role: felt, user: felt):
-end
 
-func _set_role_admin(role: felt, admin_role: felt):
-end
+func _revoke_role(role: felt, user: felt) {
+}
+
+func _set_role_admin(role: felt, admin_role: felt) {
+}
 ----
 
 [#initializer-accesscontrol]
@@ -656,18 +619,14 @@ Returns: None.
 
 [,cairo]
 ----
-func RoleGranted(role: felt, account: felt, sender: felt):
-end
+func RoleGranted(role: felt, account: felt, sender: felt) {
+}
 
-func RoleRevoked(role: felt, account: felt, sender: felt):
-end
+func RoleRevoked(role: felt, account: felt, sender: felt) {
+}
 
-func RoleAdminChanged(
-    role: felt,
-    previousAdminRole: felt,
-    newAdminRole: felt
-  ):
-end
+func RoleAdminChanged(role: felt, previousAdminRole: felt, newAdminRole: felt) {
+}
 ----
 
 ==== `RoleGranted`

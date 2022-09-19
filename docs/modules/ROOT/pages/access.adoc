@@ -217,19 +217,19 @@ const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     name: felt, symbol: felt, decimals: felt, minter: felt
 ) {
-    ERC20.initializer(name, symbol, decimals)
-    AccessControl.initializer()
-    AccessControl._grant_role(MINTER_ROLE, minter)
-    return ()
+    ERC20.initializer(name, symbol, decimals);
+    AccessControl.initializer();
+    AccessControl._grant_role(MINTER_ROLE, minter);
+    return ();
 }
 
 @external
 func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, amount: Uint256
 ) {
-    AccessControl.assert_only_role(MINTER_ROLE)
-    ERC20._mint(to, amount)
-    return ()
+    AccessControl.assert_only_role(MINTER_ROLE);
+    ERC20._mint(to, amount);
+    return ();
 }
 ----
 
@@ -254,29 +254,29 @@ const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440a
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     name: felt, symbol: felt, decimals: felt, minter: felt, burner: felt
 ) {
-    ERC20.initializer(name, symbol, decimals)
-    AccessControl.initializer()
-    AccessControl._grant_role(MINTER_ROLE, minter)
-    AccessControl._grant_role(BURNER_ROLE, burner)
-    return ()
+    ERC20.initializer(name, symbol, decimals);
+    AccessControl.initializer();
+    AccessControl._grant_role(MINTER_ROLE, minter);
+    AccessControl._grant_role(BURNER_ROLE, burner);
+    return ();
 }
 
 @external
 func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, amount: Uint256
 ) {
-    AccessControl.assert_only_role(MINTER_ROLE)
-    ERC20._mint(to, amount)
-    return ()
+    AccessControl.assert_only_role(MINTER_ROLE);
+    ERC20._mint(to, amount);
+    return ();
 }
 
 @external
 func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_: felt, amount: Uint256
 ) {
-    AccessControl.assert_only_role(BURNER_ROLE)
-    ERC20._burn(from_, amount)
-    return ()
+    AccessControl.assert_only_role(BURNER_ROLE);
+    ERC20._burn(from_, amount);
+    return ();
 }
 ----
 
@@ -320,29 +320,29 @@ const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440a
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     name: felt, symbol: felt, decimals: felt, admin: felt,
 ) {
-    ERC20.initializer(name, symbol, decimals)
-    AccessControl.initializer()
+    ERC20.initializer(name, symbol, decimals);
+    AccessControl.initializer();
 
-    AccessControl._grant_role(DEFAULT_ADMIN_ROLE, admin)
-    return ()
+    AccessControl._grant_role(DEFAULT_ADMIN_ROLE, admin);
+    return ();
 }
 
 @external
 func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, amount: Uint256
 ) {
-    AccessControl.assert_only_role(MINTER_ROLE)
-    ERC20._mint(to, amount)
-    return ()
+    AccessControl.assert_only_role(MINTER_ROLE);
+    ERC20._mint(to, amount);
+    return ();
 }
 
 @external
 func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_: felt, amount: Uint256
 ) {
-    AccessControl.assert_only_role(BURNER_ROLE)
-    ERC20._burn(from_, amount)
-    return ()
+    AccessControl.assert_only_role(BURNER_ROLE);
+    ERC20._burn(from_, amount);
+    return ();
 }
 ----
 

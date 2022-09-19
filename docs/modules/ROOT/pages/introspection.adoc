@@ -51,8 +51,8 @@ INTERFACE_ID = 0x12345678
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    ERC165.register_interface(INTERFACE_ID)
-    return ()
+    ERC165.register_interface(INTERFACE_ID);
+    return ();
 }
 ----
 
@@ -70,8 +70,8 @@ INTERFACE_ID = 0x12345678
 func check_support{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     target_contract: felt
 ) -> (success: felt) {
-    let (is_supported) = IERC165.supportsInterface(target_contract, INTERFACE_ID)
-    return (is_supported)
+    let (is_supported) = IERC165.supportsInterface(target_contract, INTERFACE_ID);
+    return (is_supported);
 }
 ----
 

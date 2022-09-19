@@ -84,7 +84,7 @@ Use cases go from medium of exchange currency to voting rights, staking, and mor
 
 Considering that the constructor method looks like this:
 
-[,python]
+[,cairo]
 ----
 func constructor(
     name: felt,               # Token name as Cairo short string
@@ -142,9 +142,9 @@ Next, the contract should expose the methods with the extended logic therein lik
 @external
 func transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     recipient: felt, amount: Uint256) -> (success: felt) {
-    Pausable.assert_not_paused()          # imported extended logic
-    ERC20.transfer(recipient, amount)     # imported library method
-    return (TRUE)
+    Pausable.assert_not_paused();          # imported extended logic
+    ERC20.transfer(recipient, amount);     # imported library method
+    return (TRUE);
 }
 ----
 

@@ -25,11 +25,11 @@ from openzeppelin.security.initializable.library import Initializable
 
 @external
 func foo{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
-    let (initialized) = Initializable.initialized()
-    assert initialized = FALSE
+    let (initialized) = Initializable.initialized();
+    assert initialized = FALSE;
 
-    Initializable.initialize()
-    return ()
+    Initializable.initialize();
+    return ();
 }
 ----
 
@@ -51,18 +51,18 @@ from openzeppelin.security.pausable.library import Pausable
 
 @external
 func whenNotPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Pausable.assert_not_paused()
+    Pausable.assert_not_paused();
 
     # function body
-    return ()
+    return ();
 }
 
 @external
 func whenPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Pausable.assert_paused()
+    Pausable.assert_paused();
 
     # function body
-    return ()
+    return ();
 }
 ----
 
@@ -86,10 +86,10 @@ The protected function must call `ReentrancyGuard._start` before the first funct
 from openzeppelin.security.reentrancyguard.library import ReentrancyGuard
 
 func test_function{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
-   ReentrancyGuard._start()
+   ReentrancyGuard._start();
    # function body
-   ReentrancyGuard._end()
-   return ()
+   ReentrancyGuard._end();
+   return ();
 }
 ----
 
@@ -111,7 +111,7 @@ from openzeppelin.security.safemath.library import SafeUint256
 
 func add_two_uints{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     a: Uint256, b: Uint256) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.add(a, b)
-    return (c)
+    let (c: Uint256) = SafeUint256.add(a, b);
+    return (c);
 }
 ----

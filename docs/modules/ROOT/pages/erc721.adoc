@@ -54,41 +54,36 @@ The `ERC721.cairo` contract implements an approximation of https://eips.ethereum
 [,cairo]
 ----
 @contract_interface
-namespace IERC721:
-    func balanceOf(owner: felt) -> (balance: Uint256):
-    end
+namespace IERC721 {
+    func balanceOf(owner: felt) -> (balance: Uint256) {
+    }
 
-    func ownerOf(tokenId: Uint256) -> (owner: felt):
-    end
+    func ownerOf(tokenId: Uint256) -> (owner: felt) {
+    }
 
-    func safeTransferFrom(
-        from_: felt,
-        to: felt,
-        tokenId: Uint256,
-        data_len: felt,
-        data: felt*
-    ):
+    func safeTransferFrom(from_: felt, to: felt, tokenId: Uint256, data_len: felt, data: felt*) {
+    }
 
-    func transferFrom(from_: felt, to: felt, tokenId: Uint256):
-    end
+    func transferFrom(from_: felt, to: felt, tokenId: Uint256) {
+    }
 
-    func approve(approved: felt, tokenId: Uint256):
-    end
+    func approve(approved: felt, tokenId: Uint256) {
+    }
 
-    func setApprovalForAll(operator: felt, approved: felt):
-    end
+    func setApprovalForAll(operator: felt, approved: felt) {
+    }
 
-    func getApproved(tokenId: Uint256) -> (approved: felt):
-    end
+    func getApproved(tokenId: Uint256) -> (approved: felt) {
+    }
 
-    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt):
-    end
+    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+    }
 
     --------------- IERC165 ---------------
 
-    func supportsInterface(interfaceId: felt) -> (success: felt):
-    end
-end
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
+}
 ----
 
 === ERC721 Compatibility
@@ -144,7 +139,8 @@ func constructor(
     name: felt,          # Token name as Cairo short string
     symbol: felt,        # Token symbol as Cairo short string
     owner: felt          # Address designated as the contract owner
-):
+) {
+}
 ----
 
 Deployment of both contracts looks like this:
@@ -251,16 +247,11 @@ Interface for any contract that wants to support safeTransfers from ERC721 asset
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Receiver:
+namespace IERC721Receiver {
     func onERC721Received(
-        operator: felt,
-        from_: felt,
-        tokenId: Uint256,
-        data_len: felt
-        data: felt*
-    ) -> (selector: felt):
-    end
-end
+        operator: felt, from_: felt, tokenId: Uint256, data_len: felt data: felt*) -> (selector: felt) {
+    }
+}
 ----
 
 === Supporting Interfaces
@@ -305,14 +296,12 @@ As an example, see below.
 from openzeppelin.token.erc721.library import ERC721
 
 @external
-func approve{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(to: felt, tokenId: Uint256):
+func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    to: felt, tokenId: Uint256
+) {
     ERC721.approve(to, tokenId)
     return()
-end
+}
 ----
 
 == Presets
@@ -354,16 +343,16 @@ In order for the tokens to be correctly indexed, the contract should also use th
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Enumerable:
-    func totalSupply() -> (totalSupply: Uint256):
-    end
+namespace IERC721Enumerable {
+    func totalSupply() -> (totalSupply: Uint256) {
+    }
 
-    func tokenByIndex(index: Uint256) -> (tokenId: Uint256):
-    end
+    func tokenByIndex(index: Uint256) -> (tokenId: Uint256) {
+    }
 
-    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256):
-    end
-end
+    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256) {
+    }
+}
 ----
 
 === ERC721Metadata
@@ -379,16 +368,16 @@ Note that the `IERC721Metadata` interface id should be removed from the construc
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Metadata:
-    func name() -> (name: felt):
-    end
+namespace IERC721Metadata {
+    func name() -> (name: felt) {
+    }
 
-    func symbol() -> (symbol: felt):
-    end
+    func symbol() -> (symbol: felt) {
+    }
 
-    func tokenURI(tokenId: Uint256) -> (tokenURI: felt):
-    end
-end
+    func tokenURI(tokenId: Uint256) -> (tokenURI: felt) {
+    }
+}
 ----
 
 == Utilities
@@ -409,35 +398,29 @@ See <<erc721received,ERC721Received>>
 
 [,cairo]
 ----
-func balanceOf(owner: felt) -> (balance: Uint256):
-end
+func balanceOf(owner: felt) -> (balance: Uint256) {
+}
 
-func ownerOf(tokenId: Uint256) -> (owner: felt):
-end
+func ownerOf(tokenId: Uint256) -> (owner: felt) {
+}
 
-func safeTransferFrom(
-        from_: felt,
-        to: felt,
-        tokenId: Uint256,
-        data_len: felt,
-        data: felt*
-    ):
-end
+func safeTransferFrom(from_: felt, to: felt, tokenId: Uint256, data_len: felt, data: felt*) {
+}
 
-func transferFrom(from_: felt, to: felt, tokenId: Uint256):
-    end
+func transferFrom(from_: felt, to: felt, tokenId: Uint256) {
+}
 
-func approve(approved: felt, tokenId: Uint256):
-end
+func approve(approved: felt, tokenId: Uint256) {
+}
 
-func setApprovalForAll(operator: felt, approved: felt):
-end
+func setApprovalForAll(operator: felt, approved: felt) {
+}
 
-func getApproved(tokenId: Uint256) -> (approved: felt):
-end
+func getApproved(tokenId: Uint256) -> (approved: felt) {
+}
 
-func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt):
-end
+func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+}
 ----
 
 ==== `balanceOf`
@@ -631,14 +614,14 @@ tokenId: Uint256
 
 [,cairo]
 ----
-func name() -> (name: felt):
-end
+func name() -> (name: felt) {
+}
 
-func symbol() -> (symbol: felt):
-end
+func symbol() -> (symbol: felt) {
+}
 
-func tokenURI(tokenId: Uint256) -> (tokenURI: felt):
-end
+func tokenURI(tokenId: Uint256) -> (tokenURI: felt) {
+}
 ----
 
 ==== `name`
@@ -693,14 +676,14 @@ tokenURI: felt
 [,cairo]
 ----
 
-func totalSupply() -> (totalSupply: Uint256):
-end
+func totalSupply() -> (totalSupply: Uint256) {
+}
 
-func tokenByIndex(index: Uint256) -> (tokenId: Uint256):
-end
+func tokenByIndex(index: Uint256) -> (tokenId: Uint256) {
+}
 
-func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256):
-end
+func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256) {
+}
 ----
 
 ==== `totalSupply`

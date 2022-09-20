@@ -36,6 +36,23 @@ And make sure to always include tests and documentation for the new developments
                             └── ERC20Mintable.cairo
 ```
 
+- Preset contract testing
+  - Though, inheritance is not possible in Cairo, this repo utilizes inheritance for testing. This proves useful for testing multiple contracts that stem from the same base library. For example, the preset contracts [ERC20Mintable](./src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo) and [ERC20Burnable](./src/openzeppelin/token/erc20/presets/ERC20Burnable.cairo) both share the base ERC20 functionality. To reduce code repetition, we follow these guidelines:
+    - `BaseSuites`
+      - module names are not prefixed with `test_`
+      - set base tests inside a class
+      - class name should not be prefixed with `Test`; otherwise, these tests run twice
+
+    - test modules
+      - define the base fixture (`contract_factory`) and any other fixtures not used in the base suite i.e. `erc721_minted`
+      - define the test class and inherit the base class i.e. `class TestERC20(OwnableBase)`
+      - add tests specific to the preset flavor within the test class
+
+    - fixtures
+      - are not defined in the base suite but are passed, unpacked, and used
+      - are defined in the tests where they are used
+        - for modularity, the basic contract factory fixture is always called `contract_factory`
+
 ## Creating Pull Requests (PRs)
 
 As a contributor, you are expected to fork this repository, work on your own fork and then submit pull requests. The pull requests will be reviewed and eventually merged into the main repo. See ["Fork-a-Repo"](https://help.github.com/articles/fork-a-repo/) for how this works.

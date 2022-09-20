@@ -1,19 +1,15 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    str_to_felt, ZERO_ADDRESS, INVALID_UINT256, assert_revert,
+    ZERO_ADDRESS, INVALID_UINT256, assert_revert,
     assert_event_emitted, get_contract_class, cached_contract, to_uint,
     State, Account
 )
-from ERC721BaseSuite import ERC721Base, DATA, TOKEN, TOKENS
+from ERC721BaseSuite import ERC721Base, NAME, SYMBOL, DATA, TOKEN, TOKENS
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
-
-# testing vars
-NAME = str_to_felt("SafeMintNFT")
-SYMBOL = str_to_felt("SFNFT")
 
 
 @pytest.fixture(scope='module')
@@ -86,6 +82,10 @@ async def erc721_minted(contract_factory):
 
 
 class TestERC721SafeMintableMock(ERC721Base, OwnableBase):
+    #
+    # safeMint
+    #
+
     @pytest.mark.asyncio
     async def test_safeMint_to_erc721_supported_contract(self, contract_factory):
         erc721, account, _, erc721_holder, _ = contract_factory

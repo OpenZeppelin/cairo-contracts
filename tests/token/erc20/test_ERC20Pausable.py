@@ -1,18 +1,14 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    TRUE, FALSE, str_to_felt, assert_revert, get_contract_class,
+    TRUE, FALSE, assert_revert, get_contract_class,
     cached_contract, State, Account
 )
-from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, AMOUNT
+from ERC20BaseSuite import ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY, AMOUNT
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
-
-# testing vars
-NAME = str_to_felt("Pausable Token")
-SYMBOL = str_to_felt("PTKN")
 
 
 @pytest.fixture(scope='module')
@@ -61,15 +57,13 @@ def contract_factory(contract_classes, erc20_init):
 
 
 class TestPausable(ERC20Base, OwnableBase):
+    #
+    # pause
+    #
+
     @pytest.mark.asyncio
     async def test_constructor(self, contract_factory):
         erc20, _, _ = contract_factory
-
-        execution_info = await erc20.name().execute()
-        assert execution_info.result == (NAME,)
-
-        execution_info = await erc20.symbol().execute()
-        assert execution_info.result == (SYMBOL,)
 
         execution_info = await erc20.paused().execute()
         assert execution_info.result.paused == FALSE

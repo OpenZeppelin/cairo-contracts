@@ -1,17 +1,16 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    add_uint, sub_uint, str_to_felt, ZERO_ADDRESS, INVALID_UINT256,
+    add_uint, sub_uint, ZERO_ADDRESS, INVALID_UINT256,
     get_contract_class, cached_contract, assert_revert, assert_event_emitted,
     assert_events_emitted, State, Account
 )
-from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, AMOUNT, UINT_ONE, UINT_ZERO
+from ERC20BaseSuite import (
+    ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY, AMOUNT, UINT_ONE, UINT_ZERO
+)
 
 
 signer = MockSigner(123456789987654321)
-
-NAME = str_to_felt("BurnableToken")
-SYMBOL = str_to_felt("BTKN")
 
 
 @pytest.fixture(scope='module')
@@ -59,19 +58,9 @@ def contract_factory(contract_classes, erc20_init):
 
 
 class TestERC20Burnable(ERC20Base):
-    @pytest.mark.asyncio
-    async def test_name(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.name().execute()
-        assert execution_info.result.name == NAME
-
-
-    @pytest.mark.asyncio
-    async def test_symbol(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.symbol().execute()
-        assert execution_info.result.symbol == SYMBOL
-
+    #
+    # burn
+    #
 
     @pytest.mark.asyncio
     async def test_burn(self, contract_factory):

@@ -4,15 +4,13 @@ from utils import (
     str_to_felt, TRUE, FALSE, get_contract_class, cached_contract,
     assert_revert, assert_event_emitted, to_uint, ZERO_ADDRESS, State, Account
 )
-from ERC721BaseSuite import ERC721Base, TOKENS, TOKEN, NONEXISTENT_TOKEN, DATA
+from ERC721BaseSuite import ERC721Base, NAME, SYMBOL, TOKENS, TOKEN, NONEXISTENT_TOKEN, DATA
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
 
 # testing vars
-NAME = str_to_felt("MintPauseNFT")
-SYMBOL = str_to_felt("MPNFT")
 TOKEN_TO_MINT = to_uint(33)
 
 
@@ -89,7 +87,6 @@ class TestERC721MintablePausable(ERC721Base, OwnableBase):
     #
     # mint
     #
-
 
     @pytest.mark.asyncio
     async def test_mint_emits_event(self, contract_factory):

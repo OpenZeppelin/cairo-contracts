@@ -1,18 +1,16 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    str_to_felt, ZERO_ADDRESS, assert_revert, assert_event_emitted,
+    ZERO_ADDRESS, assert_revert, assert_event_emitted,
     assert_events_emitted, get_contract_class, cached_contract, to_uint,
     sub_uint, State, Account
 )
-from ERC721BaseSuite import ERC721Base, NONEXISTENT_TOKEN, TOKENS, TOKEN
+from ERC721BaseSuite import ERC721Base, NAME, SYMBOL, NONEXISTENT_TOKEN, TOKENS, TOKEN
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
 
-NAME = str_to_felt("MintBurnNFT")
-SYMBOL = str_to_felt("MBNFT")
 
 @pytest.fixture(scope='module')
 def contract_classes():

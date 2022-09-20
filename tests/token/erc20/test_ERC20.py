@@ -51,15 +51,4 @@ def contract_factory(contract_classes, erc20_init):
 
 
 class TestERC20(ERC20Base):
-    @pytest.mark.asyncio
-    async def test_name(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.name().execute()
-        assert execution_info.result.name == NAME
-
-
-    @pytest.mark.asyncio
-    async def test_symbol(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.symbol().execute()
-        assert execution_info.result.symbol == SYMBOL
+    pass

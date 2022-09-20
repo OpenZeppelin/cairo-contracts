@@ -1,19 +1,17 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    str_to_felt, MAX_UINT256, get_contract_class, cached_contract, TRUE,
+    MAX_UINT256, get_contract_class, cached_contract, TRUE,
     assert_revert, assert_event_emitted, assert_events_emitted, to_uint,
     sub_uint, add_uint, ZERO_ADDRESS, State, Account
 )
-from ERC721BaseSuite import ERC721Base, NONEXISTENT_TOKEN, DATA, RECIPIENT
+from ERC721BaseSuite import ERC721Base, NAME, SYMBOL, NONEXISTENT_TOKEN, DATA, RECIPIENT
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
 
 
-NAME = str_to_felt("Enumerable")
-SYMBOL = str_to_felt("ENUM")
 # random token IDs
 TOKENS = [
     to_uint(5042), to_uint(793), to_uint(321), MAX_UINT256, to_uint(8)
@@ -96,18 +94,6 @@ async def erc721_minted(contract_factory):
 
 class TestERC721EnumerableMintableBurnable(ERC721Base, OwnableBase):
     #
-    # Constructor
-    #
-
-    @pytest.mark.asyncio
-    async def test_constructor(self, contract_factory):
-        erc721, _, _, _, _ = contract_factory
-        execution_info = await erc721.name().execute()
-        assert execution_info.result == (NAME,)
-
-        execution_info = await erc721.symbol().execute()
-        assert execution_info.result == (SYMBOL,)
-    #
     # supportsInterface
     #
 
@@ -121,7 +107,6 @@ class TestERC721EnumerableMintableBurnable(ERC721Base, OwnableBase):
     #
     # totalSupply
     #
-
 
     @pytest.mark.asyncio
     async def test_totalSupply(self, erc721_minted):

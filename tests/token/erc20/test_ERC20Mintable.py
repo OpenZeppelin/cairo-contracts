@@ -1,19 +1,15 @@
 import pytest
 from signers import MockSigner
 from utils import (
-    add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
-    INVALID_UINT256, get_contract_class, cached_contract, assert_revert,
-    assert_event_emitted, State, Account
+    add_uint, sub_uint, MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256,
+    get_contract_class, cached_contract, assert_revert, assert_event_emitted,
+    State, Account
 )
-from ERC20BaseSuite import ERC20Base, DECIMALS, INIT_SUPPLY, UINT_ONE
+from ERC20BaseSuite import ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY, UINT_ONE
 from access.OwnableBaseSuite import OwnableBase
 
 
 signer = MockSigner(123456789987654321)
-
-# testing vars
-NAME = str_to_felt("Mintable Token")
-SYMBOL = str_to_felt("MTKN")
 
 
 @pytest.fixture(scope='module')
@@ -61,19 +57,9 @@ def contract_factory(contract_classes, erc20_init):
 
 
 class TestERC20Mintable(ERC20Base, OwnableBase):
-    @pytest.mark.asyncio
-    async def test_name(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.name().execute()
-        assert execution_info.result.name == NAME
-
-
-    @pytest.mark.asyncio
-    async def test_symbol(self, contract_factory):
-        erc20, _, _ = contract_factory
-        execution_info = await erc20.symbol().execute()
-        assert execution_info.result.symbol == SYMBOL
-
+    #
+    # mint
+    #
 
     @pytest.mark.asyncio
     async def test_mint(self, contract_factory):

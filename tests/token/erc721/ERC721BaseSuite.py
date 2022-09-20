@@ -8,6 +8,8 @@ from utils import (
 
 signer = MockSigner(123456789987654321)
 
+NAME = str_to_felt("Non-fungible Token")
+SYMBOL = str_to_felt("NFT")
 NONEXISTENT_TOKEN = to_uint(999)
 # random token IDs
 TOKENS = [to_uint(5042), to_uint(793)]
@@ -30,6 +32,18 @@ UNSUPPORTED_ID = 0xabcd1234
 
 
 class ERC721Base:
+    #
+    # constructor
+    #
+
+    @pytest.mark.asyncio
+    async def test_constructor(self, contract_factory):
+        erc721, _, _, _, _ = contract_factory
+        execution_info = await erc721.name().execute()
+        assert execution_info.result == (NAME,)
+
+        execution_info = await erc721.symbol().execute()
+        assert execution_info.result == (SYMBOL,)
     #
     # supportsInterface
     #

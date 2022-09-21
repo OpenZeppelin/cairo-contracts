@@ -109,6 +109,14 @@ If you want to run the documentation UI locally:
     npm run docs:watch
     ```
 
+## Integration tests
+
+Currently, [starknet's test suite](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/starknet/testing/starknet.py) has important differences with public networks. Like [not checking signature hints toward the end of the tx flow](https://github.com/OpenZeppelin/cairo-contracts/issues/386).
+
+That's why we strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
+
+We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by the reviewer.
+
 ## All set
 
 If you have any questions, feel free to post them to github.com/OpenZeppelin/cairo-contracts/issues.

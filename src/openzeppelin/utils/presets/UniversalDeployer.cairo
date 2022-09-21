@@ -46,10 +46,10 @@ func deployContract{
     );
 
     ContractDeployed.emit(
-        atddress=address,
+        address=address,
         deployer=deployer,
         classHash=classHash,
-        salt=salt
+        salt=_salt
     );
 
     return (address=address);

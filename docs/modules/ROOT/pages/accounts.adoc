@@ -1,4 +1,4 @@
-:test-utils: https://github.com/OpenZeppelin/cairo-contracts/blob/main/tests/utils.py
+:test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/tests/signers.py
 
 = Accounts
 
@@ -161,7 +161,7 @@ To simplify Account management, most of this is abstracted away with `MockSigner
 
 === MockSigner utility
 
-The `MockSigner` class in {test-utils}[utils.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
+The `MockSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
 The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format.
 The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument).
@@ -209,7 +209,7 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 
 === MockEthSigner utility
 
-The `MockEthSigner` class in {test-utils}[utils.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
+The `MockEthSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
 It differs from the `MockSigner` implementation by:
 
 * not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
@@ -336,7 +336,7 @@ First, the user sends the messages for the transaction through a Signer instanti
      )
 ----
 
-Then the `\_from_call_to_call_array` method in {test-utils}[utils.py] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
+Then the `from_call_to_call_array` method in link:https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's signer] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
 Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
 The Signer then invokes `\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
 
@@ -527,11 +527,11 @@ Each preset differs on the signature type being used by the Account.
 
 === Account
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
 
 === Eth Account
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 == Account differentiation with ERC165
 

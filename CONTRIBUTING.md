@@ -111,9 +111,11 @@ If you want to run the documentation UI locally:
 
 ## Integration tests
 
-Currently, [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet) is not enough as a source of truth to test smart contracts (behavior has important differences with testnet and mainnet). That's why we strongly suggest running some integration tests against the public testnet before submitting the PR, to make sure that everything works as expected in a real environment.
+Currently, [starknet's test suite](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/starknet/testing/starknet.py) has important differences with public networks. Like [not checking signature hints toward the end of the tx flow](https://github.com/OpenZeppelin/cairo-contracts/issues/386).
 
-We are working on defining a process for these integration tests, but for now, they must be run manually either by the contributor or/and the PR reviewer.
+That's why we strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
+
+We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by reviewer.
 
 ## All set
 

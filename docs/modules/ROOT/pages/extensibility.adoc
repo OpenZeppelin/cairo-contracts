@@ -89,6 +89,40 @@ Some presets are:
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo[ERC721MintablePausable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo[ERC721EnumerableMintableBurnable]
 
+In previous versions, contracts only needed to import the constructor from the preset contract.
+Since Cairo v0.10, however, contracts that utilize the preset contracts should import all of the exposed functions from it.
+For example:
+
+[,cairo]
+```
+%lang starknet
+
+from openzeppelin.token.erc20.presets.ERC20 import constructor
+```
+
+should now look like:
+
+[,cairo]
+```
+%lang starknet
+
+from openzeppelin.token.erc20.presets.ERC20 import (
+    constructor,
+    name,
+    symbol,
+    totalSupply,
+    decimals,
+    balanceOf,
+    allowance,
+    transfer,
+    transferFrom,
+    approve,
+    increaseAllowance,
+    decreaseAllowance
+)
+```
+
+
 == Function names and coding style
 
 * Following Cairo's programming style, we use `snake_case` for library APIs (e.g.

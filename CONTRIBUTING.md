@@ -109,6 +109,12 @@ If you want to run the documentation UI locally:
     npm run docs:watch
     ```
 
+## Integration tests
+
+Currently, [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet) is not enough as a source of truth to test smart contracts (behavior has important differences with tesnet and mainnet). That's why we strongly suggest to run some integration tests against the public tesnet before submitting the PR, to make sure that everthing works as expected in a real environemnt.
+
+We are working on defining a process for this integration tests, but for now, they must be run manually either from the contributor or/and the PR reviewer.
+
 ## All set
 
 If you have any questions, feel free to post them to github.com/OpenZeppelin/cairo-contracts/issues.

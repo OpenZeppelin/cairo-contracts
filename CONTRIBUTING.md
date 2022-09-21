@@ -115,7 +115,7 @@ Currently, [starknet's test suite](https://github.com/starkware-libs/cairo-lang/
 
 That's why we strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
 
-We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by reviewer.
+We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by the reviewer.
 
 ## All set
 

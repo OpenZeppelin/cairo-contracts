@@ -87,11 +87,11 @@ Considering that the constructor method looks like this:
 [,cairo]
 ----
 func constructor(
-    name: felt,               # Token name as Cairo short string
-    symbol: felt,             # Token symbol as Cairo short string
-    decimals: felt            # Token decimals (usually 18)
-    initial_supply: Uint256,  # Amount to be minted
-    recipient: felt           # Address where to send initial supply to
+    name: felt,               // Token name as Cairo short string
+    symbol: felt,             // Token symbol as Cairo short string
+    decimals: felt            // Token decimals (usually 18)
+    initial_supply: Uint256,  // Amount to be minted
+    recipient: felt           // Address where to send initial supply to
 ) {
 }
 ----
@@ -137,13 +137,13 @@ For example, let's say you wanted to implement a pausing mechanism.
 The contract should first import the ERC20 methods and the extended logic from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/security/pausable/library.cairo[Pausable library] i.e. `Pausable.pause`, `Pausable.unpause`.
 Next, the contract should expose the methods with the extended logic therein like this:
 
-[,python]
+[,cairo]
 ----
 @external
 func transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     recipient: felt, amount: Uint256) -> (success: felt) {
-    Pausable.assert_not_paused();          # imported extended logic
-    ERC20.transfer(recipient, amount);     # imported library method
+    Pausable.assert_not_paused();          // imported extended logic
+    ERC20.transfer(recipient, amount);     // imported library method
     return (TRUE);
 }
 ----

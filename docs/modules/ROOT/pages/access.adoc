@@ -360,7 +360,7 @@ To grant and revoke roles in Python, for example:
 MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
 BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
 
-# grants MINTER_ROLE and BURNER_ROLE to account1 and account2 respectively
+// grants MINTER_ROLE and BURNER_ROLE to account1 and account2 respectively
 await signer.send_transactions(
     admin, [
         (accesscontrol.contract_address, 'grantRole', [MINTER_ROLE, account1.contract_address]),
@@ -368,7 +368,7 @@ await signer.send_transactions(
     ]
 )
 
-# revokes MINTER_ROLE from account1
+// revokes MINTER_ROLE from account1
 await signer.send_transaction(
     admin,
     accesscontrol.contract_address,

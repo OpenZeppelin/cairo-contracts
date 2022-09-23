@@ -52,7 +52,7 @@ pip install openzeppelin-cairo-contracts
 Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/extensibility#presets).
 
 ```cairo
-# contracts/MyToken.cairo
+// contracts/MyToken.cairo
 
 %lang starknet
 

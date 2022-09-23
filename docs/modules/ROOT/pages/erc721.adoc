@@ -133,12 +133,12 @@ This is why we need an Account contract to interact with it.
 
 Considering that the ERC721 constructor method looks like this:
 
-[,python]
+[,cairo]
 ----
 func constructor(
-    name: felt,          # Token name as Cairo short string
-    symbol: felt,        # Token symbol as Cairo short string
-    owner: felt          # Address designated as the contract owner
+    name: felt,          // Token name as Cairo short string
+    symbol: felt,        // Token symbol as Cairo short string
+    owner: felt          // Address designated as the contract owner
 ) {
 }
 ----

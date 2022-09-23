@@ -54,7 +54,7 @@ xref:extensibility.adoc#presets[Read more about presets].
 
 [,cairo]
 ----
-# contracts/MyToken.cairo
+// contracts/MyToken.cairo
 
 %lang starknet
 

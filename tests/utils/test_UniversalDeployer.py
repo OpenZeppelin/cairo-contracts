@@ -1,14 +1,16 @@
+import pytest
+from starkware.starknet.core.os.contract_address.contract_address import calculate_contract_address_from_hash
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 from starkware.starknet.core.os.class_hash import compute_class_hash
-import pytest
-from signers import MockSigner
 
+from signers import MockSigner
 from utils import (
     State,
     Account,
     get_contract_class,
-    cached_contract,
     assert_event_emitted,
+    cached_contract,
+    str_to_felt,
     IACCOUNT_ID,
     FALSE,
     TRUE,
@@ -51,19 +53,33 @@ def deployer_factory(contract_classes, deployer_init):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('unique', [TRUE, FALSE])
-async def test_initializer(deployer_factory, unique):
+async def test_deployment(deployer_factory, unique):
     account, deployer = deployer_factory
-
     salt = 1234567875432  # random value
     calldata = [signer.public_key]
     class_hash = compute_class_hash(
         contract_class=Account.get_class, hash_func=pedersen_hash)
 
-    params = [class_hash, salt, unique, len(calldata), *calldata]
-
     # deploy contract
+    params = [class_hash, salt, unique, len(calldata), *calldata]
     deploy_exec_info = await signer.send_transaction(account, deployer.contract_address, 'deployContract', params)
     deployed_address = deploy_exec_info.call_info.retdata[1]
+
+    # check address
+    if unique:
+        prefix = account.contract_address
+    else:
+        prefix = str_to_felt('UniversalDeployerContract')
+
+    actual_salt = pedersen_hash(prefix, salt)
+    expected_address = calculate_contract_address_from_hash(
+        salt=actual_salt,
+        class_hash=class_hash,
+        constructor_calldata=calldata,
+        deployer_address=deployer.contract_address
+    )
+
+    assert deployed_address == expected_address
 
     # check deployment
     tx_exec_info = await signer.send_transaction(account, deployed_address, 'supportsInterface', [IACCOUNT_ID])
@@ -78,6 +94,6 @@ async def test_initializer(deployer_factory, unique):
             deployed_address,          # contractAddress
             account.contract_address,  # deployer
             class_hash,                # classHash
-            salt,                      # salt
+            actual_salt,               # salt
         ]
     )

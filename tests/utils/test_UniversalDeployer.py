@@ -31,11 +31,11 @@ def contract_classes():
 async def deployer_init(contract_classes):
     _, deployer_cls = contract_classes
     starknet = await State.init()
-    account1 = await Account.deploy(signer.public_key)
+    account = await Account.deploy(signer.public_key)
     deployer = await starknet.deploy(contract_class=deployer_cls)
     return (
         starknet.state,
-        account1,
+        account,
         deployer
     )
 
@@ -43,12 +43,12 @@ async def deployer_init(contract_classes):
 @pytest.fixture
 def deployer_factory(contract_classes, deployer_init):
     account_cls, deployer_cls = contract_classes
-    state, account1, deployer = deployer_init
+    state, account, deployer = deployer_init
     _state = state.copy()
-    account = cached_contract(_state, account_cls, account1)
+    _account = cached_contract(_state, account_cls, account)
     deployer = cached_contract(_state, deployer_cls, deployer)
 
-    return account, deployer
+    return _account, deployer
 
 
 @pytest.mark.asyncio

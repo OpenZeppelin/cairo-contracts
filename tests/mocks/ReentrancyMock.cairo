@@ -42,9 +42,9 @@ func current_count{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
 @external
 func callback{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    ReentrancyGuard._start();
+    ReentrancyGuard.start();
     _count();
-    ReentrancyGuard._end();
+    ReentrancyGuard.end();
     return ();
 }
 
@@ -53,7 +53,7 @@ func count_local_recursive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
     n: felt
 ) {
     alloc_locals;
-    ReentrancyGuard._start();
+    ReentrancyGuard.start();
     let greater_zero = is_le(1, n);
     if (greater_zero == TRUE) {
         _count();
@@ -66,7 +66,7 @@ func count_local_recursive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
         tempvar pedersen_ptr = pedersen_ptr;
         tempvar range_check_ptr = range_check_ptr;
     }
-    ReentrancyGuard._end();
+    ReentrancyGuard.end();
     return ();
 }
 
@@ -75,7 +75,7 @@ func count_this_recursive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
     n: felt
 ) {
     alloc_locals;
-    ReentrancyGuard._start();
+    ReentrancyGuard.start();
     let greater_zero = is_le(1, n);
     if (greater_zero == TRUE) {
         _count();
@@ -89,7 +89,7 @@ func count_this_recursive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
         tempvar pedersen_ptr = pedersen_ptr;
         tempvar range_check_ptr = range_check_ptr;
     }
-    ReentrancyGuard._end();
+    ReentrancyGuard.end();
     return ();
 }
 
@@ -97,10 +97,10 @@ func count_this_recursive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
 func count_and_call{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     attacker: felt
 ) {
-    ReentrancyGuard._start();
+    ReentrancyGuard.start();
     _count();
     IReentrancyGuardAttacker.call_sender(attacker);
-    ReentrancyGuard._end();
+    ReentrancyGuard.end();
     return ();
 }
 

@@ -82,12 +82,46 @@ Some presets are:
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/account/presets/Account.cairo[Account]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/tests/mocks/ERC165.cairo[ERC165]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo[ERC20Mintable]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/b764660da224ee757b831ea62bf7a4c63ee898fb/src/openzeppelin/token/erc20/presets/ERC20Burnable.cairo[ERC20Burnable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[ERC20Pausable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[ERC20Upgradeable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc721/presets/ERC721MintableBurnable.cairo[ERC721MintableBurnable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo[ERC721MintablePausable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo[ERC721EnumerableMintableBurnable]
+
+In previous versions of Cairo importing any function from a module would automatically import all `@external` functions. We used to leverage this behavior to just import the constructor of a the preset contract to load it.
+Since Cairo v0.10, however, contracts that utilize the preset contracts should import all of the exposed functions from it. For example:
+
+[,cairo]
+```
+%lang starknet
+
+from openzeppelin.token.erc20.presets.ERC20 import constructor
+```
+
+should now look like:
+
+[,cairo]
+```
+%lang starknet
+
+from openzeppelin.token.erc20.presets.ERC20 import (
+    constructor,
+    name,
+    symbol,
+    totalSupply,
+    decimals,
+    balanceOf,
+    allowance,
+    transfer,
+    transferFrom,
+    approve,
+    increaseAllowance,
+    decreaseAllowance
+)
+```
+
 
 == Function names and coding style
 

@@ -140,4 +140,4 @@ dmypy.json
 docs/build/
 
 # vscode
-.vscode
+.vscode/

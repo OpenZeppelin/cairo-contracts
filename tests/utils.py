@@ -17,8 +17,6 @@ ZERO_ADDRESS = 0
 TRUE = 1
 FALSE = 0
 
-TRANSACTION_VERSION = 0
-
 
 _root = Path(__file__).parent.parent
 

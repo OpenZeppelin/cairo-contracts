@@ -459,6 +459,8 @@ Returns:
 isValid: felt
 ----
 
+NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
+
 === `\\__validate__`
 
 Validates the transaction signature and is called prior to `\\__execute__`.

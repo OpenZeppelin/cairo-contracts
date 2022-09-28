@@ -56,7 +56,20 @@ Presets are ready-to-use contracts that you can deploy right away. They also ser
 
 %lang starknet
 
-from openzeppelin.token.erc20.presets.ERC20 import constructor
+from openzeppelin.token.erc20.presets.ERC20 import (
+    constructor,
+    name,
+    symbol,
+    totalSupply,
+    decimals,
+    balanceOf,
+    allowance,
+    transfer,
+    transferFrom,
+    approve,
+    increaseAllowance,
+    decreaseAllowance
+)
 ```
 
 Compile and deploy it right away:

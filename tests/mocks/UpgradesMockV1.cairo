@@ -4,7 +4,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from openzeppelin.upgrades.library import Proxy
+from openzeppelin.upgrades.library import Proxy, Proxy_initialized
 
 //
 // Storage
@@ -24,6 +24,13 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 ) {
     Proxy.initializer(proxy_admin);
     return ();
+}
+
+@view
+func initialized{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() 
+-> (initialized: felt) {
+    let (initialized) = Proxy_initialized.read();
+    return (initialized=initialized);
 }
 
 //

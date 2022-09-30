@@ -138,20 +138,20 @@ This implementation utilizes https://github.com/OpenZeppelin/nile/blob/main/src/
 
 `sign_transaction` expects the following parameters per transaction:
 
-* `sender` the contract address invoking the tx
+* `sender` the contract address invoking the tx.
 * `calls` a list containing a sublist of each call to be sent.
 Each sublist must consist of:
- .. `to` the address of the target contract of the message
- .. `selector` the function to be called on the target contract
- .. `calldata` the parameters for the given `selector`
+ .. `to` the address of the target contract of the message.
+ .. `selector` the function to be called on the target contract.
+ .. `calldata` the parameters for the given `selector`.
 * `nonce` an unique identifier of this message to prevent transaction replays.
-* `max_fee` the maximum fee a user will pay
+* `max_fee` the maximum fee a user will pay.
 
 Which returns:
 
-* `calldata` a list of arguments for each call
-* `sig_r` the transaction signature
-* `sig_s` the transaction signature
+* `calldata` a list of arguments for each call.
+* `sig_r` the transaction signature.
+* `sig_s` the transaction signature.
 
 While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract.
 To simplify Account management, most of this is abstracted away with `MockSigner`.
@@ -209,8 +209,8 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 The `MockEthSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
 It differs from the `MockSigner` implementation by:
 
-* not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning)
-* signing the message with a secp256k1 curve address
+* Not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning).
+* Signing the message with a secp256k1 curve address.
 
 == Account entrypoints
 
@@ -227,9 +227,9 @@ That's why if you want to change the public key controlling the Account, you wou
 [,python]
 ----
 await signer.send_transaction(
-    account, 
-    account.contract_address, 
-    'set_public_key', 
+    account,
+    account.contract_address,
+    'set_public_key',
     [NEW_KEY]
 )
 ----
@@ -263,10 +263,10 @@ func __execute__(
 
 Where:
 
-* `call_array_len` is the number of calls
-* `call_array` is an array representing each `Call`
-* `calldata_len` is the number of calldata parameters
-* `calldata` is an array representing the function parameters
+* `call_array_len` is the number of calls.
+* `call_array` is an array representing each `Call`.
+* `calldata_len` is the number of calldata parameters.
+* `calldata` is an array representing the function parameters.
 
 NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
@@ -295,10 +295,10 @@ struct Call {
 
 Where:
 
-* `to` is the address of the target contract of the message
-* `selector` is the selector of the function to be called on the target contract
-* `calldata_len` is the number of calldata parameters
-* `calldata` is an array representing the function parameters
+* `to` is the address of the target contract of the message.
+* `selector` is the selector of the function to be called on the target contract.
+* `calldata_len` is the number of calldata parameters.
+* `calldata` is an array representing the function parameters.
 
 === `AccountCallArray`
 
@@ -316,10 +316,10 @@ struct AccountCallArray {
 
 Where:
 
-* `to` is the address of the target contract of the message
-* `selector` is the selector of the function to be called on the target contract
-* `data_offset` is the starting position of the calldata array that holds the ``Call``'s calldata
-* `data_len` is the number of calldata elements in the `Call`
+* `to` is the address of the target contract of the message.
+* `selector` is the selector of the function to be called on the target contract.
+* `data_offset` is the starting position of the calldata array that holds the ``Call``'s calldata.
+* `data_len` is the number of calldata elements in the `Call`.
 
 == Multicall transactions
 
@@ -564,15 +564,15 @@ This is why the Account library comes with different flavors of signature valida
 
 Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.
 
-IMPORTANT: Due to indescretions between the testing framework and the actual StarkNet network, extreme caution should be used when integrating new Account contracts.
+IMPORTANT: Due to current inconsistencies between the testing framework and the actual StarkNet network, extreme caution should be used when integrating new Account contracts.
 Instances have occurred where account functionality tests pass and transactions execute correctly on the local node; yet, they fail on public networks.
 For this reason, it's highly encouraged that new account contracts are also deployed and tested on the public testnet.
 See https://github.com/OpenZeppelin/cairo-contracts/issues/386[issue #386] for more information.
 
 Some other validation schemes to look out for in the future:
 
-* multisig
-* guardian logic like in https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo[Argent's account]
+* Multisig.
+* Guardian logic like in https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo[Argent's account].
 
 == L1 escape hatch mechanism
 

@@ -68,15 +68,15 @@ namespace IERC20 {
 
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
-* it uses Cairo's `uint256` instead of `felt`
-* it returns `TRUE` as success
-* it accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2{caret}8 (imitating `uint8` type)
-* it makes use of Cairo's short strings to simulate `name` and `symbol`
+* It uses Cairo's `uint256` instead of `felt`.
+* It returns `TRUE` as success.
+* It accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2{caret}8 (imitating `uint8` type).
+* It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
 
 * `transfer`, `transferFrom` and `approve` will never return anything different from `TRUE` because they will revert on any error
-* function selectors are calculated differently between https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25[Cairo] and https://solidity-by-example.org/function-selector/[Solidity]
+* Function selectors are calculated differently between https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25[Cairo] and https://solidity-by-example.org/function-selector/[Solidity].
 
 == Usage
 
@@ -153,9 +153,9 @@ For instance, an ERC20 contract with a pausing mechanism can define the pausing 
 
 Some other ways to extend ERC20 contracts may include:
 
-* Implementing a minting mechanism
-* Creating a timelock
-* Adding roles such as owner or minter
+* Implementing a minting mechanism.
+* Creating a timelock.
+* Adding roles such as owner or minter.
 
 For full examples of the extensibility pattern being used in ERC20 contracts, see <<presets,Presets>>.
 

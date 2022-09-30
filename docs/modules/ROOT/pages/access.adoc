@@ -392,8 +392,8 @@ Even further, a declared _constant_ field element in a StarkNet contract stores 
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 
-* using the first or last 251 bits of keccak256 hash digests
-* using Cairo's https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo[hash2]
+* Use the first or last 251 bits of keccak256 hash digests.
+* Use Cairo's https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo[hash2].
 
 === AccessControl library API
 
@@ -503,7 +503,7 @@ If `user` had not been already granted `role`, emits a <<rolegranted,RoleGranted
 
 Requirements:
 
-* the caller must have ``role``'s admin role.
+* The caller must have ``role``'s admin role.
 
 Parameters:
 
@@ -523,7 +523,7 @@ If `user` had been granted `role`, emits a <<rolerevoked,RoleRevoked>> event.
 
 Requirements:
 
-* the caller must have ``role``'s admin role.
+* The caller must have ``role``'s admin role.
 
 Parameters:
 
@@ -545,7 +545,7 @@ If the calling `user` had been revoked `role`, emits a <<rolerevoked,RoleRevoked
 
 Requirements:
 
-* the caller must be `user`.
+* The caller must be `user`.
 
 Parameters:
 
@@ -647,8 +647,8 @@ Emitted when account is revoked role.
 
 `sender` is the account that originated the contract call:
 
-* if using <<revoke_role,revoke_role>>, it is the admin role bearer
-* if using <<renounce_role,renounce_role>>, it is the role bearer (i.e.
+* If using <<revoke_role,revoke_role>>, it is the admin role bearer.
+* If using <<renounce_role,renounce_role>>, it is the role bearer (i.e.
 `account`).
 
 [,cairo]

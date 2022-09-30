@@ -90,9 +90,9 @@ namespace IERC721 {
 
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
-* it uses Cairo's `uint256` instead of `felt`
-* it returns `TRUE` as success
-* it makes use of Cairo's short strings to simulate `name` and `symbol`
+* It uses Cairo's `uint256` instead of `felt`.
+* It returns `TRUE` as success.
+* It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
 
@@ -269,9 +269,9 @@ ERC721 presets have been created to allow for quick deployments as-is.
 To be as explicit as possible, each preset includes the additional features they offer in the contract name.
 For example:
 
-* `ERC721MintableBurnable` includes `mint` and `burn`
-* `ERC721MintablePausable` includes `mint`, `pause`, and `unpause`
-* `ERC721EnumerableMintableBurnable` includes `mint`, `burn`, and <<ierc721enumerable,IERC721Enumerable>> methods
+* `ERC721MintableBurnable` includes `mint` and `burn`.
+* `ERC721MintablePausable` includes `mint`, `pause`, and `unpause`.
+* `ERC721EnumerableMintableBurnable` includes `mint`, `burn`, and <<ierc721enumerable,IERC721Enumerable>> methods.
 
 Ready-to-use presets are a great option for testing and prototyping.
 See <<presets,Presets>>.
@@ -284,9 +284,9 @@ This is already done in the <<presets,preset contracts>>;
 however, additional functionality can be added.
 For instance, you could:
 
-* Implement a pausing mechanism
-* Add roles such as _owner_ or _minter_
-* Modify the `transferFrom` function to mimic the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol#L335[`_beforeTokenTransfer` and `_afterTokenTransfer` hooks]
+* Implement a pausing mechanism.
+* Add roles such as _owner_ or _minter_.
+* Modify the `transferFrom` function to mimic the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol#L335[`_beforeTokenTransfer` and `_afterTokenTransfer` hooks].
 
 Just be sure that the exposed `external` methods invoke their imported function logic a la `approve` invokes `ERC721.approve`.
 As an example, see below.

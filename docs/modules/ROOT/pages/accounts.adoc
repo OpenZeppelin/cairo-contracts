@@ -7,7 +7,8 @@ Unlike Ethereum where accounts are directly derived from a private key, there's 
 Instead, signature validation has to be done at the contract level.
 To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
 
-A more detailed discussion on the topic can be found in https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1] and https://community.starknet.io/t/starknet-account-abstraction-model-part-2/839[StarkNet Account Abstraction Part 2]
+For a general overview of the account abstraction, see StarkWare's https://medium.com/starkware/starknet-alpha-0-10-0-923007290470[StarkNet Alpha 0.10].
+A more detailed discussion on the topic can be found in https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1].
 
 == Table of Contents
 

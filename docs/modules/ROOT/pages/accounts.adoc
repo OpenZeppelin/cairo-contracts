@@ -226,6 +226,14 @@ That's why if you want to change the public key controlling the Account, you wou
 
 [,python]
 ----
+await signer.send_transaction(
+    account, 
+    account.contract_address, 
+    'set_public_key', 
+    [NEW_KEY]
+)
+----
+----
 await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
 ----
 
@@ -549,8 +557,9 @@ NOTE: For Account contracts, ERC165 support is static and does not require Accou
 Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 
 To implement custom account contracts, it's required by the StarkNet compiler that they include the three entrypoint functions `\\__validate__`, `\\__validate_declare__`, and `\\__execute__`.
-`\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction.
-Incoroporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
+
+`\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction. Incoroporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
+
 This is why the Account library comes with different flavors of signature validation methods like `is_valid_eth_signature` and the vanilla `is_valid_signature`.
 
 Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.

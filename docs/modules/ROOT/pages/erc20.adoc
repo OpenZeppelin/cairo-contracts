@@ -140,11 +140,11 @@ Next, the contract should expose the methods with the extended logic therein lik
 [,cairo]
 ----
 @external
-func transfer{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    recipient: felt, amount: Uint256) -> (success: felt) {
-    Pausable.assert_not_paused();          // imported extended logic
-    ERC20.transfer(recipient, amount);     // imported library method
-    return (TRUE);
+func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    recipient: felt, amount: Uint256
+) -> (success: felt) {
+    Pausable.assert_not_paused();                 // imported extended logic
+    return ERC20.transfer(recipient, amount);     // imported library method
 }
 ----
 

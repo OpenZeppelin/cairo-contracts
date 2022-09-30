@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 %lang starknet
 
@@ -6,122 +6,88 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 from openzeppelin.upgrades.library import Proxy
 
-#
-# Storage
-#
+//
+// Storage
+//
 
 @storage_var
-func value_1() -> (res: felt):
-end
+func value_1() -> (val: felt) {
+}
 
 @storage_var
-func value_2() -> (res: felt):
-end
+func value_2() -> (val: felt) {
+}
 
-#
-# Initializer
-#
-
-@external
-func initializer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(proxy_admin: felt):
-    Proxy.initializer(proxy_admin)
-    return ()
-end
-
-#
-# Upgrades
-#
+//
+// Initializer
+//
 
 @external
-func upgrade{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(new_implementation: felt):
-    Proxy.assert_only_admin()
-    Proxy._set_implementation_hash(new_implementation)
-    return ()
-end
+func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    proxy_admin: felt
+) {
+    Proxy.initializer(proxy_admin);
+    return ();
+}
 
-#
-# Getters
-#
+//
+// Upgrades
+//
+
+@external
+func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    new_implementation: felt
+) {
+    Proxy.assert_only_admin();
+    Proxy._set_implementation_hash(new_implementation);
+    return ();
+}
+
+//
+// Getters
+//
 
 @view
-func getValue1{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (val: felt):
-    let (val) = value_1.read()
-    return (val)
-end
+func getValue1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
+    return value_1.read();
+}
 
 @view
-func getValue2{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (val: felt):
-    let (val) = value_2.read()
-    return (val)
-end
+func getValue2{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (val: felt) {
+    return value_2.read();
+}
 
 @view
-func getImplementationHash{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (address: felt):
-    let (address) = Proxy.get_implementation_hash()
-    return (address)
-end
+func getImplementationHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    implementation: felt
+) {
+    return Proxy.get_implementation_hash();
+}
 
 @view
-func getAdmin{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }() -> (admin: felt):
-    let (admin) = Proxy.get_admin()
-    return (admin)
-end
+func getAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (admin: felt) {
+    return Proxy.get_admin();
+}
 
-#
-# Setters
-#
+//
+// Setters
+//
 
 @external
-func setValue1{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(val: felt):
-    value_1.write(val)
-    return ()
-end
+func setValue1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(val: felt) {
+    value_1.write(val);
+    return ();
+}
 
 @external
-func setValue2{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(val: felt):
-    value_2.write(val)
-    return ()
-end
+func setValue2{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(val: felt) {
+    value_2.write(val);
+    return ();
+}
 
 @external
-func setAdmin{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(new_admin: felt):
-    Proxy.assert_only_admin()
-    Proxy._set_admin(new_admin)
-    return ()
-end
+func setAdmin{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(new_admin: felt) {
+    Proxy.assert_only_admin();
+    Proxy._set_admin(new_admin);
+    return ();
+}

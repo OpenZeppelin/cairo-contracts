@@ -24,10 +24,8 @@ NOTE: Expect rapid iteration as this pattern matures and more patterns potential
 
 The general workflow is:
 
-. declare an implementation https://starknet.io/docs/hello_starknet/intro.html#declare-the-contract-on-the-starknet-testnet[contract class]
-. deploy proxy contract with the implementation contract's class hash set in the proxy's constructor calldata
-. initialize the implementation contract by sending a call to the proxy contract.
-This will redirect the call to the implementation contract class and behave like the implementation contract's constructor
+. Declare an implementation https://starknet.io/docs/hello_starknet/intro.html#declare-the-contract-on-the-starknet-testnet[contract class].
+. Deploy proxy contract with the implementation contract's class hash, and the inputs describing the call to initialize the proxy from the implementation (if required). This will redirect the call as a library_call to the implementation (similar to Solidity delegatecall).
 
 In Python, this would look as follows:
 
@@ -39,17 +37,17 @@ In Python, this would look as follows:
     )
 
     # deploy proxy
+    selector = get_selector_from_name('initializer')
+    params = [
+        proxy_admin   # admin account
+    ]
     PROXY = await starknet.deploy(
         "path/to/proxy.cairo",
         constructor_calldata=[
             IMPLEMENTATION.class_hash,  # set implementation contract class hash
-        ]
-    )
-
-    # users should only interact with the proxy contract
-    await signer.send_transaction(
-        account, PROXY.contract_address, 'initializer', [
-            proxy_admin
+            selector,                   # initializer function selector
+            len(params),                # calldata length in felt
+            *params                     # actual calldata
         ]
     )
 ----
@@ -118,23 +116,23 @@ The implementation contract should follow the xref:extensibility.adoc#the_patter
 
 The implementation contract should:
 
-* import `Proxy` namespace
-* initialize the proxy immediately after contract deployment with `Proxy.initializer`.
+* Import `Proxy` namespace.
+* Provide an external initializer function (calling `Proxy.initializer`) to intialize the proxy immediately after deployment.
 
 If the implementation is upgradeable, it should:
 
-* include a method to upgrade the implementation (i.e.
-`upgrade`)
-* use access control to protect the contract's upgradeability.
+* Include a method to upgrade the implementation (i.e.
+`upgrade`).
+* Use access control to protect the contract's upgradeability.
 
 The implementation contract should NOT:
 
-* be deployed like a regular contract.
-Instead, the implementation contract should be declared (which creates a `DeclaredClass` containing its hash and abi)
-* set its initial state with a traditional constructor (decorated with `@constructor`).
+* Be deployed like a regular contract.
+Instead, the implementation contract should be declared (which creates a `DeclaredClass` containing its hash and abi).
+* Set its initial state with a traditional constructor (decorated with `@constructor`).
 Instead, use an initializer method that invokes the Proxy `constructor`.
 
-NOTE: The Proxy `constructor` includes a check the ensures the initializer can only be called once;
+NOTE: The Proxy `constructor` includes a check that ensures the initializer can only be called once;
 however, `_set_implementation` does not include this check.
 It's up to the developers to protect their implementation contract's upgradeability with access controls such as <<assert_only_admin,`assert_only_admin`>>.
 
@@ -293,6 +291,9 @@ To upgrade a contract, the implementation contract should include an `upgrade` m
         "path/to/proxy.cairo",
         constructor_calldata=[
             IMPLEMENTATION.class_hash,  # set implementation hash
+            0,                          # selector set to 0 ignores initialization
+            0,                          # calldata length in felt
+            *[]                         # empty calldata
         ]
     )
 
@@ -335,8 +336,8 @@ result = await erc20.totalSupply().call()
 
 # upgradeable ERC20 call
 result = await signer.send_transaction(
-        account, PROXY.contract_address, 'totalSupply', []
-    )
+    account, PROXY.contract_address, 'totalSupply', []
+)
 ----
 
 == Presets
@@ -347,6 +348,6 @@ They can be deployed as-is or used as templates for customization.
 Some presets include:
 
 * https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[ERC20Upgradeable]
-* more to come!
-have an idea?
-https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose[open an issue]!
+* More to come!
+Have an idea?
+https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose[Open an issue]!

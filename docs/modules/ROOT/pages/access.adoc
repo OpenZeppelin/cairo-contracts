@@ -68,10 +68,8 @@ func initializer(owner: felt) {
 func assert_only_owner() {
 }
 
-
 func owner() -> (owner: felt) {
 }
-
 
 func transfer_ownership(new_owner: felt) {
 }
@@ -424,7 +422,6 @@ func renounce_role(role: felt, user: felt) {
 
 func _grant_role(role: felt, user: felt) {
 }
-
 
 func _revoke_role(role: felt, user: felt) {
 }

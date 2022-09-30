@@ -2,6 +2,8 @@
 
 NOTE: Expect this pattern to evolve (as it has already done) or even disappear if https://community.starknet.io/t/contract-extensibility-pattern/210/11?u=martriay[proper extensibility features] are implemented into Cairo.
 
+== Table of Contents
+
 * <<the_extensibility_problem,The extensibility problem>>
 * <<the_pattern,The pattern ™️>>
  ** <<libraries,Libraries>>

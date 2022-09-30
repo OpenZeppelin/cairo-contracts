@@ -273,7 +273,7 @@ async def foo_init(contract_classes):
     return starknet.state, foo  # return state and all deployed contracts
 
 # memoization
-@pytest.fixture(scope='module')
+@pytest.fixture
 def foo_factory(contract_classes, foo_init):
     foo_cls = contract_classes                          # contract classes
     state, foo = foo_init                               # state and deployed contracts

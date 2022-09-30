@@ -216,7 +216,7 @@ It differs from the `MockSigner` implementation by:
 
 Account contracts contain three entry points for all user interactions with any contract.
 
-1. <<validate_declare,`\\__validate_declare__`>> validates the contract class hash prior to the declaration.
+1. <<validate_declare,`\\__validate_declare__`>> validates the declaration signature prior to the declaration.
 As of Cairo v0.10.0, contract classes should be declared from an Account contract.
 
 2. <<validate,`\\__validate__`>> verifies the transaction signature before executing the transaction with `\\__execute__`.
@@ -488,7 +488,7 @@ Returns: None.
 
 === `\\__validate_declare__`
 
-Validates the declaration class hash and is called prior to declaration.
+Validates the signature for declaration transactions.
 
 Parameters:
 

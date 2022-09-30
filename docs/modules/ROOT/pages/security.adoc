@@ -54,6 +54,7 @@ func whenNotPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     Pausable.assert_not_paused();
 
     // function body
+
     return ();
 }
 
@@ -62,6 +63,7 @@ func whenPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
     Pausable.assert_paused();
 
     // function body
+
     return ();
 }
 ----
@@ -87,7 +89,9 @@ from openzeppelin.security.reentrancyguard.library import ReentrancyGuard
 
 func test_function{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
    ReentrancyGuard._start();
+
    // function body
+
    ReentrancyGuard._end();
    return ();
 }

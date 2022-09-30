@@ -31,25 +31,25 @@ In Python, this would look as follows:
 
 [,python]
 ----
-    # declare implementation contract
-    IMPLEMENTATION = await starknet.declare(
-        "path/to/implementation.cairo",
-    )
+# declare implementation contract
+IMPLEMENTATION = await starknet.declare(
+    "path/to/implementation.cairo",
+)
 
-    # deploy proxy
-    selector = get_selector_from_name('initializer')
-    params = [
-        proxy_admin   # admin account
+# deploy proxy
+selector = get_selector_from_name('initializer')
+params = [
+    proxy_admin   # admin account
+]
+PROXY = await starknet.deploy(
+    "path/to/proxy.cairo",
+    constructor_calldata=[
+        IMPLEMENTATION.class_hash,  # set implementation contract class hash
+        selector,                   # initializer function selector
+        len(params),                # calldata length in felt
+        *params                     # actual calldata
     ]
-    PROXY = await starknet.deploy(
-        "path/to/proxy.cairo",
-        constructor_calldata=[
-            IMPLEMENTATION.class_hash,  # set implementation contract class hash
-            selector,                   # initializer function selector
-            len(params),                # calldata length in felt
-            *params                     # actual calldata
-        ]
-    )
+)
 ----
 
 == Solidity/Cairo upgrades comparison
@@ -281,33 +281,33 @@ To upgrade a contract, the implementation contract should include an `upgrade` m
 
 [,python]
 ----
-    # declare first implementation
-    IMPLEMENTATION = await starknet.declare(
-        "path/to/implementation.cairo",
-    )
+# declare first implementation
+IMPLEMENTATION = await starknet.declare(
+    "path/to/implementation.cairo",
+)
 
-    # deploy proxy
-    PROXY = await starknet.deploy(
-        "path/to/proxy.cairo",
-        constructor_calldata=[
-            IMPLEMENTATION.class_hash,  # set implementation hash
-            0,                          # selector set to 0 ignores initialization
-            0,                          # calldata length in felt
-            *[]                         # empty calldata
-        ]
-    )
+# deploy proxy
+PROXY = await starknet.deploy(
+    "path/to/proxy.cairo",
+    constructor_calldata=[
+        IMPLEMENTATION.class_hash,  # set implementation hash
+        0,                          # selector set to 0 ignores initialization
+        0,                          # calldata length in felt
+        *[]                         # empty calldata
+    ]
+)
 
-    # declare implementation v2
-    IMPLEMENTATION_V2 = await starknet.declare(
-        "path/to/implementation_v2.cairo",
-    )
+# declare implementation v2
+IMPLEMENTATION_V2 = await starknet.declare(
+    "path/to/implementation_v2.cairo",
+)
 
-    # call upgrade with the new implementation contract class hash
-    await signer.send_transaction(
-        account, PROXY.contract_address, 'upgrade', [
-            IMPLEMENTATION_V2.class_hash
-        ]
-    )
+# call upgrade with the new implementation contract class hash
+await signer.send_transaction(
+    account, PROXY.contract_address, 'upgrade', [
+        IMPLEMENTATION_V2.class_hash
+    ]
+)
 ----
 
 For a full deployment and upgrade implementation, please see:

@@ -195,13 +195,13 @@ If utilizing multicall, send multiple transactions with the `send_transactions` 
 
 [,python]
 ----
-    await signer.send_transactions(
-        account,
-        [
-            (contract_address, 'method_name', [param1, param2]),
-            (contract_address, 'another_method', [])
-        ]
-    )
+await signer.send_transactions(
+    account,
+    [
+        (contract_address, 'method_name', [param1, param2]),
+        (contract_address, 'another_method', [])
+    ]
+)
 ----
 
 === MockEthSigner utility
@@ -333,12 +333,12 @@ First, the user sends the messages for the transaction through a Signer instanti
 
 [,python]
 ----
- await signer.send_transaction(
-         account, [
-             (contract_address, 'contract_method', [arg_1]),
-             (contract_address, 'another_method', [arg_1, arg_2])
-         ]
-     )
+await signer.send_transaction(
+    account, [
+        (contract_address, 'contract_method', [arg_1]),
+        (contract_address, 'another_method', [arg_1, arg_2])
+    ]
+)
 ----
 
 Then the `from_call_to_call_array` method in link:https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's signer] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
@@ -385,7 +385,7 @@ namespace Account {
     func __execute__(
         call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
     ) -> (response_len: felt, response: felt*) {
-    }
+}
 ----
 
 === `constructor`

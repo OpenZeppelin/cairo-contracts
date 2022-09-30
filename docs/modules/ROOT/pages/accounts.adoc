@@ -233,9 +233,6 @@ await signer.send_transaction(
     [NEW_KEY]
 )
 ----
-----
-await signer.send_transaction(account, account.contract_address, 'set_public_key', [NEW_KEY])
-----
 
 Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
 

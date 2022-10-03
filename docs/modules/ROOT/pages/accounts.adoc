@@ -45,8 +45,8 @@ A more detailed discussion on the topic can be found in https://community.starkn
 
 The general workflow is:
 
-. Account contract is deployed to StarkNet
-. Signed transactions can now be sent to the Account contract which validates and executes them
+. Account contract is deployed to StarkNet.
+. Signed transactions can now be sent to the Account contract which validates and executes them.
 
 In Python, this would look as follows:
 
@@ -501,8 +501,8 @@ Returns: None.
 This is the only external entrypoint to interact with the Account contract.
 It:
 
-. Calls the target contract with the intended function selector and calldata parameters
-. Forwards the contract call response data as return value
+. Calls the target contract with the intended function selector and calldata parameters.
+. Forwards the contract call response data as return value.
 
 Parameters:
 

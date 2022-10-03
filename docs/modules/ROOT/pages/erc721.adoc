@@ -100,10 +100,10 @@ But some differences can still be found, such as:
 The EIP721 standard, however, states that the return value should be of type string.
 If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters.
-See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
+See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Solidity's selector calculations.
-See <<supporting_interfaces,Supporting Interfaces>>
+See <<supporting_interfaces,Supporting Interfaces>>.
 * `safeTransferFrom` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
 The difference between both functions consists of accepting `data` as an argument.
 Because function overloading is currently not possible in Cairo, `safeTransferFrom` by default accepts the `data` argument.
@@ -112,14 +112,14 @@ If `data` is not used, simply insert `0`.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
 In Cairo, arrays are expressed with the array length preceding the actual array;
-hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`
+hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
 * `ERC165.register_interface` allows contracts to set and communicate which interfaces they support.
-This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
+This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
 * `IERC721Receiver` compliant contracts (`ERC721Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
 This is in line with the ERC165 interfaces design choice towards EVM compatibility.
-See the xref:introspection.adoc[Introspection docs] for more info
+See the xref:introspection.adoc[Introspection docs] for more info.
 * `IERC721Receiver` compliant contracts (`ERC721Holder`) must support ERC165 by registering the `IERC721Receiver` selector id in its constructor and exposing the `supportsInterface` method.
-In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers
+In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers.
 * `ERC721Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
 
 == Usage

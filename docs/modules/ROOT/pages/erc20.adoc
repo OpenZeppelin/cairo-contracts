@@ -75,7 +75,7 @@ Although StarkNet is not EVM compatible, this implementation aims to be as close
 
 But some differences can still be found, such as:
 
-* `transfer`, `transferFrom` and `approve` will never return anything different from `TRUE` because they will revert on any error
+* `transfer`, `transferFrom` and `approve` will never return anything different from `TRUE` because they will revert on any error.
 * Function selectors are calculated differently between https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25[Cairo] and https://solidity-by-example.org/function-selector/[Solidity].
 
 == Usage

@@ -52,7 +52,7 @@ pip install openzeppelin-cairo-contracts
 Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/extensibility#presets).
 
 ```cairo
-# contracts/MyToken.cairo
+// contracts/MyToken.cairo
 
 %lang starknet
 
@@ -97,15 +97,12 @@ from openzeppelin.token.erc20.library import ERC20
 (...)
 
 @external
-func transfer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable.assert_not_paused()
-    ERC20.transfer(recipient, amount)
-    return (TRUE)
-end
+func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    recipient: felt, amount: Uint256
+) -> (success: felt) {
+    Pausable.assert_not_paused();
+    return ERC20.transfer(recipient, amount);
+}
 ```
 
 ## Learn
@@ -244,7 +241,7 @@ This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/lat
 ```python
 from utils import get_contract_class, cached_contract
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def foo_factory():
     # get contract class
     foo_cls = get_contract_class('Foo')

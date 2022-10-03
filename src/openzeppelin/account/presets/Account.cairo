@@ -15,9 +15,9 @@ from openzeppelin.account.library import Account, AccountCallArray
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    public_key: felt
+    publicKey: felt
 ) {
-    Account.initializer(public_key);
+    Account.initializer(publicKey);
     return ();
 }
 

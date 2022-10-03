@@ -27,7 +27,7 @@ There may even not be any direct calls to them!
 ERC20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever).
 In these cases, a contract declaring its interface can be very helpful in preventing errors.
 
-It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/utils/constants/library.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
+It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/utils/constants/library.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
 This allows for more legible code i.e.
 using `IERC165_ID` instead of `0x01ffc9a7`.
 
@@ -50,14 +50,10 @@ from openzeppelin.introspection.erc165.library import ERC165
 INTERFACE_ID = 0x12345678
 
 @constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }():
-    ERC165.register_interface(INTERFACE_ID)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    ERC165.register_interface(INTERFACE_ID);
+    return ();
+}
 ----
 
 === Querying interfaces
@@ -71,20 +67,16 @@ from openzeppelin.introspection.erc265.IERC165 import IERC165
 
 INTERFACE_ID = 0x12345678
 
-func check_support{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr
-    }(
-        target_contract: felt,
-    ) -> (success: felt):
-    let (is_supported) = IERC165.supportsInterface(target_contract, INTERFACE_ID)
-    return (is_supported)
-end
+func check_support{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    target_contract: felt
+) -> (success: felt) {
+    let (is_supported) = IERC165.supportsInterface(target_contract, INTERFACE_ID);
+    return (is_supported);
+}
 ----
 
 NOTE: `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
-This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/introspection/erc165/library.cairo[ERC165 library]) which are snake_cased and not exposed.
+This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/introspection/erc165/library.cairo[ERC165 library]) which are snake_cased and not exposed.
 See the xref:extensibility.adoc#function_names_and_coding_style[Function names and coding style] for more details.
 
 === IERC165
@@ -92,18 +84,18 @@ See the xref:extensibility.adoc#function_names_and_coding_style[Function names a
 [,cairo]
 ----
 @contract_interface
-namespace IERC165:
-    func supportsInterface(interfaceId: felt) -> (success: felt):
-    end
-end
+namespace IERC165 {
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
+}
 ----
 
 === IERC165 API Specification
 
 [,cairo]
 ----
-func supportsInterface(interfaceId: felt) -> (success: felt):
-end
+func supportsInterface(interfaceId: felt) -> (success: felt) {
+}
 ----
 
 ==== `supportsInterface`
@@ -128,11 +120,11 @@ success: felt
 
 [,cairo]
 ----
-func supports_interface(interface_id: felt) -> (success: felt):
-end
+func supports_interface(interface_id: felt) -> (success: felt) {
+}
 
-func register_interface(interface_id: felt):
-end
+func register_interface(interface_id: felt) {
+}
 ----
 
 [#supportsinterface2]

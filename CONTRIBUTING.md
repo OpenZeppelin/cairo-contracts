@@ -6,7 +6,10 @@ We really appreciate and value contributions to OpenZeppelin Contracts for Cairo
 
 Before starting development, please [create an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose) to open the discussion, validate that the PR is wanted, and coordinate overall implementation details.
 
-Also, consider that snake case is used for Cairo development in general due to its strong Python bias, but in order to be compliant with the standards, EIP implementations must use camelCase. Therefore, EIP-based contracts will have their external functions written in camelCase while the rest of the codebase will be in snake_case.
+Also, consider that snake case is used for Cairo development in general due to its strong Python bias.
+This project's opinionated approach consists of using snake_case for all internal functions and camelCasing all exposed functions and parameters.
+To see this casing dichotamy, compare our preset contracts with the libraries from which they're derived such as the [ERC20 preset](./src/openzeppelin/token/erc20/presets/ERC20.cairo) and [ERC20 library](./src/openzeppelin/token/erc20/presets/ERC20.cairo).
+See [Function names and coding style](https://docs.openzeppelin.com/contracts-cairo/0.4.0/extensibility#function_names_and_coding_style) for more information.
 
 And make sure to always include tests and documentation for the new developments. Please consider the following conventions:
 

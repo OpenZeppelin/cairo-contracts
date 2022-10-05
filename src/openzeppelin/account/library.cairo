@@ -18,7 +18,12 @@ from starkware.starknet.common.syscalls import (
     get_tx_info
 )
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
-from openzeppelin.utils.constants.library import IACCOUNT_ID, IERC165_ID
+from openzeppelin.utils.constants.library import (
+    IACCOUNT_ID,
+    IERC165_ID,
+    TRANSACTION_VERSION,
+    QUERY_VERSION
+)
 
 //
 // Storage
@@ -175,13 +180,16 @@ namespace Account {
         alloc_locals;
 
         let (tx_info) = get_tx_info();
-        with_attr error_message("Account: invalid tx version") {
-            assert tx_info.version = 1;
+        // Allow query calls for simulations and assert transaction version
+        if (tx_info.version != QUERY_VERSION) {
+            with_attr error_message("Account: invalid tx version") {
+                assert tx_info.version = TRANSACTION_VERSION;
+            }
         }
 
-        // assert not a reentrant call
+        // Assert not a reentrant call
         let (caller) = get_caller_address();
-        with_attr error_message("Account: no reentrant call") {
+        with_attr error_message("Account: reentrant call attempt") {
             assert caller = 0;
         }
 
@@ -190,7 +198,7 @@ namespace Account {
         _from_call_array_to_call(call_array_len, call_array, calldata, calls);
         let calls_len = call_array_len;
 
-        // execute call
+        // Execute call
         let (response: felt*) = alloc();
         let (response_len) = _execute_list(calls_len, calls, response);
 

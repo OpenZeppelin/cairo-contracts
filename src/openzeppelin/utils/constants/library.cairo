@@ -34,3 +34,11 @@ const IACCESSCONTROL_ID = 0x7965db0b;
 //
 
 const DEFAULT_ADMIN_ROLE = 0;
+
+//
+// Starknet
+//
+
+const TRANSACTION_VERSION = 1;
+// For transactions meant to query and not to be executed by the Starknet OS
+const QUERY_VERSION = 2**128 + TRANSACTION_VERSION;

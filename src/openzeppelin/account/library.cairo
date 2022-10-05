@@ -189,7 +189,7 @@ namespace Account {
 
         // Assert not a reentrant call
         let (caller) = get_caller_address();
-        with_attr error_message("Account: reentrant call attempt") {
+        with_attr error_message("Account: reentrant call") {
             assert caller = 0;
         }
 

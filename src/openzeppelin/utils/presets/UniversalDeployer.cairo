@@ -57,10 +57,11 @@ func deployContract{
     ContractDeployed.emit(
         address=address,
         deployer=deployer,
+        unique=unique,
         classHash=classHash,
         calldata_len=calldata_len,
         calldata=calldata,
-        salt=_salt
+        salt=salt
     );
 
     return (address=address);

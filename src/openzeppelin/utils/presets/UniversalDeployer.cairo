@@ -12,6 +12,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 func ContractDeployed(
     address: felt,
     deployer: felt,
+    unique: felt,
     classHash: felt,
     calldata_len: felt,
     calldata: felt*,

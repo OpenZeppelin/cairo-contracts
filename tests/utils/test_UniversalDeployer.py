@@ -98,7 +98,7 @@ async def test_deployment(deployer_factory, unique):
             unique,                    # unique
             class_hash,                # classHash
             len(calldata),             # calldata_len
-            calldata,                  # calldata
+            calldata[0],               # calldata
             salt,                      # salt
         ]
     )

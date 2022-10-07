@@ -54,50 +54,45 @@ The `ERC721.cairo` contract implements an approximation of https://eips.ethereum
 [,cairo]
 ----
 @contract_interface
-namespace IERC721:
-    func balanceOf(owner: felt) -> (balance: Uint256):
-    end
+namespace IERC721 {
+    func balanceOf(owner: felt) -> (balance: Uint256) {
+    }
 
-    func ownerOf(tokenId: Uint256) -> (owner: felt):
-    end
+    func ownerOf(tokenId: Uint256) -> (owner: felt) {
+    }
 
-    func safeTransferFrom(
-        from_: felt,
-        to: felt,
-        tokenId: Uint256,
-        data_len: felt,
-        data: felt*
-    ):
+    func safeTransferFrom(from_: felt, to: felt, tokenId: Uint256, data_len: felt, data: felt*) {
+    }
 
-    func transferFrom(from_: felt, to: felt, tokenId: Uint256):
-    end
+    func transferFrom(from_: felt, to: felt, tokenId: Uint256) {
+    }
 
-    func approve(approved: felt, tokenId: Uint256):
-    end
+    func approve(approved: felt, tokenId: Uint256) {
+    }
 
-    func setApprovalForAll(operator: felt, approved: felt):
-    end
+    func setApprovalForAll(operator: felt, approved: felt) {
+    }
 
-    func getApproved(tokenId: Uint256) -> (approved: felt):
-    end
+    func getApproved(tokenId: Uint256) -> (approved: felt) {
+    }
 
-    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt):
-    end
+    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+    }
 
     --------------- IERC165 ---------------
 
-    func supportsInterface(interfaceId: felt) -> (success: felt):
-    end
-end
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
+}
 ----
 
 === ERC721 Compatibility
 
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
-* it uses Cairo's `uint256` instead of `felt`
-* it returns `TRUE` as success
-* it makes use of Cairo's short strings to simulate `name` and `symbol`
+* It uses Cairo's `uint256` instead of `felt`.
+* It returns `TRUE` as success.
+* It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
 
@@ -105,10 +100,10 @@ But some differences can still be found, such as:
 The EIP721 standard, however, states that the return value should be of type string.
 If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters.
-See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
+See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Solidity's selector calculations.
-See <<supporting_interfaces,Supporting Interfaces>>
+See <<supporting_interfaces,Supporting Interfaces>>.
 * `safeTransferFrom` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
 The difference between both functions consists of accepting `data` as an argument.
 Because function overloading is currently not possible in Cairo, `safeTransferFrom` by default accepts the `data` argument.
@@ -117,14 +112,14 @@ If `data` is not used, simply insert `0`.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
 In Cairo, arrays are expressed with the array length preceding the actual array;
-hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`
+hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
 * `ERC165.register_interface` allows contracts to set and communicate which interfaces they support.
-This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
+This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
 * `IERC721Receiver` compliant contracts (`ERC721Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
 This is in line with the ERC165 interfaces design choice towards EVM compatibility.
-See the xref:introspection.adoc[Introspection docs] for more info
+See the xref:introspection.adoc[Introspection docs] for more info.
 * `IERC721Receiver` compliant contracts (`ERC721Holder`) must support ERC165 by registering the `IERC721Receiver` selector id in its constructor and exposing the `supportsInterface` method.
-In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers
+In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers.
 * `ERC721Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
 
 == Usage
@@ -138,13 +133,14 @@ This is why we need an Account contract to interact with it.
 
 Considering that the ERC721 constructor method looks like this:
 
-[,python]
+[,cairo]
 ----
 func constructor(
-    name: felt,          # Token name as Cairo short string
-    symbol: felt,        # Token symbol as Cairo short string
-    owner: felt          # Address designated as the contract owner
-):
+    name: felt,          // Token name as Cairo short string
+    symbol: felt,        // Token symbol as Cairo short string
+    owner: felt          // Address designated as the contract owner
+) {
+}
 ----
 
 Deployment of both contracts looks like this:
@@ -251,16 +247,11 @@ Interface for any contract that wants to support safeTransfers from ERC721 asset
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Receiver:
+namespace IERC721Receiver {
     func onERC721Received(
-        operator: felt,
-        from_: felt,
-        tokenId: Uint256,
-        data_len: felt
-        data: felt*
-    ) -> (selector: felt):
-    end
-end
+        operator: felt, from_: felt, tokenId: Uint256, data_len: felt data: felt*) -> (selector: felt) {
+    }
+}
 ----
 
 === Supporting Interfaces
@@ -270,7 +261,7 @@ Instead, the interface IDs are hardcoded from their EVM calculations.
 On the EVM, the interface ID is calculated from the selector's first four bytes of the hash of the function's signature while Cairo selectors are 252 bytes long.
 Due to this difference, hardcoding EVM's already-calculated interface IDs is the most consistent approach to both follow the EIP165 standard and EVM compatibility.
 
-Further, this implementation stores supported interfaces in a mapping (similar to OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]).
+Further, this implementation stores supported interfaces in a mapping (similar to OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]).
 
 === Ready-to-Use Presets
 
@@ -278,9 +269,9 @@ ERC721 presets have been created to allow for quick deployments as-is.
 To be as explicit as possible, each preset includes the additional features they offer in the contract name.
 For example:
 
-* `ERC721MintableBurnable` includes `mint` and `burn`
-* `ERC721MintablePausable` includes `mint`, `pause`, and `unpause`
-* `ERC721EnumerableMintableBurnable` includes `mint`, `burn`, and <<ierc721enumerable,IERC721Enumerable>> methods
+* `ERC721MintableBurnable` includes `mint` and `burn`.
+* `ERC721MintablePausable` includes `mint`, `pause`, and `unpause`.
+* `ERC721EnumerableMintableBurnable` includes `mint`, `burn`, and <<ierc721enumerable,IERC721Enumerable>> methods.
 
 Ready-to-use presets are a great option for testing and prototyping.
 See <<presets,Presets>>.
@@ -293,9 +284,9 @@ This is already done in the <<presets,preset contracts>>;
 however, additional functionality can be added.
 For instance, you could:
 
-* Implement a pausing mechanism
-* Add roles such as _owner_ or _minter_
-* Modify the `transferFrom` function to mimic the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol#L335[`_beforeTokenTransfer` and `_afterTokenTransfer` hooks]
+* Implement a pausing mechanism.
+* Add roles such as _owner_ or _minter_.
+* Modify the `transferFrom` function to mimic the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol#L335[`_beforeTokenTransfer` and `_afterTokenTransfer` hooks].
 
 Just be sure that the exposed `external` methods invoke their imported function logic a la `approve` invokes `ERC721.approve`.
 As an example, see below.
@@ -305,14 +296,12 @@ As an example, see below.
 from openzeppelin.token.erc721.library import ERC721
 
 @external
-func approve{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr: felt*,
-        range_check_ptr
-    }(to: felt, tokenId: Uint256):
+func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    to: felt, tokenId: Uint256
+) {
     ERC721.approve(to, tokenId)
     return()
-end
+}
 ----
 
 == Presets
@@ -354,16 +343,16 @@ In order for the tokens to be correctly indexed, the contract should also use th
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Enumerable:
-    func totalSupply() -> (totalSupply: Uint256):
-    end
+namespace IERC721Enumerable {
+    func totalSupply() -> (totalSupply: Uint256) {
+    }
 
-    func tokenByIndex(index: Uint256) -> (tokenId: Uint256):
-    end
+    func tokenByIndex(index: Uint256) -> (tokenId: Uint256) {
+    }
 
-    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256):
-    end
-end
+    func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256) {
+    }
+}
 ----
 
 === ERC721Metadata
@@ -379,16 +368,16 @@ Note that the `IERC721Metadata` interface id should be removed from the construc
 [,cairo]
 ----
 @contract_interface
-namespace IERC721Metadata:
-    func name() -> (name: felt):
-    end
+namespace IERC721Metadata {
+    func name() -> (name: felt) {
+    }
 
-    func symbol() -> (symbol: felt):
-    end
+    func symbol() -> (symbol: felt) {
+    }
 
-    func tokenURI(tokenId: Uint256) -> (tokenURI: felt):
-    end
-end
+    func tokenURI(tokenId: Uint256) -> (tokenURI: felt) {
+    }
+}
 ----
 
 == Utilities
@@ -409,35 +398,29 @@ See <<erc721received,ERC721Received>>
 
 [,cairo]
 ----
-func balanceOf(owner: felt) -> (balance: Uint256):
-end
+func balanceOf(owner: felt) -> (balance: Uint256) {
+}
 
-func ownerOf(tokenId: Uint256) -> (owner: felt):
-end
+func ownerOf(tokenId: Uint256) -> (owner: felt) {
+}
 
-func safeTransferFrom(
-        from_: felt,
-        to: felt,
-        tokenId: Uint256,
-        data_len: felt,
-        data: felt*
-    ):
-end
+func safeTransferFrom(from_: felt, to: felt, tokenId: Uint256, data_len: felt, data: felt*) {
+}
 
-func transferFrom(from_: felt, to: felt, tokenId: Uint256):
-    end
+func transferFrom(from_: felt, to: felt, tokenId: Uint256) {
+}
 
-func approve(approved: felt, tokenId: Uint256):
-end
+func approve(approved: felt, tokenId: Uint256) {
+}
 
-func setApprovalForAll(operator: felt, approved: felt):
-end
+func setApprovalForAll(operator: felt, approved: felt) {
+}
 
-func getApproved(tokenId: Uint256) -> (approved: felt):
-end
+func getApproved(tokenId: Uint256) -> (approved: felt) {
+}
 
-func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt):
-end
+func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+}
 ----
 
 ==== `balanceOf`
@@ -631,14 +614,14 @@ tokenId: Uint256
 
 [,cairo]
 ----
-func name() -> (name: felt):
-end
+func name() -> (name: felt) {
+}
 
-func symbol() -> (symbol: felt):
-end
+func symbol() -> (symbol: felt) {
+}
 
-func tokenURI(tokenId: Uint256) -> (tokenURI: felt):
-end
+func tokenURI(tokenId: Uint256) -> (tokenURI: felt) {
+}
 ----
 
 ==== `name`
@@ -692,15 +675,14 @@ tokenURI: felt
 
 [,cairo]
 ----
+func totalSupply() -> (totalSupply: Uint256) {
+}
 
-func totalSupply() -> (totalSupply: Uint256):
-end
+func tokenByIndex(index: Uint256) -> (tokenId: Uint256) {
+}
 
-func tokenByIndex(index: Uint256) -> (tokenId: Uint256):
-end
-
-func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256):
-end
+func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256) {
+}
 ----
 
 ==== `totalSupply`
@@ -762,13 +744,9 @@ tokenId: Uint256
 [,cairo]
 ----
 func onERC721Received(
-        operator: felt,
-        from_: felt,
-        tokenId: Uint256,
-        data_len: felt
-        data: felt*
-    ) -> (selector: felt):
-end
+    operator: felt, from_: felt, tokenId: Uint256, data_len: felt data: felt*
+) -> (selector: felt) {
+}
 ----
 
 ==== `onERC721Received`

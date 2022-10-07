@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.3.2 (account/IAccount.cairo)
+// OpenZeppelin Contracts for Cairo v0.4.0 (account/IAccount.cairo)
 
 %lang starknet
 
@@ -19,7 +19,9 @@ namespace IAccount {
     ) {
     }
 
-    func __validate_declare__(class_hash: felt) {
+    // Parameter temporarily named `cls_hash` instead of `class_hash` (expected).
+    // See https://github.com/starkware-libs/cairo-lang/issues/100 for details.
+    func __validate_declare__(cls_hash: felt) {
     }
 
     func __execute__(

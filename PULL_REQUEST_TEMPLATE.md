@@ -16,5 +16,5 @@ Fixes #???? <!-- Fill in with issue number -->
 <!-- Some of the items may not apply. -->
 
 - [ ] Tests
+- [ ] Tried the feature on a public network
 - [ ] Documentation
-- [ ] Changelog entry

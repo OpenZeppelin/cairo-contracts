@@ -190,3 +190,7 @@ async def test_account_takeover_with_reentrant_call(account_factory):
 
     execution_info = await account.getPublicKey().call()
     assert execution_info.result == (signer.public_key,)
+
+
+async def test_interface():
+    assert get_contract_class("IAccount")

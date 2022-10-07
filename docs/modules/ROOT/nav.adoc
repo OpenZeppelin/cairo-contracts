@@ -1,4 +1,5 @@
 * xref:index.adoc[Overview]
+* xref:wizard.adoc[Wizard]
 * xref:extensibility.adoc[Extensibility]
 * xref:proxies.adoc[Proxies and Upgrades]
 
@@ -14,4 +15,3 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-* https://wizard.openzeppelin.com/cairo[Wizard]

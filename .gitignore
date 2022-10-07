@@ -138,3 +138,6 @@ dmypy.json
 
 # docs
 docs/build/
+
+# vscode
+.vscode/

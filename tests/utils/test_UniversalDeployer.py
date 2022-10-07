@@ -68,15 +68,17 @@ async def test_deployment(deployer_factory, unique):
     # check address
     if unique:
         prefix = account.contract_address
+        deployer_address = deployer.contract_address
     else:
         prefix = str_to_felt('UniversalDeployerContract')
+        deployer_address = 0
 
     actual_salt = pedersen_hash(prefix, salt)
     expected_address = calculate_contract_address_from_hash(
         salt=actual_salt,
         class_hash=class_hash,
         constructor_calldata=calldata,
-        deployer_address=deployer.contract_address
+        deployer_address=deployer_address
     )
 
     assert deployed_address == expected_address

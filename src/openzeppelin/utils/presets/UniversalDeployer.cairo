@@ -32,10 +32,13 @@ func deployContract{
     let (deployer) = get_caller_address();
 
     tempvar prefix;
+    tempvar from_zero;
     if (unique == TRUE) {
         prefix = deployer;
+        from_zero = FALSE;
     } else {
         prefix = 'UniversalDeployerContract';
+        from_zero = TRUE;
     }
 
     let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
@@ -45,7 +48,7 @@ func deployContract{
         contract_address_salt=_salt,
         constructor_calldata_size=calldata_len,
         constructor_calldata=calldata,
-        deploy_from_zero=FALSE,
+        deploy_from_zero=from_zero,
     );
 
     ContractDeployed.emit(

@@ -93,12 +93,12 @@ async def test_deployment(deployer_factory, unique):
         from_address=deployer.contract_address,
         name='ContractDeployed',
         data=[
-            deployed_address,          # contractAddress
-            account.contract_address,  # deployer
-            unique,                    # unique
-            class_hash,                # classHash
-            len(calldata),             # calldata_len
-            calldata[0],               # calldata
-            salt,                      # salt
+            deployed_address,         # contractAddress
+            account.contract_address, # deployer
+            unique,                   # unique
+            class_hash,               # classHash
+            len(calldata),            # calldata_len
+            *calldata,                # calldata
+            salt,                     # salt
         ]
     )

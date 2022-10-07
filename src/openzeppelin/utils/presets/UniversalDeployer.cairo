@@ -13,6 +13,8 @@ func ContractDeployed(
     address: felt,
     deployer: felt,
     classHash: felt,
+    calldata_len: felt,
+    calldata: felt*,
     salt: felt
 ) {
 }
@@ -29,6 +31,7 @@ func deployContract{
     calldata_len: felt,
     calldata: felt*
 ) -> (address: felt) {
+    alloc_locals;
     let (deployer) = get_caller_address();
 
     tempvar prefix;
@@ -43,7 +46,7 @@ func deployContract{
 
     let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
 
-    let (address) = deploy(
+    let (local address) = deploy(
         class_hash=classHash,
         contract_address_salt=_salt,
         constructor_calldata_size=calldata_len,
@@ -55,6 +58,8 @@ func deployContract{
         address=address,
         deployer=deployer,
         classHash=classHash,
+        calldata_len=calldata_len,
+        calldata=calldata,
         salt=_salt
     );
 

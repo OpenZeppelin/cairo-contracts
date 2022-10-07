@@ -96,6 +96,8 @@ async def test_deployment(deployer_factory, unique):
             deployed_address,          # contractAddress
             account.contract_address,  # deployer
             class_hash,                # classHash
+            len(calldata),             # calldata_len
+            calldata,                  # calldata
             actual_salt,               # salt
         ]
     )

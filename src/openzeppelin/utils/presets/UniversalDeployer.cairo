@@ -35,17 +35,20 @@ func deployContract{
     alloc_locals;
     let (deployer) = get_caller_address();
 
-    tempvar prefix;
-    tempvar from_zero;
+    local _salt;
+    local from_zero;
     if (unique == TRUE) {
-        prefix = deployer;
+        let (unique_salt) = hash2{hash_ptr=pedersen_ptr}(deployer, salt);
+        _salt = unique_salt;
         from_zero = FALSE;
+        tempvar _pedersen = pedersen_ptr;
     } else {
-        prefix = 'UniversalDeployerContract';
+        _salt = salt;
         from_zero = TRUE;
+        tempvar _pedersen = pedersen_ptr;
     }
 
-    let (_salt) = hash2{hash_ptr=pedersen_ptr}(prefix, salt);
+    tempvar pedersen_ptr = _pedersen;
 
     let (local address) = deploy(
         class_hash=classHash,

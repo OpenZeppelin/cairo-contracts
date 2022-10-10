@@ -48,7 +48,7 @@ func deployContract{
         tempvar _pedersen = pedersen_ptr;
     }
 
-    tempvar pedersen_ptr = _pedersen;
+    let pedersen_ptr = _pedersen;
 
     let (address) = deploy(
         class_hash=classHash,

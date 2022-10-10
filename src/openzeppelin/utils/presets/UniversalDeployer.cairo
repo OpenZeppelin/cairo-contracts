@@ -37,18 +37,17 @@ func deployContract{
 
     local _salt;
     local from_zero;
+    local _pedersen: HashBuiltin* = pedersen_ptr;
     if (unique == TRUE) {
         let (unique_salt) = hash2{hash_ptr=pedersen_ptr}(deployer, salt);
         _salt = unique_salt;
         from_zero = FALSE;
-        tempvar _pedersen = pedersen_ptr;
     } else {
         _salt = salt;
         from_zero = TRUE;
-        tempvar _pedersen = pedersen_ptr;
     }
 
-    tempvar pedersen_ptr = _pedersen;
+    let pedersen_ptr = _pedersen;
 
     let (address) = deploy(
         class_hash=classHash,

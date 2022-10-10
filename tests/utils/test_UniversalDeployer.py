@@ -10,7 +10,6 @@ from utils import (
     get_contract_class,
     assert_event_emitted,
     cached_contract,
-    str_to_felt,
     IACCOUNT_ID,
     FALSE,
     TRUE,

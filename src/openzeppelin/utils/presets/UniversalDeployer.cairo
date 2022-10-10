@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.4.0b (utils/presets/UniversalDeployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.4.0 (utils/presets/UniversalDeployer.cairo)
 
 %lang starknet
 
@@ -50,7 +50,7 @@ func deployContract{
 
     tempvar pedersen_ptr = _pedersen;
 
-    let (local address) = deploy(
+    let (address) = deploy(
         class_hash=classHash,
         contract_address_salt=_salt,
         constructor_calldata_size=calldata_len,

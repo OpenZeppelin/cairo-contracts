@@ -272,7 +272,7 @@ It differs from the `MockSigner` implementation by:
 
 The idea is for all user intent to be encoded into a `Call` representing a smart contract call.
 Users can also pack multiple messages into a single transaction (creating a multicall transaction).
-Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through mutiple ``Call``s.
+Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through multiple ``Call``s.
 Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
 See <<multicall_transactions,Multicall transactions>>.
 
@@ -555,7 +555,7 @@ Account contracts can be extended by following the xref:extensibility.adoc#the_p
 
 To implement custom account contracts, it's required by the StarkNet compiler that they include the three entrypoint functions `\\__validate__`, `\\__validate_declare__`, and `\\__execute__`.
 
-`\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction. Incoroporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
+`\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction. Incorporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
 
 This is why the Account library comes with different flavors of signature validation methods like `is_valid_eth_signature` and the vanilla `is_valid_signature`.
 

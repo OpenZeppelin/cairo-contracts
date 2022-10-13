@@ -5,6 +5,7 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import library_call, library_call_l1_handler
+
 from openzeppelin.upgrades.library import Proxy
 
 // @dev Cairo doesn't support native decoding like Solidity yet,
@@ -20,7 +21,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 ) {
     alloc_locals;
     Proxy._set_implementation_hash(implementation_hash);
-    
+
     if (selector != 0) {
         // Initialize proxy from implementation
         library_call(

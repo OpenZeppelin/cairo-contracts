@@ -7,7 +7,7 @@ We really appreciate and value contributions to OpenZeppelin Contracts for Cairo
 Before starting development, please [create an issue](https://github.com/OpenZeppelin/cairo-contracts/issues/new/choose) to open the discussion, validate that the PR is wanted, and coordinate overall implementation details.
 
 Also, consider that snake case is used for Cairo development in general due to its strong Python bias.
-This project's opinionated approach consists of camelCasing all exposed function names and their parameters:
+This project follows our [Extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/extensibility), camelCasing all exposed function names and their parameters:
 
 ```cairo
 @external

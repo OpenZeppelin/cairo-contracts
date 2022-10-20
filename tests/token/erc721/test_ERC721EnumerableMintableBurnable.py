@@ -1,11 +1,15 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    MAX_UINT256, get_contract_class, cached_contract, TRUE,
-    assert_revert, assert_event_emitted, assert_events_emitted, to_uint,
-    sub_uint, add_uint, ZERO_ADDRESS, State, Account
+from nile.utils import (
+    MAX_UINT256, ZERO_ADDRESS, TRUE, assert_revert, to_uint, sub_uint, add_uint
 )
-from ERC721BaseSuite import ERC721Base, NAME, SYMBOL, NONEXISTENT_TOKEN, DATA, RECIPIENT
+from utils import (
+    get_contract_class, cached_contract, assert_event_emitted,
+    assert_events_emitted, State, Account
+)
+from ERC721BaseSuite import (
+    ERC721Base, NAME, SYMBOL, NONEXISTENT_TOKEN, DATA, RECIPIENT
+)
 from access.OwnableBaseSuite import OwnableBase
 
 

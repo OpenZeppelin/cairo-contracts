@@ -1,8 +1,8 @@
 import pytest
 from signers import MockSigner
+from nile.utils import TRUE, FALSE, assert_revert
 from utils import (
-    TRUE, FALSE, assert_revert, get_contract_class,
-    cached_contract, State, Account
+    get_contract_class, cached_contract, State, Account
 )
 from ERC20BaseSuite import ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY, AMOUNT
 from access.OwnableBaseSuite import OwnableBase

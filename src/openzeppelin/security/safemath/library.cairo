@@ -20,9 +20,7 @@ from starkware.cairo.common.uint256 import (
 namespace SafeUint256 {
     // Adds two integers.
     // Reverts if the sum overflows.
-    func add{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        a: Uint256, b: Uint256
-    ) -> (c: Uint256) {
+    func add{range_check_ptr}(a: Uint256, b: Uint256) -> (c: Uint256) {
         uint256_check(a);
         uint256_check(b);
         let (c: Uint256, is_overflow) = uint256_add(a, b);
@@ -34,9 +32,7 @@ namespace SafeUint256 {
 
     // Subtracts two integers.
     // Reverts if subtrahend (`b`) is greater than minuend (`a`).
-    func sub_le{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        a: Uint256, b: Uint256
-    ) -> (c: Uint256) {
+    func sub_le{range_check_ptr}(a: Uint256, b: Uint256) -> (c: Uint256) {
         alloc_locals;
         uint256_check(a);
         uint256_check(b);
@@ -50,9 +46,7 @@ namespace SafeUint256 {
 
     // Subtracts two integers.
     // Reverts if subtrahend (`b`) is greater than or equal to minuend (`a`).
-    func sub_lt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        a: Uint256, b: Uint256
-    ) -> (c: Uint256) {
+    func sub_lt{range_check_ptr}(a: Uint256, b: Uint256) -> (c: Uint256) {
         alloc_locals;
         uint256_check(a);
         uint256_check(b);
@@ -67,9 +61,7 @@ namespace SafeUint256 {
 
     // Multiplies two integers.
     // Reverts if product is greater than 2^256.
-    func mul{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        a: Uint256, b: Uint256
-    ) -> (c: Uint256) {
+    func mul{range_check_ptr}(a: Uint256, b: Uint256) -> (c: Uint256) {
         alloc_locals;
         uint256_check(a);
         uint256_check(b);
@@ -95,9 +87,7 @@ namespace SafeUint256 {
     // Cairo's `uint256_unsigned_div_rem` already checks:
     //    remainder < divisor
     //    quotient * divisor + remainder == dividend
-    func div_rem{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        a: Uint256, b: Uint256
-    ) -> (c: Uint256, rem: Uint256) {
+    func div_rem{range_check_ptr}(a: Uint256, b: Uint256) -> (c: Uint256, rem: Uint256) {
         alloc_locals;
         uint256_check(a);
         uint256_check(b);

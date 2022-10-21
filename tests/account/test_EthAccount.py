@@ -1,13 +1,11 @@
 import pytest
 from nile.utils import assert_revert, TRUE, FALSE
-from utils import get_contract_class, cached_contract, State
+from utils import get_contract_class, cached_contract, State, IACCOUNT_ID
 from signers import MockEthSigner, get_raw_invoke
 
 private_key = b'\x01' * 32
 signer = MockEthSigner(b'\x01' * 32)
 other = MockEthSigner(b'\x02' * 32)
-
-IACCOUNT_ID = 0xa66bd575
 
 
 @pytest.fixture(scope='module')

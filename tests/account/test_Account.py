@@ -1,13 +1,11 @@
 import pytest
 from signers import MockSigner, get_raw_invoke
 from nile.utils import TRUE, assert_revert
-from utils import get_contract_class, cached_contract, State, Account
+from utils import get_contract_class, cached_contract, State, Account, IACCOUNT_ID
 
 
 signer = MockSigner(123456789987654321)
 other = MockSigner(987654321123456789)
-
-IACCOUNT_ID = 0xa66bd575
 
 
 @pytest.fixture(scope='module')
@@ -113,7 +111,7 @@ async def test_return_value(account_factory):
     read_info = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
-    assert read_info.call_info.retdata[1] == call_result #1
+    assert read_info.call_info.retdata[1] == call_result  # 1
 
 
 @ pytest.mark.asyncio
@@ -139,7 +137,8 @@ async def test_nonce(account_factory):
 
     # higher nonce
     await assert_revert(
-        signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], nonce=current_nonce + 1),
+        signer.send_transactions(account, [(
+            initializable.contract_address, 'initialize', [])], nonce=current_nonce + 1),
         reverted_with="Invalid transaction nonce. Expected: {}, got: {}.".format(
             current_nonce, current_nonce + 1
         )
@@ -185,7 +184,8 @@ async def test_account_takeover_with_reentrant_call(account_factory):
     account, _, _, _, attacker = account_factory
 
     await assert_revert(
-        signer.send_transaction(account, attacker.contract_address, 'account_takeover', []),
+        signer.send_transaction(
+            account, attacker.contract_address, 'account_takeover', []),
         reverted_with="Account: no reentrant call"
     )
 

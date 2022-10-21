@@ -1,13 +1,19 @@
 """Utilities for testing Cairo contracts."""
 
-from pathlib import Path
 import os
+from pathlib import Path
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.business_logic.execution.objects import OrderedEvent
 from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.business_logic.execution.objects import OrderedEvent
-from starkware.starknet.public.abi import get_selector_from_name
 
+MAX_UINT256 = (2**128 - 1, 2**128 - 1)
+INVALID_UINT256 = (MAX_UINT256[0] + 1, MAX_UINT256[1])
+ZERO_ADDRESS = 0
+TRUE = 1
+FALSE = 0
+IACCOUNT_ID = 0xa66bd575
 
 _root = Path(__file__).parent.parent
 

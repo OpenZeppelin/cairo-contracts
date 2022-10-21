@@ -1,9 +1,9 @@
 import pytest
-from utils import (
+from nile.utils import (
     MAX_UINT256, assert_revert, add_uint, sub_uint,
-    mul_uint, div_rem_uint, to_uint,
-    get_contract_class, State
+    mul_uint, div_rem_uint, to_uint
 )
+from utils import get_contract_class, State
 
 
 @pytest.fixture(scope='module')

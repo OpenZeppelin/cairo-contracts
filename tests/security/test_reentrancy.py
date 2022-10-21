@@ -1,7 +1,6 @@
 import pytest
-from utils import (
-    assert_revert, get_contract_class, State
-)
+from nile.utils import assert_revert
+from utils import get_contract_class, State
 
 INITIAL_COUNTER = 0
 

@@ -91,7 +91,7 @@ Some presets are:
 * https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo[ERC721MintablePausable]
 * https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc721/enumerable/presets/ERC721EnumerableMintableBurnable.cairo[ERC721EnumerableMintableBurnable]
 
-In previous versions of Cairo importing any function from a module would automatically import all `@external` functions. We used to leverage this behavior to just import the constructor of a the preset contract to load it.
+In previous versions of Cairo importing any function from a module would automatically import all `@external` functions. We used to leverage this behavior to just import the constructor of the preset contract to load it.
 Since Cairo v0.10, however, contracts that utilize the preset contracts should import all of the exposed functions from it. For example:
 
 [,cairo]

@@ -180,7 +180,7 @@ This preset proves useful for scenarios such as preventing trades until the end 
 
 === ERC20Upgradeable
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[`ERC20Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaing the contract's state.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[`ERC20Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaining the contract's state.
 This preset proves useful for scenarios such as eliminating bugs and adding new features.
 For more on upgradeability, see xref:proxies.adoc#contract_upgrades[Contract upgrades].
 

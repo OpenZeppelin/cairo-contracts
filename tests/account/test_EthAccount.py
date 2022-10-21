@@ -1,5 +1,6 @@
 import pytest
-from utils import assert_revert, get_contract_class, cached_contract, TRUE, FALSE, State
+from nile.utils import assert_revert, TRUE, FALSE
+from utils import get_contract_class, cached_contract, State
 from signers import MockEthSigner, get_raw_invoke
 
 private_key = b'\x01' * 32

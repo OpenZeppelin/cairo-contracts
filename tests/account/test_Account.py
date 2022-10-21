@@ -1,6 +1,7 @@
 import pytest
 from signers import MockSigner, get_raw_invoke
-from utils import assert_revert, get_contract_class, cached_contract, TRUE, State, Account
+from nile.utils import TRUE, assert_revert
+from utils import get_contract_class, cached_contract, State, Account
 
 
 signer = MockSigner(123456789987654321)

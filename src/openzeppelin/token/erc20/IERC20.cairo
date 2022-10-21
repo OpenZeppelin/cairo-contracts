@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.4.0b (token/erc20/IERC20.cairo)
+// OpenZeppelin Contracts for Cairo v0.4.0 (token/erc20/IERC20.cairo)
 
 %lang starknet
 

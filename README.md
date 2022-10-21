@@ -49,10 +49,10 @@ pip install openzeppelin-cairo-contracts
 
 ### Use a basic preset
 
-Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/extensibility#presets).
+Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.4.0/extensibility#presets).
 
 ```cairo
-# contracts/MyToken.cairo
+// contracts/MyToken.cairo
 
 %lang starknet
 
@@ -80,11 +80,11 @@ nile compile
 nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --alias my_token
 ```
 
-> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/utilities#uint256) for more information.
+> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.4.0/utilities#uint256) for more information.
 
 ### Write a custom contract using library modules
 
-[Read more about libraries](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/extensibility#libraries).
+[Read more about libraries](https://docs.openzeppelin.com/contracts-cairo/0.4.0/extensibility#libraries).
 
 ```cairo
 %lang starknet
@@ -97,15 +97,12 @@ from openzeppelin.token.erc20.library import ERC20
 (...)
 
 @external
-func transfer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable.assert_not_paused()
-    ERC20.transfer(recipient, amount)
-    return (TRUE)
-end
+func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    recipient: felt, amount: Uint256
+) -> (success: felt) {
+    Pausable.assert_not_paused();
+    return ERC20.transfer(recipient, amount);
+}
 ```
 
 ## Learn
@@ -114,13 +111,13 @@ end
 
 Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)! Featuring:
 
-- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/accounts)
-- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/erc20)
-- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/erc721)
-- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/extensibility)
-- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/proxies)
-- [Security](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/security)
-- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/utilities)
+- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.4.0/accounts)
+- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.4.0/erc20)
+- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.4.0/erc721)
+- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.4.0/extensibility)
+- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.4.0/proxies)
+- [Security](https://docs.openzeppelin.com/contracts-cairo/0.4.0/security)
+- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.4.0/utilities)
 
 ### Cairo
 
@@ -244,7 +241,7 @@ This repo utilizes the [pytest-xdist](https://pytest-xdist.readthedocs.io/en/lat
 ```python
 from utils import get_contract_class, cached_contract
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def foo_factory():
     # get contract class
     foo_cls = get_contract_class('Foo')
@@ -260,7 +257,7 @@ def foo_factory():
     return cached_foo
 ```
 
-See [Memoization](https://docs.openzeppelin.com/contracts-cairo/0.4.0b/utilities#memoization) in the Utilities documentation for a more thorough example on caching contracts.
+See [Memoization](https://docs.openzeppelin.com/contracts-cairo/0.4.0/utilities#memoization) in the Utilities documentation for a more thorough example on caching contracts.
 
 > Note that this does not apply for stateless libraries such as SafeMath.
 

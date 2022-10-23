@@ -1,6 +1,7 @@
 import pytest
 from signers import MockSigner
-from utils import  get_contract_class, assert_revert, cached_contract, State, Account
+from nile.utils import assert_revert
+from utils import State, Account, get_contract_class, cached_contract
 from OwnableBaseSuite import OwnableBase
 
 

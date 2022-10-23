@@ -1,10 +1,8 @@
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 from signers import MockSigner
-from utils import (
-    to_uint, sub_uint, str_to_felt, assert_revert, TRUE,
-    get_contract_class, cached_contract, State, Account,
-    get_selector_from_name
-)
+from nile.utils import to_uint, sub_uint, str_to_felt, assert_revert, TRUE
+from utils import get_contract_class, cached_contract, State, Account
 
 
 signer = MockSigner(123456789987654321)

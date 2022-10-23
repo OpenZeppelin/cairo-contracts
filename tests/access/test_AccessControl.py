@@ -1,11 +1,9 @@
 import pytest
 from pathlib import Path
 from signers import MockSigner
+from nile.utils import TRUE, FALSE, assert_revert
 from utils import (
-    TRUE, FALSE,
-    assert_event_emitted, assert_revert,
-    get_contract_class, cached_contract,
-    State, Account
+    State, Account, assert_event_emitted, get_contract_class, cached_contract
 )
 
 DEFAULT_ADMIN_ROLE = 0

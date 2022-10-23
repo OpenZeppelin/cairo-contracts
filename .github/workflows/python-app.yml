@@ -28,7 +28,7 @@ jobs:
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80
         with:
-          commit_message: Bump version to ${{ env.RELEASE_VERSION }}
+          commit_message: Bump version to ${{ env.RELEASE_VERSION }} [skip ci]
           create_branch: true
           branch: release-${{ env.RELEASE_VERSION }}
       - name: Merge changes to main
@@ -36,6 +36,9 @@ jobs:
           git checkout "main"
           git merge "release-${{ env.RELEASE_VERSION }}" --no-edit
           git push
+
+          git tag -f ${{ env.RELEASE_VERSION }}
+          git push -f origin "${{ env.RELEASE_VERSION }}"
 
   test:
     runs-on: ubuntu-latest

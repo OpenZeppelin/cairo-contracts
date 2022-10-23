@@ -2,7 +2,7 @@ from starkware.starknet.core.os.transaction_hash.transaction_hash import Transac
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction
 from starkware.starknet.business_logic.transaction.objects import InternalTransaction, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
-from utils import to_uint
+from nile.utils import to_uint
 import eth_keys
 
 

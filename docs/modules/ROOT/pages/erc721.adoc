@@ -331,7 +331,7 @@ In regard to implementation, contracts should expose the following view methods:
 * `ERC721Enumerable.token_by_index`
 * `ERC721Enumerable.token_of_owner_by_index`
 
-In order for the tokens to be correctly indexed, the contract should also use the following methods (which supercede some of the base `ERC721` methods):
+In order for the tokens to be correctly indexed, the contract should also use the following methods (which supersede some of the base `ERC721` methods):
 
 * `ERC721Enumerable.transfer_from`
 * `ERC721Enumerable.safe_transfer_from`

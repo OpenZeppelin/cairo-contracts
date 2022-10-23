@@ -1,9 +1,11 @@
 import pytest
 from signers import MockSigner
+from nile.utils import (
+    add_uint, sub_uint, ZERO_ADDRESS, INVALID_UINT256, assert_revert,
+)
 from utils import (
-    add_uint, sub_uint, ZERO_ADDRESS, INVALID_UINT256,
-    get_contract_class, cached_contract, assert_revert, assert_event_emitted,
-    assert_events_emitted, State, Account
+    get_contract_class, cached_contract, assert_events_emitted,
+    assert_event_emitted, State, Account
 )
 from ERC20BaseSuite import (
     ERC20Base, NAME, SYMBOL, DECIMALS, INIT_SUPPLY, AMOUNT, UINT_ONE, UINT_ZERO

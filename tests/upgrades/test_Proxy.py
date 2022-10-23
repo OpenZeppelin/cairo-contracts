@@ -1,12 +1,13 @@
 import pytest
+from starkware.starknet.public.abi import get_selector_from_name
 from signers import MockSigner
+from nile.utils import (
+    assert_revert, assert_revert_entry_point
+)
 from utils import (
-    assert_revert,
     get_contract_class,
     cached_contract,
     assert_event_emitted,
-    assert_revert_entry_point,
-    get_selector_from_name,
     State,
     Account
 )

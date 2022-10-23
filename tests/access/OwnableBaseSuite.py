@@ -1,9 +1,7 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    ZERO_ADDRESS,
-    assert_event_emitted,
-)
+from nile.utils import ZERO_ADDRESS
+from utils import assert_event_emitted
 
 
 signer = MockSigner(123456789987654321)

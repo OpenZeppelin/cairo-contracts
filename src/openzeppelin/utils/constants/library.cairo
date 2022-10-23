@@ -40,7 +40,3 @@ const DEFAULT_ADMIN_ROLE = 0;
 //
 
 const TRANSACTION_VERSION = 1;
-// The offset for query transaction versions
-const QUERY_VERSION_BASE = 2**128;
-// For transactions meant to simulate and not to be executed by the Starknet OS
-const QUERY_VERSION = QUERY_VERSION_BASE + TRANSACTION_VERSION;

@@ -10,6 +10,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.math import split_felt
+from starkware.cairo.common.math_cmp import is_le_felt
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.starknet.common.syscalls import (
     call_contract,
@@ -18,7 +19,11 @@ from starkware.starknet.common.syscalls import (
     get_tx_info
 )
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
-from openzeppelin.utils.constants.library import IACCOUNT_ID, IERC165_ID
+from openzeppelin.utils.constants.library import (
+    IACCOUNT_ID,
+    IERC165_ID,
+    TRANSACTION_VERSION
+)
 
 //
 // Storage
@@ -175,13 +180,14 @@ namespace Account {
         alloc_locals;
 
         let (tx_info) = get_tx_info();
-        with_attr error_message("Account: invalid tx version") {
-            assert tx_info.version = 1;
+        // Disallow deprecated tx versions
+        with_attr error_message("Account: deprecated tx version") {
+            assert is_le_felt(TRANSACTION_VERSION, tx_info.version) = TRUE;
         }
 
-        // assert not a reentrant call
+        // Assert not a reentrant call
         let (caller) = get_caller_address();
-        with_attr error_message("Account: no reentrant call") {
+        with_attr error_message("Account: reentrant call") {
             assert caller = 0;
         }
 
@@ -190,7 +196,7 @@ namespace Account {
         _from_call_array_to_call(call_array_len, call_array, calldata, calls);
         let calls_len = call_array_len;
 
-        // execute call
+        // Execute call
         let (response: felt*) = alloc();
         let (response_len) = _execute_list(calls_len, calls, response);
 

@@ -34,3 +34,9 @@ const IACCESSCONTROL_ID = 0x7965db0b;
 //
 
 const DEFAULT_ADMIN_ROLE = 0;
+
+//
+// Starknet
+//
+
+const TRANSACTION_VERSION = 1;

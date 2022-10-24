@@ -9,7 +9,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin,
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.memcpy import memcpy
-from starkware.cairo.common.math import split_felt, assert_le
+from starkware.cairo.common.math import split_felt
+from starkware.cairo.common.math_cmp import is_le_felt
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.starknet.common.syscalls import (
     call_contract,
@@ -181,7 +182,7 @@ namespace Account {
         let (tx_info) = get_tx_info();
         // Disallow deprecated tx versions
         with_attr error_message("Account: deprecated tx version") {
-            assert_le(TRANSACTION_VERSION, tx_info.version);
+            assert is_le_felt(TRANSACTION_VERSION, tx_info.version) = TRUE;
         }
 
         // Assert not a reentrant call

@@ -24,6 +24,9 @@ namespace IAccount {
     func __validate_declare__(cls_hash: felt) {
     }
 
+    func __validate_deploy__(selector: felt, calldata_size: felt, calldata: felt*) {
+    }
+
     func __execute__(
         call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
     ) -> (response_len: felt, response: felt*) {

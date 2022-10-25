@@ -186,7 +186,7 @@ async def test_account_takeover_with_reentrant_call(account_factory):
     await assert_revert(
         signer.send_transaction(
             account, attacker.contract_address, 'account_takeover', []),
-        reverted_with="Account: no reentrant call"
+        reverted_with="Account: reentrant call"
     )
 
     execution_info = await account.getPublicKey().call()

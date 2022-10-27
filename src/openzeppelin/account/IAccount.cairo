@@ -11,11 +11,18 @@ namespace IAccount {
     func supportsInterface(interfaceId: felt) -> (success: felt) {
     }
 
-    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+    func isValidSignature(
+        hash: felt,
+        signature_len: felt,
+        signature: felt*
+    ) -> (isValid: felt) {
     }
 
     func __validate__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*
     ) {
     }
 
@@ -24,11 +31,24 @@ namespace IAccount {
     func __validate_declare__(cls_hash: felt) {
     }
 
-    func __validate_deploy__(selector: felt, calldata_size: felt, calldata: felt*) {
+    // Parameter temporarily named `cls_hash` instead of `class_hash` (expected).
+    // See https://github.com/starkware-libs/cairo-lang/issues/100 for details.
+    func __validate_deploy__(
+        cls_hash: felt,
+        salt: felt,
+        calldata_len: felt,
+        calldata: felt*
+    ) {
     }
 
     func __execute__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
+        call_array_len: felt,
+        call_array: AccountCallArray*,
+        calldata_len: felt,
+        calldata: felt*
+    ) -> (
+        response_len: felt,
+        response: felt*
+    ) {
     }
 }

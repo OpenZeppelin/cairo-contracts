@@ -16,9 +16,11 @@ func constructor{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}
-    (ethAddress: felt)
-{
+}(
+    calldata_len: felt,
+    calldata: felt*
+) {
+    let ethAddress = [calldata];
     Account.initializer(ethAddress);
     return ();
 }
@@ -32,9 +34,7 @@ func getEthAddress{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}
-    () -> (ethAddress: felt)
-{
+} () -> (ethAddress: felt) {
     let (ethAddress: felt) = Account.get_public_key();
     return (ethAddress=ethAddress);
 }
@@ -44,9 +44,7 @@ func supportsInterface{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}
-    (interfaceId: felt) -> (success: felt)
-{
+} (interfaceId: felt) -> (success: felt) {
     return Account.supports_interface(interfaceId);
 }
 
@@ -59,9 +57,7 @@ func setEthAddress{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}
-    (newEthAddress: felt)
-{
+} (newEthAddress: felt) {
     Account.set_public_key(newEthAddress);
     return ();
 }
@@ -80,8 +76,7 @@ func isValidSignature{
     hash: felt,
     signature_len: felt,
     signature: felt*
-) -> (isValid: felt)
-{
+) -> (isValid: felt) {
     let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature);
     return (isValid=isValid);
 }
@@ -109,9 +104,7 @@ func __validate_declare__{
     pedersen_ptr: HashBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-}
-    (class_hash: felt)
-{
+} (class_hash: felt) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
     return ();
@@ -122,12 +115,13 @@ func __validate_declare__{
 func __validate_deploy__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
-    ecdsa_ptr: SignatureBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr
 } (
-    classHash: felt,
+    class_hash: felt,
     salt: felt,
-    ethAddress: felt
+    calldata_len: felt,
+    calldata: felt*
 ) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);

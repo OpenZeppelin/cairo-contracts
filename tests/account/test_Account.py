@@ -19,7 +19,7 @@ def contract_classes():
 
 @pytest.fixture(scope='module')
 async def account_init(contract_classes):
-    _, init_cls, attacker_cls = contract_classes
+    account_cls, init_cls, attacker_cls = contract_classes
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)
@@ -108,7 +108,7 @@ async def test_return_value(account_factory):
     # initialize, set `initialized = 1`
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    read_info = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    read_info, _, _ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
     assert read_info.call_info.retdata[1] == call_result  # 1

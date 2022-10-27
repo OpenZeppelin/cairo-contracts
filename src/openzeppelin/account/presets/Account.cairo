@@ -119,7 +119,6 @@ func __validate_declare__{
     return ();
 }
 
-@raw_input
 @external
 func __validate_deploy__{
     syscall_ptr: felt*,
@@ -127,9 +126,9 @@ func __validate_deploy__{
     ecdsa_ptr: SignatureBuiltin*,
     range_check_ptr
 } (
-    selector: felt,
-    calldata_size: felt,
-    calldata: felt*
+    classHash: felt,
+    salt: felt,
+    publicKey: felt
 ) {
     let (tx_info) = get_tx_info();
     Account.is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);

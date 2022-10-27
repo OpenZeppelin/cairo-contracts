@@ -17,9 +17,9 @@ func constructor{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
 }
-    (eth_address: felt)
+    (ethAddress: felt)
 {
-    Account.initializer(eth_address);
+    Account.initializer(ethAddress);
     return ();
 }
 
@@ -118,7 +118,6 @@ func __validate_declare__{
 }
 
 
-@raw_input
 @external
 func __validate_deploy__{
     syscall_ptr: felt*,
@@ -126,9 +125,9 @@ func __validate_deploy__{
     ecdsa_ptr: SignatureBuiltin*,
     range_check_ptr
 } (
-    selector: felt,
-    calldata_size: felt,
-    calldata: felt*
+    classHash: felt,
+    salt: felt,
+    ethAddress: felt
 ) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);

@@ -6,7 +6,6 @@ coverage:
     patch:
       default:
         target: 95%
-        only_pulls: true
     project:
       default:
         threshold: 1%

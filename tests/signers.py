@@ -1,6 +1,6 @@
 from lib2to3.pytree import Base
 from starkware.starknet.core.os.transaction_hash.transaction_hash import TransactionHashPrefix
-from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Declare
+from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Declare, DeployAccount
 from starkware.starknet.business_logic.transaction.objects import InternalTransaction, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
 from nile.utils import to_uint, get_contract_class, get_hash
@@ -86,6 +86,50 @@ class BaseSigner():
         external_tx = Declare(
             sender_address=self.account.contract_address,
             contract_class=contract_class,
+            signature=signature,
+            max_fee=max_fee,
+            version=TRANSACTION_VERSION,
+            nonce=nonce,
+        )
+
+        tx = InternalTransaction.from_external(
+            external_tx=external_tx, general_config=state.general_config
+        )
+
+        execution_info = await state.execute_tx(tx=tx)
+        return execution_info
+
+    async def deploy_account(
+        self,
+        account_address,
+        contract_name,
+        salt,
+        calldata,
+        nonce=None,
+        max_fee=0,
+    ) -> TransactionExecutionInfo:
+        state = self.account.state
+
+        if nonce is None:
+            nonce = await state.state.get_nonce_at(contract_address=self.account.contract_address)
+
+        class_hash = get_hash(contract_name)
+
+        transaction_hash = get_transaction_hash(
+            prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
+            account=account_address,
+            calldata=[class_hash, salt, *calldata],
+            nonce=nonce,
+            max_fee=max_fee
+        )
+
+        signature = self.get_signature(transaction_hash)
+
+        external_tx = DeployAccount(
+            sender_address=self.account.contract_address,
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
             signature=signature,
             max_fee=max_fee,
             version=TRANSACTION_VERSION,

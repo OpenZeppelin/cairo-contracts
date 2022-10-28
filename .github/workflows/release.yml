@@ -19,7 +19,7 @@ jobs:
           ref: 'main'
           ssh-key: ${{ secrets.SSH_KEY }}
       - name: Set version
-        run: echo "RELEASE_VERSION=v${GITHUB_REF#refs/*/pre}" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/pre-}" >> $GITHUB_ENV
       - name: Update version
         run: python scripts/update_version.py ${{ env.RELEASE_VERSION }}
       - name: Auto-commit changes

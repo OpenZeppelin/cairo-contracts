@@ -1,4 +1,4 @@
-name: Coverage
+name: Coverage and linter
 
 on:
   pull_request:

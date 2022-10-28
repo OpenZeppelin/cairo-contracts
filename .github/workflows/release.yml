@@ -19,7 +19,7 @@ jobs:
           ref: 'main'
           ssh-key: ${{ secrets.SSH_KEY }}
       - name: Set version
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/pre-}" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Update version
         run: python scripts/update_version.py ${{ env.RELEASE_VERSION }}
       - name: Auto-commit changes
@@ -33,8 +33,6 @@ jobs:
           git checkout "main"
           git merge "release-${{ env.RELEASE_VERSION }}" --no-edit
           git push
-          git tag ${{ env.RELEASE_VERSION }}
-          git push origin ${{ env.RELEASE_VERSION }}
 
 
   dist:

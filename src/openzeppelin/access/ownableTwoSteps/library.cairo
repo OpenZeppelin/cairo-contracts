@@ -55,12 +55,15 @@ namespace OwnableTwoSteps {
     func assert_only_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
         let (owner) = OwnableTwoSteps.owner();
         let (caller) = get_caller_address();
+
         with_attr error_message("OwnableTwoSteps: caller is the zero address") {
             assert_not_zero(caller);
         }
+
         with_attr error_message("OwnableTwoSteps: caller is not the owner") {
             assert owner = caller;
         }
+
         return ();
     }
 
@@ -88,17 +91,18 @@ namespace OwnableTwoSteps {
 
         assert_only_owner();
         _propose_owner(pending_owner);
+
         return ();
     }
 
-    func accept_ownership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-        let (pending_owner) = OwnableTwoSteps.pending_owner();
-        let (caller) = get_caller_address();
-        
+    func accept_ownership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {       
         // Caller cannot be the address zero to avoid overwriting the owner when the pending_owner is not set
         with_attr error_message("OwnableTwoSteps: caller is the zero address") {
+            let (caller) = get_caller_address();
             assert_not_zero(caller);
         }
+
+        let (pending_owner) = OwnableTwoSteps.pending_owner();
 
         // Confirm that a proposal is in motion 
         with_attr error_message("OwnableTwoSteps: a proposal is not in motion") {
@@ -111,6 +115,7 @@ namespace OwnableTwoSteps {
         }
 
         _transfer_ownership(pending_owner);
+
         return ();
     }
 
@@ -137,12 +142,14 @@ namespace OwnableTwoSteps {
 
         // Emit cancellation event
         OwnershipProposalCancelled.emit(caller, pending_owner);
+
         return ();
     }
 
     func renounce_ownership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
         assert_only_owner();
         _transfer_ownership(0);
+
         return ();
     }
 
@@ -155,16 +162,21 @@ namespace OwnableTwoSteps {
 
         let (previous_owner: felt) = OwnableTwoSteps.owner();
         OwnableTwoSteps_owner.write(new_owner);
+
         // Reset pending owner
         _reset_pending_owner();
+
         OwnershipTransferred.emit(previous_owner, new_owner);
+
         return ();
     }
 
     func _propose_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(pending_owner) {
         let (current_owner) = OwnableTwoSteps.owner();
         OwnableTwoSteps_pending_owner.write(pending_owner);
+
         OwnershipProposed.emit(current_owner, pending_owner);
+
         return ();
     }
 

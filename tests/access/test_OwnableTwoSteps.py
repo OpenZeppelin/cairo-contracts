@@ -1,4 +1,3 @@
-from copyreg import constructor
 import pytest
 from signers import MockSigner
 from nile.utils import ZERO_ADDRESS, assert_revert

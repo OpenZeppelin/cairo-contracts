@@ -19,7 +19,7 @@ def contract_classes():
 
 @pytest.fixture(scope='module')
 async def account_init(contract_classes):
-    account_cls, init_cls, attacker_cls = contract_classes
+    _, init_cls, attacker_cls = contract_classes
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)

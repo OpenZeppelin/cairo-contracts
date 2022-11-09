@@ -24,11 +24,11 @@ async def account_init(contract_defs):
 
     account1 = await starknet.deploy(
         contract_class=account_cls,
-        constructor_calldata=[1, signer.eth_address]
+        constructor_calldata=[signer.eth_address]
     )
     account2 = await starknet.deploy(
         contract_class=account_cls,
-        constructor_calldata=[1, signer.eth_address]
+        constructor_calldata=[signer.eth_address]
     )
     initializable1 = await starknet.deploy(
         contract_class=init_cls,

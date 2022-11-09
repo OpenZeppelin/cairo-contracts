@@ -129,6 +129,6 @@ class Account:
     async def deploy(public_key):
         account = await starknet.deploy(
             contract_class=Account.get_class,
-            constructor_calldata=[1, public_key]
+            constructor_calldata=[public_key]
         )
         return account

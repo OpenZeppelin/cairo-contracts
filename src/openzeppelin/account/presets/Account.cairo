@@ -18,11 +18,7 @@ func constructor{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}(
-    calldata_len: felt,
-    calldata: felt*
-) {
-    let publicKey = [calldata];
+}(publicKey: felt) {
     Account.initializer(publicKey);
     return ();
 }
@@ -121,8 +117,7 @@ func __validate_deploy__{
 } (
     class_hash: felt,
     salt: felt,
-    calldata_len: felt,
-    calldata: felt*
+    publicKey: felt
 ) {
     let (tx_info) = get_tx_info();
     Account.is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);

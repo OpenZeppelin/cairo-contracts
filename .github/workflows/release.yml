@@ -1,20 +1,17 @@
-name: Tests and release
+name: Build and Release
 
 on:
-  pull_request:
-  workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["Test"]
     branches:
-    - main
-    tags:
-    - "v*"
-  release:
-    types: [published]
+      - main
+    types:
+      - completed
 
 jobs:
   version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    if: github.event.workflow_run.conclusion == 'success' && github.event_name == 'push'
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v3
@@ -37,39 +34,11 @@ jobs:
           git merge "release-${{ env.RELEASE_VERSION }}" --no-edit
           git push
 
-  test:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: [version]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Markdown Linter
-      uses: docker://avtodev/markdown-lint:v1
-      with:
-        args: README.md CONTRIBUTING.md docs
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest tox cairo-lang
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with tox and pytest
-      run: |
-        tox
 
   dist:
     runs-on: ubuntu-latest
-    needs: [test]
-    name: Python sdist/wheel
+    needs: [version]
+    name: Build package
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v2
@@ -86,7 +55,6 @@ jobs:
 
   dist_upload:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     needs: [dist]
     name: Upload to PyPi
     steps:

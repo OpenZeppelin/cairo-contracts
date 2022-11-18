@@ -55,7 +55,7 @@ def account_factory(contract_classes, account_init):
 
 
 @pytest.mark.asyncio
-async def test_tcounterfactual_deployment(account_factory):
+async def test_counterfactual_deployment(account_factory):
     account, *_ = account_factory
     await signer.declare_class(account, "Account")
 

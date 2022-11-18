@@ -8,6 +8,8 @@ from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.testing.starknet import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 
+
+
 MAX_UINT256 = (2**128 - 1, 2**128 - 1)
 INVALID_UINT256 = (MAX_UINT256[0] + 1, MAX_UINT256[1])
 ZERO_ADDRESS = 0
@@ -17,6 +19,15 @@ IACCOUNT_ID = 0xa66bd575
 
 _root = Path(__file__).parent.parent
 
+
+def get_cairo_path():
+    CAIRO_PATH = os.getenv('CAIRO_PATH')
+    cairo_path = []
+
+    if CAIRO_PATH is not None:
+        cairo_path = [p for p in CAIRO_PATH.split(":")]
+
+    return cairo_path
 
 def contract_path(name):
     if name.startswith("tests/"):
@@ -75,7 +86,8 @@ def get_contract_class(contract, is_path=False):
 
     contract_class = compile_starknet_files(
         files=[path],
-        debug_info=True
+        debug_info=True,
+        cairo_path=get_cairo_path()
     )
     return contract_class
 

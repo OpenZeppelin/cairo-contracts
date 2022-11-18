@@ -913,12 +913,12 @@ class ERC721Base:
 
     @pytest.mark.asyncio
     async def test_setTokenURI_for_nonexistent_token(self, erc721_minted):
-        erc721, _, not_owner, *_ = erc721_minted
+        erc721, account, *_ = erc721_minted
 
         await assert_revert(signer.send_transaction(
-            not_owner, erc721.contract_address, 'setTokenURI', [
+            account, erc721.contract_address, 'setTokenURI', [
                 *NONEXISTENT_TOKEN,
                 SAMPLE_URI_1
             ]),
-            reverted_with="Ownable: caller is not the owner"
+            reverted_with="ERC721_Metadata: set token URI for nonexistent token"
         )

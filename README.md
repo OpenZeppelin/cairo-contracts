@@ -1,6 +1,7 @@
 # OpenZeppelin Contracts for Cairo
 
-[![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/python-app.yml)
+[![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/github/OpenZeppelin/cairo-contracts/branch/main/graph/badge.svg?token=LFSZH8RPOL)](https://codecov.io/github/OpenZeppelin/cairo-contracts)
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 

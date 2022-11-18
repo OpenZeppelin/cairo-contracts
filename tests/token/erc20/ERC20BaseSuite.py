@@ -1,11 +1,13 @@
 import pytest
+import os
+
 from signers import MockSigner
 from nile.utils import (
     to_uint, add_uint, sub_uint, str_to_felt, MAX_UINT256, ZERO_ADDRESS,
     INVALID_UINT256, TRUE, assert_revert
 )
 from utils import (
-    assert_event_emitted, assert_events_emitted, contract_path, State
+    assert_event_emitted, assert_events_emitted, contract_path, State, get_cairo_path
 )
 
 
@@ -57,7 +59,9 @@ class ERC20Base:
                     bad_decimals,
                     *INIT_SUPPLY,
                     account.contract_address
-                ]),
+                ],
+                cairo_path=get_cairo_path()
+            ),
             reverted_with="ERC20: decimals exceed 2^8"
         )
 

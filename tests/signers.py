@@ -1,7 +1,11 @@
 from lib2to3.pytree import Base
 from starkware.starknet.core.os.transaction_hash.transaction_hash import TransactionHashPrefix
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
+from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction, Declare, DeployAccount
-from starkware.starknet.business_logic.transaction.objects import InternalTransaction, TransactionExecutionInfo
+from starkware.starknet.business_logic.transaction.objects import InternalTransaction, InternalDeclare, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
 from nile.common import get_contract_class, get_hash
 from nile.utils import to_uint
@@ -19,14 +23,7 @@ class BaseSigner():
         nonce=None,
         max_fee=0
     ) -> TransactionExecutionInfo:
-        # hexify address before passing to from_call_to_call_array
-        build_calls = []
-        for call in calls:
-            build_call = list(call)
-            build_call[0] = hex(build_call[0])
-            build_calls.append(build_call)
-
-        raw_invocation = get_raw_invoke(account, build_calls)
+        raw_invocation = get_raw_invoke(account, calls)
         state = raw_invocation.state
 
         if nonce is None:
@@ -36,11 +33,13 @@ class BaseSigner():
             prefix=TransactionHashPrefix.INVOKE,
             account=account.contract_address,
             calldata=raw_invocation.calldata,
+            version=TRANSACTION_VERSION,
+            chain_id=StarknetChainId.TESTNET.value,
             nonce=nonce,
-            max_fee=max_fee
+            max_fee=max_fee,
         )
 
-        signature = self.get_signature(transaction_hash)
+        signature = self.sign(transaction_hash)
 
         external_tx = InvokeFunction(
             contract_address=account.contract_address,
@@ -66,10 +65,10 @@ class BaseSigner():
         nonce=None,
         max_fee=0,
     ) -> TransactionExecutionInfo:
-        state = self.account.state
+        state = account.state
 
         if nonce is None:
-            nonce = await state.state.get_nonce_at(contract_address=self.account.contract_address)
+            nonce = await state.state.get_nonce_at(contract_address=account.contract_address)
 
         contract_class = get_contract_class(contract_name)
         class_hash = get_hash(contract_name)
@@ -77,24 +76,23 @@ class BaseSigner():
         transaction_hash = get_transaction_hash(
             prefix=TransactionHashPrefix.DECLARE,
             account=account.contract_address,
-            calldata=[class_hash],
+            calldata=[int(class_hash, 16)],
             nonce=nonce,
-            max_fee=max_fee
+            version=TRANSACTION_VERSION,
+            max_fee=max_fee,
+            chain_id=StarknetChainId.TESTNET.value
         )
 
-        signature = self.get_signature(transaction_hash)
+        signature = self.sign(transaction_hash)
 
-        external_tx = Declare(
-            sender_address=self.account.contract_address,
+        tx = InternalDeclare.create(
+            sender_address=account.contract_address,
             contract_class=contract_class,
-            signature=signature,
+            chain_id=StarknetChainId.TESTNET.value,
             max_fee=max_fee,
             version=TRANSACTION_VERSION,
             nonce=nonce,
-        )
-
-        tx = InternalTransaction.from_external(
-            external_tx=external_tx, general_config=state.general_config
+            signature=signature,
         )
 
         execution_info = await state.execute_tx(tx=tx)
@@ -102,33 +100,33 @@ class BaseSigner():
 
     async def deploy_account(
         self,
-        account_address,
-        contract_name,
-        salt,
+        state,
         calldata,
-        nonce=None,
+        salt=0,
+        nonce=0,
         max_fee=0,
     ) -> TransactionExecutionInfo:
-        state = self.account.state
-
-        if nonce is None:
-            nonce = await state.state.get_nonce_at(contract_address=self.account.contract_address)
-
-        class_hash = get_hash(contract_name)
+        account_address = calculate_contract_address_from_hash(
+            salt=salt,
+            class_hash=self.class_hash,
+            constructor_calldata=calldata,
+            deployer_address=0
+        )
 
         transaction_hash = get_transaction_hash(
             prefix=TransactionHashPrefix.DEPLOY_ACCOUNT,
             account=account_address,
-            calldata=[class_hash, salt, *calldata],
+            calldata=[self.class_hash, salt, *calldata],
             nonce=nonce,
-            max_fee=max_fee
+            version=TRANSACTION_VERSION,
+            max_fee=max_fee,
+            chain_id=StarknetChainId.TESTNET.value
         )
 
-        signature = self.get_signature(transaction_hash)
+        signature = self.sign(transaction_hash)
 
         external_tx = DeployAccount(
-            sender_address=self.account.contract_address,
-            class_hash=class_hash,
+            class_hash=self.class_hash,
             contract_address_salt=salt,
             constructor_calldata=calldata,
             signature=signature,
@@ -178,8 +176,9 @@ class MockSigner(BaseSigner):
     def __init__(self, private_key):
         self.signer = Signer(private_key)
         self.public_key = self.signer.public_key
+        self.class_hash = int(get_hash("Account"), 16)
 
-    def get_signature(self, transaction_hash):
+    def sign(self, transaction_hash):
         sig_r, sig_s = self.signer.sign(transaction_hash)
         return [sig_r, sig_s]
 
@@ -195,8 +194,9 @@ class MockEthSigner(BaseSigner):
     def __init__(self, private_key):
         self.signer = eth_keys.keys.PrivateKey(private_key)
         self.eth_address = int(self.signer.public_key.to_checksum_address(), 0)
+        self.class_hash = int(get_hash("EthAccount"), 16)
 
-    def get_signature(self, transaction_hash):
+    def sign(self, transaction_hash):
         signature = self.signer.sign_msg_hash(
             (transaction_hash).to_bytes(32, byteorder="big"))
         sig_r = to_uint(signature.r)

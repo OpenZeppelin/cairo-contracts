@@ -55,6 +55,20 @@ def account_factory(contract_classes, account_init):
 
 
 @pytest.mark.asyncio
+async def test_tcounterfactual_deployment(account_factory):
+    account, *_ = account_factory
+    await signer.declare_class(account, "Account")
+
+    execution_info = await signer.deploy_account(account.state, [signer.public_key])
+    address = execution_info.validate_info.contract_address
+
+    execution_info = await signer.send_transaction(account, address, 'getPublicKey', [])
+    key = execution_info[0].call_info.retdata[1]
+
+    assert key == signer.public_key
+
+
+@pytest.mark.asyncio
 async def test_constructor(account_factory):
     account, *_ = account_factory
 
@@ -122,7 +136,7 @@ async def test_nonce(account_factory):
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     # get nonce
-    hex_args = [(hex(initializable.contract_address), 'initialized', [])]
+    hex_args = [(initializable.contract_address, 'initialized', [])]
     raw_invocation = get_raw_invoke(account, hex_args)
     current_nonce = await raw_invocation.state.state.get_nonce_at(account.contract_address)
 

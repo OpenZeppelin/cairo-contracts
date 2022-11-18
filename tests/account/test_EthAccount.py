@@ -61,6 +61,18 @@ def account_factory(contract_defs, account_init):
 
 
 @pytest.mark.asyncio
+async def test_counterfactual_deployment(account_factory):
+    account, *_ = account_factory
+    await signer.declare_class(account, "EthAccount")
+
+    execution_info = await signer.deploy_account(account.state, [signer.eth_address])
+    address = execution_info.validate_info.contract_address
+
+    execution_info = await signer.send_transaction(account, address, 'getEthAddress', [])
+    assert execution_info[0].call_info.retdata[1] == signer.eth_address
+
+
+@pytest.mark.asyncio
 async def test_constructor(account_factory):
     account, *_ = account_factory
 

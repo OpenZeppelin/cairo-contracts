@@ -63,9 +63,7 @@ async def test_counterfactual_deployment(account_factory):
     address = execution_info.validate_info.contract_address
 
     execution_info = await signer.send_transaction(account, address, 'getPublicKey', [])
-    key = execution_info[0].call_info.retdata[1]
-
-    assert key == signer.public_key
+    assert execution_info[0].call_info.retdata[1] == signer.public_key
 
 
 @pytest.mark.asyncio

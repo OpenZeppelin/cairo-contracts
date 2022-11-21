@@ -1,0 +1,39 @@
+name: Bump version
+on:
+  workflow_dispatch:
+    inputs:
+      newVersion:
+        description: 'New version'
+
+jobs:
+  version:
+    if: github.actor == 'martriay' ||
+      github.actor == 'ericnordelo' ||
+      github.actor == 'andrew-fleming'
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v3
+      with:
+        ref: main
+        ssh-key: ${{ secrets.SSH_KEY }}
+    - run: |
+        echo "New Version: ${{ github.event.inputs.newVersion }}"
+
+    - name: Iterate and bump version
+      run: |
+        python scripts/update_version.py ${{ github.event.inputs.newVersion }}
+
+    - name: Auto-commit changes to release branch
+      uses: stefanzweifel/git-auto-commit-action@49620cd3ed21ee620a48530e81dba0d139c9cb80
+      with:
+        commit_message: Apply version bump
+        create_branch: true
+        branch: release-${{ github.event.inputs.newVersion }}
+
+    - name: Merge changes to main
+      run: |
+        git checkout "main"
+        git merge "release-${{ github.event.inputs.newVersion }}" --no-edit
+        git push

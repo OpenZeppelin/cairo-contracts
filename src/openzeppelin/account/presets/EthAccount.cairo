@@ -12,10 +12,12 @@ from openzeppelin.account.library import Account, AccountCallArray
 //
 
 @constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    eth_address: felt
-) {
-    Account.initializer(eth_address);
+func constructor{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}(ethAddress: felt) {
+    Account.initializer(ethAddress);
     return ();
 }
 
@@ -24,17 +26,21 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 
 @view
-func getEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    ethAddress: felt
-) {
+func getEthAddress{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+} () -> (ethAddress: felt) {
     let (ethAddress: felt) = Account.get_public_key();
     return (ethAddress=ethAddress);
 }
 
 @view
-func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    interfaceId: felt
-) -> (success: felt) {
+func supportsInterface{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+} (interfaceId: felt) -> (success: felt) {
     return Account.supports_interface(interfaceId);
 }
 
@@ -43,9 +49,11 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 //
 
 @external
-func setEthAddress{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    newEthAddress: felt
-) {
+func setEthAddress{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+} (newEthAddress: felt) {
     Account.set_public_key(newEthAddress);
     return ();
 }
@@ -60,7 +68,11 @@ func isValidSignature{
     pedersen_ptr: HashBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-}(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
+}(
+    hash: felt,
+    signature_len: felt,
+    signature: felt*
+) -> (isValid: felt) {
     let (isValid) = Account.is_valid_eth_signature(hash, signature_len, signature);
     return (isValid=isValid);
 }
@@ -71,7 +83,12 @@ func __validate__{
     pedersen_ptr: HashBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-}(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
+}(
+    call_array_len: felt,
+    call_array: AccountCallArray*,
+    calldata_len: felt,
+    calldata: felt*
+) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
     return ();
@@ -83,7 +100,24 @@ func __validate_declare__{
     pedersen_ptr: HashBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-}(class_hash: felt) {
+} (class_hash: felt) {
+    let (tx_info) = get_tx_info();
+    Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
+    return ();
+}
+
+
+@external
+func __validate_deploy__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    bitwise_ptr: BitwiseBuiltin*,
+    range_check_ptr
+} (
+    class_hash: felt,
+    salt: felt,
+    ethAddress: felt
+) {
     let (tx_info) = get_tx_info();
     Account.is_valid_eth_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
     return ();
@@ -96,8 +130,14 @@ func __execute__{
     ecdsa_ptr: SignatureBuiltin*,
     bitwise_ptr: BitwiseBuiltin*,
     range_check_ptr,
-}(call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) -> (
-    response_len: felt, response: felt*
+}(
+    call_array_len: felt,
+    call_array: AccountCallArray*,
+    calldata_len: felt,
+    calldata: felt*
+) -> (
+    response_len: felt,
+    response: felt*
 ) {
     let (response_len, response) = Account.execute(
         call_array_len, call_array, calldata_len, calldata

@@ -142,7 +142,7 @@ The steps are the following:
 2. Send funds to `address`.
 3. Send a `DeployAccount` type transaction.
 4. The protocol will then validate with `\\__validate_deploy__`.
-5. If successful, it deploys it and the transaction is paid by the contract.
+5. If successful, the protocol deploys the contract and the contract itself pays for the transaction.
 
 Since `address` will utimately depend on the `class_hash` and `calldata`, it's safe for the protocol to validate the signature and spend the funds on that address.
 

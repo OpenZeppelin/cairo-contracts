@@ -54,12 +54,11 @@ class BaseSigner():
             external_tx=external_tx, general_config=state.general_config
         )
         execution_info = await state.execute_tx(tx=tx)
-        # the hash and signature are returned for other tests to use
         return execution_info
 
     async def declare_class(self, account, contract_name) -> TransactionExecutionInfo:
         contract_class = get_contract_class(contract_name)
-        execution_info = account.state.declare(contract_class)
+        execution_info = await account.state.declare(contract_class)
         return execution_info
 
     async def deploy_account(

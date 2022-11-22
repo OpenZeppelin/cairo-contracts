@@ -69,7 +69,7 @@ async def test_counterfactual_deployment(account_factory):
     address = execution_info.validate_info.contract_address
 
     execution_info = await signer.send_transaction(account, address, 'getEthAddress', [])
-    assert execution_info[0].call_info.retdata[1] == signer.eth_address
+    assert execution_info.call_info.retdata[1] == signer.eth_address
 
 
 @pytest.mark.asyncio
@@ -90,18 +90,17 @@ async def test_execute(account_factory):
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (FALSE,)
 
-    _, hash, signature = await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
-
-    validity_info, *_ = await signer.send_transactions(account, [(account.contract_address, 'isValidSignature', [hash, len(signature), *signature])])
-    assert validity_info.call_info.retdata[1] == TRUE
+    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (TRUE,)
 
     # should revert if signature is not correct
+    hash = 0x23564
+    signature = signer.sign(hash)
     await assert_revert(
         signer.send_transactions(account, [(account.contract_address, 'isValidSignature', [
-                                 hash-1, len(signature), *signature])]),
+                                 hash + 1, len(signature), *signature])]),
         reverted_with="Invalid signature"
     )
 
@@ -136,7 +135,7 @@ async def test_return_value(account_factory):
     # initialize, set `initialized = 1`
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    read_info, *_ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    read_info = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
     assert read_info.call_info.retdata[1] == call_result  # 1
@@ -149,8 +148,8 @@ async def test_nonce(account_factory):
     # bump nonce
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
-    hex_args = [(hex(initializable.contract_address), 'initialized', [])]
-    raw_invocation = get_raw_invoke(account, hex_args)
+    args = [(initializable.contract_address, 'initialized', [])]
+    raw_invocation = get_raw_invoke(account, args)
     current_nonce = await raw_invocation.state.state.get_nonce_at(account.contract_address)
 
     # lower nonce

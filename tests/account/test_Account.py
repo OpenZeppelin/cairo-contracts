@@ -63,7 +63,7 @@ async def test_counterfactual_deployment(account_factory):
     address = execution_info.validate_info.contract_address
 
     execution_info = await signer.send_transaction(account, address, 'getPublicKey', [])
-    assert execution_info[0].call_info.retdata[1] == signer.public_key
+    assert execution_info.call_info.retdata[1] == signer.public_key
 
 
 @pytest.mark.asyncio
@@ -120,7 +120,7 @@ async def test_return_value(account_factory):
     # initialize, set `initialized = 1`
     await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
 
-    read_info, _, _ = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    read_info = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
     assert read_info.call_info.retdata[1] == call_result  # 1
@@ -134,8 +134,8 @@ async def test_nonce(account_factory):
     await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
 
     # get nonce
-    hex_args = [(initializable.contract_address, 'initialized', [])]
-    raw_invocation = get_raw_invoke(account, hex_args)
+    args = [(initializable.contract_address, 'initialized', [])]
+    raw_invocation = get_raw_invoke(account, args)
     current_nonce = await raw_invocation.state.state.get_nonce_at(account.contract_address)
 
     # lower nonce

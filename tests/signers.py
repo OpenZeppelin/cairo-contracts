@@ -56,9 +56,9 @@ class BaseSigner():
         execution_info = await state.execute_tx(tx=tx)
         return execution_info
 
-    async def declare_class(self, account, contract_name) -> TransactionExecutionInfo:
+    async def declare_class(self, state, contract_name) -> TransactionExecutionInfo:
         contract_class = get_contract_class(contract_name)
-        execution_info = await account.state.declare(contract_class)
+        execution_info = await state.declare(contract_class)
         return execution_info
 
     async def deploy_account(

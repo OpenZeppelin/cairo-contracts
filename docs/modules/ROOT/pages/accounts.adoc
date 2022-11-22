@@ -240,10 +240,12 @@ The `MockSigner` class in {test-signers}[signers.py] is used to perform transact
 
 NOTE: StarkNet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes StarkNet's API gateway to manually execute the `InvokeFunction` for testing.
 
-Users only need to interact with the following exposed methods to perform a transaction:
+A `MockSigner` instance exposes the following methods:
 
-* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
+* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a link:https://docs.python.org/3/library/asyncio-future.html[future] of a signed transaction, ready to be sent.
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+* `declare_class(state, contract_name)` returns a future of a declaration transaction.
+* `deploy_account(state, calldata, salt=0, nonce=0, max_fee=0)`: returns s future of a counterfactual deployment.
 
 To use `MockSigner`, pass a private key when instantiating the class:
 
@@ -274,6 +276,21 @@ await signer.send_transactions(
     ]
 )
 ----
+
+Use `declare_class` to declare a contract:
+
+[,python]
+----
+await signer.declare_class(state, "Account")
+----
+
+And `deploy_account` to <<counterfactual-deployments,counterfactually>> deploy an account:
+
+[,python]
+----
+await signer.deploy_account(state, [signer.public_key])
+----
+
 
 === MockEthSigner utility
 

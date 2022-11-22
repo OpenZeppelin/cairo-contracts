@@ -78,6 +78,22 @@ async def test_constructor(account_factory):
 
 
 @pytest.mark.asyncio
+async def test_is_valid_signature(account_factory):
+    account, *_ = account_factory
+    hash = 0x23564
+    signature = signer.sign(hash)
+
+    execution_info = await account.isValidSignature(hash, signature).call()
+    assert execution_info.result == (TRUE,)
+
+    # should revert if signature is not correct
+    await assert_revert(
+        account.isValidSignature(hash + 1, signature).call(),
+        reverted_with="Invalid signature"
+    )
+
+
+@pytest.mark.asyncio
 async def test_execute(account_factory):
     account, _, initializable, *_ = account_factory
 

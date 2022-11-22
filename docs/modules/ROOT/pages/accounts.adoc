@@ -244,7 +244,7 @@ A `MockSigner` instance exposes the following methods:
 
 * `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a link:https://docs.python.org/3/library/asyncio-future.html[future] of a signed transaction, ready to be sent.
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
-* `declare_class(state, contract_name)` returns a future of a declaration transaction.
+* `declare_class(account, contract_name, nonce=None, max_fee=0)` returns a future of a declaration transaction.
 * `deploy_account(state, calldata, salt=0, nonce=0, max_fee=0)`: returns s future of a counterfactual deployment.
 
 To use `MockSigner`, pass a private key when instantiating the class:
@@ -281,7 +281,7 @@ Use `declare_class` to declare a contract:
 
 [,python]
 ----
-await signer.declare_class(state, "Account")
+await signer.declare_class(account, "MyToken")
 ----
 
 And `deploy_account` to <<counterfactual_deployments,counterfactually>> deploy an account:

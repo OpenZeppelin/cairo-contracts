@@ -4,7 +4,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction, DeployAccount
-from starkware.starknet.business_logic.transaction.objects import InternalTransaction, TransactionExecutionInfo
+from starkware.starknet.business_logic.transaction.objects import InternalTransaction, InternalDeclare, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
 from nile.common import get_contract_class, get_class_hash
 from nile.utils import to_uint
@@ -56,9 +56,44 @@ class BaseSigner():
         execution_info = await state.execute_tx(tx=tx)
         return execution_info
 
-    async def declare_class(self, state, contract_name) -> TransactionExecutionInfo:
+    async def declare_class(
+        self,
+        account,
+        contract_name,
+        nonce=None,
+        max_fee=0,
+    ) -> TransactionExecutionInfo:
+        state = account.state
+
+        if nonce is None:
+            nonce = await state.state.get_nonce_at(contract_address=account.contract_address)
+
         contract_class = get_contract_class(contract_name)
-        execution_info = await state.declare(contract_class)
+        class_hash = get_class_hash(contract_name)
+
+        transaction_hash = get_transaction_hash(
+            prefix=TransactionHashPrefix.DECLARE,
+            account=account.contract_address,
+            calldata=[class_hash],
+            nonce=nonce,
+            version=TRANSACTION_VERSION,
+            max_fee=max_fee,
+            chain_id=StarknetChainId.TESTNET.value
+        )
+
+        signature = self.sign(transaction_hash)
+
+        tx = InternalDeclare.create(
+            sender_address=account.contract_address,
+            contract_class=contract_class,
+            chain_id=StarknetChainId.TESTNET.value,
+            max_fee=max_fee,
+            version=TRANSACTION_VERSION,
+            nonce=nonce,
+            signature=signature,
+        )
+
+        execution_info = await state.execute_tx(tx=tx)
         return execution_info
 
     async def deploy_account(

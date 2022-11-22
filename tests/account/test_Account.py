@@ -57,7 +57,7 @@ def account_factory(contract_classes, account_init):
 @pytest.mark.asyncio
 async def test_counterfactual_deployment(account_factory):
     account, *_ = account_factory
-    await signer.declare_class(account.state, "Account")
+    await signer.declare_class(account, "Account")
 
     execution_info = await signer.deploy_account(account.state, [signer.public_key])
     address = execution_info.validate_info.contract_address
@@ -97,16 +97,36 @@ async def test_is_valid_signature(account_factory):
 
 
 @pytest.mark.asyncio
+async def test_declare(account_factory):
+    account, *_ = account_factory
+
+    # regular declare works
+    await signer.declare_class(account, "ERC20")
+
+    # wrong signer fails
+    await assert_revert(
+        other.declare_class(account, "ERC20"),
+        reverted_with="is invalid, with respect to the public key"
+    )
+
+
+@pytest.mark.asyncio
 async def test_execute(account_factory):
     account, _, initializable, *_ = account_factory
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (0,)
 
-    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (1,)
+
+    # wrong signer fails
+    await assert_revert(
+        other.send_transaction(account, initializable.contract_address, 'initialize', []),
+        reverted_with="is invalid, with respect to the public key"
+    )
 
 
 @pytest.mark.asyncio
@@ -137,9 +157,9 @@ async def test_return_value(account_factory):
     account, _, initializable, *_ = account_factory
 
     # initialize, set `initialized = 1`
-    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])])
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [])
 
-    read_info = await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    read_info = await signer.send_transaction(account, initializable.contract_address, 'initialized', [])
     call_info = await initializable.initialized().call()
     (call_result, ) = call_info.result
     assert read_info.call_info.retdata[1] == call_result  # 1
@@ -150,7 +170,7 @@ async def test_nonce(account_factory):
     account, _, initializable, *_ = account_factory
 
     # bump nonce
-    await signer.send_transactions(account, [(initializable.contract_address, 'initialized', [])])
+    await signer.send_transaction(account, initializable.contract_address, 'initialized', [])
 
     # get nonce
     args = [(initializable.contract_address, 'initialized', [])]
@@ -159,8 +179,7 @@ async def test_nonce(account_factory):
 
     # lower nonce
     await assert_revert(
-        signer.send_transactions(
-            account, [(initializable.contract_address, 'initialize', [])], nonce=current_nonce - 1),
+        signer.send_transaction(account, initializable.contract_address, 'initialize', [], nonce=current_nonce - 1),
         reverted_with="Invalid transaction nonce. Expected: {}, got: {}.".format(
             current_nonce, current_nonce - 1
         )
@@ -168,15 +187,14 @@ async def test_nonce(account_factory):
 
     # higher nonce
     await assert_revert(
-        signer.send_transactions(account, [(
-            initializable.contract_address, 'initialize', [])], nonce=current_nonce + 1),
+        signer.send_transaction(account, initializable.contract_address, 'initialize', [], nonce=current_nonce + 1),
         reverted_with="Invalid transaction nonce. Expected: {}, got: {}.".format(
             current_nonce, current_nonce + 1
         )
     )
 
     # right nonce
-    await signer.send_transactions(account, [(initializable.contract_address, 'initialize', [])], nonce=current_nonce)
+    await signer.send_transaction(account, initializable.contract_address, 'initialize', [], nonce=current_nonce)
 
     execution_info = await initializable.initialized().call()
     assert execution_info.result == (1,)
@@ -190,7 +208,7 @@ async def test_public_key_setter(account_factory):
     assert execution_info.result == (signer.public_key,)
 
     # set new pubkey
-    await signer.send_transactions(account, [(account.contract_address, 'setPublicKey', [other.public_key])])
+    await signer.send_transaction(account, account.contract_address, 'setPublicKey', [other.public_key])
 
     execution_info = await account.getPublicKey().call()
     assert execution_info.result == (other.public_key,)
@@ -202,10 +220,7 @@ async def test_public_key_setter_different_account(account_factory):
 
     # set new pubkey
     await assert_revert(
-        signer.send_transactions(
-            bad_account,
-            [(account.contract_address, 'setPublicKey', [other.public_key])]
-        ),
+        signer.send_transaction(bad_account, account.contract_address, 'setPublicKey', [other.public_key]),
         reverted_with="Account: caller is not this account"
     )
 

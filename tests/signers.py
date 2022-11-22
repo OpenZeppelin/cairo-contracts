@@ -4,7 +4,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction, DeployAccount
-from starkware.starknet.business_logic.transaction.objects import InternalTransaction, InternalDeclare, TransactionExecutionInfo
+from starkware.starknet.business_logic.transaction.objects import InternalTransaction, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
 from nile.common import get_contract_class, get_class_hash
 from nile.utils import to_uint

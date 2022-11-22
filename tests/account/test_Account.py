@@ -89,7 +89,10 @@ async def test_is_valid_signature(account_factory):
     # should revert if signature is not correct
     await assert_revert(
         account.isValidSignature(hash + 1, signature).call(),
-        reverted_with="Invalid signature"
+        reverted_with=(
+            f"Signature {tuple(signature)}, is invalid, with respect to the public key {signer.public_key}, "
+            f"and the message hash {hash + 1}."
+        )
     )
 
 

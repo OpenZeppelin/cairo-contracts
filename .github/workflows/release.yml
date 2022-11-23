@@ -2,13 +2,14 @@ name: Build and Release
 
 on:
   workflow_run:
-    workflows: ["Test"]
+    workflows: [Test]
     types:
       - completed
 
 jobs:
   dist:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build package
     steps:
     - uses: actions/checkout@v1

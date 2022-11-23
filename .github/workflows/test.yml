@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Fetch commits
+    - name: Get commits
       id: commits
       run: |
         echo "MAIN=$(git show -s --format="%H" origin/main)" >> $GITHUB_OUTPUT

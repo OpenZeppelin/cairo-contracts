@@ -48,6 +48,11 @@ nile init
 pip install openzeppelin-cairo-contracts
 ```
 
+> ⚠️ Warning! ⚠️
+<br>
+Installing directly through GitHub may contain incomplete or breaking implementations.
+While we aim not to introduce such changes, we still strongly recommend installing through [official releases](https://github.com/OpenZeppelin/cairo-contracts/releases/).
+
 ### Use a basic preset
 
 Presets are ready-to-use contracts that you can deploy right away. They also serve as examples of how to use library modules. [Read more about presets](https://docs.openzeppelin.com/contracts-cairo/0.5.1/extensibility#presets).

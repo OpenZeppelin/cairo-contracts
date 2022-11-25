@@ -10,7 +10,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 from starkware.cairo.common.bool import TRUE
 
-from openzeppelin.introspection.erc165.IERC165 import IERC165
+from openzeppelin.introspection.erc165 import IERC165
 from openzeppelin.introspection.erc165.library import ERC165
 from openzeppelin.token.erc1155.IERC1155Receiver import IERC1155Receiver
 from openzeppelin.security.safemath.library import SafeUint256
@@ -760,9 +760,7 @@ func add_to_receiver{
 end
 
 func check_id{range_check_ptr}(id: Uint256):
-    let id_low = id.low
-    let id_high = id.high
-    with_attr error_message("ERC1155: id ({id_low}, {id_high}) is not a valid Uint256"):
+    with_attr error_message("ERC1155: id ({id.low}, {id.high}) is not a valid Uint256"):
         uint256_check(id)
     end
     return ()

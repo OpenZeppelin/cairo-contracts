@@ -48,8 +48,7 @@ nile init
 pip install openzeppelin-cairo-contracts
 ```
 
-> ⚠️ Warning! ⚠️
-<br>
+> ⚠️ Warning! ⚠️  
 Installing directly the `main` branch may contain incomplete or breaking implementations, download [official releases](https://github.com/OpenZeppelin/cairo-contracts/releases/) only.
 
 ### Use a basic preset

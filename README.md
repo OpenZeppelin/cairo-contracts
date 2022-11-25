@@ -50,8 +50,7 @@ pip install openzeppelin-cairo-contracts
 
 > ⚠️ Warning! ⚠️
 <br>
-Installing directly through GitHub may contain incomplete or breaking implementations.
-While we aim not to introduce such changes, we still strongly recommend installing through [official releases](https://github.com/OpenZeppelin/cairo-contracts/releases/).
+Installing directly the `main` branch may contain incomplete or breaking implementations, download [official releases](https://github.com/OpenZeppelin/cairo-contracts/releases/) only.
 
 ### Use a basic preset
 

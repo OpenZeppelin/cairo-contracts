@@ -353,7 +353,9 @@ async def test_balance_of_batch_invalid_id(erc1155_factory):
     await assert_revert(
         erc1155.balanceOfBatch(accounts, INVALID_IDS).invoke(),
         f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
-
+#
+# Minting
+#
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(

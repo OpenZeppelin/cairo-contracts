@@ -1,5 +1,4 @@
 import pytest
-import os
 
 from signers import MockSigner
 from nile.utils import (

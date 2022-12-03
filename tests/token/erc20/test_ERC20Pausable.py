@@ -21,7 +21,7 @@ def contract_classes():
 
 @pytest.fixture(scope='module')
 async def erc20_init(contract_classes):
-    account_cls, erc20_cls = contract_classes
+    _, erc20_cls = contract_classes
     starknet = await State.init()
     account1 = await Account.deploy(signer.public_key)
     account2 = await Account.deploy(signer.public_key)

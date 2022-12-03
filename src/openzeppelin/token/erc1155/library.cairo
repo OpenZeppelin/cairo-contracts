@@ -53,6 +53,10 @@ end
 func ApprovalForAll(account: felt, operator: felt, approved: felt):
 end
 
+@event
+func URI(value: felt, id: Uint256):
+end
+
 #
 # Storage
 #

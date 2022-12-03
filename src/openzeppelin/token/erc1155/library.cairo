@@ -416,7 +416,7 @@ func _do_safe_transfer_acceptance_check{
 }(
     operator: felt, from_: felt, to: felt, id: Uint256, amount: Uint256, data_len: felt, data: felt*
 ) {
-    // Confirm supports IERC1155Reciever interface
+    // Confirm supports IERC1155receiver interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID);
     if (is_supported == TRUE) {
         let (selector) = IERC1155Receiver.onERC1155Received(
@@ -451,7 +451,7 @@ func _do_safe_batch_transfer_acceptance_check{
     data_len: felt,
     data: felt*,
 ) {
-    // Confirm supports IERC1155Reciever interface
+    // Confirm supports IERC1155receiver interface
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID);
     if (is_supported == TRUE) {
         let (selector) = IERC1155Receiver.onERC1155BatchReceived(

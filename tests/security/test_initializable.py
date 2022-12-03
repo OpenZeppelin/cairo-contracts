@@ -1,5 +1,6 @@
 import pytest
-from utils import TRUE, FALSE, assert_revert, get_contract_class, State
+from nile.utils import TRUE, FALSE, assert_revert
+from utils import get_contract_class, State
 
 
 @pytest.mark.asyncio
@@ -11,13 +12,13 @@ async def test_initializer():
     expected = await initializable.initialized().call()
     assert expected.result == (FALSE,)
 
-    await initializable.initialize().invoke()
+    await initializable.initialize().execute()
 
     expected = await initializable.initialized().call()
     assert expected.result == (TRUE,)
 
     # second initialize invocation should revert
     await assert_revert(
-        initializable.initialize().invoke(),
+        initializable.initialize().execute(),
         reverted_with="Initializable: contract already initialized"
     )

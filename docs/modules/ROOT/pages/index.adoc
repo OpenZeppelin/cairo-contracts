@@ -46,6 +46,9 @@ nile init
 pip install openzeppelin-cairo-contracts
 ----
 
+WARNING: Installing directly through GitHub may contain incomplete or breaking implementations.
+While we aim not to introduce such changes, we still strongly recommend installing through https://github.com/OpenZeppelin/cairo-contracts/releases/[official releases].
+
 === Use a basic preset
 
 Presets are ready-to-use contracts that you can deploy right away.
@@ -54,11 +57,24 @@ xref:extensibility.adoc#presets[Read more about presets].
 
 [,cairo]
 ----
-# contracts/MyToken.cairo
+// contracts/MyToken.cairo
 
 %lang starknet
 
-from openzeppelin.token.erc20.presets.ERC20 import constructor
+from openzeppelin.token.erc20.presets.ERC20 import (
+    constructor,
+    name,
+    symbol,
+    totalSupply,
+    decimals,
+    balanceOf,
+    allowance,
+    transfer,
+    transferFrom,
+    approve,
+    increaseAllowance,
+    decreaseAllowance
+)
 ----
 
 Compile and deploy it right away:
@@ -90,13 +106,10 @@ from openzeppelin.token.erc20.library import ERC20
 (...)
 
 @external
-func transfer{
-        syscall_ptr : felt*,
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(recipient: felt, amount: Uint256) -> (success: felt):
-    Pausable.assert_not_paused()
-    ERC20.transfer(recipient, amount)
-    return (TRUE)
-end
+func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    recipient: felt, amount: Uint256
+) -> (success: felt) {
+    Pausable.assert_not_paused();
+    return ERC20.transfer(recipient, amount);
+}
 ----

@@ -29,7 +29,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 
 == Constants
 
-To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/ad399728e6fcd5956a4ed347fb5e8ee731d37ec4/src/openzeppelin/utils/constants/library.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
+To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/utils/constants/library.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
 For more information on how interface ids are calculated, see the xref:introspection.adoc#interface_calculations[ERC165 documentation].
 
 == Strings
@@ -273,7 +273,7 @@ async def foo_init(contract_classes):
     return starknet.state, foo  # return state and all deployed contracts
 
 # memoization
-@pytest.fixture(scope='module')
+@pytest.fixture
 def foo_factory(contract_classes, foo_init):
     foo_cls = contract_classes                          # contract classes
     state, foo = foo_init                               # state and deployed contracts

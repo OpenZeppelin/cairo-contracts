@@ -1,12 +1,10 @@
 import pytest
 from signers import MockSigner
-from utils import State, Account, get_contract_class, cached_contract
+from utils import State, Account, get_contract_class, cached_contract, assert_event_emitted
 
 from nile.utils import (
     MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, TRUE, FALSE,
-    to_uint, add_uint, sub_uint,
-    assert_event_emitted, assert_revert,
-    str_to_felt
+    to_uint, add_uint, sub_uint, assert_revert, str_to_felt
 )
 
 signer = MockSigner(123456789987654321)
@@ -52,7 +50,7 @@ TRANSFER_AMOUNTS = [TRANSFER_AMOUNT, to_uint(1000), to_uint(1500)]
 TRANSFER_DIFFERENCES = [sub_uint(m, t)
                         for m, t in zip(MINT_AMOUNTS, TRANSFER_AMOUNTS)]
 MAX_UINT_AMOUNTS = [to_uint(1), MAX_UINT256, to_uint(1)]
-INVALID_AMOUNTS = to_uint_array([1, MAX_UINT256[0]+1, 1])
+INVALID_AMOUNTS = [to_uint(1), (MAX_UINT256[0]+1, MAX_UINT256[1]), to_uint(1)]
 INVALID_IDS = [to_uint(111),INVALID_UINT256,to_uint(333)]
 
 DEFAULT_URI = str_to_felt('mock://mytoken.v1')
@@ -147,7 +145,7 @@ async def erc1155_minted_factory(contract_classes, erc1155_init):
 async def test_constructor(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
 
-    execution_info = await erc1155.uri(TOKEN_ID).invoke()
+    execution_info = await erc1155.uri(TOKEN_ID).execute()
     assert execution_info.result.uri == DEFAULT_URI
 
 #
@@ -160,7 +158,7 @@ async def test_constructor(erc1155_factory):
 async def test_supports_interface(erc1155_factory, supported_id):
     erc1155, _, _, _ = erc1155_factory
 
-    execution_info = await erc1155.supportsInterface(supported_id).invoke()
+    execution_info = await erc1155.supportsInterface(supported_id).execute()
     assert execution_info.result.success == TRUE
 
 
@@ -169,7 +167,7 @@ async def test_supports_interface(erc1155_factory, supported_id):
 async def test_supports_interface_unsupported(erc1155_factory, unsupported_id):
     erc1155, _, _, _ = erc1155_factory
 
-    execution_info = await erc1155.supportsInterface(unsupported_id).invoke()
+    execution_info = await erc1155.supportsInterface(unsupported_id).execute()
     assert execution_info.result.success == FALSE
 
 #
@@ -186,7 +184,7 @@ async def test_set_uri(erc1155_factory):
         [URI]
     )
 
-    execution_info = await erc1155.uri(TOKEN_ID).invoke()
+    execution_info = await erc1155.uri(TOKEN_ID).execute()
     assert execution_info.result.uri == URI
 
 
@@ -217,7 +215,7 @@ async def test_set_approval_for_all(erc1155_factory):
     )
 
     execution_info = await erc1155.isApprovedForAll(
-        approver, ACCOUNT).invoke()
+        approver, ACCOUNT).execute()
 
     assert execution_info.result.isApproved == TRUE
 
@@ -228,7 +226,7 @@ async def test_set_approval_for_all(erc1155_factory):
     )
 
     execution_info = await erc1155.isApprovedForAll(
-        approver, ACCOUNT).invoke()
+        approver, ACCOUNT).execute()
 
     assert execution_info.result.isApproved == FALSE
 
@@ -298,7 +296,7 @@ async def test_balance_of(erc1155_minted_factory):
 
     user = account.contract_address
 
-    execution_info = await erc1155.balanceOf(user, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(user, TOKEN_ID).execute()
     assert execution_info.result.balance == MINT_AMOUNT
 
 
@@ -307,7 +305,7 @@ async def test_balance_of_zero_address(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
 
     await assert_revert(
-        erc1155.balanceOf(ZERO_ADDRESS, TOKEN_ID).invoke(),
+        erc1155.balanceOf(ZERO_ADDRESS, TOKEN_ID).execute(),
         "ERC1155: address zero is not a valid owner")
 
 
@@ -316,8 +314,8 @@ async def test_balance_of_invalid_id(erc1155_factory):
     erc1155, _, _, _ = erc1155_factory
 
     await assert_revert(
-        erc1155.balanceOf(ACCOUNT, INVALID_UINT256).invoke(),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        erc1155.balanceOf(ACCOUNT, INVALID_UINT256).execute(),
+        "ERC1155: token_id is not a valid Uint256")
 
 
 @pytest.mark.asyncio
@@ -326,7 +324,7 @@ async def test_balance_of_batch(erc1155_minted_factory):
 
     accounts = [account.contract_address]*3
 
-    execution_info = await erc1155.balanceOfBatch(accounts, TOKEN_IDS).invoke()
+    execution_info = await erc1155.balanceOfBatch(accounts, TOKEN_IDS).execute()
     assert execution_info.result.balances == MINT_AMOUNTS
 
 
@@ -336,7 +334,7 @@ async def test_balance_of_batch_zero_address(erc1155_factory):
     accounts = [ACCOUNT, ZERO_ADDRESS, ACCOUNT]
 
     await assert_revert(
-        erc1155.balanceOfBatch(accounts, TOKEN_IDS).invoke(),
+        erc1155.balanceOfBatch(accounts, TOKEN_IDS).execute(),
         "ERC1155: address zero is not a valid owner")
 
 
@@ -347,8 +345,8 @@ async def test_balance_of_batch_invalid_id(erc1155_factory):
     accounts = [ACCOUNT]*3
 
     await assert_revert(
-        erc1155.balanceOfBatch(accounts, INVALID_IDS).invoke(),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        erc1155.balanceOfBatch(accounts, INVALID_IDS).execute(),
+        "ERC1155: token_id is not a valid Uint256")
 #
 # Minting
 #
@@ -361,7 +359,7 @@ async def test_balance_of_batch_uneven_arrays(erc1155_factory, accounts, ids):
     erc1155, _, _, _ = erc1155_factory
 
     await assert_revert(
-        erc1155.balanceOfBatch(accounts, ids).invoke(),
+        erc1155.balanceOfBatch(accounts, ids).execute(),
         "ERC1155: accounts and ids length mismatch")
 
 
@@ -375,7 +373,7 @@ async def test_mint(erc1155_factory):
         owner, erc1155.contract_address, 'mint',
         [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
     assert execution_info.result.balance == MINT_AMOUNT
 
 
@@ -438,7 +436,7 @@ async def test_mint_overflow(erc1155_factory):
     "amount,token_id,error",
     [
         (MINT_AMOUNT, INVALID_UINT256, 
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256"),
+        "ERC1155: token_id is not a valid Uint256"),
         (INVALID_UINT256, TOKEN_ID, 
         "ERC1155: amount is not a valid Uint256")
     ]
@@ -466,7 +464,7 @@ async def test_mint_receiver(erc1155_factory):
         [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
 
     execution_info = await erc1155.balanceOf(
-        recipient, TOKEN_ID).invoke()
+        recipient, TOKEN_ID).execute()
     assert execution_info.result.balance == MINT_AMOUNT
 
 
@@ -510,7 +508,7 @@ async def test_burn(erc1155_minted_factory):
         account, erc1155.contract_address, 'burn',
         [subject, *TOKEN_ID, *BURN_AMOUNT])
 
-    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).execute()
     assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
 
 
@@ -554,7 +552,7 @@ async def test_burn_approved(erc1155_minted_factory):
         account1, erc1155.contract_address, 'burn',
         [subject, *TOKEN_ID, *BURN_AMOUNT])
 
-    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(subject, TOKEN_ID).execute()
     assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
 
 
@@ -632,7 +630,7 @@ async def test_burn_invalid_id(erc1155_minted_factory):
         signer.send_transaction(
             account, erc1155.contract_address, 'burn',
             [burner, *INVALID_UINT256, *to_uint(0)]),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        "ERC1155: token_id is not a valid Uint256")
 
 #
 # Transfer
@@ -650,11 +648,11 @@ async def test_safe_transfer_from(erc1155_minted_factory):
         account2, erc1155.contract_address, 'safeTransferFrom',
         [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).execute()
     assert execution_info.result.balance == sub_uint(
         MINT_AMOUNT, TRANSFER_AMOUNT)
 
-    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
     assert execution_info.result.balance == TRANSFER_AMOUNT
 
 
@@ -701,11 +699,11 @@ async def test_safe_transfer_from_approved(erc1155_minted_factory):
         account1, erc1155.contract_address, 'safeTransferFrom',
         [sender, recipient, *TOKEN_ID, *TRANSFER_AMOUNT, DATA])
 
-    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(sender, TOKEN_ID).execute()
     assert execution_info.result.balance == sub_uint(
         MINT_AMOUNT, TRANSFER_AMOUNT)
 
-    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).invoke()
+    execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
     assert execution_info.result.balance == TRANSFER_AMOUNT
 
 
@@ -773,7 +771,7 @@ async def test_safe_transfer_from_invalid_id(erc1155_factory):
         signer.send_transaction(
             account, erc1155.contract_address, 'safeTransferFrom',
             [sender, recipient, *INVALID_UINT256, *to_uint(0), DATA]),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256"
+        "ERC1155: token_id is not a valid Uint256"
     )
 
 
@@ -853,7 +851,7 @@ async def test_mint_batch(erc1155_factory):
         [recipient, *calldata(TOKEN_IDS), *calldata(MINT_AMOUNTS), DATA])
 
     execution_info = await erc1155.balanceOfBatch(
-        [recipient]*3, TOKEN_IDS).invoke()
+        [recipient]*3, TOKEN_IDS).execute()
     assert execution_info.result.balances == MINT_AMOUNTS
 
 
@@ -917,13 +915,10 @@ async def test_mint_batch_overflow(erc1155_factory):
 @pytest.mark.parametrize(
     "amounts,token_ids,error",
     [
-        (INVALID_AMOUNTS, TOKEN_IDS,
-        "ERC1155: amount is not a valid Uint256"),
-        (MINT_AMOUNTS, INVALID_IDS,
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        (INVALID_AMOUNTS, TOKEN_IDS, "ERC1155: amount is not a valid Uint256"),
+        (MINT_AMOUNTS, INVALID_IDS, "ERC1155: token_id is not a valid Uint256")
     ])
-async def test_mint_batch_invalid_uint(
-        erc1155_factory, amounts, token_ids, error):
+async def test_mint_batch_invalid_uint(erc1155_factory, amounts, token_ids, error):
     erc1155, owner, account, _ = erc1155_factory
 
     recipient = account.contract_address
@@ -968,7 +963,7 @@ async def test_mint_batch_to_receiver(erc1155_factory):
         ])
 
     execution_info = await erc1155.balanceOfBatch(
-        [recipient]*3, TOKEN_IDS).invoke()
+        [recipient]*3, TOKEN_IDS).execute()
     assert execution_info.result.balances == MINT_AMOUNTS
 
 
@@ -1017,7 +1012,7 @@ async def test_burn_batch(erc1155_minted_factory):
         [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     execution_info = await erc1155.balanceOfBatch(
-        [burner]*3, TOKEN_IDS).invoke()
+        [burner]*3, TOKEN_IDS).execute()
     assert execution_info.result.balances == BURN_DIFFERENCES
 
 
@@ -1061,7 +1056,7 @@ async def test_burn_batch_from_approved(erc1155_minted_factory):
         [burner, *calldata(TOKEN_IDS), *calldata(BURN_AMOUNTS)])
 
     execution_info = await erc1155.balanceOfBatch(
-        [burner]*3, TOKEN_IDS).invoke()
+        [burner]*3, TOKEN_IDS).execute()
     assert execution_info.result.balances == BURN_DIFFERENCES
 
 
@@ -1120,7 +1115,7 @@ async def test_burn_batch_from_zero_address(erc1155_minted_factory):
     # Attempt to burn nothing (since cannot mint non_zero balance to burn)
     # note invoking this way (without signer) gives caller address of 0
     await assert_revert(
-        erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, amounts).invoke(),
+        erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, amounts).execute(),
         "ERC1155: burn from the zero address")
 
 
@@ -1169,7 +1164,7 @@ async def test_burn_batch_invalid_id(erc1155_minted_factory):
         signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
             [burner, *calldata(INVALID_IDS), *calldata(burn_amounts)]),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        "ERC1155: token_id is not a valid Uint256")
 
 
 @pytest.mark.asyncio
@@ -1212,7 +1207,7 @@ async def test_safe_batch_transfer_from(erc1155_minted_factory):
         ])
 
     execution_info = await erc1155.balanceOfBatch(
-        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
     assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
     assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 
@@ -1265,7 +1260,7 @@ async def test_safe_batch_transfer_from_approved(erc1155_minted_factory):
         ])
 
     execution_info = await erc1155.balanceOfBatch(
-        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
     assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
     assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 
@@ -1339,7 +1334,7 @@ async def test_safe_batch_transfer_from_invalid_id(erc1155_minted_factory):
                 sender, recipient, *calldata(INVALID_IDS),
                 *calldata(transfer_amounts), DATA
             ]),
-        f"ERC1155: id {INVALID_UINT256} is not a valid Uint256")
+        "ERC1155: token_id is not a valid Uint256")
 
 
 @pytest.mark.asyncio
@@ -1452,7 +1447,7 @@ async def test_safe_batch_transfer_from_to_receiver(erc1155_minted_factory):
         ])
 
     execution_info = await erc1155.balanceOfBatch(
-        [sender]*3+[recipient]*3, TOKEN_IDS*2).invoke()
+        [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
     assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
     assert execution_info.result.balances[3:] == TRANSFER_AMOUNTS
 

@@ -594,7 +594,7 @@ func _add_to_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 }
 
 func _check_id{range_check_ptr}(id: Uint256) {
-    with_attr error_message("ERC1155: id ({id.low}, {id.high}) is not a valid Uint256") {
+    with_attr error_message("ERC1155: token_id is not a valid Uint256") {
         uint256_check(id);
     }
     return ();

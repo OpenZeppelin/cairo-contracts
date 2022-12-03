@@ -53,7 +53,7 @@ namespace AccessControl:
     end
 
     #
-    # Modifier
+    # Modifiers
     #
 
     func assert_only_role{

@@ -89,6 +89,26 @@ namespace ERC1155:
     end
 
     #
+    # Modifiers
+    #
+
+    func assert_owner_or_approved{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            range_check_ptr
+        }(owner):
+        let (caller) = get_caller_address()
+        if caller == owner:
+            return ()
+        end
+        let (approved) = ERC1155.is_approved_for_all(owner, caller)
+        with_attr error_message("ERC1155: caller is not owner nor approved"):
+            assert approved = TRUE
+        end
+        return ()
+    end
+
+    #
     # Getters
     #
 
@@ -109,7 +129,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: address zero is not a valid owner"):
             assert_not_zero(account)
         end
-        check_id(id)
+        _check_id(id)
         let (balance) = ERC1155_balances.read(id, account)
         return (balance)
     end
@@ -135,7 +155,7 @@ namespace ERC1155:
         # Allocate memory
         let (local batch_balances: Uint256*) = alloc()
         # Call iterator
-        balance_of_batch_iter(accounts_len, accounts, ids, batch_balances)
+        _balance_of_batch_iter(accounts_len, accounts, ids, batch_balances)
         return (accounts_len, batch_balances)
     end
 
@@ -230,7 +250,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: transfer to the zero address"):
             assert_not_zero(to)
         end
-        check_id(id)
+        _check_id(id)
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
             uint256_check(amount)
         end
@@ -243,7 +263,7 @@ namespace ERC1155:
         ERC1155_balances.write(id, from_, new_balance)
 
         # Add to receiver
-        add_to_receiver(id, amount, to)
+        _add_to_receiver(id, amount, to)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -254,6 +274,7 @@ namespace ERC1155:
             id,
             amount
         )
+
         _do_safe_transfer_acceptance_check(
             operator,
             from_,
@@ -289,7 +310,7 @@ namespace ERC1155:
             assert ids_len = amounts_len
         end
         # Recursive call
-        safe_batch_transfer_from_iter(from_, to, ids_len, ids, amounts)
+        _safe_batch_transfer_from_iter(from_, to, ids_len, ids, amounts)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -302,6 +323,7 @@ namespace ERC1155:
             amounts_len,
             amounts
         )
+
         _do_safe_batch_transfer_acceptance_check(
             operator,
             from_,
@@ -332,13 +354,13 @@ namespace ERC1155:
             assert_not_zero(to)
         end
         # Check uints validity
-        check_id(id)
+        _check_id(id)
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
             uint256_check(amount)
         end
 
         # add to minter, check for overflow
-        add_to_receiver(id, amount, to)
+        _add_to_receiver(id, amount, to)
 
 
         # Emit events and check
@@ -386,7 +408,7 @@ namespace ERC1155:
         end
 
         # Recursive call
-        mint_batch_iter(to, ids_len, ids, amounts)
+        _mint_batch_iter(to, ids_len, ids, amounts)
 
         # Emit events and check
         let (operator) = get_caller_address()
@@ -424,7 +446,7 @@ namespace ERC1155:
         end
 
         # Check uints validity
-        check_id(id)
+        _check_id(id)
         with_attr error_message("ERC1155: amount is not a valid Uint256"):
             uint256_check(amount)
         end
@@ -434,6 +456,7 @@ namespace ERC1155:
         with_attr error_message("ERC1155: burn amount exceeds balance"):
             let (new_balance: Uint256) = SafeUint256.sub_le(from_balance, amount)
         end
+
         ERC1155_balances.write(id, from_, new_balance)
 
         let (operator) = get_caller_address()
@@ -461,7 +484,7 @@ namespace ERC1155:
         end
 
         # Recursive call
-        burn_batch_iter(from_, ids_len, ids, amounts)
+        _burn_batch_iter(from_, ids_len, ids, amounts)
         let (operator) = get_caller_address()
         TransferBatch.emit(
             operator=operator,
@@ -489,38 +512,6 @@ namespace ERC1155:
         with_attr error_message("ERC1155: setting approval status for zero address"):
             assert_not_zero(operator)
         end
-        with_attr error_message("ERC1155: setting approval status for self"):
-            assert_not_equal(owner, operator)
-        end
-        ERC1155_operator_approvals.write(owner, operator, approved)
-        ApprovalForAll.emit(owner, operator, approved)
-        return ()
-    end
-
-    func _set_uri{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(newuri: felt):
-        ERC1155_uri.write(newuri)
-        return ()
-    end
-
-    func assert_owner_or_approved{
-            syscall_ptr: felt*,
-            pedersen_ptr: HashBuiltin*,
-            range_check_ptr
-        }(owner):
-        let (caller) = get_caller_address()
-        if caller == owner:
-            return ()
-        end
-        let (approved) = ERC1155.is_approved_for_all(owner, caller)
-        with_attr error_message("ERC1155: caller is not owner nor approved"):
-            assert approved = TRUE
-        end
-        return ()
-    end
 
 end
 
@@ -607,11 +598,7 @@ func _do_safe_batch_transfer_acceptance_check{
     return ()
 end
 
-#
-# Helpers
-#
-
-func balance_of_batch_iter{
+func _balance_of_batch_iter{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -626,18 +613,18 @@ func balance_of_batch_iter{
     end
     # Read current entries
     let id: Uint256 = [ids]
-    check_id(id)
+    _check_id(id)
     let account: felt = [accounts]
 
     # Get balance
     let (balance: Uint256) = ERC1155.balance_of(account, id)
     assert [batch_balances] = balance
-    return balance_of_batch_iter(
+    return _balance_of_batch_iter(
         len - 1, accounts + 1, ids + Uint256.SIZE, batch_balances + Uint256.SIZE
     )
 end
 
-func safe_batch_transfer_from_iter{
+func _safe_batch_transfer_from_iter{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -656,7 +643,7 @@ func safe_batch_transfer_from_iter{
 
     # Read current entries, perform Uint256 checks
     let id = [ids]
-    check_id(id)
+    _check_id(id)
     let amount = [amounts]
     with_attr error_message("ERC1155: amount is not a valid Uint256"):
         uint256_check(amount)
@@ -669,15 +656,15 @@ func safe_batch_transfer_from_iter{
     end
     ERC1155_balances.write(id, from_, new_balance)
 
-    add_to_receiver(id, amount, to)
+    _add_to_receiver(id, amount, to)
 
     # Recursive call
-    return safe_batch_transfer_from_iter(
+    return _safe_batch_transfer_from_iter(
         from_, to, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE
     )
 end
 
-func mint_batch_iter{
+func _mint_batch_iter{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -695,19 +682,19 @@ func mint_batch_iter{
 
     # Read current entries
     let id: Uint256 = [ids]
-    check_id(id)
+    _check_id(id)
     let amount: Uint256 = [amounts]
     with_attr error_message("ERC1155: amount is not a valid Uint256"):
         uint256_check(amount)
     end
 
-    add_to_receiver(id, amount, to)
+    _add_to_receiver(id, amount, to)
 
     # Recursive call
-    return mint_batch_iter(to, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
+    return _mint_batch_iter(to, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
 
-func burn_batch_iter{
+func _burn_batch_iter{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -725,7 +712,7 @@ func burn_batch_iter{
 
     # Read current entries
     let id: Uint256 = [ids]
-    check_id(id)
+    _check_id(id)
     let amount: Uint256 = [amounts]
     with_attr error_message("ERC1155: amount is not a valid Uint256"):
         uint256_check(amount)
@@ -739,10 +726,10 @@ func burn_batch_iter{
     ERC1155_balances.write(id, from_, new_balance)
 
     # Recursive call
-    return burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
+    return _burn_batch_iter(from_, len - 1, ids + Uint256.SIZE, amounts + Uint256.SIZE)
 end
 
-func add_to_receiver{
+func _add_to_receiver{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
@@ -759,7 +746,7 @@ func add_to_receiver{
     return ()
 end
 
-func check_id{range_check_ptr}(id: Uint256):
+func _check_id{range_check_ptr}(id: Uint256):
     with_attr error_message("ERC1155: id ({id.low}, {id.high}) is not a valid Uint256"):
         uint256_check(id)
     end

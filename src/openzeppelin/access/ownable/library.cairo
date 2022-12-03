@@ -38,7 +38,7 @@ namespace Ownable:
     end
 
     #
-    # Protector (Modifier)
+    # Modifiers
     #
 
     func assert_only_owner{

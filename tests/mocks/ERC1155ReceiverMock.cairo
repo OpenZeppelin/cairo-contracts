@@ -23,7 +23,7 @@ func onERC1155Received(
     if data_len == 0:
         return (ON_ERC1155_RECEIVED_SELECTOR)
     else:
-        return (0)
+        return (FALSE)
     end
 end
 
@@ -41,7 +41,7 @@ func onERC1155BatchReceived(
     if data_len == 0:
         return (ON_ERC1155_BATCH_RECEIVED_SELECTOR)
     else:
-        return (0)
+        return (FALSE)
     end
 end
 

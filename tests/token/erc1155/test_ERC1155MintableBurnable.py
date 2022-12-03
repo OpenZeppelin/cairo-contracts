@@ -39,7 +39,6 @@ def calldata(arr):
 # Constants
 #
 
-
 NOT_BOOLEAN = 3
 ACCOUNT = 123
 TOKEN_ID = to_uint(111)

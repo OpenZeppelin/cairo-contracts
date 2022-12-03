@@ -1,11 +1,12 @@
 import pytest
 from signers import MockSigner
-from utils import (
-    uint, to_uint, add_uint, sub_uint,
+from utils import State, Account, get_contract_class, cached_contract
+
+from nile.utils import (
     MAX_UINT256, ZERO_ADDRESS, INVALID_UINT256, TRUE, FALSE,
-    get_contract_class, cached_contract,
-    assert_revert, assert_event_emitted,
-    str_to_felt, State, Account
+    to_uint, add_uint, sub_uint,
+    assert_event_emitted, assert_revert,
+    str_to_felt
 )
 
 signer = MockSigner(123456789987654321)
@@ -13,10 +14,6 @@ signer = MockSigner(123456789987654321)
 #
 # Helpers
 #
-
-
-def uint_array(arr):
-    return list(map(uint, arr))
 
 
 def to_uint_array(arr):
@@ -55,7 +52,7 @@ TRANSFER_AMOUNTS = [TRANSFER_AMOUNT, to_uint(1000), to_uint(1500)]
 TRANSFER_DIFFERENCES = [sub_uint(m, t)
                         for m, t in zip(MINT_AMOUNTS, TRANSFER_AMOUNTS)]
 MAX_UINT_AMOUNTS = [to_uint(1), MAX_UINT256, to_uint(1)]
-INVALID_AMOUNTS = uint_array([1, MAX_UINT256[0]+1, 1])
+INVALID_AMOUNTS = to_uint_array([1, MAX_UINT256[0]+1, 1])
 INVALID_IDS = [to_uint(111),INVALID_UINT256,to_uint(333)]
 
 DEFAULT_URI = str_to_felt('mock://mytoken.v1')
@@ -908,7 +905,7 @@ async def test_mint_batch_overflow(erc1155_factory):
 
     # Issuing recipient any more on just 1 token_id
     # should revert due to overflow
-    amounts = uint_array([0, 1, 0])
+    amounts = to_uint_array([0, 1, 0])
     await assert_revert(
         signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
@@ -1421,7 +1418,7 @@ async def test_safe_batch_transfer_from_overflow(erc1155_minted_factory):
 
     sender = account2.contract_address
     recipient = account1.contract_address
-    transfer_amounts = uint_array([0, 1, 0])
+    transfer_amounts = to_uint_array([0, 1, 0])
 
     # Bring 1 recipient's balance to max possible
     await signer.send_transaction(

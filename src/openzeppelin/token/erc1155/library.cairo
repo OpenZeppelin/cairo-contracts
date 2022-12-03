@@ -390,6 +390,14 @@ namespace ERC1155 {
         with_attr error_message("ERC1155: setting approval status for zero address") {
             assert_not_zero(operator);
         }
+
+        with_attr error_message("ERC1155: setting approval status for self") {
+            assert_not_equal(owner, operator);
+        }
+
+        ERC1155_operator_approvals.write(owner, operator, approved);
+        ApprovalForAll.emit(owner, operator, approved);
+        return ();
     }
 
     func _set_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(uri: felt) {

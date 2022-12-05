@@ -1,0 +1,51 @@
+= Universal Deployer Contract
+
+Account contracts are very critical components of the StarkNet ecosystem, since a bug in any implementation—let alone a widespread one—could prove disastrous.
+Therefore, maximal caution is in order. In this spirit trimming account responsibilities should be considered to simplify implementations, minimizing their bug/attack surface.
+
+To allow accounts to deploy contracts without compromising security, this standard proposes to move that functionality to an external, specialized deployer contract.
+And since it makes no sense to deploy a new deployer contract for each account, this should be a singleton Universal Deployer Contract (UDC).
+
+
+== Table of Contents
+
+* <<quickstart,Quickstart>>
+* <<deployment_types,Deployment Types>>
+ ** <<reserved_address_for_deployer,Reserved Address for Deployer>>
+ ** <<reproducible_deployments,Reproducible Deployments>>
+* <<udc_api,Universal Deployer Contract API>>
+
+== Quickstart
+
+Since the deployer is already deployed on StarkNet networks, account contracts need to first declare the contract and then send a `deployContract` transaction to the Universal Deployer Contract address.
+Here's an example implementation in Python:
+
+[python,]
+----
+signer = MockSigner(PRIVATE_KEY)
+
+async def deploy_contract():
+    class_hash = get_class_hash("Initializable")
+    calldata = []
+    params = [class_hash, len(calldata), *calldata]
+
+    # Declare the contract before deployment
+    await account.declare_class(account, "Initializable")
+
+    # Send a "deployContract" transaction to the deployer contract
+    await account.send_transaction(
+        account,
+        deployer_address,
+        "deployContract",
+        calldata_len,
+        *calldata
+    )
+----
+
+== Deployment Types
+
+=== Reserved Address Space for Deployer
+
+=== Reproducible Deployments
+
+== Universal Deployer Contract API

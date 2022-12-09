@@ -84,7 +84,7 @@ nile compile
 nile deploy MyToken <name> <symbol> <decimals> <initial_supply> <recipient> --alias my_token
 ```
 
-> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.5.1/utilities#uint256) for more information.
+> Note that `<initial_supply>` is expected to be two integers i.e. `1` `0`. See [Uint256](https://docs.openzeppelin.com/contracts-cairo/0.5.0/utilities#uint256) for more information.
 
 ### Write a custom contract using library modules
 

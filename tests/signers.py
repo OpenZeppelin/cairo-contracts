@@ -94,7 +94,13 @@ class BaseSigner():
         )
 
         execution_info = await state.execute_tx(tx=tx)
-        return execution_info
+
+        await state.state.set_contract_class(
+            class_hash=tx.class_hash,
+            contract_class=contract_class
+        )
+        class_hash = int.from_bytes(tx.class_hash, "big")
+        return class_hash, execution_info
 
     async def deploy_account(
         self,

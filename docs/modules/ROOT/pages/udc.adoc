@@ -1,12 +1,14 @@
 = Universal Deployer Contract
 
-Account contracts are very critical components of the StarkNet ecosystem, since a bug in any implementation—let alone a widespread one—could prove disastrous.
-Therefore, maximal caution is in order. In this spirit trimming account responsibilities should be considered to simplify implementations, minimizing their bug/attack surface.
+Account contracts make up very critical components of the StarkNet ecosystem, since a bug in any implementation—let alone a widespread one—could prove disastrous.
+Therefore, maximum caution is in order.
+In this spirit, we should consider trimming account responsibilities to simplify implementations and minimize bug/attack surfaces.
 
-To allow accounts to deploy contracts without compromising security, this standard proposes to move that functionality to an external, specialized deployer contract.
-And since it makes no sense to deploy a new deployer contract for each account, this should be a singleton Universal Deployer Contract (UDC).
+This standard moves contract deployment responsibilities to an external, specialized deployer contract.
+The separation allows accounts to deploy contracts without compromising security.
+To remove the redundancy of deploying a new deployer contract for each account, the deployer contract should be a singleton Universal Deployer Contract (UDC).
 
-
+TIP: For further information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
 
 == Table of Contents
 * <<quickstart, Quickstart>>
@@ -51,8 +53,8 @@ Note that this address may change in the future.
 === Deploying the UDC
 
 Though, the Universal Deployer Contract has already been deployed, this documentation does not take its deployment for granted.
-The deployment of the UDC requires a contract (probably an account) to call StarkWare's `deploy` syscall.
-The whole point of the UDC lies in separating this responsibility from accounts; however, we need to deploy the UDC before relinquishing the deployment responsibility from accounts.
+The deployment of the UDC requires a contract (most likely an account) to call https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[StarkNet's deploy syscall].
+The whole point of the UDC lies in eliminating deployment responsibilities from accounts; however, we need to deploy the UDC before relinquishing this functionality from accounts.
 
 The UDC deployment should also set `deploy_from_zero=TRUE` in the `deploy` syscall.
 In so doing, this creates a deterministic address that can be used across all instances of StarkNet.

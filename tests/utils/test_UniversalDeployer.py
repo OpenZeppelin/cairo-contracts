@@ -100,3 +100,30 @@ async def test_deployment(deployer_factory, unique):
             salt,                     # salt
         ]
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('unique', [TRUE, FALSE])
+async def test_declare_and_deploy(deployer_factory, unique):
+    account, deployer = deployer_factory
+    salt = 1234567875432  # random value
+    calldata = []
+
+    # declare contract
+    class_hash, _ = await signer.declare_class(account, "Initializable")
+
+    # deploy contract
+    params = [class_hash, salt, unique, len(calldata), *calldata]
+    deploy_exec_info = await signer.send_transaction(account, deployer.contract_address, 'deployContract', params)
+    deployed_address = deploy_exec_info.call_info.retdata[1]
+
+    # test deployment
+    tx_exec_info = await signer.send_transaction(account, deployed_address, 'initialized', [])
+    is_account = tx_exec_info.call_info.retdata[1]
+    assert is_account == FALSE
+
+    tx_exec_info = await signer.send_transaction(account, deployed_address, 'initialize', [])
+
+    tx_exec_info = await signer.send_transaction(account, deployed_address, 'initialized', [])
+    is_account = tx_exec_info.call_info.retdata[1]
+    assert is_account == TRUE

@@ -6,8 +6,8 @@ from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction, DeployAccount
 from starkware.starknet.business_logic.transaction.objects import InternalTransaction, InternalDeclare, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
+from nile.common import get_contract_class, get_class_hash
 from nile.utils import to_uint
-from utils import get_contract_class, get_class_hash
 import eth_keys
 
 
@@ -99,6 +99,7 @@ class BaseSigner():
             class_hash=tx.class_hash,
             contract_class=contract_class
         )
+        class_hash = int.from_bytes(tx.class_hash, "big")
         return class_hash, execution_info
 
     async def deploy_account(

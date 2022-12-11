@@ -51,7 +51,7 @@ INVALID_AMOUNTS = [to_uint(1), (MAX_UINT256[0]+1, MAX_UINT256[1]), to_uint(1)]
 INVALID_IDS = [to_uint(111),INVALID_UINT256,to_uint(333)]
 
 DEFAULT_URI = str_to_felt('mock://mytoken.v1')
-URI = str_to_felt('mock://mytoken.v2')
+NEW_URI = str_to_felt('mock://mytoken.v2')
 
 DATA = 0
 REJECT_DATA = [1, 0]
@@ -100,33 +100,6 @@ class ERC1155Base:
 
         execution_info = await erc1155.supportsInterface(unsupported_id).execute()
         assert execution_info.result.success == FALSE
-
-    #
-    # Set URI
-    #
-
-
-    @pytest.mark.asyncio
-    async def test_set_uri(self, contract_factory):
-        erc1155, owner, _, _ = contract_factory
-
-        await signer.send_transaction(
-            owner, erc1155.contract_address, 'setURI',
-            [URI]
-        )
-
-        execution_info = await erc1155.uri(TOKEN_ID).execute()
-        assert execution_info.result.uri == URI
-
-
-    @pytest.mark.asyncio
-    async def test_set_uri_not_owner(self, contract_factory):
-        erc1155, _, account, _ = contract_factory
-
-        await assert_revert(signer.send_transaction(
-            account, erc1155.contract_address, 'setURI',
-            [URI]),
-            "Ownable: caller is not the owner")
 
     #
     # Set/Get approval

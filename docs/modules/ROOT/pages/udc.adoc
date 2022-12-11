@@ -1,6 +1,6 @@
 = Universal Deployer Contract
 
-Account contracts make up very critical components of the StarkNet ecosystem, since a bug in any implementation—let alone a widespread one—could prove disastrous.
+Account contracts make up very critical components of the StarkNet ecosystem, since a bug in any implementation (let alone a widespread one) could prove disastrous.
 Therefore, maximum caution is in order.
 In this spirit, we should consider trimming account responsibilities to simplify implementations and minimize bug/attack surfaces.
 
@@ -47,7 +47,7 @@ async def deploy_contract():
     )
 ----
 
-TIP: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf`.
+TIP: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
 Note that this address may change in the future.
 
 === Deploying the UDC

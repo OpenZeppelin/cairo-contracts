@@ -38,14 +38,11 @@ NOT_BOOLEAN = 3
 ACCOUNT = 123
 TOKEN_ID = to_uint(111)
 MINT_AMOUNT = to_uint(1000)
-BURN_AMOUNT = to_uint(500)
 TRANSFER_AMOUNT = to_uint(500)
 
 ACCOUNTS = [123, 234, 345]
 TOKEN_IDS = [TOKEN_ID, to_uint(222), to_uint(333)]
 MINT_AMOUNTS = [MINT_AMOUNT, to_uint(2000), to_uint(3000)]
-BURN_AMOUNTS = [BURN_AMOUNT, to_uint(1000), to_uint(1500)]
-BURN_DIFFERENCES = [sub_uint(m, b) for m, b in zip(MINT_AMOUNTS, BURN_AMOUNTS)]
 TRANSFER_AMOUNTS = [TRANSFER_AMOUNT, to_uint(1000), to_uint(1500)]
 TRANSFER_DIFFERENCES = [sub_uint(m, t)
                         for m, t in zip(MINT_AMOUNTS, TRANSFER_AMOUNTS)]
@@ -55,7 +52,6 @@ INVALID_IDS = [to_uint(111),INVALID_UINT256,to_uint(333)]
 
 DEFAULT_URI = str_to_felt('mock://mytoken.v1')
 URI = str_to_felt('mock://mytoken.v2')
-
 
 DATA = 0
 REJECT_DATA = [1, 0]
@@ -68,6 +64,7 @@ UNSUPPORTED_ID = int('0xaabbccdd', 16)
 
 SUPPORTED_INTERFACES = [IERC165_ID, IERC1155_ID, IERC1155_MetadataURI]
 UNSUPPORTED_INTERFACES = [ERC165_UNSUPPORTED, UNSUPPORTED_ID]
+
 
 class ERC1155Base:
     #
@@ -281,6 +278,18 @@ class ERC1155Base:
         await assert_revert(
             erc1155.balanceOfBatch(accounts, INVALID_IDS).execute(),
             "ERC1155: token_id is not a valid Uint256")
+
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "accounts,ids",
+        [(ACCOUNTS[:2], TOKEN_IDS), (ACCOUNTS, TOKEN_IDS[:2])])
+    async def test_balance_of_batch_uneven_arrays(self, contract_factory, accounts, ids):
+        erc1155, _, _, _ = contract_factory
+
+        await assert_revert(
+            erc1155.balanceOfBatch(accounts, ids).execute(),
+            "ERC1155: accounts and ids length mismatch")
 
     #
     # Transfer

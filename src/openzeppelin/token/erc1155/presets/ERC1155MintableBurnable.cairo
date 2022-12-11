@@ -5,8 +5,6 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
-from starkware.starknet.common.syscalls import get_caller_address
-from starkware.cairo.common.math import assert_not_zero
 
 from openzeppelin.access.ownable.library import Ownable
 from openzeppelin.token.erc1155.library import ERC1155

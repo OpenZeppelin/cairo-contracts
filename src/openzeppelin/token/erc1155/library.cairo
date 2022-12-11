@@ -104,8 +104,7 @@ namespace ERC1155 {
     func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(id: Uint256) -> (
         uri: felt
     ) {
-        let (uri) = ERC1155_uri.read();
-        return (uri,);
+        return ERC1155_uri.read();
     }
 
     func balance_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -115,8 +114,7 @@ namespace ERC1155 {
             assert_not_zero(account);
         }
         _check_id(id);
-        let (balance) = ERC1155_balances.read(id, account);
-        return (balance,);
+        return ERC1155_balances.read(id, account);
     }
 
     func balance_of_batch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -137,8 +135,7 @@ namespace ERC1155 {
     func is_approved_for_all{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         account: felt, operator: felt
     ) -> (approved: felt) {
-        let (approved) = ERC1155_operator_approvals.read(account, operator);
-        return (approved,);
+        return ERC1155_operator_approvals.read(account, operator);
     }
 
     //

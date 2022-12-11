@@ -33,24 +33,21 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     interfaceId: felt
 ) -> (success: felt) {
-    let (success) = ERC165.supports_interface(interfaceId);
-    return (success,);
+    return ERC165.supports_interface(interfaceId);
 }
 
 @view
 func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(id: Uint256) -> (
     uri: felt
 ) {
-    let (uri) = ERC1155.uri(id);
-    return (uri,);
+    return ERC1155.uri(id);
 }
 
 @view
 func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     account: felt, id: Uint256
 ) -> (balance: Uint256) {
-    let (balance) = ERC1155.balance_of(account, id);
-    return (balance,);
+    return ERC1155.balance_of(account, id);
 }
 
 @view
@@ -65,14 +62,13 @@ func balanceOfBatch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     account: felt, operator: felt
 ) -> (isApproved: felt) {
-    let (is_approved) = ERC1155.is_approved_for_all(account, operator);
-    return (is_approved,);
+    let (isApproved) = ERC1155.is_approved_for_all(account, operator);
+    return (isApproved=isApproved);
 }
 
 @view
 func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    let (owner: felt) = Ownable.owner();
-    return (owner,);
+    return Ownable.owner();
 }
 
 //

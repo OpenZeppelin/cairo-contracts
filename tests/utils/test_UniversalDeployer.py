@@ -109,7 +109,7 @@ async def test_declare_and_deploy(deployer_factory, unique):
     salt = 1234567875432  # random value
     calldata = []
 
-    # declare contract
+    # declare contract class
     class_hash, _ = await signer.declare_class(account, "Initializable")
 
     # deploy contract

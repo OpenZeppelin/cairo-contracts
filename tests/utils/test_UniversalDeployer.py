@@ -117,7 +117,7 @@ async def test_declare_and_deploy(deployer_factory, unique):
     deploy_exec_info = await signer.send_transaction(account, deployer.contract_address, 'deployContract', params)
     deployed_address = deploy_exec_info.call_info.retdata[1]
 
-#    # test deployment
+    # test deployment
     tx_exec_info = await signer.send_transaction(account, deployed_address, 'initialized', [])
     is_initialized = tx_exec_info.call_info.retdata[1]
     assert is_initialized == FALSE

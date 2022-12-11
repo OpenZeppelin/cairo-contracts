@@ -17,7 +17,7 @@ TIP: For further information on design decisions, see the https://community.star
  ** <<reserved_address_space_for_deployer,Reserved Address Space for Deployer>>
  ** <<reproducible_deployments,Reproducible Deployments>>
 * <<calculating_counterfactual_addresses,Calculating Counterfactual Addresses>>
-* <<universal_deployer_contract_api,Universal Deployer Contract API>>
+* <<udc_api_specification,UDC API Specification>>
 
 == Quickstart
 
@@ -155,7 +155,7 @@ expected_address = calculate_contract_address_from_hash(
 )
 ----
 
-== Universal Deployer Contract API
+== UDC API Specification
 
 === Methods
 

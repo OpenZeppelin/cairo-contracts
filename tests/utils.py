@@ -94,6 +94,12 @@ def get_contract_class(contract, is_path=False):
     return contract_class
 
 
+def get_class_hash(contract_name, is_path=False):
+    """Return the class_hash for a given contract."""
+    contract_class = get_contract_class(contract_name, is_path)
+    return compute_class_hash(contract_class=contract_class, hash_func=pedersen_hash)
+
+
 def cached_contract(state, _class, deployed):
     """Return the cached contract"""
     contract = StarknetContract(

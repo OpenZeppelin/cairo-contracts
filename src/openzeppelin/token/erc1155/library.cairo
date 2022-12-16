@@ -101,6 +101,12 @@ namespace ERC1155 {
     // Getters
     //
 
+    // This implementation returns the same URI for *all* token types. It relies
+    // on the token type ID substitution mechanism
+    // https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+    //
+    // Clients calling this function must replace the `\{id\}` substring with the
+    // actual token type ID.
     func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(id: Uint256) -> (
         uri: felt
     ) {

@@ -24,6 +24,8 @@ namespace IERC1155Receiver {
     ) -> (selector: felt) {
     }
 
+    // ERC165
+
     func supportsInterface(interfaceId: felt) -> (success: felt) {
     }
 }

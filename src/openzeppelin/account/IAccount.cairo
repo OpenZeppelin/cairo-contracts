@@ -7,10 +7,6 @@ from openzeppelin.account.library import AccountCallArray
 
 @contract_interface
 namespace IAccount {
-
-    func supportsInterface(interfaceId: felt) -> (success: felt) {
-    }
-
     func isValidSignature(
         hash: felt,
         signature_len: felt,
@@ -40,5 +36,10 @@ namespace IAccount {
         response_len: felt,
         response: felt*
     ) {
+    }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
     }
 }

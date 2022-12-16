@@ -30,4 +30,9 @@ namespace IERC721 {
 
     func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
     }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 }

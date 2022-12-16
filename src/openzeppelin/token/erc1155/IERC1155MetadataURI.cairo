@@ -9,4 +9,42 @@ from starkware.cairo.common.uint256 import Uint256
 namespace IERC1155MetadataURI {
     func uri(id: Uint256) -> (uri: felt) {
     }
+
+    // ERC1155
+
+    func balanceOf(account: felt, id: Uint256) -> (balance: Uint256) {
+    }
+
+    func balanceOfBatch(accounts_len: felt, accounts: felt*, ids_len: felt, ids: Uint256*) -> (
+        balances_len: felt, balances: Uint256*
+    ) {
+    }
+
+    func isApprovedForAll(account: felt, operator: felt) -> (isApproved: felt) {
+    }
+
+    func setApprovalForAll(operator: felt, approved: felt) {
+    }
+
+    func safeTransferFrom(
+        from_: felt, to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
+    ) {
+    }
+
+    func safeBatchTransferFrom(
+        from_: felt,
+        to: felt,
+        ids_len: felt,
+        ids: Uint256*,
+        values_len: felt,
+        values: Uint256*,
+        data_len: felt,
+        data: felt*,
+    ) {
+    }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 }

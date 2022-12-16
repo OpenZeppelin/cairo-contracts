@@ -37,4 +37,9 @@ namespace IERC1155 {
         data: felt*,
     ) {
     }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
 }

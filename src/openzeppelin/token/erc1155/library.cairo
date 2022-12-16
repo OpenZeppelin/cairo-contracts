@@ -192,14 +192,12 @@ namespace ERC1155 {
         from_: felt, to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
     ) {
         alloc_locals;
-        // Check args
+        // Validate input
         with_attr error_message("ERC1155: transfer to the zero address") {
             assert_not_zero(to);
         }
         _check_id(id);
-        with_attr error_message("ERC1155: value is not a valid Uint256") {
-            uint256_check(value);
-        }
+        _check_value(value);
 
         // Deduct from sender
         let (from_balance: Uint256) = ERC1155_balances.read(id, from_);
@@ -253,17 +251,14 @@ namespace ERC1155 {
     func _mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
     ) {
-        // Cannot mint to zero address
+        // Validate input
         with_attr error_message("ERC1155: mint to the zero address") {
             assert_not_zero(to);
         }
-        // Check uints validity
         _check_id(id);
-        with_attr error_message("ERC1155: value is not a valid Uint256") {
-            uint256_check(value);
-        }
+        _check_value(value);
 
-        // add to minter, check for overflow
+        // Add to minter, check for overflow
         _add_to_receiver(id, value, to);
 
         // Emit events and check
@@ -326,15 +321,12 @@ namespace ERC1155 {
         from_: felt, id: Uint256, value: Uint256
     ) {
         alloc_locals;
+        // Validate input
         with_attr error_message("ERC1155: burn from the zero address") {
             assert_not_zero(from_);
         }
-
-        // Check uints validity
         _check_id(id);
-        with_attr error_message("ERC1155: value is not a valid Uint256") {
-            uint256_check(value);
-        }
+        _check_value(value);
 
         // Deduct from burner
         let (from_balance: Uint256) = ERC1155_balances.read(id, from_);
@@ -507,11 +499,9 @@ func _safe_batch_transfer_from_iter{
 
     // Read current entries, perform Uint256 checks
     let id = [ids];
-    _check_id(id);
     let value = [values];
-    with_attr error_message("ERC1155: value is not a valid Uint256") {
-        uint256_check(value);
-    }
+    _check_id(id);
+    _check_value(value);
 
     // deduct from sender
     let (from_balance: Uint256) = ERC1155_balances.read(id, from_);
@@ -539,11 +529,9 @@ func _mint_batch_iter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
     // Read current entries
     let id: Uint256 = [ids];
-    _check_id(id);
     let value: Uint256 = [values];
-    with_attr error_message("ERC1155: value is not a valid Uint256") {
-        uint256_check(value);
-    }
+    _check_id(id);
+    _check_value(value);
 
     _add_to_receiver(id, value, to);
 
@@ -562,11 +550,9 @@ func _burn_batch_iter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
     // Read current entries
     let id: Uint256 = [ids];
-    _check_id(id);
     let value: Uint256 = [values];
-    with_attr error_message("ERC1155: value is not a valid Uint256") {
-        uint256_check(value);
-    }
+    _check_id(id);
+    _check_value(value);
 
     // Deduct from burner
     let (from_balance: Uint256) = ERC1155_balances.read(id, from_);
@@ -593,6 +579,13 @@ func _add_to_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 func _check_id{range_check_ptr}(id: Uint256) {
     with_attr error_message("ERC1155: token_id is not a valid Uint256") {
         uint256_check(id);
+    }
+    return ();
+}
+
+func _check_value{range_check_ptr}(value: Uint256) {
+    with_attr error_message("ERC1155: value is not a valid Uint256") {
+        uint256_check(value);
     }
     return ();
 }

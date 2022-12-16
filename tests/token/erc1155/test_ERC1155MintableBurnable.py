@@ -35,7 +35,7 @@ BURN_DIFFERENCES = [sub_uint(m, b) for m, b in zip(MINT_valueS, BURN_valueS)]
 def contract_classes():
     account_cls = Account.get_class
     erc1155_cls = get_contract_class('ERC1155MintableBurnable')
-    receiver_cls = get_contract_class('ERC1155ReceiverMock')
+    receiver_cls = get_contract_class('ERC1155Holder')
     return account_cls, erc1155_cls, receiver_cls
 
 

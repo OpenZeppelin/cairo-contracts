@@ -84,7 +84,7 @@ namespace ERC1155 {
     //
 
     func assert_owner_or_approved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        owner
+        owner: felt
     ) {
         let (caller) = get_caller_address();
         if (caller == owner) {

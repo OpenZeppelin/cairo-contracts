@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/access/ownable/library.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/access/ownable/library.cairo[Ownable]
 
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -200,7 +200,7 @@ Most software uses access control systems that are role-based: some users are re
 
 For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
 
-Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
 
 [,cairo]
 ----
@@ -350,7 +350,7 @@ However, because those roles' admin role is the default admin role, and that rol
 Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time.
 It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
-The following example uses the link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/tests/mocks/AccessControl.cairo[AccessControl mock contract] which exposes the role management functions.
+The following example uses the link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/tests/mocks/AccessControl.cairo[AccessControl mock contract] which exposes the role management functions.
 To grant and revoke roles in Python, for example:
 
 [,python]
@@ -388,7 +388,7 @@ bytes32 public constant SOME_ROLE = keccak256("SOME_ROLE")
 These identifiers take up 32 bytes (256 bits).
 
 Cairo field elements store a maximum of 252 bits.
-Even further, a declared _constant_ field element in a StarkNet contract stores even less (see https://github.com/starkware-libs/cairo-lang/blob/release-v0.4.0b/src/starkware/cairo/lang/cairo_constants.py#L1[cairo_constants]).
+Even further, a declared _constant_ field element in a StarkNet contract stores even less (see https://github.com/starkware-libs/cairo-lang/blob/release-v0.5.1/src/starkware/cairo/lang/cairo_constants.py#L1[cairo_constants]).
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 

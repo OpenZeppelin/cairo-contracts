@@ -13,7 +13,7 @@ from openzeppelin.utils.constants.library import (
 
 @external
 func onERC1155Received(
-    operator: felt, from_: felt, id: Uint256, amount: Uint256, data_len: felt, data: felt*
+    operator: felt, from_: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
 ) -> (selector: felt) {
     if (data_len == 0) {
         return (ON_ERC1155_RECEIVED_SELECTOR,);
@@ -28,8 +28,8 @@ func onERC1155BatchReceived(
     from_: felt,
     ids_len: felt,
     ids: Uint256*,
-    amounts_len: felt,
-    amounts: Uint256*,
+    values_len: felt,
+    values: Uint256*,
     data_len: felt,
     data: felt*,
 ) -> (selector: felt) {

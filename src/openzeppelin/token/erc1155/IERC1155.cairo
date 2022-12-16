@@ -22,7 +22,7 @@ namespace IERC1155 {
     }
 
     func safeTransferFrom(
-        from_: felt, to: felt, id: Uint256, amount: Uint256, data_len: felt, data: felt*
+        from_: felt, to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
     ) {
     }
 
@@ -31,8 +31,8 @@ namespace IERC1155 {
         to: felt,
         ids_len: felt,
         ids: Uint256*,
-        amounts_len: felt,
-        amounts: Uint256*,
+        values_len: felt,
+        values: Uint256*,
         data_len: felt,
         data: felt*,
     ) {

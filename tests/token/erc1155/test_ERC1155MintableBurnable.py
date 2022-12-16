@@ -5,10 +5,10 @@ from utils import State, Account, get_contract_class, cached_contract, assert_ev
 from access.OwnableBaseSuite import OwnableBase
 from ERC1155BaseSuite import (
     ERC1155Base, to_uint_array, prepare_calldata,
-    TOKEN_ID, MINT_AMOUNT,
-    MINT_AMOUNT,TOKEN_IDS,
-    MINT_AMOUNTS, MAX_UINT_AMOUNTS,
-    INVALID_AMOUNTS, INVALID_IDS,
+    TOKEN_ID, MINT_value,
+    MINT_value,TOKEN_IDS,
+    MINT_valueS, MAX_UINT_valueS,
+    INVALID_valueS, INVALID_IDS,
     DATA, REJECT_DATA, DEFAULT_URI
 )
 
@@ -22,9 +22,9 @@ signer = MockSigner(123456789987654321)
 #
 # Constants
 #
-BURN_AMOUNT = to_uint(500)
-BURN_AMOUNTS = [BURN_AMOUNT, to_uint(1000), to_uint(1500)]
-BURN_DIFFERENCES = [sub_uint(m, b) for m, b in zip(MINT_AMOUNTS, BURN_AMOUNTS)]
+BURN_value = to_uint(500)
+BURN_valueS = [BURN_value, to_uint(1000), to_uint(1500)]
+BURN_DIFFERENCES = [sub_uint(m, b) for m, b in zip(MINT_valueS, BURN_valueS)]
 
 #
 # Fixtures
@@ -87,7 +87,7 @@ async def minted_factory(contract_classes, erc1155_init):
         [
             account.contract_address, # to
             *prepare_calldata(TOKEN_IDS),      # ids
-            *prepare_calldata(MINT_AMOUNTS),   # amounts
+            *prepare_calldata(MINT_valueS),   # values
             DATA
         ]
     )
@@ -108,10 +108,10 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
+            [recipient, *TOKEN_ID, *MINT_value, DATA])
 
         execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
-        assert execution_info.result.balance == MINT_AMOUNT
+        assert execution_info.result.balance == MINT_value
 
 
     @pytest.mark.asyncio
@@ -122,7 +122,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
+            [recipient, *TOKEN_ID, *MINT_value, DATA])
 
         assert_event_emitted(
             execution_info,
@@ -133,7 +133,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 ZERO_ADDRESS,            # from
                 recipient,               # to
                 *TOKEN_ID,
-                *MINT_AMOUNT
+                *MINT_value
             ]
         )
 
@@ -145,7 +145,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mint',
-                [ZERO_ADDRESS, *TOKEN_ID, *MINT_AMOUNT, DATA]),
+                [ZERO_ADDRESS, *TOKEN_ID, *MINT_value, DATA]),
             "ERC1155: mint to the zero address")
 
 
@@ -170,15 +170,15 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "amount,token_id,error",
+        "value,token_id,error",
         [
-            (MINT_AMOUNT, INVALID_UINT256, 
+            (MINT_value, INVALID_UINT256, 
             "ERC1155: token_id is not a valid Uint256"),
             (INVALID_UINT256, TOKEN_ID, 
-            "ERC1155: amount is not a valid Uint256")
+            "ERC1155: value is not a valid Uint256")
         ]
     )
-    async def test_mint_invalid_uint(self, contract_factory, amount, token_id, error):
+    async def test_mint_invalid_uint(self, contract_factory, value, token_id, error):
         erc1155, owner, account, _ = contract_factory
 
         recipient = account.contract_address
@@ -186,7 +186,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mint',
-                [recipient, *token_id, *amount, DATA]),
+                [recipient, *token_id, *value, DATA]),
             error)
 
 
@@ -198,11 +198,11 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mint',
-            [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA])
+            [recipient, *TOKEN_ID, *MINT_value, DATA])
 
         execution_info = await erc1155.balanceOf(
             recipient, TOKEN_ID).execute()
-        assert execution_info.result.balance == MINT_AMOUNT
+        assert execution_info.result.balance == MINT_value
 
 
     @pytest.mark.asyncio
@@ -214,7 +214,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mint',
-                [recipient, *TOKEN_ID, *MINT_AMOUNT, *REJECT_DATA]),
+                [recipient, *TOKEN_ID, *MINT_value, *REJECT_DATA]),
             "ERC1155: ERC1155Receiver rejected tokens")
 
 
@@ -227,7 +227,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mint',
-                [recipient, *TOKEN_ID, *MINT_AMOUNT, DATA]),
+                [recipient, *TOKEN_ID, *MINT_value, DATA]),
             "ERC1155: transfer to non-ERC1155Receiver implementer")
 
     #
@@ -243,10 +243,10 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             account, erc1155.contract_address, 'burn',
-            [subject, *TOKEN_ID, *BURN_AMOUNT])
+            [subject, *TOKEN_ID, *BURN_value])
 
         execution_info = await erc1155.balanceOf(subject, TOKEN_ID).execute()
-        assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
+        assert execution_info.result.balance == sub_uint(MINT_value, BURN_value)
 
 
     @pytest.mark.asyncio
@@ -257,7 +257,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             account, erc1155.contract_address, 'burn',
-            [subject, *TOKEN_ID, *BURN_AMOUNT])
+            [subject, *TOKEN_ID, *BURN_value])
 
         assert_event_emitted(
             execution_info,
@@ -268,7 +268,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 subject,       # from
                 ZERO_ADDRESS,  # to
                 *TOKEN_ID,
-                *BURN_AMOUNT
+                *BURN_value
             ]
         )
 
@@ -287,10 +287,10 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             account1, erc1155.contract_address, 'burn',
-            [subject, *TOKEN_ID, *BURN_AMOUNT])
+            [subject, *TOKEN_ID, *BURN_value])
 
         execution_info = await erc1155.balanceOf(subject, TOKEN_ID).execute()
-        assert execution_info.result.balance == sub_uint(MINT_AMOUNT, BURN_AMOUNT)
+        assert execution_info.result.balance == sub_uint(MINT_value, BURN_value)
 
 
     @pytest.mark.asyncio
@@ -308,7 +308,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             account1, erc1155.contract_address, 'burn',
-            [subject, *TOKEN_ID, *BURN_AMOUNT]
+            [subject, *TOKEN_ID, *BURN_value]
         )
 
         assert_event_emitted(
@@ -320,7 +320,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 subject,       # from
                 ZERO_ADDRESS,  # to
                 *TOKEN_ID,
-                *BURN_AMOUNT
+                *BURN_value
             ]
         )
 
@@ -330,17 +330,17 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         erc1155, _, account, _ = minted_factory
 
         subject = account.contract_address
-        burn_amount = add_uint(MINT_AMOUNT, to_uint(1))
+        burn_value = add_uint(MINT_value, to_uint(1))
 
         await assert_revert(
             signer.send_transaction(
                 account, erc1155.contract_address, 'burn',
-                [subject, *TOKEN_ID, *burn_amount]),
-            "ERC1155: burn amount exceeds balance")
+                [subject, *TOKEN_ID, *burn_value]),
+            "ERC1155: burn value exceeds balance")
 
 
     @pytest.mark.asyncio
-    async def test_burn_invalid_amount(self, contract_factory):
+    async def test_burn_invalid_value(self, contract_factory):
         erc1155, owner, account, _ = contract_factory
 
         burner = account.contract_address
@@ -354,7 +354,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
             signer.send_transaction(
                 account, erc1155.contract_address, 'burn',
                 [burner, *TOKEN_ID, *INVALID_UINT256]),
-            "ERC1155: amount is not a valid Uint256")
+            "ERC1155: value is not a valid Uint256")
 
 
     @pytest.mark.asyncio
@@ -383,11 +383,11 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_AMOUNTS), DATA])
+            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_valueS), DATA])
 
         execution_info = await erc1155.balanceOfBatch(
             [recipient]*3, TOKEN_IDS).execute()
-        assert execution_info.result.balances == MINT_AMOUNTS
+        assert execution_info.result.balances == MINT_valueS
 
 
     @pytest.mark.asyncio
@@ -398,7 +398,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_AMOUNTS), DATA])
+            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_valueS), DATA])
 
         assert_event_emitted(
             execution_info,
@@ -409,7 +409,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 ZERO_ADDRESS,            # from
                 recipient,               # to
                 *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(MINT_AMOUNTS),
+                *prepare_calldata(MINT_valueS),
             ]
         )
 
@@ -421,7 +421,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mintBatch',
-                [ZERO_ADDRESS, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_AMOUNTS), DATA]),
+                [ZERO_ADDRESS, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MINT_valueS), DATA]),
             "ERC1155: mint to the zero address")
 
 
@@ -434,26 +434,26 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         # Bring recipient's balance to max possible
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_AMOUNTS), DATA])
+            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_valueS), DATA])
 
         # Issuing recipient any more on just 1 token_id
         # should revert due to overflow
-        amounts = to_uint_array([0, 1, 0])
+        values = to_uint_array([0, 1, 0])
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mintBatch',
-                [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(amounts), DATA]),
+                [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(values), DATA]),
             "ERC1155: balance overflow")
 
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "amounts,token_ids,error",
+        "values,token_ids,error",
         [
-            (INVALID_AMOUNTS, TOKEN_IDS, "ERC1155: amount is not a valid Uint256"),
-            (MINT_AMOUNTS, INVALID_IDS, "ERC1155: token_id is not a valid Uint256")
+            (INVALID_valueS, TOKEN_IDS, "ERC1155: value is not a valid Uint256"),
+            (MINT_valueS, INVALID_IDS, "ERC1155: token_id is not a valid Uint256")
         ])
-    async def test_mint_batch_invalid_uint(self, contract_factory, amounts, token_ids, error):
+    async def test_mint_batch_invalid_uint(self, contract_factory, values, token_ids, error):
         erc1155, owner, account, _ = contract_factory
 
         recipient = account.contract_address
@@ -461,18 +461,18 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mintBatch',
-                [recipient, *prepare_calldata(token_ids), *prepare_calldata(amounts), DATA]),
+                [recipient, *prepare_calldata(token_ids), *prepare_calldata(values), DATA]),
             error)
 
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "amounts,token_ids",
+        "values,token_ids",
         [
-            (MINT_AMOUNTS[:2], TOKEN_IDS),
-            (MINT_AMOUNTS, TOKEN_IDS[:2])
+            (MINT_valueS[:2], TOKEN_IDS),
+            (MINT_valueS, TOKEN_IDS[:2])
         ])
-    async def test_mint_batch_uneven_arrays(self, contract_factory, amounts, token_ids):
+    async def test_mint_batch_uneven_arrays(self, contract_factory, values, token_ids):
         erc1155, owner, account, _ = contract_factory
 
         recipient = account.contract_address
@@ -480,8 +480,8 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 owner, erc1155.contract_address, 'mintBatch',
-                [recipient, *prepare_calldata(token_ids), *prepare_calldata(amounts), DATA]),
-            "ERC1155: ids and amounts length mismatch")
+                [recipient, *prepare_calldata(token_ids), *prepare_calldata(values), DATA]),
+            "ERC1155: ids and values length mismatch")
 
 
     @pytest.mark.asyncio
@@ -494,12 +494,12 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
             owner, erc1155.contract_address, 'mintBatch',
             [
                 recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(MINT_AMOUNTS), DATA
+                *prepare_calldata(MINT_valueS), DATA
             ])
 
         execution_info = await erc1155.balanceOfBatch(
             [recipient]*3, TOKEN_IDS).execute()
-        assert execution_info.result.balances == MINT_AMOUNTS
+        assert execution_info.result.balances == MINT_valueS
 
 
     @pytest.mark.asyncio
@@ -512,7 +512,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
             owner, erc1155.contract_address, 'mintBatch',
             [
                 recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(MINT_AMOUNTS), *REJECT_DATA
+                *prepare_calldata(MINT_valueS), *REJECT_DATA
             ]),
             "ERC1155: ERC1155Receiver rejected tokens")
 
@@ -527,7 +527,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
             owner, erc1155.contract_address, 'mintBatch',
             [
                 recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(MINT_AMOUNTS), DATA
+                *prepare_calldata(MINT_valueS), DATA
             ]),
             "ERC1155: transfer to non-ERC1155Receiver implementer")
 
@@ -544,7 +544,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_AMOUNTS)])
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_valueS)])
 
         execution_info = await erc1155.balanceOfBatch(
             [burner]*3, TOKEN_IDS).execute()
@@ -559,7 +559,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             account, erc1155.contract_address, 'burnBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_AMOUNTS)])
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_valueS)])
 
         assert_event_emitted(
             execution_info,
@@ -570,7 +570,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 burner,        # from
                 ZERO_ADDRESS,  # to
                 *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(BURN_AMOUNTS),
+                *prepare_calldata(BURN_valueS),
             ]
         )
 
@@ -588,7 +588,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await signer.send_transaction(
             account1, erc1155.contract_address, 'burnBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_AMOUNTS)])
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_valueS)])
 
         execution_info = await erc1155.balanceOfBatch(
             [burner]*3, TOKEN_IDS).execute()
@@ -608,7 +608,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         execution_info = await signer.send_transaction(
             account1, erc1155.contract_address, 'burnBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_AMOUNTS)])
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_valueS)])
 
         assert_event_emitted(
             execution_info,
@@ -619,7 +619,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
                 burner,        # from
                 ZERO_ADDRESS,  # to
                 *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(BURN_AMOUNTS),
+                *prepare_calldata(BURN_valueS),
             ]
         )
 
@@ -637,7 +637,7 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
 
         await assert_revert(signer.send_transaction(
             account1, erc1155.contract_address, 'burnBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_AMOUNTS)]),
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(BURN_valueS)]),
             "ERC1155: caller is not owner nor approved")
 
 
@@ -645,12 +645,12 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
     async def test_burn_batch_from_zero_address(self, minted_factory):
         erc1155, _, _, _ = minted_factory
 
-        amounts = [to_uint(0)]*3
+        values = [to_uint(0)]*3
 
         # Attempt to burn nothing (since cannot mint non_zero balance to burn)
         # note invoking this way (without signer) gives caller address of 0
         await assert_revert(
-            erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, amounts).execute(),
+            erc1155.burnBatch(ZERO_ADDRESS, TOKEN_IDS, values).execute(),
             "ERC1155: burn from the zero address")
 
 
@@ -659,18 +659,18 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         erc1155, _, account, _ = minted_factory
 
         burner = account.contract_address
-        amounts = MINT_AMOUNTS.copy()
-        amounts[1] = add_uint(amounts[1], to_uint(1))
+        values = MINT_valueS.copy()
+        values[1] = add_uint(values[1], to_uint(1))
 
         await assert_revert(
             signer.send_transaction(
                 account, erc1155.contract_address, 'burnBatch',
-                [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(amounts)]),
-            "ERC1155: burn amount exceeds balance")
+                [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(values)]),
+            "ERC1155: burn value exceeds balance")
 
 
     @pytest.mark.asyncio
-    async def test_burn_batch_invalid_amount(self, contract_factory):
+    async def test_burn_batch_invalid_value(self, contract_factory):
         erc1155, owner, account, _ = contract_factory
 
         burner = account.contract_address
@@ -678,14 +678,14 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         # mint max possible to avoid insufficient balance
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_AMOUNTS), 0])
+            [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_valueS), 0])
 
         # attempt passing an invalid uint in batch
         await assert_revert(
             signer.send_transaction(
                 account, erc1155.contract_address, 'burnBatch',
-                [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(INVALID_AMOUNTS)]),
-            "ERC1155: amount is not a valid Uint256")
+                [burner, *prepare_calldata(TOKEN_IDS), *prepare_calldata(INVALID_valueS)]),
+            "ERC1155: value is not a valid Uint256")
 
 
     @pytest.mark.asyncio
@@ -693,25 +693,25 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         erc1155, _, account, _ = minted_factory
 
         burner = account.contract_address
-        burn_amounts = [to_uint(0)]*3
+        burn_values = [to_uint(0)]*3
 
         await assert_revert(
             signer.send_transaction(
                 account, erc1155.contract_address, 'burnBatch',
-                [burner, *prepare_calldata(INVALID_IDS), *prepare_calldata(burn_amounts)]),
+                [burner, *prepare_calldata(INVALID_IDS), *prepare_calldata(burn_values)]),
             "ERC1155: token_id is not a valid Uint256")
 
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "amounts,token_ids",
+        "values,token_ids",
         [
-            (BURN_AMOUNTS[:2], TOKEN_IDS),
-            (BURN_AMOUNTS, TOKEN_IDS[:2])
+            (BURN_valueS[:2], TOKEN_IDS),
+            (BURN_valueS, TOKEN_IDS[:2])
         ]
     )
     async def test_burn_batch_uneven_arrays(self, 
-            minted_factory, amounts, token_ids):
+            minted_factory, values, token_ids):
         erc1155, _, account, _ = minted_factory
 
         burner = account.contract_address
@@ -719,5 +719,5 @@ class TestERC1155MintableBurnable(ERC1155Base, OwnableBase):
         await assert_revert(
             signer.send_transaction(
                 account, erc1155.contract_address, 'burnBatch',
-                [burner, *prepare_calldata(token_ids), *prepare_calldata(amounts)]),
-            "ERC1155: ids and amounts length mismatch")
+                [burner, *prepare_calldata(token_ids), *prepare_calldata(values)]),
+            "ERC1155: ids and values length mismatch")

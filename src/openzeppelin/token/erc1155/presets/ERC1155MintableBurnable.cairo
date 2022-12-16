@@ -83,9 +83,9 @@ func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @external
 func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_: felt, to: felt, id: Uint256, amount: Uint256, data_len: felt, data: felt*
+    from_: felt, to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
 ) {
-    ERC1155.safe_transfer_from(from_, to, id, amount, data_len, data);
+    ERC1155.safe_transfer_from(from_, to, id, value, data_len, data);
     return ();
 }
 
@@ -95,21 +95,21 @@ func safeBatchTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
     to: felt,
     ids_len: felt,
     ids: Uint256*,
-    amounts_len: felt,
-    amounts: Uint256*,
+    values_len: felt,
+    values: Uint256*,
     data_len: felt,
     data: felt*,
 ) {
-    ERC1155.safe_batch_transfer_from(from_, to, ids_len, ids, amounts_len, amounts, data_len, data);
+    ERC1155.safe_batch_transfer_from(from_, to, ids_len, ids, values_len, values, data_len, data);
     return ();
 }
 
 @external
 func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    to: felt, id: Uint256, amount: Uint256, data_len: felt, data: felt*
+    to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
 ) {
     Ownable.assert_only_owner();
-    ERC1155._mint(to, id, amount, data_len, data);
+    ERC1155._mint(to, id, value, data_len, data);
     return ();
 }
 
@@ -118,31 +118,31 @@ func mintBatch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt,
     ids_len: felt,
     ids: Uint256*,
-    amounts_len: felt,
-    amounts: Uint256*,
+    values_len: felt,
+    values: Uint256*,
     data_len: felt,
     data: felt*,
 ) {
     Ownable.assert_only_owner();
-    ERC1155._mint_batch(to, ids_len, ids, amounts_len, amounts, data_len, data);
+    ERC1155._mint_batch(to, ids_len, ids, values_len, values, data_len, data);
     return ();
 }
 
 @external
 func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_: felt, id: Uint256, amount: Uint256
+    from_: felt, id: Uint256, value: Uint256
 ) {
     ERC1155.assert_owner_or_approved(owner=from_);
-    ERC1155._burn(from_, id, amount);
+    ERC1155._burn(from_, id, value);
     return ();
 }
 
 @external
 func burnBatch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_: felt, ids_len: felt, ids: Uint256*, amounts_len: felt, amounts: Uint256*
+    from_: felt, ids_len: felt, ids: Uint256*, values_len: felt, values: Uint256*
 ) {
     ERC1155.assert_owner_or_approved(owner=from_);
-    ERC1155._burn_batch(from_, ids_len, ids, amounts_len, amounts);
+    ERC1155._burn_batch(from_, ids_len, ids, values_len, values);
     return ();
 }
 

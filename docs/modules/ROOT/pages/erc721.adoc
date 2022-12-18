@@ -114,7 +114,7 @@ To be as close as possible to the standard, it accepts a dynamic array of felts.
 In Cairo, arrays are expressed with the array length preceding the actual array;
 hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
 * `ERC165.register_interface` allows contracts to set and communicate which interfaces they support.
-This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
+This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.5.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
 * `IERC721Receiver` compliant contracts (`ERC721Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
 This is in line with the ERC165 interfaces design choice towards EVM compatibility.
 See the xref:introspection.adoc[Introspection docs] for more info.
@@ -261,7 +261,7 @@ Instead, the interface IDs are hardcoded from their EVM calculations.
 On the EVM, the interface ID is calculated from the selector's first four bytes of the hash of the function's signature while Cairo selectors are 252 bytes long.
 Due to this difference, hardcoding EVM's already-calculated interface IDs is the most consistent approach to both follow the EIP165 standard and EVM compatibility.
 
-Further, this implementation stores supported interfaces in a mapping (similar to OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.4.0b/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]).
+Further, this implementation stores supported interfaces in a mapping (similar to OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.5.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]).
 
 === Ready-to-Use Presets
 

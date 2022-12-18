@@ -1,4 +1,4 @@
-:test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/tests/signers.py
+:test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/tests/signers.py
 
 = Accounts
 
@@ -148,7 +148,7 @@ Since `address` will ultimately depend on the `class_hash` and `calldata`, it's 
 
 == Standard interface
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
 It implements https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and it is agnostic of signature validation. Further, nonce management is handled on the protocol level.
 
 NOTE: `\\__validate_deploy__` is not part of the interface since it's only callable by the protocol. Also contracts don't need to implement it to be considered accounts.
@@ -582,11 +582,11 @@ Each preset differs on the signature type being used by the Account.
 
 === Account
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
 
 === Eth Account
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
 == Account differentiation with ERC165
 

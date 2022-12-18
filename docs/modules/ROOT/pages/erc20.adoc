@@ -134,7 +134,7 @@ await signer.send_transaction(account, erc20.contract_address, 'transfer', [reci
 ERC20 contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter.
 For example, let's say you wanted to implement a pausing mechanism.
-The contract should first import the ERC20 methods and the extended logic from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/security/pausable/library.cairo[Pausable library] i.e. `Pausable.pause`, `Pausable.unpause`.
+The contract should first import the ERC20 methods and the extended logic from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/security/pausable/library.cairo[Pausable library] i.e. `Pausable.pause`, `Pausable.unpause`.
 Next, the contract should expose the methods with the extended logic therein like this:
 
 [,cairo]
@@ -166,21 +166,21 @@ Each preset mints an initial supply which is especially necessary for presets th
 
 === ERC20 (basic)
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/token/erc20/presets/ERC20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
 
 === ERC20Mintable
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo[`ERC20Mintable`] preset allows the contract owner to mint new tokens.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo[`ERC20Mintable`] preset allows the contract owner to mint new tokens.
 
 === ERC20Pausable
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[`ERC20Pausable`] preset allows the contract owner to pause/unpause all state-modifying methods i.e.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[`ERC20Pausable`] preset allows the contract owner to pause/unpause all state-modifying methods i.e.
 `transfer`, `approve`, etc.
 This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
 
 === ERC20Upgradeable
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[`ERC20Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaining the contract's state.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[`ERC20Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaining the contract's state.
 This preset proves useful for scenarios such as eliminating bugs and adding new features.
 For more on upgradeability, see xref:proxies.adoc#contract_upgrades[Contract upgrades].
 

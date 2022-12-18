@@ -37,17 +37,17 @@ def prepare_calldata(arr):
 NOT_BOOLEAN = 3
 ACCOUNT = 123
 TOKEN_ID = to_uint(111)
-MINT_value = to_uint(1000)
-TRANSFER_value = to_uint(500)
+MINT_VALUE = to_uint(1000)
+TRANSFER_VALUE = to_uint(500)
 
 ACCOUNTS = [123, 234, 345]
 TOKEN_IDS = [TOKEN_ID, to_uint(222), to_uint(333)]
-MINT_valueS = [MINT_value, to_uint(2000), to_uint(3000)]
-TRANSFER_valueS = [TRANSFER_value, to_uint(1000), to_uint(1500)]
+MINT_VALUES = [MINT_VALUE, to_uint(2000), to_uint(3000)]
+TRANSFER_VALUES = [TRANSFER_VALUE, to_uint(1000), to_uint(1500)]
 TRANSFER_DIFFERENCES = [sub_uint(m, t)
-                        for m, t in zip(MINT_valueS, TRANSFER_valueS)]
-MAX_UINT_valueS = [to_uint(1), MAX_UINT256, to_uint(1)]
-INVALID_valueS = [to_uint(1), (MAX_UINT256[0]+1, MAX_UINT256[1]), to_uint(1)]
+                        for m, t in zip(MINT_VALUES, TRANSFER_VALUES)]
+MAX_UINT_VALUES = [to_uint(1), MAX_UINT256, to_uint(1)]
+INVALID_VALUES = [to_uint(1), (MAX_UINT256[0]+1, MAX_UINT256[1]), to_uint(1)]
 INVALID_IDS = [to_uint(111),INVALID_UINT256,to_uint(333)]
 
 DEFAULT_URI = str_to_felt('mock://mytoken.v1')
@@ -201,7 +201,7 @@ class ERC1155Base:
         user = account.contract_address
 
         execution_info = await erc1155.balanceOf(user, TOKEN_ID).execute()
-        assert execution_info.result.balance == MINT_value
+        assert execution_info.result.balance == MINT_VALUE
 
 
     @pytest.mark.asyncio
@@ -229,7 +229,7 @@ class ERC1155Base:
         accounts = [account.contract_address]*3
 
         execution_info = await erc1155.balanceOfBatch(accounts, TOKEN_IDS).execute()
-        assert execution_info.result.balances == MINT_valueS
+        assert execution_info.result.balances == MINT_VALUES
 
 
     @pytest.mark.asyncio
@@ -278,14 +278,14 @@ class ERC1155Base:
 
         await signer.send_transaction(
             account2, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *TRANSFER_value, DATA])
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA])
 
         execution_info = await erc1155.balanceOf(sender, TOKEN_ID).execute()
         assert execution_info.result.balance == sub_uint(
-            MINT_value, TRANSFER_value)
+            MINT_VALUE, TRANSFER_VALUE)
 
         execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
-        assert execution_info.result.balance == TRANSFER_value
+        assert execution_info.result.balance == TRANSFER_VALUE
 
 
     @pytest.mark.asyncio
@@ -297,7 +297,7 @@ class ERC1155Base:
 
         execution_info = await signer.send_transaction(
             account2, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *TRANSFER_value, DATA])
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA])
 
         assert_event_emitted(
             execution_info,
@@ -308,7 +308,7 @@ class ERC1155Base:
                 sender,     # from
                 recipient,  # to
                 *TOKEN_ID,
-                *TRANSFER_value
+                *TRANSFER_VALUE
             ]
         )
 
@@ -329,14 +329,14 @@ class ERC1155Base:
         # account sends transaction
         await signer.send_transaction(
             account1, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *TRANSFER_value, DATA])
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA])
 
         execution_info = await erc1155.balanceOf(sender, TOKEN_ID).execute()
         assert execution_info.result.balance == sub_uint(
-            MINT_value, TRANSFER_value)
+            MINT_VALUE, TRANSFER_VALUE)
 
         execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
-        assert execution_info.result.balance == TRANSFER_value
+        assert execution_info.result.balance == TRANSFER_VALUE
 
 
     @pytest.mark.asyncio
@@ -354,7 +354,7 @@ class ERC1155Base:
         # account1/operator sends transaction
         execution_info = await signer.send_transaction(
             account1, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *TRANSFER_value, DATA])
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA])
 
         assert_event_emitted(
             execution_info,
@@ -365,7 +365,7 @@ class ERC1155Base:
                 sender,     # from
                 recipient,  # to
                 *TOKEN_ID,
-                *TRANSFER_value
+                *TRANSFER_VALUE
             ]
         )
 
@@ -414,7 +414,7 @@ class ERC1155Base:
         sender = account2.contract_address
         recipient = account.contract_address
 
-        transfer_value = add_uint(MINT_valueS[0], to_uint(1))
+        transfer_value = add_uint(MINT_VALUES[0], to_uint(1))
 
         await assert_revert(
             signer.send_transaction(
@@ -433,7 +433,7 @@ class ERC1155Base:
 
         await assert_revert(signer.send_transaction(
             account1, erc1155.contract_address, 'safeTransferFrom',
-            [sender, recipient, *TOKEN_ID, *TRANSFER_value, DATA]),
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA]),
             "ERC1155: caller is not owner nor approved")
 
 
@@ -445,7 +445,7 @@ class ERC1155Base:
 
         await assert_revert(signer.send_transaction(
             account, erc1155.contract_address, 'safeTransferFrom',
-            [sender, ZERO_ADDRESS, *TOKEN_ID, *TRANSFER_value, DATA]),
+            [sender, ZERO_ADDRESS, *TOKEN_ID, *TRANSFER_VALUE, DATA]),
             "ERC1155: transfer to the zero address")
 
 
@@ -484,13 +484,13 @@ class ERC1155Base:
             account2, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ])
 
         execution_info = await erc1155.balanceOfBatch(
             [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
         assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
-        assert execution_info.result.balances[3:] == TRANSFER_valueS
+        assert execution_info.result.balances[3:] == TRANSFER_VALUES
 
 
     @pytest.mark.asyncio
@@ -504,7 +504,7 @@ class ERC1155Base:
             account2, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ])
 
         assert_event_emitted(
@@ -516,7 +516,7 @@ class ERC1155Base:
                 sender,     # from
                 recipient,  # to
                 *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS),
+                *prepare_calldata(TRANSFER_VALUES),
             ]
         )
 
@@ -537,13 +537,13 @@ class ERC1155Base:
             account1, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ])
 
         execution_info = await erc1155.balanceOfBatch(
             [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
         assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
-        assert execution_info.result.balances[3:] == TRANSFER_valueS
+        assert execution_info.result.balances[3:] == TRANSFER_VALUES
 
 
     @pytest.mark.asyncio
@@ -563,7 +563,7 @@ class ERC1155Base:
             account1, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ])
 
         assert_event_emitted(
@@ -575,7 +575,7 @@ class ERC1155Base:
                 sender,     # from
                 recipient,  # to
                 *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS),
+                *prepare_calldata(TRANSFER_VALUES),
             ]
         )
 
@@ -589,13 +589,13 @@ class ERC1155Base:
 
         await signer.send_transaction(
             owner, erc1155.contract_address, 'mintBatch',
-            [sender, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_valueS), DATA])
+            [sender, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_VALUES), DATA])
 
         await assert_revert(signer.send_transaction(
             account, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(INVALID_valueS), DATA
+                *prepare_calldata(INVALID_VALUES), DATA
             ]),
             "ERC1155: value is not a valid Uint256")
 
@@ -626,7 +626,7 @@ class ERC1155Base:
         sender = account2.contract_address
         recipient = account1.contract_address
 
-        values = values = MINT_valueS.copy()
+        values = values = MINT_VALUES.copy()
         values[1] = add_uint(values[1], to_uint(1))
 
         await assert_revert(signer.send_transaction(
@@ -646,7 +646,7 @@ class ERC1155Base:
             account1, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ]),
             "ERC1155: caller is not owner nor approved")
 
@@ -662,7 +662,7 @@ class ERC1155Base:
             account, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, ZERO_ADDRESS, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ]),
             "ERC1155: transfer to the zero address")
 
@@ -671,8 +671,8 @@ class ERC1155Base:
     @pytest.mark.parametrize(
         "values,token_ids",
         [
-            (TRANSFER_valueS[:2], TOKEN_IDS), 
-            (TRANSFER_valueS, TOKEN_IDS[:2])
+            (TRANSFER_VALUES[:2], TOKEN_IDS),
+            (TRANSFER_VALUES, TOKEN_IDS[:2])
         ]
     )
     async def test_safe_batch_transfer_from_uneven_arrays(self, 
@@ -699,7 +699,7 @@ class ERC1155Base:
         # Bring 1 recipient's balance to max possible
         await signer.send_transaction(
             account1, erc1155.contract_address, 'mintBatch',
-            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_valueS), DATA]
+            [recipient, *prepare_calldata(TOKEN_IDS), *prepare_calldata(MAX_UINT_VALUES), DATA]
         )
 
         # Issuing recipient any more on just 1 token_id
@@ -724,13 +724,13 @@ class ERC1155Base:
             account2, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ])
 
         execution_info = await erc1155.balanceOfBatch(
             [sender]*3+[recipient]*3, TOKEN_IDS*2).execute()
         assert execution_info.result.balances[:3] == TRANSFER_DIFFERENCES
-        assert execution_info.result.balances[3:] == TRANSFER_valueS
+        assert execution_info.result.balances[3:] == TRANSFER_VALUES
 
 
     @pytest.mark.asyncio
@@ -745,7 +745,7 @@ class ERC1155Base:
             account2, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), *REJECT_DATA
+                *prepare_calldata(TRANSFER_VALUES), *REJECT_DATA
             ]),
             "ERC1155: ERC1155Receiver rejected tokens")
 
@@ -762,6 +762,6 @@ class ERC1155Base:
             account, erc1155.contract_address, 'safeBatchTransferFrom',
             [
                 sender, recipient, *prepare_calldata(TOKEN_IDS),
-                *prepare_calldata(TRANSFER_valueS), DATA
+                *prepare_calldata(TRANSFER_VALUES), DATA
             ]),
             "ERC1155: transfer to non-ERC1155Receiver implementer")

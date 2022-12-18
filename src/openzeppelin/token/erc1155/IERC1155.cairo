@@ -10,8 +10,14 @@ namespace IERC1155 {
     func balanceOf(account: felt, id: Uint256) -> (balance: Uint256) {
     }
 
-    func balanceOfBatch(accounts_len: felt, accounts: felt*, ids_len: felt, ids: Uint256*) -> (
-        balances_len: felt, balances: Uint256*
+    func balanceOfBatch(
+        accounts_len: felt,
+        accounts: felt*,
+        ids_len: felt,
+        ids: Uint256*
+    ) -> (
+        balances_len: felt,
+        balances: Uint256*
     ) {
     }
 
@@ -22,7 +28,12 @@ namespace IERC1155 {
     }
 
     func safeTransferFrom(
-        from_: felt, to: felt, id: Uint256, value: Uint256, data_len: felt, data: felt*
+        from_: felt,
+        to: felt,
+        id: Uint256,
+        value: Uint256,
+        data_len: felt,
+        data: felt*
     ) {
     }
 

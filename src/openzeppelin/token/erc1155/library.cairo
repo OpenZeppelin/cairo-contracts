@@ -28,7 +28,13 @@ from openzeppelin.utils.constants.library import (
 //
 
 @event
-func TransferSingle(operator: felt, from_: felt, to: felt, id: Uint256, value: Uint256) {
+func TransferSingle(
+    operator: felt,
+    from_: felt,
+    to: felt,
+    id: Uint256,
+    value: Uint256
+) {
 }
 
 @event
@@ -397,7 +403,6 @@ namespace ERC1155 {
 
     func _set_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(uri: felt) {
         ERC1155_uri.write(uri);
-        // should it emit or follow solidity's inability?
         return ();
     }
 }
@@ -415,7 +420,7 @@ func _do_safe_transfer_acceptance_check{
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID);
     if (is_supported == TRUE) {
         let (selector) = IERC1155Receiver.onERC1155Received(
-            to, operator, from_, id, value, data_len, data
+            operator, from_, id, value, data_len, data
         );
 
         // Confirm onERC1155Recieved selector returned

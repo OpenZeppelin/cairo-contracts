@@ -62,7 +62,7 @@ class BaseSigner():
         contract_name,
         nonce=None,
         max_fee=0,
-    ) -> TransactionExecutionInfo:
+    ) -> tuple[int, TransactionExecutionInfo]:
         state = account.state
 
         if nonce is None:

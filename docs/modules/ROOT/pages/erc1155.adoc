@@ -155,8 +155,8 @@ await signer.send_transaction(
 
 This library includes `safeTransferFrom` and `safeBatchTransferFrom` to transfer assets. These methods incorporate the following conditional logic:
 
-. if the receiving address is an account contract, the tokens will be transferred
-. if the receiving address is not an account contract, the function will check that the contract supports ERC1155 tokens before sending them
+. If the receiving address is an account contract, the tokens will be transferred.
+. If the receiving address is not an account contract, the function will check that the contract supports ERC1155 tokens before sending them.
 
 The current implementation requires that any recipient contract supports ERC165 and exposes the `supportsInterface` method.
 See <<erc1155received,ERC1155Received>>.

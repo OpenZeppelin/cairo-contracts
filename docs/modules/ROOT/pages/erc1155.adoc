@@ -102,7 +102,7 @@ In doing so, recipient contracts (both accounts and non-accounts) can be verifie
 == Usage
 
 To show a standard use case, we'll use the `ERC1155MintableBurnable` preset which allows for only the owner to `mint` tokens.
-To create a token you need to first deploy both Account and ERC1155 contracts respectively.
+To create a token, you need to first deploy both Account and ERC1155 contracts respectively.
 
 Considering that the ERC1155 constructor method looks like this:
 

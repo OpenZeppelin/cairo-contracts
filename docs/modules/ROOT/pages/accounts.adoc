@@ -14,6 +14,7 @@ A more detailed discussion on the topic can be found in https://community.starkn
 
 * <<quickstart,Quickstart>>
 * <<account_entrypoints,Account entrypoints>>
+ ** <<counterfactual_deployments,`Counterfactual deployments`>>
 * <<standard_interface,Standard interface>>
 * <<keys_signatures_and_signers,Keys, signatures and signers>>
 ** <<signature_validation, Signature validation>>
@@ -32,6 +33,7 @@ A more detailed discussion on the topic can be found in https://community.starkn
  ** <<isvalidsignature,`isValidSignature`>>
  ** <<validate,`\\__validate__`>>
  ** <<validate_declare,`\\__validate_declare__`>>
+ ** <<validate_deploy,`\\__validate_deploy__`>>
  ** <<execute,`\\__execute__`>>
 * <<presets,Presets>>
  ** <<account,Account>>
@@ -72,7 +74,7 @@ await signer.send_transaction(account, some_contract_address, 'some_function', [
 
 == Account entrypoints
 
-Account contracts contain three entry points for all user interactions with any contract.
+Account contracts have only three entry points for all user interactions:
 
 1. <<validate_declare,`\\__validate_declare__`>> validates the declaration signature prior to the declaration.
 As of Cairo v0.10.0, contract classes should be declared from an Account contract.
@@ -99,7 +101,7 @@ Or if you want to update the Account's L1 address on the `AccountRegistry` contr
 await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
 ----
 
-You can read more about how messages are structured and hashed in the https://github.com/OpenZeppelin/cairo-contracts/discussions/24[Account message scheme  discussion].
+NOTE: You can read more about how messages are structured and hashed in the https://github.com/OpenZeppelin/cairo-contracts/discussions/24[Account message scheme  discussion].
 For more information on the design choices and implementation of multicall, you can read the https://github.com/OpenZeppelin/cairo-contracts/discussions/27[How should Account multicall work discussion].
 
 The `\\__validate__` and `\\__execute__` methods accept the same arguments; however, `\\__execute__` returns a transaction response:
@@ -126,10 +128,30 @@ Where:
 NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
 
+There's a fourth canonical entrypoint for accounts, the `\\__validate_deploy__` method. It is **only callable by the protocol** during the execution of a `DeployAccount` type of transaction, but not by any other contract. This entrypoint is for counterfactual deployments.
+
+=== Counterfactual Deployments
+
+Counterfactual means something that hasn't happened.
+
+A deployment is said to be counterfactual when the deployed contract pays for it. It's called like this because we need to send the funds to the address before deployment. A deployment that hasn't happened.
+
+The steps are the following:
+
+1. Precompute the `address` given a `class_hash`, `salt`, and constructor `calldata`.
+2. Send funds to `address`.
+3. Send a `DeployAccount` type transaction.
+4. The protocol will then validate with `\\__validate_deploy__`.
+5. If successful, the protocol deploys the contract and the contract itself pays for the transaction.
+
+Since `address` will ultimately depend on the `class_hash` and `calldata`, it's safe for the protocol to validate the signature and spend the funds on that address.
+
 == Standard interface
 
 The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.4.0b/src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
 It implements https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and it is agnostic of signature validation. Further, nonce management is handled on the protocol level.
+
+NOTE: `\\__validate_deploy__` is not part of the interface since it's only callable by the protocol. Also contracts don't need to implement it to be considered accounts.
 
 [,cairo]
 ----
@@ -216,19 +238,14 @@ To simplify Account management, most of this is abstracted away with `MockSigner
 
 The `MockSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
-The flow of a transaction starts with checking the nonce and converting the `to` contract address of each call to hexadecimal format.
-The hexadecimal conversion is necessary because Nile's `Signer` converts the address to a base-16 integer (which requires a string argument).
-Note that directly converting `to` to a string will ultimately result in an integer exceeding Cairo's `FIELD_PRIME`.
-
-The values included in the transaction are passed to the `sign_transaction` method of Nile's `Signer` which creates and returns a signature.
-Finally, the `MockSigner` instance invokes the account contract's `\\__execute__` with the transaction data.
-
 NOTE: StarkNet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes StarkNet's API gateway to manually execute the `InvokeFunction` for testing.
 
-Users only need to interact with the following exposed methods to perform a transaction:
+A `MockSigner` instance exposes the following methods:
 
-* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a future of a signed transaction, ready to be sent.
+* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a link:https://docs.python.org/3/library/asyncio-future.html[future] of a signed transaction, ready to be sent.
 * `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
+* `declare_class(account, contract_name, nonce=None, max_fee=0)` returns a future of a declaration transaction.
+* `deploy_account(state, calldata, salt=0, nonce=0, max_fee=0)`: returns a future of a counterfactual deployment.
 
 To use `MockSigner`, pass a private key when instantiating the class:
 
@@ -259,6 +276,21 @@ await signer.send_transactions(
     ]
 )
 ----
+
+Use `declare_class` to declare a contract:
+
+[,python]
+----
+await signer.declare_class(account, "MyToken")
+----
+
+And `deploy_account` to <<counterfactual_deployments,counterfactually>> deploy an account:
+
+[,python]
+----
+await signer.deploy_account(state, [signer.public_key])
+----
+
 
 === MockEthSigner utility
 
@@ -492,6 +524,25 @@ Parameters:
 [,cairo]
 ----
 class_hash: felt
+----
+
+Returns: None.
+
+=== `\\__validate_deploy__`
+
+Validates the signature for counterfactual deployment transactions.
+
+It takes the `class_hash` of the account being deployed along with the `salt` and `calldata`, the latter being expanded. For example if the account is deployed with calldata `[arg_1, ..., arg_n]`:
+
+Parameters:
+
+[,cairo]
+----
+class_hash: felt
+salt: felt
+arg_1: felt
+...
+arg_n: felt
 ----
 
 Returns: None.

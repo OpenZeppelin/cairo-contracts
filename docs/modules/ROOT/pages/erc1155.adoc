@@ -203,7 +203,7 @@ Methods such as `safeTransferFrom` and `safeBatchTransferFrom` call the recipien
 If the contract fails to return the correct magic value, the transaction fails.
 
 StarkNet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
-transfer functions requires a means of differentiating between account and non-account contracts.
+Transfer functions require a means of differentiating between account and non-account contracts.
 Currently, StarkNet does not support error handling from the contract level;
 therefore, the current ERC1155 implementation requires that all contracts that support safe ERC1155 transfers (both accounts and non-accounts) include the `supportsInterface` method.
 Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC1155Receiver` magic value `00x4e2312e0` (which invokes `onERC1155Received` and `onERC1155BatchReceived`).

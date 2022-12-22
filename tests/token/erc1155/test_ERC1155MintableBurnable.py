@@ -85,8 +85,8 @@ async def minted_factory(contract_classes, erc1155_init):
     await signer.send_transaction(
         owner, erc1155.contract_address, 'mintBatch',
         [
-            account.contract_address, # to
-            *prepare_calldata(TOKEN_IDS),      # ids
+            account.contract_address,         # to
+            *prepare_calldata(TOKEN_IDS),     # ids
             *prepare_calldata(MINT_VALUES),   # values
             DATA
         ]

@@ -226,7 +226,7 @@ Accepts all token transfers.
 Make sure the contract is able to use its token with `IERC1155.safeTransferFrom`, `IERC1155.approve` or `IERC1155.setApprovalForAll`.
 
 Also utilizes the ERC165 method `supportsInterface` to determine if the contract is an account.
-See <<erc1155received,ERC1155Received>>
+See <<erc1155received,ERC1155Received>>.
 
 == API Specification
 

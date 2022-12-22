@@ -17,7 +17,7 @@ The ERC1155 library implements an approximation of https://eips.ethereum.org/EIP
 * <<api_specification,API Specification>>
  ** <<ierc1155_api,`IERC1155`>>
  ** <<events,Events>>
- ** <<ierc1155metadata,`IERC1155Metadata`>>
+ ** <<ierc1155metadata_api,`IERC1155Metadata`>>
  ** <<ierc1155receiver_api,`IERC1155Receiver`>>
 
 == IERC1155

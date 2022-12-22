@@ -13,7 +13,7 @@ The ERC1155 library implements an approximation of https://eips.ethereum.org/EIP
  ** <<erc1155received,ERC1155Received>>
 * <<presets,Presets>>
 * <<utilities,Utilities>>
- ** <<erc1155_holder,ERC1155Holder>>
+ ** <<erc1155holder,ERC1155Holder>>
 * <<api_specification,API Specification>>
  ** <<ierc1155_api,`IERC1155`>>
  ** <<events,Events>>

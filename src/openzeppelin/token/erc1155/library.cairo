@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.5.2 (token/erc1155/library.cairo)
+// OpenZeppelin Contracts for Cairo v0.5.1 (token/erc1155/library.cairo)
 
 %lang starknet
 
@@ -420,7 +420,7 @@ func _do_safe_transfer_acceptance_check{
     let (is_supported) = IERC165.supportsInterface(to, IERC1155_RECEIVER_ID);
     if (is_supported == TRUE) {
         let (selector) = IERC1155Receiver.onERC1155Received(
-            operator, from_, id, value, data_len, data
+            to, operator, from_, id, value, data_len, data
         );
 
         // Confirm onERC1155Recieved selector returned

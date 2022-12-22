@@ -155,10 +155,10 @@ await signer.send_transaction(
 
 This library includes `safeTransferFrom` and `safeBatchTransferFrom` to transfer assets. These methods incorporate the following conditional logic:
 
-. If the receiving address is an account contract, the tokens will be transferred.
-. If the receiving address is not an account contract, the function will check that the contract supports ERC1155 tokens before sending them.
+. If the receiving address xref:accounts.adoc#account_introspection_with_erc165[is identified as an account], the tokens will be transferred.
+. If the receiving address is not an account contract, the function will check that the receiver supports ERC1155 tokens before sending them.
 
-The current implementation requires that any recipient contract supports ERC165 and exposes the `supportsInterface` method.
+The current implementation requires recipient contracts to support ERC165 and expose the `supportsInterface` method.
 See <<erc1155received,ERC1155Received>>.
 
 === Interpreting ERC1155 URIs
@@ -180,7 +180,7 @@ def str_to_felt(text):
     b_text = bytes(text, 'ascii')
     return int.from_bytes(b_text, "big")
 
-def felt_to_str(felt):
+def felt_to_str(felt)::159
     b_felt = felt.to_bytes(31, "big")
     return b_felt.decode()
 
@@ -501,7 +501,7 @@ func onERC1155BatchReceived(
 
 ==== `onERC1155Received`
 
-Whenever any IERC1155 token is transferred to this non-account contract via `safeTransferFrom` by `operator` from `from_`, this function is called.
+Whenever any IERC1155 token is transferred or minted to this non-account contract by `operator` from `from_`, this function is called.
 
 Parameters:
 

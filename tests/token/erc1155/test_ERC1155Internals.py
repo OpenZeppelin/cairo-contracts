@@ -1,6 +1,6 @@
 import pytest
 from signers import MockSigner
-from utils import State, Account, get_contract_class, cached_contract, assert_event_emitted
+from utils import State, Account, get_contract_class, cached_contract
 
 from ERC1155BaseSuite import TOKEN_ID, NEW_URI, DEFAULT_URI
 

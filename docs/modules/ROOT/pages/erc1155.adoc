@@ -90,7 +90,7 @@ But some differences can still be found, such as:
 * It implements an `uri()` function that returns the same URI for *all* token types. It relies on the token type ID substitution mechanism https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP]. Clients calling this function must replace the `\{id\}` substring with the actual token type ID.
 * `safeTransferFrom` and `safeBatchTransferFrom` are specified such that the optional `data` argument should be of type bytes.
 In Solidity, this means a dynamically-sized array.
-To be as close as possible to the standard, it accepts a dynamic array of felts.
+To be as close as possible to the standard, the `data` argument accepts a dynamic array of felts.
 In Cairo, arrays are expressed with the array length preceding the actual array;
 hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
 * `IERC1155Receiver` compliant contracts (`ERC1155Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.

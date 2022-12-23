@@ -20,7 +20,7 @@ namespace IERC1155MetadataURI {
     ) {
     }
 
-    func isApprovedForAll(account: felt, operator: felt) -> (isApproved: felt) {
+    func isApprovedForAll(account: felt, operator: felt) -> (approved: felt) {
     }
 
     func setApprovalForAll(operator: felt, approved: felt) {

@@ -21,7 +21,7 @@ namespace IERC1155 {
     ) {
     }
 
-    func isApprovedForAll(account: felt, operator: felt) -> (isApproved: felt) {
+    func isApprovedForAll(account: felt, operator: felt) -> (approved: felt) {
     }
 
     func setApprovalForAll(operator: felt, approved: felt) {

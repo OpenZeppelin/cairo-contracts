@@ -28,7 +28,7 @@ namespace IERC721 {
     func getApproved(tokenId: Uint256) -> (approved: felt) {
     }
 
-    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+    func isApprovedForAll(owner: felt, operator: felt) -> (approved: felt) {
     }
 
     // ERC165

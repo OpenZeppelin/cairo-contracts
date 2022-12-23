@@ -121,7 +121,7 @@ class ERC1155Base:
         execution_info = await erc1155.isApprovedForAll(
             approver, ACCOUNT).execute()
 
-        assert execution_info.result.isApproved == TRUE
+        assert execution_info.result.approved == TRUE
 
         # Unset approval
         await signer.send_transaction(
@@ -132,7 +132,7 @@ class ERC1155Base:
         execution_info = await erc1155.isApprovedForAll(
             approver, ACCOUNT).execute()
 
-        assert execution_info.result.isApproved == FALSE
+        assert execution_info.result.approved == FALSE
 
 
     @pytest.mark.asyncio

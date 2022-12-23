@@ -58,9 +58,8 @@ func balanceOfBatch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 @view
 func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     account: felt, operator: felt
-) -> (isApproved: felt) {
-    let (isApproved) = ERC1155.is_approved_for_all(account, operator);
-    return (isApproved=isApproved);
+) -> (approved: felt) {
+    return ERC1155.is_approved_for_all(account, operator);
 }
 
 @view

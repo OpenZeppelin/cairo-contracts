@@ -76,7 +76,7 @@ namespace IERC721 {
     func getApproved(tokenId: Uint256) -> (approved: felt) {
     }
 
-    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+    func isApprovedForAll(owner: felt, operator: felt) -> (approved: felt) {
     }
 
     --------------- IERC165 ---------------
@@ -419,7 +419,7 @@ func setApprovalForAll(operator: felt, approved: felt) {
 func getApproved(tokenId: Uint256) -> (approved: felt) {
 }
 
-func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+func isApprovedForAll(owner: felt, operator: felt) -> (approved: felt) {
 }
 ----
 
@@ -564,7 +564,7 @@ Returns:
 
 [,cairo]
 ----
-isApproved: felt
+approved: felt
 ----
 
 === Events

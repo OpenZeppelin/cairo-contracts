@@ -52,8 +52,7 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func balanceOfBatch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     accounts_len: felt, accounts: felt*, ids_len: felt, ids: Uint256*
 ) -> (balances_len: felt, balances: Uint256*) {
-    let (balances_len, balances) = ERC1155.balance_of_batch(accounts_len, accounts, ids_len, ids);
-    return (balances_len, balances);
+    return ERC1155.balance_of_batch(accounts_len, accounts, ids_len, ids);
 }
 
 @view

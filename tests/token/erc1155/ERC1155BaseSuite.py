@@ -468,6 +468,47 @@ class ERC1155Base:
             "ERC1155: balance overflow")
 
 
+    @pytest.mark.asyncio
+    async def test_safe_transfer_from_to_receiver(self, minted_factory):
+        erc1155, _, account2, receiver = minted_factory
+
+        sender = account2.contract_address
+        recipient = receiver.contract_address
+
+        await signer.send_transaction(
+            account2, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA])
+
+        execution_info = await erc1155.balanceOf(recipient, TOKEN_ID).execute()
+        assert execution_info.result.balance == TRANSFER_VALUE
+
+
+    @pytest.mark.asyncio
+    async def test_safe_transfer_from_to_receiver_rejection(self, minted_factory):
+        erc1155, _, account2, receiver = minted_factory
+
+        sender = account2.contract_address
+        recipient = receiver.contract_address
+
+        await assert_revert(signer.send_transaction(
+            account2, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, *REJECT_DATA]),
+            "ERC1155: ERC1155Receiver rejected tokens")
+
+
+    @pytest.mark.asyncio
+    async def test_safe_transfer_from_to_non_receiver(self, minted_factory):
+        erc1155, _, account, _ = minted_factory
+
+        sender = account.contract_address
+        recipient = erc1155.contract_address
+
+        await assert_revert(signer.send_transaction(
+            account, erc1155.contract_address, 'safeTransferFrom',
+            [sender, recipient, *TOKEN_ID, *TRANSFER_VALUE, DATA]),
+            "ERC1155: transfer to non-ERC1155Receiver implementer")
+
+
     #
     # Batch Transfers
     #

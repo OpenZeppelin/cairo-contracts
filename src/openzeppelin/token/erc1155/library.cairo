@@ -131,17 +131,17 @@ namespace ERC1155 {
 
     func balance_of_batch{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         accounts_len: felt, accounts: felt*, ids_len: felt, ids: Uint256*
-    ) -> (batch_balances_len: felt, batch_balances: Uint256*) {
+    ) -> (balances_len: felt, balances: Uint256*) {
         alloc_locals;
         // Check args are equal length arrays
         with_attr error_message("ERC1155: accounts and ids length mismatch") {
             assert ids_len = accounts_len;
         }
         // Allocate memory
-        let (local batch_balances: Uint256*) = alloc();
+        let (local balances: Uint256*) = alloc();
         // Call iterator
-        _balance_of_batch_iter(accounts_len, accounts, ids, batch_balances);
-        return (accounts_len, batch_balances);
+        _balance_of_batch_iter(accounts_len, accounts, ids, balances);
+        return (accounts_len, balances);
     }
 
     func is_approved_for_all{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

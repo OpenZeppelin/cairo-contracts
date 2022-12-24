@@ -21,7 +21,7 @@ TIP: For further information on design decisions, see the https://community.star
 
 == Quickstart
 
-Account contracts need to first declare the contract and then send a `deployContract` transaction to the Universal Deployer Contract address.
+To deploy a contract first you need to make sure it's been declared and then send a `deployContract` transaction to the Universal Deployer Contract.
 Here's an example implementation in Python:
 
 [,python]
@@ -47,14 +47,13 @@ async def deploy_contract():
     )
 ----
 
-TIP: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
+NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
 Note that this address may change in the future.
 
 === Deploying the UDC
 
-Though, the Universal Deployer Contract has already been deployed, this documentation does not take its deployment for granted.
+NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
 The deployment of the UDC requires a contract (most likely an account) to call https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[StarkNet's deploy syscall].
-The whole point of the UDC lies in eliminating deployment responsibilities from accounts; however, we need to deploy the UDC before relinquishing this functionality from accounts.
 
 The UDC deployment should also set `deploy_from_zero=TRUE` in the `deploy` syscall.
 In so doing, this creates a deterministic address that can be used across all instances of StarkNet.
@@ -68,10 +67,9 @@ CAUTION: When deploying a contract that uses `get_caller_address` in the constru
 Therefore, querying `get_caller_address` in a contract's constructor will return the UDC's address and *not* the account's address.
 
 
-=== Reserved Address Space for Deployer
+=== Reserved address space for deployer
 
-Reserving the address space for the deployer deploys a contract unique to the deployer.
-This prevents squatting on addresses.
+Making deployments dependent of the deployer address, users can "reserve" a whole address space from squatting by someone else. Only that deployer can deploy to those addresses.
 
 Achieving this type of deployment necessitates that the deployer sets `unique` to `TRUE` in the `deployContract` call.
 Under the hood, the function call leverages the deployer's address and creates a hashchain by hashing the deployer's address with the given salt.
@@ -102,10 +100,10 @@ async def deploy_contract():
 ----
 
 
-=== Reproducible Deployments
+=== Reproducible deployments
 
 Reproducible deployments create contract addresses independent of the deployer and the UDC instance.
-Instead, only the class hash, salt, and constructor arguments determine the address.
+Instead only the class hash, salt, and constructor arguments determine the address.
 This type of deployment enables redeployments of accounts and known systems across multiple networks.
 To deploy a reproducible deployment, set `unique` to `FALSE`.
 
@@ -132,7 +130,7 @@ async def deploy_contract():
     )
 ----
 
-== Calculating Counterfactual Addresses
+== Calculating counterfactual addresses
 
 Counterfactual addresses are contract addresses that haven't been deployed yet.
 A strong use-case for calculating a contract's counterfactual address lies in deploying account contracts.

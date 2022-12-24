@@ -1,3 +1,4 @@
+from typing import Tuple
 from starkware.starknet.core.os.transaction_hash.transaction_hash import TransactionHashPrefix
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -6,8 +7,8 @@ from starkware.starknet.definitions.general_config import StarknetChainId
 from starkware.starknet.services.api.gateway.transaction import InvokeFunction, DeployAccount
 from starkware.starknet.business_logic.transaction.objects import InternalTransaction, InternalDeclare, TransactionExecutionInfo
 from nile.signer import Signer, from_call_to_call_array, get_transaction_hash, TRANSACTION_VERSION
-from nile.common import get_contract_class, get_class_hash
 from nile.utils import to_uint
+from utils import get_class_hash, get_contract_class
 import eth_keys
 
 
@@ -62,7 +63,7 @@ class BaseSigner():
         contract_name,
         nonce=None,
         max_fee=0,
-    ) -> TransactionExecutionInfo:
+    ) -> Tuple[int, TransactionExecutionInfo]:
         state = account.state
 
         if nonce is None:
@@ -94,7 +95,12 @@ class BaseSigner():
         )
 
         execution_info = await state.execute_tx(tx=tx)
-        return execution_info
+
+        await state.state.set_contract_class(
+            class_hash=tx.class_hash,
+            contract_class=contract_class
+        )
+        return class_hash, execution_info
 
     async def deploy_account(
         self,

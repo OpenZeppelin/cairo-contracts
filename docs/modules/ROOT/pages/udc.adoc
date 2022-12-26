@@ -26,6 +26,8 @@ Here's an example implementation in Python:
 
 [,python]
 ----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
 signer = MockSigner(PRIVATE_KEY)
 
 async def deploy_contract():
@@ -41,7 +43,7 @@ async def deploy_contract():
     # Send a "deployContract" transaction to the deployer contract
     await account.send_transaction(
         account,
-        deployer_address,
+        UNIVERSAL_DEPLOYER_ADDRESS,
         "deployContract",
         params
     )
@@ -78,6 +80,8 @@ To deploy a unique contract address:
 
 [,python]
 ----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
 signer = MockSigner(PRIVATE_KEY)
 
 async def deploy_contract():
@@ -93,7 +97,7 @@ async def deploy_contract():
     # Send a "deployContract" transaction to the deployer contract
     await account.send_transaction(
         account,
-        deployer_address,
+        UNIVERSAL_DEPLOYER_ADDRESS,
         "deployContract",
         params
     )
@@ -109,6 +113,8 @@ To deploy a reproducible deployment, set `unique` to `FALSE`.
 
 [,python]
 ----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
 signer = MockSigner(PRIVATE_KEY)
 
 async def deploy_contract():
@@ -124,7 +130,7 @@ async def deploy_contract():
     # Send a "deployContract" transaction to the deployer contract
     await account.send_transaction(
         account,
-        deployer_address,
+        UNIVERSAL_DEPLOYER_ADDRESS,
         "deployContract",
         params
     )

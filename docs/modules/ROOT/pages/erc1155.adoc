@@ -109,7 +109,7 @@ Considering that the ERC1155 constructor method looks like this:
 [,cairo]
 ----
 func constructor(
-    uri: felt,      // Token name as Cairo short string
+    uri: felt,      // Token URI as Cairo short string
     owner: felt     // Address designated as the contract owner
 ) {
 }

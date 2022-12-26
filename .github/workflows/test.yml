@@ -50,8 +50,8 @@ jobs:
         env:
           key: ${{ secrets.ADMIN_RW }}
         run: |
-          git tag -f ${{ env.VERSION }}
-          git push -f origin ${{ env.VERSION }}
+          git tag -f "$GITHUB_REF_NAME"
+          git push -f origin "$GITHUB_REF_NAME"
 
   test:
     runs-on: ubuntu-latest

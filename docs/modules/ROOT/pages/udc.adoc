@@ -19,8 +19,8 @@ Note that this address may change in the future.
 * <<usage,Usage>>
  ** <<deployer_dependent,Deployer dependent>>
  ** <<deployer_independent,Deployer independent>>
-* <<calculating_counterfactual_addresses,Calculating Counterfactual Addresses>>
-* <<udc_api_specification,UDC API Specification>>
+* <<calculating_counterfactual_addresses,Calculating counterfactual addresses>>
+* <<api_specification,API specification>>
 
 == Quickstart
 
@@ -63,7 +63,7 @@ In so doing, this creates a deterministic address that can be used across all in
 == Usage
 
 The Universal Deployer Contract offers two deployment types: deployer dependent and deployer independent.
-As the names suggest, the deployer-dependent type includes the deployer's address in address calculation;
+As the names suggest, the deployer-dependent type includes the deployer's address in the address calculation;
 whereas, the deployer-independent type does not.
 The `unique` boolean parameter ultimately determines the type of deployment.
 
@@ -161,7 +161,7 @@ expected_address = calculate_contract_address_from_hash(
 )
 ----
 
-== UDC API Specification
+== API specification
 
 === Methods
 

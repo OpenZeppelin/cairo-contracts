@@ -41,7 +41,7 @@ jobs:
         id: bumped_version
         run: echo "RELEASE_VERSION=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
       - name: Update version
-        run: python scripts/update_version.py ${{ env.VERSION }}
+        run: python scripts/update_version.py "$GITHUB_REF_NAME"
       - name: Auto-commit changes
         uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
         with:

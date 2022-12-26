@@ -17,8 +17,8 @@ Note that this address may change in the future.
 * <<quickstart, Quickstart>>
 * <<deploying_the_udc,Deploying the UDC>>
 * <<usage,Usage>>
- ** <<reserved_address_space_for_deployer,Reserved Address Space for Deployer>>
- ** <<reproducible_deployments,Reproducible Deployments>>
+ ** <<deployer_dependent,Deployer dependent>>
+ ** <<deployer_independent,Deployer independent>>
 * <<calculating_counterfactual_addresses,Calculating Counterfactual Addresses>>
 * <<udc_api_specification,UDC API Specification>>
 
@@ -62,16 +62,18 @@ In so doing, this creates a deterministic address that can be used across all in
 
 == Usage
 
-The Universal Deployer Contract offers two deployment types: reserving the address space for the deployer and reproducible deployments.
+The Universal Deployer Contract offers two deployment types: deployer dependent and deployer independent.
+As the names suggest, the deployer-dependent type includes the deployer's address in address calculation;
+whereas, the deployer-independent type does not.
 The `unique` boolean parameter ultimately determines the type of deployment.
 
 CAUTION: When deploying a contract that uses `get_caller_address` in the constructor calldata, remember that the UDC (and not the account) deploys that contract.
 Therefore, querying `get_caller_address` in a contract's constructor will return the UDC's address and *not* the account's address.
 
+=== Deployer dependent
 
-=== Reserved address space for deployer
-
-Making deployments dependent of the deployer address, users can "reserve" a whole address space from squatting by someone else. Only that deployer can deploy to those addresses.
+Making deployments dependent of the deployer address, users can "reserve" a whole address space from squatting by someone else.
+Only that deployer can deploy to those addresses.
 
 Achieving this type of deployment necessitates that the deployer sets `unique` to `TRUE` in the `deployContract` call.
 Under the hood, the function call leverages the deployer's address and creates a hashchain by hashing the deployer's address with the given salt.
@@ -104,9 +106,9 @@ async def deploy_contract():
 ----
 
 
-=== Reproducible deployments
+=== Deployer independent
 
-Reproducible deployments create contract addresses independent of the deployer and the UDC instance.
+Deployer-independent contract deployments create contract addresses independent of the deployer and the UDC instance.
 Instead only the class hash, salt, and constructor arguments determine the address.
 This type of deployment enables redeployments of accounts and known systems across multiple networks.
 To deploy a reproducible deployment, set `unique` to `FALSE`.

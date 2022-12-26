@@ -10,6 +10,9 @@ To remove the redundancy of deploying a new deployer contract for each account, 
 
 TIP: For further information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
 
+NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
+Note that this address may change in the future.
+
 == Table of Contents
 * <<quickstart, Quickstart>>
 * <<deploying_the_udc,Deploying the UDC>>
@@ -48,9 +51,6 @@ async def deploy_contract():
         params
     )
 ----
-
-NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
-Note that this address may change in the future.
 
 === Deploying the UDC
 

@@ -57,7 +57,7 @@ In so doing, this creates a deterministic address that can be used across all in
 
 == Usage
 
-The Universal Deployer Contract offers two types of address where to deploy: deployer dependent and deployer independent.
+The Universal Deployer Contract offers two types of addresses to deploy: deployer dependent and deployer independent.
 As the names suggest, the deployer-dependent type includes the deployer's address in the address calculation;
 whereas, the deployer-independent type does not.
 The `unique` boolean parameter ultimately determines the type of deployment.

@@ -1,14 +1,10 @@
 = Universal Deployer Contract
 
-Account contracts make up very critical components of the StarkNet ecosystem, since a bug in any implementation (let alone a widespread one) could prove disastrous.
-Therefore, maximum caution is in order.
-In this spirit, we should consider trimming account responsibilities to simplify implementations and minimize bug/attack surfaces.
+The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy`] syscall.
+This contract intends to serve and support all other contracts that do not implement this functionality (like most accounts).
+And since accounts lack a native deployment transaction type, the UDC aims to stand in this while also providing a standardized event to ease observability.
 
-This standard moves contract deployment responsibilities to an external, specialized deployer contract.
-The separation allows accounts to deploy contracts without compromising security.
-To remove the redundancy of deploying a new deployer contract for each account, the deployer contract should be a singleton Universal Deployer Contract (UDC).
-
-TIP: For further information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
+TIP: For information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
 
 NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet.
 Note that this address may change in the future.
@@ -55,7 +51,7 @@ async def deploy_contract():
 === Deploying the UDC
 
 NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
-The deployment of the UDC requires a contract (most likely an account) to call https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[StarkNet's deploy syscall].
+The deployment of the UDC requires a contract (most likely an account) to call StarkNet's `deploy` syscall.
 
 The UDC deployment should also set `deploy_from_zero=TRUE` in the `deploy` syscall.
 In so doing, this creates a deterministic address that can be used across all instances of StarkNet.

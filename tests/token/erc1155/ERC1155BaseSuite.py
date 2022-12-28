@@ -19,15 +19,18 @@ def to_uint_array(arr):
 
 
 def prepare_calldata(arr):
-    acc = [len(arr)]
-    if acc[0] == 0:
-        return acc
+    """Flatten an array of tuples or an array of ints."""
+    # [5, 5, 5]        => [3, 5, 5, 5]
+    # [(1, 2), (3, 4)] => [2, 1, 2, 3, 4]
+    res = [len(arr)]
+    if res[0] == 0:
+        return res
     if type(arr[0]) == int:
-        return acc + arr
+        return res + arr
     if type(arr[0]) == tuple:
         for elem in arr:
-            acc += [*elem]
-        return acc
+            res += [*elem]
+        return res
     raise Exception
 
 #

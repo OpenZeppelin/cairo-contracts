@@ -7,7 +7,7 @@ Releasing checklist:
 (2) Run version bump script with the new version as an argument and open a PR.
 
 ```sh
-python scripts/update-version.py v0.5.1
+python scripts/update_version.py v0.5.1
 ```
 
 (3) Create and push a release branch.

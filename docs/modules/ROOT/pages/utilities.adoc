@@ -29,7 +29,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 
 == Constants
 
-To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/utils/constants/library.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
+To ease the readability of Cairo contracts, this project includes reusable https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/utils/constants/library.cairo[constant variables] like `UINT8_MAX`, or EIP165 interface IDs such as `IERC165_ID` or `IERC721_ID`.
 For more information on how interface ids are calculated, see the xref:introspection.adoc#interface_calculations[ERC165 documentation].
 
 == Strings

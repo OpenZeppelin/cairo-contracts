@@ -27,7 +27,7 @@ There may even not be any direct calls to them!
 ERC20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever).
 In these cases, a contract declaring its interface can be very helpful in preventing errors.
 
-It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/utils/constants/library.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
+It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/utils/constants/library.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
 This allows for more legible code i.e.
 using `IERC165_ID` instead of `0x01ffc9a7`.
 
@@ -76,7 +76,7 @@ func check_support{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 ----
 
 NOTE: `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
-This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/introspection/erc165/library.cairo[ERC165 library]) which are snake_cased and not exposed.
+This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/introspection/erc165/library.cairo[ERC165 library]) which are snake_cased and not exposed.
 See the xref:extensibility.adoc#function_names_and_coding_style[Function names and coding style] for more details.
 
 === IERC165

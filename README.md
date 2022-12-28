@@ -118,6 +118,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 - [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.5.1/accounts)
 - [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.5.1/erc20)
 - [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.5.1/erc721)
+- [ERC1155](https://docs.openzeppelin.com/contracts-cairo/0.5.1/erc1155)
 - [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.5.1/extensibility)
 - [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.5.1/proxies)
 - [Security](https://docs.openzeppelin.com/contracts-cairo/0.5.1/security)

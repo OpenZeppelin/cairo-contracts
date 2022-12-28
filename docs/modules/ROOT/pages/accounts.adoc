@@ -38,7 +38,7 @@ A more detailed discussion on the topic can be found in https://community.starkn
 * <<presets,Presets>>
  ** <<account,Account>>
  ** <<eth_account,Eth Account>>
-* <<account_differentiation_with_erc165,Account differentiation with ERC165>>
+* <<account_introspection_with_erc165,Account introspection with ERC165>>
 * <<extending_the_account_contract,Extending the Account contract>>
 * <<l1_escape_hatch_mechanism,L1 escape hatch mechanism>>
 * <<paying_for_gas,Paying for gas>>
@@ -446,7 +446,7 @@ publicKey: felt
 === `supportsInterface`
 
 Returns `TRUE` if this contract implements the interface defined by `interfaceId`.
-Account contracts now implement ERC165 through static support (see <<account_differentiation_with_erc165,Account differentiation with ERC165>>).
+Account contracts now implement ERC165 through static support (see <<account_introspection_with_erc165,Account introspection with ERC165>>).
 
 Parameters:
 
@@ -588,12 +588,13 @@ The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/open
 
 The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
 
-== Account differentiation with ERC165
+== Account introspection with ERC165
 
-Certain contracts like ERC721 require a means to differentiate between account contracts and non-account contracts.
+Certain contracts like ERC721 or ERC1155 require a means to differentiate between account contracts and non-account contracts.
 For a contract to declare itself as an account, it should implement https://eips.ethereum.org/EIPS/eip-165[ERC165] as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
-To be in compliance with ERC165 specifications, the idea is to calculate the XOR of ``IAccount``'s EVM selectors (not StarkNet selectors).
-The resulting magic value of `IAccount` is 0x50b70dcb.
+
+To be in compliance with ERC165 specifications, we calculate the account contract ID as the XOR of ``IAccount``'s equivalent EVM selectors (not StarkNet selectors).
+This magic value has been tracking the changes of the still evolving Account interface standard, and **its current value is `0xa66bd575`**.
 
 Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage] which stores the interfaces that the implementing contract supports.
 In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.

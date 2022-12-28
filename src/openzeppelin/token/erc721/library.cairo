@@ -61,7 +61,7 @@ func ERC721_token_approvals(token_id: Uint256) -> (approved: felt) {
 }
 
 @storage_var
-func ERC721_operator_approvals(owner: felt, operator: felt) -> (is_approved: felt) {
+func ERC721_operator_approvals(owner: felt, operator: felt) -> (approved: felt) {
 }
 
 @storage_var
@@ -135,7 +135,7 @@ namespace ERC721 {
 
     func is_approved_for_all{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, operator: felt
-    ) -> (is_approved: felt) {
+    ) -> (approved: felt) {
         return ERC721_operator_approvals.read(owner, operator);
     }
 

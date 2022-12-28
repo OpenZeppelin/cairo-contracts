@@ -3,7 +3,7 @@ import itertools
 import sys
 from pathlib import Path
 
-CURRENT_VERSION = "v0.5.1"
+CURRENT_VERSION = "v0.6.0"
 OTHER_PATHS = ["docs/antora.yml", "README.md"]
 
 

@@ -95,7 +95,7 @@ This allows developers to add features, update logic, and fix bugs without touch
 
 === Proxy contract
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/upgrades/presets/Proxy.cairo[Proxy contract] includes two core methods:
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/upgrades/presets/Proxy.cairo[Proxy contract] includes two core methods:
 
 . The `\\__default__` method is a fallback method that redirects a function call and associated calldata to the implementation contract.
 . The `\\__l1_default__` method is also a fallback method;
@@ -112,7 +112,7 @@ The proxy's fallback function redirects the function call to the implementation 
 === Implementation contract
 
 The implementation contract, also known as the logic contract, receives the redirected function calls from the proxy contract.
-The implementation contract should follow the xref:extensibility.adoc#the_pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/src/openzeppelin/upgrades/library.cairo[Proxy library].
+The implementation contract should follow the xref:extensibility.adoc#the_pattern[Extensibility pattern] and import directly from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/upgrades/library.cairo[Proxy library].
 
 The implementation contract should:
 
@@ -312,8 +312,8 @@ await signer.send_transaction(
 
 For a full deployment and upgrade implementation, please see:
 
-* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/tests/mocks/UpgradesMockV1.cairo[Upgrades V1]
-* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.5.1/tests/mocks/UpgradesMockV2.cairo[Upgrades V2]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/tests/mocks/UpgradesMockV1.cairo[Upgrades V1]
+* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/tests/mocks/UpgradesMockV2.cairo[Upgrades V2]
 
 === Declaring contracts
 

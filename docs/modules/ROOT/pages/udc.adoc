@@ -50,10 +50,7 @@ async def deploy_contract():
 === Deploying the UDC
 
 NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
-The deployment of the UDC requires a contract (most likely an account) to call StarkNet's `deploy` syscall.
-
-The UDC deployment should also set `deploy_from_zero=TRUE` in the `deploy` syscall.
-In so doing, this creates a deterministic address that can be used across all instances of StarkNet.
+The deployment of the UDC requires `deploy_from_zero=TRUE` to be passed to the `deploy` syscall. This results in a deterministic and predictable address across all instances of StarkNet, facilitating SDK integration and reproducibility of deployments.
 
 == Usage
 

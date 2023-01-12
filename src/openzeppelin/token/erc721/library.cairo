@@ -18,6 +18,7 @@ from openzeppelin.utils.constants.library import (
     IERC721_METADATA_ID,
     IERC721_RECEIVER_ID,
     IACCOUNT_ID,
+    OLD_IACCOUNT_ID,
 )
 
 //
@@ -466,6 +467,20 @@ func _check_onERC721Received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ran
         return (success=TRUE);
     }
 
-    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
+    let (is_account) = _is_account(to);
     return (success=is_account);
 }
+
+func _is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    address: felt
+) -> (success: felt) {
+    let (is_account) = IERC165.supports_interface(address, IACCOUNT_ID);
+    if (is_account == TRUE){
+        return is_account;
+    }
+    let (is_account) = IERC165.supports_interface(address, OLD_IACCOUNT_ID);
+    if (is_account == TRUE){
+        return is_account;
+    }
+}
+

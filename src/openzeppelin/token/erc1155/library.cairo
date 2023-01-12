@@ -19,6 +19,7 @@ from openzeppelin.utils.constants.library import (
     IERC1155_METADATA_ID,
     IERC1155_RECEIVER_ID,
     IACCOUNT_ID,
+    OLD_IACCOUNT_ID,
     ON_ERC1155_RECEIVED_SELECTOR,
     ON_ERC1155_BATCH_RECEIVED_SELECTOR,
 )
@@ -431,7 +432,7 @@ func _do_safe_transfer_acceptance_check{
     }
 
     // Alternatively confirm account
-    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
+    let (is_account) = _is_account(to);
     with_attr error_message("ERC1155: transfer to non-ERC1155Receiver implementer") {
         assert is_account = TRUE;
     }
@@ -473,7 +474,7 @@ func _do_safe_batch_transfer_acceptance_check{
     }
 
     // Alternatively confirm account
-    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
+    let (is_account) = _is_account(to);
     with_attr error_message("ERC1155: transfer to non-ERC1155Receiver implementer") {
         assert is_account = TRUE;
     }
@@ -600,3 +601,17 @@ func _check_value{range_check_ptr}(value: Uint256) {
     }
     return ();
 }
+
+func _is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    address: felt
+) -> (success: felt) {
+    let (is_account) = IERC165.supports_interface(address, IACCOUNT_ID);
+    if (is_account == TRUE){
+        return is_account;
+    }
+    let (is_account) = IERC165.supports_interface(address, OLD_IACCOUNT_ID);
+    if (is_account == TRUE){
+        return is_account;
+    }
+}
+

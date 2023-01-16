@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.6.0 (security/reentrancyguard/library.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (security/reentrancyguard/library.cairo)
 
 %lang starknet
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.6.0 (upgrades/presets/Proxy.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (upgrades/presets/Proxy.cairo)
 
 %lang starknet
 

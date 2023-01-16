@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.6.0 (utils/presets/UniversalDeployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (utils/presets/UniversalDeployer.cairo)
 
 %lang starknet
 

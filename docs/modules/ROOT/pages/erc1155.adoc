@@ -214,7 +214,7 @@ Otherwise, transfer functions should fail.
 
 === ERC1155MintableBurnable
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.0/src/openzeppelin/token/erc1155/presets/ERC1155MintableBurnable.cairo[`ERC1155MintableBurnable`] preset offers a quick and easy setup for creating ERC1155 tokens. Its constructor takes three arguments: `name`, `symbol`, and an `owner` address which will be capable of minting tokens.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc1155/presets/ERC1155MintableBurnable.cairo[`ERC1155MintableBurnable`] preset offers a quick and easy setup for creating ERC1155 tokens. Its constructor takes three arguments: `name`, `symbol`, and an `owner` address which will be capable of minting tokens.
 
 == Utilities
 

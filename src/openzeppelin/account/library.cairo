@@ -18,7 +18,10 @@ from starkware.starknet.common.syscalls import (
     get_contract_address,
     get_tx_info
 )
-from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
+from starkware.cairo.common.cairo_secp.signature import (
+    finalize_keccak,
+    verify_eth_signature_uint256
+)
 from openzeppelin.utils.constants.library import (
     IACCOUNT_ID,
     IERC165_ID,
@@ -157,13 +160,16 @@ namespace Account {
         let (high, low) = split_felt(hash);
         let msg_hash: Uint256 = Uint256(low=low, high=high);
 
-        let (local keccak_ptr: felt*) = alloc();
+        let (keccak_ptr: felt*) = alloc();
+        local keccak_ptr_start: felt* = keccak_ptr;
 
         with keccak_ptr {
             verify_eth_signature_uint256(
                 msg_hash=msg_hash, r=sig_r, s=sig_s, v=sig_v, eth_address=_public_key
             );
         }
+        // Required to ensure sequencers cannot spoof validation check.
+        finalize_keccak(keccak_ptr_start=keccak_ptr_start, keccak_ptr_end=keccak_ptr);
 
         return (is_valid=TRUE);
     }

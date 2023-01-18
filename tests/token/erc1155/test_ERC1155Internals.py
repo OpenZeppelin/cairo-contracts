@@ -80,10 +80,10 @@ class TestERC1155Internals():
     async def test_is_account(self, contract_factory):
         erc1155, account, old_account = contract_factory
 
-        execution_info = await erc1155.is_account(erc1155.contract_address).execute()
-        assert execution_info.result.is_account == FALSE
+        execution_info = await erc1155.isAccount(erc1155.contract_address).execute()
+        assert execution_info.result.isAccount == FALSE
 
         accounts = [account, old_account]
         for _account in accounts:
-            execution_info = await erc1155.is_account(_account.contract_address).execute()
-            assert execution_info.result.is_account == TRUE
+            execution_info = await erc1155.isAccount(_account.contract_address).execute()
+            assert execution_info.result.isAccount == TRUE

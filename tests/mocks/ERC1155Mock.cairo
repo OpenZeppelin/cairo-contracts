@@ -41,10 +41,10 @@ func setURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(uri
 }
 
 @external
-func is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func isAccount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     address: felt
-) -> (is_account: felt) {
+) -> (isAccount: felt) {
     let (is_account) = _is_account(address);
-    return (is_account=is_account);
+    return (isAccount=is_account);
 }
 

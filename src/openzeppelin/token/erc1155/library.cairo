@@ -604,14 +604,13 @@ func _check_value{range_check_ptr}(value: Uint256) {
 
 func _is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     address: felt
-) -> (success: felt) {
-    let (is_account) = IERC165.supports_interface(address, IACCOUNT_ID);
+) -> (is_account: felt) {
+    let (is_account) = IERC165.supportsInterface(address, IACCOUNT_ID);
     if (is_account == TRUE){
-        return is_account;
+        return (is_account=is_account);
     }
-    let (is_account) = IERC165.supports_interface(address, OLD_IACCOUNT_ID);
-    if (is_account == TRUE){
-        return is_account;
-    }
+
+    let (old_account) = IERC165.supportsInterface(address, OLD_IACCOUNT_ID);
+    return (is_account=old_account);
 }
 

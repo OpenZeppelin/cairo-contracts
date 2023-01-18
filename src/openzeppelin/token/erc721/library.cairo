@@ -467,7 +467,6 @@ func _check_onERC721Received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ran
         return (success=TRUE);
     }
 
-    //let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
     let (is_account) = _is_account(to);
     return (success=is_account);
 }

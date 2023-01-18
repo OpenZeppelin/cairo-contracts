@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// This mock is to test _is_account() for
-// previous account ids in ERC721 and ERC1155
-// safe transfers. _is_account() uses the
-// ERC165 supportsInterface entrypoint.
+// This mock is to test _is_account() for previous account ids
+// in ERC721 and ERC1155 safe transfers.
 
 %lang starknet
 

@@ -1,30 +1,21 @@
 // SPDX-License-Identifier: MIT
 
-// This mock is to test functions from the ERC1155 library
-// that are not exposed in any preset like `setURI`
+// This mock is to test functions from the ERC721 library
+// that are not exposed in any preset like `_is_account`
 
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.uint256 import Uint256
-
+from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
 from openzeppelin.introspection.erc165.library import ERC165
-from openzeppelin.token.erc1155.library import ERC1155, _is_account
+from openzeppelin.token.erc721.library import ERC721, _is_account
 
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    uri: felt, owner: felt
+    name: felt, symbol: felt
 ) {
-    ERC1155.initializer(uri);
+    ERC721.initializer(name, symbol);
     return ();
-}
-
-@view
-func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(id: Uint256) -> (
-    uri: felt
-) {
-    return ERC1155.uri(id);
 }
 
 @view
@@ -35,16 +26,9 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 }
 
 @external
-func setURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(uri: felt) {
-    ERC1155._set_uri(uri);
-    return ();
-}
-
-@external
 func is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     address: felt
 ) -> (is_account: felt) {
     let (is_account) = _is_account(address);
     return (is_account=is_account);
 }
-

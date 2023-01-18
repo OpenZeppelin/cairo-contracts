@@ -613,4 +613,3 @@ func _is_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (old_account) = IERC165.supportsInterface(address, OLD_IACCOUNT_ID);
     return (is_account=old_account);
 }
-

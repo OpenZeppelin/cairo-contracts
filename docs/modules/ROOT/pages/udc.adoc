@@ -2,7 +2,7 @@
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy syscall`] to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a **standardized generic factory for StarkNet contracts**.
 
-And since StarkNet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the [standard deployer interface](https://community.starknet.io/t/snip-deployer-contract-interface/2772) and emitting a `ContractDeployed` event.
+And since StarkNet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the https://community.starknet.io/t/snip-deployer-contract-interface/2772[standard deployer interface] and emitting a `ContractDeployed` event.
 
 TIP: For information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
 

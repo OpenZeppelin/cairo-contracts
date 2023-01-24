@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.5.1 (account/IAccount.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (account/IAccount.cairo)
 
 %lang starknet
 
@@ -7,10 +7,6 @@ from openzeppelin.account.library import AccountCallArray
 
 @contract_interface
 namespace IAccount {
-
-    func supportsInterface(interfaceId: felt) -> (success: felt) {
-    }
-
     func isValidSignature(
         hash: felt,
         signature_len: felt,
@@ -40,5 +36,10 @@ namespace IAccount {
         response_len: felt,
         response: felt*
     ) {
+    }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
     }
 }

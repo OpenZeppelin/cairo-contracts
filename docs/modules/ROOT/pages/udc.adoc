@@ -1,0 +1,226 @@
+= Universal Deployer Contract
+
+The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy syscall`] to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a **standardized generic factory for StarkNet contracts**.
+
+And since StarkNet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the https://community.starknet.io/t/snip-deployer-contract-interface/2772[standard deployer interface] and emitting a `ContractDeployed` event.
+
+TIP: For information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
+
+NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet. This address may change in the future.
+
+== Table of Contents
+* <<quickstart, Quickstart>>
+* <<deploying_the_udc,Deploying the UDC>>
+* <<usage,Usage>>
+ ** <<deployer_dependent,Deployer dependent>>
+ ** <<deployer_independent,Deployer independent>>
+* <<calculating_counterfactual_addresses,Calculating counterfactual addresses>>
+* <<api_specification,API specification>>
+
+== Quickstart
+
+To deploy a contract first you need to make sure it's been declared and then send a `deployContract` transaction to the Universal Deployer Contract.
+Here's an example implementation in Python:
+
+[,python]
+----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
+signer = MockSigner(PRIVATE_KEY)
+
+async def deploy_contract():
+    # Declare the contract and get the class hash before deployment
+    class_hash, _ = await signer.declare_class(account, "Ownable")
+
+    # Set up deployment parameters
+    salt = 123456  # random number
+    unique = FALSE
+    calldata = [account.contract_address]
+    params = [class_hash, salt, unique, len(calldata), *calldata]
+
+    # Send a "deployContract" transaction to the deployer contract
+    await account.send_transaction(
+        account,
+        UNIVERSAL_DEPLOYER_ADDRESS,
+        "deployContract",
+        params
+    )
+----
+
+=== Deploying the UDC
+
+NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
+The deployment of the UDC requires `deploy_from_zero=TRUE` to be passed to the `deploy` syscall. This results in a deterministic and predictable address across all instances of StarkNet, facilitating SDK integration and reproducibility of deployments.
+
+== Usage
+
+The Universal Deployer Contract offers two types of addresses to deploy: deployer dependent and deployer independent.
+As the names suggest, the deployer-dependent type includes the deployer's address in the address calculation;
+whereas, the deployer-independent type does not.
+The `unique` boolean parameter ultimately determines the type of deployment.
+
+CAUTION: When deploying a contract that uses `get_caller_address` in the constructor calldata, remember that the UDC (and not the account) deploys that contract.
+Therefore, querying `get_caller_address` in a contract's constructor will return the UDC's address and *not* the account's address.
+
+=== Deployer dependent
+
+Making deployments dependent of the deployer address, users can "reserve" a whole address space from squatting by someone else.
+Only that deployer can deploy to those addresses.
+
+Achieving this type of deployment necessitates that the deployer sets `unique` to `TRUE` in the `deployContract` call.
+Under the hood, the function call leverages the deployer's address and creates a hashchain by hashing the deployer's address with the given salt.
+
+To deploy a unique contract address:
+
+[,python]
+----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
+signer = MockSigner(PRIVATE_KEY)
+
+async def deploy_contract():
+    # Declare the contract and get the class hash before deployment
+    class_hash, _ = await signer.declare_class(account, "Ownable")
+
+    # Set up deployment parameters
+    salt = 123456  # random number
+    unique = TRUE
+    calldata = [account.contract_address]
+    params = [class_hash, salt, unique, len(calldata), *calldata]
+
+    # Send a "deployContract" transaction to the deployer contract
+    await account.send_transaction(
+        account,
+        UNIVERSAL_DEPLOYER_ADDRESS,
+        "deployContract",
+        params
+    )
+----
+
+
+=== Deployer independent
+
+Deployer-independent contract deployments create contract addresses independent of the deployer and the UDC instance.
+Instead only the class hash, salt, and constructor arguments determine the address.
+This type of deployment enables redeployments of accounts and known systems across multiple networks.
+To deploy a reproducible deployment, set `unique` to `FALSE`.
+
+[,python]
+----
+from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+
+signer = MockSigner(PRIVATE_KEY)
+
+async def deploy_contract():
+    # Declare the contract and get the class hash before deployment
+    class_hash, _ = await signer.declare_class(account, "Ownable")
+
+    # Set up deployment parameters
+    salt = 123456  # random number
+    unique = FALSE
+    calldata = [account.contract_address]
+    params = [class_hash, salt, unique, len(calldata), *calldata]
+
+    # Send a "deployContract" transaction to the deployer contract
+    await account.send_transaction(
+        account,
+        UNIVERSAL_DEPLOYER_ADDRESS,
+        "deployContract",
+        params
+    )
+----
+
+== Calculating counterfactual addresses
+
+Counterfactual addresses are contract addresses that haven't been deployed yet.
+A strong use-case for calculating a contract's counterfactual address lies in deploying account contracts.
+See xref:accounts.adoc#counterfactual_deployments[Counterfactual Deployments].
+
+To predict the counterfactual address, use the StarkWare library's `calculate_contract_address_from_hash` and pass the same arguments that will be used for the actual deployment.
+For example:
+
+[,python]
+----
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
+
+expected_address = calculate_contract_address_from_hash(
+    salt=salt,
+    class_hash=class_hash,
+    constructor_calldata=calldata,
+    deployer_address=deployer_address
+)
+----
+
+== API specification
+
+=== Methods
+
+[,cairo]
+----
+func deployContract(
+    classHash: felt,
+    salt: felt,
+    unique: felt,
+    calldata_len: felt,
+    calldata: felt*
+) -> (address: felt) {
+}
+
+----
+
+==== deployContract
+
+Deploy a contract through the Universal Deploy Contract.
+
+Parameters:
+
+[,cairo]
+----
+classHash: felt
+salt: felt
+unique: felt
+calldata_len: felt
+calldata: felt*
+----
+
+Returns:
+
+[,cairo]
+----
+address: felt
+----
+
+=== Events
+
+[,cairo]
+----
+func ContractDeployed(
+    address: felt,
+    deployer: felt,
+    unique: felt,
+    classHash: felt,
+    calldata_len: felt,
+    calldata: felt*,
+    salt: felt
+) {
+}
+----
+
+==== `ContractDeployed`
+
+Emitted when `deployer` deploys a contract through the Universal Deployer Contract.
+
+Parameters:
+
+[,cairo]
+----
+address: felt,
+deployer: felt,
+unique: felt,
+classHash: felt,
+calldata_len: felt,
+calldata: felt*,
+salt: felt
+----

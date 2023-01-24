@@ -2,6 +2,8 @@
 
 import os
 from pathlib import Path
+from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
+from starkware.starknet.core.os.class_hash import compute_class_hash
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.business_logic.execution.objects import OrderedEvent
 from starkware.starknet.compiler.compile import compile_starknet_files
@@ -90,6 +92,12 @@ def get_contract_class(contract, is_path=False):
         cairo_path=get_cairo_path()
     )
     return contract_class
+
+
+def get_class_hash(contract_name, is_path=False):
+    """Return the class_hash for a given contract."""
+    contract_class = get_contract_class(contract_name, is_path)
+    return compute_class_hash(contract_class=contract_class, hash_func=pedersen_hash)
 
 
 def cached_contract(state, _class, deployed):

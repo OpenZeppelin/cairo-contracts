@@ -1,0 +1,548 @@
+= ERC1155
+
+The ERC1155 multi token standard is a specification for https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungibility-agnostic] token contracts.
+The ERC1155 library implements an approximation of https://eips.ethereum.org/EIPS/eip-1155[EIP-1155] in Cairo for StarkNet.
+
+== Table of Contents
+
+* <<ierc1155,IERC1155>>
+* <<erc1155_compatibility,ERC1155 Compatibility>>
+* <<usage,Usage>>
+ ** <<token_transfers,Token Transfers>>
+ ** <<interpreting_erc1155_uris,Interpreting ERC1155 URIs>>
+ ** <<erc1155received,ERC1155Received>>
+* <<presets,Presets>>
+* <<utilities,Utilities>>
+ ** <<erc1155holder,ERC1155Holder>>
+* <<api_specification,API Specification>>
+ ** <<ierc1155_api,`IERC1155`>>
+ ** <<events,Events>>
+ ** <<ierc1155metadata_api,`IERC1155Metadata`>>
+ ** <<ierc1155receiver_api,`IERC1155Receiver`>>
+
+== IERC1155
+
+[,cairo]
+----
+@contract_interface
+namespace IERC1155 {
+    func balanceOf(account: felt, id: Uint256) -> (balance: Uint256) {
+    }
+
+    func balanceOfBatch(
+        accounts_len: felt,
+        accounts: felt*,
+        ids_len: felt,
+         ids: Uint256*
+    ) -> (
+        balances_len: felt,
+        balances: Uint256*
+    ) {
+    }
+
+    func isApprovedForAll(
+        account: felt,
+        operator: felt
+    ) -> (approved: felt) {
+    }
+
+    func setApprovalForAll(operator: felt, approved: felt) {
+    }
+
+    func safeTransferFrom(
+        from_: felt,
+        to: felt,
+        id: Uint256,
+        value: Uint256,
+        data_len: felt,
+        data: felt*
+    ) {
+    }
+
+    func safeBatchTransferFrom(
+        from_: felt,
+        to: felt,
+        ids_len: felt,
+        ids: Uint256*,
+        values_len: felt,
+        values: Uint256*,
+        data_len: felt,
+        data: felt*,
+    ) {
+    }
+
+    --------------- IERC165 ---------------
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
+    }
+}
+----
+
+=== ERC1155 Compatibility
+
+Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard in the following ways:
+
+* It uses Cairo's `uint256` instead of `felt`.
+* It returns `TRUE` as success.
+
+But some differences can still be found, such as:
+
+* It implements an `uri()` function that returns the same URI for *all* token types. It relies on the token type ID substitution mechanism https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP]. Clients calling this function must replace the `\{id\}` substring with the actual token type ID.
+* `safeTransferFrom` and `safeBatchTransferFrom` are specified such that the optional `data` argument should be of type bytes.
+In Solidity, this means a dynamically-sized array.
+To be as close as possible to the standard, the `data` argument accepts a dynamic array of felts.
+In Cairo, arrays are expressed with the array length preceding the actual array;
+hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
+* `IERC1155Receiver` compliant contracts (`ERC1155Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
+This is in line with the ERC165 interfaces design choice towards EVM compatibility.
+See the xref:introspection.adoc[Introspection docs] for more info.
+* `IERC1155Receiver` compliant contracts (`ERC1155Holder`) must support ERC165 by registering the `IERC1155Receiver` selector id in its constructor and exposing the `supportsInterface` method.
+In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC1155 transfers.
+
+== Usage
+
+To show a standard use case, we'll use the `ERC1155MintableBurnable` preset which allows for only the owner to `mint` tokens.
+To create a token, you need to first deploy both Account and ERC1155 contracts respectively.
+
+Considering that the ERC1155 constructor method looks like this:
+
+[,cairo]
+----
+func constructor(
+    uri: felt,      // Token URI as Cairo short string
+    owner: felt     // Address designated as the contract owner
+) {
+}
+----
+
+Deployment of both contracts looks like this:
+
+[,python]
+----
+account = await starknet.deploy(
+    "contracts/Account.cairo",
+    constructor_calldata=[signer.public_key]
+)
+
+erc1155 = await starknet.deploy(
+    "contracts/token/erc1155/presets/ERC1155MintableBurnable.cairo",
+    constructor_calldata=[
+        str_to_felt("http://my.uri/{id}"),        # uri
+        account.contract_address                  # owner
+    ]
+)
+----
+
+To mint tokens, send a transaction like this:
+
+[,python]
+----
+signer = MockSigner(PRIVATE_KEY)
+token_id = uint(1)
+mint_value = uint(1000)
+
+await signer.send_transaction(
+    account, erc1155.contract_address, 'mint', [
+        recipient_address,
+        *token_id,
+        *mint_value,
+        0 # data
+    ]
+)
+----
+
+=== Token Transfers
+
+This library includes `safeTransferFrom` and `safeBatchTransferFrom` to transfer assets. These methods incorporate the following conditional logic:
+
+. If the receiving address xref:accounts.adoc#account_introspection_with_erc165[is identified as an account], the tokens will be transferred.
+. If the receiving address is not an account contract, the function will check that the receiver supports ERC1155 tokens before sending them.
+
+The current implementation requires recipient contracts to support ERC165 and expose the `supportsInterface` method.
+See <<erc1155received,ERC1155Received>>.
+
+=== Interpreting ERC1155 URIs
+
+Token URIs in Cairo are stored as single field elements.
+Each field element equates to 252-bits (or  31.5 bytes) which means that a token's URI can be no longer than 31 characters.
+
+NOTE: Storing the URI as an array of felts was considered to accommodate larger strings.
+While this approach is more flexible regarding URIs, a returned array further deviates from the standard. Therefore, this library's ERC1155 implementation sets URIs as a single field element.
+
+The `utils.py` module includes utility methods for converting to/from Cairo field elements.
+To properly interpret a URI from ERC1155, simply trim the null bytes and decode the remaining bits as an ASCII string.
+For example:
+
+[,python]
+----
+# HELPER METHODS
+def str_to_felt(text):
+    b_text = bytes(text, 'ascii')
+    return int.from_bytes(b_text, "big")
+
+def felt_to_str(felt):
+    b_felt = felt.to_bytes(31, "big")
+    return b_felt.decode()
+
+token_id = uint(1)
+sample_uri = str_to_felt('mock://mytoken')
+
+await signer.send_transaction(
+    account, erc1155.contract_address, 'setTokenURI', [
+        *token_id, sample_uri]
+)
+
+felt_uri = await erc1155.tokenURI(first_token_id).call()
+string_uri = felt_to_str(felt_uri)
+----
+
+=== ERC1155Received
+
+In order to be sure a contract can safely accept ERC1155 tokens, said contract must implement the <<ierc1155receiver_api,`IERC1155Receiver`>> interface (as expressed in the EIP1155 specification).
+Methods such as `safeTransferFrom` and `safeBatchTransferFrom` call the recipient contract's `onERC1155Received` or `onERC1155BatchReceived` method.
+If the contract fails to return the correct magic value, the transaction fails.
+
+StarkNet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
+Transfer functions require a means of differentiating between account and non-account contracts.
+Currently, StarkNet does not support error handling from the contract level;
+therefore, the current ERC1155 implementation requires that all contracts that support safe ERC1155 transfers (both accounts and non-accounts) include the `supportsInterface` method.
+Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC1155Receiver` magic value `00x4e2312e0` (which invokes `onERC1155Received` and `onERC1155BatchReceived`).
+If the recipient contract supports the `IAccount` magic value, `supportsInterface` should return `TRUE`.
+Otherwise, transfer functions should fail.
+
+== Presets
+
+=== ERC1155MintableBurnable
+
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc1155/presets/ERC1155MintableBurnable.cairo[`ERC1155MintableBurnable`] preset offers a quick and easy setup for creating ERC1155 tokens. Its constructor takes three arguments: `name`, `symbol`, and an `owner` address which will be capable of minting tokens.
+
+== Utilities
+
+=== ERC1155Holder
+
+Implementation of the `IERC1155Receiver` interface.
+
+Accepts all token transfers.
+Make sure the contract is able to use its token with `IERC1155.safeTransferFrom`, `IERC1155.approve` or `IERC1155.setApprovalForAll`.
+
+Also utilizes the ERC165 method `supportsInterface` to determine if the contract is an account.
+See <<erc1155received,ERC1155Received>>.
+
+== API Specification
+
+=== IERC1155 API
+
+[,cairo]
+----
+func balanceOf(account: felt, id: Uint256) -> (balance: Uint256) {
+}
+
+func balanceOfBatch(
+    accounts_len: felt,
+    accounts: felt*,
+    ids_len: felt,
+    ids: Uint256*
+) -> (
+    balances_len: felt,
+    balances: Uint256*
+) {
+}
+
+func isApprovedForAll(account: felt, operator: felt) -> (approved: felt) {
+}
+
+func setApprovalForAll(operator: felt, approved: felt) {
+}
+
+func safeTransferFrom(
+    from_: felt,
+    to: felt,
+    id: Uint256,
+    value: Uint256,
+    data_len: felt,
+    data: felt*
+) {
+}
+
+func safeBatchTransferFrom(
+    from_: felt,
+    to: felt,
+    ids_len: felt,
+    ids: Uint256*,
+    values_len: felt,
+    values: Uint256*,
+    data_len: felt,
+    data: felt*,
+) {
+}
+----
+
+==== `balanceOf`
+
+Returns the number of `id` tokens of ``account``.
+
+Parameters:
+
+[,cairo]
+----
+account: felt
+id: Uint256
+----
+
+Returns:
+
+[,cairo]
+----
+balance: Uint256
+----
+
+==== `balanceOfBatch`
+
+Get the balance of multiple account/token pairs.
+
+Parameters:
+
+[,cairo]
+----
+accounts_len: felt
+accounts: felt*
+ids_len: felt
+ids: Uint156*
+----
+
+Returns:
+
+[,cairo]
+----
+balances_len: felt
+balances: Uint256*
+----
+
+==== `isApprovedForAll`
+
+Get whether `operator` is approved by `account` for all tokens.
+
+Parameters:
+
+[,cairo]
+----
+account: felt
+operator: felt
+----
+
+Returns:
+
+[,cairo]
+----
+approved: felt
+----
+
+==== `setApprovalForAll`
+
+Enable or disable approval for a third party ("operator") to manage all of the caller's tokens.
+
+Parameters:
+
+[,cairo]
+----
+operator: felt
+approved: felt
+----
+
+Returns: None.
+
+==== `safeTransferFrom`
+
+Transfers `value` amount of token `id` from `from_` to `to`, checking first that contract recipients are aware and capable of handling ERC1155 tokens to prevent locking them forever.
+For information regarding how contracts communicate their awareness of the ERC1155 protocol, see <<erc1155received,ERC1155Received>>.
+
+Emits a <<transfersingle_event,TransferSingle>> event.
+
+Parameters:
+
+[,cairo]
+----
+from_: felt
+to: felt
+id: Uint256
+value: Uint256
+data_len: felt
+data: felt*
+----
+
+Returns: None.
+
+==== `safeBatchTransferFrom`
+
+Batch version of <<safetransferfrom,`safeTransferFrom`>>. Emits a <<transferbatch_event,TransferBatch>> event.
+
+Parameters:
+
+[,cairo]
+----
+from_: felt
+to: felt
+ids_len: felt
+ids: Uint256*
+values_len: felt
+values: Uint256*
+data_len: felt
+data: felt*
+----
+
+Returns: None.
+
+'''
+
+=== Events
+
+==== `TransferSingle (Event)`
+
+Emitted when `operator` sends `value` amount of `id` token from `from_` to `to`.
+
+Parameters:
+
+[,cairo]
+----
+operator: felt
+from_: felt
+to: felt
+id: Uint256
+value: Uint256
+----
+
+==== `TransferBatch (Event)`
+
+Emitted when `operator` sends multiple `values` of multiple token `ids` from `from_` to `to`.
+
+Parameters:
+
+[,cairo]
+----
+operator: felt
+from_: felt
+to: felt
+ids_len: felt
+ids: Uint256*
+values_len: felt
+values: Uint256*
+----
+
+==== `ApprovalForAll (Event)`
+
+Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+
+Parameters:
+
+[,cairo]
+----
+account: felt
+operator: felt
+approved: felt
+----
+
+'''
+
+=== IERC1155Metadata API
+
+[,cairo]
+----
+func uri(id: Uint256) -> (uri: felt) {
+}
+----
+
+==== `uri`
+
+Returns the Uniform Resource Identifier (URI) for a token `id`, although this implementation returns the same URI for *all* token types. It relies
+on the token type ID substitution mechanism
+https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+
+Parameters:
+
+[,cairo]
+----
+id: Uint256
+----
+
+Returns:
+
+[,cairo]
+----
+uri: felt
+----
+
+'''
+
+=== IERC1155Receiver API
+
+[,cairo]
+----
+func onERC1155Received(
+    operator: felt,
+    from_: felt,
+    tokenId: Uint256,
+    data_len: felt,
+    data: felt*
+) -> (selector: felt) {
+}
+
+func onERC1155BatchReceived(
+    operator: felt,
+    from_: felt,
+    ids_len: felt,
+    ids: Uint256*,
+    values_len: felt,
+    values: Uint256*,
+    data_len: felt,
+    data: felt*,
+) -> (selector: felt) {
+}
+----
+
+==== `onERC1155Received`
+
+Whenever any IERC1155 token is transferred or minted to this non-account contract by `operator` from `from_`, this function is called.
+
+Parameters:
+
+[,cairo]
+----
+operator: felt
+from_: felt
+id: Uint256
+value: Uint156
+data_len: felt
+data: felt*
+----
+
+Returns:
+
+[,cairo]
+----
+selector: felt
+----
+
+==== `onERC1155BatchReceived`
+
+Whenever any IERC1155 token is transferred to this non-account contract via `safeBatchTransferFrom` by `operator` from `from_`, this function is called.
+
+Parameters:
+
+[,cairo]
+----
+operator: felt
+from_: felt
+ids_len: felt
+ids: Uint256*
+values_len: felt
+values: Uint156*
+data_len: felt
+data: felt*
+----
+
+Returns:
+
+[,cairo]
+----
+selector: felt
+----

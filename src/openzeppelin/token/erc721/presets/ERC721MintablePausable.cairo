@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.5.1 (token/erc721/presets/ERC721MintablePausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (token/erc721/presets/ERC721MintablePausable.cairo)
 
 %lang starknet
 
@@ -69,9 +69,8 @@ func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 @view
 func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     owner: felt, operator: felt
-) -> (isApproved: felt) {
-    let (isApproved: felt) = ERC721.is_approved_for_all(owner, operator);
-    return (isApproved=isApproved);
+) -> (approved: felt) {
+    return ERC721.is_approved_for_all(owner, operator);
 }
 
 @view

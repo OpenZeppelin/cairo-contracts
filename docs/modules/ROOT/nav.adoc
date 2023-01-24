@@ -9,9 +9,11 @@
 * Tokens
 ** xref:erc20.adoc[ERC20]
 ** xref:erc721.adoc[ERC721]
+** xref:erc1155.adoc[ERC1155]
 
 * xref:security.adoc[Security]
 * xref:introspection.adoc[Introspection]
+* xref:udc.adoc[Universal Deployer Contract]
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]

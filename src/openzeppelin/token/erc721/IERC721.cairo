@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.5.1 (token/erc721/IERC721.cairo)
+// OpenZeppelin Contracts for Cairo v0.6.1 (token/erc721/IERC721.cairo)
 
 %lang starknet
 
@@ -28,6 +28,11 @@ namespace IERC721 {
     func getApproved(tokenId: Uint256) -> (approved: felt) {
     }
 
-    func isApprovedForAll(owner: felt, operator: felt) -> (isApproved: felt) {
+    func isApprovedForAll(owner: felt, operator: felt) -> (approved: felt) {
+    }
+
+    // ERC165
+
+    func supportsInterface(interfaceId: felt) -> (success: felt) {
     }
 }

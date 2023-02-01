@@ -1,6 +1,6 @@
 # Releasing
 
-Releasing checklist
+Releasing checklist:
 
 (1) Write a changelog.
 

@@ -19,9 +19,6 @@ jobs:
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v3
-        with:
-          ref: "main"
-          token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Run version bump script
         run: |
           echo "VERSION=$(python scripts/update_version.py ${{ github.event.inputs.bump_type }} )" >> "$GITHUB_ENV"

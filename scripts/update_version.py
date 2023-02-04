@@ -32,7 +32,8 @@ def _bump_version(bump_type):
         split_list = [maj, new_min, "0"]
     else:
         if pat[-1].isalpha():
-            new_pat = int(pat[:-1]) + 1
+            # Removes char e.g. 0.1.2a => 0.1.2
+            new_pat = int(pat[:-1])
         else:
             new_pat = int(pat) + 1
         split_list = [maj, min, new_pat]

@@ -2,5 +2,9 @@ mod tests;
 
 mod erc20;
 use erc20::ERC20;
-use erc20::ERC20Burnable;
-use erc20::ERC20Mintable;
+
+mod erc20burnable;
+use erc20burnable::ERC20Burnable;
+
+mod erc20mintable;
+use erc20mintable::ERC20Mintable;

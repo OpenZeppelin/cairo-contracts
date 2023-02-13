@@ -1,0 +1,3 @@
+[crate_roots]
+erc20 = "."
+erc20_lib = "erc20_lib"

@@ -145,14 +145,14 @@ print(z)
 
 == Assertions
 
-In order to abstract away some of the verbosity regarding test assertions on StarkNet transactions, this project includes the following helper methods:
+In order to abstract away some of the verbosity regarding test assertions on Starknet transactions, this project includes the following helper methods:
 
 === `assert_revert`
 
 An asynchronous wrapper method that executes a try-except pattern for transactions that should fail.
-Note that this wrapper does not check for a StarkNet error code.
+Note that this wrapper does not check for a Starknet error code.
 This allows for more flexibility in checking that a transaction simply failed.
-If you wanted to check for an exact error code, you could use StarkNet's https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/definitions/error_codes.py[error_codes module] and implement additional logic to the `assert_revert` method.
+If you wanted to check for an exact error code, you could use Starknet's https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/definitions/error_codes.py[error_codes module] and implement additional logic to the `assert_revert` method.
 
 To successfully use this wrapper, the transaction method should be wrapped with `assert_revert`;
 however, `await` should precede the wrapper itself like this:
@@ -284,7 +284,7 @@ def foo_factory(contract_classes, foo_init):
 
 == State
 
-The `State` class provides a wrapper for initializing the StarkNet state which acts as a helper for the `Account` class. This wrapper allows `Account` deployments to share the same initialized state without explicitly passing the instantiated StarkNet state to `Account`. Initializing the state should look like this:
+The `State` class provides a wrapper for initializing the Starknet state which acts as a helper for the `Account` class. This wrapper allows `Account` deployments to share the same initialized state without explicitly passing the instantiated Starknet state to `Account`. Initializing the state should look like this:
 
 [,python]
 ----
@@ -295,7 +295,7 @@ starknet = await State.init()
 
 == Account
 
-The `Account` class abstracts away most of the boilerplate for deploying accounts. Instantiating accounts with this class requires the StarkNet state to be instantiated first with the `State.init()` method like this:
+The `Account` class abstracts away most of the boilerplate for deploying accounts. Instantiating accounts with this class requires the Starknet state to be instantiated first with the `State.init()` method like this:
 
 [,python]
 ----

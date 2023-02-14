@@ -33,7 +33,7 @@ using `IERC165_ID` instead of `0x01ffc9a7`.
 
 === Interface calculations
 
-In order to ensure EVM/StarkNet compatibility, interface identifiers are not calculated on StarkNet.
+In order to ensure EVM/Starknet compatibility, interface identifiers are not calculated on Starknet.
 Instead, the interface IDs are hardcoded from their EVM calculations.
 On the EVM, the interface ID is calculated from the selector's first four bytes of the hash of the function's signature while Cairo selectors are 252 bytes long.
 Due to this difference, hardcoding EVM's already-calculated interface IDs is the most consistent approach to both follow the EIP165 standard and EVM compatibility.

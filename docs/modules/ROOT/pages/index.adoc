@@ -1,6 +1,6 @@
 = Contracts for Cairo
 
-*A library for secure smart contract development* written in Cairo for https://starkware.co/product/starknet/[StarkNet], a decentralized ZK Rollup.
+*A library for secure smart contract development* written in Cairo for https://starkware.co/product/starknet/[Starknet], a decentralized ZK Rollup.
 
 == Usage
 

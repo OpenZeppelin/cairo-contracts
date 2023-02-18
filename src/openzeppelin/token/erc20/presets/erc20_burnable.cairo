@@ -31,12 +31,12 @@ mod ERC20Burnable {
     }
 
     #[view]
-    fn totalSupply() -> u256 {
+    fn total_supply() -> u256 {
        ERC20Library::total_supply()
     }
 
     #[view]
-    fn balanceOf(account: ContractAddress) -> u256 {
+    fn balance_of(account: ContractAddress) -> u256 {
         ERC20Library::balance_of(account)
     }
 
@@ -51,7 +51,7 @@ mod ERC20Burnable {
     }
 
     #[external]
-    fn transferFrom(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
+    fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
         ERC20Library::transfer_from(sender, recipient, amount)
     }
 
@@ -61,12 +61,12 @@ mod ERC20Burnable {
     }
 
     #[external]
-    fn increaseAllowance(spender: ContractAddress, added_value: u256) -> bool {
+    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool {
         ERC20Library::increase_allowance(spender, added_value)
     }
 
     #[external]
-    fn decreaseAllowance(spender: ContractAddress, subtracted_value: u256) -> bool {
+    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool {
         ERC20Library::decrease_allowance(spender, subtracted_value)
     }
 
@@ -77,7 +77,7 @@ mod ERC20Burnable {
     }
 
     #[external]
-    fn burnFrom(account: ContractAddress, amount: u256) {
+    fn burn_from(account: ContractAddress, amount: u256) {
         let caller = get_caller_address();
         ERC20Library::_spend_allowance(account, caller, amount);
         ERC20Library::_burn(account, amount);

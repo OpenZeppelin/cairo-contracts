@@ -70,14 +70,14 @@ fn test__approve_to_zero() {
 #[test]
 #[available_gas(2000000)]
 fn test__transfer() {
-    let (account, supply) = setup();
+    let (sender, supply) = setup();
 
     let recipient: ContractAddress = contract_address_const::<2>();
     let amount: u256 = u256_from_felt(100);
-    ERC20Library::_transfer(account, recipient, amount);
+    ERC20Library::_transfer(sender, recipient, amount);
 
     assert(ERC20Library::balance_of(recipient) == amount, 'Balance should eq amount');
-    assert(ERC20Library::balance_of(account) == supply - amount, 'Should eq supply - amount');
+    assert(ERC20Library::balance_of(sender) == supply - amount, 'Should eq supply - amount');
     assert(ERC20Library::total_supply() == supply, 'Total supply should not change');
 }
 
@@ -85,32 +85,32 @@ fn test__transfer() {
 #[available_gas(2000000)]
 #[should_panic]
 fn test__transfer_not_enough_balance() {
-    let (account, supply) = setup();
+    let (sender, supply) = setup();
 
     let recipient: ContractAddress = contract_address_const::<2>();
     let amount: u256 = supply + u256_from_felt(1);
-    ERC20Library::_transfer(account, recipient, amount);
+    ERC20Library::_transfer(sender, recipient, amount);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic]
 fn test__transfer_from_zero() {
-    let owner: ContractAddress = contract_address_const::<0>();
-    let spender: ContractAddress = contract_address_const::<1>();
+    let sender: ContractAddress = contract_address_const::<0>();
+    let recipient: ContractAddress = contract_address_const::<1>();
     let amount: u256 = u256_from_felt(100);
-    ERC20Library::_transfer(owner, spender, amount);
+    ERC20Library::_transfer(sender, recipient, amount);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic]
 fn test__transfer_to_zero() {
-    let (account, supply) = setup();
+    let (sender, supply) = setup();
 
-    let spender: ContractAddress = contract_address_const::<0>();
+    let recipient: ContractAddress = contract_address_const::<0>();
     let amount: u256 = u256_from_felt(100);
-    ERC20Library::_transfer(account, spender, amount);
+    ERC20Library::_transfer(sender, recipient, amount);
 }
 
 #[test]

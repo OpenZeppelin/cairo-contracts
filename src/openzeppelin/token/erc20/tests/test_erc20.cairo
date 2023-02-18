@@ -1,6 +1,5 @@
 use presets::ERC20;
 use starknet::contract_address_const;
-use integer::u256_from_felt;
 
 const NAME: felt = 111;
 const SYMBOL: felt = 222;

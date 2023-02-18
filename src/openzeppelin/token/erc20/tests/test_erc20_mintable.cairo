@@ -1,5 +1,4 @@
 use presets::ERC20Mintable;
-use starknet::contract_address_const;
 
 const NAME: felt = 111;
 const SYMBOL: felt = 222;

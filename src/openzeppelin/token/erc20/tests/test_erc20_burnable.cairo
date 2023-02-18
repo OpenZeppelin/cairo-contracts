@@ -1,5 +1,4 @@
 use presets::ERC20Burnable;
-use starknet::contract_address_const;
 
 const NAME: felt = 111;
 const SYMBOL: felt = 222;

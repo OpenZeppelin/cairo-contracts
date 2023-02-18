@@ -1,6 +1,7 @@
 #[contract]
-mod ERC20 {
+mod ERC20Burnable {
     use erc20::ERC20Library;
+    use starknet::get_caller_address;
 
     // TMP starknet testing isn't fully functional.
     // Use to ensure paths are correctly set.
@@ -67,5 +68,18 @@ mod ERC20 {
     #[external]
     fn decreaseAllowance(spender: ContractAddress, subtracted_value: u256) -> bool {
         ERC20Library::decrease_allowance(spender, subtracted_value)
+    }
+
+    #[external]
+    fn burn(amount: u256) {
+        let caller = get_caller_address();
+        ERC20Library::_burn(caller, amount);
+    }
+
+    #[external]
+    fn burnFrom(account: ContractAddress, amount: u256) {
+        let caller = get_caller_address();
+        ERC20Library::_spend_allowance(account, caller, amount);
+        ERC20Library::_burn(account, amount);
     }
 }

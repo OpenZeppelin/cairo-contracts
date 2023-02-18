@@ -30,12 +30,12 @@ mod ERC20 {
     }
 
     #[view]
-    fn totalSupply() -> u256 {
+    fn total_supply() -> u256 {
        ERC20Library::total_supply()
     }
 
     #[view]
-    fn balanceOf(account: ContractAddress) -> u256 {
+    fn balance_of(account: ContractAddress) -> u256 {
         ERC20Library::balance_of(account)
     }
 
@@ -50,7 +50,7 @@ mod ERC20 {
     }
 
     #[external]
-    fn transferFrom(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
+    fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
         ERC20Library::transfer_from(sender, recipient, amount)
     }
 
@@ -60,12 +60,12 @@ mod ERC20 {
     }
 
     #[external]
-    fn increaseAllowance(spender: ContractAddress, added_value: u256) -> bool {
+    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool {
         ERC20Library::increase_allowance(spender, added_value)
     }
 
     #[external]
-    fn decreaseAllowance(spender: ContractAddress, subtracted_value: u256) -> bool {
+    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool {
         ERC20Library::decrease_allowance(spender, subtracted_value)
     }
 }

@@ -1,5 +1,5 @@
 #[contract]
-mod ERC20 {
+mod ERC20Mintable {
     use erc20::ERC20Library;
 
     // TMP starknet testing isn't fully functional.
@@ -67,5 +67,10 @@ mod ERC20 {
     #[external]
     fn decreaseAllowance(spender: ContractAddress, subtracted_value: u256) -> bool {
         ERC20Library::decrease_allowance(spender, subtracted_value)
+    }
+
+    #[external]
+    fn mint(recipient: ContractAddress, amount: u256) {
+        ERC20Library::_mint(recipient, amount);
     }
 }

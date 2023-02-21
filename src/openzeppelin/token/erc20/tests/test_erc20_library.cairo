@@ -45,8 +45,8 @@ fn test_approve() {
     let spender: ContractAddress = contract_address_const::<2>();
     let amount: u256 = u256_from_felt(100);
 
-    let result: bool = ERC20Library::approve(spender, amount);
-    assert(result, '');
+    let success: bool = ERC20Library::approve(spender, amount);
+    assert(success, 'Should return true');
     assert(ERC20Library::allowance(owner, spender) == amount, 'Spender not approved correctly');
 }
 
@@ -117,7 +117,7 @@ fn test_transfer() {
     let amount: u256 = u256_from_felt(100);
     let success: bool = ERC20Library::transfer(recipient, amount);
 
-    assert(success, '');
+    assert(success, 'Should return true');
     assert(ERC20Library::balance_of(recipient) == amount, 'Balance should eq amount');
     assert(ERC20Library::balance_of(sender) == supply - amount, 'Should eq supply - amount');
     assert(ERC20Library::total_supply() == supply, 'Total supply should not change');
@@ -183,7 +183,7 @@ fn test_transfer_from() {
     starknet_testing::set_caller_address(spender);
 
     let success: bool = ERC20Library::transfer_from(owner, recipient, amount);
-    assert(success, 'Should return success');
+    assert(success, 'Should return true');
 
     // Will dangle without setting as a var
     let spender_allowance: u256 = ERC20Library::allowance(owner, spender);
@@ -274,10 +274,12 @@ fn test_increase_allowance() {
     let amount: u256 = u256_from_felt(100);
 
     ERC20Library::approve(spender, amount);
-    ERC20Library::increase_allowance(spender, amount);
+    let success: bool = ERC20Library::increase_allowance(spender, amount);
+    assert(success, 'Should return true');
+
 
     let spender_allowance: u256 = ERC20Library::allowance(owner, spender);
-    assert(spender_allowance == amount + amount, '');
+    assert(spender_allowance == amount + amount, 'Should be amount * 2');
 }
 
 #[test]
@@ -316,10 +318,11 @@ fn test_decrease_allowance() {
     let amount: u256 = u256_from_felt(100);
 
     ERC20Library::approve(spender, amount);
-    ERC20Library::decrease_allowance(spender, amount);
+    let success: bool = ERC20Library::decrease_allowance(spender, amount);
+    assert(success, 'Should return true');
 
     let spender_allowance: u256 = ERC20Library::allowance(owner, spender);
-    assert(spender_allowance == amount - amount, '');
+    assert(spender_allowance == amount - amount, 'Should be 0');
 }
 
 #[test]

@@ -1,3 +1,2 @@
 [crate_roots]
 erc20 = "."
-presets = "presets"

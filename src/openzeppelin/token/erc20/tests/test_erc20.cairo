@@ -10,14 +10,14 @@ fn setup() -> (ContractAddress, u256) {
     let initial_supply: u256 = u256_from_felt(2000);
     let account: ContractAddress = contract_address_const::<1>();
     // Set account as default caller
-    starknet_testing::set_caller_address(account);
+    set_caller_address(account);
 
     ERC20::initializer(NAME, SYMBOL, initial_supply, account);
     (account, initial_supply)
 }
 
 fn set_caller_as_zero() {
-    starknet_testing::set_caller_address(contract_address_const::<0>());
+    set_caller_address(contract_address_const::<0>());
 }
 
 #[test]
@@ -180,7 +180,7 @@ fn test_transfer_from() {
 
     ERC20::approve(spender, amount);
 
-    starknet_testing::set_caller_address(spender);
+    set_caller_address(spender);
 
     let success: bool = ERC20::transfer_from(owner, recipient, amount);
     assert(success, 'Should return true');
@@ -206,7 +206,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 
     ERC20::approve(spender, max_u256);
 
-    starknet_testing::set_caller_address(spender);
+    set_caller_address(spender);
 
     ERC20::transfer_from(owner, recipient, amount);
 
@@ -227,7 +227,7 @@ fn test_transfer_from_greater_than_allowance() {
 
     ERC20::approve(spender, amount);
 
-    starknet_testing::set_caller_address(spender);
+    set_caller_address(spender);
 
     ERC20::transfer_from(owner, recipient, amount_plus_one);
 }
@@ -244,7 +244,7 @@ fn test_transfer_from_to_zero_address() {
 
     ERC20::approve(spender, amount);
 
-    starknet_testing::set_caller_address(spender);
+    set_caller_address(spender);
 
     ERC20::transfer_from(owner, recipient, amount);
 }
@@ -260,7 +260,7 @@ fn test_transfer_from_from_zero_address() {
     let spender: ContractAddress = contract_address_const::<3>();
     let amount: u256 = u256_from_felt(100);
 
-    starknet_testing::set_caller_address(zero_address);
+    set_caller_address(zero_address);
 
     ERC20::transfer_from(owner, recipient, amount);
 }
@@ -304,7 +304,7 @@ fn test_increase_allowance_from_zero_address() {
     let spender: ContractAddress = contract_address_const::<2>();
     let amount: u256 = u256_from_felt(100);
 
-    starknet_testing::set_caller_address(zero_address);
+    set_caller_address(zero_address);
 
     ERC20::increase_allowance(spender, amount);
 }
@@ -347,7 +347,7 @@ fn test_decrease_allowance_from_zero_address() {
     let spender: ContractAddress = contract_address_const::<2>();
     let amount: u256 = u256_from_felt(100);
 
-    starknet_testing::set_caller_address(zero_address);
+    set_caller_address(zero_address);
 
     ERC20::decrease_allowance(spender, amount);
 }

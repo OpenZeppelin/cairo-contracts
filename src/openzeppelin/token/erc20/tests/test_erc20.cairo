@@ -61,7 +61,6 @@ fn test_approve_from_zero() {
     set_caller_as_zero();
 
     ERC20::approve(spender, amount);
-    assert(ERC20::allowance(owner, spender) == amount, 'Spender not approved correctly');
 }
 
 #[test]

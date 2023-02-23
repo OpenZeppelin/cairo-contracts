@@ -214,7 +214,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     ERC20::transfer_from(owner, recipient, amount);
 
     let spender_allowance: u256 = ERC20::allowance(owner, spender);
-    assert(spender_allowance == max_u256, 'Should remain max_uint256');
+    assert(spender_allowance == max_u256, 'Allowance should not change');
 }
 
 #[test]

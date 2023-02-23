@@ -1,6 +1,7 @@
 use erc20::ERC20;
 use starknet::contract_address_const;
 use starknet_testing::set_caller_address;
+use integer::u256;
 use integer::u256_from_felt;
 
 const NAME: felt = 111;
@@ -201,7 +202,10 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let recipient: ContractAddress = contract_address_const::<2>();
     let spender: ContractAddress = contract_address_const::<3>();
     let amount: u256 = u256_from_felt(100);
-    let max_u256: u256 = u256_from_felt(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) * u256_from_felt(256) + u256_from_felt(255);
+    let max_u256: u256 = u256 {
+        low: 0xffffffffffffffffffffffffffffffff_u128,
+        high: 0xffffffffffffffffffffffffffffffff_u128
+    };
 
     ERC20::approve(spender, max_u256);
 
@@ -371,7 +375,10 @@ fn test__spend_allowance_unlimited() {
 
     let spender: ContractAddress = contract_address_const::<2>();
 
-    let max_u256: u256 = u256_from_felt(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) * u256_from_felt(256) + u256_from_felt(255);
+    let max_u256: u256 = u256 {
+        low: 0xffffffffffffffffffffffffffffffff_u128,
+        high: 0xffffffffffffffffffffffffffffffff_u128
+    };
     let max_minus_one: u256 = max_u256 - u256_from_felt(1);
 
     ERC20::_approve(owner, spender, max_u256);

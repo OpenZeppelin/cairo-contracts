@@ -1,4 +1,9 @@
 artifacts/
+.DS_Store
+
+# Cairo 1
+
+corelib/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,6 +1,9 @@
+const ACCOUNT_ID: felt = 0x4;
+
 #[account_contract]
 mod Account {
-    use erc165::ERC165Library;
+    use openzeppelin::account::ACCOUNT_ID;
+    use openzeppelin::introspection::erc165::ERC165Contract;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
 
@@ -10,6 +13,7 @@ mod Account {
 
     #[constructor]
     fn constructor(_public_key: felt) {
+        ERC165Contract::register_interface(ACCOUNT_ID);
         public_key::write(_public_key);
     }
 
@@ -41,14 +45,9 @@ mod Account {
         assert(1 == 2, 'Account: unauthorized.');
     }
 
-    // ERC165Library
+    // ERC165Contract
     #[view]
     fn supports_interface(interface_id: felt) -> bool {
-        ERC165Library::supports_interface(interface_id)
-    }
-    
-    #[external]
-    fn register_interface(interface_id: felt) {
-        ERC165Library::register_interface(interface_id);
+        ERC165Contract::supports_interface(interface_id)
     }
 }

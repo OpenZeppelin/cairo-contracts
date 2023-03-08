@@ -12,7 +12,7 @@ build:
 	cargo build
 
 test:
-	cargo run --bin cairo-test -- --starknet --path $(dir)
+	cargo run --bin cairo-test -- --starknet --path src/openzeppelin
 
 format:
 	cargo run --bin cairo-format -- --recursive $(SOURCE_FOLDER) --print-parsing-errors

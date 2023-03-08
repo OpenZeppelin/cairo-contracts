@@ -43,11 +43,7 @@ mod Account {
     }
 
     #[external]
-    fn __validate__(
-        contract_address: ContractAddress,
-        entry_point_selector: felt,
-        calldata: Array::<felt>
-    ) {
+    fn __validate__(calls: Array::<AccountCall>) {
         assert_valid_transaction()
     }
 

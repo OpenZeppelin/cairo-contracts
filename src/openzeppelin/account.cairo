@@ -8,14 +8,15 @@ struct AccountCall {
 
 #[account_contract]
 mod Account {
-    use openzeppelin::account::ACCOUNT_ID;
-    use openzeppelin::account::AccountCall;
-    use openzeppelin::introspection::erc165::ERC165Contract;
     use ecdsa::check_ecdsa_signature;
     use starknet::contract_address::contract_address_to_felt;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+
+    use openzeppelin::account::ACCOUNT_ID;
+    use openzeppelin::account::AccountCall;
+    use openzeppelin::introspection::erc165::ERC165Contract;
 
     struct Storage {
         public_key: felt,
@@ -30,8 +31,6 @@ mod Account {
     #[external]
     fn __execute__(calls: Array::<AccountCall>) {
         assert_valid_transaction();
-
-        // execute
 
         // let res: Array::<felt>;
         //
@@ -83,18 +82,20 @@ mod Account {
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
     }
 
+    // ERC165
+    #[view]
+    fn supports_interface(interface_id: felt) -> bool {
+        ERC165Contract::supports_interface(interface_id)
+    }
+
+    // internals
+
     fn assert_only_self() {
         let caller = starknet::get_caller_address();
         let self = starknet::get_contract_address();
         let a = contract_address_to_felt(caller);
         let b = contract_address_to_felt(self);
         assert(a == b, 'Account: unauthorized.');
-    }
-
-    // ERC165
-    #[view]
-    fn supports_interface(interface_id: felt) -> bool {
-        ERC165Contract::supports_interface(interface_id)
     }
 
     fn assert_valid_transaction() {

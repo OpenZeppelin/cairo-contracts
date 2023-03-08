@@ -1,6 +1,18 @@
+trait IERC20 {
+    fn name() -> felt;
+    fn symbol() -> felt;
+    fn decimals() -> u8;
+    fn total_supply() -> u256;
+    fn balance_of(account: ContractAddress) -> u256;
+    fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
+    fn approve(spender: ContractAddress, amount: u256) -> bool;
+}
+
 #[contract]
 mod ERC20 {
-    use erc20::IERC20;
+    use openzeppelin::token::erc20::IERC20;
     use starknet::get_caller_address;
     use starknet::contract_address_const;
     use starknet::ContractAddressZeroable;

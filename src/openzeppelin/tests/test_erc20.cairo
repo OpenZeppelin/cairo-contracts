@@ -1,4 +1,4 @@
-use erc20::ERC20;
+use openzeppelin::token::erc20::ERC20;
 use starknet::contract_address_const;
 use starknet_testing::set_caller_address;
 use integer::u256;

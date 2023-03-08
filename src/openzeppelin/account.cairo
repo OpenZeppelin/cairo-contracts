@@ -1,7 +1,7 @@
 const ACCOUNT_ID: felt = 0x4;
 
 struct AccountCall {
-    to: felt,
+    to: ContractAddress,
     selector: felt,
     calldata: Array::<felt>
 }
@@ -12,6 +12,7 @@ mod Account {
     use openzeppelin::account::AccountCall;
     use openzeppelin::introspection::erc165::ERC165Contract;
     use ecdsa::check_ecdsa_signature;
+    use starknet::contract_address::contract_address_to_felt;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
@@ -28,12 +29,7 @@ mod Account {
 
     #[external]
     fn __execute__(calls: Array::<AccountCall>) {
-        let tx_info = unbox(get_tx_info());
-        let tx_hash = tx_info.transaction_hash;
-        let sig = tx_info.signature;
-        assert(sig.len() == 2_u32, 'bad signature length');
-        let is_valid = is_valid_signature(tx_hash, *sig.at(0_u32), *sig.at(1_u32));
-        assert(is_valid, 'Invalid signature.');
+        assert_valid_transaction();
 
         // execute
 
@@ -47,15 +43,32 @@ mod Account {
         // return res;
     }
 
-    fn _call_contract(call: AccountCall) -> felt {
-        starknet::call_contract_syscall(
-            call.to, call.selector, call.calldata
-        ).unwrap_syscall()
+    #[external]
+    fn __validate__(
+        contract_address: ContractAddress,
+        entry_point_selector: felt,
+        calldata: Array::<felt>
+    ) {
+        assert_valid_transaction()
+    }
+
+    #[external]
+    fn __validate_declare__(class_hash: felt) {
+        assert_valid_transaction()
+    }
+
+    #[external]
+    fn __validate_deploy__(
+        class_hash: felt,
+        contract_address_salt: felt,
+        _public_key: felt
+    ) {
+        assert_valid_transaction()
     }
 
     #[external]
     fn set_public_key(new_public_key: felt) {
-        only_self();
+        assert_only_self();
         public_key::write(new_public_key);
     }
 
@@ -70,15 +83,39 @@ mod Account {
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
     }
 
-    fn only_self() {
+    fn assert_only_self() {
         let caller = starknet::get_caller_address();
         let self = starknet::get_contract_address();
-        assert(caller == self, 'Account: unauthorized.');
+        let a = contract_address_to_felt(caller);
+        let b = contract_address_to_felt(self);
+        assert(a == b, 'Account: unauthorized.');
     }
 
     // ERC165
     #[view]
     fn supports_interface(interface_id: felt) -> bool {
         ERC165Contract::supports_interface(interface_id)
+    }
+
+    fn assert_valid_transaction() {
+        let tx_info = unbox(get_tx_info());
+        let tx_hash = tx_info.transaction_hash;
+        let signature = tx_info.signature;
+
+        assert(signature.len() == 2_u32, 'bad signature length');
+
+        let is_valid = is_valid_signature(
+            tx_hash,
+            *signature.at(0_u32),
+            *signature.at(1_u32)
+        );
+
+        assert(is_valid, 'Invalid signature.');
+    }
+
+    fn call_contract(call: AccountCall) -> felt {
+        starknet::call_contract_syscall(
+            call.to, call.selector, call.calldata
+        ).unwrap_syscall()
     }
 }

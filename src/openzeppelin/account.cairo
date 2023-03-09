@@ -1,5 +1,8 @@
+use starknet::contract_address::ContractAddressSerde;
+
 const ACCOUNT_ID: felt = 0x4;
 
+#[derive(Drop)]
 struct AccountCall {
     to: ContractAddress,
     selector: felt,
@@ -8,8 +11,10 @@ struct AccountCall {
 
 #[account_contract]
 mod Account {
+    use array::SpanTrait;
+    use array::ArrayTrait;
     use ecdsa::check_ecdsa_signature;
-    use starknet::contract_address::contract_address_to_felt;
+    use starknet::contract_address::ContractAddressPartialEq;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
@@ -28,21 +33,29 @@ mod Account {
         public_key::write(_public_key);
     }
 
-    #[external]
-    fn __execute__(calls: Array::<AccountCall>) {
+    // to do: serde for AccountCall
+    // #[external]
+    fn __execute__(mut calls: Array::<AccountCall>) -> Array::<Array::<felt>> {
         assert_valid_transaction();
-
-        // let res: Array::<felt>;
-        //
-        // for call in calls {
-        //   _res = _call_contract(call);
-        //   res.append(_res);
-        // }
-        //
-        // return res;
+        let mut res = ArrayTrait::new();
+        _execute_calls(calls, res)
     }
 
-    #[external]
+    fn _execute_calls(mut calls: Array<AccountCall>, mut res: Array::<Array::<felt>>) -> Array::<Array::<felt>> {
+        match calls.pop_front() {
+            Option::Some(call) => {
+                let _res = _call_contract(call);
+                res.append(_res);
+                return _execute_calls(calls, res);
+            },
+            Option::None(_) => {
+                return res;
+            },
+        }
+    }
+
+    // to do: serde for AccountCall
+    // #[external]
     fn __validate__(calls: Array::<AccountCall>) {
         assert_valid_transaction()
     }
@@ -78,20 +91,17 @@ mod Account {
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
     }
 
-    // ERC165
     #[view]
     fn supports_interface(interface_id: felt) -> bool {
         ERC165Contract::supports_interface(interface_id)
     }
 
-    // internals
+    // Internals
 
     fn assert_only_self() {
-        let caller = starknet::get_caller_address();
-        let self = starknet::get_contract_address();
-        let a = contract_address_to_felt(caller);
-        let b = contract_address_to_felt(self);
-        assert(a == b, 'Account: unauthorized.');
+        let caller = get_caller_address();
+        let self = get_contract_address();
+        assert(self == caller, 'Account: unauthorized.');
     }
 
     fn assert_valid_transaction() {
@@ -110,9 +120,25 @@ mod Account {
         assert(is_valid, 'Invalid signature.');
     }
 
-    fn call_contract(call: AccountCall) -> felt {
+    fn _call_contract(call: AccountCall) -> Array::<felt> {
         starknet::call_contract_syscall(
             call.to, call.selector, call.calldata
         ).unwrap_syscall()
     }
 }
+
+
+// impl AccountCallSerde of serde::Serde::<AccountCall> {
+//     fn serialize(ref serialized: Array<felt>, input: AccountCall) {
+//         serde::Serde::serialize(ref serialized, input.to);
+//         serde::Serde::serialize(ref serialized, input.selector);
+//         serde::Serde::serialize(ref serialized, input.calldata);
+//     }
+//     fn deserialize(ref serialized: Span<felt>) -> Option<AccountCall> {
+//         AccountCall {
+//             to: serde::Serde::<ContractAddress>::deserialize(ref serialized)?,
+//             selector: serde::Serde::deserialize(ref serialized)?,
+//             calldata: serde::Serde::<Array::<felt>>::deserialize(ref serialized)?,
+//         }
+//     }
+// }

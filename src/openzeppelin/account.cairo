@@ -4,7 +4,14 @@ use starknet::contract_address::ContractAddressSerde;
 use array::ArrayTrait;
 use array::SpanTrait;
 
+// to do: update ID
 const ACCOUNT_ID: felt252 = 0x4;
+
+struct Call {
+    to: ContractAddress,
+    selector: felt252,
+    calldata: Array<felt252>
+}
 
 #[account_contract]
 mod Account {
@@ -24,6 +31,10 @@ mod Account {
 
     use openzeppelin::introspection::erc165::ERC165Contract;
 
+    //
+    // Storage and Constructor
+    //
+
     struct Storage {
         public_key: felt252,
     }
@@ -34,29 +45,15 @@ mod Account {
         public_key::write(_public_key);
     }
 
+    //
+    // Externals
+    //
+
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
         assert_valid_transaction();
         let mut res = ArrayTrait::new();
         _execute_calls(calls, res)
-    }
-
-    fn _execute_calls(mut calls: Array<Call>, mut res: Array<Array<felt252>>) -> Array<Array<felt252>> {
-        match calls.pop_front() {
-            Option::Some(call) => {
-                let _res = _execute_single_call(call);
-                res.append(_res);
-                return _execute_calls(calls, res);
-            },
-            Option::None(_) => {
-                return res;
-            },
-        }
-    }
-
-    fn _execute_single_call(mut call: Call) -> Array<felt252> {
-        let Call{to, selector, calldata } = call;
-        starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall()
     }
 
     #[external]
@@ -84,6 +81,10 @@ mod Account {
         public_key::write(new_public_key);
     }
 
+    //
+    // View
+    //
+
     #[view]
     fn get_public_key() -> felt252 {
         public_key::read()
@@ -93,6 +94,8 @@ mod Account {
     fn is_valid_signature(message: felt252, sig_r: felt252, sig_s: felt252) -> bool {
         let _public_key: felt252 = public_key::read();
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
+        // to do:
+        // return magic value or false
     }
 
     #[view]
@@ -100,7 +103,27 @@ mod Account {
         ERC165Contract::supports_interface(interface_id)
     }
 
+    //
     // Internals
+    //
+
+    fn _execute_calls(mut calls: Array<Call>, mut res: Array<Array<felt252>>) -> Array<Array<felt252>> {
+        match calls.pop_front() {
+            Option::Some(call) => {
+                let _res = _execute_single_call(call);
+                res.append(_res);
+                return _execute_calls(calls, res);
+            },
+            Option::None(_) => {
+                return res;
+            },
+        }
+    }
+
+    fn _execute_single_call(mut call: Call) -> Array<felt252> {
+        let Call{to, selector, calldata } = call;
+        starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall()
+    }
 
     fn assert_only_self() {
         let caller = get_caller_address();
@@ -123,12 +146,6 @@ mod Account {
 
         assert(is_valid, 'Invalid signature.');
     }
-}
-
-struct Call {
-    to: ContractAddress,
-    selector: felt252,
-    calldata: Array<felt252>
 }
 
 impl ArrayCallDrop of Drop::<Array<Call>>;

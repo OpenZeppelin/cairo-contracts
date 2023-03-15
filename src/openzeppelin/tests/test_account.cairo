@@ -2,11 +2,11 @@ use openzeppelin::account::Account;
 use openzeppelin::account::ACCOUNT_ID;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
-const PUB_KEY: felt = 0x123;
+const PUB_KEY: felt252 = 0x123;
 
 #[test]
 #[available_gas(2000000)]
-fn test_erc165() {
+fn test_constructor() {
     Account::constructor(PUB_KEY);
 
     let supports_default_interface: bool = Account::supports_interface(IERC165_ID);
@@ -15,6 +15,6 @@ fn test_erc165() {
     let supports_account_interface: bool = Account::supports_interface(ACCOUNT_ID);
     assert(supports_account_interface, 'Should support account id');
 
-    let public_key: felt = Account::get_public_key();
+    let public_key: felt252 = Account::get_public_key();
     assert(public_key == PUB_KEY, 'Should return pub key');
 }

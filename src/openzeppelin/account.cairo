@@ -1,13 +1,10 @@
+use serde::Serde;
+use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressSerde;
+use array::ArrayTrait;
+use array::SpanTrait;
 
-const ACCOUNT_ID: felt = 0x4;
-
-#[derive(Drop)]
-struct AccountCall {
-    to: ContractAddress,
-    selector: felt,
-    calldata: Array::<felt>
-}
+const ACCOUNT_ID: felt252 = 0x4;
 
 #[account_contract]
 mod Account {
@@ -19,32 +16,35 @@ mod Account {
     use starknet::get_contract_address;
     use starknet::get_tx_info;
 
-    use openzeppelin::account::ACCOUNT_ID;
-    use openzeppelin::account::AccountCall;
+    use option::OptionTrait;
+    use super::Call;
+    use super::ArrayCallSerde;
+    use super::ArrayCallDrop;
+    use super::ACCOUNT_ID;
+
     use openzeppelin::introspection::erc165::ERC165Contract;
 
     struct Storage {
-        public_key: felt,
+        public_key: felt252,
     }
 
     #[constructor]
-    fn constructor(_public_key: felt) {
+    fn constructor(_public_key: felt252) {
         ERC165Contract::register_interface(ACCOUNT_ID);
         public_key::write(_public_key);
     }
 
-    // to do: serde for AccountCall
-    // #[external]
-    fn __execute__(mut calls: Array::<AccountCall>) -> Array::<Array::<felt>> {
+    #[external]
+    fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
         assert_valid_transaction();
         let mut res = ArrayTrait::new();
         _execute_calls(calls, res)
     }
 
-    fn _execute_calls(mut calls: Array<AccountCall>, mut res: Array::<Array::<felt>>) -> Array::<Array::<felt>> {
+    fn _execute_calls(mut calls: Array<Call>, mut res: Array<Array<felt252>>) -> Array<Array<felt252>> {
         match calls.pop_front() {
             Option::Some(call) => {
-                let _res = _call_contract(call);
+                let _res = _execute_single_call(call);
                 res.append(_res);
                 return _execute_calls(calls, res);
             },
@@ -54,45 +54,49 @@ mod Account {
         }
     }
 
-    // to do: serde for AccountCall
-    // #[external]
-    fn __validate__(calls: Array::<AccountCall>) {
+    fn _execute_single_call(mut call: Call) -> Array<felt252> {
+        let Call{to, selector, calldata } = call;
+        starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall()
+    }
+
+    #[external]
+    fn __validate__(mut calls: Array<Call>) {
         assert_valid_transaction()
     }
 
     #[external]
-    fn __validate_declare__(class_hash: felt) {
+    fn __validate_declare__(class_hash: felt252) {
         assert_valid_transaction()
     }
 
     #[external]
     fn __validate_deploy__(
-        class_hash: felt,
-        contract_address_salt: felt,
-        _public_key: felt
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        _public_key: felt252
     ) {
         assert_valid_transaction()
     }
 
     #[external]
-    fn set_public_key(new_public_key: felt) {
+    fn set_public_key(new_public_key: felt252) {
         assert_only_self();
         public_key::write(new_public_key);
     }
 
     #[view]
-    fn get_public_key() -> felt {
+    fn get_public_key() -> felt252 {
         public_key::read()
     }
 
     #[view]
-    fn is_valid_signature(message: felt, sig_r: felt, sig_s: felt) -> bool {
-        let _public_key: felt = public_key::read();
+    fn is_valid_signature(message: felt252, sig_r: felt252, sig_s: felt252) -> bool {
+        let _public_key: felt252 = public_key::read();
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
     }
 
     #[view]
-    fn supports_interface(interface_id: felt) -> bool {
+    fn supports_interface(interface_id: felt252) -> bool {
         ERC165Contract::supports_interface(interface_id)
     }
 
@@ -119,26 +123,79 @@ mod Account {
 
         assert(is_valid, 'Invalid signature.');
     }
+}
 
-    fn _call_contract(call: AccountCall) -> Array::<felt> {
-        starknet::call_contract_syscall(
-            call.to, call.selector, call.calldata
-        ).unwrap_syscall()
+struct Call {
+    to: ContractAddress,
+    selector: felt252,
+    calldata: Array<felt252>
+}
+
+impl ArrayCallDrop of Drop::<Array<Call>>;
+
+impl CallSerde of Serde::<Call> {
+    fn serialize(ref output: Array<felt252>, input: Call) {
+        let Call{to, selector, calldata } = input;
+        Serde::serialize(ref output, to);
+        Serde::serialize(ref output, selector);
+        Serde::serialize(ref output, calldata);
+    }
+
+    fn deserialize(ref serialized: Span<felt252>) -> Option<Call> {
+        let to = Serde::<ContractAddress>::deserialize(ref serialized)?;
+        let selector = Serde::<felt252>::deserialize(ref serialized)?;
+        let calldata = Serde::<Array::<felt252>>::deserialize(ref serialized)?;
+        Option::Some(Call { to, selector, calldata })
     }
 }
 
+impl ArrayCallSerde of Serde::<Array<Call>> {
+    fn serialize(ref output: Array<felt252>, mut input: Array<Call>) {
+        Serde::<usize>::serialize(ref output, input.len());
+        serialize_array_call_helper(ref output, input);
+    }
 
-// impl AccountCallSerde of serde::Serde::<AccountCall> {
-//     fn serialize(ref serialized: Array<felt>, input: AccountCall) {
-//         serde::Serde::serialize(ref serialized, input.to);
-//         serde::Serde::serialize(ref serialized, input.selector);
-//         serde::Serde::serialize(ref serialized, input.calldata);
-//     }
-//     fn deserialize(ref serialized: Span<felt>) -> Option<AccountCall> {
-//         AccountCall {
-//             to: serde::Serde::<ContractAddress>::deserialize(ref serialized)?,
-//             selector: serde::Serde::deserialize(ref serialized)?,
-//             calldata: serde::Serde::<Array::<felt>>::deserialize(ref serialized)?,
-//         }
-//     }
-// }
+    fn deserialize(ref serialized: Span<felt252>) -> Option<Array<Call>> {
+        let length = *serialized.pop_front()?;
+        let mut arr = ArrayTrait::new();
+        deserialize_array_call_helper(ref serialized, arr, length)
+    }
+}
+
+fn serialize_array_call_helper(ref output: Array<felt252>, mut input: Array<Call>) {
+    match gas::get_gas() {
+        Option::Some(_) => {},
+        Option::None(_) => {
+            let mut data = ArrayTrait::new();
+            data.append('Out of gas');
+            panic(data);
+        },
+    }
+    match input.pop_front() {
+        Option::Some(value) => {
+            Serde::<Call>::serialize(ref output, value);
+            serialize_array_call_helper(ref output, input);
+        },
+        Option::None(_) => {},
+    }
+}
+
+fn deserialize_array_call_helper(
+    ref serialized: Span<felt252>, mut curr_output: Array<Call>, remaining: felt252
+) -> Option<Array<Call>> {
+    if remaining == 0 {
+        return Option::Some(curr_output);
+    }
+
+    match gas::get_gas() {
+        Option::Some(_) => {},
+        Option::None(_) => {
+            let mut data = ArrayTrait::new();
+            data.append('Out of gas');
+            panic(data);
+        },
+    }
+
+    curr_output.append(Serde::<Call>::deserialize(ref serialized)?);
+    deserialize_array_call_helper(ref serialized, curr_output, remaining - 1)
+}

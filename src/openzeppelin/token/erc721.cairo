@@ -39,9 +39,18 @@ trait IERC721Receiver {
 
 #[contract]
 mod ERC721 {
+    // OZ modules
     use openzeppelin::account;
-    use openzeppelin::token::erc721;
     use openzeppelin::introspection::erc165;
+    use openzeppelin::token::erc721;
+
+    // Dispatchers
+    use openzeppelin::introspection::erc165::IERC165Dispatcher;
+    use openzeppelin::introspection::erc165::IERC165DispatcherTrait;
+    use super::IERC721ReceiverDispatcher;
+    use super::IERC721ReceiverDispatcherTrait;
+
+    // Other
     use super::ArrayTrait;
     use super::ContractAddress;
     use starknet::contract_address_const;
@@ -354,18 +363,22 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
     ) -> bool {
-        if (erc165::IERC165Dispatcher::supports_interface(
-            to, erc721::IERC721_RECEIVER_ID
+        if (IERC165Dispatcher {
+            contract_address: to
+        }.supports_interface(
+            erc721::IERC721_RECEIVER_ID
         )) {
             assert(
-                erc721::IERC721ReceiverDispatcher::on_erc721_received(
-                    to, get_caller_address(), from, token_id, data
+                IERC721ReceiverDispatcher {
+                    contract_address: to
+                }.on_erc721_received(
+                    get_caller_address(), from, token_id, data
                 ) == erc721::IERC721_RECEIVER_ID,
                 'ERC721: on_eRC721_receiver fail'
             );
             return true;
         }
-        erc165::IERC165Dispatcher::supports_interface(to, account::IACCOUNT_ID)
+        IERC165Dispatcher { contract_address: to }.supports_interface(account::ACCOUNT_ID)
     }
 
     #[private]

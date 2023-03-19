@@ -36,7 +36,7 @@ mod Account {
     //
 
     struct Storage {
-        public_key: felt252,
+        public_key: felt252, 
     }
 
     #[constructor]
@@ -68,9 +68,7 @@ mod Account {
 
     #[external]
     fn __validate_deploy__(
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
+        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) {
         assert_valid_transaction()
     }
@@ -94,8 +92,8 @@ mod Account {
     fn is_valid_signature(message: felt252, sig_r: felt252, sig_s: felt252) -> bool {
         let _public_key: felt252 = public_key::read();
         check_ecdsa_signature(message, _public_key, sig_r, sig_s)
-        // to do:
-        // return magic value or false
+    // to do:
+    // return magic value or false
     }
 
     #[view]
@@ -107,7 +105,9 @@ mod Account {
     // Internals
     //
 
-    fn _execute_calls(mut calls: Array<Call>, mut res: Array<Array<felt252>>) -> Array<Array<felt252>> {
+    fn _execute_calls(
+        mut calls: Array<Call>, mut res: Array<Array<felt252>>
+    ) -> Array<Array<felt252>> {
         match calls.pop_front() {
             Option::Some(call) => {
                 let _res = _execute_single_call(call);
@@ -138,11 +138,7 @@ mod Account {
 
         assert(signature.len() == 2_u32, 'bad signature length');
 
-        let is_valid = is_valid_signature(
-            tx_hash,
-            *signature.at(0_u32),
-            *signature.at(1_u32)
-        );
+        let is_valid = is_valid_signature(tx_hash, *signature.at(0_u32), *signature.at(1_u32));
 
         assert(is_valid, 'Invalid signature.');
     }

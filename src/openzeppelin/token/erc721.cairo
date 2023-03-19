@@ -33,10 +33,7 @@ trait IERC721 {
 #[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Array::<felt252>
+        operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Array::<felt252>
     ) -> felt252;
 }
 
@@ -214,7 +211,9 @@ mod ERC721 {
     }
 
     #[external]
-    fn safe_transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>) {
+    fn safe_transfer_from(
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
+    ) {
         ERC721::safe_transfer_from(from, to, token_id, data)
     }
 

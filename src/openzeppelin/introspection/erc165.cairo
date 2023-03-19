@@ -3,7 +3,7 @@ const INVALID_ID: felt252 = 0xffffffff;
 
 #[abi]
 trait IERC165 {
-  fn supports_interface(interface_id: felt252) -> bool;
+    fn supports_interface(interface_id: felt252) -> bool;
 }
 
 #[contract]
@@ -11,7 +11,7 @@ mod ERC165Contract {
     use openzeppelin::introspection::erc165;
 
     struct Storage {
-        supported_interfaces: LegacyMap::<felt252, bool>,
+        supported_interfaces: LegacyMap::<felt252, bool>, 
     }
 
     impl ERC165 of erc165::IERC165 {

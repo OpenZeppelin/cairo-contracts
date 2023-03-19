@@ -16,14 +16,14 @@ fn test_default_behavior() {
 #[available_gas(2000000)]
 fn test_not_registered_interface() {
     let supports_unregistered_interface: bool = ERC165Contract::supports_interface(OTHER_ID);
-    assert(! supports_unregistered_interface, 'Should not support unregistered');
+    assert(!supports_unregistered_interface, 'Should not support unregistered');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_supports_invalid_interface() {
     let supports_invalid_interface: bool = ERC165Contract::supports_interface(INVALID_ID);
-    assert(! supports_invalid_interface, 'Should not support invalid id');
+    assert(!supports_invalid_interface, 'Should not support invalid id');
 }
 
 #[test]

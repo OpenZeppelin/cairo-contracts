@@ -1,10 +1,13 @@
+use openzeppelin::introspection::erc165;
+use openzeppelin::token::erc721;
 use openzeppelin::token::erc721::ERC721;
-use openzeppelin::token::erc721::IERC721_ID;
-use openzeppelin::token::erc721::IERC721METADATA_ID;
 
 use starknet::contract_address_const;
 use starknet::ContractAddress;
+use starknet::testing::set_caller_address;
+use integer::u256;
 use integer::u256_from_felt252;
+use zeroable::Zeroable;
 
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
@@ -14,22 +17,37 @@ fn TOKEN_ID() -> u256 {
     u256_from_felt252(7)
 }
 
-fn ADDRESS_ZERO() -> ContractAddress {
+fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
 }
-
-fn ACCOUNT1() -> ContractAddress {
-    contract_address_const::<1234>()
+fn OWNER() -> ContractAddress {
+    contract_address_const::<1>()
+}
+fn RECIPIENT() -> ContractAddress {
+    contract_address_const::<2>()
+}
+fn SPENDER() -> ContractAddress {
+    contract_address_const::<3>()
+}
+fn OPERATOR() -> ContractAddress {
+    contract_address_const::<4>()
+}
+fn OTHER() -> ContractAddress {
+    contract_address_const::<5>()
 }
 
-fn ACCOUNT2() -> ContractAddress {
-    contract_address_const::<5678>()
-}
+///
+/// Setup
+///
 
 fn setup() {
     ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(ACCOUNT1(), TOKEN_ID());
+    ERC721::_mint(OWNER(), TOKEN_ID());
 }
+
+///
+/// Initialize
+///
 
 #[test]
 #[available_gas(2000000)]
@@ -38,101 +56,380 @@ fn initialize() {
 
     assert(ERC721::name() == NAME, 'Name should be NAME');
     assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Should be zero');
+
+    assert(ERC721::supports_interface(erc721::IERC721_ID), 'missing interface ID');
+    assert(ERC721::supports_interface(erc721::IERC721METADATA_ID), 'missing interface ID');
+    assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
+    assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
+}
+
+///
+/// getters
+///
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn balance_of_zero() {
+    ERC721::balance_of(ZERO());
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic]
-fn balance_of_from_zero_address() {
-    ERC721::balance_of(ADDRESS_ZERO());
+fn owner_of_non_minter() {
+    ERC721::owner_of(u256_from_felt252(7));
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic]
-fn owner_of_is_zero_address() {
-    ERC721::owner_of(TOKEN_ID());
-}
-
-#[test]
-#[available_gas(2000000)]
-fn _mint() {
-    ERC721::initializer(NAME, SYMBOL);
-    assert(ERC721::balance_of(ACCOUNT1()) == u256_from_felt252(0), 'Balance should be 0');
-
-    ERC721::_mint(ACCOUNT1(), TOKEN_ID());
-
-    assert(ERC721::balance_of(ACCOUNT1()) == u256_from_felt252(1), 'Balance should be 1');
-    assert(ERC721::owner_of(TOKEN_ID()) == ACCOUNT1(), 'Owner should be ACCOUNT1');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn _approve() {
-    setup();
-    assert(ERC721::get_approved(TOKEN_ID()) == ADDRESS_ZERO(), 'Approved should be 0');
-
-    ERC721::_approve(ACCOUNT2(), TOKEN_ID());
-
-    assert(ERC721::get_approved(TOKEN_ID()) == ACCOUNT2(), 'Approved should be ACCOUNT2');
+fn get_approved_nonexistent() {
+    ERC721::get_approved(u256_from_felt252(7));
 }
 
 #[test]
 #[available_gas(2000000)]
 fn _exists() {
-    setup();
-
+    assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
+    ERC721::_mint(RECIPIENT(), TOKEN_ID());
     assert(ERC721::_exists(TOKEN_ID()), 'Token should exist');
     ERC721::_burn(TOKEN_ID());
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
 }
 
+///
+/// approve & _approve
+///
+
 #[test]
 #[available_gas(2000000)]
-fn _is_approved_or_owner() {
+fn test_approve_from_owner() {
     setup();
-    assert(ERC721::_is_approved_or_owner(ACCOUNT1(), TOKEN_ID()), 'Owner is recognized');
 
-    ERC721::_operator_approvals::write((ACCOUNT1(), ACCOUNT2()), true);
-    assert(ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should be approved');
-    // Set to false to test when account is approved
-    ERC721::_operator_approvals::write((ACCOUNT1(), ACCOUNT2()), false);
-
-    assert(
-        !ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should not be approved'
-    );
-    ERC721::_approve(ACCOUNT2(), TOKEN_ID());
-    assert(ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should be approved');
+    set_caller_address(OWNER());
+    ERC721::approve(SPENDER(), TOKEN_ID());
+    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn _transfer() {
+fn test_approve_from_operator() {
     setup();
 
-    ERC721::_transfer(ACCOUNT1(), ACCOUNT2(), TOKEN_ID());
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OPERATOR(), true);
 
-    assert(ERC721::balance_of(ACCOUNT1()) == u256_from_felt252(0), 'Balance should be 0');
-    assert(ERC721::balance_of(ACCOUNT2()) == u256_from_felt252(1), 'Balance should be 1');
-
-    assert(ERC721::owner_of(TOKEN_ID()) == ACCOUNT2(), 'Token owner should be ACCOUNT2');
+    set_caller_address(OPERATOR());
+    ERC721::approve(SPENDER(), TOKEN_ID());
+    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn _burn() {
+#[should_panic]
+fn test_approve_from_unauthorized() {
     setup();
 
-    ERC721::_approve(ACCOUNT2(), TOKEN_ID());
+    set_caller_address(OTHER());
+    ERC721::approve(SPENDER(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_approve_nonexistent() {
+    ERC721::approve(SPENDER(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__approve() {
+    setup();
+
+    ERC721::_approve(SPENDER(), TOKEN_ID());
+    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__approve_nonexistent() {
+    ERC721::_approve(SPENDER(), TOKEN_ID());
+}
+
+///
+/// set_approval_for_all & _set_approval_for_all
+///
+
+#[test]
+#[available_gas(2000000)]
+fn test_set_approval_for_all_true() {
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OPERATOR(), true);
+    assert(ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_set_approval_for_all_false() {
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OPERATOR(), false);
+    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_set_approval_for_all_owner_equal_operator_true() {
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OWNER(), true);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_set_approval_for_all_owner_equal_operator_false() {
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OWNER(), false);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__set_approval_for_all_true() {
+    ERC721::_set_approval_for_all(OWNER(), OPERATOR(), true);
+    assert(ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__set_approval_for_all_false() {
+    ERC721::_set_approval_for_all(OWNER(), OPERATOR(), false);
+    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__set_approval_for_all_owner_equal_operator_true() {
+    ERC721::_set_approval_for_all(OWNER(), OWNER(), true);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__set_approval_for_all_owner_equal_operator_false() {
+    ERC721::_set_approval_for_all(OWNER(), OWNER(), false);
+}
+
+///
+/// transfer_from
+///
+
+#[test]
+#[available_gas(2000000)]
+fn test_transfer_from_owner() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(0), 'Balance of recipient before');
+
+    set_caller_address(OWNER());
+    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
+    assert(ERC721::get_approved(TOKEN_ID()).is_zero(), 'Approval not implicitelly reset');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_transfer_from_nonexistent() {
+    ERC721::transfer_from(ZERO(), RECIPIENT(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_transfer_from_to_zero() {
+    setup();
+
+    set_caller_address(OWNER());
+    ERC721::transfer_from(OWNER(), ZERO(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_transfer_from_to_owner() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+
+    set_caller_address(OWNER());
+    ERC721::transfer_from(OWNER(), OWNER(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner after');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_transfer_from_approved() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(0), 'Balance of recipient before');
+
+    set_caller_address(OWNER());
+    ERC721::approve(OPERATOR(), TOKEN_ID());
+
+    set_caller_address(OPERATOR());
+    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_transfer_from_approved_for_all() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(0), 'Balance of recipient before');
+
+    set_caller_address(OWNER());
+    ERC721::set_approval_for_all(OPERATOR(), true);
+
+    set_caller_address(OPERATOR());
+    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test_transfer_from_unauthorized() {
+    setup();
+
+    set_caller_address(OTHER());
+    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__transfer() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(0), 'Balance of recipient before');
+
+    ERC721::_transfer(OWNER(), RECIPIENT(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__transfer_nonexistent() {
+    ERC721::_transfer(ZERO(), RECIPIENT(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__transfer_to_zero() {
+    setup();
+
+    ERC721::_transfer(OWNER(), ZERO(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__transfer_from_invalid_owner() {
+    setup();
+
+    ERC721::_transfer(RECIPIENT(), OWNER(), TOKEN_ID());
+}
+
+///
+/// Mint
+///
+
+#[test]
+#[available_gas(2000000)]
+fn test__mint() {
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(0), 'Balance of recipient before');
+
+    ERC721::_mint(RECIPIENT(), TOKEN_ID());
+
+    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
+    assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__mint_to_zero() {
+    ERC721::_mint(ZERO(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__mint_already_exist() {
+    setup();
+
+    ERC721::_mint(RECIPIENT(), TOKEN_ID());
+}
+
+///
+/// Burn
+///
+
+#[test]
+#[available_gas(2000000)]
+fn test__burn() {
+    setup();
+
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership after');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
+
     ERC721::_burn(TOKEN_ID());
 
-    assert(ERC721::balance_of(ACCOUNT1()) == u256_from_felt252(0), 'Balance should be 0');
-    assert(ERC721::_owners::read(TOKEN_ID()) == ADDRESS_ZERO(), 'Owner should be 0');
-    assert(
-        ERC721::_token_approvals::read(TOKEN_ID()) == ADDRESS_ZERO(),
-        'Token should not have approval'
-    );
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
 }
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic]
+fn test__burn_nonexistent() {
+    ERC721::_burn(TOKEN_ID());
+}
+
+///
+/// _set_token_uri
+///
 
 #[test]
 #[available_gas(2000000)]
@@ -147,6 +444,6 @@ fn _set_token_uri() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic]
-fn _set_token_uri_nonexistent_token() {
+fn _set_token_uri_nonexistent() {
     ERC721::_set_token_uri(TOKEN_ID(), URI);
 }

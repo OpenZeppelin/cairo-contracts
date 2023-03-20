@@ -22,7 +22,7 @@ trait IERC721 {
     fn owner_of(tokenId: u256) -> ContractAddress;
     fn transfer_from(from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, tokenId: u256, data: Array::<felt252>
+        from: ContractAddress, to: ContractAddress, tokenId: u256, data: Array<felt252>
     );
     fn approve(approved: ContractAddress, tokenId: u256);
     fn set_approval_for_all(operator: ContractAddress, approved: bool);
@@ -33,7 +33,7 @@ trait IERC721 {
 #[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
-        operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Array::<felt252>
+        operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Array<felt252>
     ) -> felt252;
 }
 
@@ -65,11 +65,11 @@ mod ERC721 {
     struct Storage {
         _name: felt252,
         _symbol: felt252,
-        _owners: LegacyMap::<u256, ContractAddress>,
-        _balances: LegacyMap::<ContractAddress, u256>,
-        _token_approvals: LegacyMap::<u256, ContractAddress>,
-        _operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
-        _token_uri: LegacyMap::<u256, felt252>,
+        _owners: LegacyMap<u256, ContractAddress>,
+        _balances: LegacyMap<ContractAddress, u256>,
+        _token_approvals: LegacyMap<u256, ContractAddress>,
+        _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        _token_uri: LegacyMap<u256, felt252>,
     }
 
     #[event]
@@ -154,7 +154,7 @@ mod ERC721 {
         }
 
         fn safe_transfer_from(
-            from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
+            from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
         ) {
             assert(
                 _is_approved_or_owner(get_caller_address(), token_id),
@@ -221,7 +221,7 @@ mod ERC721 {
 
     #[external]
     fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
     ) {
         ERC721::safe_transfer_from(from, to, token_id, data)
     }
@@ -235,16 +235,11 @@ mod ERC721 {
     }
 
     #[internal]
-    fn _try_owner(token_id: u256) -> Option::<ContractAddress> {
+    fn _try_owner(token_id: u256) -> Option<ContractAddress> {
         let owner = _owners::read(token_id);
-        // match owner.is_zero() {
-        //     True => Option::<ContractAddress>::None(()),
-        //     False => Option::<ContractAddress>::Some(owner)
-        // }
-        if owner.is_zero() {
-            Option::<ContractAddress>::None(())
-        } else {
-            Option::<ContractAddress>::Some(owner)
+        match owner.is_zero() {
+            bool::False(()) => Option::Some(owner),
+            bool::True(()) => Option::None(())
         }
     }
 
@@ -335,7 +330,7 @@ mod ERC721 {
     }
 
     #[internal]
-    fn _safe_mint(to: ContractAddress, token_id: u256, data: Array::<felt252>) {
+    fn _safe_mint(to: ContractAddress, token_id: u256, data: Array<felt252>) {
         _mint(to, token_id);
         assert(
             _check_on_erc721_received(contract_address_const::<0>(), to, token_id, data),
@@ -345,7 +340,7 @@ mod ERC721 {
 
     #[internal]
     fn _safe_transfer(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
     ) {
         _transfer(from, to, token_id);
         assert(_check_on_erc721_received(from, to, token_id, data), 'ERC721: safe transfer failed');
@@ -361,7 +356,7 @@ mod ERC721 {
 
     #[private]
     fn _check_on_erc721_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array::<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
     ) -> bool {
         if (IERC165Dispatcher {
             contract_address: to

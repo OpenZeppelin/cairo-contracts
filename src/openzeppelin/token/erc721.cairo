@@ -60,6 +60,7 @@ mod ERC721 {
     use integer::u256_from_felt252;
     use traits::Into;
     use option::Option;
+    use option::OptionTrait;
     use zeroable::Zeroable;
 
     struct Storage {
@@ -97,10 +98,8 @@ mod ERC721 {
         }
 
         fn token_uri(token_id: u256) -> felt252 {
-            match _try_owner(token_id) {
-                Option::Some(_) => _token_uri::read(token_id),
-                Option::None(_) => throw('ERC721: invalid token ID')
-            }
+            assert(_exists(token_id), 'ERC721: invalid token ID');
+            _token_uri::read(token_id)
         }
 
         // IERC721
@@ -110,17 +109,14 @@ mod ERC721 {
         }
 
         fn owner_of(token_id: u256) -> ContractAddress {
-            match _try_owner(token_id) {
-                Option::Some(owner) => owner,
-                Option::None(_) => throw('ERC721: invalid token ID')
-            }
+            let owner = _try_owner(token_id);
+            assert(owner.is_some(), 'ERC721: invalid token ID');
+            owner.unwrap()
         }
 
         fn get_approved(token_id: u256) -> ContractAddress {
-            match _try_owner(token_id) {
-                Option::Some(_) => _token_approvals::read(token_id),
-                Option::None(_) => throw('ERC721: invalid token ID')
-            }
+            assert(_exists(token_id), 'ERC721: invalid token ID');
+            _token_approvals::read(token_id)
         }
 
         fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool {
@@ -128,17 +124,15 @@ mod ERC721 {
         }
 
         fn approve(to: ContractAddress, token_id: u256) {
-            match _try_owner(token_id) {
-                Option::Some(owner) => {
-                    let caller = get_caller_address();
-                    assert(
-                        owner != caller | is_approved_for_all(owner, caller),
-                        'ERC721: unauthorized caller'
-                    );
-                    _approve(to, token_id)
-                },
-                Option::None(_) => throw('ERC721: invalid token ID')
-            }
+            let owner = _try_owner(token_id);
+            assert(owner.is_some(), 'ERC721: invalid token ID');
+
+            let caller = get_caller_address();
+            assert(
+                owner.unwrap() != caller | is_approved_for_all(owner.unwrap(), caller),
+                'ERC721: unauthorized caller'
+            );
+            _approve(to, token_id)
         }
 
         fn set_approval_for_all(operator: ContractAddress, approved: bool) {
@@ -250,12 +244,11 @@ mod ERC721 {
 
     #[internal]
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
-        match _try_owner(token_id) {
-            Option::Some(owner) => owner == spender | spender == get_approved(
-                token_id
-            ) | is_approved_for_all(owner, spender),
-            Option::None(_) => throw('ERC721: invalid token ID')
-        }
+        let owner = _try_owner(token_id);
+        assert(owner.is_some(), 'ERC721: invalid token ID');
+        owner.unwrap() == spender | spender == get_approved(
+            token_id
+        ) | is_approved_for_all(owner.unwrap(), spender)
     }
 
     #[internal]
@@ -273,65 +266,59 @@ mod ERC721 {
 
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
-        match _try_owner(token_id) {
-            Option::Some(_) => throw('ERC721 token already minted'),
-            Option::None(_) => {
-                assert(!to.is_zero(), 'ERC721: invalid receiver');
+        let owner = _try_owner(token_id);
+        assert(owner.is_none(), 'ERC721 token already minted');
 
-                // Update balances
-                _balances::write(to, _balances::read(to) + u256_from_felt252(1));
+        assert(!to.is_zero(), 'ERC721: invalid receiver');
 
-                // Update token_id owner
-                _owners::write(token_id, to);
+        // Update balances
+        _balances::write(to, _balances::read(to) + u256_from_felt252(1));
 
-                // Emit event
-                Transfer(contract_address_const::<0>(), to, token_id);
-            }
-        }
+        // Update token_id owner
+        _owners::write(token_id, to);
+
+        // Emit event
+        Transfer(contract_address_const::<0>(), to, token_id);
     }
 
     #[internal]
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-        match _try_owner(token_id) {
-            Option::Some(owner) => {
-                assert(from == owner, 'ERC721: wrong sender');
-                assert(!to.is_zero(), 'ERC721: invalid receiver');
+        let owner = _try_owner(token_id);
+        assert(owner.is_some(), 'ERC721: invalid token ID');
 
-                // Implicit clear approvals, no need to emit an event
-                _token_approvals::write(token_id, contract_address_const::<0>());
+        assert(from == owner.unwrap(), 'ERC721: wrong sender');
+        assert(!to.is_zero(), 'ERC721: invalid receiver');
 
-                // Update balances
-                _balances::write(from, _balances::read(from) - u256_from_felt252(1));
-                _balances::write(to, _balances::read(to) + u256_from_felt252(1));
+        // Implicit clear approvals, no need to emit an event
+        _token_approvals::write(token_id, contract_address_const::<0>());
 
-                // Update token_id owner
-                _owners::write(token_id, to);
+        // Update balances
+        _balances::write(from, _balances::read(from) - u256_from_felt252(1));
+        _balances::write(to, _balances::read(to) + u256_from_felt252(1));
 
-                // Emit event
-                Transfer(from, to, token_id);
-            },
-            Option::None(_) => throw('ERC721: invalid token ID')
-        }
+        // Update token_id owner
+        _owners::write(token_id, to);
+
+        // Emit event
+        Transfer(from, to, token_id);
     }
 
     #[internal]
     fn _burn(token_id: u256) {
-        match _try_owner(token_id) {
-            Option::Some(from) => {
-                // Implicit clear approvals, no need to emit an event
-                _token_approvals::write(token_id, contract_address_const::<0>());
+        let owner = _try_owner(token_id);
+        assert(owner.is_some(), 'ERC721: invalid token ID');
 
-                // Update balances
-                _balances::write(from, _balances::read(from) - u256_from_felt252(1));
+        // Implicit clear approvals, no need to emit an event
+        _token_approvals::write(token_id, contract_address_const::<0>());
 
-                // Delete owner
-                _owners::write(token_id, contract_address_const::<0>());
+        // Update balances
+        _balances::write(owner.unwrap(), _balances::read(owner.unwrap()) - u256_from_felt252(1));
 
-                // Emit event
-                Transfer(from, contract_address_const::<0>(), token_id);
-            },
-            Option::None(_) => throw('ERC721: invalid token ID')
-        }
+        // Delete owner
+        _owners::write(token_id, contract_address_const::<0>());
+
+        // Emit event
+        Transfer(owner.unwrap(), contract_address_const::<0>(), token_id);
     }
 
     #[internal]
@@ -353,10 +340,8 @@ mod ERC721 {
 
     #[internal]
     fn _set_token_uri(token_id: u256, token_uri: felt252) {
-        match _try_owner(token_id) {
-            Option::Some(_) => _token_uri::write(token_id, token_uri),
-            Option::None(_) => throw('ERC721: invalid token ID')
-        }
+        assert(_exists(token_id), 'ERC721: invalid token ID');
+        _token_uri::write(token_id, token_uri)
     }
 
     #[private]
@@ -379,12 +364,5 @@ mod ERC721 {
             return true;
         }
         IERC165Dispatcher { contract_address: to }.supports_interface(account::ACCOUNT_ID)
-    }
-
-    #[private]
-    fn throw(err_code: felt252) -> never {
-        let mut data = ArrayTrait::new();
-        data.append(err_code);
-        panic(data)
     }
 }

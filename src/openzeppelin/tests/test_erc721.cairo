@@ -98,7 +98,9 @@ fn _is_approved_or_owner() {
     // Set to false to test when account is approved
     ERC721::_operator_approvals::write((ACCOUNT1(), ACCOUNT2()), false);
 
-    assert(!ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should not be approved');
+    assert(
+        !ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should not be approved'
+    );
     ERC721::_approve(ACCOUNT2(), TOKEN_ID());
     assert(ERC721::_is_approved_or_owner(ACCOUNT2(), TOKEN_ID()), 'ACCOUNT2 should be approved');
 }
@@ -126,7 +128,10 @@ fn _burn() {
 
     assert(ERC721::balance_of(ACCOUNT1()) == u256_from_felt252(0), 'Balance should be 0');
     assert(ERC721::_owners::read(TOKEN_ID()) == ADDRESS_ZERO(), 'Owner should be 0');
-    assert(ERC721::_token_approvals::read(TOKEN_ID()) == ADDRESS_ZERO(), 'Token should not have approval');
+    assert(
+        ERC721::_token_approvals::read(TOKEN_ID()) == ADDRESS_ZERO(),
+        'Token should not have approval'
+    );
 }
 
 #[test]

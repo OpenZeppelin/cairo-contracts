@@ -204,8 +204,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let spender: ContractAddress = contract_address_const::<3>();
     let amount: u256 = u256_from_felt252(100);
     let max_u256: u256 = u256 {
-        low: 0xffffffffffffffffffffffffffffffff_u128,
-        high: 0xffffffffffffffffffffffffffffffff_u128
+        low: 0xffffffffffffffffffffffffffffffff_u128, high: 0xffffffffffffffffffffffffffffffff_u128
     };
 
     ERC20::approve(spender, max_u256);
@@ -280,7 +279,6 @@ fn test_increase_allowance() {
     ERC20::approve(spender, amount);
     let success: bool = ERC20::increase_allowance(spender, amount);
     assert(success, 'Should return true');
-
 
     let spender_allowance: u256 = ERC20::allowance(owner, spender);
     assert(spender_allowance == amount + amount, 'Should be amount * 2');
@@ -377,8 +375,7 @@ fn test__spend_allowance_unlimited() {
     let spender: ContractAddress = contract_address_const::<2>();
 
     let max_u256: u256 = u256 {
-        low: 0xffffffffffffffffffffffffffffffff_u128,
-        high: 0xffffffffffffffffffffffffffffffff_u128
+        low: 0xffffffffffffffffffffffffffffffff_u128, high: 0xffffffffffffffffffffffffffffffff_u128
     };
     let max_minus_one: u256 = max_u256 - u256_from_felt252(1);
 

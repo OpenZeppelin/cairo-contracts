@@ -66,7 +66,9 @@ mod ERC20 {
             true
         }
 
-        fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
+        fn transfer_from(
+            sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ) -> bool {
             let caller = get_caller_address();
             _spend_allowance(sender, caller, amount);
             _transfer(sender, recipient, amount);
@@ -81,7 +83,9 @@ mod ERC20 {
     }
 
     #[constructor]
-    fn constructor(name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress) {
+    fn constructor(
+        name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress
+    ) {
         initializer(name, symbol, initial_supply, recipient);
     }
 
@@ -144,7 +148,9 @@ mod ERC20 {
     /// Internals
     ///
 
-    fn initializer(name_: felt252, symbol_: felt252, initial_supply: u256, recipient: ContractAddress) {
+    fn initializer(
+        name_: felt252, symbol_: felt252, initial_supply: u256, recipient: ContractAddress
+    ) {
         _name::write(name_);
         _symbol::write(symbol_);
         _mint(recipient, initial_supply);

@@ -1,6 +1,8 @@
+use starknet::ContractAddress;
+
 trait IERC20 {
-    fn name() -> felt;
-    fn symbol() -> felt;
+    fn name() -> felt252;
+    fn symbol() -> felt252;
     fn decimals() -> u8;
     fn total_supply() -> u256;
     fn balance_of(account: ContractAddress) -> u256;
@@ -14,13 +16,14 @@ trait IERC20 {
 mod ERC20 {
     use openzeppelin::token::erc20::IERC20;
     use starknet::get_caller_address;
+    use starknet::ContractAddress;
     use starknet::contract_address_const;
     use starknet::ContractAddressZeroable;
     use zeroable::Zeroable;
 
     struct Storage {
-        _name: felt,
-        _symbol: felt,
+        _name: felt252,
+        _symbol: felt252,
         _total_supply: u256,
         _balances: LegacyMap::<ContractAddress, u256>,
         _allowances: LegacyMap::<(ContractAddress, ContractAddress), u256>,
@@ -33,11 +36,11 @@ mod ERC20 {
     fn Approval(owner: ContractAddress, spender: ContractAddress, value: u256) {}
 
     impl ERC20 of IERC20 {
-        fn name() -> felt {
+        fn name() -> felt252 {
             _name::read()
         }
 
-        fn symbol() -> felt {
+        fn symbol() -> felt252 {
             _symbol::read()
         }
 
@@ -78,17 +81,17 @@ mod ERC20 {
     }
 
     #[constructor]
-    fn constructor(name: felt, symbol: felt, initial_supply: u256, recipient: ContractAddress) {
+    fn constructor(name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress) {
         initializer(name, symbol, initial_supply, recipient);
     }
 
     #[view]
-    fn name() -> felt {
+    fn name() -> felt252 {
         ERC20::name()
     }
 
     #[view]
-    fn symbol() -> felt {
+    fn symbol() -> felt252 {
         ERC20::symbol()
     }
 
@@ -141,7 +144,7 @@ mod ERC20 {
     /// Internals
     ///
 
-    fn initializer(name_: felt, symbol_: felt, initial_supply: u256, recipient: ContractAddress) {
+    fn initializer(name_: felt252, symbol_: felt252, initial_supply: u256, recipient: ContractAddress) {
         _name::write(name_);
         _symbol::write(symbol_);
         _mint(recipient, initial_supply);

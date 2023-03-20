@@ -54,7 +54,7 @@ mod ERC721 {
     use super::ArrayTrait;
     use super::ContractAddress;
     use starknet::contract_address_const;
-    use starknet::ContractAddressIntoFelt252;
+    use starknet::contract_address::ContractAddressPartialEq;
     use starknet::ContractAddressZeroable;
     use starknet::get_caller_address;
     use integer::u256_from_felt252;
@@ -132,7 +132,7 @@ mod ERC721 {
                 Option::Some(owner) => {
                     let caller = get_caller_address();
                     assert(
-                        owner.into() != caller.into() | is_approved_for_all(owner, caller),
+                        owner != caller | is_approved_for_all(owner, caller),
                         'ERC721: unauthorized caller'
                     );
                     _approve(to, token_id)
@@ -244,11 +244,16 @@ mod ERC721 {
     }
 
     #[internal]
+    fn _exists(token_id: u256) -> bool {
+        !_owners::read(token_id).is_zero()
+    }
+
+    #[internal]
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
         match _try_owner(token_id) {
-            Option::Some(owner) => owner.into() == spender.into() | spender.into() == get_approved(
+            Option::Some(owner) => owner == spender | spender == get_approved(
                 token_id
-            ).into() | is_approved_for_all(owner, spender),
+            ) | is_approved_for_all(owner, spender),
             Option::None(_) => throw('ERC721: invalid token ID')
         }
     }
@@ -261,7 +266,7 @@ mod ERC721 {
 
     #[internal]
     fn _set_approval_for_all(owner: ContractAddress, operator: ContractAddress, approved: bool) {
-        assert(owner.into() != operator.into(), 'ERC721: approve to caller');
+        assert(owner != operator, 'ERC721: approve to caller');
         _operator_approvals::write((owner, operator), approved);
         ApprovalForAll(owner, operator, approved);
     }
@@ -289,7 +294,7 @@ mod ERC721 {
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
         match _try_owner(token_id) {
             Option::Some(owner) => {
-                assert(from.into() == owner.into(), 'ERC721: wrong sender');
+                assert(from == owner, 'ERC721: wrong sender');
                 assert(!to.is_zero(), 'ERC721: invalid receiver');
 
                 // Implicit clear approvals, no need to emit an event

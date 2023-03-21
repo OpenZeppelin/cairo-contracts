@@ -109,7 +109,7 @@ mod ERC721 {
         }
 
         fn owner_of(token_id: u256) -> ContractAddress {
-            _owner(token_id).expect('ERC721: invalid token ID')
+            _owner_of(token_id).expect('ERC721: invalid token ID')
         }
 
         fn get_approved(token_id: u256) -> ContractAddress {
@@ -122,7 +122,7 @@ mod ERC721 {
         }
 
         fn approve(to: ContractAddress, token_id: u256) {
-            let owner = _owner(token_id).expect('ERC721: invalid token ID');
+            let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
 
             let caller = get_caller_address();
             assert(
@@ -226,7 +226,7 @@ mod ERC721 {
     }
 
     #[internal]
-    fn _owner(token_id: u256) -> Option<ContractAddress> {
+    fn _owner_of(token_id: u256) -> Option<ContractAddress> {
         let owner = _owners::read(token_id);
         match owner.is_zero() {
             bool::False(()) => Option::Some(owner),
@@ -241,13 +241,13 @@ mod ERC721 {
 
     #[internal]
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
-        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
         owner == spender | is_approved_for_all(owner, spender) | spender == get_approved(token_id)
     }
 
     #[internal]
     fn _approve(to: ContractAddress, token_id: u256) {
-        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
         _token_approvals::write(token_id, to);
         Approval(owner, to, token_id);
     }
@@ -261,7 +261,7 @@ mod ERC721 {
 
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
-        assert(_owner(token_id).is_none(), 'ERC721: token already minted');
+        assert(_owner_of(token_id).is_none(), 'ERC721: token already minted');
 
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 
@@ -277,7 +277,7 @@ mod ERC721 {
 
     #[internal]
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
         assert(from == owner, 'ERC721: wrong sender');
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 
@@ -297,7 +297,7 @@ mod ERC721 {
 
     #[internal]
     fn _burn(token_id: u256) {
-        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
 
         // Implicit clear approvals, no need to emit an event
         _token_approvals::write(token_id, contract_address_const::<0>());

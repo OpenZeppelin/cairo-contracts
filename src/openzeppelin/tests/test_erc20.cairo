@@ -14,7 +14,7 @@ fn setup() -> (ContractAddress, u256) {
     // Set account as default caller
     set_caller_address(account);
 
-    ERC20::initializer(NAME, SYMBOL, initial_supply, account);
+    ERC20::constructor(NAME, SYMBOL, initial_supply, account);
     (account, initial_supply)
 }
 
@@ -24,12 +24,24 @@ fn set_caller_as_zero() {
 
 #[test]
 #[available_gas(2000000)]
-fn initialize() {
+fn test_initializer() {
+    ERC20::initializer(NAME, SYMBOL);
+
+    assert(ERC20::name() == NAME, 'Name should be NAME');
+    assert(ERC20::symbol() == SYMBOL, 'Symbol should be SYMBOL');
+    assert(ERC20::decimals() == 18_u8, 'Decimals should be 18');
+    assert(ERC20::total_supply() == u256_from_felt252(0), 'Supply should eq 0');
+}
+
+
+#[test]
+#[available_gas(2000000)]
+fn test_constructor() {
     let initial_supply: u256 = u256_from_felt252(2000);
     let account: ContractAddress = contract_address_const::<1>();
     let decimals: u8 = 18_u8;
 
-    ERC20::initializer(NAME, SYMBOL, initial_supply, account);
+    ERC20::constructor(NAME, SYMBOL, initial_supply, account);
 
     let owner_balance: u256 = ERC20::balance_of(account);
     assert(owner_balance == initial_supply, 'Should eq inital_supply');

@@ -25,8 +25,8 @@ mod ERC20 {
         _name: felt252,
         _symbol: felt252,
         _total_supply: u256,
-        _balances: LegacyMap::<ContractAddress, u256>,
-        _allowances: LegacyMap::<(ContractAddress, ContractAddress), u256>,
+        _balances: LegacyMap<ContractAddress, u256>,
+        _allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]
@@ -86,7 +86,8 @@ mod ERC20 {
     fn constructor(
         name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress
     ) {
-        initializer(name, symbol, initial_supply, recipient);
+        initializer(name, symbol);
+        _mint(recipient, initial_supply);
     }
 
     #[view]
@@ -149,11 +150,10 @@ mod ERC20 {
     ///
 
     fn initializer(
-        name_: felt252, symbol_: felt252, initial_supply: u256, recipient: ContractAddress
+        name_: felt252, symbol_: felt252
     ) {
         _name::write(name_);
         _symbol::write(symbol_);
-        _mint(recipient, initial_supply);
     }
 
     fn _increase_allowance(spender: ContractAddress, added_value: u256) -> bool {

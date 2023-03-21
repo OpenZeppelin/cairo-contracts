@@ -109,9 +109,7 @@ mod ERC721 {
         }
 
         fn owner_of(token_id: u256) -> ContractAddress {
-            let owner = _owner(token_id);
-            assert(owner.is_some(), 'ERC721: invalid token ID');
-            owner.unwrap()
+            _owner(token_id).expect('ERC721: invalid token ID')
         }
 
         fn get_approved(token_id: u256) -> ContractAddress {
@@ -124,12 +122,11 @@ mod ERC721 {
         }
 
         fn approve(to: ContractAddress, token_id: u256) {
-            let owner = _owner(token_id);
-            assert(owner.is_some(), 'ERC721: invalid token ID');
+            let owner = _owner(token_id).expect('ERC721: invalid token ID');
 
             let caller = get_caller_address();
             assert(
-                owner.unwrap() == caller | is_approved_for_all(owner.unwrap(), caller),
+                owner == caller | is_approved_for_all(owner, caller),
                 'ERC721: unauthorized caller'
             );
             _approve(to, token_id)
@@ -244,19 +241,15 @@ mod ERC721 {
 
     #[internal]
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
-        let owner = _owner(token_id);
-        assert(owner.is_some(), 'ERC721: invalid token ID');
-        owner.unwrap() == spender | is_approved_for_all(
-            owner.unwrap(), spender
-        ) | spender == get_approved(token_id)
+        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        owner == spender | is_approved_for_all(owner, spender) | spender == get_approved(token_id)
     }
 
     #[internal]
     fn _approve(to: ContractAddress, token_id: u256) {
-        let owner = _owner(token_id);
-        assert(owner.is_some(), 'ERC721: invalid token ID');
+        let owner = _owner(token_id).expect('ERC721: invalid token ID');
         _token_approvals::write(token_id, to);
-        Approval(owner.unwrap(), to, token_id);
+        Approval(owner, to, token_id);
     }
 
     #[internal]
@@ -268,8 +261,7 @@ mod ERC721 {
 
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
-        let owner = _owner(token_id);
-        assert(owner.is_none(), 'ERC721 token already minted');
+        assert(_owner(token_id).is_none(), 'ERC721 token already minted');
 
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 
@@ -285,10 +277,8 @@ mod ERC721 {
 
     #[internal]
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-        let owner = _owner(token_id);
-        assert(owner.is_some(), 'ERC721: invalid token ID');
-
-        assert(from == owner.unwrap(), 'ERC721: wrong sender');
+        let owner = _owner(token_id).expect('ERC721: invalid token ID');
+        assert(from == owner, 'ERC721: wrong sender');
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 
         // Implicit clear approvals, no need to emit an event
@@ -307,20 +297,19 @@ mod ERC721 {
 
     #[internal]
     fn _burn(token_id: u256) {
-        let owner = _owner(token_id);
-        assert(owner.is_some(), 'ERC721: invalid token ID');
+        let owner = _owner(token_id).expect('ERC721: invalid token ID');
 
         // Implicit clear approvals, no need to emit an event
         _token_approvals::write(token_id, contract_address_const::<0>());
 
         // Update balances
-        _balances::write(owner.unwrap(), _balances::read(owner.unwrap()) - u256_from_felt252(1));
+        _balances::write(owner, _balances::read(owner) - u256_from_felt252(1));
 
         // Delete owner
         _owners::write(token_id, contract_address_const::<0>());
 
         // Emit event
-        Transfer(owner.unwrap(), contract_address_const::<0>(), token_id);
+        Transfer(owner, contract_address_const::<0>(), token_id);
     }
 
     #[internal]

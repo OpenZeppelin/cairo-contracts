@@ -262,7 +262,6 @@ mod ERC721 {
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
         assert(_owner_of(token_id).is_none(), 'ERC721: token already minted');
-
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 
         // Update balances

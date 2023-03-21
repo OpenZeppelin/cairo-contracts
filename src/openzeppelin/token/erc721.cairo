@@ -139,7 +139,7 @@ mod ERC721 {
         fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256) {
             assert(
                 _is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized transfer'
+                'ERC721: unauthorized caller'
             );
             _transfer(from, to, token_id);
         }
@@ -149,7 +149,7 @@ mod ERC721 {
         ) {
             assert(
                 _is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized transfer'
+                'ERC721: unauthorized caller'
             );
             _safe_transfer(from, to, token_id, data);
         }
@@ -254,14 +254,14 @@ mod ERC721 {
 
     #[internal]
     fn _set_approval_for_all(owner: ContractAddress, operator: ContractAddress, approved: bool) {
-        assert(owner != operator, 'ERC721: approve to caller');
+        assert(owner != operator, 'ERC721: self approval');
         _operator_approvals::write((owner, operator), approved);
         ApprovalForAll(owner, operator, approved);
     }
 
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
-        assert(_owner(token_id).is_none(), 'ERC721 token already minted');
+        assert(_owner(token_id).is_none(), 'ERC721: token already minted');
 
         assert(!to.is_zero(), 'ERC721: invalid receiver');
 

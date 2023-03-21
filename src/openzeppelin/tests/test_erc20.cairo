@@ -5,8 +5,16 @@ use starknet::testing::set_caller_address;
 use integer::u256;
 use integer::u256_from_felt252;
 
+//
+// Constants
+//
+
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
+
+//
+// Helper functions
+//
 
 fn setup() -> (ContractAddress, u256) {
     let initial_supply: u256 = u256_from_felt252(2000);
@@ -21,6 +29,10 @@ fn setup() -> (ContractAddress, u256) {
 fn set_caller_as_zero() {
     set_caller_address(contract_address_const::<0>());
 }
+
+//
+// Tests
+//
 
 #[test]
 #[available_gas(2000000)]

@@ -149,9 +149,7 @@ mod ERC20 {
     /// Internals
     ///
 
-    fn initializer(
-        name_: felt252, symbol_: felt252
-    ) {
+    fn initializer(name_: felt252, symbol_: felt252) {
         _name::write(name_);
         _symbol::write(symbol_);
     }

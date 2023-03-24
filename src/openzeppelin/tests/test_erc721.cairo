@@ -138,6 +138,16 @@ fn test_approve_from_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
+#[should_panic(expected = ('ERC721: approval to owner', ))]
+fn test_approve_to_owner() {
+    setup();
+
+    set_caller_address(OWNER());
+    ERC721::approve(OWNER(), TOKEN_ID());
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid token ID', ))]
 fn test_approve_nonexistent() {
     ERC721::approve(SPENDER(), TOKEN_ID());
@@ -150,6 +160,15 @@ fn test__approve() {
 
     ERC721::_approve(SPENDER(), TOKEN_ID());
     assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected = ('ERC721: approval to owner', ))]
+fn test__approve_to_owner() {
+    setup();
+
+    ERC721::_approve(OWNER(), TOKEN_ID());
 }
 
 #[test]

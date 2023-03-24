@@ -1,6 +1,4 @@
-use serde::Serde;
 use starknet::ContractAddress;
-use starknet::contract_address::ContractAddressSerde;
 use array::ArrayTrait;
 
 const IERC721_ID: felt252 = 0x80ac58cd;
@@ -54,12 +52,9 @@ mod ERC721 {
     use super::ArrayTrait;
     use super::ContractAddress;
     use starknet::contract_address_const;
-    use starknet::contract_address::ContractAddressPartialEq;
     use starknet::ContractAddressZeroable;
     use starknet::get_caller_address;
     use integer::u256_from_felt252;
-    use traits::Into;
-    use option::Option;
     use option::OptionTrait;
     use zeroable::Zeroable;
 
@@ -248,6 +243,7 @@ mod ERC721 {
     #[internal]
     fn _approve(to: ContractAddress, token_id: u256) {
         let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
+        assert(owner != to, 'ERC721: approval to owner');
         _token_approvals::write(token_id, to);
         Approval(owner, to, token_id);
     }

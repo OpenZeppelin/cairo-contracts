@@ -51,7 +51,7 @@ fn setup() {
 
 #[test]
 #[available_gas(2000000)]
-fn initialize() {
+fn test_initialize() {
     ERC721::initializer(NAME, SYMBOL);
 
     assert(ERC721::name() == NAME, 'Name should be NAME');
@@ -71,27 +71,27 @@ fn initialize() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid holder', ))]
-fn balance_of_zero() {
+fn test_balance_of_zero() {
     ERC721::balance_of(ZERO());
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid token ID', ))]
-fn owner_of_non_minted() {
+fn test_owner_of_non_minted() {
     ERC721::owner_of(u256_from_felt252(7));
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid token ID', ))]
-fn get_approved_nonexistent() {
+fn test_get_approved_nonexistent() {
     ERC721::get_approved(u256_from_felt252(7));
 }
 
 #[test]
 #[available_gas(2000000)]
-fn _exists() {
+fn test__exists() {
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
     assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Low level ownership');
 
@@ -459,7 +459,7 @@ fn test__burn_nonexistent() {
 
 #[test]
 #[available_gas(2000000)]
-fn _set_token_uri() {
+fn test__set_token_uri() {
     setup();
 
     assert(ERC721::token_uri(TOKEN_ID()) == 0, 'URI should be 0');
@@ -470,6 +470,6 @@ fn _set_token_uri() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid token ID', ))]
-fn _set_token_uri_nonexistent() {
+fn test__set_token_uri_nonexistent() {
     ERC721::_set_token_uri(TOKEN_ID(), URI);
 }

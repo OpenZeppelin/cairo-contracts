@@ -2,7 +2,7 @@ use openzeppelin::introspection::erc165::ERC165Contract;
 use openzeppelin::introspection::erc165::IERC165_ID;
 use openzeppelin::introspection::erc165::INVALID_ID;
 
-const OTHER_ID: felt = 0x12345678;
+const OTHER_ID: felt252 = 0x12345678;
 
 
 #[test]
@@ -36,7 +36,7 @@ fn test_register_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic]
+#[should_panic(expected = ('Invalid id', ))]
 fn test_register_invalid_interface() {
     ERC165Contract::register_interface(INVALID_ID);
 }

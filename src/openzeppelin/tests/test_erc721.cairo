@@ -93,10 +93,17 @@ fn get_approved_nonexistent() {
 #[available_gas(2000000)]
 fn _exists() {
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
+    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Low level ownership');
+
     ERC721::_mint(RECIPIENT(), TOKEN_ID());
+
     assert(ERC721::_exists(TOKEN_ID()), 'Token should exist');
+    assert(ERC721::_owners::read(TOKEN_ID()) == RECIPIENT(), 'Low level ownership');
+
     ERC721::_burn(TOKEN_ID());
+
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
+    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Low level ownership');
 }
 
 ///
@@ -431,7 +438,7 @@ fn test__mint_already_exist() {
 fn test__burn() {
     setup();
 
-    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership after');
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
     assert(ERC721::balance_of(OWNER()) == u256_from_felt252(1), 'Balance of owner before');
 
     ERC721::_burn(TOKEN_ID());

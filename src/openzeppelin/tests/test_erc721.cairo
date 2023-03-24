@@ -78,7 +78,7 @@ fn balance_of_zero() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ERC721: invalid token ID', ))]
-fn owner_of_non_minter() {
+fn owner_of_non_minted() {
     ERC721::owner_of(u256_from_felt252(7));
 }
 
@@ -261,7 +261,7 @@ fn test_transfer_from_owner() {
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()).is_zero(), 'Approval not implicitelly reset');
+    assert(ERC721::get_approved(TOKEN_ID()).is_zero(), 'Approval not implicitly reset');
 }
 
 #[test]
@@ -314,7 +314,7 @@ fn test_transfer_from_approved() {
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitly reset');
 }
 
 #[test]
@@ -335,7 +335,7 @@ fn test_transfer_from_approved_for_all() {
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitly reset');
 }
 
 #[test]
@@ -362,7 +362,7 @@ fn test__transfer() {
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance of owner after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitly reset');
 }
 
 #[test]
@@ -403,7 +403,7 @@ fn test__mint() {
 
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitelly reset');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitly reset');
 }
 
 #[test]

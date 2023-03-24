@@ -14,10 +14,10 @@ trait IERC721 {
     // IERC721Metadata
     fn name() -> felt252;
     fn symbol() -> felt252;
-    fn token_uri(tokenId: u256) -> felt252;
+    fn token_uri(token_id: u256) -> felt252;
     // IERC721
     fn balance_of(owner: ContractAddress) -> u256;
-    fn owner_of(tokenId: u256) -> ContractAddress;
+    fn owner_of(token_id: u256) -> ContractAddress;
     fn transfer_from(from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn safe_transfer_from(
         from: ContractAddress, to: ContractAddress, tokenId: u256, data: Array<felt252>
@@ -345,7 +345,7 @@ mod ERC721 {
                 }.on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == erc721::IERC721_RECEIVER_ID,
-                'ERC721: on_eRC721_receiver fail'
+                'ERC721: on_ERC721_receiver fail'
             );
             return true;
         }

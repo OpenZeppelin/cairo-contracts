@@ -4,12 +4,12 @@ mod Initializable {
         _initialized: bool,
     }
 
-    fn initialized() -> bool {
+    fn is_initialized() -> bool {
         _initialized::read()
     }
 
     fn initialize() {
-        assert(!initialized(), 'Contract already initialized');
+        assert(!is_initialized(), 'Contract already initialized');
         _initialized::write(true);
     }
 }

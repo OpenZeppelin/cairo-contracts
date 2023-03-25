@@ -63,7 +63,8 @@ mod Account {
     // todo: fix Span serde
     // #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        // to do: add reentrnacy guard
+        // avoid calls from other contracts
+        // https://github.com/OpenZeppelin/cairo-contracts/issues/344
         let sender = get_caller_address();
         assert(sender.is_zero(), 'Invalid caller');
 

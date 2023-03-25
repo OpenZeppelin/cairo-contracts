@@ -1,5 +1,3 @@
-use integer::u32_const;
-
 const IERC165_ID: u32 = 0x01ffc9a7_u32;
 const INVALID_ID: u32 = 0xffffffff_u32;
 

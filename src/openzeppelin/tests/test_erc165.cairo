@@ -1,4 +1,3 @@
-use integer::u32_const;
 use openzeppelin::introspection::erc165::ERC165Contract;
 use openzeppelin::introspection::erc165::IERC165_ID;
 use openzeppelin::introspection::erc165::INVALID_ID;

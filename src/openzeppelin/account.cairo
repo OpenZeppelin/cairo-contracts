@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressSerde;
 use openzeppelin::utils::check_gas;
 
-const ERC165_ACCOUNT_ID: felt252 = 0xa66bd575;
+const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: felt252 = 0x1626ba7e;
 
 const TRANSACTION_VERSION: felt252 = 1;
@@ -124,7 +124,7 @@ mod Account {
     }
 
     #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
+    fn supports_interface(interface_id: u32) -> bool {
         ERC165Contract::supports_interface(interface_id)
     }
 

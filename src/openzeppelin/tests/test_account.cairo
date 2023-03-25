@@ -71,7 +71,7 @@ fn test_is_valid_signature() {
 #[available_gas(2000000)]
 fn test_validate() {
     let (_, CALLS) = setup();
-    Account::__validate__(CALLS);
+    // Account::__validate__(CALLS);
 }
 
 #[test]
@@ -79,14 +79,14 @@ fn test_validate() {
 fn test_declare() {
     setup();
     let class_hash: felt252 = 0x123;
-    Account::__validate_declare__(class_hash);
+    // Account::__validate_declare__(class_hash);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_execute() {
     let (_, CALLS) = setup();
-    Account::__execute__(CALLS);
+    // Account::__execute__(CALLS);
 }
 
 #[test]

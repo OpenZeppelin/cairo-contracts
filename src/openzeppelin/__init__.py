@@ -1,4 +1,4 @@
-"""StarkNet/Cairo development toolbelt."""
+"""Starknet/Cairo development toolbelt."""
 
 try:
     from importlib import metadata as importlib_metadata

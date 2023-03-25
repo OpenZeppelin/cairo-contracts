@@ -1,7 +1,7 @@
 = ERC20
 
 The ERC20 token standard is a specification for https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungible tokens], a type of token where all the units are exactly equal to each other.
-The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-20[EIP-20] in Cairo for StarkNet.
+The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-20[EIP-20] in Cairo for Starknet.
 
 == Table of Contents
 
@@ -66,7 +66,7 @@ namespace IERC20 {
 
 === ERC20 compatibility
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 * It uses Cairo's `uint256` instead of `felt`.
 * It returns `TRUE` as success.
@@ -112,7 +112,7 @@ erc20 = await starknet.deploy(
 )
 ----
 
-As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
+As most Starknet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
 This is why we need an Account contract to interact with it.
 For example:
 

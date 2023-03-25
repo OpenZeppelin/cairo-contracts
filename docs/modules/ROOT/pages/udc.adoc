@@ -1,8 +1,8 @@
 = Universal Deployer Contract
 
-The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy syscall`] to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a **standardized generic factory for StarkNet contracts**.
+The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy syscall`] to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a **standardized generic factory for Starknet contracts**.
 
-And since StarkNet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the [standard deployer interface](https://community.starknet.io/t/snip-deployer-contract-interface/2772) and emitting a `ContractDeployed` event.
+And since Starknet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the https://community.starknet.io/t/snip-deployer-contract-interface/2772[standard deployer interface] and emitting a `ContractDeployed` event.
 
 TIP: For information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
 
@@ -50,7 +50,7 @@ async def deploy_contract():
 === Deploying the UDC
 
 NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
-The deployment of the UDC requires `deploy_from_zero=TRUE` to be passed to the `deploy` syscall. This results in a deterministic and predictable address across all instances of StarkNet, facilitating SDK integration and reproducibility of deployments.
+The deployment of the UDC requires `deploy_from_zero=TRUE` to be passed to the `deploy` syscall. This results in a deterministic and predictable address across all instances of Starknet, facilitating SDK integration and reproducibility of deployments.
 
 == Usage
 

@@ -1,7 +1,7 @@
 = ERC1155
 
 The ERC1155 multi token standard is a specification for https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungibility-agnostic] token contracts.
-The ERC1155 library implements an approximation of https://eips.ethereum.org/EIPS/eip-1155[EIP-1155] in Cairo for StarkNet.
+The ERC1155 library implements an approximation of https://eips.ethereum.org/EIPS/eip-1155[EIP-1155] in Cairo for Starknet.
 
 == Table of Contents
 
@@ -80,7 +80,7 @@ namespace IERC1155 {
 
 === ERC1155 Compatibility
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard in the following ways:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard in the following ways:
 
 * It uses Cairo's `uint256` instead of `felt`.
 * It returns `TRUE` as success.
@@ -202,9 +202,9 @@ In order to be sure a contract can safely accept ERC1155 tokens, said contract m
 Methods such as `safeTransferFrom` and `safeBatchTransferFrom` call the recipient contract's `onERC1155Received` or `onERC1155BatchReceived` method.
 If the contract fails to return the correct magic value, the transaction fails.
 
-StarkNet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
+Starknet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
 Transfer functions require a means of differentiating between account and non-account contracts.
-Currently, StarkNet does not support error handling from the contract level;
+Currently, Starknet does not support error handling from the contract level;
 therefore, the current ERC1155 implementation requires that all contracts that support safe ERC1155 transfers (both accounts and non-accounts) include the `supportsInterface` method.
 Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC1155Receiver` magic value `00x4e2312e0` (which invokes `onERC1155Received` and `onERC1155BatchReceived`).
 If the recipient contract supports the `IAccount` magic value, `supportsInterface` should return `TRUE`.

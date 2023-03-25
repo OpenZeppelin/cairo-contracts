@@ -1,7 +1,7 @@
 = ERC721
 
 The ERC721 token standard is a specification for https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[non-fungible tokens], or more colloquially: NFTs.
-The `ERC721.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-721[EIP-721] in Cairo for StarkNet.
+The `ERC721.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-721[EIP-721] in Cairo for Starknet.
 
 == Table of Contents
 
@@ -88,7 +88,7 @@ namespace IERC721 {
 
 === ERC721 Compatibility
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
 * It uses Cairo's `uint256` instead of `felt`.
 * It returns `TRUE` as success.
@@ -128,7 +128,7 @@ Use cases go from artwork, digital collectibles, physical property, and many mor
 
 To show a standard use case, we'll use the `ERC721Mintable` preset which allows for only the owner to `mint` and `burn` tokens.
 To create a token you need to first deploy both Account and ERC721 contracts respectively.
-As most StarkNet contracts, ERC721 expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
+As most Starknet contracts, ERC721 expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
 This is why we need an Account contract to interact with it.
 
 Considering that the ERC721 constructor method looks like this:
@@ -232,9 +232,9 @@ In order to be sure a contract can safely accept ERC721 tokens, said contract mu
 Methods such as `safeTransferFrom` and `safeMint` call the recipient contract's `onERC721Received` method.
 If the contract fails to return the correct magic value, the transaction fails.
 
-StarkNet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
+Starknet contracts that support safe transfers, however, must also support xref:introspection.adoc#erc165[ERC165] and include `supportsInterface` as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
 `safeTransferFrom` requires a means of differentiating between account and non-account contracts.
-Currently, StarkNet does not support error handling from the contract level;
+Currently, Starknet does not support error handling from the contract level;
 therefore, the current ERC721 implementation requires that all contracts that support safe ERC721 transfers (both accounts and non-accounts) include the `supportsInterface` method.
 Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC721Receiver` magic value `0x150b7a02` (which invokes `onERC721Received`).
 If the recipient contract supports the `IAccount` magic value `0x50b70dcb`, `supportsInterface` should return `TRUE`.
@@ -256,7 +256,7 @@ namespace IERC721Receiver {
 
 === Supporting Interfaces
 
-In order to ensure EVM/StarkNet compatibility, this ERC721 implementation does not calculate interface identifiers.
+In order to ensure EVM/Starknet compatibility, this ERC721 implementation does not calculate interface identifiers.
 Instead, the interface IDs are hardcoded from their EVM calculations.
 On the EVM, the interface ID is calculated from the selector's first four bytes of the hash of the function's signature while Cairo selectors are 252 bytes long.
 Due to this difference, hardcoding EVM's already-calculated interface IDs is the most consistent approach to both follow the EIP165 standard and EVM compatibility.

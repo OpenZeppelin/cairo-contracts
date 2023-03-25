@@ -89,6 +89,8 @@ fn test_is_valid_signature() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate() {
+    // todo: requires mocking TxInfo
+
     // let CALLS = setup();
     // Account::__validate__(CALLS);
 }
@@ -96,14 +98,18 @@ fn test_validate() {
 #[test]
 #[available_gas(2000000)]
 fn test_declare() {
-    setup();
-    let class_hash: felt252 = 0x123;
+    // todo: requires mocking TxInfo
+
+    // setup();
+    // let class_hash: felt252 = 0x123;
     // Account::__validate_declare__(class_hash);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_execute() {
+    // todo: requires call_contract_syscall
+
     // let CALLS = setup();
     // Account::__execute__(CALLS);
 }
@@ -111,6 +117,8 @@ fn test_execute() {
 #[test]
 #[available_gas(2000000)]
 fn test_multicall() {
+    // todo: requires call_contract_syscall
+
     // let mut CALLS = setup();
 
     // CALLS.append(Call{
@@ -126,7 +134,6 @@ fn test_multicall() {
     // });
 
     // Account::__execute__(CALLS);
-    // todo: requires call_contract_syscall
 }
 
 #[test]
@@ -170,4 +177,61 @@ fn test_account_called_from_contract() {
     let CALLS = setup();
     set_caller_address(OTHER());
     Account::__execute__(CALLS);
+}
+
+//
+// test internals
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test__assert_only_self_true() {
+    setup();
+    set_caller_address(ACCOUNT_ADDRESS());
+    Account::_assert_only_self();
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected = ('Account: unauthorized', ))]
+fn test__assert_only_self_false() {
+    setup();
+    set_caller_address(OTHER());
+    Account::_assert_only_self();
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_validate_transaction() {
+    // todo: requires mocking TxInfo
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__is_valid_signature_valid() {
+    // todo: requires a signer
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__is_valid_signature_invalid() {
+    let invalid_msg = 0xfffff;
+    let mut invalid_signature = ArrayTrait::new();
+    invalid_signature.append(0x987);
+    invalid_signature.append(0x564);
+
+    let is_valid = Account::_is_valid_signature(invalid_msg, invalid_signature.span());
+    assert(!is_valid, 'Should reject invalid signature');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__execute_calls() {
+    // todo: requires call_contract_syscall
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__execute_single_call() {
+    // todo: requires call_contract_syscall
 }

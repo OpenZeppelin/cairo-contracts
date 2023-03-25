@@ -9,21 +9,10 @@ use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::Call;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
-fn ACCOUNT_ADDRESS() -> ContractAddress {
-   contract_address_const::<0x111111>()
-}
-
-fn OTHER() -> ContractAddress {
-   contract_address_const::<0x222222>()
-}
-
-fn PUBLIC_KEY() -> felt252 {
-    0x333333
-}
-
-fn NEW_KEY() -> felt252 {
-    0x444444
-}
+fn NEW_KEY() -> felt252 { 0x444444 }
+fn PUBLIC_KEY() -> felt252 { 0x333333 }
+fn OTHER() -> ContractAddress { contract_address_const::<0x222222>() }
+fn ACCOUNT_ADDRESS() -> ContractAddress { contract_address_const::<0x111111>() }
 
 fn setup() -> Array::<Call> {
     let mut CALLS = ArrayTrait::new();

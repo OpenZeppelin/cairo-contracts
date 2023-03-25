@@ -68,15 +68,14 @@ mod Account {
         let sender = get_caller_address();
         assert(sender.is_zero(), 'Account: invalid caller');
 
+        // check tx version
         let tx_info = get_tx_info().unbox();
         let version = tx_info.version;
-
         if version != TRANSACTION_VERSION { // > operator not defined for felt252
             assert(version == QUERY_VERSION, 'Account: invalid tx version');
         }
 
-        let mut res = ArrayTrait::new();
-        _execute_calls(calls, res)
+        _execute_calls(calls, ArrayTrait::new())
     }
 
     // todo: fix Span serde

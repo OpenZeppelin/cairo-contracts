@@ -6,7 +6,7 @@ use starknet::contract_address::ContractAddressSerde;
 use openzeppelin::utils::check_gas;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
-const ERC1271_VALIDATED: felt252 = 0x1626ba7e;
+const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
 
 const TRANSACTION_VERSION: felt252 = 1;
 const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457; // 2**128 + TRANSACTION_VERSION
@@ -66,19 +66,20 @@ mod Account {
         // avoid calls from other contracts
         // https://github.com/OpenZeppelin/cairo-contracts/issues/344
         let sender = get_caller_address();
-        assert(sender.is_zero(), 'Invalid caller');
+        assert(sender.is_zero(), 'Account: invalid caller');
 
-        // let tx_info = get_tx_info().unbox();
-        // let version = tx_info.version;
-        // // > operator not defined for felt252
-        // if version != TRANSACTION_VERSION {
-        //     assert(version == QUERY_VERSION, 'Invalid tx version');
-        // }
+        let tx_info = get_tx_info().unbox();
+        let version = tx_info.version;
+
+        if version != TRANSACTION_VERSION { // > operator not defined for felt252
+            assert(version == QUERY_VERSION, 'Account: invalid tx version');
+        }
 
         let mut res = ArrayTrait::new();
         _execute_calls(calls, res)
     }
 
+    // todo: fix Span serde
     // #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
         _validate_transaction()
@@ -116,11 +117,11 @@ mod Account {
 
     // todo: fix Span serde
     // #[view]
-    fn is_valid_signature(message: felt252, signature: Span<felt252>) -> felt252 {
+    fn is_valid_signature(message: felt252, signature: Span<felt252>) -> u32 {
         if _is_valid_signature(message, signature) {
             ERC1271_VALIDATED
         } else {
-            0
+            0_u32
         }
     }
 
@@ -136,14 +137,14 @@ mod Account {
     fn _assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
-        assert(self == caller, 'Account: unauthorized.');
+        assert(self == caller, 'Account: unauthorized');
     }
 
     fn _validate_transaction() -> felt252 {
         let tx_info = get_tx_info().unbox();
         let tx_hash = tx_info.transaction_hash;
         let signature = tx_info.signature;
-        assert(_is_valid_signature(tx_hash, signature), 'Invalid signature.');
+        assert(_is_valid_signature(tx_hash, signature), 'Account: invalid signature');
         starknet::VALIDATED
     }
 

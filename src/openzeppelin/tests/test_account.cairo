@@ -1,14 +1,31 @@
+use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use array::ArrayTrait;
+use starknet::testing::set_caller_address;
+use starknet::testing::set_contract_address;
 use openzeppelin::account::Account;
 use openzeppelin::account::ERC165_ACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::Call;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
-fn setup() -> (felt252, Array::<Call>) {
-    let PUB_KEY: felt252 = 0x123;
+fn ACCOUNT_ADDRESS() -> ContractAddress {
+   contract_address_const::<0x111111>()
+}
+
+fn OTHER() -> ContractAddress {
+   contract_address_const::<0x222222>()
+}
+
+fn PUBLIC_KEY() -> felt252 {
+    0x333333
+}
+
+fn NEW_KEY() -> felt252 {
+    0x444444
+}
+
+fn setup() -> Array::<Call> {
     let mut CALLS = ArrayTrait::new();
 
     CALLS.append(Call{
@@ -17,9 +34,10 @@ fn setup() -> (felt252, Array::<Call>) {
         calldata: ArrayTrait::new()
     });
 
-    Account::constructor(PUB_KEY);
+    set_contract_address(ACCOUNT_ADDRESS());
+    Account::constructor(PUBLIC_KEY());
 
-    return (PUB_KEY, CALLS);
+    return CALLS;
 }
 
 #[test]
@@ -30,9 +48,9 @@ fn test_counterfactual_deployment() {
 #[test]
 #[available_gas(2000000)]
 fn test_constructor() {
-    let (PUB_KEY, _) = setup();
+    setup();
     let public_key: felt252 = Account::get_public_key();
-    assert(public_key == PUB_KEY, 'Should return pub key');
+    assert(public_key == PUBLIC_KEY(), 'Should return pub key');
 }
 
 #[test]
@@ -52,6 +70,7 @@ fn test_is_valid_signature() {
     setup();
     let message = 0x1123;
 
+    // todo: generate signatures
     let mut good_signature = ArrayTrait::new();
     good_signature.append(0x123);
     good_signature.append(0x456);
@@ -61,16 +80,16 @@ fn test_is_valid_signature() {
     bad_signature.append(0x564);
 
     let is_valid = Account::is_valid_signature(message, good_signature.span());
-    assert(is_valid == 0, 'Should accept valid signature');
+    assert(is_valid == 0_u32, 'Should accept valid signature');
 
     let is_valid = Account::is_valid_signature(message, bad_signature.span());
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert(is_valid == 0_u32, 'Should reject invalid signature');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_validate() {
-    let (_, CALLS) = setup();
+    // let CALLS = setup();
     // Account::__validate__(CALLS);
 }
 
@@ -85,42 +104,70 @@ fn test_declare() {
 #[test]
 #[available_gas(2000000)]
 fn test_execute() {
-    let (_, CALLS) = setup();
+    // let CALLS = setup();
     // Account::__execute__(CALLS);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_multicall() {
-    setup();
+    // let mut CALLS = setup();
+
+    // CALLS.append(Call{
+    //     to: contract_address_const::<123456>(),
+    //     selector: 0x123,
+    //     calldata: ArrayTrait::new()
+    // });
+
+    // CALLS.append(Call{
+    //     to: contract_address_const::<123456>(),
+    //     selector: 0x123,
+    //     calldata: ArrayTrait::new()
+    // });
+
+    // Account::__execute__(CALLS);
+    // todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_test_retun_value() {
     setup();
+    // todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_nonce() {
     setup();
+    // todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter() {
     setup();
+    set_caller_address(ACCOUNT_ADDRESS());
+    Account::set_public_key(NEW_KEY());
+
+    let public_key = Account::get_public_key();
+    assert(public_key == NEW_KEY(), 'Should update key');
 }
 
 #[test]
 #[available_gas(2000000)]
+#[should_panic(expected = ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
     setup();
+    set_caller_address(OTHER());
+    Account::set_public_key(NEW_KEY());
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_account_takeover_with_reentrant_call() {
-    setup();
+#[should_panic(expected = ('Account: invalid caller', ))]
+fn test_account_called_from_contract() {
+    let CALLS = setup();
+    set_caller_address(OTHER());
+    Account::__execute__(CALLS);
 }

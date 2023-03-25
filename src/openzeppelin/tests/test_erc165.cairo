@@ -1,9 +1,9 @@
+use integer::u32_const;
 use openzeppelin::introspection::erc165::ERC165Contract;
 use openzeppelin::introspection::erc165::IERC165_ID;
 use openzeppelin::introspection::erc165::INVALID_ID;
 
-const OTHER_ID: felt252 = 0x12345678;
-
+const OTHER_ID: u32 = 0x12345678_u32;
 
 #[test]
 #[available_gas(2000000)]

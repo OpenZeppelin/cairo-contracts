@@ -10,9 +10,11 @@ trait IReentrancyGuard {
 
 #[contract]
 mod ReentrancyMock {
+    // OZ modules
     use openzeppelin::security::reentrancyguard::ReentrancyGuard;
     use openzeppelin::utils::check_gas;
 
+    // Dispatchers
     use super::IReentrancyGuardAttacker;
     use super::IReentrancyGuardAttackerDispatcher;
     use super::IReentrancyGuardAttackerDispatcherTrait;
@@ -20,6 +22,7 @@ mod ReentrancyMock {
     use super::IReentrancyGuardDispatcher;
     use super::IReentrancyGuardDispatcherTrait;
 
+    // Other
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::get_contract_address;

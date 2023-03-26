@@ -81,8 +81,4 @@ mod ReentrancyMock {
     fn count() {
         _counter::write(_counter::read() + 1);
     }
-
-	fn get_self_address() -> ContractAddress {
-		get_contract_address()
-	}
 }

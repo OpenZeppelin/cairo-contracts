@@ -1,17 +1,59 @@
-use openzeppelin::security::reentrancyguard::ReentrancyGuard;
+use openzeppelin::mocks::reentrancy_attacker_mock::ReentrancyAttackerMock;
+use openzeppelin::mocks::reentrancy_mock::ReentrancyMock;
+
+use starknet::ContractAddress;
+
+// Helper function
+fn setup() {
+    ReentrancyMock::constructor(0);
+}
 
 #[test]
 #[available_gas(2000000)]
-fn test_reentrancyguard_start() {
-    assert(!ReentrancyGuard::_entered::read(),'Should be false');
-    ReentrancyGuard::start();
-    assert(ReentrancyGuard::_entered::read(),'Should be true');
+fn test_reentrancy_guard_deploy() {
+    setup();
+    assert(ReentrancyMock::current_count() == 0, '');
+}
+
+#[test]
+#[available_gas(2000000)]
+// #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
+fn test_reentrancy_guard_remote_callback() {
+    // todo: requires call_contract_syscall
+
+    // setup();
+    // // Get attacker contract address/pseudo syntax
+    // let attacker_address: ContractAddress = ReentrancyAttackerMock.get_contract_address();
+
+    // // Get mock contract address/pseudo syntax
+    // let mock_address: ContractAddress = ReentrancyMock.get_contract_address();
+
+    // // Execute remote callback
+    // ReentrancyMock::count_and_call(attacker_address);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
-fn test_start_when_started() {
-    ReentrancyGuard::start();
-    ReentrancyGuard::start();
+fn test_reentrancy_guard_local_recursion() {
+    setup();
+    ReentrancyMock::count_local_recursive(10);
+}
+
+#[test]
+#[available_gas(2000000)]
+// #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
+fn test_reentrancy_guard_this_recursion() {
+    // todo: requires call_contract_syscall
+
+    // setup();
+    // ReentrancyMock::count_this_recursive(10);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_reentrancy_guard() {
+    setup();
+    ReentrancyMock::callback();
+    assert(ReentrancyMock::current_count() == 1, 'Should allow non-reentrant call');
 }

@@ -5,10 +5,11 @@ trait IReentrancyGuard {
 
 #[contract]
 mod ReentrancyAttackerMock {
-    use super::IReentrancyGuard;
+    // Dispatcher
     use super::IReentrancyGuardDispatcher;
     use super::IReentrancyGuardDispatcherTrait;
 
+    // Other
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

@@ -15,10 +15,8 @@ mod ReentrancyMock {
     use openzeppelin::utils::check_gas;
 
     // Dispatchers
-    use super::IReentrancyGuardAttacker;
     use super::IReentrancyGuardAttackerDispatcher;
     use super::IReentrancyGuardAttackerDispatcherTrait;
-    use super::IReentrancyGuard;
     use super::IReentrancyGuardDispatcher;
     use super::IReentrancyGuardDispatcherTrait;
 

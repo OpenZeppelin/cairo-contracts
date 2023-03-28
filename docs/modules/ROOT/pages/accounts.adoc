@@ -2,13 +2,13 @@
 
 = Accounts
 
-Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on Starknet.
+Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
 
 Instead, signature validation has to be done at the contract level.
 To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
 
-For a general overview of the account abstraction, see StarkWare's https://medium.com/starkware/starknet-alpha-0-10-0-923007290470[Starknet Alpha 0.10].
-A more detailed discussion on the topic can be found in https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[Starknet Account Abstraction Part 1].
+For a general overview of the account abstraction, see StarkWare's https://medium.com/starkware/starknet-alpha-0-10-0-923007290470[StarkNet Alpha 0.10].
+A more detailed discussion on the topic can be found in https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1].
 
 == Table of Contents
 
@@ -47,7 +47,7 @@ A more detailed discussion on the topic can be found in https://community.starkn
 
 The general workflow is:
 
-. Account contract is deployed to Starknet.
+. Account contract is deployed to StarkNet.
 . Signed transactions can now be sent to the Account contract which validates and executes them.
 
 In Python, this would look as follows:
@@ -125,7 +125,7 @@ Where:
 * `calldata_len` is the number of calldata parameters.
 * `calldata` is an array representing the function parameters.
 
-NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once Starknet allows for pointers in struct arrays.
+NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
 In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
 
 There's a fourth canonical entrypoint for accounts, the `\\__validate_deploy__` method. It is **only callable by the protocol** during the execution of a `DeployAccount` type of transaction, but not by any other contract. This entrypoint is for counterfactual deployments.
@@ -238,7 +238,7 @@ To simplify Account management, most of this is abstracted away with `MockSigner
 
 The `MockSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
 
-NOTE: Starknet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes Starknet's API gateway to manually execute the `InvokeFunction` for testing.
+NOTE: StarkNet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes StarkNet's API gateway to manually execute the `InvokeFunction` for testing.
 
 A `MockSigner` instance exposes the following methods:
 
@@ -582,7 +582,7 @@ Each preset differs on the signature type being used by the Account.
 
 === Account
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses Starknet keys to validate transactions.
+The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
 
 === Eth Account
 
@@ -593,10 +593,10 @@ The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/open
 Certain contracts like ERC721 or ERC1155 require a means to differentiate between account contracts and non-account contracts.
 For a contract to declare itself as an account, it should implement https://eips.ethereum.org/EIPS/eip-165[ERC165] as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
 
-To be in compliance with ERC165 specifications, we calculate the account contract ID as the XOR of ``IAccount``'s equivalent EVM selectors (not Starknet selectors).
+To be in compliance with ERC165 specifications, we calculate the account contract ID as the XOR of ``IAccount``'s equivalent EVM selectors (not StarkNet selectors).
 This magic value has been tracking the changes of the still evolving Account interface standard, and **its current value is `0xa66bd575`**.
 
-Our ERC165 integration on Starknet is inspired by OpenZeppelin's Solidity implementation of https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage] which stores the interfaces that the implementing contract supports.
+Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage] which stores the interfaces that the implementing contract supports.
 In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.
 
 NOTE: For Account contracts, ERC165 support is static and does not require Account contracts to register.
@@ -605,7 +605,7 @@ NOTE: For Account contracts, ERC165 support is static and does not require Accou
 
 Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
 
-To implement custom account contracts, it's required by the Starknet compiler that they include the three entrypoint functions `\\__validate__`, `\\__validate_declare__`, and `\\__execute__`.
+To implement custom account contracts, it's required by the StarkNet compiler that they include the three entrypoint functions `\\__validate__`, `\\__validate_declare__`, and `\\__execute__`.
 
 `\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction. Incorporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
 
@@ -613,7 +613,7 @@ This is why the Account library comes with different flavors of signature valida
 
 Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.
 
-IMPORTANT: Due to current inconsistencies between the testing framework and the actual Starknet network, extreme caution should be used when integrating new Account contracts.
+IMPORTANT: Due to current inconsistencies between the testing framework and the actual StarkNet network, extreme caution should be used when integrating new Account contracts.
 Instances have occurred where account functionality tests pass and transactions execute correctly on the local node; yet, they fail on public networks.
 For this reason, it's highly encouraged that new account contracts are also deployed and tested on the public testnet.
 See https://github.com/OpenZeppelin/cairo-contracts/issues/386[issue #386] for more information.

@@ -3,7 +3,7 @@
 [![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml)
 [![codecov](https://codecov.io/github/OpenZeppelin/cairo-contracts/branch/main/graph/badge.svg?token=LFSZH8RPOL)](https://codecov.io/github/OpenZeppelin/cairo-contracts)
 
-**A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
+**A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
 ## Usage
 
@@ -126,14 +126,14 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 ### Cairo
 
-- [Starknet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
+- [StarkNet official documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
 - [Cairo language documentation](https://www.cairo-lang.org/docs/hello_cairo/index.html#hello-cairo)
 - Perama's [Cairo by example](https://perama-v.github.io/cairo/by-example/)
 - [Cairo 101 workshops](https://www.youtube.com/playlist?list=PLcIyXLwiPilV5RBZj43AX1FY4FJMWHFTY)
 
 ### Nile
 
-- [Getting started with Starknet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
+- [Getting started with StarkNet using Nile](https://medium.com/coinmonks/starknet-tutorial-for-beginners-using-nile-6af9c2270c15)
 - [How to manage smart contract deployments with Nile](https://medium.com/@martriay/manage-your-starknet-deployments-with-nile-%EF%B8%8F-e849d40546dd)
 
 ## Development

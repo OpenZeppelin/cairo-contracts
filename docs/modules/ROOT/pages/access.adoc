@@ -388,7 +388,7 @@ bytes32 public constant SOME_ROLE = keccak256("SOME_ROLE")
 These identifiers take up 32 bytes (256 bits).
 
 Cairo field elements store a maximum of 252 bits.
-Even further, a declared _constant_ field element in a Starknet contract stores even less (see https://github.com/starkware-libs/cairo-lang/blob/release-v0.6.1/src/starkware/cairo/lang/cairo_constants.py#L1[cairo_constants]).
+Even further, a declared _constant_ field element in a StarkNet contract stores even less (see https://github.com/starkware-libs/cairo-lang/blob/release-v0.6.1/src/starkware/cairo/lang/cairo_constants.py#L1[cairo_constants]).
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 

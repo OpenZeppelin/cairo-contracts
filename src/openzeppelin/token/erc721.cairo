@@ -1,9 +1,9 @@
 use starknet::ContractAddress;
 use array::ArrayTrait;
 
-const IERC721_ID: felt252 = 0x80ac58cd;
-const IERC721METADATA_ID: felt252 = 0x5b5e139f;
-const IERC721_RECEIVER_ID: felt252 = 0x150b7a02;
+const IERC721_ID: u32 = 0x80ac58cd_u32;
+const IERC721METADATA_ID: u32 = 0x5b5e139f_u32;
+const IERC721_RECEIVER_ID: u32 = 0x150b7a02_u32;
 
 /// TODO:
 // - IERC721 should inherit IERC165
@@ -32,7 +32,7 @@ trait IERC721 {
 trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Array<felt252>
-    ) -> felt252;
+    ) -> u32;
 }
 
 #[contract]
@@ -151,7 +151,7 @@ mod ERC721 {
     }
 
     #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
+    fn supports_interface(interface_id: u32) -> bool {
         erc165::ERC165Contract::supports_interface(interface_id)
     }
 
@@ -349,6 +349,6 @@ mod ERC721 {
             );
             return true;
         }
-        IERC165Dispatcher { contract_address: to }.supports_interface(account::ACCOUNT_ID)
+        IERC165Dispatcher { contract_address: to }.supports_interface(account::ERC165_ACCOUNT_ID)
     }
 }

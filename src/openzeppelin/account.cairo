@@ -133,12 +133,14 @@ mod Account {
     // Internals
     //
 
+    #[internal]
     fn _assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
         assert(self == caller, 'Account: unauthorized');
     }
 
+    #[internal]
     fn _validate_transaction() -> felt252 {
         let tx_info = get_tx_info().unbox();
         let tx_hash = tx_info.transaction_hash;
@@ -147,6 +149,7 @@ mod Account {
         starknet::VALIDATED
     }
 
+    #[internal]
     fn _is_valid_signature(message: felt252, signature: Span<felt252>) -> bool {
         let valid_length = signature.len() == 2_u32;
         
@@ -158,6 +161,7 @@ mod Account {
         )
     }
 
+    #[internal]
     fn _execute_calls(mut calls: Array<Call>, mut res: Array<Span<felt252>>) -> Array<Span<felt252>> {
         check_gas();
         match calls.pop_front() {
@@ -172,6 +176,7 @@ mod Account {
         }
     }
 
+    #[internal]
     fn _execute_single_call(mut call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()

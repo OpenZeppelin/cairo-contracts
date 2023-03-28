@@ -104,9 +104,7 @@ mod ERC1155 {
         }
 
         fn balance_of_batch(accounts: Array<ContractAddress>, ids: Array<u256>) -> Array<u256> {
-            // assert(accounts.len() == ids.len(), "ERC1155: invalid lenght");
-            // TODO
-            ArrayTrait::new()
+            _balance_of_batch_iter(accounts, ids, ArrayTrait::new())
         }
 
         fn is_approved_for_all(account: ContractAddress, operator: ContractAddress) -> bool {
@@ -244,6 +242,29 @@ mod ERC1155 {
         let mut array = ArrayTrait::new();
         array.append(value);
         array
+    }
+
+    #[private]
+    fn _balance_of_batch_iter(
+        mut accounts: Array<ContractAddress>, mut ids: Array<u256>, mut res: Array<u256>
+    ) -> Array<u256> {
+        match (accounts.pop_front(), ids.pop_front()) {
+            (
+                Option::Some(account), Option::Some(id)
+            ) => {
+                res.append(ERC1155::balance_of(account, id));
+                _balance_of_batch_iter(accounts, ids, res)
+            },
+            (Option::None(_), Option::None(_)) => {
+                res
+            },
+            _ => {
+                // replace with panic_with_felt252 when available
+                let mut data = ArrayTrait::new();
+                data.append('ERC1155 invalid array length');
+                panic(data)
+            }
+        }
     }
 
     #[private]

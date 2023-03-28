@@ -18,20 +18,20 @@ trait IERC721 {
     // IERC721
     fn balance_of(owner: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;
-    fn transfer_from(from: ContractAddress, to: ContractAddress, tokenId: u256);
+    fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256);
     fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, tokenId: u256, data: Array<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
     );
-    fn approve(approved: ContractAddress, tokenId: u256);
+    fn approve(approved: ContractAddress, token_id: u256);
     fn set_approval_for_all(operator: ContractAddress, approved: bool);
-    fn get_approved(tokenId: u256) -> ContractAddress;
+    fn get_approved(token_id: u256) -> ContractAddress;
     fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool;
 }
 
 #[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
-        operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Array<felt252>
+        operator: ContractAddress, from: ContractAddress, token_id: u256, data: Array<felt252>
     ) -> u32;
 }
 
@@ -51,11 +51,10 @@ mod ERC721 {
     // Other
     use super::ArrayTrait;
     use super::ContractAddress;
-    use starknet::contract_address_const;
     use starknet::ContractAddressZeroable;
     use starknet::get_caller_address;
-    use integer::u256_from_felt252;
     use option::OptionTrait;
+    use traits::Into;
     use zeroable::Zeroable;
 
     struct Storage {
@@ -99,7 +98,7 @@ mod ERC721 {
 
         // IERC721
         fn balance_of(account: ContractAddress) -> u256 {
-            assert(!account.is_zero(), 'ERC721: invalid holder');
+            assert(!account.is_zero(), 'ERC721: invalid account');
             _balances::read(account)
         }
 
@@ -124,7 +123,7 @@ mod ERC721 {
                 owner == caller | is_approved_for_all(owner, caller),
                 'ERC721: unauthorized caller'
             );
-            _approve(to, token_id)
+            _approve(to, token_id);
         }
 
         fn set_approval_for_all(operator: ContractAddress, approved: bool) {
@@ -257,31 +256,31 @@ mod ERC721 {
 
     #[internal]
     fn _mint(to: ContractAddress, token_id: u256) {
-        assert(_owner_of(token_id).is_none(), 'ERC721: token already minted');
         assert(!to.is_zero(), 'ERC721: invalid receiver');
+        assert(!_exists(token_id), 'ERC721: token already minted');
 
         // Update balances
-        _balances::write(to, _balances::read(to) + u256_from_felt252(1));
+        _balances::write(to, _balances::read(to) + 1.into());
 
         // Update token_id owner
         _owners::write(token_id, to);
 
         // Emit event
-        Transfer(contract_address_const::<0>(), to, token_id);
+        Transfer(Zeroable::zero(), to, token_id);
     }
 
     #[internal]
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
+        assert(!to.is_zero(), 'ERC721: invalid receiver');
         let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
         assert(from == owner, 'ERC721: wrong sender');
-        assert(!to.is_zero(), 'ERC721: invalid receiver');
 
         // Implicit clear approvals, no need to emit an event
-        _token_approvals::write(token_id, contract_address_const::<0>());
+        _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(from, _balances::read(from) - u256_from_felt252(1));
-        _balances::write(to, _balances::read(to) + u256_from_felt252(1));
+        _balances::write(from, _balances::read(from) - 1.into());
+        _balances::write(to, _balances::read(to) + 1.into());
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -295,23 +294,23 @@ mod ERC721 {
         let owner = _owner_of(token_id).expect('ERC721: invalid token ID');
 
         // Implicit clear approvals, no need to emit an event
-        _token_approvals::write(token_id, contract_address_const::<0>());
+        _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(owner, _balances::read(owner) - u256_from_felt252(1));
+        _balances::write(owner, _balances::read(owner) - 1.into());
 
         // Delete owner
-        _owners::write(token_id, contract_address_const::<0>());
+        _owners::write(token_id, Zeroable::zero());
 
         // Emit event
-        Transfer(owner, contract_address_const::<0>(), token_id);
+        Transfer(owner, Zeroable::zero(), token_id);
     }
 
     #[internal]
     fn _safe_mint(to: ContractAddress, token_id: u256, data: Array<felt252>) {
         _mint(to, token_id);
         assert(
-            _check_on_erc721_received(contract_address_const::<0>(), to, token_id, data),
+            _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
             'ERC721: safe mint failed'
         );
     }
@@ -339,16 +338,13 @@ mod ERC721 {
         }.supports_interface(
             erc721::IERC721_RECEIVER_ID
         )) {
-            assert(
-                IERC721ReceiverDispatcher {
-                    contract_address: to
-                }.on_erc721_received(
-                    get_caller_address(), from, token_id, data
-                ) == erc721::IERC721_RECEIVER_ID,
-                'ERC721: on_ERC721_receiver fail'
-            );
-            return true;
+            IERC721ReceiverDispatcher {
+                contract_address: to
+            }.on_erc721_received(
+                get_caller_address(), from, token_id, data
+            ) == erc721::IERC721_RECEIVER_ID
+        } else {
+            IERC165Dispatcher { contract_address: to }.supports_interface(account::ERC165_ACCOUNT_ID)
         }
-        IERC165Dispatcher { contract_address: to }.supports_interface(account::ERC165_ACCOUNT_ID)
     }
 }

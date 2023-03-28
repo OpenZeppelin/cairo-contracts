@@ -248,21 +248,15 @@ mod ERC1155 {
     fn _balance_of_batch_iter(
         mut accounts: Array<ContractAddress>, mut ids: Array<u256>, mut res: Array<u256>
     ) -> Array<u256> {
-        match (accounts.pop_front(), ids.pop_front()) {
-            (
-                Option::Some(account), Option::Some(id)
-            ) => {
+        match accounts.pop_front() {
+            Option::Some(account) => {
+                let id = ids.pop_front().expect('ERC1155 invalid array length');
                 res.append(ERC1155::balance_of(account, id));
                 _balance_of_batch_iter(accounts, ids, res)
             },
-            (Option::None(_), Option::None(_)) => {
+            Option::None(_) => {
+                assert(ids.is_empty(), 'ERC1155 invalid array length');
                 res
-            },
-            _ => {
-                // replace with panic_with_felt252 when available
-                let mut data = ArrayTrait::new();
-                data.append('ERC1155 invalid array length');
-                panic(data)
             }
         }
     }

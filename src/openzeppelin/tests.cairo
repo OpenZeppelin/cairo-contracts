@@ -1,1 +1,1 @@
-mod test_mytest;
+mod test_erc20;

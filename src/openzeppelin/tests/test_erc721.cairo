@@ -56,16 +56,16 @@ fn test_initialize() {
 
     assert(ERC721::name() == NAME, 'Name should be NAME');
     assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Should be zero');
+    assert(ERC721::balance_of(OWNER()) == u256_from_felt252(0), 'Balance should be zero');
 
-    assert(ERC721::supports_interface(erc721::IERC721_ID), 'missing interface ID');
+    assert(ERC721::supports_interface(erc721::IERC721_ID), 'Missing interface ID');
     assert(ERC721::supports_interface(erc721::IERC721METADATA_ID), 'missing interface ID');
     assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
     assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
 }
 
 ///
-/// getters
+/// Getters
 ///
 
 #[test]
@@ -93,7 +93,7 @@ fn test_get_approved_nonexistent() {
 #[available_gas(2000000)]
 fn test__exists() {
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Low level ownership');
+    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Invalid owner');
 
     ERC721::_mint(RECIPIENT(), TOKEN_ID());
 
@@ -410,7 +410,7 @@ fn test__mint() {
 
     assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
     assert(ERC721::balance_of(RECIPIENT()) == u256_from_felt252(1), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval not implicitly reset');
+    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval implicitly set');
 }
 
 #[test]
@@ -464,7 +464,7 @@ fn test__set_token_uri() {
 
     assert(ERC721::token_uri(TOKEN_ID()) == 0, 'URI should be 0');
     ERC721::_set_token_uri(TOKEN_ID(), URI);
-    assert(ERC721::token_uri(TOKEN_ID()) == URI, 'URI should be set to URI var');
+    assert(ERC721::token_uri(TOKEN_ID()) == URI, 'URI should be set');
 }
 
 #[test]

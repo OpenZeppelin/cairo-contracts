@@ -1,3 +1,3 @@
-mod pausable;
+mod security;
 mod mocks;
 mod tests;

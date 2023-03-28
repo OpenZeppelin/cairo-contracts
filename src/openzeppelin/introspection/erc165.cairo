@@ -27,6 +27,7 @@ mod ERC165Contract {
         ERC165::supports_interface(interface_id)
     }
  
+    #[internal]
     fn register_interface(interface_id: u32) {
         assert(interface_id != erc165::INVALID_ID, 'Invalid id');
         supported_interfaces::write(interface_id, true);

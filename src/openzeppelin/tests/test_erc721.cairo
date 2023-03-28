@@ -70,7 +70,7 @@ fn test_initialize() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('ERC721: invalid holder', ))]
+#[should_panic(expected = ('ERC721: invalid account', ))]
 fn test_balance_of_zero() {
     ERC721::balance_of(ZERO());
 }

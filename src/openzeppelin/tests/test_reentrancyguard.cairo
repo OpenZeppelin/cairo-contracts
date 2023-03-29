@@ -1,5 +1,5 @@
-use openzeppelin::mocks::reentrancy_attacker_mock::ReentrancyAttackerMock;
-use openzeppelin::mocks::reentrancy_mock::ReentrancyMock;
+use openzeppelin::tests::mocks::reentrancy_attacker_mock::ReentrancyAttackerMock;
+use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 
 use starknet::ContractAddress;
 

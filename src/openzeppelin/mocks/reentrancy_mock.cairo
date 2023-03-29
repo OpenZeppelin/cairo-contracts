@@ -17,8 +17,8 @@ mod ReentrancyMock {
     // Dispatchers
     use super::IReentrancyGuardAttackerDispatcher;
     use super::IReentrancyGuardAttackerDispatcherTrait;
-    use super::IReentrancyGuardDispatcher;
-    use super::IReentrancyGuardDispatcherTrait;
+    use super::IReentrancyGuardedDispatcher;
+    use super::IReentrancyGuardedDispatcherTrait;
 
     // Other
     use starknet::ContractAddress;
@@ -59,7 +59,7 @@ mod ReentrancyMock {
         if n != 0 {
             count();
             let caller: ContractAddress = get_contract_address();
-            IReentrancyGuardDispatcher{ contract_address: caller }.count_this_recursive(n - 1)
+            IReentrancyGuardedDispatcher{ contract_address: caller }.count_this_recursive(n - 1)
         }
         ReentrancyGuard::end();
     }

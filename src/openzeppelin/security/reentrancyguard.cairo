@@ -3,7 +3,7 @@ mod ReentrancyGuard {
     use starknet::get_caller_address;
 
     struct Storage {
-        _entered: bool,
+        entered: bool,
     }
 
     fn start() {

@@ -4,7 +4,7 @@ trait IReentrancyGuardAttacker {
 }
 
 #[abi]
-trait IReentrancyGuard {
+trait IReentrancyGuarded {
     fn count_this_recursive(n: felt252);
 }
 

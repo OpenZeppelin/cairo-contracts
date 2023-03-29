@@ -29,10 +29,10 @@ fn test_reentrancy_guard_local_recursion() {
 #[test]
 #[available_gas(2000000)]
 // #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
-fn test_reentrancy_guard_this_recursion() {
+fn test_reentrancy_guard_external_recursion() {
     // todo: requires call_contract_syscall
 
-    // ReentrancyMock::count_this_recursive(10);
+    // ReentrancyMock::count_external_recursive(10);
 }
 
 #[test]

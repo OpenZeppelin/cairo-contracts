@@ -5,7 +5,7 @@ trait IReentrancyGuardAttacker {
 
 #[abi]
 trait IReentrancyGuarded {
-    fn count_this_recursive(n: felt252);
+    fn count_external_recursive(n: felt252);
 }
 
 #[contract]
@@ -53,13 +53,13 @@ mod ReentrancyMock {
     }
 
     #[external]
-    fn count_this_recursive(n: felt252) {
+    fn count_external_recursive(n: felt252) {
         ReentrancyGuard::start();
         check_gas();
         if n != 0 {
             count();
             let caller: ContractAddress = get_contract_address();
-            IReentrancyGuardedDispatcher{ contract_address: caller }.count_this_recursive(n - 1)
+            IReentrancyGuardedDispatcher{ contract_address: caller }.count_external_recursive(n - 1)
         }
         ReentrancyGuard::end();
     }

@@ -14,7 +14,7 @@ mod Pausable {
     fn Unpaused(account: ContractAddress) {}
 
     fn is_paused() -> bool {
-        _paused::read()
+        paused::read()
     }
 
     fn assert_not_paused() {
@@ -27,13 +27,13 @@ mod Pausable {
 
     fn pause() {
         assert_not_paused();
-        _paused::write(true);
+        paused::write(true);
         Paused(get_caller_address());
     }
 
     fn unpause() {
         assert_paused();
-        _paused::write(false);
+        paused::write(false);
         Unpaused(get_caller_address());
     }
 }

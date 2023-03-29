@@ -4,7 +4,7 @@ mod Pausable {
     use starknet::get_caller_address;
 
     struct Storage {
-        _paused: bool,
+        paused: bool,
     }
 
     #[event]

@@ -33,6 +33,7 @@ fn test_unpause_when_paused() {
     MockPausable::pause();
     assert(MockPausable::is_paused(), 'Should be paused');
     MockPausable::unpause();
+    assert(! MockPausable::is_paused(), 'Should not be paused');
     MockPausable::assert_unpaused_and_increment();
     assert(MockPausable::get_count() == 1, 'Should increment');
 }

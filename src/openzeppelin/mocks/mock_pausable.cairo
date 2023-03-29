@@ -2,9 +2,6 @@
 mod MockPausable {
     use openzeppelin::security::pausable::Pausable;
 
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-
     struct Storage {
         _counter: felt252
     }

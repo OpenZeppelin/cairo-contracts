@@ -1,7 +1,7 @@
 #[contract]
 mod Initializable {
     struct Storage {
-        _initialized: bool,
+        initialized: bool,
     }
 
     fn is_initialized() -> bool {

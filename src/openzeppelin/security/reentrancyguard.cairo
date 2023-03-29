@@ -7,11 +7,11 @@ mod ReentrancyGuard {
     }
 
     fn start() {
-        assert(!_entered::read(), 'ReentrancyGuard: reentrant call');
-        _entered::write(true);
+        assert(!entered::read(), 'ReentrancyGuard: reentrant call');
+        entered::write(true);
     }
 
     fn end() {
-        _entered::write(false);
+        entered::write(false);
     }
 }

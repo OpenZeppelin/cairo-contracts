@@ -1,4 +1,4 @@
-use openzeppelin::mocks::mock_pausable::MockPausable;
+use openzeppelin::tests::mocks::mock_pausable::MockPausable;
 
 #[test]
 #[available_gas(2000000)]

@@ -3,7 +3,7 @@ mod MockPausable {
     use openzeppelin::security::pausable::Pausable;
 
     struct Storage {
-        _counter: felt252
+        counter: felt252
     }
 
     #[view]
@@ -13,13 +13,13 @@ mod MockPausable {
 
     #[view]
     fn get_count() -> felt252 {
-        _counter::read()
+        counter::read()
     }
 
     #[external]
     fn assert_unpaused_and_increment() {
         Pausable::assert_not_paused();
-        _counter::write(_counter::read() + 1);
+        counter::write(counter::read() + 1);
     }
 
     #[external]

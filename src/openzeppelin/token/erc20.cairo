@@ -17,7 +17,6 @@ mod ERC20 {
     use openzeppelin::token::erc20::IERC20;
     use starknet::get_caller_address;
     use starknet::ContractAddress;
-    use starknet::contract_address_const;
     use starknet::ContractAddressZeroable;
     use zeroable::Zeroable;
 

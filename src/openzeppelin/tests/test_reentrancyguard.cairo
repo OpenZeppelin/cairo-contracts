@@ -3,25 +3,12 @@ use openzeppelin::mocks::reentrancy_mock::ReentrancyMock;
 
 use starknet::ContractAddress;
 
-// Helper function
-fn setup() {
-    ReentrancyMock::constructor(0);
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_reentrancy_guard_deploy() {
-    setup();
-    assert(ReentrancyMock::current_count() == 0, '');
-}
-
 #[test]
 #[available_gas(2000000)]
 // #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_remote_callback() {
     // todo: requires call_contract_syscall
 
-    // setup();
     // // Get attacker contract address/pseudo syntax
     // let attacker_address: ContractAddress = ReentrancyAttackerMock.get_contract_address();
 
@@ -36,7 +23,6 @@ fn test_reentrancy_guard_remote_callback() {
 #[available_gas(2000000)]
 #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_local_recursion() {
-    setup();
     ReentrancyMock::count_local_recursive(10);
 }
 
@@ -46,14 +32,12 @@ fn test_reentrancy_guard_local_recursion() {
 fn test_reentrancy_guard_this_recursion() {
     // todo: requires call_contract_syscall
 
-    // setup();
     // ReentrancyMock::count_this_recursive(10);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard() {
-    setup();
     ReentrancyMock::callback();
     assert(ReentrancyMock::current_count() == 1, 'Should allow non-reentrant call');
 }

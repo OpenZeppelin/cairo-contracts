@@ -29,11 +29,6 @@ mod ReentrancyMock {
         _counter: felt252
     }
 
-    #[constructor]
-    fn constructor(initial_number: felt252) {
-        _counter::write(initial_number);
-    }
-
     #[view]
     fn current_count() -> felt252 {
         _counter::read()

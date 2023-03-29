@@ -26,12 +26,12 @@ mod ReentrancyMock {
     use starknet::get_contract_address;
 
     struct Storage {
-        _counter: felt252
+        counter: felt252
     }
 
     #[view]
     fn current_count() -> felt252 {
-        _counter::read()
+        counter::read()
     }
 
     #[external]
@@ -75,6 +75,6 @@ mod ReentrancyMock {
 
     #[external]
     fn count() {
-        _counter::write(_counter::read() + 1);
+        counter::write(counter::read() + 1);
     }
 }

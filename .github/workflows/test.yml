@@ -7,9 +7,6 @@ on:
     branches:
     - cairo-1
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   lint_and_test:
     name: Lint and test

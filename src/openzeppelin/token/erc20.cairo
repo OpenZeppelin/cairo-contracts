@@ -19,6 +19,7 @@ mod ERC20 {
     use starknet::ContractAddress;
     use starknet::ContractAddressZeroable;
     use zeroable::Zeroable;
+    use integer::BoundedInt;
 
     struct Storage {
         _name: felt252,
@@ -196,10 +197,7 @@ mod ERC20 {
 
     fn _spend_allowance(owner: ContractAddress, spender: ContractAddress, amount: u256) {
         let current_allowance = _allowances::read((owner, spender));
-        let ONES_MASK = 0xffffffffffffffffffffffffffffffff_u128;
-        let is_unlimited_allowance =
-            current_allowance.low == ONES_MASK & current_allowance.high == ONES_MASK;
-        if !is_unlimited_allowance {
+        if current_allowance != BoundedInt::max() {
             _approve(owner, spender, current_allowance - amount);
         }
     }

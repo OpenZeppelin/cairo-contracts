@@ -149,23 +149,27 @@ mod ERC20 {
     /// Internals
     ///
 
+    #[internal]
     fn initializer(name_: felt252, symbol_: felt252) {
         _name::write(name_);
         _symbol::write(symbol_);
     }
 
+    #[internal]
     fn _increase_allowance(spender: ContractAddress, added_value: u256) -> bool {
         let caller = get_caller_address();
         _approve(caller, spender, _allowances::read((caller, spender)) + added_value);
         true
     }
 
+    #[internal]
     fn _decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool {
         let caller = get_caller_address();
         _approve(caller, spender, _allowances::read((caller, spender)) - subtracted_value);
         true
     }
 
+    #[internal]
     fn _mint(recipient: ContractAddress, amount: u256) {
         assert(!recipient.is_zero(), 'ERC20: mint to 0');
         _total_supply::write(_total_supply::read() + amount);
@@ -173,6 +177,7 @@ mod ERC20 {
         Transfer(Zeroable::zero(), recipient, amount);
     }
 
+    #[internal]
     fn _burn(account: ContractAddress, amount: u256) {
         assert(!account.is_zero(), 'ERC20: burn from 0');
         _total_supply::write(_total_supply::read() - amount);
@@ -180,6 +185,7 @@ mod ERC20 {
         Transfer(account, Zeroable::zero(), amount);
     }
 
+    #[internal]
     fn _approve(owner: ContractAddress, spender: ContractAddress, amount: u256) {
         assert(!owner.is_zero(), 'ERC20: approve from 0');
         assert(!spender.is_zero(), 'ERC20: approve to 0');
@@ -187,6 +193,7 @@ mod ERC20 {
         Approval(owner, spender, amount);
     }
 
+    #[internal]
     fn _transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
         assert(!sender.is_zero(), 'ERC20: transfer from 0');
         assert(!recipient.is_zero(), 'ERC20: transfer to 0');
@@ -195,6 +202,7 @@ mod ERC20 {
         Transfer(sender, recipient, amount);
     }
 
+    #[internal]
     fn _spend_allowance(owner: ContractAddress, spender: ContractAddress, amount: u256) {
         let current_allowance = _allowances::read((owner, spender));
         if current_allowance != BoundedInt::max() {

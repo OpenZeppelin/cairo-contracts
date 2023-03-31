@@ -39,7 +39,7 @@ mod Account {
     use super::TRANSACTION_VERSION;
     use super::QUERY_VERSION;
 
-    use openzeppelin::introspection::erc165::ERC165Contract;
+    use openzeppelin::introspection::erc165::ERC165;
     use openzeppelin::utils::check_gas;
 
     //
@@ -52,7 +52,7 @@ mod Account {
 
     #[constructor]
     fn constructor(_public_key: felt252) {
-        ERC165Contract::register_interface(ERC165_ACCOUNT_ID);
+        ERC165::register_interface(ERC165_ACCOUNT_ID);
         public_key::write(_public_key);
     }
 
@@ -126,7 +126,7 @@ mod Account {
 
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
-        ERC165Contract::supports_interface(interface_id)
+        ERC165::supports_interface(interface_id)
     }
 
     //

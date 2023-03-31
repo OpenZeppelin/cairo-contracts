@@ -17,7 +17,6 @@ mod ERC20 {
     use openzeppelin::token::erc20::IERC20;
     use starknet::get_caller_address;
     use starknet::ContractAddress;
-    use starknet::contract_address_const;
     use starknet::ContractAddressZeroable;
     use zeroable::Zeroable;
 
@@ -170,14 +169,14 @@ mod ERC20 {
         assert(!recipient.is_zero(), 'ERC20: mint to 0');
         _total_supply::write(_total_supply::read() + amount);
         _balances::write(recipient, _balances::read(recipient) + amount);
-        Transfer(contract_address_const::<0>(), recipient, amount);
+        Transfer(Zeroable::zero(), recipient, amount);
     }
 
     fn _burn(account: ContractAddress, amount: u256) {
         assert(!account.is_zero(), 'ERC20: burn from 0');
         _total_supply::write(_total_supply::read() - amount);
         _balances::write(account, _balances::read(account) - amount);
-        Transfer(account, contract_address_const::<0>(), amount);
+        Transfer(account, Zeroable::zero(), amount);
     }
 
     fn _approve(owner: ContractAddress, spender: ContractAddress, amount: u256) {

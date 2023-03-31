@@ -1,4 +1,4 @@
-name: Cairo v1 test and linter
+name: Test
 
 on:
   pull_request:

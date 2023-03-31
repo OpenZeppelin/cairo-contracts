@@ -1,4 +1,4 @@
-name: Test
+name: Cairo v1 test and linter
 
 on:
   pull_request:
@@ -12,12 +12,18 @@ env:
 
 jobs:
   lint_and_test:
-    name: Cairo lint and test
+    name: Lint and test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - name: Markdown lint
+      uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
+      with:
+        globs: |
+          *.md
+          !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
       run: make check-format
     - name: Cairo test

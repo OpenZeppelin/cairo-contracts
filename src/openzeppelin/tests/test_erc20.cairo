@@ -4,6 +4,7 @@ use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
 use integer::u256;
 use integer::u256_from_felt252;
+use integer::BoundedInt;
 
 //
 // Constants
@@ -13,9 +14,7 @@ const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 
 fn MAX_U256() -> u256 {
-    u256 {
-        low: 0xffffffffffffffffffffffffffffffff_u128, high: 0xffffffffffffffffffffffffffffffff_u128
-    }
+    BoundedInt::max()
 }
 
 //

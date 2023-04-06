@@ -1,1 +1,1 @@
-mod Proxy;
+mod upgradable;

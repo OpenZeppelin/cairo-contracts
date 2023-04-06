@@ -1,5 +1,5 @@
 #[contract]
-mod Upgradable {
+mod Upgradeable {
     use serde::Serde;
     use starknet::get_caller_address;
     use starknet::ContractAddress;

@@ -1,6 +1,6 @@
 #[contract]
 mod Upgrades_V1 {
-    use openzeppelin::upgrades::upgradable::Upgradable;
+    use openzeppelin::upgrades::upgradeable::Upgradeable;
     use starknet::ContractAddress;
     use starknet::class_hash::ClassHash;
 
@@ -10,12 +10,12 @@ mod Upgrades_V1 {
 
     #[constructor]
     fn constructor(proxy_admin: ContractAddress) {
-        Upgradable::initializer(proxy_admin);
+        Upgradeable::initializer(proxy_admin);
     }
 
     #[external]
     fn upgrade(new_hash: ClassHash) {
-        Upgradable::_upgrade(new_hash);
+        Upgradeable::_upgrade(new_hash);
     }
 
     #[external]

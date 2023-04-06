@@ -1,1 +1,1 @@
-mod upgradable;
+mod upgradeable;

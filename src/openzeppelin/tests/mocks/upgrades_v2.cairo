@@ -1,5 +1,5 @@
 #[contract]
-mod Upgrades_V1 {
+mod Upgrades_V2 {
     use openzeppelin::upgrades::upgradeable::Upgradeable;
     use starknet::ContractAddress;
     use starknet::class_hash::ClassHash;
@@ -15,7 +15,14 @@ mod Upgrades_V1 {
     }
 
     #[external]
+    fn set_admin(new_admin: ContractAddress) {
+        Upgradeable::assert_only_admin();
+        Upgradeable::_set_admin(new_admin);
+    }
+
+    #[external]
     fn upgrade(new_hash: ClassHash) {
+        Upgradeable::assert_only_admin();
         Upgradeable::_upgrade(new_hash);
     }
 

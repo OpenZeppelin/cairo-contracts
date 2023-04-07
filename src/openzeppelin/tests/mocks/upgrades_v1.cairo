@@ -14,13 +14,25 @@ mod Upgrades_V1 {
     }
 
     #[external]
+    fn set_admin(new_admin: ContractAddress) {
+        Upgradeable::assert_only_admin();
+        Upgradeable::_set_admin(new_admin);
+    }
+
+    #[external]
     fn upgrade(new_hash: ClassHash) {
+        //Upgradeable::assert_only_admin();
         Upgradeable::_upgrade(new_hash);
     }
 
     #[external]
     fn set_value(val: felt252) {
         value::write(val);
+    }
+
+    #[view]
+    fn get_admin() -> ContractAddress {
+        Upgradeable::get_admin()
     }
 
     #[view]

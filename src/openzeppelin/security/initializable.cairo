@@ -1,7 +1,7 @@
 #[contract]
 mod Initializable {
     struct Storage {
-        initialized: bool, 
+        initialized: bool
     }
 
     #[internal]

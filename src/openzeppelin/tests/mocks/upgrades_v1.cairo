@@ -1,8 +1,8 @@
 #[contract]
 mod Upgrades_V1 {
     use openzeppelin::upgrades::upgradeable::Upgradeable;
-    use starknet::ContractAddress;
     use starknet::class_hash::ClassHash;
+    use starknet::ContractAddress;
 
     struct Storage {
         value: felt252
@@ -21,7 +21,7 @@ mod Upgrades_V1 {
 
     #[external]
     fn upgrade(new_hash: ClassHash) {
-        //Upgradeable::assert_only_admin();
+        Upgradeable::assert_only_admin();
         Upgradeable::_upgrade(new_hash);
     }
 

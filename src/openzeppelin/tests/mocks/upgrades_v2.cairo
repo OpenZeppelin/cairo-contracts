@@ -1,8 +1,8 @@
 #[contract]
 mod Upgrades_V2 {
     use openzeppelin::upgrades::upgradeable::Upgradeable;
-    use starknet::ContractAddress;
     use starknet::class_hash::ClassHash;
+    use starknet::ContractAddress;
 
     struct Storage {
         value: felt252,
@@ -34,6 +34,11 @@ mod Upgrades_V2 {
     #[external]
     fn set_value2(val: felt252) {
         value2::write(val);
+    }
+
+    #[view]
+    fn get_admin() -> ContractAddress {
+        Upgradeable::get_admin()
     }
 
     #[view]

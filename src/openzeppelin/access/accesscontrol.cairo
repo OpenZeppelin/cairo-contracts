@@ -28,10 +28,7 @@ mod AccessControl {
 
     // Other
     use starknet::ContractAddress;
-    use starknet::ContractAddressZeroable;
-    use starknet::contract_address_const;
     use starknet::get_caller_address;
-    use zeroable::Zeroable;
 
     struct Storage {
         role_admin: LegacyMap<felt252, felt252>,
@@ -112,8 +109,9 @@ mod AccessControl {
     }
 
     #[internal]
-    fn initializer() { // Needs ERC165
-    // erc165::ERC165Contract::register_interface(IACCESSCONTROL_ID);
+    fn initializer() {
+        // Needs ERC165
+        // erc165::ERC165Contract::register_interface(IACCESSCONTROL_ID);
     }
 
     #[internal]

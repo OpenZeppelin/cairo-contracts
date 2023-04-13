@@ -5,9 +5,11 @@ use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
 
 const SOME_OTHER_ROLE: felt252 = 42;
+
 fn ACCOUNT1() -> ContractAddress {
     contract_address_const::<1>()
 }
+
 fn ACCOUNT2() -> ContractAddress {
     contract_address_const::<2>()
 }

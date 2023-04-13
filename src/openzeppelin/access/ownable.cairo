@@ -13,11 +13,13 @@ mod Ownable {
     #[event]
     fn OwnershipTransferred(previous_owner: ContractAddress, new_owner: ContractAddress) {}
 
+    #[internal]
     fn initializer() {
         let caller: ContractAddress = get_caller_address();
         _owner::write(caller);
     }
 
+    #[internal]
     fn assert_only_owner() {
         let owner: ContractAddress = _owner::read();
         let caller: ContractAddress = get_caller_address();
@@ -25,21 +27,25 @@ mod Ownable {
         assert(caller == owner, 'Caller is not the owner');
     }
 
+    #[internal]
     fn owner() -> ContractAddress {
         _owner::read()
     }
 
+    #[internal]
     fn transfer_ownership(new_owner: ContractAddress) {
         assert(!new_owner.is_zero(), 'New owner is zero address');
         assert_only_owner();
         _transfer_ownership(new_owner);
     }
 
+    #[internal]
     fn renounce_ownership() {
         assert_only_owner();
         _transfer_ownership(Zeroable::zero());
     }
 
+    #[internal]
     fn _transfer_ownership(new_owner: ContractAddress) {
         let previous_owner: ContractAddress = _owner::read();
         _owner::write(new_owner);

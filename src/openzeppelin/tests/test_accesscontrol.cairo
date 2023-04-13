@@ -5,8 +5,12 @@ use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
 
 const SOME_OTHER_ROLE: felt252 = 42;
-fn ACCOUNT1() -> ContractAddress { contract_address_const::<1>() }
-fn ACCOUNT2() -> ContractAddress { contract_address_const::<2>() }
+fn ACCOUNT1() -> ContractAddress {
+    contract_address_const::<1>()
+}
+fn ACCOUNT2() -> ContractAddress {
+    contract_address_const::<2>()
+}
 
 fn setup() {
     set_caller_address(ACCOUNT1());
@@ -17,7 +21,7 @@ fn setup() {
 #[available_gas(2000000)]
 fn test_initializer() {
     AccessControl::initializer();
-    //assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+//assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
@@ -25,7 +29,7 @@ fn test_initializer() {
 fn test_constructor() {
     AccessControl::constructor(ACCOUNT1());
     assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Admin rol should be set');
-    //assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+//assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
@@ -103,7 +107,10 @@ fn test_renounce_role_unauthorized() {
 fn test_set_role_admin() {
     setup();
     AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
-    assert(AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE) == SOME_OTHER_ROLE, 'Should set the admin role');
+    assert(
+        AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE) == SOME_OTHER_ROLE,
+        'Should set the admin role'
+    );
 
     // Test role admin cycle
     AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
@@ -112,5 +119,7 @@ fn test_set_role_admin() {
     set_caller_address(ACCOUNT2());
     AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
 
-    assert(!AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should not have role');
+    assert(
+        !AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should not have role'
+    );
 }

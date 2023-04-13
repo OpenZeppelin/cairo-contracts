@@ -15,7 +15,7 @@ mod MockAccessControl {
     }
 
     #[view]
-    fn get_role_admin(role:felt252) -> felt252 {
+    fn get_role_admin(role: felt252) -> felt252 {
         AccessControl::get_role_admin(role)
     }
 

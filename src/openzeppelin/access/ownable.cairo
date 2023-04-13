@@ -37,7 +37,7 @@ mod Ownable {
 
     fn renounce_ownership() {
         assert_only_owner();
-        _transfer_ownership(contract_address_const::<0>());
+        _transfer_ownership(Zeroable::zero());
     }
 
     fn _transfer_ownership(new_owner: ContractAddress) {

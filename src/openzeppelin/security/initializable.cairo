@@ -11,7 +11,7 @@ mod Initializable {
 
     #[internal]
     fn initialize() {
-        assert(!is_initialized(), 'Contract already initialized');
+        assert(!is_initialized(), 'Initializable: is initialized');
         initialized::write(true);
     }
 }

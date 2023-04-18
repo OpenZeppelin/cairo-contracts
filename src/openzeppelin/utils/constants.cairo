@@ -29,4 +29,4 @@ const IACCESSCONTROL_ID: u32 = 0x7965db0b_u32;
 // Roles
 //
 
-const DEFAULT_ADMIN_ROLE: felt252 = 0x00;
+const DEFAULT_ADMIN_ROLE: felt252 = 0;

@@ -1,8 +1,5 @@
 use starknet::ContractAddress;
 
-const DEFAULT_ADMIN_ROLE: felt252 = 0x00;
-const IACCESSCONTROL_ID: u32 = 0x7965db0b_u32;
-
 #[abi]
 trait IAccessControl {
     fn has_role(role: felt252, account: ContractAddress) -> bool;
@@ -16,15 +13,11 @@ trait IAccessControl {
 mod AccessControl {
     // OZ modules
     use super::IAccessControl;
-    //use openzeppelin::introspection::erc165::ERC165;
-
-    // Dispatchers
-    //use openzeppelin::introspection::erc165::IERC165Dispatcher;
-    //use openzeppelin::introspection::erc165::IERC165DispatcherTrait;
+    use openzeppelin::introspection::erc165::ERC165;
 
     // Constants
-    use super::DEFAULT_ADMIN_ROLE;
-    use super::IACCESSCONTROL_ID;
+    use openzeppelin::utils::constants::DEFAULT_ADMIN_ROLE;
+    use openzeppelin::utils::constants::IACCESSCONTROL_ID;
 
     // Other
     use starknet::ContractAddress;
@@ -78,10 +71,10 @@ mod AccessControl {
         _grant_role(DEFAULT_ADMIN_ROLE, admin);
     }
 
-    //#[view]
-    //fn supports_interface(interface_id: u32) -> bool {
-    //    ERC165::supports_interface(interface_id)
-    //}
+    #[view]
+    fn supports_interface(interface_id: u32) -> bool {
+        ERC165::supports_interface(interface_id)
+    }
 
     #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {
@@ -110,8 +103,7 @@ mod AccessControl {
 
     #[internal]
     fn initializer() {
-        // Needs ERC165
-        // erc165::ERC165Contract::register_interface(IACCESSCONTROL_ID);
+        ERC165::register_interface(IACCESSCONTROL_ID);
     }
 
     #[internal]

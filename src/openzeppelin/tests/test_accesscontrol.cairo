@@ -1,5 +1,7 @@
 use openzeppelin::access::accesscontrol::AccessControl;
-use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin::utils::constants::DEFAULT_ADMIN_ROLE;
+use openzeppelin::utils::constants::IACCESSCONTROL_ID;
+
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
@@ -23,7 +25,7 @@ fn setup() {
 #[available_gas(2000000)]
 fn test_initializer() {
     AccessControl::initializer();
-//assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+    assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
@@ -31,7 +33,7 @@ fn test_initializer() {
 fn test_constructor() {
     AccessControl::constructor(ACCOUNT1());
     assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Admin rol should be set');
-//assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+    assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]

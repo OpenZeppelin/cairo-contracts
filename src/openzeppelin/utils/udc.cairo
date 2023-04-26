@@ -1,24 +1,3 @@
-use starknet::class_hash::ClassHash;
-use starknet::ContractAddress;
-
-// TODO: Fix trait impl errors in abi
-// #[abi]
-trait IUniversalDeployerContract {
-    #[event]
-    fn ContractDeployed(
-        address: ContractAddress,
-        deployer: ContractAddress,
-        unique: bool,
-        class_hash: ClassHash,
-        calldata: Array<felt252>,
-        salt: felt252,
-    );
-    #[external]
-    fn deploy_contract(
-        class_hash: ClassHash, salt: felt252, unique: bool, calldata: Array<felt252>
-    ) -> ContractAddress;
-}
-
 #[contract]
 mod UniversalDeployerContract {
     use array::ArrayTrait;
@@ -58,7 +37,6 @@ mod UniversalDeployerContract {
         ).unwrap_syscall();
 
         ContractDeployed(address, deployer, unique, class_hash, calldata, salt);
-
         return address;
     }
 }

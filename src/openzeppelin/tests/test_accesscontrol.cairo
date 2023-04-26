@@ -32,7 +32,7 @@ fn test_initializer() {
 #[available_gas(2000000)]
 fn test_constructor() {
     AccessControl::constructor(ACCOUNT1());
-    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Admin rol should be set');
+    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Admin role should be set');
     assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 

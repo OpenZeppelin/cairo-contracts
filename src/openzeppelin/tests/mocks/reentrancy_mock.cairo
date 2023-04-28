@@ -1,6 +1,6 @@
 #[abi]
 trait IReentrancyGuardAttacker {
-  fn call_sender();
+    fn call_sender();
 }
 
 #[abi]
@@ -59,7 +59,9 @@ mod ReentrancyMock {
         if n != 0 {
             count();
             let caller: ContractAddress = get_contract_address();
-            IReentrancyGuardedDispatcher{ contract_address: caller }.count_external_recursive(n - 1)
+            IReentrancyGuardedDispatcher {
+                contract_address: caller
+            }.count_external_recursive(n - 1)
         }
         ReentrancyGuard::end();
     }
@@ -69,7 +71,7 @@ mod ReentrancyMock {
         ReentrancyGuard::start();
         gas::withdraw_gas().expect('Out of gas');
         count();
-        IReentrancyGuardAttackerDispatcher{ contract_address: attacker }.call_sender();
+        IReentrancyGuardAttackerDispatcher { contract_address: attacker }.call_sender();
         ReentrancyGuard::end();
     }
 

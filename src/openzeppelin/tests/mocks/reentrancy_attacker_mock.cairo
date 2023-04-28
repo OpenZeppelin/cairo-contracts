@@ -1,6 +1,6 @@
 #[abi]
 trait IReentrancyGuard {
-  fn callback();
+    fn callback();
 }
 
 #[contract]
@@ -16,6 +16,6 @@ mod ReentrancyAttackerMock {
     #[external]
     fn call_sender() {
         let caller: ContractAddress = get_caller_address();
-        IReentrancyGuardDispatcher{ contract_address: caller }.callback();
+        IReentrancyGuardDispatcher { contract_address: caller }.callback();
     }
 }

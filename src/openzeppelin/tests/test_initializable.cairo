@@ -10,7 +10,7 @@ fn test_initialize() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Contract already initialized', ))]
+#[should_panic(expected: ('Initializable: is initialized', ))]
 fn test_initialize_when_initialized() {
     Initializable::initialize();
     Initializable::initialize();

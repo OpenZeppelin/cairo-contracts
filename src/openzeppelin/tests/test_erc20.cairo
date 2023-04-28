@@ -13,10 +13,6 @@ use integer::BoundedInt;
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 
-fn MAX_U256() -> u256 {
-    BoundedInt::max()
-}
-
 //
 // Helper functions
 //
@@ -233,13 +229,13 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let spender: ContractAddress = contract_address_const::<3>();
     let amount: u256 = u256_from_felt252(100);
 
-    ERC20::approve(spender, MAX_U256());
+    ERC20::approve(spender, BoundedInt::max());
 
     set_caller_address(spender);
     ERC20::transfer_from(owner, recipient, amount);
 
     let spender_allowance: u256 = ERC20::allowance(owner, spender);
-    assert(spender_allowance == MAX_U256(), 'Allowance should not change');
+    assert(spender_allowance == BoundedInt::max(), 'Allowance should not change');
 }
 
 #[test]
@@ -398,12 +394,12 @@ fn test__spend_allowance_unlimited() {
     let (owner, supply) = setup();
 
     let spender: ContractAddress = contract_address_const::<2>();
-    let max_minus_one: u256 = MAX_U256() - u256_from_felt252(1);
+    let max_minus_one: u256 = BoundedInt::max() - u256_from_felt252(1);
 
-    ERC20::_approve(owner, spender, MAX_U256());
+    ERC20::_approve(owner, spender, BoundedInt::max());
     ERC20::_spend_allowance(owner, spender, max_minus_one);
 
-    assert(ERC20::allowance(owner, spender) == MAX_U256(), 'Allowance should not change');
+    assert(ERC20::allowance(owner, spender) == BoundedInt::max(), 'Allowance should not change');
 }
 
 #[test]

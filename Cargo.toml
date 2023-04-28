@@ -3,8 +3,10 @@
 members = [
     "cairo/crates/cairo-lang-casm",
     "cairo/crates/cairo-lang-compiler",
+    "cairo/crates/cairo-lang-utils",
     "cairo/crates/cairo-lang-debug",
     "cairo/crates/cairo-lang-defs",
+    "cairo/crates/cairo-lang-proc-macros",
     "cairo/crates/cairo-lang-diagnostics",
     "cairo/crates/cairo-lang-eq-solver",
     "cairo/crates/cairo-lang-filesystem",
@@ -13,20 +15,18 @@ members = [
     "cairo/crates/cairo-lang-lowering",
     "cairo/crates/cairo-lang-parser",
     "cairo/crates/cairo-lang-plugins",
-    "cairo/crates/cairo-lang-proc-macros",
     "cairo/crates/cairo-lang-project",
     "cairo/crates/cairo-lang-runner",
     "cairo/crates/cairo-lang-semantic",
-    "cairo/crates/cairo-lang-sierra",
     "cairo/crates/cairo-lang-sierra-ap-change",
     "cairo/crates/cairo-lang-sierra-gas",
     "cairo/crates/cairo-lang-sierra-generator",
     "cairo/crates/cairo-lang-sierra-to-casm",
+    "cairo/crates/cairo-lang-sierra",
     "cairo/crates/cairo-lang-starknet",
-    "cairo/crates/cairo-lang-syntax",
     "cairo/crates/cairo-lang-syntax-codegen",
+    "cairo/crates/cairo-lang-syntax",
     "cairo/crates/cairo-lang-test-runner",
-    "cairo/crates/cairo-lang-utils",
     "cairo/tests",
 ]
 
@@ -45,6 +45,7 @@ assert_matches = "1.5"
 bimap = "0.6.2"
 cairo-felt = "0.3.0-rc1"
 cairo-vm = "0.3.0-rc1"
+chrono = "0.4.23"
 clap = { version = "4.0", features = ["derive"] }
 colored = "2"
 const-fnv1a-hash = "1.1.0"
@@ -59,7 +60,6 @@ ignore = "0.4.20"
 indexmap = { version = "1.9.1", features = ["serde"] }
 indoc = "2.0.1"
 itertools = "0.10.3"
-keccak = "0.1.3"
 lalrpop-util = { version = "0.19.9", features = ["lexer"] }
 log = "0.4"
 lsp = { version = "0.93", package = "lsp-types" }
@@ -84,7 +84,6 @@ test-case = "2.2.2"
 test-case-macros = "2.2.2"
 test-log = "0.2.11"
 thiserror = "1.0.32"
-time = { version = "0.3.20", features = ["formatting", "macros", "local-offset"] }
 tokio = { version = "1.18.2", features = ["full", "sync"] }
 toml = "0.4.2"
 tower-lsp = "0.17.0"

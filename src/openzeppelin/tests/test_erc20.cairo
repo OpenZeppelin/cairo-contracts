@@ -5,6 +5,7 @@ use starknet::testing::set_caller_address;
 use integer::u256;
 use integer::u256_from_felt252;
 use integer::BoundedInt;
+use traits::Into;
 
 //
 // Constants

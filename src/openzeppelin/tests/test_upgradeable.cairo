@@ -55,7 +55,7 @@ fn test_initializer() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected:('Contract already initialized', ))]
+#[should_panic(expected: ('Contract already initialized', ))]
 fn test_initialize_twice() {
     Upgradeable::initializer(ADMIN());
     Upgradeable::initializer(ADMIN());
@@ -71,7 +71,7 @@ fn test__set_new_admin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected:('Admin cannot be zero', ))]
+#[should_panic(expected: ('Admin cannot be zero', ))]
 fn test__set_admin_zero() {
     setup();
     Upgradeable::_set_admin(ZERO());
@@ -87,7 +87,7 @@ fn test__upgrade() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected:('Class hash cannot be zero', ))]
+#[should_panic(expected: ('Class hash cannot be zero', ))]
 fn test__upgrade_with_zero_class_hash() {
     setup();
     Upgradeable::_upgrade(class_hash_const::<0>());
@@ -107,7 +107,7 @@ fn test_constructor() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected:('Admin cannot be zero', ))]
+#[should_panic(expected: ('Admin cannot be zero', ))]
 fn test_constructor_with_admin_zero() {
     Upgrades_V1::constructor(ZERO());
 }
@@ -122,7 +122,7 @@ fn test_set_new_admin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected:('Caller is not admin', ))]
+#[should_panic(expected: ('Caller is not admin', ))]
 fn test_set_new_admin_from_unauthorized() {
     setup_impl();
     set_caller_address(OTHER());
@@ -149,7 +149,7 @@ fn test_upgrade() {
 
 #[test]
 #[ignore] // replace_class_syscall() not yet supported in tests
-#[should_panic(expected:('Caller is not admin', ))]
+#[should_panic(expected: ('Caller is not admin', ))]
 #[available_gas(2000000)]
 fn test_upgrade_from_unauthorized() {
     setup_impl();

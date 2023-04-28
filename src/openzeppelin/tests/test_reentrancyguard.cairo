@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 
 #[test]
 #[available_gas(2000000)]
-// #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
+// #[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_remote_callback() {
     // todo: requires call_contract_syscall
 
@@ -21,14 +21,14 @@ fn test_reentrancy_guard_remote_callback() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_local_recursion() {
     ReentrancyMock::count_local_recursive(10);
 }
 
 #[test]
 #[available_gas(2000000)]
-// #[should_panic(expected = ('ReentrancyGuard: reentrant call', ))]
+// #[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_external_recursion() {
     // todo: requires call_contract_syscall
 

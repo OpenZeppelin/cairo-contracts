@@ -45,7 +45,7 @@ fn test_assert_only_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role', ))]
 fn test_assert_only_role_unauthorized() {
     setup();
     set_caller_address(ACCOUNT2());
@@ -62,7 +62,7 @@ fn test_grant_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role', ))]
 fn test_grant_role_unauthorized() {
     setup();
     set_caller_address(ACCOUNT2());
@@ -82,7 +82,7 @@ fn test_revoke_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role', ))]
 fn test_revoke_role_unauthorized() {
     setup();
     set_caller_address(ACCOUNT2());
@@ -99,7 +99,7 @@ fn test_renounce_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Can only renounce role for self', ))]
+#[should_panic(expected: ('Can only renounce role for self', ))]
 fn test_renounce_role_unauthorized() {
     setup();
     set_caller_address(ACCOUNT2());

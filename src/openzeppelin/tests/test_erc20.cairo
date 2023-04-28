@@ -394,7 +394,7 @@ fn test__spend_allowance_unlimited() {
     let (owner, supply) = setup();
 
     let spender: ContractAddress = contract_address_const::<2>();
-    let max_minus_one: u256 = BoundedInt::max() - u256_from_felt252(1);
+    let max_minus_one: u256 = BoundedInt::max() - 1.into();
 
     ERC20::_approve(owner, spender, BoundedInt::max());
     ERC20::_spend_allowance(owner, spender, max_minus_one);

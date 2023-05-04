@@ -1,6 +1,7 @@
 use serde::Serde;
 use array::ArrayTrait;
 use array::SpanTrait;
+use box::BoxTrait;
 use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressSerde;
 use openzeppelin::utils::check_gas;
@@ -17,11 +18,17 @@ struct Call {
     calldata: Array<felt252>
 }
 
+#[abi]
+trait IAccount {
+    fn __validate__(calls: Array<Call>) -> felt252;
+    fn __validate_declare__(class_hash: felt252) -> felt252;
+}
+
 #[account_contract]
 mod Account {
-    use box::BoxTrait;
     use array::SpanTrait;
     use array::ArrayTrait;
+    use box::BoxTrait;
     use option::OptionTrait;
     use zeroable::Zeroable;
     use ecdsa::check_ecdsa_signature;
@@ -82,7 +89,6 @@ mod Account {
     // #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
         _validate_transaction()
-
     }
 
     #[external]
@@ -152,7 +158,7 @@ mod Account {
     #[internal]
     fn _is_valid_signature(message: felt252, signature: Span<felt252>) -> bool {
         let valid_length = signature.len() == 2_u32;
-        
+
         valid_length & check_ecdsa_signature(
             message,
             public_key::read(),
@@ -186,11 +192,11 @@ mod Account {
 impl ArrayCallDrop of Drop::<Array<Call>>;
 
 impl CallSerde of Serde::<Call> {
-    fn serialize(ref output: Array<felt252>, input: Call) {
-        let Call{to, selector, calldata } = input;
-        Serde::serialize(ref output, to);
-        Serde::serialize(ref output, selector);
-        Serde::serialize(ref output, calldata);
+    fn serialize(self: @Call, ref output: Array<felt252>) {
+        let Call{to, selector, calldata } = self;
+        Serde::<ContractAddress>::serialize(to, ref output);
+        Serde::<felt252>::serialize(selector, ref output);
+        Serde::<Array<felt252>>::serialize(calldata, ref output);
     }
 
     fn deserialize(ref serialized: Span<felt252>) -> Option<Call> {
@@ -202,38 +208,38 @@ impl CallSerde of Serde::<Call> {
 }
 
 impl ArrayCallSerde of Serde::<Array<Call>> {
-    fn serialize(ref output: Array<felt252>, mut input: Array<Call>) {
-        Serde::<usize>::serialize(ref output, input.len());
-        serialize_array_call_helper(ref output, input);
+    fn serialize(self: @Array<Call>, ref output: Array<felt252>) {
+        Serde::<usize>::serialize(@self.len(), ref output);
+
+        let mut i = 0;
+        loop {
+            match self.get(i) {
+                Option::Some(value) => {
+                    Serde::<Call>::serialize(value.unbox(), ref output);
+                },
+                Option::None(_) => {
+                    break();
+                },
+            }
+            i += 1;
+            check_gas();
+        };
     }
 
     fn deserialize(ref serialized: Span<felt252>) -> Option<Array<Call>> {
         let length = *serialized.pop_front()?;
         let mut arr = ArrayTrait::new();
-        deserialize_array_call_helper(ref serialized, arr, length)
+
+        let mut i = 0;
+        loop {
+            if i == length {
+                break();
+            }
+            arr.append(Serde::<Call>::deserialize(ref serialized)?);
+            i += 1;
+            check_gas();
+        };
+
+        Option::Some(arr)
     }
-}
-
-fn serialize_array_call_helper(ref output: Array<felt252>, mut input: Array<Call>) {
-    check_gas();
-    match input.pop_front() {
-        Option::Some(value) => {
-            Serde::<Call>::serialize(ref output, value);
-            serialize_array_call_helper(ref output, input);
-        },
-        Option::None(_) => {},
-    }
-}
-
-fn deserialize_array_call_helper(
-    ref serialized: Span<felt252>, mut curr_output: Array<Call>, remaining: felt252
-) -> Option<Array<Call>> {
-    if remaining == 0 {
-        return Option::Some(curr_output);
-    }
-
-    check_gas();
-
-    curr_output.append(Serde::<Call>::deserialize(ref serialized)?);
-    deserialize_array_call_helper(ref serialized, curr_output, remaining - 1)
 }

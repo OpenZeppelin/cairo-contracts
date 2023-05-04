@@ -35,7 +35,7 @@ fn test_register_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Invalid id', ))]
+#[should_panic(expected: ('Invalid id', ))]
 fn test_register_invalid_interface() {
     ERC165::register_interface(INVALID_ID);
 }
@@ -51,7 +51,7 @@ fn test_deregister_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Invalid id', ))]
+#[should_panic(expected: ('Invalid id', ))]
 fn test_deregister_default_interface() {
     ERC165::deregister_interface(IERC165_ID);
 }

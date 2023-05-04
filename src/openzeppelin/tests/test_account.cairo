@@ -1,18 +1,46 @@
 use array::ArrayTrait;
+use core::result::ResultTrait;
+use option::OptionTrait;
+use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
+use starknet::syscalls::deploy_syscall;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
+use starknet::testing::set_transaction_hash;
+use starknet::testing::set_signature;
+use traits::TryInto;
+
 use openzeppelin::account::Account;
+use openzeppelin::account::IAccountDispatcher;
+use openzeppelin::account::IAccountDispatcherTrait;
 use openzeppelin::account::ERC165_ACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::Call;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
+#[derive(Drop)]
+struct ValidSignature {
+    private_key: felt252,
+    public_key: felt252,
+    message: felt252,
+    r: felt252,
+    s: felt252
+}
+
 fn NEW_KEY() -> felt252 { 0x444444 }
 fn PUBLIC_KEY() -> felt252 { 0x333333 }
 fn OTHER() -> ContractAddress { contract_address_const::<0x222222>() }
 fn ACCOUNT_ADDRESS() -> ContractAddress { contract_address_const::<0x111111>() }
+fn VALID_SIGNATURE() -> ValidSignature {
+    ValidSignature {
+        private_key: 1234,
+        public_key: 883045738439352841478194533192765345509759306772397516907181243450667673002,
+        message: 2717105892474786771566982177444710571376803476229898722748888396642649184538,
+        r: 3068558690657879390136740086327753007413919701043650133111397282816679110801,
+        s: 3355728545224320878895493649495491771252432631648740019139167265522817576501
+    }
+}
 
 fn setup() -> Array::<Call> {
     let mut CALLS = ArrayTrait::new();
@@ -152,7 +180,7 @@ fn test_public_key_setter() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
     setup();
     set_caller_address(OTHER());
@@ -161,7 +189,7 @@ fn test_public_key_setter_different_account() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: invalid caller', ))]
+#[should_panic(expected: ('Account: invalid caller', ))]
 fn test_account_called_from_contract() {
     let CALLS = setup();
     set_caller_address(OTHER());
@@ -182,7 +210,7 @@ fn test__assert_only_self_true() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized', ))]
 fn test__assert_only_self_false() {
     setup();
     set_caller_address(OTHER());
@@ -192,7 +220,27 @@ fn test__assert_only_self_false() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate_transaction() {
-    // todo: requires mocking TxInfo
+    let sig_data = VALID_SIGNATURE();
+
+    // Deploy the account contract
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(sig_data.public_key);
+    let (address, _) = deploy_syscall(
+        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+    ).unwrap();
+    let account = IAccountDispatcher { contract_address: address };
+
+    // Set the transaction hash
+    set_transaction_hash(sig_data.message);
+
+    // Set the signature
+    let mut signature = ArrayTrait::new();
+    signature.append(sig_data.r);
+    signature.append(sig_data.s);
+    set_signature(signature.span());
+
+    // Interact
+    assert(account.__validate_declare__(4444) == starknet::VALIDATED, 'Should validate correctly');
 }
 
 #[test]

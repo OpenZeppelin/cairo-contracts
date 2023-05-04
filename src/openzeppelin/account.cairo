@@ -1,9 +1,6 @@
 use serde::Serde;
 use array::ArrayTrait;
-use array::SpanTrait;
-use box::BoxTrait;
 use starknet::ContractAddress;
-use starknet::contract_address::ContractAddressSerde;
 use openzeppelin::utils::check_gas;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
@@ -37,8 +34,6 @@ mod Account {
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
-    use starknet::contract_address::ContractAddressPartialEq;
-    use starknet::contract_address::ContractAddressZeroable;
 
     use super::Call;
     use super::ERC165_ACCOUNT_ID;

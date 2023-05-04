@@ -41,7 +41,6 @@ mod Account {
     use starknet::contract_address::ContractAddressZeroable;
 
     use super::Call;
-    use super::SpanSerde;
     use super::ERC165_ACCOUNT_ID;
     use super::ERC1271_VALIDATED;
     use super::TRANSACTION_VERSION;
@@ -121,7 +120,7 @@ mod Account {
     }
 
     // todo: fix Span serde
-    #[view]
+    // #[view]
     fn is_valid_signature(message: felt252, signature: Span<felt252>) -> u32 {
         if _is_valid_signature(message, signature) {
             ERC1271_VALIDATED
@@ -186,42 +185,5 @@ mod Account {
     fn _execute_single_call(mut call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
-    }
-}
-
-impl SpanSerde<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>> of Serde<Span<T>> {
-    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
-       Serde::<usize>::serialize(@(*self).len(), ref output);
-
-        let mut i = 0;
-        loop {
-            match self.get(i) {
-                Option::Some(value) => {
-                    value.unbox().serialize(ref output);
-                },
-                Option::None(_) => {
-                    break();
-                },
-            }
-            i += 1;
-            check_gas();
-        };
-    }
-
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
-        let length = *serialized.pop_front()?;
-        let mut arr = ArrayTrait::new();
-
-        let mut i = 0;
-        loop {
-            if i == length {
-                break();
-            }
-            arr.append(TSerde::deserialize(ref serialized)?);
-            i += 1;
-            check_gas();
-        };
-
-        Option::Some(arr)
     }
 }

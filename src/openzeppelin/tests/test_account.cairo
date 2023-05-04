@@ -106,10 +106,28 @@ fn test_is_valid_signature() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate() {
-    // todo: requires mocking TxInfo
+    let calls = setup();
+    let sig_data = VALID_SIGNATURE();
 
-    // let CALLS = setup();
-    // Account::__validate__(CALLS);
+    // Deploy the account contract
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(sig_data.public_key);
+    let (address, _) = deploy_syscall(
+        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+    ).unwrap();
+    let account = IAccountDispatcher { contract_address: address };
+
+    // Set the transaction hash
+    set_transaction_hash(sig_data.message);
+
+    // Set the signature
+    let mut signature = ArrayTrait::new();
+    signature.append(sig_data.r);
+    signature.append(sig_data.s);
+    set_signature(signature.span());
+
+    // Interact
+    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
 }
 
 #[test]

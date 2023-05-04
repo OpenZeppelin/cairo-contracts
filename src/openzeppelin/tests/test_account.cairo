@@ -8,6 +8,7 @@ use starknet::syscalls::deploy_syscall;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
 use starknet::testing::set_transaction_hash;
+use starknet::testing::set_version;
 use starknet::testing::set_signature;
 use traits::TryInto;
 
@@ -41,20 +42,45 @@ fn VALID_SIGNATURE() -> ValidSignature {
         s: 3355728545224320878895493649495491771252432631648740019139167265522817576501
     }
 }
+fn CALLS() -> Array::<Call> {
+    let mut calls = ArrayTrait::new();
 
-fn setup() -> Array::<Call> {
-    let mut CALLS = ArrayTrait::new();
-
-    CALLS.append(Call{
+    calls.append(Call{
         to: contract_address_const::<123456>(),
         selector: 0x123,
         calldata: ArrayTrait::new()
     });
 
+    calls
+}
+
+fn setup() -> Array::<Call> {
     set_contract_address(ACCOUNT_ADDRESS());
     Account::constructor(PUBLIC_KEY());
 
-    return CALLS;
+    CALLS()
+}
+
+fn setup_dispatcher() -> IAccountDispatcher {
+    let sig_data = VALID_SIGNATURE();
+
+    // Deploy the account contract
+    let mut calldata = ArrayTrait::<felt252>::new();
+    calldata.append(sig_data.public_key);
+    let (address, _) = deploy_syscall(
+        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+    ).unwrap();
+
+    // Set the transaction hash
+    set_transaction_hash(sig_data.message);
+
+    // Set the signature
+    let mut signature = ArrayTrait::new();
+    signature.append(sig_data.r);
+    signature.append(sig_data.s);
+    set_signature(signature.span());
+
+    IAccountDispatcher { contract_address: address }
 }
 
 #[test]
@@ -106,27 +132,9 @@ fn test_is_valid_signature() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate() {
-    let calls = setup();
-    let sig_data = VALID_SIGNATURE();
+    let calls = CALLS();
+    let account = setup_dispatcher();
 
-    // Deploy the account contract
-    let mut calldata = ArrayTrait::<felt252>::new();
-    calldata.append(sig_data.public_key);
-    let (address, _) = deploy_syscall(
-        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    ).unwrap();
-    let account = IAccountDispatcher { contract_address: address };
-
-    // Set the transaction hash
-    set_transaction_hash(sig_data.message);
-
-    // Set the signature
-    let mut signature = ArrayTrait::new();
-    signature.append(sig_data.r);
-    signature.append(sig_data.s);
-    set_signature(signature.span());
-
-    // Interact
     assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
 }
 
@@ -143,10 +151,8 @@ fn test_declare() {
 #[test]
 #[available_gas(2000000)]
 fn test_execute() {
-    // todo: requires call_contract_syscall
-
-    // let CALLS = setup();
-    // Account::__execute__(CALLS);
+    // let account = setup_dispatcher();
+    // account.__execute__(CALLS());
 }
 
 #[test]
@@ -238,26 +244,8 @@ fn test__assert_only_self_false() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate_transaction() {
-    let sig_data = VALID_SIGNATURE();
+    let account = setup_dispatcher();
 
-    // Deploy the account contract
-    let mut calldata = ArrayTrait::<felt252>::new();
-    calldata.append(sig_data.public_key);
-    let (address, _) = deploy_syscall(
-        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    ).unwrap();
-    let account = IAccountDispatcher { contract_address: address };
-
-    // Set the transaction hash
-    set_transaction_hash(sig_data.message);
-
-    // Set the signature
-    let mut signature = ArrayTrait::new();
-    signature.append(sig_data.r);
-    signature.append(sig_data.s);
-    set_signature(signature.span());
-
-    // Interact
     assert(account.__validate_declare__(4444) == starknet::VALIDATED, 'Should validate correctly');
 }
 

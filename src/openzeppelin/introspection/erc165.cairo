@@ -2,7 +2,7 @@ const IERC165_ID: u32 = 0x01ffc9a7_u32;
 const INVALID_ID: u32 = 0xffffffff_u32;
 
 trait IERC165 {
-  fn supports_interface(interface_id: u32) -> bool;
+    fn supports_interface(interface_id: u32) -> bool;
 }
 
 #[contract]
@@ -10,7 +10,7 @@ mod ERC165 {
     use openzeppelin::introspection::erc165;
 
     struct Storage {
-        supported_interfaces: LegacyMap<u32, bool>,
+        supported_interfaces: LegacyMap<u32, bool>, 
     }
 
     impl ERC165 of erc165::IERC165 {
@@ -26,7 +26,7 @@ mod ERC165 {
     fn supports_interface(interface_id: u32) -> bool {
         ERC165::supports_interface(interface_id)
     }
- 
+
     #[internal]
     fn register_interface(interface_id: u32) {
         assert(interface_id != erc165::INVALID_ID, 'Invalid id');

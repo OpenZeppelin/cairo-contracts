@@ -1,5 +1,6 @@
 use array::ArrayTrait;
 use core::result::ResultTrait;
+use debug::PrintTrait;
 use option::OptionTrait;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
@@ -8,7 +9,7 @@ use starknet::syscalls::deploy_syscall;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
 use starknet::testing::set_transaction_hash;
-use starknet::testing::set_version;
+use starknet::testing;
 use starknet::testing::set_signature;
 use traits::TryInto;
 
@@ -17,6 +18,7 @@ use openzeppelin::account::IAccountDispatcher;
 use openzeppelin::account::IAccountDispatcherTrait;
 use openzeppelin::account::ERC165_ACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
+use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::account::Call;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
@@ -29,10 +31,18 @@ struct ValidSignature {
     s: felt252
 }
 
-fn NEW_KEY() -> felt252 { 0x444444 }
-fn PUBLIC_KEY() -> felt252 { 0x333333 }
-fn OTHER() -> ContractAddress { contract_address_const::<0x222222>() }
-fn ACCOUNT_ADDRESS() -> ContractAddress { contract_address_const::<0x111111>() }
+fn NEW_KEY() -> felt252 {
+    0x444444
+}
+fn PUBLIC_KEY() -> felt252 {
+    0x333333
+}
+fn OTHER() -> ContractAddress {
+    contract_address_const::<0x222222>()
+}
+fn ACCOUNT_ADDRESS() -> ContractAddress {
+    contract_address_const::<0x111111>()
+}
 fn VALID_SIGNATURE() -> ValidSignature {
     ValidSignature {
         private_key: 1234,
@@ -45,11 +55,11 @@ fn VALID_SIGNATURE() -> ValidSignature {
 fn CALLS() -> Array::<Call> {
     let mut calls = ArrayTrait::new();
 
-    calls.append(Call{
-        to: contract_address_const::<123456>(),
-        selector: 0x123,
-        calldata: ArrayTrait::new()
-    });
+    calls.append(
+        Call {
+            to: contract_address_const::<123456>(), selector: 0x123, calldata: ArrayTrait::new()
+        }
+    );
 
     calls
 }
@@ -71,7 +81,8 @@ fn setup_dispatcher() -> IAccountDispatcher {
         Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
     ).unwrap();
 
-    // Set the transaction hash
+    // Set the transaction version and hash
+    testing::set_version(TRANSACTION_VERSION);
     set_transaction_hash(sig_data.message);
 
     // Set the signature
@@ -85,8 +96,7 @@ fn setup_dispatcher() -> IAccountDispatcher {
 
 #[test]
 #[available_gas(2000000)]
-fn test_counterfactual_deployment() {
-}
+fn test_counterfactual_deployment() {}
 
 #[test]
 #[available_gas(2000000)]
@@ -140,55 +150,65 @@ fn test_validate() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_declare() {
-    // todo: requires mocking TxInfo
-
-    // setup();
-    // let class_hash: felt252 = 0x123;
-    // Account::__validate_declare__(class_hash);
+fn test_declare() { // todo: requires mocking TxInfo
+// setup();
+// let class_hash: felt252 = 0x123;
+// Account::__validate_declare__(class_hash);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_execute() {
-    // let account = setup_dispatcher();
-    // account.__execute__(CALLS());
+    let account = setup_dispatcher();
+    let sig_data = VALID_SIGNATURE();
+
+    assert(account.get_public_key() == sig_data.public_key, 'Should have initial public key');
+
+    // Call itself for updating the public key
+    let new_public_key = 1313113211;
+    let mut calls = ArrayTrait::new();
+    let mut calldata = ArrayTrait::new();
+    let selector = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
+
+    calldata.append(new_public_key);
+    calls.append(Call { to: account.contract_address, selector: selector, calldata: calldata });
+    account.__execute__(calls);
+
+    assert(account.get_public_key() == 1313113211, 'Should have new public key');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_multicall() {
-    // todo: requires call_contract_syscall
+fn test_multicall() { // todo: requires call_contract_syscall
+// let mut CALLS = setup();
 
-    // let mut CALLS = setup();
+// CALLS.append(Call{
+//     to: contract_address_const::<123456>(),
+//     selector: 0x123,
+//     calldata: ArrayTrait::new()
+// });
 
-    // CALLS.append(Call{
-    //     to: contract_address_const::<123456>(),
-    //     selector: 0x123,
-    //     calldata: ArrayTrait::new()
-    // });
+// CALLS.append(Call{
+//     to: contract_address_const::<123456>(),
+//     selector: 0x123,
+//     calldata: ArrayTrait::new()
+// });
 
-    // CALLS.append(Call{
-    //     to: contract_address_const::<123456>(),
-    //     selector: 0x123,
-    //     calldata: ArrayTrait::new()
-    // });
-
-    // Account::__execute__(CALLS);
+// Account::__execute__(CALLS);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_test_retun_value() {
     setup();
-    // todo: requires call_contract_syscall
+// todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_nonce() {
     setup();
-    // todo: requires call_contract_syscall
+// todo: requires call_contract_syscall
 }
 
 #[test]
@@ -251,8 +271,7 @@ fn test_validate_transaction() {
 
 #[test]
 #[available_gas(2000000)]
-fn test__is_valid_signature_valid() {
-    // todo: requires a signer
+fn test__is_valid_signature_valid() { // todo: requires a signer
 }
 
 #[test]
@@ -269,12 +288,10 @@ fn test__is_valid_signature_invalid() {
 
 #[test]
 #[available_gas(2000000)]
-fn test__execute_calls() {
-    // todo: requires call_contract_syscall
+fn test__execute_calls() { // todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test__execute_single_call() {
-    // todo: requires call_contract_syscall
+fn test__execute_single_call() { // todo: requires call_contract_syscall
 }

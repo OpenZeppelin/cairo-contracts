@@ -2,12 +2,14 @@ use serde::Serde;
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use openzeppelin::utils::check_gas;
+use openzeppelin::utils::span_to_array;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
 
 const TRANSACTION_VERSION: felt252 = 1;
-const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457; // 2**128 + TRANSACTION_VERSION
+const QUERY_VERSION: felt252 =
+    340282366920938463463374607431768211457; // 2**128 + TRANSACTION_VERSION
 
 #[derive(Serde, Drop)]
 struct Call {
@@ -20,6 +22,9 @@ struct Call {
 trait IAccount {
     fn __validate__(calls: Array<Call>) -> felt252;
     fn __validate_declare__(class_hash: felt252) -> felt252;
+    fn __execute__(calls: Array<Call>) -> Array<Array<felt252>>;
+    fn set_public_key(new_public_key: felt252);
+    fn get_public_key() -> felt252;
 }
 
 #[account_contract]
@@ -34,12 +39,14 @@ mod Account {
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
+    use debug::PrintTrait;
 
     use super::Call;
     use super::ERC165_ACCOUNT_ID;
     use super::ERC1271_VALIDATED;
     use super::TRANSACTION_VERSION;
     use super::QUERY_VERSION;
+    use super::span_to_array;
 
     use openzeppelin::introspection::erc165::ERC165;
     use openzeppelin::utils::check_gas;
@@ -49,7 +56,7 @@ mod Account {
     //
 
     struct Storage {
-        public_key: felt252,
+        public_key: felt252
     }
 
     #[constructor]
@@ -62,9 +69,9 @@ mod Account {
     // Externals
     //
 
-    // todo: fix Span serde
-    // #[external]
-    fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
+    // TODO: Use Span in the inner Array of the return type
+    #[external]
+    fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
         // avoid calls from other contracts
         // https://github.com/OpenZeppelin/cairo-contracts/issues/344
         let sender = get_caller_address();
@@ -92,9 +99,7 @@ mod Account {
 
     #[external]
     fn __validate_deploy__(
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
+        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252 {
         _validate_transaction()
     }
@@ -153,16 +158,16 @@ mod Account {
     fn _is_valid_signature(message: felt252, signature: Span<felt252>) -> bool {
         let valid_length = signature.len() == 2_u32;
 
-        valid_length & check_ecdsa_signature(
-            message,
-            public_key::read(),
-            *signature.at(0_u32),
-            *signature.at(1_u32)
-        )
+        valid_length
+            & check_ecdsa_signature(
+                message, public_key::read(), *signature.at(0_u32), *signature.at(1_u32)
+            )
     }
 
     #[internal]
-    fn _execute_calls(mut calls: Array<Call>, mut res: Array<Span<felt252>>) -> Array<Span<felt252>> {
+    fn _execute_calls(
+        mut calls: Array<Call>, mut res: Array<Array<felt252>>
+    ) -> Array<Array<felt252>> {
         check_gas();
         match calls.pop_front() {
             Option::Some(call) => {
@@ -177,8 +182,10 @@ mod Account {
     }
 
     #[internal]
-    fn _execute_single_call(mut call: Call) -> Span<felt252> {
+    fn _execute_single_call(mut call: Call) -> Array<felt252> {
         let Call{to, selector, calldata } = call;
-        starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
+
+        let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();
+        span_to_array(res)
     }
 }

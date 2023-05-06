@@ -1,10 +1,6 @@
 use openzeppelin::access::accesscontrol::AccessControl;
-use openzeppelin::utils::constants::DEFAULT_ADMIN_ROLE;
-use openzeppelin::utils::constants::IACCESSCONTROL_ID;
-
-use starknet::contract_address_const;
-use starknet::ContractAddress;
-use starknet::testing::set_caller_address;
+use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
+use starknet::{contract_address_const, ContractAddress, testing::set_caller_address};
 
 const SOME_OTHER_ROLE: felt252 = 42;
 

@@ -16,12 +16,10 @@ mod AccessControl {
     use openzeppelin::introspection::erc165::ERC165;
 
     // Constants
-    use openzeppelin::utils::constants::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::utils::constants::IACCESSCONTROL_ID;
+    use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
 
     // Other
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
+    use starknet::{ContractAddress, get_caller_address};
 
     struct Storage {
         role_admin: LegacyMap<felt252, felt252>,

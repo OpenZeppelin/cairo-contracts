@@ -1,8 +1,6 @@
 use openzeppelin::access::ownable::Ownable;
 
-use starknet::contract_address_const;
-use starknet::ContractAddress;
-use starknet::testing::set_caller_address;
+use starknet::{ContractAddress, contract_address_const, testing::set_caller_address};
 use zeroable::Zeroable;
 
 fn ZERO() -> ContractAddress {

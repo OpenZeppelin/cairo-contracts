@@ -1,8 +1,6 @@
 #[contract]
 mod Ownable {
-    use starknet::ContractAddress;
-    use starknet::ContractAddressZeroable;
-    use starknet::get_caller_address;
+    use starknet::{ContractAddress, contract_address::ContractAddressZeroable, get_caller_address};
     use zeroable::Zeroable;
 
     struct Storage {

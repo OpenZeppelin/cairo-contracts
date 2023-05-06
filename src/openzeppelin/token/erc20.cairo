@@ -18,7 +18,6 @@ mod ERC20 {
     use integer::BoundedInt;
     use starknet::{ContractAddress, contract_address::ContractAddressZeroable, get_caller_address};
     use zeroable::Zeroable;
-    use integer::BoundedInt;
 
     struct Storage {
         _name: felt252,

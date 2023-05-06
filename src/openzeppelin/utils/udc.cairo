@@ -2,9 +2,7 @@
 mod UniversalDeployerContract {
     use array::ArrayTrait;
     use hash::pedersen;
-    use starknet::class_hash::ClassHash;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
+    use starknet::{class_hash::ClassHash, ContractAddress, get_caller_address};
     use traits::Into;
 
     #[event]

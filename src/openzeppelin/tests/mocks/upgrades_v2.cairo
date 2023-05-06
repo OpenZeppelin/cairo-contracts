@@ -1,28 +1,19 @@
+// This contract is a mock used to test the core functionality of the upgrade functions.
+// The functions are NOT PROTECTED.
+// DO NOT USE IN PRODUCTION.
+
 #[contract]
 mod Upgrades_V2 {
     use openzeppelin::upgrades::upgradeable::Upgradeable;
-    use starknet::class_hash::ClassHash;
-    use starknet::ContractAddress;
+    use starknet::{ class_hash::ClassHash, ContractAddress };
 
     struct Storage {
         value: felt252,
         value2: felt252,
     }
 
-    #[constructor]
-    fn constructor(proxy_admin: ContractAddress) {
-        Upgradeable::initializer(proxy_admin);
-    }
-
-    #[external]
-    fn set_admin(new_admin: ContractAddress) {
-        Upgradeable::assert_only_admin();
-        Upgradeable::_set_admin(new_admin);
-    }
-
     #[external]
     fn upgrade(new_hash: ClassHash) {
-        Upgradeable::assert_only_admin();
         Upgradeable::_upgrade(new_hash);
     }
 
@@ -34,11 +25,6 @@ mod Upgrades_V2 {
     #[external]
     fn set_value2(val: felt252) {
         value2::write(val);
-    }
-
-    #[view]
-    fn get_admin() -> ContractAddress {
-        Upgradeable::get_admin()
     }
 
     #[view]

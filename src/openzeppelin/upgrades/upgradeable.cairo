@@ -1,54 +1,41 @@
+use starknet::class_hash::ClassHash;
+
+#[abi]
+trait IUpgradeable {
+    fn upgrade(impl_hash: ClassHash);
+    fn upgrade_and_call(impl_hash: ClassHash, selector: felt252, calldata: Array<felt252>);
+}
+
 #[contract]
 mod Upgradeable {
-    use starknet::class_hash::ClassHash;
-    use starknet::class_hash::ClassHashZeroable;
-    use starknet::ContractAddress;
-    use starknet::ContractAddressZeroable;
-    use starknet::get_caller_address;
-    use starknet::syscalls::replace_class_syscall;
+    use array::ArrayTrait;
+    use starknet::{
+        class_hash::{ ClassHash, ClassHashZeroable},
+        ContractAddress,
+        get_contract_address,
+        syscalls::{ call_contract_syscall, replace_class_syscall }
+    };
     use zeroable::Zeroable;
-
-    struct Storage {
-        admin: ContractAddress,
-        initialized: bool,
-    }
 
     #[event]
     fn Upgraded(implementation: ClassHash) {}
-
-    #[event]
-    fn AdminChanged(previous_admin: ContractAddress, new_admin: ContractAddress) {}
-
-    fn initializer(contract_admin: ContractAddress) {
-        assert(!initialized::read(), 'Contract already initialized');
-        initialized::write(true);
-        _set_admin(contract_admin);
-    }
-
-    fn assert_only_admin() {
-        let caller: ContractAddress = get_caller_address();
-        let admin: ContractAddress = admin::read();
-        assert(caller == admin, 'Caller is not admin');
-    }
-
-    fn get_admin() -> ContractAddress {
-        admin::read()
-    }
 
     //
     // Unprotected
     //
 
-    fn _set_admin(new_admin: ContractAddress) {
-        assert(!new_admin.is_zero(), 'Admin cannot be zero');
-        let old_admin: ContractAddress = admin::read();
-        admin::write(new_admin);
-        AdminChanged(old_admin, new_admin);
-    }
-
+    #[internal]
     fn _upgrade(impl_hash: ClassHash) {
         assert(!impl_hash.is_zero(), 'Class hash cannot be zero');
-        replace_class_syscall(impl_hash);
+        replace_class_syscall(impl_hash).unwrap_syscall();
         Upgraded(impl_hash);
+    }
+
+    #[internal]
+    fn _upgrade_and_call(impl_hash: ClassHash, selector: felt252, calldata: Array<felt252>) {
+        _upgrade(impl_hash);
+        // The call_contract syscall is used in order to call a selector from the new class.
+        // See: https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
+        call_contract_syscall(get_contract_address(), selector, calldata.span()).unwrap_syscall();
     }
 }

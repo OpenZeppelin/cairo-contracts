@@ -1,8 +1,7 @@
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::ReentrancyAttackerMock;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 
-use starknet::ContractAddress;
-use starknet::contract_address_const;
+use starknet::{ContractAddress, contract_address_const};
 
 #[test]
 #[available_gas(2000000)]

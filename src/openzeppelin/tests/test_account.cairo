@@ -162,7 +162,7 @@ fn test_execute() {
     let account = setup_dispatcher();
     let sig_data = VALID_SIGNATURE();
 
-    assert(account.get_public_key() == sig_data.public_key, 'Should have initial public key');
+    assert(account.get_public_key() == sig_data.public_key, 'Should set initial public key');
 
     // Call itself for updating the public key
     let new_public_key = 1313113211;

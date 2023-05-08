@@ -36,7 +36,7 @@ mod AccessControl {
 
     impl AccessControl of IAccessControl {
         fn has_role(role: felt252, account: ContractAddress) -> bool {
-            role_member::read((role, account))
+            role_members::read((role, account))
         }
 
         fn get_role_admin(role: felt252) -> felt252 {
@@ -120,7 +120,7 @@ mod AccessControl {
             role, account
         ) {
             let caller: ContractAddress = get_caller_address();
-            role_member::write((role, account), true);
+            role_members::write((role, account), true);
             RoleGranted(role, account, caller);
         }
     }
@@ -131,7 +131,7 @@ mod AccessControl {
             role, account
         ) {
             let caller: ContractAddress = get_caller_address();
-            role_member::write((role, account), false);
+            role_members::write((role, account), false);
             RoleRevoked(role, account, caller);
         }
     }

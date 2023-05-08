@@ -110,8 +110,6 @@ mod AccessControl {
     // outside of a contract's constructor.
     //
 
-
-    ///
     #[internal]
     fn _grant_role(role: felt252, account: ContractAddress) {
         if !has_role(

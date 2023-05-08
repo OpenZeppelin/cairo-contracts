@@ -10,7 +10,7 @@ mod ERC165 {
     use openzeppelin::introspection::erc165;
 
     struct Storage {
-        supported_interfaces: LegacyMap<u32, bool>, 
+        supported_interfaces: LegacyMap<u32, bool>
     }
 
     impl ERC165 of erc165::IERC165 {

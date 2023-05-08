@@ -2,6 +2,7 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use box::BoxTrait;
 use option::OptionTrait;
+mod constants;
 
 #[inline(always)]
 fn check_gas() {

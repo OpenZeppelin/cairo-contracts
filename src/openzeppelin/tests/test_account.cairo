@@ -162,7 +162,7 @@ fn test_execute() {
     let account = setup_dispatcher();
     let sig_data = VALID_SIGNATURE();
 
-    assert(account.get_public_key() == sig_data.public_key, 'Should set initial public key');
+    assert(account.get_public_key() == sig_data.public_key, 'Should get initial public key');
 
     // Call itself for updating the public key
     let new_public_key = 1313113211;
@@ -175,7 +175,7 @@ fn test_execute() {
     calls.append(Call { to: account.contract_address, selector: selector, calldata: calldata });
     account.__execute__(calls);
 
-    assert(account.get_public_key() == 1313113211, 'Should set new public key');
+    assert(account.get_public_key() == 1313113211, 'Should get new public key');
 }
 
 #[test]

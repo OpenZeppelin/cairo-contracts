@@ -8,8 +8,8 @@ const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
 
 const TRANSACTION_VERSION: felt252 = 1;
-const QUERY_VERSION: felt252 =
-    340282366920938463463374607431768211457; // 2**128 + TRANSACTION_VERSION
+// 2**128 + TRANSACTION_VERSION
+const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
 
 #[derive(Serde, Drop)]
 struct Call {
@@ -39,7 +39,6 @@ mod Account {
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
-    use debug::PrintTrait;
 
     use super::Call;
     use super::ERC165_ACCOUNT_ID;

@@ -168,6 +168,7 @@ fn test_execute() {
     let new_public_key = 1313113211;
     let mut calls = ArrayTrait::new();
     let mut calldata = ArrayTrait::new();
+    // Selector of the set_public_key external function
     let selector = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
 
     calldata.append(new_public_key);

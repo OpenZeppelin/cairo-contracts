@@ -174,7 +174,7 @@ fn test_execute() {
     calls.append(Call { to: account.contract_address, selector: selector, calldata: calldata });
     account.__execute__(calls);
 
-    assert(account.get_public_key() == 1313113211, 'Should have new public key');
+    assert(account.get_public_key() == 1313113211, 'Should set new public key');
 }
 
 #[test]

@@ -62,12 +62,6 @@ mod AccessControl {
         }
     }
 
-    #[constructor]
-    fn constructor(admin: ContractAddress) {
-        initializer();
-        _grant_role(DEFAULT_ADMIN_ROLE, admin);
-    }
-
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
         ERC165::supports_interface(interface_id)
@@ -116,6 +110,8 @@ mod AccessControl {
     // outside of a contract's constructor.
     //
 
+
+    ///
     #[internal]
     fn _grant_role(role: felt252, account: ContractAddress) {
         if !has_role(

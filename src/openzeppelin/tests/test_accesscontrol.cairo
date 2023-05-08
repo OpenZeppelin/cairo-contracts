@@ -12,23 +12,16 @@ fn ACCOUNT2() -> ContractAddress {
     contract_address_const::<2>()
 }
 
+// Mimics a contract's constructor
 fn setup() {
     set_caller_address(ACCOUNT1());
-    AccessControl::constructor(ACCOUNT1());
+    AccessControl::_grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
     AccessControl::initializer();
-    assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_constructor() {
-    AccessControl::constructor(ACCOUNT1());
-    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Admin role should be set');
     assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 

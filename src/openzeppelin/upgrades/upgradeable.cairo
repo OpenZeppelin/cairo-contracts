@@ -10,10 +10,11 @@ trait IUpgradeable {
 mod Upgradeable {
     use array::ArrayTrait;
     use starknet::{
-        class_hash::{ ClassHash, ClassHashZeroable},
-        ContractAddress,
-        get_contract_address,
-        syscalls::{ call_contract_syscall, replace_class_syscall }
+        class_hash::{
+        ClassHash, ClassHashZeroable
+        }, ContractAddress, get_contract_address, syscalls::{
+        call_contract_syscall, replace_class_syscall
+        }
     };
     use zeroable::Zeroable;
 

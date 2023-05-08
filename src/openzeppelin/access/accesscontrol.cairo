@@ -18,12 +18,11 @@ mod AccessControl {
     // Constants
     use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
 
-    // Other
     use starknet::{ContractAddress, get_caller_address};
 
     struct Storage {
         role_admin: LegacyMap<felt252, felt252>,
-        role_member: LegacyMap<(felt252, ContractAddress), bool>,
+        role_members: LegacyMap<(felt252, ContractAddress), bool>,
     }
 
     #[event]
@@ -45,7 +44,7 @@ mod AccessControl {
         }
 
         fn grant_role(role: felt252, account: ContractAddress) {
-            let admin: felt252 = get_role_admin(role);
+            let admin = get_role_admin(role);
             assert_only_role(admin);
             _grant_role(role, account);
         }

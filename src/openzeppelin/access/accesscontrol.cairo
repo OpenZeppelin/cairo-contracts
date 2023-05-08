@@ -34,7 +34,7 @@ mod AccessControl {
     #[event]
     fn RoleAdminChanged(role: felt252, previous_admin_role: felt252, new_admin_role: felt252) {}
 
-    impl AccessControl of IAccessControl {
+    impl AccessControlImpl of IAccessControl {
         fn has_role(role: felt252, account: ContractAddress) -> bool {
             role_members::read((role, account))
         }
@@ -75,27 +75,27 @@ mod AccessControl {
 
     #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {
-        AccessControl::has_role(role, account)
+        AccessControlImpl::has_role(role, account)
     }
 
     #[view]
     fn get_role_admin(role: felt252) -> felt252 {
-        AccessControl::get_role_admin(role)
+        AccessControlImpl::get_role_admin(role)
     }
 
     #[external]
     fn grant_role(role: felt252, account: ContractAddress) {
-        AccessControl::grant_role(role, account);
+        AccessControlImpl::grant_role(role, account);
     }
 
     #[external]
     fn revoke_role(role: felt252, account: ContractAddress) {
-        AccessControl::revoke_role(role, account);
+        AccessControlImpl::revoke_role(role, account);
     }
 
     #[external]
     fn renounce_role(role: felt252, account: ContractAddress) {
-        AccessControl::renounce_role(role, account);
+        AccessControlImpl::renounce_role(role, account);
     }
 
     #[internal]

@@ -11,13 +11,9 @@ trait IAccessControl {
 
 #[contract]
 mod AccessControl {
-    // OZ modules
     use super::IAccessControl;
     use openzeppelin::introspection::erc165::ERC165;
-
-    // Constants
     use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
-
     use starknet::{ContractAddress, get_caller_address};
 
     struct Storage {

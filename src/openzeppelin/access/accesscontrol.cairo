@@ -111,7 +111,9 @@ mod AccessControl {
     }
 
     //
-    // Unprotected
+    // WARNING
+    // The following internal functions are unprotected and should not be used
+    // outside of a contract's constructor.
     //
 
     #[internal]

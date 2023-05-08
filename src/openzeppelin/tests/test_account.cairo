@@ -55,11 +55,12 @@ fn VALID_SIGNATURE() -> ValidSignature {
 fn CALLS() -> Array::<Call> {
     let mut calls = ArrayTrait::new();
 
-    calls.append(
-        Call {
-            to: contract_address_const::<123456>(), selector: 0x123, calldata: ArrayTrait::new()
-        }
-    );
+    calls
+        .append(
+            Call {
+                to: contract_address_const::<123456>(), selector: 0x123, calldata: ArrayTrait::new()
+            }
+        );
 
     calls
 }
@@ -79,7 +80,8 @@ fn setup_dispatcher() -> IAccountDispatcher {
     calldata.append(sig_data.public_key);
     let (address, _) = deploy_syscall(
         Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    ).unwrap();
+    )
+        .unwrap();
 
     // Set the transaction version and hash
     testing::set_version(TRANSACTION_VERSION);

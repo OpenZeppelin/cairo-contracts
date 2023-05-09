@@ -195,3 +195,21 @@ fn test_revoked_admin_role_lost_privileges() {
     set_caller_address(ACCOUNT1());
     AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
 }
+
+//
+// default admin
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_other_role_admin_is_the_default_admin_role() {
+    let admin = AccessControl::get_role_admin(SOME_OTHER_ROLE);
+    assert(admin == DEFAULT_ADMIN_ROLE, 'admin should be default admin');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_default_admin_role_is_its_own_admin() {
+    let admin = AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE);
+    assert(admin == DEFAULT_ADMIN_ROLE, 'admin should be default admin');
+}

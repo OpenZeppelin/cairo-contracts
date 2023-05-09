@@ -134,10 +134,10 @@ fn test_is_valid_signature() {
     bad_signature.append(0x987);
     bad_signature.append(0x564);
 
-    let is_valid = Account::is_valid_signature(message, good_signature.span());
+    let is_valid = Account::is_valid_signature(message, good_signature);
     assert(is_valid == 0_u32, 'Should accept valid signature');
 
-    let is_valid = Account::is_valid_signature(message, bad_signature.span());
+    let is_valid = Account::is_valid_signature(message, bad_signature);
     assert(is_valid == 0_u32, 'Should reject invalid signature');
 }
 

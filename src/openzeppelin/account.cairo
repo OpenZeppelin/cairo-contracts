@@ -1,7 +1,3 @@
-use serde::Serde;
-use array::ArrayTrait;
-use array::SpanTrait;
-use box::BoxTrait;
 use starknet::ContractAddress;
 use openzeppelin::utils::check_gas;
 use openzeppelin::utils::span_to_array;
@@ -22,12 +18,24 @@ struct Call {
 
 #[abi]
 trait IAccount {
-    fn __validate__(calls: Array<Call>) -> felt252;
-    fn __validate_declare__(class_hash: felt252) -> felt252;
+    #[external]
     fn __execute__(calls: Array<Call>) -> Array<Array<felt252>>;
-    fn is_valid_signature2(message: felt252, signature: Span<felt252>) -> u32;
+    #[external]
+    fn __validate__(calls: Array<Call>) -> felt252;
+    #[external]
+    fn __validate_declare__(class_hash: felt252) -> felt252;
+    #[external]
+    fn __validate_deploy__(
+        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+    ) -> felt252;
+    #[external]
     fn set_public_key(new_public_key: felt252);
+    #[view]
     fn get_public_key() -> felt252;
+    #[view]
+    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32;
+    #[view]
+    fn supports_interface(interface_id: u32) -> bool;
 }
 
 #[account_contract]
@@ -43,7 +51,6 @@ mod Account {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
 
-    use super::SpanSerde;
     use super::Call;
     use super::ERC165_ACCOUNT_ID;
     use super::ERC1271_VALIDATED;
@@ -132,15 +139,6 @@ mod Account {
     }
 
     #[view]
-    fn is_valid_signature2(message: felt252, signature: Span<felt252>) -> u32 {
-        if _is_valid_signature(message, signature) {
-            ERC1271_VALIDATED
-        } else {
-            0_u32
-        }
-    }
-
-    #[view]
     fn supports_interface(interface_id: u32) -> bool {
         ERC165::supports_interface(interface_id)
     }
@@ -198,43 +196,5 @@ mod Account {
 
         let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();
         span_to_array(res)
-    }
-}
-
-impl SpanSerde<T, impl TSerde: Serde<T>, impl TDrop: Drop<T>> of Serde<Span<T>> {
-    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
-        let self = *self;
-        Serde::<usize>::serialize(@self.len(), ref output);
-
-        let mut i = 0;
-        loop {
-            match self.get(i) {
-                Option::Some(value) => {
-                    value.unbox().serialize(ref output);
-                },
-                Option::None(_) => {
-                    break();
-                },
-            }
-            i += 1;
-            check_gas();
-        };
-    }
-
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
-        let length = *serialized.pop_front()?;
-        let mut arr = ArrayTrait::new();
-
-        let mut i = 0;
-        loop {
-            if i == length {
-                break();
-            }
-            arr.append(TSerde::deserialize(ref serialized)?);
-            i += 1;
-            check_gas();
-        };
-
-        Option::Some(arr.span())
     }
 }

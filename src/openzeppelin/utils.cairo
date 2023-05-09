@@ -25,7 +25,7 @@ fn span_to_array<T, impl TDrop: Drop<T>, impl TCopy: Copy<T>>(span: Span<T>) -> 
         if i == length {
             break ();
         }
-        array.append(*span.get(1).unwrap().unbox());
+        array.append(*span.get(i).unwrap().unbox());
         check_gas();
         i += 1;
     };

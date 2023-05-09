@@ -151,7 +151,7 @@ mod ERC721 {
 
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
-        erc165::ERC165Contract::supports_interface(interface_id)
+        erc165::ERC165::supports_interface(interface_id)
     }
 
     #[view]
@@ -215,8 +215,8 @@ mod ERC721 {
     fn initializer(name_: felt252, symbol_: felt252) {
         _name::write(name_);
         _symbol::write(symbol_);
-        erc165::ERC165Contract::register_interface(erc721::IERC721_ID);
-        erc165::ERC165Contract::register_interface(erc721::IERC721METADATA_ID);
+        erc165::ERC165::register_interface(erc721::IERC721_ID);
+        erc165::ERC165::register_interface(erc721::IERC721METADATA_ID);
     }
 
     #[internal]

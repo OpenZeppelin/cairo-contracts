@@ -3,7 +3,6 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use starknet::ContractAddress;
 use starknet::contract_address::ContractAddressSerde;
-use openzeppelin::utils::check_gas;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
@@ -40,14 +39,13 @@ mod Account {
     use super::QUERY_VERSION;
 
     use openzeppelin::introspection::erc165::ERC165;
-    use openzeppelin::utils::check_gas;
 
     //
     // Storage and Constructor
     //
 
     struct Storage {
-        public_key: felt252, 
+        public_key: felt252,
     }
 
     #[constructor]
@@ -152,7 +150,7 @@ mod Account {
     #[internal]
     fn _is_valid_signature(message: felt252, signature: Span<felt252>) -> bool {
         let valid_length = signature.len() == 2_u32;
-        
+
         valid_length & check_ecdsa_signature(
             message,
             public_key::read(),
@@ -163,7 +161,6 @@ mod Account {
 
     #[internal]
     fn _execute_calls(mut calls: Array<Call>, mut res: Array<Span<felt252>>) -> Array<Span<felt252>> {
-        check_gas();
         match calls.pop_front() {
             Option::Some(call) => {
                 let _res = _execute_single_call(call);
@@ -215,7 +212,6 @@ impl ArrayCallSerde of Serde::<Array<Call>> {
 }
 
 fn serialize_array_call_helper(ref output: Array<felt252>, mut input: Array<Call>) {
-    check_gas();
     match input.pop_front() {
         Option::Some(value) => {
             Serde::<Call>::serialize(ref output, value);
@@ -231,8 +227,6 @@ fn deserialize_array_call_helper(
     if remaining == 0 {
         return Option::Some(curr_output);
     }
-
-    check_gas();
 
     curr_output.append(Serde::<Call>::deserialize(ref serialized)?);
     deserialize_array_call_helper(ref serialized, curr_output, remaining - 1)

@@ -152,7 +152,7 @@ fn test_public_key_setter() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
     setup();
     set_caller_address(OTHER());
@@ -161,7 +161,7 @@ fn test_public_key_setter_different_account() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: invalid caller', ))]
+#[should_panic(expected: ('Account: invalid caller', ))]
 fn test_account_called_from_contract() {
     let CALLS = setup();
     set_caller_address(OTHER());
@@ -182,7 +182,7 @@ fn test__assert_only_self_true() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected = ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized', ))]
 fn test__assert_only_self_false() {
     setup();
     set_caller_address(OTHER());

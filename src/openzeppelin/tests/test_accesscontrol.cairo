@@ -107,6 +107,17 @@ fn test_renounce_role() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_renounce_role_already_renounced() {
+    setup();
+    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+    assert(
+        !AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Role should still be renounced'
+    );
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected: ('Can only renounce role for self', ))]
 fn test_renounce_role_unauthorized() {
     setup();

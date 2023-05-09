@@ -71,11 +71,10 @@ fn test_grant_role_unauthorized() {
 #[available_gas(2000000)]
 fn test_revoke_role() {
     setup();
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
+    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
 
-    set_caller_address(ACCOUNT2());
-    AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(!AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Role should be revoked');
+    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
+    assert(!AccessControl::has_role(SOME_OTHER_ROLE, ACCOUNT2()), 'Role should be revoked');
 }
 
 #[test]

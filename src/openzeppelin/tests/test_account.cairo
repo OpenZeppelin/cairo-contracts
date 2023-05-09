@@ -212,12 +212,12 @@ fn test_multicall() { // todo: requires call_contract_syscall
 
 #[test]
 #[available_gas(2000000)]
-fn test_test_retun_value() {// todo: requires call_contract_syscall
+fn test_test_retun_value() { // todo: requires call_contract_syscall
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_nonce() {// todo: requires call_contract_syscall
+fn test_nonce() { // todo: requires call_contract_syscall
 }
 
 #[test]

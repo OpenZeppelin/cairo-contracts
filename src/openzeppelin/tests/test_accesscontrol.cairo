@@ -18,12 +18,20 @@ fn setup() {
     AccessControl::_grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
 }
 
+//
+// initializer
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
     AccessControl::initializer();
     assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
+
+//
+// assert_only_role
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -40,6 +48,10 @@ fn test_assert_only_role_unauthorized() {
     set_caller_address(ACCOUNT2());
     AccessControl::assert_only_role(DEFAULT_ADMIN_ROLE);
 }
+
+//
+// grant_role
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -66,6 +78,10 @@ fn test_grant_role_unauthorized() {
     set_caller_address(ACCOUNT2());
     AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
 }
+
+//
+// revoke_role
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -97,6 +113,10 @@ fn test_revoke_role_unauthorized() {
     AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
 }
 
+//
+// renounce_role
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_renounce_role() {
@@ -125,9 +145,13 @@ fn test_renounce_role_unauthorized() {
     AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
 }
 
+//
+// _set_role_admin
+//
+
 #[test]
 #[available_gas(2000000)]
-fn test_set_role_admin() {
+fn test__set_role_admin() {
     setup();
     AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
     assert(
@@ -154,9 +178,7 @@ fn test_role_admin_cycle() {
 
     // Grant DEFAULT_ADMIN_ROLE
     AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(
-        AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should have role'
-    );
+    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should have role');
 }
 
 #[test]

@@ -79,6 +79,17 @@ fn test_revoke_role() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_revoke_role_already_revoked() {
+    setup();
+    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
+
+    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
+    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
+    assert(!AccessControl::has_role(SOME_OTHER_ROLE, ACCOUNT2()), 'Role should still be revoked');
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_revoke_role_unauthorized() {
     setup();

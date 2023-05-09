@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use array::ArrayTrait;
+use array::SpanTrait;
 
 const IERC721_ID: u32 = 0x80ac58cd_u32;
 const IERC721METADATA_ID: u32 = 0x5b5e139f_u32;
@@ -20,7 +20,7 @@ trait IERC721 {
     fn owner_of(token_id: u256) -> ContractAddress;
     fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256);
     fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     );
     fn approve(approved: ContractAddress, token_id: u256);
     fn set_approval_for_all(operator: ContractAddress, approved: bool);
@@ -31,7 +31,7 @@ trait IERC721 {
 #[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
-        operator: ContractAddress, from: ContractAddress, token_id: u256, data: Array<felt252>
+        operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> u32;
 }
 
@@ -49,7 +49,7 @@ mod ERC721 {
     use super::IERC721ReceiverDispatcherTrait;
 
     // Other
-    use super::ArrayTrait;
+    use super::SpanTrait;
     use super::ContractAddress;
     use starknet::ContractAddressZeroable;
     use starknet::get_caller_address;
@@ -139,7 +139,7 @@ mod ERC721 {
         }
 
         fn safe_transfer_from(
-            from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
+            from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
         ) {
             assert(
                 _is_approved_or_owner(get_caller_address(), token_id),
@@ -206,7 +206,7 @@ mod ERC721 {
 
     #[external]
     fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) {
         ERC721::safe_transfer_from(from, to, token_id, data)
     }
@@ -307,7 +307,7 @@ mod ERC721 {
     }
 
     #[internal]
-    fn _safe_mint(to: ContractAddress, token_id: u256, data: Array<felt252>) {
+    fn _safe_mint(to: ContractAddress, token_id: u256, data: Span<felt252>) {
         _mint(to, token_id);
         assert(
             _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
@@ -317,7 +317,7 @@ mod ERC721 {
 
     #[internal]
     fn _safe_transfer(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) {
         _transfer(from, to, token_id);
         assert(_check_on_erc721_received(from, to, token_id, data), 'ERC721: safe transfer failed');
@@ -331,7 +331,7 @@ mod ERC721 {
 
     #[private]
     fn _check_on_erc721_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Array<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
         if (IERC165Dispatcher {
             contract_address: to

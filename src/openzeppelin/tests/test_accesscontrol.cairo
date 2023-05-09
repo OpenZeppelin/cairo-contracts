@@ -134,8 +134,14 @@ fn test_set_role_admin() {
         AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE) == SOME_OTHER_ROLE,
         'Should set the admin role'
     );
+}
 
-    // Test role admin cycle
+#[test]
+#[available_gas(2000000)]
+fn test_role_admin_cycle() {
+    setup();
+    AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
+
     AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
     assert(AccessControl::has_role(SOME_OTHER_ROLE, ACCOUNT2()), 'ACCOUNT2 should have role');
 
@@ -145,4 +151,20 @@ fn test_set_role_admin() {
     assert(
         !AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should not have role'
     );
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is missing role', ))]
+fn test_revoked_admin_role_lost_privileges() {
+    // same setup as test_role_admin_cycle
+    setup();
+    AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
+    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
+    set_caller_address(ACCOUNT2());
+    AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+
+    // set caller who has the revoked DEFAULT_ADMIN_ROLE
+    set_caller_address(ACCOUNT1());
+    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
 }

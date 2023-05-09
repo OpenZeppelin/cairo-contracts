@@ -51,6 +51,15 @@ fn test_grant_role() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_grant_role_already_granted() {
+    setup();
+    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
+    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
+    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT2()), 'Role should still be held');
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_grant_role_unauthorized() {
     setup();

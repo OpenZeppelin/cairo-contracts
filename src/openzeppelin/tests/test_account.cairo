@@ -2,7 +2,6 @@ use core::traits::Into;
 use array::ArrayTrait;
 use array::SpanTrait;
 use core::result::ResultTrait;
-use debug::PrintTrait;
 use option::OptionTrait;
 use serde::Serde;
 use starknet::class_hash::Felt252TryIntoClassHash;
@@ -35,9 +34,6 @@ struct SignedTransactionData {
 
 fn PUBLIC_KEY() -> felt252 {
     0x333333
-}
-fn OTHER() -> ContractAddress {
-    contract_address_const::<0x222222>()
 }
 fn ACCOUNT_ADDRESS() -> ContractAddress {
     contract_address_const::<0x111111>()

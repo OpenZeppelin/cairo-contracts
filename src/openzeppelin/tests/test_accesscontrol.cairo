@@ -2,20 +2,28 @@ use openzeppelin::access::accesscontrol::AccessControl;
 use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
 use starknet::{contract_address_const, ContractAddress, testing::set_caller_address};
 
-const SOME_OTHER_ROLE: felt252 = 42;
+const ROLE: felt252 = 41;
+const OTHER_ROLE: felt252 = 42;
 
-fn ACCOUNT1() -> ContractAddress {
+fn ADMIN() -> ContractAddress {
     contract_address_const::<1>()
 }
 
-fn ACCOUNT2() -> ContractAddress {
+fn AUTHORIZED() -> ContractAddress {
     contract_address_const::<2>()
 }
 
-// Mimics a contract's constructor
+fn OTHER() -> ContractAddress {
+    contract_address_const::<3>()
+}
+
+fn OTHER_ADMIN() -> ContractAddress {
+    contract_address_const::<4>()
+}
+
 fn setup() {
-    set_caller_address(ACCOUNT1());
-    AccessControl::_grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+    AccessControl::_grant_role(DEFAULT_ADMIN_ROLE, ADMIN());
+    set_caller_address(ADMIN());
 }
 
 //
@@ -37,16 +45,27 @@ fn test_initializer() {
 #[available_gas(2000000)]
 fn test_assert_only_role() {
     setup();
-    AccessControl::assert_only_role(DEFAULT_ADMIN_ROLE);
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    set_caller_address(AUTHORIZED());
+    AccessControl::assert_only_role(ROLE);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
-fn test_assert_only_role_unauthorized() {
+fn test_assert_only_role_unauthorized_1() {
     setup();
-    set_caller_address(ACCOUNT2());
-    AccessControl::assert_only_role(DEFAULT_ADMIN_ROLE);
+    set_caller_address(OTHER());
+    AccessControl::assert_only_role(ROLE);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is missing role', ))]
+fn test_assert_only_role_unauthorized_2() {
+    setup();
+    set_caller_address(AUTHORIZED());
+    AccessControl::assert_only_role(OTHER_ROLE);
 }
 
 //
@@ -57,17 +76,26 @@ fn test_assert_only_role_unauthorized() {
 #[available_gas(2000000)]
 fn test_grant_role() {
     setup();
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
-    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT2()), 'Role should be granted');
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be granted');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_grant_role_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should still be granted');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_grant_role_already_granted() {
     setup();
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
-    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT2()), 'Role should still be held');
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should still be held');
 }
 
 #[test]
@@ -75,8 +103,8 @@ fn test_grant_role_already_granted() {
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_grant_role_unauthorized() {
     setup();
-    set_caller_address(ACCOUNT2());
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT2());
+    set_caller_address(AUTHORIZED());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
 }
 
 //
@@ -85,23 +113,30 @@ fn test_grant_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_revoke_role() {
+fn test_revoke_role_for_role_not_granted() {
     setup();
-    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
-
-    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
-    assert(!AccessControl::has_role(SOME_OTHER_ROLE, ACCOUNT2()), 'Role should be revoked');
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_revoke_role_already_revoked() {
+fn test_revoke_role_for_granted_role() {
     setup();
-    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be revoked');
+}
 
-    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
-    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
-    assert(!AccessControl::has_role(SOME_OTHER_ROLE, ACCOUNT2()), 'Role should still be revoked');
+#[test]
+#[available_gas(2000000)]
+fn test_revoke_role_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should still be revoked');
 }
 
 #[test]
@@ -109,8 +144,9 @@ fn test_revoke_role_already_revoked() {
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_revoke_role_unauthorized() {
     setup();
-    set_caller_address(ACCOUNT2());
-    AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+
+    set_caller_address(OTHER());
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
 }
 
 //
@@ -119,21 +155,35 @@ fn test_revoke_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_renounce_role() {
+fn test_renounce_role_for_role_not_granted() {
     setup();
-    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(!AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Role should be renounced');
+    set_caller_address(AUTHORIZED());
+
+    AccessControl::renounce_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be renounced');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_renounce_role_already_renounced() {
+fn test_renounce_role_for_granted_role() {
     setup();
-    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(
-        !AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'Role should still be renounced'
-    );
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    set_caller_address(AUTHORIZED());
+
+    AccessControl::renounce_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be renounced');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_renounce_role_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    set_caller_address(AUTHORIZED());
+
+    AccessControl::renounce_role(ROLE, AUTHORIZED());
+    AccessControl::renounce_role(ROLE, AUTHORIZED());
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should still be renounced');
 }
 
 #[test]
@@ -141,8 +191,10 @@ fn test_renounce_role_already_renounced() {
 #[should_panic(expected: ('Can only renounce role for self', ))]
 fn test_renounce_role_unauthorized() {
     setup();
-    set_caller_address(ACCOUNT2());
-    AccessControl::renounce_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+
+    // Admin is unauthorized caller
+    AccessControl::renounce_role(ROLE, AUTHORIZED());
 }
 
 //
@@ -151,49 +203,63 @@ fn test_renounce_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-fn test__set_role_admin() {
+fn test_change_an_admin_roles_admin() {
     setup();
-    AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
-    assert(
-        AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE) == SOME_OTHER_ROLE,
-        'Should set the admin role'
-    );
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
+
+    AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
+    let role_admin = AccessControl::get_role_admin(ROLE);
+    assert(role_admin == OTHER_ROLE, 'role_admin should eq OTHER_ROLE');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_role_admin_cycle() {
+fn test_new_admin_can_grant_roles() {
     setup();
-    AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
-    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
+    AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
 
-    // Set caller to ACCOUNT2 who has SOME_OTHER_ROLE
-    set_caller_address(ACCOUNT2());
+    set_caller_address(OTHER_ADMIN());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
 
-    // Revoke DEFAULT_ADMIN_ROLE
-    AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(
-        !AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should not have role'
-    );
+    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'AUTHORIZED should have ROLE');
+}
 
-    // Grant DEFAULT_ADMIN_ROLE
-    AccessControl::grant_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
-    assert(AccessControl::has_role(DEFAULT_ADMIN_ROLE, ACCOUNT1()), 'ACCOUNT1 should have role');
+#[test]
+#[available_gas(2000000)]
+fn test_new_admin_can_revoke_roles() {
+    setup();
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
+    AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
+
+    set_caller_address(OTHER_ADMIN());
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
+
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'AUTHORIZED should not have ROLE');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
-fn test_revoked_admin_role_lost_privileges() {
+fn test_previous_admin_cannot_grant_roles() {
     setup();
-    AccessControl::_set_role_admin(DEFAULT_ADMIN_ROLE, SOME_OTHER_ROLE);
-    AccessControl::grant_role(SOME_OTHER_ROLE, ACCOUNT2());
-    set_caller_address(ACCOUNT2());
-    AccessControl::revoke_role(DEFAULT_ADMIN_ROLE, ACCOUNT1());
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
 
-    // Set caller who has the revoked DEFAULT_ADMIN_ROLE
-    set_caller_address(ACCOUNT1());
-    AccessControl::revoke_role(SOME_OTHER_ROLE, ACCOUNT2());
+    // Caller is ADMIN
+    AccessControl::grant_role(ROLE, AUTHORIZED());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is missing role', ))]
+fn test_previous_admin_cannot_revoke_roles() {
+    setup();
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
+
+    // Caller is ADMIN
+    AccessControl::revoke_role(ROLE, AUTHORIZED());
 }
 
 //
@@ -203,7 +269,7 @@ fn test_revoked_admin_role_lost_privileges() {
 #[test]
 #[available_gas(2000000)]
 fn test_other_role_admin_is_the_default_admin_role() {
-    let admin = AccessControl::get_role_admin(SOME_OTHER_ROLE);
+    let admin = AccessControl::get_role_admin(OTHER_ROLE);
     assert(admin == DEFAULT_ADMIN_ROLE, 'admin should be default admin');
 }
 

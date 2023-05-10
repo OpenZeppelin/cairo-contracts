@@ -2,15 +2,28 @@ use starknet::ContractAddress;
 
 #[abi]
 trait IERC20 {
+    #[view]
     fn name() -> felt252;
+    #[view]
     fn symbol() -> felt252;
+    #[view]
     fn decimals() -> u8;
+    #[view]
     fn total_supply() -> u256;
+    #[view]
     fn balance_of(account: ContractAddress) -> u256;
+    #[view]
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256;
+    #[external]
     fn transfer(recipient: ContractAddress, amount: u256) -> bool;
+    #[external]
     fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
+    #[external]
     fn approve(spender: ContractAddress, amount: u256) -> bool;
+    #[external]
+    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
+    #[external]
+    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
 }
 
 #[contract]
@@ -35,53 +48,6 @@ mod ERC20 {
     #[event]
     fn Approval(owner: ContractAddress, spender: ContractAddress, value: u256) {}
 
-    impl ERC20 of IERC20 {
-        fn name() -> felt252 {
-            _name::read()
-        }
-
-        fn symbol() -> felt252 {
-            _symbol::read()
-        }
-
-        fn decimals() -> u8 {
-            18_u8
-        }
-
-        fn total_supply() -> u256 {
-            _total_supply::read()
-        }
-
-        fn balance_of(account: ContractAddress) -> u256 {
-            _balances::read(account)
-        }
-
-        fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
-            _allowances::read((owner, spender))
-        }
-
-        fn transfer(recipient: ContractAddress, amount: u256) -> bool {
-            let sender = get_caller_address();
-            _transfer(sender, recipient, amount);
-            true
-        }
-
-        fn transfer_from(
-            sender: ContractAddress, recipient: ContractAddress, amount: u256
-        ) -> bool {
-            let caller = get_caller_address();
-            _spend_allowance(sender, caller, amount);
-            _transfer(sender, recipient, amount);
-            true
-        }
-
-        fn approve(spender: ContractAddress, amount: u256) -> bool {
-            let caller = get_caller_address();
-            _approve(caller, spender, amount);
-            true
-        }
-    }
-
     #[constructor]
     fn constructor(
         name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress
@@ -92,47 +58,54 @@ mod ERC20 {
 
     #[view]
     fn name() -> felt252 {
-        ERC20::name()
+        _name::read()
     }
 
     #[view]
     fn symbol() -> felt252 {
-        ERC20::symbol()
+        _symbol::read()
     }
 
     #[view]
     fn decimals() -> u8 {
-        ERC20::decimals()
+        18_u8
     }
 
     #[view]
     fn total_supply() -> u256 {
-        ERC20::total_supply()
+        _total_supply::read()
     }
 
     #[view]
     fn balance_of(account: ContractAddress) -> u256 {
-        ERC20::balance_of(account)
+        _balances::read(account)
     }
 
     #[view]
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
-        ERC20::allowance(owner, spender)
+        _allowances::read((owner, spender))
     }
 
     #[external]
     fn transfer(recipient: ContractAddress, amount: u256) -> bool {
-        ERC20::transfer(recipient, amount)
+        let sender = get_caller_address();
+        _transfer(sender, recipient, amount);
+        true
     }
 
     #[external]
     fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
-        ERC20::transfer_from(sender, recipient, amount)
+        let caller = get_caller_address();
+        _spend_allowance(sender, caller, amount);
+        _transfer(sender, recipient, amount);
+        true
     }
 
     #[external]
     fn approve(spender: ContractAddress, amount: u256) -> bool {
-        ERC20::approve(spender, amount)
+        let caller = get_caller_address();
+        _approve(caller, spender, amount);
+        true
     }
 
     #[external]

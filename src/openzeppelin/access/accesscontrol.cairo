@@ -21,12 +21,25 @@ mod AccessControl {
         role_members: LegacyMap<(felt252, ContractAddress), bool>,
     }
 
+    /// Emitted when `account` is granted `role`.
+    ///
+    /// `sender` is the account that originated the contract call, an admin role
+    /// bearer (except when `_grant_role` is called during initialization from the constructor).
     #[event]
     fn RoleGranted(role: felt252, account: ContractAddress, sender: ContractAddress) {}
 
+    /// Emitted when `account` is revoked `role`.
+    ///
+    /// `sender` is the account that originated the contract call:
+    ///   - If using `revoke_role`, it is the admin role bearer.
+    ///   - If using `renounce_role`, it is the role bearer (i.e. `account`).
     #[event]
     fn RoleRevoked(role: felt252, account: ContractAddress, sender: ContractAddress) {}
 
+    /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
+    ///
+    /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+    /// {RoleAdminChanged} not being emitted signaling this.
     #[event]
     fn RoleAdminChanged(role: felt252, previous_admin_role: felt252, new_admin_role: felt252) {}
 

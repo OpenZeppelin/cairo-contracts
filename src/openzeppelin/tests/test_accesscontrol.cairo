@@ -234,8 +234,7 @@ fn test_change_an_admin_roles_admin() {
     AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
 
     AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
-    let role_admin = AccessControl::get_role_admin(ROLE);
-    assert(role_admin == OTHER_ROLE, 'role_admin should eq OTHER_ROLE');
+    assert(AccessControl::get_role_admin(ROLE) == OTHER_ROLE, 'role_admin should eq OTHER_ROLE');
 }
 
 #[test]
@@ -294,13 +293,17 @@ fn test_previous_admin_cannot_revoke_roles() {
 #[test]
 #[available_gas(2000000)]
 fn test_other_role_admin_is_the_default_admin_role() {
-    let admin = AccessControl::get_role_admin(OTHER_ROLE);
-    assert(admin == DEFAULT_ADMIN_ROLE, 'admin should be default admin');
+    assert(
+        AccessControl::get_role_admin(OTHER_ROLE) == DEFAULT_ADMIN_ROLE,
+        'Should be DEFAULT_ADMIN_ROLE'
+    );
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_default_admin_role_is_its_own_admin() {
-    let admin = AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE);
-    assert(admin == DEFAULT_ADMIN_ROLE, 'admin should be default admin');
+    assert(
+        AccessControl::get_role_admin(DEFAULT_ADMIN_ROLE) == DEFAULT_ADMIN_ROLE,
+        'Should be DEFAULT_ADMIN_ROLE'
+    );
 }

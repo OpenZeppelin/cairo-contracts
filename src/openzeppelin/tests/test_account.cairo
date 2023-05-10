@@ -17,6 +17,9 @@ use openzeppelin::account::ERC165_ACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::account::Call;
+use openzeppelin::token::erc20::ERC20;
+use openzeppelin::token::erc20::IERC20Dispatcher;
+use openzeppelin::token::erc20::IERC20DispatcherTrait;
 use openzeppelin::introspection::erc165::IERC165_ID;
 
 #[derive(Drop)]
@@ -49,20 +52,8 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
         s: 3355728545224320878895493649495491771252432631648740019139167265522817576501
     }
 }
-fn CALLS() -> Array::<Call> {
-    let mut calls = ArrayTrait::new();
 
-    calls
-        .append(
-            Call {
-                to: contract_address_const::<123456>(), selector: 0x123, calldata: ArrayTrait::new()
-            }
-        );
-
-    calls
-}
-
-fn setup_dispatcher(data: Option<SignedTransactionData>) -> IAccountDispatcher {
+fn setup_dispatcher(data: Option<@SignedTransactionData>) -> IAccountDispatcher {
     // Set the transaction version
     testing::set_version(TRANSACTION_VERSION);
 
@@ -74,12 +65,12 @@ fn setup_dispatcher(data: Option<SignedTransactionData>) -> IAccountDispatcher {
 
         // Set the signature and transaction hash
         let mut signature = ArrayTrait::new();
-        signature.append(data.r);
-        signature.append(data.s);
+        signature.append(*data.r);
+        signature.append(*data.s);
         testing::set_signature(signature.span());
-        testing::set_transaction_hash(data.transaction_hash);
+        testing::set_transaction_hash(*data.transaction_hash);
 
-        calldata.append(data.public_key);
+        calldata.append(*data.public_key);
     } else {
         calldata.append(PUBLIC_KEY());
     }
@@ -92,21 +83,36 @@ fn setup_dispatcher(data: Option<SignedTransactionData>) -> IAccountDispatcher {
     IAccountDispatcher { contract_address: address }
 }
 
-#[test]
-#[available_gas(2000000)]
-fn test_counterfactual_deployment() {}
+fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+    let name = 0;
+    let symbol = 0;
+    let mut calldata = ArrayTrait::<felt252>::new();
+
+    calldata.append(name);
+    calldata.append(symbol);
+    calldata.append(initial_supply.low.into());
+    calldata.append(initial_supply.high.into());
+    calldata.append(recipient.into());
+
+    let (address, _) = deploy_syscall(
+        ERC20::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+    )
+        .unwrap();
+
+    IERC20Dispatcher { contract_address: address }
+}
 
 #[test]
 #[available_gas(2000000)]
 fn test_constructor() {
     let account = setup_dispatcher(Option::None(()));
     let public_key: felt252 = account.get_public_key();
-    assert(public_key == PUBLIC_KEY(), 'Should return pub key');
+    assert(public_key == PUBLIC_KEY(), 'Should return public key');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_interface() {
+fn test_interfaces() {
     Account::constructor(PUBLIC_KEY());
 
     let supports_default_interface: bool = Account::supports_interface(IERC165_ID);
@@ -141,26 +147,23 @@ fn test_is_valid_signature() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_validate() {
-    let calls = ArrayTrait::new();
-    let account = setup_dispatcher(Option::Some(SIGNED_TX_DATA()));
+fn test_validate_deploy() {
+    let class_hash = 0x123;
+    let salt = 0;
+    let public_key = 0x234;
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_declare() { // todo: requires mocking TxInfo
-// setup();
-// let class_hash: felt252 = 0x123;
-// Account::__validate_declare__(class_hash);
+    assert(
+        account.__validate_deploy__(class_hash, salt, public_key) == starknet::VALIDATED,
+        'Should validate correctly'
+    );
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_validate_declare() {
     let class_hash = 0x123;
-    let account = setup_dispatcher(Option::Some(SIGNED_TX_DATA()));
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     assert(
         account.__validate_declare__(class_hash) == starknet::VALIDATED, 'Should validate correctly'
@@ -171,43 +174,72 @@ fn test_validate_declare() {
 #[available_gas(2000000)]
 fn test_execute() {
     let data = SIGNED_TX_DATA();
+    let account = setup_dispatcher(Option::Some(@data));
     let initial_public_key = data.public_key;
-    let account = setup_dispatcher(Option::Some(data));
+    let mut calls = ArrayTrait::new();
+
+    let set_public_key_selector = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
 
     assert(account.get_public_key() == initial_public_key, 'Should get initial public key');
 
-    // Call itself for updating the public key
-    let new_public_key = 1313113211;
-    let mut calls = ArrayTrait::new();
     let mut calldata = ArrayTrait::new();
-    // Selector of the set_public_key external function
-    let selector = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
-
+    let new_public_key = 0x789789;
     calldata.append(new_public_key);
-    calls.append(Call { to: account.contract_address, selector: selector, calldata: calldata });
+    let call = Call {
+        to: account.contract_address, selector: set_public_key_selector, calldata: calldata
+    };
+
+    calls.append(call);
     account.__execute__(calls);
 
-    assert(account.get_public_key() == 1313113211, 'Should get new public key');
+    assert(account.get_public_key() == 0x789789, 'Should get new public key');
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_multicall() { // todo: requires call_contract_syscall
-// let mut CALLS = setup();
+fn test_validate() {
+    let calls = ArrayTrait::new();
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-// CALLS.append(Call{
-//     to: contract_address_const::<123456>(),
-//     selector: 0x123,
-//     calldata: ArrayTrait::new()
-// });
+    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+}
 
-// CALLS.append(Call{
-//     to: contract_address_const::<123456>(),
-//     selector: 0x123,
-//     calldata: ArrayTrait::new()
-// });
+#[test]
+#[available_gas(2000000)]
+fn test_multicall() {
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let erc20 = deploy_erc20(account.contract_address, 1000);
+    let recipient1 = contract_address_const::<0x123>();
+    let recipient2 = contract_address_const::<0x456>();
+    let mut calls = ArrayTrait::new();
 
-// Account::__execute__(CALLS);
+    let transfer_selector = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
+
+    let mut calldata1 = ArrayTrait::new();
+    let amount1: u256 = 300;
+    calldata1.append(recipient1.into());
+    calldata1.append(amount1.low.into());
+    calldata1.append(amount1.high.into());
+    let call1 = Call {
+        to: erc20.contract_address, selector: transfer_selector, calldata: calldata1
+    };
+
+    let mut calldata2 = ArrayTrait::new();
+    let amount2: u256 = 500;
+    calldata2.append(recipient2.into());
+    calldata2.append(amount2.low.into());
+    calldata2.append(amount2.high.into());
+    let call2 = Call {
+        to: erc20.contract_address, selector: transfer_selector, calldata: calldata2
+    };
+
+    calls.append(call1);
+    calls.append(call2);
+    account.__execute__(calls);
+
+    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remaining');
+    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
+    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
 }
 
 #[test]

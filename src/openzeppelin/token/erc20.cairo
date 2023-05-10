@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+#[abi]
 trait IERC20 {
     fn name() -> felt252;
     fn symbol() -> felt252;

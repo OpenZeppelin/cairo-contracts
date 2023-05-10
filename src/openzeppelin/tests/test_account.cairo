@@ -1,8 +1,10 @@
 use core::traits::Into;
 use array::ArrayTrait;
+use array::SpanTrait;
 use core::result::ResultTrait;
 use debug::PrintTrait;
 use option::OptionTrait;
+use serde::Serde;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -31,9 +33,6 @@ struct SignedTransactionData {
     s: felt252
 }
 
-fn NEW_KEY() -> felt252 {
-    0x444444
-}
 fn PUBLIC_KEY() -> felt252 {
     0x333333
 }
@@ -190,9 +189,13 @@ fn test_execute() {
     };
 
     calls.append(call);
-    account.__execute__(calls);
+    let ret = account.__execute__(calls);
 
     assert(account.get_public_key() == 0x789789, 'Should get new public key');
+
+    // Test return value
+    let mut call_retval = ret.at(0).span();
+    assert(call_retval.len() == 0, 'Should be an empty response');
 }
 
 #[test]
@@ -235,51 +238,55 @@ fn test_multicall() {
 
     calls.append(call1);
     calls.append(call2);
-    account.__execute__(calls);
+    let ret = account.__execute__(calls);
 
+    // Assert that the transfers were successful
     assert(erc20.balance_of(account.contract_address) == 200, 'Should have remaining');
     assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
     assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
-}
 
-#[test]
-#[available_gas(2000000)]
-fn test_test_retun_value() { // todo: requires call_contract_syscall
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_nonce() { // todo: requires call_contract_syscall
+    // Test return value
+    let mut call1_serialized_retval = ret.at(0).span();
+    let mut call2_serialized_retval = ret.at(1).span();
+    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
+    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
+    assert(call1_retval.unwrap(), 'Should have succeeded');
+    assert(call2_retval.unwrap(), 'Should have succeeded');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter() {
+    let new_public_key = 0x4444;
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    Account::set_public_key(NEW_KEY());
+    Account::set_public_key(new_public_key);
 
     let public_key = Account::get_public_key();
-    assert(public_key == NEW_KEY(), 'Should update key');
+    assert(public_key == new_public_key, 'Should update key');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
+    let new_public_key = 0x4444;
+    let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(OTHER());
-    Account::set_public_key(NEW_KEY());
+    testing::set_caller_address(caller);
+    Account::set_public_key(new_public_key);
 }
 
-// #[test]
-// #[available_gas(2000000)]
-// #[should_panic(expected: ('Account: invalid caller', ))]
-// fn test_account_called_from_contract() {
-//     let CALLS = setup();
-//     testing::set_caller_address(OTHER());
-//     Account::__execute__(CALLS);
-// }
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid caller', ))]
+fn test_account_called_from_contract() {
+    let calls = ArrayTrait::new();
+    let caller = contract_address_const::<0x123>();
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    testing::set_caller_address(caller);
+    Account::__execute__(calls);
+}
 
 //
 // test internals
@@ -298,33 +305,30 @@ fn test__assert_only_self_true() {
 #[should_panic(expected: ('Account: unauthorized', ))]
 fn test__assert_only_self_false() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(OTHER());
+    let other = contract_address_const::<0x4567>();
+    testing::set_caller_address(other);
     Account::_assert_only_self();
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test__is_valid_signature_valid() { // todo: requires a signer
-}
+fn test__is_valid_signature() {
+    let data = SIGNED_TX_DATA();
+    let message = data.transaction_hash;
 
-#[test]
-#[available_gas(2000000)]
-fn test__is_valid_signature_invalid() {
-    let invalid_msg = 0xfffff;
-    let mut invalid_signature = ArrayTrait::new();
-    invalid_signature.append(0x987);
-    invalid_signature.append(0x564);
+    let mut good_signature = ArrayTrait::new();
+    good_signature.append(data.r);
+    good_signature.append(data.s);
 
-    let is_valid = Account::_is_valid_signature(invalid_msg, invalid_signature.span());
+    let mut bad_signature = ArrayTrait::new();
+    bad_signature.append(0x987);
+    bad_signature.append(0x564);
+
+    Account::set_public_key(data.public_key);
+
+    let is_valid = Account::_is_valid_signature(message, good_signature.span());
+    assert(is_valid, 'Should accept valid signature');
+
+    let is_valid = Account::_is_valid_signature(message, bad_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test__execute_calls() { // todo: requires call_contract_syscall
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test__execute_single_call() { // todo: requires call_contract_syscall
 }

@@ -94,7 +94,7 @@ mod Account {
             assert(version == QUERY_VERSION, 'Account: invalid tx version');
         }
 
-        _execute_calls(calls, ArrayTrait::new())
+        _execute_calls(calls)
     }
 
     #[external]
@@ -174,24 +174,25 @@ mod Account {
     }
 
     #[internal]
-    fn _execute_calls(
-        mut calls: Array<Call>, mut res: Array<Array<felt252>>
-    ) -> Array<Array<felt252>> {
-        check_gas();
-        match calls.pop_front() {
-            Option::Some(call) => {
-                let _res = _execute_single_call(call);
-                res.append(_res);
-                return _execute_calls(calls, res);
-            },
-            Option::None(_) => {
-                return res;
-            },
-        }
+    fn _execute_calls(mut calls: Array<Call>) -> Array<Array<felt252>> {
+        let mut res = ArrayTrait::new();
+        loop {
+            match calls.pop_front() {
+                Option::Some(call) => {
+                    let _res = _execute_single_call(call);
+                    res.append(_res);
+                },
+                Option::None(_) => {
+                    break ();
+                },
+            }
+            check_gas();
+        };
+        res
     }
 
     #[internal]
-    fn _execute_single_call(mut call: Call) -> Array<felt252> {
+    fn _execute_single_call(call: Call) -> Array<felt252> {
         let Call{to, selector, calldata } = call;
 
         let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();

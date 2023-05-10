@@ -38,6 +38,20 @@ fn test_initializer() {
 }
 
 //
+// has_role
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_has_role() {
+    setup();
+    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'should not have role');
+    AccessControl::_grant_role(ROLE, AUTHORIZED());
+    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'should have role');
+}
+
+
+//
 // assert_only_role
 //
 
@@ -200,6 +214,17 @@ fn test_renounce_role_unauthorized() {
 //
 // _set_role_admin
 //
+
+#[test]
+#[available_gas(2000000)]
+fn test__set_role_admin() {
+    setup();
+    assert(
+        AccessControl::get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, 'ROLE admin default should be 0'
+    );
+    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
+    assert(AccessControl::get_role_admin(ROLE) == OTHER_ROLE, 'ROLE admin should be OTHER_ROLE');
+}
 
 #[test]
 #[available_gas(2000000)]

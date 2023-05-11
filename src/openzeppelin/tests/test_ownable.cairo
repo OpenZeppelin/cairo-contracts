@@ -18,7 +18,7 @@ fn OTHER() -> ContractAddress {
 }
 
 fn setup() {
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     Ownable::initializer();
 }
 
@@ -59,7 +59,7 @@ fn test_transfer_ownership_from_zero() {
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_transfer_ownership_from_nonowner() {
     setup();
-    set_caller_address(OTHER());
+    testing::set_caller_address(OTHER());
     Ownable::transfer_ownership(OTHER());
 }
 
@@ -76,7 +76,7 @@ fn test_renounce_ownership() {
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_renounce_ownership_from_zero_address() {
     setup();
-    set_caller_address(ZERO());
+    testing::set_caller_address(ZERO());
     Ownable::renounce_ownership();
 }
 
@@ -85,6 +85,6 @@ fn test_renounce_ownership_from_zero_address() {
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_renounce_ownership_from_nonowner() {
     setup();
-    set_caller_address(OTHER());
+    testing::set_caller_address(OTHER());
     Ownable::renounce_ownership();
 }

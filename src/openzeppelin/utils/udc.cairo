@@ -17,7 +17,7 @@ mod UniversalDeployerContract {
 
     #[external]
     fn deploy_contract(
-        class_hash: ClassHash, salt: felt252, unique: bool, calldata: Array<felt252>
+        class_hash: ClassHash, salt: felt252, unique: bool, calldata: Span<felt252>
     ) -> ContractAddress {
         let deployer: ContractAddress = get_caller_address();
 

@@ -78,6 +78,7 @@ fn test_assert_only_role_unauthorized_1() {
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_assert_only_role_unauthorized_2() {
     setup();
+    AccessControl::grant_role(ROLE, AUTHORIZED());
     set_caller_address(AUTHORIZED());
     AccessControl::assert_only_role(OTHER_ROLE);
 }

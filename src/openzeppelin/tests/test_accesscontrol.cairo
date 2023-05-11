@@ -218,17 +218,6 @@ fn test__set_role_admin() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_change_an_admin_roles_admin() {
-    setup();
-    AccessControl::grant_role(ROLE, AUTHORIZED());
-    AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
-
-    AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
-    assert(AccessControl::get_role_admin(ROLE) == OTHER_ROLE, 'role_admin should eq OTHER_ROLE');
-}
-
-#[test]
-#[available_gas(2000000)]
 fn test_new_admin_can_grant_roles() {
     setup();
     AccessControl::_set_role_admin(ROLE, OTHER_ROLE);

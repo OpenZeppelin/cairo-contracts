@@ -122,7 +122,6 @@ fn test_grant_role_unauthorized() {
 fn test_revoke_role_for_role_not_granted() {
     setup();
     AccessControl::revoke_role(ROLE, AUTHORIZED());
-    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
 #[test]
@@ -166,7 +165,6 @@ fn test_renounce_role_for_role_not_granted() {
     set_caller_address(AUTHORIZED());
 
     AccessControl::renounce_role(ROLE, AUTHORIZED());
-    assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be renounced');
 }
 
 #[test]

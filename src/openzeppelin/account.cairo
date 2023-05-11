@@ -1,6 +1,5 @@
 use starknet::ContractAddress;
 use openzeppelin::utils::check_gas;
-use openzeppelin::utils::span_to_array;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
@@ -43,27 +42,77 @@ mod Account {
     use array::SpanTrait;
     use array::ArrayTrait;
     use box::BoxTrait;
-    use option::OptionTrait;
-    use zeroable::Zeroable;
     use ecdsa::check_ecdsa_signature;
     use serde::ArraySerde;
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
+    use option::OptionTrait;
+    use zeroable::Zeroable;
 
     use super::Call;
     use super::ERC165_ACCOUNT_ID;
     use super::ERC1271_VALIDATED;
+    use super::IAccount;
     use super::TRANSACTION_VERSION;
     use super::QUERY_VERSION;
-    use super::span_to_array;
 
     use openzeppelin::introspection::erc165::ERC165;
     use openzeppelin::utils::check_gas;
+    use openzeppelin::utils::span_to_array;
 
-    //
-    // Storage and Constructor
-    //
+    impl Account of IAccount {
+        fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
+            // avoid calls from other contracts
+            // https://github.com/OpenZeppelin/cairo-contracts/issues/344
+            let sender = get_caller_address();
+            assert(sender.is_zero(), 'Account: invalid caller');
+
+            // check tx version
+            let tx_info = get_tx_info().unbox();
+            let version = tx_info.version;
+            if version != TRANSACTION_VERSION { // > operator not defined for felt252
+                assert(version == QUERY_VERSION, 'Account: invalid tx version');
+            }
+
+            _execute_calls(calls)
+        }
+
+        fn __validate__(mut calls: Array<Call>) -> felt252 {
+            _validate_transaction()
+        }
+
+        fn __validate_declare__(class_hash: felt252) -> felt252 {
+            _validate_transaction()
+        }
+
+        fn __validate_deploy__(
+            class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        ) -> felt252 {
+            _validate_transaction()
+        }
+
+        fn set_public_key(new_public_key: felt252) {
+            _assert_only_self();
+            public_key::write(new_public_key);
+        }
+
+        fn get_public_key() -> felt252 {
+            public_key::read()
+        }
+
+        fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
+            if _is_valid_signature(message, signature.span()) {
+                ERC1271_VALIDATED
+            } else {
+                0_u32
+            }
+        }
+
+        fn supports_interface(interface_id: u32) -> bool {
+            ERC165::supports_interface(interface_id)
+        }
+    }
 
     struct Storage {
         public_key: felt252
@@ -82,42 +131,29 @@ mod Account {
     // TODO: Use Span in the inner Array of the return type
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
-        // avoid calls from other contracts
-        // https://github.com/OpenZeppelin/cairo-contracts/issues/344
-        let sender = get_caller_address();
-        assert(sender.is_zero(), 'Account: invalid caller');
-
-        // check tx version
-        let tx_info = get_tx_info().unbox();
-        let version = tx_info.version;
-        if version != TRANSACTION_VERSION { // > operator not defined for felt252
-            assert(version == QUERY_VERSION, 'Account: invalid tx version');
-        }
-
-        _execute_calls(calls)
+        Account::__execute__(calls)
     }
 
     #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
-        _validate_transaction()
+        Account::__validate__(calls)
     }
 
     #[external]
     fn __validate_declare__(class_hash: felt252) -> felt252 {
-        _validate_transaction()
+        Account::__validate_declare__(class_hash)
     }
 
     #[external]
     fn __validate_deploy__(
         class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252 {
-        _validate_transaction()
+        Account::__validate_deploy__(class_hash, contract_address_salt, _public_key)
     }
 
     #[external]
     fn set_public_key(new_public_key: felt252) {
-        _assert_only_self();
-        public_key::write(new_public_key);
+        Account::set_public_key(new_public_key)
     }
 
     //
@@ -126,21 +162,17 @@ mod Account {
 
     #[view]
     fn get_public_key() -> felt252 {
-        public_key::read()
+        Account::get_public_key()
     }
 
     #[view]
     fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
-        if _is_valid_signature(message, signature.span()) {
-            ERC1271_VALIDATED
-        } else {
-            0_u32
-        }
+        Account::is_valid_signature(message, signature)
     }
 
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
-        ERC165::supports_interface(interface_id)
+        Account::supports_interface(interface_id)
     }
 
     //

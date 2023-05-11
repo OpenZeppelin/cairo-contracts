@@ -106,15 +106,6 @@ fn test_grant_role_multiple_times_for_granted_role() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_grant_role_already_granted() {
-    setup();
-    AccessControl::grant_role(ROLE, AUTHORIZED());
-    AccessControl::grant_role(ROLE, AUTHORIZED());
-    assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should still be held');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_grant_role_unauthorized() {
     setup();

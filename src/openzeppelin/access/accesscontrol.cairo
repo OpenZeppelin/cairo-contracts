@@ -24,7 +24,7 @@ mod AccessControl {
     /// Emitted when `account` is granted `role`.
     ///
     /// `sender` is the account that originated the contract call, an admin role
-    /// bearer (except when `_grant_role` is called during initialization from the constructor).
+    /// bearer (except if `_grant_role` is called during initialization from the constructor).
     #[event]
     fn RoleGranted(role: felt252, account: ContractAddress, sender: ContractAddress) {}
 

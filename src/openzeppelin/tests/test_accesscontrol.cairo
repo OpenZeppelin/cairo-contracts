@@ -1,6 +1,9 @@
 use openzeppelin::access::accesscontrol::AccessControl;
-use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
-use starknet::{contract_address_const, ContractAddress, testing::set_caller_address};
+use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin::access::accesscontrol::IACCESSCONTROL_ID;
+use starknet::contract_address_const;
+use starknet::ContractAddress;
+use starknet::testing;
 
 const ROLE: felt252 = 41;
 const OTHER_ROLE: felt252 = 42;
@@ -23,7 +26,7 @@ fn OTHER_ADMIN() -> ContractAddress {
 
 fn setup() {
     AccessControl::_grant_role(DEFAULT_ADMIN_ROLE, ADMIN());
-    set_caller_address(ADMIN());
+    testing::set_caller_address(ADMIN());
 }
 
 //
@@ -60,7 +63,7 @@ fn test_has_role() {
 fn test_assert_only_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
     AccessControl::assert_only_role(ROLE);
 }
 
@@ -69,7 +72,7 @@ fn test_assert_only_role() {
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_assert_only_role_unauthorized_1() {
     setup();
-    set_caller_address(OTHER());
+    testing::set_caller_address(OTHER());
     AccessControl::assert_only_role(ROLE);
 }
 
@@ -79,7 +82,7 @@ fn test_assert_only_role_unauthorized_1() {
 fn test_assert_only_role_unauthorized_2() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
     AccessControl::assert_only_role(OTHER_ROLE);
 }
 
@@ -109,7 +112,7 @@ fn test_grant_role_multiple_times_for_granted_role() {
 #[should_panic(expected: ('Caller is missing role', ))]
 fn test_grant_role_unauthorized() {
     setup();
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
     AccessControl::grant_role(ROLE, AUTHORIZED());
 }
 
@@ -150,7 +153,7 @@ fn test_revoke_role_multiple_times_for_granted_role() {
 fn test_revoke_role_unauthorized() {
     setup();
 
-    set_caller_address(OTHER());
+    testing::set_caller_address(OTHER());
     AccessControl::revoke_role(ROLE, AUTHORIZED());
 }
 
@@ -162,7 +165,7 @@ fn test_revoke_role_unauthorized() {
 #[available_gas(2000000)]
 fn test_renounce_role_for_role_not_granted() {
     setup();
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
 
     AccessControl::renounce_role(ROLE, AUTHORIZED());
 }
@@ -172,7 +175,7 @@ fn test_renounce_role_for_role_not_granted() {
 fn test_renounce_role_for_granted_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
 
     AccessControl::renounce_role(ROLE, AUTHORIZED());
     assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'Role should be renounced');
@@ -183,7 +186,7 @@ fn test_renounce_role_for_granted_role() {
 fn test_renounce_role_multiple_times_for_granted_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
 
     AccessControl::renounce_role(ROLE, AUTHORIZED());
     AccessControl::renounce_role(ROLE, AUTHORIZED());
@@ -223,7 +226,7 @@ fn test_new_admin_can_grant_roles() {
     AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
     AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
 
-    set_caller_address(OTHER_ADMIN());
+    testing::set_caller_address(OTHER_ADMIN());
     AccessControl::grant_role(ROLE, AUTHORIZED());
 
     assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'AUTHORIZED should have ROLE');
@@ -236,7 +239,7 @@ fn test_new_admin_can_revoke_roles() {
     AccessControl::_set_role_admin(ROLE, OTHER_ROLE);
     AccessControl::grant_role(OTHER_ROLE, OTHER_ADMIN());
 
-    set_caller_address(OTHER_ADMIN());
+    testing::set_caller_address(OTHER_ADMIN());
     AccessControl::grant_role(ROLE, AUTHORIZED());
     AccessControl::revoke_role(ROLE, AUTHORIZED());
 

@@ -1,5 +1,8 @@
 use starknet::ContractAddress;
 
+const DEFAULT_ADMIN_ROLE: felt252 = 0;
+const IACCESSCONTROL_ID: u32 = 0x7965db0b_u32;
+
 #[abi]
 trait IAccessControl {
     fn has_role(role: felt252, account: ContractAddress) -> bool;
@@ -12,9 +15,11 @@ trait IAccessControl {
 #[contract]
 mod AccessControl {
     use super::IAccessControl;
+    use super::DEFAULT_ADMIN_ROLE;
+    use super::IACCESSCONTROL_ID;
     use openzeppelin::introspection::erc165::ERC165;
-    use openzeppelin::utils::constants::{DEFAULT_ADMIN_ROLE, IACCESSCONTROL_ID};
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
 
     struct Storage {
         role_admin: LegacyMap<felt252, felt252>,

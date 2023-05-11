@@ -16,7 +16,8 @@ trait IERC20 {
 mod ERC20 {
     use super::IERC20;
     use integer::BoundedInt;
-    use starknet::{ContractAddress, contract_address::ContractAddressZeroable, get_caller_address};
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
     use zeroable::Zeroable;
 
     struct Storage {

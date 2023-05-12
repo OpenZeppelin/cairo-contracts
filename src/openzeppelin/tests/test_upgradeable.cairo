@@ -1,11 +1,13 @@
 use openzeppelin::upgrades::upgradeable::Upgradeable;
-use openzeppelin::tests::mocks::{upgrades_v1::Upgrades_V1, upgrades_v2::Upgrades_V2};
+use openzeppelin::tests::mocks::upgrades_v1::Upgrades_V1;
+use openzeppelin::tests::mocks::upgrades_v2::Upgrades_V2;
+
 use array::ArrayTrait;
-use starknet::{
-    class_hash::{
-    ClassHash, class_hash_const
-    }, testing::set_caller_address, ContractAddress, contract_address_const
-};
+use starknet::class_hash::ClassHash;
+use starknet::class_hash::class_hash_const;
+use starknet::testing;
+use starknet::ContractAddress;
+use starknet::contract_address_const;
 
 const VALUE: felt252 = 123;
 const NEW_VALUE: felt252 = 456;

@@ -1,4 +1,3 @@
-mod test_account;
 mod test_ownable;
 mod test_erc20;
 mod test_erc165;

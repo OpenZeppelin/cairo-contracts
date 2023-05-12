@@ -61,17 +61,21 @@ mod Account {
     use openzeppelin::utils::check_gas;
     use openzeppelin::utils::span_to_array;
 
-    impl Account of IAccount {
+    struct Storage {
+        public_key: felt252
+    }
+
+    impl AccountImpl of IAccount {
         fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
-            // avoid calls from other contracts
+            // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = get_caller_address();
             assert(sender.is_zero(), 'Account: invalid caller');
 
-            // check tx version
+            // Check tx version
             let tx_info = get_tx_info().unbox();
             let version = tx_info.version;
-            if version != TRANSACTION_VERSION { // > operator not defined for felt252
+            if version != TRANSACTION_VERSION {
                 assert(version == QUERY_VERSION, 'Account: invalid tx version');
             }
 
@@ -114,10 +118,6 @@ mod Account {
         }
     }
 
-    struct Storage {
-        public_key: felt252
-    }
-
     #[constructor]
     fn constructor(_public_key: felt252) {
         ERC165::register_interface(ERC165_ACCOUNT_ID);
@@ -128,32 +128,33 @@ mod Account {
     // Externals
     //
 
-    // TODO: Use Span in the inner Array of the return type
+    // TODO: Use Span in the inner Array of the return type to avoid
+    // converting the return value of the inner call_contract_syscall.
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
-        Account::__execute__(calls)
+        AccountImpl::__execute__(calls)
     }
 
     #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
-        Account::__validate__(calls)
+        AccountImpl::__validate__(calls)
     }
 
     #[external]
     fn __validate_declare__(class_hash: felt252) -> felt252 {
-        Account::__validate_declare__(class_hash)
+        AccountImpl::__validate_declare__(class_hash)
     }
 
     #[external]
     fn __validate_deploy__(
         class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252 {
-        Account::__validate_deploy__(class_hash, contract_address_salt, _public_key)
+        AccountImpl::__validate_deploy__(class_hash, contract_address_salt, _public_key)
     }
 
     #[external]
     fn set_public_key(new_public_key: felt252) {
-        Account::set_public_key(new_public_key)
+        AccountImpl::set_public_key(new_public_key)
     }
 
     //
@@ -162,17 +163,17 @@ mod Account {
 
     #[view]
     fn get_public_key() -> felt252 {
-        Account::get_public_key()
+        AccountImpl::get_public_key()
     }
 
     #[view]
     fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
-        Account::is_valid_signature(message, signature)
+        AccountImpl::is_valid_signature(message, signature)
     }
 
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
-        Account::supports_interface(interface_id)
+        AccountImpl::supports_interface(interface_id)
     }
 
     //
@@ -228,6 +229,7 @@ mod Account {
         let Call{to, selector, calldata } = call;
 
         let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();
+        // TODO: return Span<felt252> instead of Array<felt252> when possible.
         span_to_array(res)
     }
 }

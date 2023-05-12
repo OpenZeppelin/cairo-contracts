@@ -7,7 +7,7 @@ use serde::Serde;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::syscalls::deploy_syscall;
+use starknet::syscalls;
 use starknet::testing;
 use traits::TryInto;
 
@@ -17,11 +17,18 @@ use openzeppelin::account::IAccountDispatcherTrait;
 use openzeppelin::account::ERC165_ACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::TRANSACTION_VERSION;
+use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::Call;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::IERC20Dispatcher;
 use openzeppelin::token::erc20::IERC20DispatcherTrait;
 use openzeppelin::introspection::erc165::IERC165_ID;
+
+const PUBLIC_KEY: felt252 = 0x333333;
+const NEW_PUBKEY: felt252 = 0x789789;
+const SET_PUBLIC_KEY_SELECTOR: felt252 =
+    0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
+const TRANSFER_SELECTOR: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
 
 #[derive(Drop)]
 struct SignedTransactionData {
@@ -32,9 +39,6 @@ struct SignedTransactionData {
     s: felt252
 }
 
-fn PUBLIC_KEY() -> felt252 {
-    0x333333
-}
 fn ACCOUNT_ADDRESS() -> ContractAddress {
     contract_address_const::<0x111111>()
 }
@@ -53,7 +57,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> IAccountDispatcher 
     testing::set_version(TRANSACTION_VERSION);
 
     // Deploy the account contract
-    let mut calldata = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::new();
 
     if data.is_some() {
         let data = data.unwrap();
@@ -67,10 +71,10 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> IAccountDispatcher 
 
         calldata.append(*data.public_key);
     } else {
-        calldata.append(PUBLIC_KEY());
+        calldata.append(PUBLIC_KEY);
     }
 
-    let (address, _) = deploy_syscall(
+    let (address, _) = syscalls::deploy_syscall(
         Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
     )
         .unwrap();
@@ -89,7 +93,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     calldata.append(initial_supply.high.into());
     calldata.append(recipient.into());
 
-    let (address, _) = deploy_syscall(
+    let (address, _) = syscalls::deploy_syscall(
         ERC20::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
     )
         .unwrap();
@@ -102,18 +106,18 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 fn test_constructor() {
     let account = setup_dispatcher(Option::None(()));
     let public_key: felt252 = account.get_public_key();
-    assert(public_key == PUBLIC_KEY(), 'Should return public key');
+    assert(public_key == PUBLIC_KEY, 'Should return public key');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_interfaces() {
-    Account::constructor(PUBLIC_KEY());
+    Account::constructor(PUBLIC_KEY);
 
-    let supports_default_interface: bool = Account::supports_interface(IERC165_ID);
+    let supports_default_interface = Account::supports_interface(IERC165_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface: bool = Account::supports_interface(ERC165_ACCOUNT_ID);
+    let supports_account_interface = Account::supports_interface(ERC165_ACCOUNT_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
@@ -165,33 +169,51 @@ fn test_validate_declare() {
     );
 }
 
-#[test]
-#[available_gas(2000000)]
-fn test_execute() {
+fn test_execute_with_version(version: Option<felt252>) {
     let data = SIGNED_TX_DATA();
     let account = setup_dispatcher(Option::Some(@data));
     let initial_public_key = data.public_key;
-    let mut calls = ArrayTrait::new();
-
-    let set_public_key_selector = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
 
     assert(account.get_public_key() == initial_public_key, 'Should get initial public key');
 
     let mut calldata = ArrayTrait::new();
-    let new_public_key = 0x789789;
-    calldata.append(new_public_key);
+    calldata.append(NEW_PUBKEY);
     let call = Call {
-        to: account.contract_address, selector: set_public_key_selector, calldata: calldata
+        to: account.contract_address, selector: SET_PUBLIC_KEY_SELECTOR, calldata: calldata
     };
 
+    let mut calls = ArrayTrait::new();
     calls.append(call);
+
+    if version.is_some() {
+        testing::set_version(version.unwrap());
+    }
     let ret = account.__execute__(calls);
 
-    assert(account.get_public_key() == 0x789789, 'Should get new public key');
+    assert(account.get_public_key() == NEW_PUBKEY, 'Should get new public key');
 
     // Test return value
     let mut call_retval = ret.at(0).span();
     assert(call_retval.len() == 0, 'Should be an empty response');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_execute() {
+    test_execute_with_version(Option::None(()));
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_execute_query_version() {
+    test_execute_with_version(Option::Some(QUERY_VERSION));
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
+fn test_execute_invalid_version() {
+    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
 }
 
 #[test]
@@ -212,15 +234,13 @@ fn test_multicall() {
     let recipient2 = contract_address_const::<0x456>();
     let mut calls = ArrayTrait::new();
 
-    let transfer_selector = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
-
     let mut calldata1 = ArrayTrait::new();
     let amount1: u256 = 300;
     calldata1.append(recipient1.into());
     calldata1.append(amount1.low.into());
     calldata1.append(amount1.high.into());
     let call1 = Call {
-        to: erc20.contract_address, selector: transfer_selector, calldata: calldata1
+        to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata1
     };
 
     let mut calldata2 = ArrayTrait::new();
@@ -229,7 +249,7 @@ fn test_multicall() {
     calldata2.append(amount2.low.into());
     calldata2.append(amount2.high.into());
     let call2 = Call {
-        to: erc20.contract_address, selector: transfer_selector, calldata: calldata2
+        to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata2
     };
 
     calls.append(call1);
@@ -253,24 +273,22 @@ fn test_multicall() {
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter() {
-    let new_public_key = 0x4444;
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    Account::set_public_key(new_public_key);
+    Account::set_public_key(NEW_PUBKEY);
 
     let public_key = Account::get_public_key();
-    assert(public_key == new_public_key, 'Should update key');
+    assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
-    let new_public_key = 0x4444;
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
-    Account::set_public_key(new_public_key);
+    Account::set_public_key(NEW_PUBKEY);
 }
 
 #[test]

@@ -1,5 +1,7 @@
+use starknet::ContractAddress;
+
 #[abi]
-trait IReentrancyGuardAttacker {
+trait IAttacker {
     fn call_sender();
 }
 
@@ -8,14 +10,30 @@ trait IReentrancyGuarded {
     fn count_external_recursive(n: felt252);
 }
 
+#[abi]
+trait IReentrancyMock {
+    #[view]
+    fn current_count() -> felt252;
+    #[external]
+    fn callback();
+    #[external]
+    fn count_local_recursive(n: felt252);
+    #[external]
+    fn count_external_recursive(n: felt252);
+    #[external]
+    fn count_and_call(attacker: ContractAddress);
+    #[external]
+    fn count();
+}
+
 #[contract]
 mod ReentrancyMock {
     // OZ modules
     use openzeppelin::security::reentrancyguard::ReentrancyGuard;
 
     // Dispatchers
-    use super::IReentrancyGuardAttackerDispatcher;
-    use super::IReentrancyGuardAttackerDispatcherTrait;
+    use super::IAttackerDispatcher;
+    use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
 
@@ -71,7 +89,7 @@ mod ReentrancyMock {
         ReentrancyGuard::start();
         gas::withdraw_gas().expect('Out of gas');
         count();
-        IReentrancyGuardAttackerDispatcher { contract_address: attacker }.call_sender();
+        IAttackerDispatcher { contract_address: attacker }.call_sender();
         ReentrancyGuard::end();
     }
 

@@ -1,13 +1,18 @@
 #[abi]
-trait IReentrancyGuard {
+trait IReentrancyMock {
     fn callback();
 }
 
+#[abi]
+trait IAttacker {
+    fn call_sender();
+}
+
 #[contract]
-mod ReentrancyAttackerMock {
+mod Attacker {
     // Dispatcher
-    use super::IReentrancyGuardDispatcher;
-    use super::IReentrancyGuardDispatcherTrait;
+    use super::IReentrancyMockDispatcher;
+    use super::IReentrancyMockDispatcherTrait;
 
     // Other
     use starknet::ContractAddress;
@@ -16,6 +21,6 @@ mod ReentrancyAttackerMock {
     #[external]
     fn call_sender() {
         let caller: ContractAddress = get_caller_address();
-        IReentrancyGuardDispatcher { contract_address: caller }.callback();
+        IReentrancyMockDispatcher { contract_address: caller }.callback();
     }
 }

@@ -1,4 +1,5 @@
 mod test_accesscontrol;
+mod test_ownable;
 mod test_erc165;
 mod test_erc20;
 mod test_pausable;

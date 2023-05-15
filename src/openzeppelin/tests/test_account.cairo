@@ -147,42 +147,54 @@ fn test_is_valid_signature() {
 #[test]
 #[available_gas(2000000)]
 fn test_validate_deploy() {
-    let class_hash = 0x123;
-    let salt = 0;
-    let public_key = 0x234;
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     assert(
-        account.__validate_deploy__(class_hash, salt, public_key) == starknet::VALIDATED,
-        'Should validate correctly'
+        account.__validate_deploy__(0, 0, 0) == starknet::VALIDATED, 'Should validate correctly'
     );
 }
 
 #[test]
 #[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+fn test_validate_deploy_invalid() {
+    let mut data = SIGNED_TX_DATA();
+    data.transaction_hash += 1;
+    let account = setup_dispatcher(Option::Some(@data));
+
+    account.__validate_deploy__(0, 0, 0);
+}
+
+#[test]
+#[available_gas(2000000)]
 fn test_validate_declare() {
-    let class_hash = 0x123;
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(
-        account.__validate_declare__(class_hash) == starknet::VALIDATED, 'Should validate correctly'
-    );
+    assert(account.__validate_declare__(0) == starknet::VALIDATED, 'Should validate correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+fn test_validate_declare_invalid() {
+    let mut data = SIGNED_TX_DATA();
+    data.transaction_hash += 1;
+    let account = setup_dispatcher(Option::Some(@data));
+
+    account.__validate_declare__(0);
 }
 
 fn test_execute_with_version(version: Option<felt252>) {
     let data = SIGNED_TX_DATA();
     let account = setup_dispatcher(Option::Some(@data));
     let initial_public_key = data.public_key;
-
-    assert(account.get_public_key() == initial_public_key, 'Should get initial public key');
+    let mut calls = ArrayTrait::new();
 
     let mut calldata = ArrayTrait::new();
     calldata.append(NEW_PUBKEY);
     let call = Call {
         to: account.contract_address, selector: SET_PUBLIC_KEY_SELECTOR, calldata: calldata
     };
-
-    let mut calls = ArrayTrait::new();
     calls.append(call);
 
     if version.is_some() {
@@ -191,10 +203,6 @@ fn test_execute_with_version(version: Option<felt252>) {
     let ret = account.__execute__(calls);
 
     assert(account.get_public_key() == NEW_PUBKEY, 'Should get new public key');
-
-    // Test return value
-    let mut call_retval = ret.at(0).span();
-    assert(call_retval.len() == 0, 'Should be an empty response');
 }
 
 #[test]
@@ -223,6 +231,18 @@ fn test_validate() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+fn test_validate_invalid() {
+    let calls = ArrayTrait::new();
+    let mut data = SIGNED_TX_DATA();
+    data.transaction_hash += 1;
+    let account = setup_dispatcher(Option::Some(@data));
+
+    account.__validate__(calls);
 }
 
 #[test]
@@ -257,7 +277,7 @@ fn test_multicall() {
     let ret = account.__execute__(calls);
 
     // Assert that the transfers were successful
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remaining');
+    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
     assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
     assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
 
@@ -272,7 +292,19 @@ fn test_multicall() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_public_key_setter() {
+fn test_multicall_zero_calls() {
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let mut calls = ArrayTrait::new();
+
+    let ret = account.__execute__(calls);
+
+    // Test return value
+    assert(ret.len() == 0, 'Should have an empty response');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_public_key_setter_and_getter() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
     Account::set_public_key(NEW_PUBKEY);

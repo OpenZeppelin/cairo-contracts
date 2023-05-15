@@ -76,9 +76,9 @@ mod ReentrancyMock {
         gas::withdraw_gas().expect('Out of gas');
         if n != 0 {
             count();
-            let caller: ContractAddress = get_contract_address();
+            let this: ContractAddress = get_contract_address();
             IReentrancyGuardedDispatcher {
-                contract_address: caller
+                contract_address: this
             }.count_external_recursive(n - 1)
         }
         ReentrancyGuard::end();

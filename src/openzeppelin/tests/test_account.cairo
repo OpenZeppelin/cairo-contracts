@@ -282,8 +282,8 @@ fn test_multicall() {
     assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
 
     // Test return value
-    let mut call1_serialized_retval = ret.at(0).span();
-    let mut call2_serialized_retval = ret.at(1).span();
+    let mut call1_serialized_retval = *ret.at(0);
+    let mut call2_serialized_retval = *ret.at(1);
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
     assert(call1_retval.unwrap(), 'Should have succeeded');

@@ -1,5 +1,10 @@
+use array::ArrayTrait;
+use array::SpanTrait;
+use option::OptionTrait;
+use serde::Serde;
 use starknet::ContractAddress;
-use openzeppelin::utils::check_gas;
+use serde::serialize_array_helper;
+use serde::deserialize_array_helper;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
@@ -18,7 +23,7 @@ struct Call {
 #[abi]
 trait IAccount {
     #[external]
-    fn __execute__(calls: Array<Call>) -> Array<Array<felt252>>;
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     #[external]
     fn __validate__(calls: Array<Call>) -> felt252;
     #[external]
@@ -56,9 +61,9 @@ mod Account {
     use super::IAccount;
     use super::TRANSACTION_VERSION;
     use super::QUERY_VERSION;
+    use super::SpanSerde;
 
     use openzeppelin::introspection::erc165::ERC165;
-    use openzeppelin::utils::check_gas;
     use openzeppelin::utils::span_to_array;
 
     struct Storage {
@@ -66,7 +71,7 @@ mod Account {
     }
 
     impl AccountImpl of IAccount {
-        fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
+        fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = get_caller_address();
@@ -128,10 +133,8 @@ mod Account {
     // Externals
     //
 
-    // TODO: Use Span in the inner Array of the return type to avoid
-    // converting the return value of the inner call_contract_syscall.
     #[external]
-    fn __execute__(mut calls: Array<Call>) -> Array<Array<felt252>> {
+    fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
         AccountImpl::__execute__(calls)
     }
 
@@ -210,7 +213,7 @@ mod Account {
     }
 
     #[internal]
-    fn _execute_calls(mut calls: Array<Call>) -> Array<Array<felt252>> {
+    fn _execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
         let mut res = ArrayTrait::new();
         loop {
             match calls.pop_front() {
@@ -222,17 +225,27 @@ mod Account {
                     break ();
                 },
             }
-            check_gas();
         };
         res
     }
 
     #[internal]
-    fn _execute_single_call(call: Call) -> Array<felt252> {
+    fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
+        starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
+    }
+}
 
-        let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();
-        // TODO: return Span<felt252> instead of Array<felt252> when possible.
-        span_to_array(res)
+impl SpanSerde<
+    T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>
+> of Serde<Span<T>> {
+    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
+        (*self).len().serialize(ref output);
+        serialize_array_helper(*self, ref output);
+    }
+    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
+        let length = *serialized.pop_front()?;
+        let mut arr = ArrayTrait::new();
+        Option::Some(deserialize_array_helper(ref serialized, arr, length)?.span())
     }
 }

@@ -49,12 +49,7 @@ fn test_deploy() {
     calldata.append(initial_supply.high.into());
     calldata.append(recipient.into());
 
-    let addr = udc.deploy_contract(
-        erc20_class_hash,
-        salt,
-        unique,
-        calldata.span(),
-    );
+    let addr = udc.deploy_contract(erc20_class_hash, salt, unique, calldata.span());
     addr.print();
 }
 

@@ -52,14 +52,17 @@ mod UniversalDeployer {
 
         let (address, _) = starknet::syscalls::deploy_syscall(
             class_hash, _salt, _calldata, from_zero
-        ).unwrap_syscall();
+        )
+            .unwrap_syscall();
 
         ContractDeployed(address, deployer, unique, class_hash, _calldata, salt);
         return address;
     }
 }
 
-impl SpanSerde<T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>> of Serde::<Span<T>> {
+impl SpanSerde<
+    T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>
+> of Serde<Span<T>> {
     fn serialize(self: @Span<T>, ref output: Array<felt252>) {
         (*self).len().serialize(ref output);
         serialize_array_helper(*self, ref output);

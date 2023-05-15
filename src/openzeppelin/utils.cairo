@@ -15,19 +15,3 @@ fn check_gas() {
         },
     }
 }
-
-fn span_to_array<T, impl TDrop: Drop<T>, impl TCopy: Copy<T>>(span: Span<T>) -> Array<T> {
-    let mut array = ArrayTrait::<T>::new();
-    let length = span.len();
-    let mut i = 0;
-
-    loop {
-        if i == length {
-            break ();
-        }
-        array.append(*span.get(i).unwrap().unbox());
-        check_gas();
-        i += 1;
-    };
-    array
-}

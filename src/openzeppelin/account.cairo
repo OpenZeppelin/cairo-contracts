@@ -59,12 +59,11 @@ mod Account {
     use super::ERC165_ACCOUNT_ID;
     use super::ERC1271_VALIDATED;
     use super::IAccount;
-    use super::TRANSACTION_VERSION;
     use super::QUERY_VERSION;
     use super::SpanSerde;
+    use super::TRANSACTION_VERSION;
 
     use openzeppelin::introspection::erc165::ERC165;
-    use openzeppelin::utils::span_to_array;
 
     struct Storage {
         public_key: felt252
@@ -224,7 +223,7 @@ mod Account {
                 Option::None(_) => {
                     break ();
                 },
-            }
+            };
         };
         res
     }

@@ -1,5 +1,4 @@
 use starknet::ContractAddress;
-use openzeppelin::utils::check_gas;
 
 const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
 const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
@@ -58,8 +57,9 @@ mod Account {
     use super::QUERY_VERSION;
 
     use openzeppelin::introspection::erc165::ERC165;
-    use openzeppelin::utils::check_gas;
     use openzeppelin::utils::span_to_array;
+
+    use debug::PrintTrait;
 
     struct Storage {
         public_key: felt252
@@ -209,6 +209,8 @@ mod Account {
     #[internal]
     fn _execute_calls(mut calls: Array<Call>) -> Array<Array<felt252>> {
         let mut res = ArrayTrait::new();
+        let a = 5;
+        let b = 6;
         loop {
             match calls.pop_front() {
                 Option::Some(call) => {
@@ -218,8 +220,10 @@ mod Account {
                 Option::None(_) => {
                     break ();
                 },
-            }
-            check_gas();
+            };
+            a.print();
+            gas::withdraw_gas().expect('Out of gas 2');
+            b.print();
         };
         res
     }
@@ -227,6 +231,7 @@ mod Account {
     #[internal]
     fn _execute_single_call(call: Call) -> Array<felt252> {
         let Call{to, selector, calldata } = call;
+        selector.print();
 
         let res = starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall();
         // TODO: return Span<felt252> instead of Array<felt252> when possible.

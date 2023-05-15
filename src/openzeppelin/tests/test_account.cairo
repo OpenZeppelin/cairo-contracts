@@ -1,6 +1,7 @@
 use core::traits::Into;
 use array::ArrayTrait;
 use array::SpanTrait;
+use clone::Clone;
 use core::result::ResultTrait;
 use option::OptionTrait;
 use serde::Serde;
@@ -214,6 +215,33 @@ fn test_execute_query_version() {
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Out of eric', ))]
+fn test_execute_out_of_gas() {
+    let data = SIGNED_TX_DATA();
+    let account = setup_dispatcher(Option::Some(@data));
+    let initial_public_key = data.public_key;
+    let mut calls = ArrayTrait::new();
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(NEW_PUBKEY);
+
+    let mut i = 0;
+    loop {
+        if i == 11 {
+            break();
+        }
+        let call = Call {
+            to: account.contract_address, selector: SET_PUBLIC_KEY_SELECTOR, calldata: calldata.clone()
+        };
+        calls.append(call);
+        i += 1;
+    };
+
+    let ret = account.__execute__(calls);
 }
 
 #[test]

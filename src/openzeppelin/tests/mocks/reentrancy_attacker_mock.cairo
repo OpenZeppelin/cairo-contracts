@@ -1,9 +1,4 @@
 #[abi]
-trait IReentrancyMock {
-    fn callback();
-}
-
-#[abi]
 trait IAttacker {
     fn call_sender();
 }
@@ -11,8 +6,8 @@ trait IAttacker {
 #[contract]
 mod Attacker {
     // Dispatcher
-    use super::IReentrancyMockDispatcher;
-    use super::IReentrancyMockDispatcherTrait;
+    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
+    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 
     // Other
     use starknet::ContractAddress;

@@ -1,11 +1,6 @@
 use starknet::ContractAddress;
 
 #[abi]
-trait IAttacker {
-    fn call_sender();
-}
-
-#[abi]
 trait IReentrancyGuarded {
     fn count_external_recursive(n: felt252);
 }
@@ -32,10 +27,10 @@ mod ReentrancyMock {
     use openzeppelin::security::reentrancyguard::ReentrancyGuard;
 
     // Dispatchers
-    use super::IAttackerDispatcher;
-    use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
+    use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
+    use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
 
     // Other
     use option::OptionTrait;

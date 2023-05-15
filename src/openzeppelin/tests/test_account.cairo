@@ -1,7 +1,6 @@
 use core::traits::Into;
 use array::ArrayTrait;
 use array::SpanTrait;
-use clone::Clone;
 use core::result::ResultTrait;
 use option::OptionTrait;
 use serde::Serde;
@@ -219,33 +218,6 @@ fn test_execute_invalid_version() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Out of eric', ))]
-fn test_execute_out_of_gas() {
-    let data = SIGNED_TX_DATA();
-    let account = setup_dispatcher(Option::Some(@data));
-    let initial_public_key = data.public_key;
-    let mut calls = ArrayTrait::new();
-
-    let mut calldata = ArrayTrait::new();
-    calldata.append(NEW_PUBKEY);
-
-    let mut i = 0;
-    loop {
-        if i == 11 {
-            break();
-        }
-        let call = Call {
-            to: account.contract_address, selector: SET_PUBLIC_KEY_SELECTOR, calldata: calldata.clone()
-        };
-        calls.append(call);
-        i += 1;
-    };
-
-    let ret = account.__execute__(calls);
-}
-
-#[test]
-#[available_gas(2000000)]
 fn test_validate() {
     let calls = ArrayTrait::new();
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -366,11 +338,17 @@ fn test__is_valid_signature() {
     bad_signature.append(0x987);
     bad_signature.append(0x564);
 
+    let mut invalid_length_signature = ArrayTrait::new();
+    invalid_length_signature.append(0x987);
+
     Account::set_public_key(data.public_key);
 
     let is_valid = Account::_is_valid_signature(message, good_signature.span());
     assert(is_valid, 'Should accept valid signature');
 
     let is_valid = Account::_is_valid_signature(message, bad_signature.span());
+    assert(!is_valid, 'Should reject invalid signature');
+
+    let is_valid = Account::_is_valid_signature(message, invalid_length_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
 }

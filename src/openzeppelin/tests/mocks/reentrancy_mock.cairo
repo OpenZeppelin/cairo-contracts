@@ -72,9 +72,7 @@ mod ReentrancyMock {
         if n != 0 {
             count();
             let this: ContractAddress = get_contract_address();
-            IReentrancyGuardedDispatcher {
-                contract_address: this
-            }.count_external_recursive(n - 1)
+            IReentrancyGuardedDispatcher { contract_address: this }.count_external_recursive(n - 1)
         }
         ReentrancyGuard::end();
     }

@@ -48,7 +48,6 @@ mod Account {
     use array::ArrayTrait;
     use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
-    use serde::ArraySerde;
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;

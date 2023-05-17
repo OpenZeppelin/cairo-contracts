@@ -12,13 +12,13 @@ use starknet::testing;
 use traits::TryInto;
 
 use openzeppelin::account::Account;
-use openzeppelin::account::IAccountDispatcher;
-use openzeppelin::account::IAccountDispatcherTrait;
-use openzeppelin::account::ERC165_ACCOUNT_ID;
+use openzeppelin::account::AccountABIDispatcher;
+use openzeppelin::account::AccountABIDispatcherTrait;
+use openzeppelin::account::interface::Call;
+use openzeppelin::account::interface::IACCOUNT_ID;
 use openzeppelin::account::ERC1271_VALIDATED;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::account::QUERY_VERSION;
-use openzeppelin::account::Call;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::IERC20Dispatcher;
 use openzeppelin::token::erc20::IERC20DispatcherTrait;
@@ -52,7 +52,7 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
     }
 }
 
-fn setup_dispatcher(data: Option<@SignedTransactionData>) -> IAccountDispatcher {
+fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
     // Set the transaction version
     testing::set_version(TRANSACTION_VERSION);
 
@@ -79,7 +79,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> IAccountDispatcher 
     )
         .unwrap();
 
-    IAccountDispatcher { contract_address: address }
+    AccountABIDispatcher { contract_address: address }
 }
 
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
@@ -117,7 +117,7 @@ fn test_interfaces() {
     let supports_default_interface = Account::supports_interface(IERC165_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supports_interface(ERC165_ACCOUNT_ID);
+    let supports_account_interface = Account::supports_interface(IACCOUNT_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
@@ -226,7 +226,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     if version.is_some() {
         testing::set_version(version.unwrap());
     }
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     assert(account.get_public_key() == NEW_PUBKEY, 'Should get new public key');
 }

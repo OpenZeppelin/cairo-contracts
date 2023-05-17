@@ -55,6 +55,7 @@ mod ERC721 {
     use option::OptionTrait;
     use traits::Into;
     use zeroable::Zeroable;
+    use openzeppelin::utils::serde::SpanSerde;
 
     struct Storage {
         _name: felt252,

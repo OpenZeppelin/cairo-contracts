@@ -361,7 +361,7 @@ fn test_account_called_from_contract() {
 }
 
 //
-// test internals
+// Test internals
 //
 
 #[test]

@@ -63,14 +63,14 @@ fn test_has_role() {
 fn test_assert_only_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    testing::set_caller_address(AUTHORIZED);
+    testing::set_caller_address(AUTHORIZED());
     AccessControl::assert_only_role(ROLE);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
-fn test_assert_only_role_unauthorized_1() {
+fn test_assert_only_role_unauthorized() {
     setup();
     testing::set_caller_address(OTHER());
     AccessControl::assert_only_role(ROLE);
@@ -79,7 +79,7 @@ fn test_assert_only_role_unauthorized_1() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is missing role', ))]
-fn test_assert_only_role_unauthorized_2() {
+fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
     testing::set_caller_address(AUTHORIZED());

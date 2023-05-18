@@ -63,7 +63,7 @@ fn test_has_role() {
 fn test_assert_only_role() {
     setup();
     AccessControl::grant_role(ROLE, AUTHORIZED());
-    testing::set_caller_address(AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED);
     AccessControl::assert_only_role(ROLE);
 }
 

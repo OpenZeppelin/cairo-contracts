@@ -12,10 +12,8 @@ use starknet::ContractAddress;
 use traits::TryInto;
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
-    let calldata = ArrayTrait::<felt252>::new();
-    let (address, _) = starknet::deploy_syscall(
-        ReentrancyMock::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    )
+    let calldata = ArrayTrait::new();
+    let address = deploy(ReentrancyMock, calldata);
         .unwrap();
 
     IReentrancyMockDispatcher { contract_address: address }

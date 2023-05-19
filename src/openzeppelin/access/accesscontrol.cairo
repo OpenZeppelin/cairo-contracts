@@ -126,9 +126,7 @@ mod AccessControl {
 
     #[internal]
     fn _grant_role(role: felt252, account: ContractAddress) {
-        if !has_role(
-            role, account
-        ) {
+        if !has_role(role, account) {
             let caller: ContractAddress = get_caller_address();
             role_members::write((role, account), true);
             RoleGranted(role, account, caller);
@@ -137,9 +135,7 @@ mod AccessControl {
 
     #[internal]
     fn _revoke_role(role: felt252, account: ContractAddress) {
-        if has_role(
-            role, account
-        ) {
+        if has_role(role, account) {
             let caller: ContractAddress = get_caller_address();
             role_members::write((role, account), false);
             RoleRevoked(role, account, caller);

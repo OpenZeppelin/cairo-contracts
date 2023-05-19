@@ -3,30 +3,14 @@ use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
+use openzeppelin::tests::utils;
 
 use array::ArrayTrait;
-use core::result::ResultTrait;
-use option::OptionTrait;
-use starknet::class_hash::Felt252TryIntoClassHash;
-use starknet::ContractAddress;
-use traits::TryInto;
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
     let calldata = ArrayTrait::new();
-    let address = deploy(ReentrancyMock, calldata);
-        .unwrap();
-
+    let address = utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
     IReentrancyMockDispatcher { contract_address: address }
-}
-
-fn deploy_attacker() -> ContractAddress {
-    let calldata = ArrayTrait::<felt252>::new();
-    let (address, _) = starknet::deploy_syscall(
-        Attacker::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    )
-        .unwrap();
-
-    address
 }
 
 //
@@ -73,7 +57,10 @@ fn test_reentrancy_guard_end() {
 )]
 fn test_remote_callback() {
     let contract = deploy_mock();
-    let attacker_addr = deploy_attacker();
+
+    // Deploy attacker
+    let calldata = ArrayTrait::new();
+    let attacker_addr = utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
 
     contract.count_and_call(attacker_addr);
 }

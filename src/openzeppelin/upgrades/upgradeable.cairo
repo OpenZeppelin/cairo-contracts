@@ -54,8 +54,7 @@ mod Upgradeable {
         _upgrade(impl_hash);
         // The call_contract syscall is used in order to call a selector from the new class.
         // See: https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
-        starknet::call_contract_syscall(
-            get_contract_address(), selector, calldata.span()
-        ).unwrap_syscall();
+        starknet::call_contract_syscall(get_contract_address(), selector, calldata.span())
+            .unwrap_syscall();
     }
 }

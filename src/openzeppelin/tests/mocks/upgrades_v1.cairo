@@ -2,11 +2,24 @@
 // The functions are NOT PROTECTED.
 // DO NOT USE IN PRODUCTION.
 
+use array::ArrayTrait;
+use starknet::class_hash::ClassHash;
+
+#[abi]
+trait IUpgrades_V1 {
+    fn upgrade(new_hash: ClassHash);
+    fn upgrade_and_call(new_hash: ClassHash, selector: felt252, calldata: Array<felt252>);
+    fn set_value(val: felt252);
+    fn remove_selector();
+    fn get_value() -> felt252;
+}
+
 #[contract]
 mod Upgrades_V1 {
     use array::ArrayTrait;
     use openzeppelin::upgrades::upgradeable::Upgradeable;
-    use starknet::{class_hash::ClassHash, ContractAddress};
+    use starknet::class_hash::ClassHash;
+    use starknet::ContractAddress;
 
     struct Storage {
         value: felt252

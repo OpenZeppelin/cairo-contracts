@@ -141,6 +141,10 @@ fn test_is_valid_signature() {
 fn test_validate_deploy() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
+    // `__validate_deploy__` does not use the passed arguments because
+    // the arguments are already integrated into the tx hash. Since this test
+    // uses data from a mocked signed tx, the arguments passed in this context
+    // do not matter.
     assert(
         account.__validate_deploy__(0, 0, 0) == starknet::VALIDATED, 'Should validate correctly'
     );
@@ -175,6 +179,10 @@ fn test_validate_deploy_invalid_signature_length() {
 fn test_validate_declare() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
+    // `__validate_declare__` does not use the passed argument because
+    // the argument is already integrated into the tx hash. Since this test
+    // uses data from a mocked signed tx, the argument passed in this context
+    // does not matter.
     assert(account.__validate_declare__(0) == starknet::VALIDATED, 'Should validate correctly');
 }
 

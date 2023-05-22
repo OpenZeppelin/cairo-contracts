@@ -1,6 +1,5 @@
 use core::traits::Into;
 use array::ArrayTrait;
-use array::SpanTrait;
 use core::result::ResultTrait;
 use option::OptionTrait;
 use serde::Serde;

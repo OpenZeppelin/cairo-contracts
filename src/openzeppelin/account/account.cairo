@@ -165,14 +165,14 @@ mod Account {
     //
 
     #[internal]
-    fn _assert_only_self() {
+    fn assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
         assert(self == caller, 'Account: unauthorized');
     }
 
     #[internal]
-    fn _validate_transaction() -> felt252 {
+    fn validate_transaction() -> felt252 {
         let tx_info = get_tx_info().unbox();
         let tx_hash = tx_info.transaction_hash;
         let signature = tx_info.signature;

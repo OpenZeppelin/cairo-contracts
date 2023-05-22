@@ -22,6 +22,7 @@ use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::IERC20Dispatcher;
 use openzeppelin::token::erc20::IERC20DispatcherTrait;
 use openzeppelin::introspection::erc165::IERC165_ID;
+use openzeppelin::tests::utils;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;
@@ -73,11 +74,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
         calldata.append(PUBLIC_KEY);
     }
 
-    let (address, _) = syscalls::deploy_syscall(
-        Account::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    )
-        .unwrap();
-
+    let address = utils::deploy(Account::TEST_CLASS_HASH, calldata);
     AccountABIDispatcher { contract_address: address }
 }
 
@@ -92,11 +89,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     calldata.append(initial_supply.high.into());
     calldata.append(recipient.into());
 
-    let (address, _) = syscalls::deploy_syscall(
-        ERC20::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-    )
-        .unwrap();
-
+    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
     IERC20Dispatcher { contract_address: address }
 }
 

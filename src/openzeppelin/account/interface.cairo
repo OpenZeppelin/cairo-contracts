@@ -11,7 +11,6 @@ struct Call {
     calldata: Array<felt252>
 }
 
-// Account Standard Interface
 trait IAccount {
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(calls: Array<Call>) -> felt252;

@@ -104,8 +104,7 @@ mod Account {
 
     #[constructor]
     fn constructor(_public_key: felt252) {
-        ERC165::register_interface(IACCOUNT_ID);
-        public_key::write(_public_key);
+        initializer(_public_key);
     }
 
     //
@@ -162,6 +161,12 @@ mod Account {
     //
     // Internals
     //
+
+    #[internal]
+    fn initializer(_public_key: felt252) {
+        ERC165::register_interface(IACCOUNT_ID);
+        public_key::write(_public_key);
+    }
 
     #[internal]
     fn assert_only_self() {

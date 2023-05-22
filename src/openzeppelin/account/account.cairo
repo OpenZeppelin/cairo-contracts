@@ -83,11 +83,11 @@ mod Account {
         }
 
         fn __validate__(mut calls: Array<Call>) -> felt252 {
-            _validate_transaction()
+            validate_transaction()
         }
 
         fn __validate_declare__(class_hash: felt252) -> felt252 {
-            _validate_transaction()
+            validate_transaction()
         }
 
         fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
@@ -132,12 +132,12 @@ mod Account {
     fn __validate_deploy__(
         class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252 {
-        _validate_transaction()
+        validate_transaction()
     }
 
     #[external]
     fn set_public_key(new_public_key: felt252) {
-        _assert_only_self();
+        assert_only_self();
         public_key::write(new_public_key);
     }
 

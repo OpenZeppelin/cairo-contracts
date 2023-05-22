@@ -366,20 +366,20 @@ fn test_account_called_from_contract() {
 
 #[test]
 #[available_gas(2000000)]
-fn test__assert_only_self_true() {
+fn test_assert_only_self_true() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    Account::_assert_only_self();
+    Account::assert_only_self();
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', ))]
-fn test__assert_only_self_false() {
+fn test_assert_only_self_false() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     let other = contract_address_const::<0x4567>();
     testing::set_caller_address(other);
-    Account::_assert_only_self();
+    Account::assert_only_self();
 }
 
 #[test]

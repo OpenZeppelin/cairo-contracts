@@ -9,8 +9,7 @@ use serde::deserialize_array_helper;
 use openzeppelin::account::interface::Call;
 use openzeppelin::account::interface::IAccount;
 use openzeppelin::account::interface::IACCOUNT_ID;
-
-const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
+use openzeppelin::account::interface::ERC1271_VALIDATED;
 
 const TRANSACTION_VERSION: felt252 = 1;
 // 2**128 + TRANSACTION_VERSION

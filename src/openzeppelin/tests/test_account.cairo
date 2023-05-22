@@ -414,5 +414,5 @@ fn test__is_valid_signature() {
     assert(!is_valid, 'Should reject invalid signature');
 
     let is_valid = Account::_is_valid_signature(message, invalid_length_signature.span());
-    assert(!is_valid, 'Should reject invalid signature');
+    assert(!is_valid, 'Should reject invalid length');
 }

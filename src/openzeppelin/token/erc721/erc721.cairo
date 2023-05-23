@@ -45,7 +45,6 @@ mod ERC721 {
     }
 
     impl ERC721 of erc721::interface::IERC721 {
-        // IERC721Metadata
         fn name() -> felt252 {
             _name::read()
         }
@@ -59,7 +58,6 @@ mod ERC721 {
             _token_uri::read(token_id)
         }
 
-        // IERC721
         fn balance_of(account: ContractAddress) -> u256 {
             assert(!account.is_zero(), 'ERC721: invalid account');
             _balances::read(account)
@@ -229,7 +227,7 @@ mod ERC721 {
         _name::write(name_);
         _symbol::write(symbol_);
         erc165::ERC165::register_interface(erc721::interface::IERC721_ID);
-        erc165::ERC165::register_interface(erc721::interface::IERC721METADATA_ID);
+        erc165::ERC165::register_interface(erc721::interface::IERC721_METADATA_ID);
     }
 
     #[internal]

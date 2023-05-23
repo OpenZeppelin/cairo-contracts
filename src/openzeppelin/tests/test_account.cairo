@@ -95,13 +95,6 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 
 #[test]
 #[available_gas(2000000)]
-fn test_initializer() {
-    Account::initializer(PUBLIC_KEY);
-    assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
-}
-
-#[test]
-#[available_gas(2000000)]
 fn test_constructor() {
     Account::constructor(PUBLIC_KEY);
     assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
@@ -230,7 +223,7 @@ fn test_validate_declare_invalid_signature_length() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
-fn test_validate_deploy_empty_signature() {
+fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let empty_sig = ArrayTrait::new();
 
@@ -392,6 +385,13 @@ fn test_account_called_from_contract() {
 //
 // Test internals
 //
+
+#[test]
+#[available_gas(2000000)]
+fn test_initializer() {
+    Account::initializer(PUBLIC_KEY);
+    assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
+}
 
 #[test]
 #[available_gas(2000000)]

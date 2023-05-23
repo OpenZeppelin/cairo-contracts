@@ -44,7 +44,7 @@ mod ERC721 {
         initializer(name, symbol);
     }
 
-    impl ERC721 of erc721::interface::IERC721 {
+    impl ERC721Impl of erc721::interface::IERC721 {
         fn name() -> felt252 {
             _name::read()
         }
@@ -105,41 +105,53 @@ mod ERC721 {
             );
             _safe_transfer(from, to, token_id, data);
         }
+    }
 
-        // camelCase
+    impl ERC721CamelImpl of erc721::interface::IERC721Camel {
+        fn name() -> felt252 {
+            ERC721Impl::name()
+        }
+
+        fn symbol() -> felt252 {
+            ERC721Impl::symbol()
+        }
 
         fn tokenUri(tokenId: u256) -> felt252 {
-            token_uri(tokenId)
+            ERC721Impl::token_uri(tokenId)
         }
 
         fn balanceOf(account: ContractAddress) -> u256 {
-            balance_of(account)
+            ERC721Impl::balance_of(account)
         }
 
         fn ownerOf(tokenId: u256) -> ContractAddress {
-            owner_of(tokenId)
+            ERC721Impl::owner_of(tokenId)
+        }
+
+        fn approve(to: ContractAddress, tokenId: u256) {
+            ERC721Impl::approve(to, tokenId)
         }
 
         fn getApproved(tokenId: u256) -> ContractAddress {
-            get_approved(tokenId)
+            ERC721Impl::get_approved(tokenId)
         }
 
         fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool {
-            is_approved_for_all(owner, operator)
+            ERC721Impl::is_approved_for_all(owner, operator)
         }
 
         fn setApprovalForAll(operator: ContractAddress, approved: bool) {
-            set_approval_for_all(operator, approved)
+            ERC721Impl::set_approval_for_all(operator, approved)
         }
 
         fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256) {
-            transfer_from(from, to, tokenId)
+            ERC721Impl::transfer_from(from, to, tokenId)
         }
 
         fn safeTransferFrom(
             from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
         ) {
-            safe_transfer_from(from, to, tokenId, data)
+            ERC721Impl::safe_transfer_from(from, to, tokenId, data)
         }
     }
 
@@ -157,103 +169,103 @@ mod ERC721 {
 
     #[view]
     fn name() -> felt252 {
-        ERC721::name()
+        ERC721Impl::name()
     }
 
     #[view]
     fn symbol() -> felt252 {
-        ERC721::symbol()
+        ERC721Impl::symbol()
     }
 
     #[view]
     fn token_uri(token_id: u256) -> felt252 {
-        ERC721::token_uri(token_id)
+        ERC721Impl::token_uri(token_id)
     }
 
     #[view]
     fn tokenUri(tokenId: u256) -> felt252 {
-        ERC721::token_uri(tokenId)
+        ERC721CamelImpl::tokenUri(tokenId)
     }
 
     #[view]
     fn balance_of(account: ContractAddress) -> u256 {
-        ERC721::balance_of(account)
+        ERC721Impl::balance_of(account)
     }
 
     #[view]
     fn balanceOf(account: ContractAddress) -> u256 {
-        ERC721::balance_of(account)
+        ERC721CamelImpl::balanceOf(account)
     }
 
     #[view]
     fn owner_of(token_id: u256) -> ContractAddress {
-        ERC721::owner_of(token_id)
+        ERC721Impl::owner_of(token_id)
     }
 
     #[view]
     fn ownerOf(tokenId: u256) -> ContractAddress {
-        ERC721::owner_of(tokenId)
+        ERC721CamelImpl::ownerOf(tokenId)
     }
 
     #[view]
     fn get_approved(token_id: u256) -> ContractAddress {
-        ERC721::get_approved(token_id)
+        ERC721Impl::get_approved(token_id)
     }
 
     #[view]
     fn getApproved(tokenId: u256) -> ContractAddress {
-        ERC721::get_approved(tokenId)
+        ERC721CamelImpl::getApproved(tokenId)
     }
 
     #[view]
     fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool {
-        ERC721::is_approved_for_all(owner, operator)
+        ERC721Impl::is_approved_for_all(owner, operator)
     }
 
     #[view]
     fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool {
-        ERC721::is_approved_for_all(owner, operator)
+        ERC721CamelImpl::isApprovedForAll(owner, operator)
     }
 
     // External
 
     #[external]
     fn approve(to: ContractAddress, token_id: u256) {
-        ERC721::approve(to, token_id)
+        ERC721Impl::approve(to, token_id)
     }
 
     #[external]
     fn set_approval_for_all(operator: ContractAddress, approved: bool) {
-        ERC721::set_approval_for_all(operator, approved)
+        ERC721Impl::set_approval_for_all(operator, approved)
     }
 
     #[external]
     fn setApprovalForAll(operator: ContractAddress, approved: bool) {
-        ERC721::set_approval_for_all(operator, approved)
+        ERC721CamelImpl::setApprovalForAll(operator, approved)
     }
 
     #[external]
     fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256) {
-        ERC721::transfer_from(from, to, token_id)
+        ERC721Impl::transfer_from(from, to, token_id)
     }
 
     #[external]
     fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256) {
-        ERC721::transfer_from(from, to, tokenId)
+        ERC721CamelImpl::transferFrom(from, to, tokenId)
     }
 
     #[external]
     fn safe_transfer_from(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) {
-        ERC721::safe_transfer_from(from, to, token_id, data)
+        ERC721Impl::safe_transfer_from(from, to, token_id, data)
     }
 
     #[external]
     fn safeTransferFrom(
         from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
     ) {
-        ERC721::safe_transfer_from(from, to, tokenId, data)
+        ERC721CamelImpl::safeTransferFrom(from, to, tokenId, data)
     }
 
     // Internal

@@ -23,16 +23,23 @@ trait IERC721 {
     fn name() -> felt252;
     fn symbol() -> felt252;
     fn token_uri(token_id: u256) -> felt252;
-    // camelCase
+}
+
+#[abi]
+trait IERC721Camel {
     fn balanceOf(account: ContractAddress) -> u256;
     fn ownerOf(tokenId: u256) -> ContractAddress;
     fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn safeTransferFrom(
         from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
     );
+    fn approve(to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(operator: ContractAddress, approved: bool);
     fn getApproved(tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
+    // IERC721Metadata
+    fn name() -> felt252;
+    fn symbol() -> felt252;
     fn tokenUri(tokenId: u256) -> felt252;
 }
 
@@ -41,6 +48,10 @@ trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> u32;
+}
+
+#[abi]
+trait IERC721ReceiverCamel {
     fn onErc721Received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Span<felt252>
     ) -> u32;

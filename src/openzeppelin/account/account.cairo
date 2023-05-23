@@ -7,9 +7,6 @@ use serde::serialize_array_helper;
 use starknet::ContractAddress;
 
 use openzeppelin::account::interface::Call;
-use openzeppelin::account::interface::ERC1271_VALIDATED;
-use openzeppelin::account::interface::IAccount;
-use openzeppelin::account::interface::IACCOUNT_ID;
 
 const TRANSACTION_VERSION: felt252 = 1;
 // 2**128 + TRANSACTION_VERSION
@@ -50,15 +47,15 @@ mod Account {
     use option::OptionTrait;
     use zeroable::Zeroable;
 
+    use openzeppelin::account::interface::ERC1271_VALIDATED;
+    use openzeppelin::account::interface::IAccount;
+    use openzeppelin::account::interface::IACCOUNT_ID;
+    use openzeppelin::introspection::erc165::ERC165;
+
     use super::Call;
-    use super::IACCOUNT_ID;
-    use super::ERC1271_VALIDATED;
-    use super::IAccount;
     use super::QUERY_VERSION;
     use super::SpanSerde;
     use super::TRANSACTION_VERSION;
-
-    use openzeppelin::introspection::erc165::ERC165;
 
     struct Storage {
         public_key: felt252

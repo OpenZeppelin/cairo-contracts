@@ -5,10 +5,7 @@ const IERC721_ID: u32 = 0x80ac58cd_u32;
 const IERC721METADATA_ID: u32 = 0x5b5e139f_u32;
 const IERC721_RECEIVER_ID: u32 = 0x150b7a02_u32;
 
-/// TODO:
-// - IERC721 should inherit IERC165
-// - We should have IERC721Metadata that inherit IERC721
-// - name(), symbol() and token_uri(u256) should be in IERC721Metadata, not in iERC721
+
 #[abi]
 trait IERC721 {
     // IERC721Metadata
@@ -149,9 +146,16 @@ mod ERC721 {
         }
     }
 
+    // View
+
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
         erc165::ERC165::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: u32) -> bool {
+        erc165::ERC165::supports_interface(interfaceId)
     }
 
     #[view]
@@ -170,7 +174,17 @@ mod ERC721 {
     }
 
     #[view]
+    fn tokenUri(tokenId: u256) -> felt252 {
+        ERC721::token_uri(tokenId)
+    }
+
+    #[view]
     fn balance_of(account: ContractAddress) -> u256 {
+        ERC721::balance_of(account)
+    }
+
+    #[view]
+    fn balanceOf(account: ContractAddress) -> u256 {
         ERC721::balance_of(account)
     }
 
@@ -180,14 +194,31 @@ mod ERC721 {
     }
 
     #[view]
+    fn ownerOf(tokenId: u256) -> ContractAddress {
+        ERC721::owner_of(tokenId)
+    }
+
+    #[view]
     fn get_approved(token_id: u256) -> ContractAddress {
         ERC721::get_approved(token_id)
+    }
+
+    #[view]
+    fn getApproved(tokenId: u256) -> ContractAddress {
+        ERC721::get_approved(tokenId)
     }
 
     #[view]
     fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool {
         ERC721::is_approved_for_all(owner, operator)
     }
+
+    #[view]
+    fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool {
+        ERC721::is_approved_for_all(owner, operator)
+    }
+
+    // External
 
     #[external]
     fn approve(to: ContractAddress, token_id: u256) {
@@ -200,8 +231,18 @@ mod ERC721 {
     }
 
     #[external]
+    fn setApprovalForAll(operator: ContractAddress, approved: bool) {
+        ERC721::set_approval_for_all(operator, approved)
+    }
+
+    #[external]
     fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256) {
         ERC721::transfer_from(from, to, token_id)
+    }
+
+    #[external]
+    fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256) {
+        ERC721::transfer_from(from, to, tokenId)
     }
 
     #[external]
@@ -210,6 +251,15 @@ mod ERC721 {
     ) {
         ERC721::safe_transfer_from(from, to, token_id, data)
     }
+
+    #[external]
+    fn safeTransferFrom(
+        from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
+    ) {
+        ERC721::safe_transfer_from(from, to, tokenId, data)
+    }
+
+    // Internal
 
     #[internal]
     fn initializer(name_: felt252, symbol_: felt252) {

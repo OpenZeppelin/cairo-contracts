@@ -117,8 +117,7 @@ mod ERC721 {
 
             let caller = get_caller_address();
             assert(
-                owner == caller | is_approved_for_all(owner, caller),
-                'ERC721: unauthorized caller'
+                owner == caller | is_approved_for_all(owner, caller), 'ERC721: unauthorized caller'
             );
             _approve(to, token_id);
         }
@@ -129,8 +128,7 @@ mod ERC721 {
 
         fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256) {
             assert(
-                _is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                _is_approved_or_owner(get_caller_address(), token_id), 'ERC721: unauthorized caller'
             );
             _transfer(from, to, token_id);
         }
@@ -139,8 +137,7 @@ mod ERC721 {
             from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
         ) {
             assert(
-                _is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                _is_approved_or_owner(get_caller_address(), token_id), 'ERC721: unauthorized caller'
             );
             _safe_transfer(from, to, token_id, data);
         }
@@ -385,16 +382,17 @@ mod ERC721 {
     ) -> bool {
         if (IERC165Dispatcher {
             contract_address: to
-        }.supports_interface(
-            erc721::IERC721_RECEIVER_ID
-        )) {
+        }.supports_interface(erc721::IERC721_RECEIVER_ID)) {
             IERC721ReceiverDispatcher {
                 contract_address: to
-            }.on_erc721_received(
-                get_caller_address(), from, token_id, data
-            ) == erc721::IERC721_RECEIVER_ID
+            }
+                .on_erc721_received(
+                    get_caller_address(), from, token_id, data
+                ) == erc721::IERC721_RECEIVER_ID
         } else {
-            IERC165Dispatcher { contract_address: to }.supports_interface(account::ERC165_ACCOUNT_ID)
+            IERC165Dispatcher {
+                contract_address: to
+            }.supports_interface(account::ERC165_ACCOUNT_ID)
         }
     }
 }

@@ -99,12 +99,12 @@ fn test__exists() {
     ERC721::_mint(RECIPIENT(), TOKEN_ID());
 
     assert(ERC721::_exists(TOKEN_ID()), 'Token should exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == RECIPIENT(), 'Low level ownership');
+    assert(ERC721::_owners::read(TOKEN_ID()) == RECIPIENT(), 'Invalid owner');
 
     ERC721::_burn(TOKEN_ID());
 
     assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Low level ownership');
+    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Invalid owner');
 }
 
 ///

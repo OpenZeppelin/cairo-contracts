@@ -29,6 +29,7 @@ const NEW_PUBKEY: felt252 = 0x789789;
 const SET_PUBLIC_KEY_SELECTOR: felt252 =
     0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
 const TRANSFER_SELECTOR: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
+const SALT: felt252 = 123;
 
 #[derive(Drop)]
 struct SignedTransactionData {
@@ -39,6 +40,9 @@ struct SignedTransactionData {
     s: felt252
 }
 
+fn CLASS_HASH() -> felt252 {
+    Account::TEST_CLASS_HASH
+}
 fn ACCOUNT_ADDRESS() -> ContractAddress {
     contract_address_const::<0x111111>()
 }
@@ -140,12 +144,12 @@ fn test_is_valid_signature() {
 fn test_validate_deploy() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    // `__validate_deploy__` does not use the passed arguments because
-    // the arguments are already integrated into the tx hash. Since this test
-    // uses data from a mocked signed tx, the arguments passed in this context
-    // do not matter.
+    // `__validate_deploy__` does not directly use the passed arguments. Their
+    // values are already integrated in the tx hash. The passed arguments in this
+    // testing context are decoupled from the signature and have no effect on
+    // the test.
     assert(
-        account.__validate_deploy__(0, 0, 0) == starknet::VALIDATED, 'Should validate correctly'
+        account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY) == starknet::VALIDATED, 'Should validate correctly'
     );
 }
 
@@ -157,7 +161,7 @@ fn test_validate_deploy_invalid_signature_data() {
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_deploy__(0, 0, 0);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -170,7 +174,7 @@ fn test_validate_deploy_invalid_signature_length() {
     signature.append(0x1);
     testing::set_signature(signature.span());
 
-    account.__validate_deploy__(0, 0, 0);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -181,7 +185,7 @@ fn test_validate_deploy_empty_signature() {
     let empty_sig = ArrayTrait::new();
 
     testing::set_signature(empty_sig.span());
-    account.__validate_deploy__(0, 0, 0);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -189,11 +193,11 @@ fn test_validate_deploy_empty_signature() {
 fn test_validate_declare() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    // `__validate_declare__` does not use the passed argument because
-    // the argument is already integrated into the tx hash. Since this test
-    // uses data from a mocked signed tx, the argument passed in this context
-    // does not matter.
-    assert(account.__validate_declare__(0) == starknet::VALIDATED, 'Should validate correctly');
+    // `__validate_declare__` does not directly use the class_hash argument. Its
+    // value is already integrated in the tx hash. The class_hash argument in this
+    // testing context is decoupled from the signature and has no effect on
+    // the test.
+    assert(account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED, 'Should validate correctly');
 }
 
 #[test]
@@ -204,7 +208,7 @@ fn test_validate_declare_invalid_signature_data() {
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_declare__(0);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 #[test]
@@ -217,7 +221,7 @@ fn test_validate_declare_invalid_signature_length() {
     signature.append(0x1);
     testing::set_signature(signature.span());
 
-    account.__validate_declare__(0);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 #[test]
@@ -229,7 +233,7 @@ fn test_validate_declare_empty_signature() {
 
     testing::set_signature(empty_sig.span());
 
-    account.__validate_declare__(0);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 fn test_execute_with_version(version: Option<felt252>) {

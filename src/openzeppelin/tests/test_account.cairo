@@ -22,8 +22,6 @@ use openzeppelin::token::erc20::IERC20DispatcherTrait;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;
-const SET_PUBLIC_KEY_SELECTOR: felt252 =
-    0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
 const TRANSFER_SELECTOR: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
 const SALT: felt252 = 123;
 

@@ -237,22 +237,35 @@ fn test_validate_declare_empty_signature() {
 fn test_execute_with_version(version: Option<felt252>) {
     let data = SIGNED_TX_DATA();
     let account = setup_dispatcher(Option::Some(@data));
-    let initial_public_key = data.public_key;
-    let mut calls = ArrayTrait::new();
+    let erc20 = deploy_erc20(account.contract_address, 1000);
+    let recipient = contract_address_const::<0x123>();
 
+    // Craft call and add to calls array
     let mut calldata = ArrayTrait::new();
-    calldata.append(NEW_PUBKEY);
-    let call = Call {
-        to: account.contract_address, selector: SET_PUBLIC_KEY_SELECTOR, calldata: calldata
-    };
+    let amount: u256 = 200;
+    calldata.append(recipient.into());
+    calldata.append(amount.low.into());
+    calldata.append(amount.high.into());
+    let call = Call { to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata };
+    let mut calls = ArrayTrait::new();
     calls.append(call);
 
+    // Handle version for test
     if version.is_some() {
         testing::set_version(version.unwrap());
     }
-    account.__execute__(calls);
 
-    assert(account.get_public_key() == NEW_PUBKEY, 'Should get new public key');
+    // Execute
+    let ret = account.__execute__(calls);
+
+    // Assert that the transfer was successful
+    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
+    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+
+    // Test return value
+    let mut call_serialized_retval = *ret.at(0);
+    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
+    assert(call_retval.unwrap(), 'Should have succeeded');
 }
 
 #[test]
@@ -304,6 +317,7 @@ fn test_multicall() {
     let recipient2 = contract_address_const::<0x456>();
     let mut calls = ArrayTrait::new();
 
+    // Craft call1
     let mut calldata1 = ArrayTrait::new();
     let amount1: u256 = 300;
     calldata1.append(recipient1.into());
@@ -313,6 +327,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata1
     };
 
+    // Craft call2
     let mut calldata2 = ArrayTrait::new();
     let amount2: u256 = 500;
     calldata2.append(recipient2.into());
@@ -322,6 +337,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata2
     };
 
+    // Bundle calls and exeute
     calls.append(call1);
     calls.append(call2);
     let ret = account.__execute__(calls);

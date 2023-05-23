@@ -50,7 +50,7 @@ mod UniversalDeployer {
             from_zero = false;
         }
 
-        let (address, _) = starknet::syscalls::deploy_syscall(
+        let (address, _) = starknet::deploy_syscall(
             class_hash, _salt, _calldata, from_zero
         )
             .unwrap_syscall();

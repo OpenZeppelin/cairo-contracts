@@ -146,10 +146,10 @@ fn test_validate_deploy() {
 
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
-    // testing context are decoupled from the signature and have no effect on
-    // the test.
+    // testing context are decoupled from the signature and have no effect on the test.
     assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY) == starknet::VALIDATED, 'Should validate correctly'
+        account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY) == starknet::VALIDATED,
+        'Should validate correctly'
     );
 }
 
@@ -195,9 +195,11 @@ fn test_validate_declare() {
 
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
-    // testing context is decoupled from the signature and has no effect on
-    // the test.
-    assert(account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED, 'Should validate correctly');
+    // testing context is decoupled from the signature and has no effect on the test.
+    assert(
+        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
+        'Should validate correctly'
+    );
 }
 
 #[test]

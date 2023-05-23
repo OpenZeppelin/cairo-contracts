@@ -60,7 +60,9 @@ fn test_initialize() {
     assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance should be zero');
 
     assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
-    assert(ERC721::supports_interface(erc721::interface::IERC721METADATA_ID), 'missing interface ID');
+    assert(
+        ERC721::supports_interface(erc721::interface::IERC721METADATA_ID), 'missing interface ID'
+    );
     assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
     assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
 }

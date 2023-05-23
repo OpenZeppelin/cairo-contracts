@@ -1,28 +1,24 @@
-use core::traits::Into;
 use array::ArrayTrait;
-use core::result::ResultTrait;
+use core::traits::Into;
 use option::OptionTrait;
 use serde::Serde;
-use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::syscalls;
 use starknet::testing;
-use traits::TryInto;
 
 use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::Call;
+use openzeppelin::account::interface::ERC1271_VALIDATED;
 use openzeppelin::account::interface::IACCOUNT_ID;
-use openzeppelin::account::ERC1271_VALIDATED;
-use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::account::QUERY_VERSION;
+use openzeppelin::account::TRANSACTION_VERSION;
+use openzeppelin::introspection::erc165::IERC165_ID;
+use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::IERC20Dispatcher;
 use openzeppelin::token::erc20::IERC20DispatcherTrait;
-use openzeppelin::introspection::erc165::IERC165_ID;
-use openzeppelin::tests::utils;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;

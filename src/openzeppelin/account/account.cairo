@@ -2,14 +2,14 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use option::OptionTrait;
 use serde::Serde;
-use starknet::ContractAddress;
-use serde::serialize_array_helper;
 use serde::deserialize_array_helper;
+use serde::serialize_array_helper;
+use starknet::ContractAddress;
 
 use openzeppelin::account::interface::Call;
+use openzeppelin::account::interface::ERC1271_VALIDATED;
 use openzeppelin::account::interface::IAccount;
 use openzeppelin::account::interface::IACCOUNT_ID;
-use openzeppelin::account::interface::ERC1271_VALIDATED;
 
 const TRANSACTION_VERSION: felt252 = 1;
 // 2**128 + TRANSACTION_VERSION

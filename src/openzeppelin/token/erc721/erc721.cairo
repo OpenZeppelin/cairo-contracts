@@ -105,6 +105,42 @@ mod ERC721 {
             );
             _safe_transfer(from, to, token_id, data);
         }
+
+        // camelCase
+
+        fn tokenUri(tokenId: u256) -> felt252 {
+            token_uri(tokenId)
+        }
+
+        fn balanceOf(account: ContractAddress) -> u256 {
+            balance_of(account)
+        }
+
+        fn ownerOf(tokenId: u256) -> ContractAddress {
+            owner_of(tokenId)
+        }
+
+        fn getApproved(tokenId: u256) -> ContractAddress {
+            get_approved(tokenId)
+        }
+
+        fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool {
+            is_approved_for_all(owner, operator)
+        }
+
+        fn setApprovalForAll(operator: ContractAddress, approved: bool) {
+            set_approval_for_all(operator, approved)
+        }
+
+        fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256) {
+            transfer_from(from, to, tokenId)
+        }
+
+        fn safeTransferFrom(
+            from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
+        ) {
+            safe_transfer_from(from, to, tokenId, data)
+        }
     }
 
     // View
@@ -347,6 +383,7 @@ mod ERC721 {
         if (IERC165Dispatcher {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
+            // todo add casing fallback mechanism
             IERC721ReceiverDispatcher {
                 contract_address: to
             }

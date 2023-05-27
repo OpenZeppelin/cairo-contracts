@@ -150,9 +150,7 @@ mod ERC20 {
             ERC20Impl::transfer(recipient, amount)
         }
 
-        fn transferFrom(
-            sender: ContractAddress, recipient: ContractAddress, amount: u256
-        ) -> bool {
+        fn transferFrom(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
             ERC20Impl::transfer_from(sender, recipient, amount)
         }
 

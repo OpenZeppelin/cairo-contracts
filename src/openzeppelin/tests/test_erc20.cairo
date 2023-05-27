@@ -256,7 +256,9 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     set_caller_address(SPENDER());
     ERC20::transfer_from(OWNER(), RECIPIENT(), VALUE());
 
-    assert(ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    assert(
+        ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
+    );
 }
 
 #[test]
@@ -318,7 +320,9 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
     set_caller_address(SPENDER());
     ERC20::transferFrom(OWNER(), RECIPIENT(), VALUE());
 
-    assert(ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    assert(
+        ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
+    );
 }
 
 #[test]
@@ -497,7 +501,9 @@ fn test__spend_allowance_unlimited() {
     let max_minus_one: u256 = BoundedInt::max() - 1.into();
     ERC20::_spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
-    assert(ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    assert(
+        ERC20::allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
+    );
 }
 
 //

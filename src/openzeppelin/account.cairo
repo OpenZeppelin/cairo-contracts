@@ -1,1 +1,6 @@
-const ERC165_ACCOUNT_ID: u32 = 0xa66bd575_u32;
+mod account;
+use account::{
+    Account, AccountABIDispatcher, AccountABIDispatcherTrait, TRANSACTION_VERSION, QUERY_VERSION
+};
+
+mod interface;

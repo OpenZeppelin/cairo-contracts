@@ -95,18 +95,20 @@ fn test_get_approved_nonexistent() {
 #[test]
 #[available_gas(2000000)]
 fn test__exists() {
-    assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Invalid owner');
+    let zero = ZERO();
+    let token_id = TOKEN_ID();
+    assert(!ERC721::_exists(token_id), 'Token should not exist');
+    assert(ERC721::_owners::read(token_id) == zero, 'Invalid owner');
 
-    ERC721::_mint(RECIPIENT(), TOKEN_ID());
+    ERC721::_mint(RECIPIENT(), token_id);
 
-    assert(ERC721::_exists(TOKEN_ID()), 'Token should exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == RECIPIENT(), 'Invalid owner');
+    assert(ERC721::_exists(token_id), 'Token should exist');
+    assert(ERC721::_owners::read(token_id) == RECIPIENT(), 'Invalid owner');
 
-    ERC721::_burn(TOKEN_ID());
+    ERC721::_burn(token_id);
 
-    assert(!ERC721::_exists(TOKEN_ID()), 'Token should not exist');
-    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Invalid owner');
+    assert(!ERC721::_exists(token_id), 'Token should not exist');
+    assert(ERC721::_owners::read(token_id) == zero, 'Invalid owner');
 }
 
 ///
@@ -202,7 +204,7 @@ fn test_set_approval_for_all() {
     assert(ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 
     ERC721::set_approval_for_all(OPERATOR(), false);
-    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
 }
 
 #[test]
@@ -223,7 +225,7 @@ fn test_set_approval_for_all_owner_equal_operator_false() {
 
 #[test]
 #[available_gas(2000000)]
-fn test__set_approval_for() {
+fn test__set_approval_for_all() {
     assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
 
     ERC721::_set_approval_for_all(OWNER(), OPERATOR(), true);

@@ -405,7 +405,7 @@ mod ERC721 {
         } else {
             IERC165Dispatcher {
                 contract_address: to
-            }.supports_interface(account::ERC165_ACCOUNT_ID)
+            }.supports_interface(account::interface::IACCOUNT_ID)
         }
     }
 }

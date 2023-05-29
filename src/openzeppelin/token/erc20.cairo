@@ -1,15 +1,29 @@
 use starknet::ContractAddress;
 
+#[abi]
 trait IERC20 {
+    #[view]
     fn name() -> felt252;
+    #[view]
     fn symbol() -> felt252;
+    #[view]
     fn decimals() -> u8;
+    #[view]
     fn total_supply() -> u256;
+    #[view]
     fn balance_of(account: ContractAddress) -> u256;
+    #[view]
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256;
+    #[external]
     fn transfer(recipient: ContractAddress, amount: u256) -> bool;
+    #[external]
     fn transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
+    #[external]
     fn approve(spender: ContractAddress, amount: u256) -> bool;
+    #[external]
+    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
+    #[external]
+    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
 }
 
 #[contract]
@@ -79,6 +93,14 @@ mod ERC20 {
             _approve(caller, spender, amount);
             true
         }
+
+        fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool {
+            _increase_allowance(spender, added_value)
+        }
+
+        fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool {
+            _decrease_allowance(spender, subtracted_value)
+        }
     }
 
     #[constructor]
@@ -136,12 +158,12 @@ mod ERC20 {
 
     #[external]
     fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool {
-        _increase_allowance(spender, added_value)
+        ERC20::increase_allowance(spender, added_value)
     }
 
     #[external]
     fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool {
-        _decrease_allowance(spender, subtracted_value)
+        ERC20::decrease_allowance(spender, subtracted_value)
     }
 
     ///

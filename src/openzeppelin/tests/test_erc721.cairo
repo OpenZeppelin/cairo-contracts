@@ -68,6 +68,13 @@ fn setup_receiver() -> ContractAddress {
     utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
 }
 
+fn setup_account() -> ContractAddress {
+    let mut calldata = ArrayTrait::new();
+    let public_key: felt252 = 1234678;
+    calldata.append(public_key);
+    utils::deploy(Account::TEST_CLASS_HASH, calldata)
+}
+
 ///
 /// Initializers
 ///
@@ -534,12 +541,7 @@ fn test_safe_transfer_from_unauthorized() {
 #[available_gas(2000000)]
 fn test_safe_transfer_from_to_account() {
     setup();
-    // deploy account
-    let mut calldata = ArrayTrait::new();
-    let public_key: felt252 = 1234678;
-    calldata.append(public_key);
-    let account = utils::deploy(Account::TEST_CLASS_HASH, calldata);
-
+    let account = setup_account();
     let token_id = TOKEN_ID();
     let owner = OWNER();
 
@@ -642,13 +644,11 @@ fn test__transfer_from_invalid_owner() {
 #[test]
 #[available_gas(2000000)]
 fn test__mint() {
-    assert(ERC721::balance_of(RECIPIENT()) == 0.into(), 'Balance of recipient before');
-
+    let recipient = RECIPIENT();
+    let token_id = TOKEN_ID();
+    assert_state_before_mint(recipient);
     ERC721::_mint(RECIPIENT(), TOKEN_ID());
-
-    assert(ERC721::owner_of(TOKEN_ID()) == RECIPIENT(), 'Ownership after');
-    assert(ERC721::balance_of(RECIPIENT()) == 1.into(), 'Balance of recipient after');
-    assert(ERC721::get_approved(TOKEN_ID()) == ZERO(), 'Approval implicitly set');
+    assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
@@ -665,6 +665,71 @@ fn test__mint_already_exist() {
     setup();
 
     ERC721::_mint(RECIPIENT(), TOKEN_ID());
+}
+
+///
+/// _safe_mint
+///
+
+#[test]
+#[available_gas(2000000)]
+fn test__safe_mint_to_receiver() {
+    let recipient = setup_receiver();
+    let token_id = TOKEN_ID();
+
+    assert_state_before_mint(recipient);
+    ERC721::_safe_mint(recipient, token_id, DATA(true));
+    assert_state_after_mint(token_id, recipient);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__safe_mint_to_account() {
+    let account = setup_account();
+    let token_id = TOKEN_ID();
+
+    assert_state_before_mint(account);
+    ERC721::_safe_mint(account, token_id, DATA(true));
+    assert_state_after_mint(token_id, account);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+fn test__safe_mint_to_non_receiver() {
+    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+    let token_id = TOKEN_ID();
+
+    assert_state_before_mint(recipient);
+    ERC721::_safe_mint(recipient, token_id, DATA(true));
+    assert_state_after_mint(token_id, recipient);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC721: safe mint failed', ))]
+fn test__safe_mint_to_receiver_failure() {
+    let recipient = setup_receiver();
+    let token_id = TOKEN_ID();
+
+    assert_state_before_mint(recipient);
+    ERC721::_safe_mint(recipient, token_id, DATA(false));
+    assert_state_after_mint(token_id, recipient);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC721: invalid receiver', ))]
+fn test__safe_mint_to_zero() {
+    ERC721::_safe_mint(ZERO(), TOKEN_ID(), DATA(true));
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC721: token already minted', ))]
+fn test__safe_mint_already_exist() {
+    setup();
+    ERC721::_safe_mint(RECIPIENT(), TOKEN_ID(), DATA(true));
 }
 
 ///
@@ -734,4 +799,14 @@ fn assert_state_after_transfer(token_id: u256, owner: ContractAddress, recipient
     assert(ERC721::balance_of(owner) == 0.into(), 'Balance of owner after');
     assert(ERC721::balance_of(recipient) == 1.into(), 'Balance of recipient after');
     assert(ERC721::get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+}
+
+fn assert_state_before_mint(recipient: ContractAddress) {
+    assert(ERC721::balance_of(recipient) == 0.into(), 'Balance of recipient before');
+}
+
+fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
+    assert(ERC721::owner_of(token_id) == recipient, 'Ownership after');
+    assert(ERC721::balance_of(recipient) == 1.into(), 'Balance of recipient after');
+    assert(ERC721::get_approved(token_id) == ZERO(), 'Approval implicitly set');
 }

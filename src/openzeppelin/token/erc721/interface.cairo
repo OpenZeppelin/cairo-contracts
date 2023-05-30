@@ -7,36 +7,6 @@ const IERC721_METADATA_ID: u32 = 0x5b5e139f_u32;
 const IERC721_RECEIVER_ID: u32 = 0x150b7a02_u32;
 
 #[abi]
-trait ERC721ABI {
-    // case agnostic
-    fn name() -> felt252;
-    fn symbol() -> felt252;
-    fn approve(to: ContractAddress, token_id: u256);
-    // snake_case
-    fn balance_of(account: ContractAddress) -> u256;
-    fn owner_of(token_id: u256) -> ContractAddress;
-    fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256);
-    fn safe_transfer_from(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
-    );
-    fn set_approval_for_all(operator: ContractAddress, approved: bool);
-    fn get_approved(token_id: u256) -> ContractAddress;
-    fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool;
-    fn token_uri(token_id: u256) -> felt252;
-    // camelCase
-    fn balanceOf(account: ContractAddress) -> u256;
-    fn ownerOf(tokenId: u256) -> ContractAddress;
-    fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256);
-    fn safeTransferFrom(
-        from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
-    );
-    fn setApprovalForAll(operator: ContractAddress, approved: bool);
-    fn getApproved(tokenId: u256) -> ContractAddress;
-    fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
-    fn tokenUri(tokenId: u256) -> felt252;
-}
-
-#[abi]
 trait IERC721 {
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;

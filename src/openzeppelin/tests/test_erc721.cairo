@@ -436,23 +436,60 @@ fn test_transfer_from_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_safe_transfer_from_owner() {
+fn test_safe_transfer_from_to_account() {
+    setup();
+    let account = setup_account();
+    let token_id = TOKEN_ID();
+    let owner = OWNER();
+
+    assert_state_before_transfer(token_id, owner, account);
+
+    set_caller_address(owner);
+    ERC721::safe_transfer_from(owner, account, token_id, DATA(true));
+
+    assert_state_after_transfer(token_id, owner, account);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_safe_transfer_from_to_receiver() {
     setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID();
     let owner = OWNER();
 
-    // set approval to check reset
-    ERC721::_approve(OTHER(), token_id);
-
     assert_state_before_transfer(token_id, owner, receiver);
-
-    assert(ERC721::get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
 
     set_caller_address(owner);
     ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC721: safe transfer failed', ))]
+fn test_safe_transfer_from_to_receiver_failure() {
+    setup();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_ID();
+    let owner = OWNER();
+
+    set_caller_address(owner);
+    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(false));
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+fn test_safe_transfer_from_to_non_receiver() {
+    setup();
+    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+    let token_id = TOKEN_ID();
+    let owner = OWNER();
+
+    set_caller_address(owner);
+    ERC721::safe_transfer_from(owner, recipient, token_id, DATA(true));
 }
 
 #[test]
@@ -535,64 +572,6 @@ fn test_safe_transfer_from_unauthorized() {
     setup();
     set_caller_address(OTHER());
     ERC721::safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID(), DATA(true));
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_safe_transfer_from_to_account() {
-    setup();
-    let account = setup_account();
-    let token_id = TOKEN_ID();
-    let owner = OWNER();
-
-    assert_state_before_transfer(token_id, owner, account);
-
-    set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, account, token_id, DATA(true));
-
-    assert_state_after_transfer(token_id, owner, account);
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_safe_transfer_from_to_receiver() {
-    setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
-    let owner = OWNER();
-
-    assert_state_before_transfer(token_id, owner, receiver);
-
-    set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
-
-    assert_state_after_transfer(token_id, owner, receiver);
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ERC721: safe transfer failed', ))]
-fn test_safe_transfer_from_to_receiver_failure() {
-    setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
-    let owner = OWNER();
-
-    set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(false));
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
-fn test_safe_transfer_from_to_non_receiver() {
-    setup();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
-    let token_id = TOKEN_ID();
-    let owner = OWNER();
-
-    set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, recipient, token_id, DATA(true));
 }
 
 //

@@ -47,8 +47,25 @@ fn setup() {
 }
 
 ///
-/// Initialize
+/// Initializers
 ///
+
+#[test]
+#[available_gas(2000000)]
+fn test_constructor() {
+    ERC721::constructor(NAME, SYMBOL);
+
+    assert(ERC721::name() == NAME, 'Name should be NAME');
+    assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
+    assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance should be zero');
+
+    assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
+    assert(
+        ERC721::supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID'
+    );
+    assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
+    assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
+}
 
 #[test]
 #[available_gas(2000000)]
@@ -73,6 +90,13 @@ fn test_initialize() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_balance_of() {
+    setup();
+    assert(ERC721::balance_of(OWNER()) == 1.into(), 'Should return balance');
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid account', ))]
 fn test_balance_of_zero() {
     ERC721::balance_of(ZERO());
@@ -80,9 +104,28 @@ fn test_balance_of_zero() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_owner_of() {
+    setup();
+    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Should return owner');
+}
+
+#[test]
+#[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_owner_of_non_minted() {
     ERC721::owner_of(u256_from_felt252(7));
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_get_approved() {
+    setup();
+    let spender = SPENDER();
+    let token_id = TOKEN_ID();
+
+    assert(ERC721::get_approved(token_id) == ZERO(), 'Should return non-approval');
+    ERC721::_approve(spender, token_id);
+    assert(ERC721::get_approved(token_id) == spender, 'Should return approval');
 }
 
 #[test]

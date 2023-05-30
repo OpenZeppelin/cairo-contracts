@@ -1,8 +1,12 @@
+const SUCCESS: felt252 = 123123;
+const FAILURE: felt252 = 456456;
+
 #[contract]
 mod ERC721Receiver {
     use openzeppelin::token::erc721::interface::IERC721Receiver;
     use openzeppelin::token::erc721::interface::IERC721ReceiverCamel;
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
+    use openzeppelin::introspection::erc165::ERC165;
 
     use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
@@ -12,7 +16,7 @@ mod ERC721Receiver {
         fn on_erc721_received(
             operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
         ) -> u32 {
-            if *data.at(0) == 5 {
+            if *data.at(0) == super::SUCCESS {
                 IERC721_RECEIVER_ID
             } else {
                 0
@@ -26,6 +30,16 @@ mod ERC721Receiver {
         ) -> u32 {
             ERC721ReceiverImpl::on_erc721_received(operator, from, tokenId, data)
         }
+    }
+
+    #[constructor]
+    fn constructor() {
+        ERC165::register_interface(IERC721_RECEIVER_ID);
+    }
+
+    #[view]
+    fn supports_interface(interface_id: u32) -> bool {
+        ERC165::supports_interface(interface_id)
     }
 
     #[external]
@@ -42,3 +56,7 @@ mod ERC721Receiver {
         ERC721ReceiverCamelImpl::onERC721Received(operator, from, tokenId, data)
     }
 }
+
+
+#[contract]
+mod ERC721NonReceiver {}

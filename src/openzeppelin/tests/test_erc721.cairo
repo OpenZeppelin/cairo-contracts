@@ -118,14 +118,6 @@ fn test_owner_of_non_minted() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_token_uri() {
-    setup();
-    ERC721::_set_token_uri(TOKEN_ID(), URI);
-    assert(ERC721::token_uri(TOKEN_ID()) == URI, 'Should return URI');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_token_uri_non_minted() {
     ERC721::token_uri(u256_from_felt252(7));

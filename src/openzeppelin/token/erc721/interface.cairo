@@ -7,7 +7,7 @@ const IERC721_METADATA_ID: u32 = 0x5b5e139f_u32;
 const IERC721_RECEIVER_ID: u32 = 0x150b7a02_u32;
 
 #[abi]
-trait IERC721ABI {
+trait ERC721ABI {
     // case agnostic
     fn name() -> felt252;
     fn symbol() -> felt252;

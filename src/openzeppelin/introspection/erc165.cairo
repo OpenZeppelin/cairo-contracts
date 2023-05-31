@@ -6,6 +6,11 @@ trait IERC165 {
     fn supports_interface(interface_id: u32) -> bool;
 }
 
+#[abi]
+trait IERC165Camel {
+    fn supportsInterface(interfaceId: u32) -> bool;
+}
+
 #[contract]
 mod ERC165 {
     use openzeppelin::introspection::erc165;
@@ -14,7 +19,7 @@ mod ERC165 {
         supported_interfaces: LegacyMap<u32, bool>
     }
 
-    impl ERC165 of erc165::IERC165 {
+    impl ERC165Impl of erc165::IERC165 {
         fn supports_interface(interface_id: u32) -> bool {
             if interface_id == erc165::IERC165_ID {
                 return true;
@@ -23,10 +28,25 @@ mod ERC165 {
         }
     }
 
+    impl ERC165CamelImpl of erc165::IERC165Camel {
+        fn supportsInterface(interfaceId: u32) -> bool {
+            ERC165Impl::supports_interface(interfaceId)
+        }
+    }
+
     #[view]
     fn supports_interface(interface_id: u32) -> bool {
-        ERC165::supports_interface(interface_id)
+        ERC165Impl::supports_interface(interface_id)
     }
+
+    #[view]
+    fn supportsInterface(interfaceId: u32) -> bool {
+        ERC165CamelImpl::supportsInterface(interfaceId)
+    }
+
+    //
+    // Internals
+    //
 
     #[internal]
     fn register_interface(interface_id: u32) {

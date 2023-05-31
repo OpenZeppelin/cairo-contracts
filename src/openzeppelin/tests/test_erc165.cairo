@@ -4,6 +4,11 @@ use openzeppelin::introspection::erc165::INVALID_ID;
 
 const OTHER_ID: u32 = 0x12345678_u32;
 
+
+///
+/// supports_interface & supportsInterface
+///
+
 #[test]
 #[available_gas(2000000)]
 fn test_default_behavior() {
@@ -27,6 +32,31 @@ fn test_supports_invalid_interface() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_camel_default_behavior() {
+    let supports_default_interface: bool = ERC165::supportsInterface(IERC165_ID);
+    assert(supports_default_interface, 'Should support base interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_camel_not_registered_interface() {
+    let supports_unregistered_interface: bool = ERC165::supportsInterface(OTHER_ID);
+    assert(!supports_unregistered_interface, 'Should not support unregistered');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_camel_supports_invalid_interface() {
+    let supports_invalid_interface: bool = ERC165::supportsInterface(INVALID_ID);
+    assert(!supports_invalid_interface, 'Should not support invalid id');
+}
+
+///
+/// register_interface
+///
+
+#[test]
+#[available_gas(2000000)]
 fn test_register_interface() {
     ERC165::register_interface(OTHER_ID);
     let supports_new_interface: bool = ERC165::supports_interface(OTHER_ID);
@@ -39,6 +69,10 @@ fn test_register_interface() {
 fn test_register_invalid_interface() {
     ERC165::register_interface(INVALID_ID);
 }
+
+///
+/// deregister_interface
+///
 
 #[test]
 #[available_gas(2000000)]

@@ -1,5 +1,28 @@
+use starknet::ContractAddress;
+
+#[abi]
+trait IOwnable {
+    #[view]
+    fn owner() -> ContractAddress;
+    #[external]
+    fn transfer_ownership(new_owner: ContractAddress);
+    #[external]
+    fn renounce_ownership();
+}
+
+#[abi]
+trait IOwnableCamel {
+    #[view]
+    fn owner() -> ContractAddress;
+    #[external]
+    fn transferOwnership(newOwner: ContractAddress);
+    #[external]
+    fn renounceOwnership();
+}
+
 #[contract]
 mod Ownable {
+    use super::{IOwnable, IOwnableCamel};
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
@@ -10,6 +33,64 @@ mod Ownable {
 
     #[event]
     fn OwnershipTransferred(previous_owner: ContractAddress, new_owner: ContractAddress) {}
+
+    impl OwnableImpl of IOwnable {
+        fn owner() -> ContractAddress {
+            _owner::read()
+        }
+
+        fn transfer_ownership(new_owner: ContractAddress) {
+            assert(!new_owner.is_zero(), 'New owner is the zero address');
+            assert_only_owner();
+            _transfer_ownership(new_owner);
+        }
+
+        fn renounce_ownership() {
+            assert_only_owner();
+            _transfer_ownership(Zeroable::zero());
+        }
+    }
+
+    impl OwnableCamelImpl of IOwnableCamel {
+        fn owner() -> ContractAddress {
+            OwnableImpl::owner()
+        }
+
+        fn transferOwnership(newOwner: ContractAddress) {
+            OwnableImpl::transfer_ownership(newOwner);
+        }
+
+        fn renounceOwnership() {
+            OwnableImpl::renounce_ownership();
+        }
+    }
+
+    #[view]
+    fn owner() -> ContractAddress {
+        OwnableImpl::owner()
+    }
+
+    #[external]
+    fn transfer_ownership(new_owner: ContractAddress) {
+        OwnableImpl::transfer_ownership(new_owner);
+    }
+
+    #[external]
+    fn transferOwnership(newOwner: ContractAddress) {
+        OwnableCamelImpl::transferOwnership(newOwner);
+    }
+
+    #[external]
+    fn renounce_ownership() {
+        OwnableImpl::renounce_ownership();
+    }
+
+    #[external]
+    fn renounceOwnership() {
+        OwnableCamelImpl::renounceOwnership();
+    }
+
+    // Internals
 
     #[internal]
     fn initializer() {
@@ -23,24 +104,6 @@ mod Ownable {
         let caller: ContractAddress = get_caller_address();
         assert(!caller.is_zero(), 'Caller is the zero address');
         assert(caller == owner, 'Caller is not the owner');
-    }
-
-    #[internal]
-    fn owner() -> ContractAddress {
-        _owner::read()
-    }
-
-    #[internal]
-    fn transfer_ownership(new_owner: ContractAddress) {
-        assert(!new_owner.is_zero(), 'New owner is the zero address');
-        assert_only_owner();
-        _transfer_ownership(new_owner);
-    }
-
-    #[internal]
-    fn renounce_ownership() {
-        assert_only_owner();
-        _transfer_ownership(Zeroable::zero());
     }
 
     #[internal]

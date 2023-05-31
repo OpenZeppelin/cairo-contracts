@@ -22,6 +22,10 @@ fn setup() {
     Ownable::initializer();
 }
 
+///
+/// initializer
+///
+
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
@@ -29,6 +33,10 @@ fn test_initializer() {
     setup();
     assert(Ownable::owner() == OWNER(), 'Owner should be set');
 }
+
+///
+/// transfer_ownership & transferOwnership
+///
 
 #[test]
 #[available_gas(2000000)]
@@ -65,6 +73,43 @@ fn test_transfer_ownership_from_nonowner() {
 
 #[test]
 #[available_gas(2000000)]
+fn test_transferOwnership() {
+    setup();
+    Ownable::transferOwnership(OTHER());
+    assert(Ownable::owner() == OTHER(), 'Should transfer ownership');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('New owner is the zero address', ))]
+fn test_transferOwnership_to_zero() {
+    setup();
+    Ownable::transferOwnership(ZERO());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is the zero address', ))]
+fn test_transferOwnership_from_zero() {
+    assert(Ownable::owner() == ZERO(), 'Should be zero with no owner');
+    Ownable::transferOwnership(OTHER());
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is not the owner', ))]
+fn test_transferOwnership_from_nonowner() {
+    setup();
+    testing::set_caller_address(OTHER());
+    Ownable::transferOwnership(OTHER());
+}
+
+///
+/// renounce_ownership & renounceOwnership
+///
+
+#[test]
+#[available_gas(2000000)]
 fn test_renounce_ownership() {
     setup();
     Ownable::renounce_ownership();
@@ -88,3 +133,30 @@ fn test_renounce_ownership_from_nonowner() {
     testing::set_caller_address(OTHER());
     Ownable::renounce_ownership();
 }
+
+#[test]
+#[available_gas(2000000)]
+fn test_renounceOwnership() {
+    setup();
+    Ownable::renounceOwnership();
+    assert(Ownable::owner() == ZERO(), 'Should renounce ownership');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is the zero address', ))]
+fn test_renounceOwnership_from_zero_address() {
+    setup();
+    testing::set_caller_address(ZERO());
+    Ownable::renounceOwnership();
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is not the owner', ))]
+fn test_renounceOwnership_from_nonowner() {
+    setup();
+    testing::set_caller_address(OTHER());
+    Ownable::renounceOwnership();
+}
+

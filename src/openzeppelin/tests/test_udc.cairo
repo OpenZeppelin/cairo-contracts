@@ -57,14 +57,11 @@ fn test_deploy_not_unique() {
     calldata.append(recipient.into());
 
     let expected_addr = utils::calculate_contract_address_from_hash(
-        RAW_SALT,
-        erc20_class_hash,
-        calldata.span(),
-        Zeroable::zero()
+        RAW_SALT, erc20_class_hash, calldata.span(), Zeroable::zero()
     );
 
     let deployed_addr = udc.deploy_contract(erc20_class_hash, RAW_SALT, unique, calldata.span());
-    //assert(deployed_addr == expected_addr, 'Deployed address != expected');
+/// assert(deployed_addr == expected_addr, 'Deployed address != expected');
 }
 
 #[test]
@@ -90,13 +87,10 @@ fn test_deploy_unique() {
 
     let hashed_salt = pedersen(ACCOUNT().into(), RAW_SALT);
     let expected_addr = utils::calculate_contract_address_from_hash(
-        hashed_salt,
-        erc20_class_hash,
-        calldata.span(),
-        udc.contract_address
+        hashed_salt, erc20_class_hash, calldata.span(), udc.contract_address
     );
 
     let deployed_addr = udc.deploy_contract(erc20_class_hash, hashed_salt, unique, calldata.span());
-    //assert(deployed_addr == expected_addr, 'Deployed address != expected');
+/// assert(deployed_addr == expected_addr, 'Deployed address != expected');
 }
 

@@ -8,14 +8,18 @@ on:
     branches:
     - cairo-1
 
+env:
+  SCARB_VERSION: 0.4.1
+
 jobs:
   lint_and_test:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
+    - name: Setup Scarb
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | bash -s -- -v "$SCARB_VERSION"
     - name: Markdown lint
       uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
       with:
@@ -23,6 +27,6 @@ jobs:
           *.md
           !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
-      run: make check-format
+      run: scarb fmt --check
     - name: Cairo test
-      run: make test
+      run: scarb test

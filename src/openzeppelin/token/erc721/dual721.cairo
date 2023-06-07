@@ -69,13 +69,12 @@ impl DualERC721Impl of DualERC721Trait {
         let mut args = ArrayTrait::new();
         args.append(account.into());
 
-        let res = try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        let res = try_selector_with_fallback(
+            *self.target, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall();
 
-        u256 {
-            low: (*res.at(0)).try_into().unwrap(),
-            high: (*res.at(1)).try_into().unwrap(),
-        }
+        u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }
     }
 
     fn owner_of(self: @DualERC721, token_id: u256) -> ContractAddress {
@@ -106,7 +105,9 @@ impl DualERC721Impl of DualERC721Trait {
             .into()
     }
 
-    fn is_approved_for_all(self: @DualERC721, owner: ContractAddress, operator: ContractAddress) -> bool {
+    fn is_approved_for_all(
+        self: @DualERC721, owner: ContractAddress, operator: ContractAddress
+    ) -> bool {
         let snake_selector = constants::IS_APPROVED_FOR_ALL_SELECTOR;
         let camel_selector = constants::ISAPPROVEDFORALL_SELECTOR;
 
@@ -139,7 +140,9 @@ impl DualERC721Impl of DualERC721Trait {
         try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
     }
 
-    fn transfer_from(self: @DualERC721, from: ContractAddress, to: ContractAddress, token_id: u256) {
+    fn transfer_from(
+        self: @DualERC721, from: ContractAddress, to: ContractAddress, token_id: u256
+    ) {
         let snake_selector = constants::TRANSFER_FROM_SELECTOR;
         let camel_selector = constants::TRANSFERFROM_SELECTOR;
 
@@ -175,7 +178,7 @@ impl DualERC721Impl of DualERC721Trait {
             if i < len {
                 args.append(*data.at(i))
             } else {
-                break();
+                break ();
             }
             i = i + 1;
         };

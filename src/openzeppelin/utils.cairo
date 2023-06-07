@@ -23,6 +23,26 @@ fn try_selector_with_fallback(
     }
 }
 
+impl BoolIntoFelt252 of Into<bool, felt252> {
+    fn into(self: bool) -> felt252 {
+        if self {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+impl Felt252IntoBool of Into<felt252, bool> {
+    fn into(self: felt252) -> bool {
+        if self == 0 {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+
 #[inline(always)]
 fn check_gas() {
     match gas::withdraw_gas() {

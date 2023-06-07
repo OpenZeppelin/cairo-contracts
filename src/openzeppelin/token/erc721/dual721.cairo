@@ -6,8 +6,11 @@ use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
+use starknet::Felt252TryIntoContractAddress;
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::utils::try_selector_with_fallback;
+use openzeppelin::utils::Felt252IntoBool;
+use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::constants;
 
 struct DualERC721 {
@@ -88,7 +91,8 @@ impl DualERC721Impl of DualERC721Trait {
         (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
             .unwrap_syscall()
             .at(0))
-            .into()
+            .try_into()
+            .unwrap()
     }
 
     fn get_approved(self: @DualERC721, token_id: u256) -> ContractAddress {
@@ -102,7 +106,8 @@ impl DualERC721Impl of DualERC721Trait {
         (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
             .unwrap_syscall()
             .at(0))
-            .into()
+            .try_into()
+            .unwrap()
     }
 
     fn is_approved_for_all(
@@ -137,7 +142,7 @@ impl DualERC721Impl of DualERC721Trait {
         args.append(operator.into());
         args.append(approved.into());
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span());
     }
 
     fn transfer_from(

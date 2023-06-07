@@ -35,11 +35,7 @@ impl BoolIntoFelt252 of Into<bool, felt252> {
 
 impl Felt252IntoBool of Into<felt252, bool> {
     fn into(self: felt252) -> bool {
-        if self == 0 {
-            return false;
-        } else {
-            return true;
-        }
+        self != 0
     }
 }
 

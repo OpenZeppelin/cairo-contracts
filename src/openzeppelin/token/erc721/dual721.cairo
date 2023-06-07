@@ -9,7 +9,7 @@ use starknet::call_contract_syscall;
 use starknet::Felt252TryIntoContractAddress;
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::Felt252IntoBool;
+use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::constants;
 
@@ -123,7 +123,8 @@ impl DualERC721Impl of DualERC721Trait {
         (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
             .unwrap_syscall()
             .at(0))
-            .into()
+            .try_into()
+            .unwrap()
     }
 
     fn approve(self: @DualERC721, to: ContractAddress, token_id: u256) {

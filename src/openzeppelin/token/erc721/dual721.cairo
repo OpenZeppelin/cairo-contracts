@@ -13,6 +13,7 @@ use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::constants;
 
+#[derive(Copy, Drop)]
 struct DualERC721 {
     target: ContractAddress
 }

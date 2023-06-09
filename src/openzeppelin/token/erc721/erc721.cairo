@@ -59,8 +59,8 @@ mod ERC721 {
     // Dispatchers
     use openzeppelin::introspection::src5::ISRC5Dispatcher;
     use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
-    use super::super::interface::IERC721ReceiverABIDispatcher;
-    use super::super::interface::IERC721ReceiverABIDispatcherTrait;
+    use super::super::interface::ERC721ReceiverABIDispatcher;
+    use super::super::interface::ERC721ReceiverABIDispatcherTrait;
 
     // Other
     use starknet::ContractAddress;
@@ -447,7 +447,7 @@ mod ERC721 {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
             // todo add casing fallback mechanism
-            IERC721ReceiverABIDispatcher {
+            ERC721ReceiverABIDispatcher {
                 contract_address: to
             }
                 .on_erc721_received(

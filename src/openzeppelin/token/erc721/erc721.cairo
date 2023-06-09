@@ -53,12 +53,12 @@ trait ERC721ABI {
 mod ERC721 {
     // OZ modules
     use openzeppelin::account;
-    use openzeppelin::introspection::erc165;
+    use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721;
 
     // Dispatchers
-    use openzeppelin::introspection::erc165::IERC165Dispatcher;
-    use openzeppelin::introspection::erc165::IERC165DispatcherTrait;
+    use openzeppelin::introspection::src5::ISRC5Dispatcher;
+    use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
     use super::super::interface::IERC721ReceiverABIDispatcher;
     use super::super::interface::IERC721ReceiverABIDispatcherTrait;
 
@@ -209,13 +209,13 @@ mod ERC721 {
     // View
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
-        erc165::ERC165::supports_interface(interface_id)
+    fn supports_interface(interface_id: felt252) -> bool {
+        src5::SRC5::supports_interface(interface_id)
     }
 
     #[view]
-    fn supportsInterface(interfaceId: u32) -> bool {
-        erc165::ERC165::supports_interface(interfaceId)
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        src5::SRC5::supports_interface(interfaceId)
     }
 
     #[view]
@@ -325,8 +325,8 @@ mod ERC721 {
     fn initializer(name_: felt252, symbol_: felt252) {
         _name::write(name_);
         _symbol::write(symbol_);
-        erc165::ERC165::register_interface(erc721::interface::IERC721_ID);
-        erc165::ERC165::register_interface(erc721::interface::IERC721_METADATA_ID);
+        src5::SRC5::register_interface(erc721::interface::IERC721_ID);
+        src5::SRC5::register_interface(erc721::interface::IERC721_METADATA_ID);
     }
 
     #[internal]
@@ -443,7 +443,7 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (IERC165Dispatcher {
+        if (ISRC5Dispatcher {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
             // todo add casing fallback mechanism
@@ -454,7 +454,7 @@ mod ERC721 {
                     get_caller_address(), from, token_id, data
                 ) == erc721::interface::IERC721_RECEIVER_ID
         } else {
-            IERC165Dispatcher {
+            ISRC5Dispatcher {
                 contract_address: to
             }.supports_interface(account::interface::IACCOUNT_ID)
         }

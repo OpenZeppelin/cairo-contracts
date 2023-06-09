@@ -1,4 +1,4 @@
-const ISRC5_ID: u32 = 0x1ba86cc668fafde77705c7bfcafa3ee47934b5631ff0e32841dcdcd4e100a60;
+const ISRC5_ID: felt252 = 0x1ba86cc668fafde77705c7bfcafa3ee47934b5631ff0e32841dcdcd4e100a60;
 
 #[abi]
 trait ISRC5 {
@@ -33,7 +33,7 @@ mod SRC5 {
     }
 
     #[internal]
-    fn deregister_interface(interface_id: u32) {
+    fn deregister_interface(interface_id: felt252) {
         assert(interface_id != src5::ISRC5_ID, 'Invalid id');
         supported_interfaces::write(interface_id, false);
     }

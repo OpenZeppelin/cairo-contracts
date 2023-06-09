@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 
 const DEFAULT_ADMIN_ROLE: felt252 = 0;
-const IACCESSCONTROL_ID: u32 = 0x7965db0b_u32;
+const IACCESSCONTROL_ID: felt252 = 0x11502dbf8bfcd80b4663247ce1c7071a1a7a5dc3d56c72f8c9269bf91899aa;
 
 #[abi]
 trait IAccessControl {
@@ -17,7 +17,7 @@ mod AccessControl {
     use super::IAccessControl;
     use super::DEFAULT_ADMIN_ROLE;
     use super::IACCESSCONTROL_ID;
-    use openzeppelin::introspection::erc165::ERC165;
+    use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -77,8 +77,8 @@ mod AccessControl {
     }
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
-        ERC165::supports_interface(interface_id)
+    fn supports_interface(interface_id: felt252) -> bool {
+        SRC5::supports_interface(interface_id)
     }
 
     #[view]
@@ -108,7 +108,7 @@ mod AccessControl {
 
     #[internal]
     fn initializer() {
-        ERC165::register_interface(IACCESSCONTROL_ID);
+        SRC5::register_interface(IACCESSCONTROL_ID);
     }
 
     #[internal]

@@ -17,7 +17,7 @@ fn try_selector_with_fallback(
             if *r.at(0) == 'ENTRYPOINT_NOT_FOUND' {
                 return call_contract_syscall(target, camel_selector, args);
             } else {
-                panic_with_felt252(*r.at(0))
+                Result::Err(r)
             }
         }
     }

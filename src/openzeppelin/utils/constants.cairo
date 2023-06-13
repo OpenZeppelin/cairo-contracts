@@ -3,11 +3,14 @@
 //
 
 // SRC5
+// See: https://github.com/starknet-io/SNIPs/pull/24
 const ISRC5_ID: felt252 = 0x1ba86cc668fafde77705c7bfcafa3ee47934b5631ff0e32841dcdcd4e100a60;
 
-// Account
-// See: https://github.com/OpenZeppelin/cairo-contracts/pull/449#discussion_r966242914
-const IACCOUNT_ID: felt252 = 0x39d1c9eab76ed04e063bc5419887a56af4c816e39588d7910fc973ff71315c5;
+// BaseAccount
+const IBASEACCOUNT_ID: felt252 = 0x161ab6ad32c5db670d95c8d430a19024784b4f88b39e4cf2f2cb9b1917fbcd5;
+
+// Declarer
+const IDECLARER_ID: felt252 = 0x34631381ed51f6ce7cabca2a62dc0baaf5b7ec0839e6784bbcde343287ca370;
 
 // ERC721
 // See: https://eips.ethereum.org/EIPS/eip-721

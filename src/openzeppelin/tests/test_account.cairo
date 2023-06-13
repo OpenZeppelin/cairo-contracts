@@ -11,7 +11,7 @@ use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::Call;
 use openzeppelin::account::interface::IERC1271_ID;
-use openzeppelin::account::interface::IACCOUNT_ID;
+use openzeppelin::account::interface::IBASEACCOUNT_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
@@ -106,7 +106,7 @@ fn test_interfaces() {
     let supports_default_interface = Account::supports_interface(ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supports_interface(IACCOUNT_ID);
+    let supports_account_interface = Account::supports_interface(IBASEACCOUNT_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 

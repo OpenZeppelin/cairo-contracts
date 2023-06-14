@@ -286,7 +286,7 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_get_approved() {// to do: depends on approve()
+fn test_dual_get_approved() { // to do: depends on approve()
 // let (dispatcher, target) = setup_snake();
 }
 
@@ -357,7 +357,7 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_token_uri() {// let (dispatcher, target) = setup_snake();
+fn test_dual_token_uri() { // let (dispatcher, target) = setup_snake();
 }
 
 #[test]
@@ -447,7 +447,7 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_getApproved() {// to do: depends on approve()
+fn test_dual_getApproved() { // to do: depends on approve()
 // let (dispatcher, target) = setup_camel();
 }
 

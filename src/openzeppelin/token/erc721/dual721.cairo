@@ -134,7 +134,8 @@ impl DualERC721Impl of DualERC721Trait {
         args.append(to.into());
         args.append(token_id.low.into());
         args.append(token_id.high.into());
-        call_contract_syscall(*self.target, constants::APPROVE_SELECTOR, args.span()).unwrap_syscall();
+        call_contract_syscall(*self.target, constants::APPROVE_SELECTOR, args.span())
+            .unwrap_syscall();
     }
 
     fn set_approval_for_all(self: @DualERC721, operator: ContractAddress, approved: bool) {
@@ -145,7 +146,8 @@ impl DualERC721Impl of DualERC721Trait {
         args.append(operator.into());
         args.append(approved.into());
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span()).unwrap_syscall();
+        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+            .unwrap_syscall();
     }
 
     fn transfer_from(
@@ -160,7 +162,8 @@ impl DualERC721Impl of DualERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span()).unwrap_syscall();
+        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+            .unwrap_syscall();
     }
 
     fn safe_transfer_from(
@@ -191,6 +194,7 @@ impl DualERC721Impl of DualERC721Trait {
             i = i + 1;
         };
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span()).unwrap_syscall();
+        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+            .unwrap_syscall();
     }
 }

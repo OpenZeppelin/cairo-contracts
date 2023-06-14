@@ -286,8 +286,11 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_get_approved() { // to do: depends on approve()
-// let (dispatcher, target) = setup_snake();
+fn test_dual_get_approved() {
+    let (dispatcher, target) = setup_snake();
+    set_contract_address(OWNER());
+    target.approve(SPENDER(), TOKEN_ID());
+    assert(dispatcher.get_approved(TOKEN_ID()) == SPENDER(), 'Should return approval');
 }
 
 #[test]
@@ -353,11 +356,13 @@ fn test_dual_no_is_approved_for_all() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_is_approved_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
+    dispatcher.is_approved_for_all(OWNER(), OPERATOR());
 }
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_token_uri() { // let (dispatcher, target) = setup_snake();
+fn test_dual_token_uri() {
+    // to do: implement
 }
 
 #[test]
@@ -447,8 +452,11 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_getApproved() { // to do: depends on approve()
-// let (dispatcher, target) = setup_camel();
+fn test_dual_getApproved() {
+    let (dispatcher, target) = setup_camel();
+    set_contract_address(OWNER());
+    target.approve(SPENDER(), TOKEN_ID());
+    assert(dispatcher.get_approved(TOKEN_ID()) == SPENDER(), 'Should return approval');
 }
 
 #[test]
@@ -456,6 +464,7 @@ fn test_dual_getApproved() { // to do: depends on approve()
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
+    dispatcher.get_approved(TOKEN_ID());
 }
 
 #[test]
@@ -495,11 +504,14 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_tokenUri() {}
+fn test_dual_tokenUri() {
+    //to do: implement
+}
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_tokenUri_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
+    dispatcher.token_uri(TOKEN_ID());
 }

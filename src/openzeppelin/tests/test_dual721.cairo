@@ -3,6 +3,7 @@ use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
+use starknet::testing::set_contract_address;
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721::interface::IERC721Camel;
@@ -21,6 +22,8 @@ use openzeppelin::tests::mocks::erc721_panic::SnakeERC721Panic;
 use openzeppelin::tests::mocks::erc721_panic::CamelERC721Panic;
 use openzeppelin::tests::mocks::non721_mock::NonERC721;
 use openzeppelin::tests::utils;
+
+use openzeppelin::tests::utils::PanicTrait;
 
 ///
 /// constants
@@ -44,9 +47,6 @@ fn SPENDER() -> ContractAddress {
 }
 fn OPERATOR() -> ContractAddress {
     contract_address_const::<40>()
-}
-fn OTHER() -> ContractAddress {
-    contract_address_const::<50>()
 }
 fn DATA(success: bool) -> Span<felt252> {
     let mut data = ArrayTrait::new();
@@ -156,14 +156,14 @@ fn test_dual_symbol_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_approve() {
-    // to do: fix
+fn test_dual_approved() {
     let (snake_dispatcher, snake_target) = setup_snake();
-    set_caller_address(OWNER());
+    set_contract_address(OWNER());
     snake_target.approve(SPENDER(), TOKEN_ID());
     assert(snake_target.get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
+    set_contract_address(OWNER());
     camel_dispatcher.approve(SPENDER(), TOKEN_ID());
     assert(camel_target.getApproved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
 }
@@ -245,7 +245,7 @@ fn test_dual_transfer_from() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
-fn test_dual_no_no_transfer_from() {
+fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc721();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
 }
@@ -261,9 +261,9 @@ fn test_dual_transfer_from_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_safe_transfer_from() {
-    // to do: fix
     let (dispatcher, target) = setup_snake();
     let receiver = setup_receiver();
+    set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
     assert(dispatcher.owner_of(TOKEN_ID()) == OWNER(), 'Should transfer token');
 }
@@ -309,8 +309,8 @@ fn test_dual_get_approved_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_set_approval_for_all() {
-    // to do: fix
     let (dispatcher, target) = setup_snake();
+    set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
     assert(target.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 }
@@ -334,8 +334,8 @@ fn test_dual_set_approval_for_all_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_is_approved_for_all() {
-    // to do: depends on set_approval_for_all()
     let (dispatcher, target) = setup_snake();
+    set_contract_address(OWNER());
     target.set_approval_for_all(OPERATOR(), true);
     assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 }
@@ -414,6 +414,7 @@ fn test_dual_ownerOf_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
+    set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
     assert(target.ownerOf(TOKEN_ID()) == RECIPIENT(), 'Should transfer token');
 }
@@ -429,9 +430,9 @@ fn test_dual_transferFrom_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_safeTransferFrom() {
-    // to do: fix
     let (dispatcher, target) = setup_camel();
     let receiver = setup_receiver();
+    set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
     assert(target.ownerOf(TOKEN_ID()) == OWNER(), 'Should transfer token');
 }
@@ -461,6 +462,7 @@ fn test_dual_getApproved_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_setApprovalForAll() {
     let (dispatcher, target) = setup_camel();
+    set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
     assert(target.isApprovedForAll(OWNER(), OPERATOR()), 'Operator not approved correctly');
 }
@@ -470,14 +472,15 @@ fn test_dual_setApprovalForAll() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
+    set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_dual_isApprovedForAll() {
-    // to do: depends on setApprovalForAll()
     let (dispatcher, target) = setup_camel();
+    set_contract_address(OWNER());
     target.setApprovalForAll(OPERATOR(), true);
     assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 }

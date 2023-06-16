@@ -18,8 +18,8 @@ mod CamelERC165Mock {
     }
 }
 
-// Although these modules are designed to panic, functions
-// still need a valid return value. We chose:
+// Although the following modules are designed to panic,
+// functions still need a valid return value. We chose:
 //
 // false for bool
 

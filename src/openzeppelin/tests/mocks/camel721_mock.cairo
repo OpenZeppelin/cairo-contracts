@@ -6,9 +6,10 @@ mod CamelERC721Mock {
     use openzeppelin::utils::serde::SpanSerde;
 
     #[constructor]
-    fn constructor(name: felt252, symbol: felt252, tokenId: u256) {
+    fn constructor(name: felt252, symbol: felt252, tokenId: u256, uri: felt252) {
         ERC721::initializer(name, symbol);
         ERC721::_mint(get_caller_address(), tokenId);
+        ERC721::_set_token_uri(tokenId, uri);
     }
 
     // View

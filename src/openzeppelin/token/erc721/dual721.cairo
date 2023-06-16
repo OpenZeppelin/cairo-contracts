@@ -45,13 +45,17 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.target, constants::NAME_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(
+            *self.contract_address, constants::NAME_SELECTOR, ArrayTrait::new().span()
+        )
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.target, constants::SYMBOL_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(
+            *self.contract_address, constants::SYMBOL_SELECTOR, ArrayTrait::new().span()
+        )
             .unwrap_syscall()
             .at(0)
     }
@@ -64,7 +68,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        *try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        *try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall()
             .at(0)
     }
@@ -77,7 +83,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(account.into());
 
         let res = try_selector_with_fallback(
-            *self.target, snake_selector, camel_selector, args.span()
+            *self.contract_address, snake_selector, camel_selector, args.span()
         )
             .unwrap_syscall();
 
@@ -92,7 +98,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        (*try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -107,7 +115,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        (*try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -124,7 +134,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(owner.into());
         args.append(operator.into());
 
-        (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        (*try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -136,7 +148,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(to.into());
         args.append(token_id.low.into());
         args.append(token_id.high.into());
-        call_contract_syscall(*self.target, constants::APPROVE_SELECTOR, args.span())
+        call_contract_syscall(*self.contract_address, constants::APPROVE_SELECTOR, args.span())
             .unwrap_syscall();
     }
 
@@ -148,7 +160,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(operator.into());
         args.append(approved.into());
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall();
     }
 
@@ -164,7 +178,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall();
     }
 
@@ -194,7 +210,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
             };
         };
 
-        try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall();
     }
 }

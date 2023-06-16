@@ -6,9 +6,10 @@ mod SnakeERC721Mock {
     use openzeppelin::utils::serde::SpanSerde;
 
     #[constructor]
-    fn constructor(name: felt252, symbol: felt252, token_id: u256) {
+    fn constructor(name: felt252, symbol: felt252, token_id: u256, uri: felt252) {
         ERC721::initializer(name, symbol);
         ERC721::_mint(get_caller_address(), token_id);
+        ERC721::_set_token_uri(token_id, uri);
     }
 
     // View

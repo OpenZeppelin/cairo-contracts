@@ -18,8 +18,8 @@ use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
-use openzeppelin::tests::mocks::erc721_panic::SnakeERC721PanicMock;
-use openzeppelin::tests::mocks::erc721_panic::CamelERC721PanicMock;
+use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
+use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::non721_mock::NonERC721Mock;
 use openzeppelin::tests::utils;
 
@@ -68,6 +68,7 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     calldata.append(SYMBOL);
     calldata.append(TOKEN_ID().low.into());
     calldata.append(TOKEN_ID().high.into());
+    calldata.append(URI);
     set_caller_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
@@ -79,6 +80,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
     calldata.append(SYMBOL);
     calldata.append(TOKEN_ID().low.into());
     calldata.append(TOKEN_ID().high.into());
+    calldata.append(URI);
     set_caller_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
@@ -373,7 +375,9 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_token_uri() {// to do: implement
+fn test_dual_token_uri() {
+    let (dispatcher, target) = setup_snake();
+    assert(dispatcher.token_uri(TOKEN_ID()) == URI, 'Should return URI');
 }
 
 #[test]
@@ -514,7 +518,9 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_tokenUri() {//to do: implement
+fn test_dual_tokenUri() {
+    let (dispatcher, target) = setup_camel();
+    assert(dispatcher.token_uri(TOKEN_ID()) == URI, 'Should return URI');
 }
 
 #[test]

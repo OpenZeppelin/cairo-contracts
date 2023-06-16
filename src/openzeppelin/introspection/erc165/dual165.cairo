@@ -1,17 +1,15 @@
-use core::result::ResultTrait;
-use traits::Into;
-use traits::TryInto;
 use array::SpanTrait;
 use array::ArrayTrait;
+use core::result::ResultTrait;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
-use starknet::Felt252TryIntoContractAddress;
-use openzeppelin::introspection::interface::IERC165;
+use traits::Into;
+use traits::TryInto;
+
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::constants;
 
 #[derive(Copy, Drop)]

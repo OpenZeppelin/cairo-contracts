@@ -1,5 +1,3 @@
-use array::ArrayTrait;
-
 // Dispatchers
 use openzeppelin::introspection::interface::IERC165Dispatcher;
 use openzeppelin::introspection::interface::IERC165CamelDispatcher;
@@ -18,10 +16,10 @@ use openzeppelin::tests::mocks::dual165_mocks::CamelERC165PanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 
 // Other
+use array::ArrayTrait;
 use openzeppelin::tests::utils;
 use openzeppelin::tests::utils::PanicTrait;
 use openzeppelin::introspection::interface::IERC165_ID;
-
 
 const OTHER_ID: u32 = 0x12345678_u32;
 
@@ -67,8 +65,8 @@ fn setup_erc165_panic() -> (DualCaseERC165, DualCaseERC165) {
 #[available_gas(2000000)]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
-    assert(dispatcher.supports_interface(IERC165_ID)), 'Should support interface');
-    assert(!dispatcher.supports_interface(OTHER_ID)), 'Should not support interface');
+    assert(dispatcher.supports_interface(IERC165_ID), 'Should support interface');
+    assert(!dispatcher.supports_interface(OTHER_ID), 'Should not support interface');
 }
 
 #[test]
@@ -95,8 +93,8 @@ fn test_dual_supports_interface_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_camel();
-    assert(dispatcher.supports_interface(IERC165_ID)), 'Should support interface');
-    assert(!dispatcher.supports_interface(OTHER_ID)), 'Should not support interface');
+    assert(dispatcher.supports_interface(IERC165_ID), 'Should support interface');
+    assert(!dispatcher.supports_interface(OTHER_ID), 'Should not support interface');
 }
 
 #[test]

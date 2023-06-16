@@ -142,7 +142,7 @@ impl DualERC721Impl of DualERC721Trait {
         let snake_selector = constants::SET_APPROVAL_FOR_ALL_SELECTOR;
         let camel_selector = constants::SETAPPROVALFORALL_SELECTOR;
 
-        let mut args = ArrayTrait::<felt252>::new();
+        let mut args = ArrayTrait::new();
         args.append(operator.into());
         args.append(approved.into());
 
@@ -171,27 +171,25 @@ impl DualERC721Impl of DualERC721Trait {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        mut data: Span<felt252>
     ) {
         let snake_selector = constants::SAFE_TRANSFER_FROM_SELECTOR;
         let camel_selector = constants::SAFETRANSFERFROM_SELECTOR;
 
-        let mut args = ArrayTrait::<felt252>::new();
+        let mut args = ArrayTrait::new();
         args.append(from.into());
         args.append(to.into());
         args.append(token_id.low.into());
         args.append(token_id.high.into());
-
-        let len = data.len();
-        let mut i = 0;
+        args.append(data.len().into());
 
         loop {
-            if i < len {
-                args.append(*data.at(i))
-            } else {
-                break ();
-            }
-            i = i + 1;
+            match data.pop_front() {
+                Option::Some(x) => args.append(*x),
+                Option::None(_) => {
+                    break ();
+                }
+            };
         };
 
         try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())

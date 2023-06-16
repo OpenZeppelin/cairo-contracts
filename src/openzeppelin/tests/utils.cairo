@@ -1,10 +1,12 @@
-use array::ArrayTrait;
 use core::result::ResultTrait;
 use option::OptionTrait;
-use starknet::class_hash::Felt252TryIntoClassHash;
-use starknet::ContractAddress;
+use array::ArrayTrait;
 use traits::TryInto;
 use traits::Into;
+
+use openzeppelin::utils::BoolIntoFelt252;
+use starknet::class_hash::Felt252TryIntoClassHash;
+use starknet::ContractAddress;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     let (address, _) = starknet::deploy_syscall(
@@ -26,8 +28,7 @@ impl Felt252PanicImpl of PanicTrait<felt252> {
 
 impl ContractAddressPanicImpl of PanicTrait<ContractAddress> {
     fn panic(self: ContractAddress) {
-        let message = self.into();
-        panic_with_felt252(message);
+        panic_with_felt252(self.into());
     }
 }
 
@@ -37,5 +38,11 @@ impl U256PanicImpl of PanicTrait<u256> {
         message.append(self.low.into());
         message.append(self.high.into());
         panic(message);
+    }
+}
+
+impl BoolPanicImpl of PanicTrait<bool> {
+    fn panic(self: bool) {
+        panic_with_felt252(self.into());
     }
 }

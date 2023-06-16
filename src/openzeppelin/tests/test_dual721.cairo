@@ -265,7 +265,7 @@ fn test_dual_safe_transfer_from() {
     let receiver = setup_receiver();
     set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
-    assert(dispatcher.owner_of(TOKEN_ID()) == OWNER(), 'Should transfer token');
+    assert(target.owner_of(TOKEN_ID()) == receiver, 'Should transfer token');
 }
 
 #[test]
@@ -439,7 +439,7 @@ fn test_dual_safeTransferFrom() {
     let receiver = setup_receiver();
     set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
-    assert(target.ownerOf(TOKEN_ID()) == OWNER(), 'Should transfer token');
+    assert(target.ownerOf(TOKEN_ID()) == receiver, 'Should transfer token');
 }
 
 #[test]

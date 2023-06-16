@@ -5,4 +5,4 @@ mod erc721_panic_mock;
 mod mock_pausable;
 mod snake721_mock;
 mod camel721_mock;
-mod non721_mock;
+mod non_implementing_mock;

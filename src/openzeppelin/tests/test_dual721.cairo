@@ -20,7 +20,7 @@ use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
 use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
-use openzeppelin::tests::mocks::non721_mock::NonERC721Mock;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 
 use openzeppelin::tests::utils::PanicTrait;
@@ -94,7 +94,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
 
 fn setup_non_erc721() -> DualCaseERC721 {
     let calldata = ArrayTrait::new();
-    let target = utils::deploy(NonERC721Mock::TEST_CLASS_HASH, calldata);
+    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseERC721 { contract_address: target }
 }
 

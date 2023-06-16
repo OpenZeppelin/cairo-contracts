@@ -1,5 +1,5 @@
 #[contract]
-mod NonERC721Mock {
+mod NonImplementingMock {
     #[view]
     fn nope() -> bool {
         false

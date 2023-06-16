@@ -1,29 +1,27 @@
-//use traits::Into;
 use array::ArrayTrait;
-//use starknet::ContractAddress;
-//use starknet::contract_address_const;
-//use starknet::testing::set_caller_address;
-//use starknet::testing::set_contract_address;
-use openzeppelin::introspection::erc165::IERC165;
-use openzeppelin::introspection::interface::IERC165;
-use openzeppelin::introspection::interface::IERC165_ID;
-use openzeppelin::introspection::interface::IERC165Camel;
+
+// Dispatchers
 use openzeppelin::introspection::interface::IERC165Dispatcher;
 use openzeppelin::introspection::interface::IERC165CamelDispatcher;
 use openzeppelin::introspection::interface::IERC165DispatcherTrait;
 use openzeppelin::introspection::interface::IERC165CamelDispatcherTrait;
 
+// Dual165
 use openzeppelin::introspection::dual165::DualCaseERC165Trait;
 use openzeppelin::introspection::dual165::DualCaseERC165;
 
+// Mocks
 use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165Mock;
 use openzeppelin::tests::mocks::dual165_mocks::CamelERC165Mock;
 use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165PanicMock;
 use openzeppelin::tests::mocks::dual165_mocks::CamelERC165PanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils;
 
+// Other
+use openzeppelin::tests::utils;
 use openzeppelin::tests::utils::PanicTrait;
+use openzeppelin::introspection::interface::IERC165_ID;
+
 
 const OTHER_ID: u32 = 0x12345678_u32;
 

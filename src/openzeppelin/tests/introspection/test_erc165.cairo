@@ -1,9 +1,8 @@
 use openzeppelin::introspection::erc165::ERC165;
-use openzeppelin::introspection::interface::IERC165_ID;
-use openzeppelin::introspection::interface::INVALID_ID;
+use openzeppelin::introspection::erc165::IERC165_ID;
+use openzeppelin::introspection::erc165::INVALID_ID;
 
 const OTHER_ID: u32 = 0x12345678_u32;
-
 
 ///
 /// supports_interface & supportsInterface

@@ -56,8 +56,8 @@ mod CamelERC721Mock {
     // External
 
     #[external]
-    fn approve(to: ContractAddress, token_id: u256) {
-        ERC721::approve(to, token_id)
+    fn approve(to: ContractAddress, tokenId: u256) {
+        ERC721::approve(to, tokenId)
     }
 
     #[external]

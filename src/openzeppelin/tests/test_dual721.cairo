@@ -11,8 +11,8 @@ use openzeppelin::token::erc721::interface::IERC721Dispatcher;
 use openzeppelin::token::erc721::interface::IERC721CamelDispatcher;
 use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
 use openzeppelin::token::erc721::interface::IERC721CamelDispatcherTrait;
-use openzeppelin::token::erc721::dual721::DualERC721Trait;
-use openzeppelin::token::erc721::dual721::DualERC721;
+use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
+use openzeppelin::token::erc721::dual721::DualCaseERC721;
 use openzeppelin::tests::mocks::snake721_mock::SnakeERC721Mock;
 use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
@@ -62,7 +62,7 @@ fn DATA(success: bool) -> Span<felt252> {
 /// setup
 ///
 
-fn setup_snake() -> (DualERC721, IERC721Dispatcher) {
+fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append(NAME);
     calldata.append(SYMBOL);
@@ -70,10 +70,10 @@ fn setup_snake() -> (DualERC721, IERC721Dispatcher) {
     calldata.append(TOKEN_ID().high.into());
     set_caller_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
-    (DualERC721 { target: target }, IERC721Dispatcher { contract_address: target })
+    (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualERC721, IERC721CamelDispatcher) {
+fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append(NAME);
     calldata.append(SYMBOL);
@@ -81,19 +81,31 @@ fn setup_camel() -> (DualERC721, IERC721CamelDispatcher) {
     calldata.append(TOKEN_ID().high.into());
     set_caller_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
-    (DualERC721 { target: target }, IERC721CamelDispatcher { contract_address: target })
+    (
+        DualCaseERC721 {
+            contract_address: target
+            }, IERC721CamelDispatcher {
+            contract_address: target
+        }
+    )
 }
 
-fn setup_non_erc721() -> DualERC721 {
+fn setup_non_erc721() -> DualCaseERC721 {
     let calldata = ArrayTrait::new();
     let target = utils::deploy(NonERC721::TEST_CLASS_HASH, calldata);
-    DualERC721 { target: target }
+    DualCaseERC721 { contract_address: target }
 }
 
-fn setup_erc721_panic() -> (DualERC721, DualERC721) {
+fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
     let snake_target = utils::deploy(SnakeERC721Panic::TEST_CLASS_HASH, ArrayTrait::new());
     let camel_target = utils::deploy(CamelERC721Panic::TEST_CLASS_HASH, ArrayTrait::new());
-    (DualERC721 { target: snake_target }, DualERC721 { target: camel_target })
+    (
+        DualCaseERC721 {
+            contract_address: snake_target
+            }, DualCaseERC721 {
+            contract_address: camel_target
+        }
+    )
 }
 
 fn setup_receiver() -> ContractAddress {
@@ -361,8 +373,7 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_token_uri() {
-    // to do: implement
+fn test_dual_token_uri() {// to do: implement
 }
 
 #[test]
@@ -504,8 +515,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_tokenUri() {
-    //to do: implement
+fn test_dual_tokenUri() {//to do: implement
 }
 
 #[test]

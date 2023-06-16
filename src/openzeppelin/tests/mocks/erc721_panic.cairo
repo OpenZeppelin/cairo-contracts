@@ -4,6 +4,13 @@ mod SnakeERC721Panic {
     use starknet::ContractAddress;
     use zeroable::Zeroable;
 
+    // Although this module is designed to panic, functions
+    // still need a valid return value. We chose:
+    //
+    // 3 for felt252
+    // zero for ContractAddress
+    // u256 { 3, 3 } for u256
+
     //
     // agnostic
     //
@@ -82,10 +89,6 @@ mod CamelERC721Panic {
     use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
     use zeroable::Zeroable;
-
-    ///
-    /// snake
-    ///
 
     #[view]
     fn tokenUri(tokenId: u256) -> felt252 {

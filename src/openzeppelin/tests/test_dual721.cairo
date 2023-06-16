@@ -18,9 +18,9 @@ use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
-use openzeppelin::tests::mocks::erc721_panic::SnakeERC721Panic;
-use openzeppelin::tests::mocks::erc721_panic::CamelERC721Panic;
-use openzeppelin::tests::mocks::non721_mock::NonERC721;
+use openzeppelin::tests::mocks::erc721_panic::SnakeERC721PanicMock;
+use openzeppelin::tests::mocks::erc721_panic::CamelERC721PanicMock;
+use openzeppelin::tests::mocks::non721_mock::NonERC721Mock;
 use openzeppelin::tests::utils;
 
 use openzeppelin::tests::utils::PanicTrait;
@@ -92,13 +92,13 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
 
 fn setup_non_erc721() -> DualCaseERC721 {
     let calldata = ArrayTrait::new();
-    let target = utils::deploy(NonERC721::TEST_CLASS_HASH, calldata);
+    let target = utils::deploy(NonERC721Mock::TEST_CLASS_HASH, calldata);
     DualCaseERC721 { contract_address: target }
 }
 
 fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
-    let snake_target = utils::deploy(SnakeERC721Panic::TEST_CLASS_HASH, ArrayTrait::new());
-    let camel_target = utils::deploy(CamelERC721Panic::TEST_CLASS_HASH, ArrayTrait::new());
+    let snake_target = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let camel_target = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     (
         DualCaseERC721 {
             contract_address: snake_target
@@ -492,7 +492,6 @@ fn test_dual_setApprovalForAll() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
 }
 

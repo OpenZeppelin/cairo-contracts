@@ -1,5 +1,6 @@
 use starknet::ContractAddress;
 
+#[abi]
 trait IERC20 {
     #[view]
     fn name() -> felt252;
@@ -21,6 +22,7 @@ trait IERC20 {
     fn approve(spender: ContractAddress, amount: u256) -> bool;
 }
 
+#[abi]
 trait IERC20Camel {
     #[view]
     fn name() -> felt252;

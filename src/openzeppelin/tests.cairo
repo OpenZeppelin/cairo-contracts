@@ -7,5 +7,6 @@ mod test_erc20;
 mod test_erc721;
 mod test_initializable;
 mod test_pausable;
+mod test_dual20;
 mod mocks;
 mod utils;

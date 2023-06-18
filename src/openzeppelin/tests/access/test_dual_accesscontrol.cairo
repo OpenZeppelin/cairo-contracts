@@ -51,7 +51,13 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     calldata.append(ADMIN().into());
     //set_caller_address(OWNER());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
-    (DualCaseAccessControl { contract_address: target }, IAccessControlDispatcher { contract_address: target })
+    (
+        DualCaseAccessControl {
+            contract_address: target
+            }, IAccessControlDispatcher {
+            contract_address: target
+        }
+    )
 }
 
 fn setup_camel() -> (DualCaseAccessControl, IAccessControlDispatcher) {
@@ -59,7 +65,13 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     calldata.append(ADMIN().into());
     //set_caller_address(OWNER());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
-    (DualCaseAccessControl { contract_address: target }, IAccessControlDispatcher { contract_address: target })
+    (
+        DualCaseAccessControl {
+            contract_address: target
+            }, IAccessControlDispatcher {
+            contract_address: target
+        }
+    )
 }
 
 fn setup_non_accesscontrol() -> DualCaseAccessControl {
@@ -71,8 +83,12 @@ fn setup_non_accesscontrol() -> DualCaseAccessControl {
 
 fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl) {
     //set_caller_address(OWNER());
-    let snake_target = utils::deploy(SnakeAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new());
-    let camel_target = utils::deploy(CamelAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let snake_target = utils::deploy(
+        SnakeAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
+    );
+    let camel_target = utils::deploy(
+        CamelAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
+    );
     (
         DualCaseAccessControl {
             contract_address: snake_target
@@ -114,7 +130,6 @@ fn test_dual_has_role_exists_and_panics() {
 fn test_dual_get_role_admin() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, '');
-
 }
 
 #[test]
@@ -232,7 +247,6 @@ fn test_dual_hasRole_exists_and_panics() {
 fn test_dual_getRoleAdmin() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, '');
-
 }
 
 #[test]

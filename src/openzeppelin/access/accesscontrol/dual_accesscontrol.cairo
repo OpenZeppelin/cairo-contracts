@@ -1,4 +1,3 @@
-
 use array::SpanTrait;
 use array::ArrayTrait;
 use core::result::ResultTrait;

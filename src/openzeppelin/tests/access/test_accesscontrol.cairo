@@ -1,6 +1,6 @@
 use openzeppelin::access::accesscontrol::AccessControl;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::IACCESSCONTROL_ID;
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;

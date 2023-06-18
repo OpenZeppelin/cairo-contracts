@@ -345,7 +345,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferFrom() {
-   let (dispatcher, target) = setup_camel();
+    let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER()); // Bug with test-runner
     target.approve(OPERATOR(), VALUE());
 

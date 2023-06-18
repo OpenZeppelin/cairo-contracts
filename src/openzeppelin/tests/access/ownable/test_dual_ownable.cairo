@@ -139,7 +139,7 @@ fn test_dual_transfer_ownership_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_renounce_ownership() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(OWNER());
+    set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.renounce_ownership();
     assert(target.owner().is_zero(), 'Should be zero');
 }
@@ -150,7 +150,6 @@ fn test_dual_renounce_ownership() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_renounce_ownership() {
     let dispatcher = setup_non_ownable();
-    set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.renounce_ownership();
 }
 
@@ -159,7 +158,6 @@ fn test_dual_no_renounce_ownership() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_renounce_ownership_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
-    set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.renounce_ownership();
 }
 
@@ -182,7 +180,6 @@ fn test_dual_transferOwnership() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transferOwnership_exists_and_panics() {
     let (_, dispatcher) = setup_ownable_panic();
-    set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer_ownership(NEW_OWNER());
 }
 
@@ -201,7 +198,6 @@ fn test_dual_renounceOwnership() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_renounceOwnership_exists_and_panics() {
     let (_, dispatcher) = setup_ownable_panic();
-    set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.renounce_ownership();
 }
 

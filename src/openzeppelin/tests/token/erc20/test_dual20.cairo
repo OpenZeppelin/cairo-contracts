@@ -193,7 +193,6 @@ fn test_dual_no_transfer() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transfer_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
-    //set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer(RECIPIENT(), VALUE());
 }
 
@@ -294,7 +293,6 @@ fn test_dual_transfer_from() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc20();
-    //set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE());
 }
 
@@ -303,7 +301,6 @@ fn test_dual_no_transfer_from() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
-    //set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE());
 }
 
@@ -359,6 +356,5 @@ fn test_dual_transferFrom() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
-    //set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE());
 }

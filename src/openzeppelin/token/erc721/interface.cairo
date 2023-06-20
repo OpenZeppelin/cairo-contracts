@@ -2,11 +2,11 @@ use openzeppelin::utils::serde::SpanSerde;
 use starknet::ContractAddress;
 use array::SpanTrait;
 
-const IERC721_ID: felt252 = 0x36f39777e577db64d712f3a828ecd73eeeb0964430a821ee1587a3b03a65f3a;
+const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
 const IERC721_METADATA_ID: felt252 =
-    0x1a171894adf749940f34aa3cdbc821f8afb7d631cdf68543f1eeb3c2c3d4030;
+    0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd;
 const IERC721_RECEIVER_ID: felt252 =
-    0x2a367c13e24632fd4addeb9b26e5625f5afda07d6c5834989c7c4ac27db7616;
+    0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 
 trait IERC721 {
     fn balance_of(account: ContractAddress) -> u256;

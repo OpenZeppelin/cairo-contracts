@@ -2,9 +2,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use starknet::ContractAddress;
 
-const IBASEACCOUNT_ID: felt252 = 0x161ab6ad32c5db670d95c8d430a19024784b4f88b39e4cf2f2cb9b1917fbcd5;
-const IDECLARER_ID: felt252 = 0x34631381ed51f6ce7cabca2a62dc0baaf5b7ec0839e6784bbcde343287ca370;
-const IERC1271_ID: felt252 = 0xb1cb0d9c7e56541e00127a4bf99f4d57a37ebcdd079253dc2f172f71af0d9;
+const IACCOUNT_ID: felt252 = 0x10b961a9a7f18bc5dbac79afe344fd4690f1cca85f34ebc5af4c39962207254;
+const IERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
 
 #[derive(Serde, Drop)]
 struct Call {
@@ -13,15 +12,10 @@ struct Call {
     calldata: Array<felt252>
 }
 
-trait IBaseAccount {
+trait IAccount {
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(calls: Array<Call>) -> felt252;
-}
-
-trait IDeclarer {
     fn __validate_declare__(class_hash: felt252) -> felt252;
-}
-
-trait IERC1271 {
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252;
+    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32;
+    fn supports_interface(interface_id: felt252) -> bool;
 }

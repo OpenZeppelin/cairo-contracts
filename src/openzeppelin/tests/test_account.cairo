@@ -10,8 +10,8 @@ use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::Call;
-use openzeppelin::account::interface::IERC1271_VALIDATED;
-use openzeppelin::account::interface::IACCOUNT_ID;
+use openzeppelin::account::interface::IERC1271_ID;
+use openzeppelin::account::interface::IBASEACCOUNT_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
@@ -106,7 +106,7 @@ fn test_interfaces() {
     let supports_default_interface = Account::supports_interface(ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supports_interface(IACCOUNT_ID);
+    let supports_account_interface = Account::supports_interface(IBASEACCOUNT_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
@@ -127,7 +127,7 @@ fn test_is_valid_signature() {
     Account::set_public_key(data.public_key);
 
     let is_valid = Account::is_valid_signature(message, good_signature);
-    assert(is_valid == IERC1271_VALIDATED, 'Should accept valid signature');
+    assert(is_valid == IERC1271_ID, 'Should accept valid signature');
 
     let is_valid = Account::is_valid_signature(message, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');

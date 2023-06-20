@@ -7,7 +7,14 @@
 const ISRC5_ID: felt252 = 0x3f918d17e5ee77373b56385708f855659a07f75997f365cf87748628532a055;
 
 // Account
-const IACCOUNT_ID: felt252 = 0x10b961a9a7f18bc5dbac79afe344fd4690f1cca85f34ebc5af4c39962207254;
+const IBASEACCOUNT_ID: felt252 = 0x10b961a9a7f18bc5dbac79afe344fd4690f1cca85f34ebc5af4c39962207254;
+
+// Declarer
+const IDECLARER_ID: felt252 = 0x93387b6ff0b5183657eb3eaf9ed6f5743d76e2ed8b8f64c3d7b54426dfcf8;
+
+// ERC1271
+// See: https://eips.ethereum.org/EIPS/eip-1271
+const IERC1271_ID: felt252 = 0x37f26a44ac1097d95d4c6816c92d5b0f30163fb64868a1de7c3fa17d7c2d334;
 
 // ERC721
 // See: https://eips.ethereum.org/EIPS/eip-721

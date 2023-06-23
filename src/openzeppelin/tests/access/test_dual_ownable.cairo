@@ -164,7 +164,7 @@ fn test_dual_transferOwnership() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER()); // Bug with test-runner
     dispatcher.transfer_ownership(NEW_OWNER());
-    assert(target.owner() == NEW_OWNER(), 'Should change ownership');
+    assert(target.owner() == NEW_OWNER(), 'Should be new owner');
 }
 
 #[test]

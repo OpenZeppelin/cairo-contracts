@@ -27,7 +27,7 @@ trait DualCaseOwnableTrait {
 impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress {
         (*call_contract_syscall(
-            *self.contract_address, constants::OWNER_SELECTOR, ArrayTrait::new().span()
+            *self.contract_address, constants::owner_SELECTOR, ArrayTrait::new().span()
         )
             .unwrap_syscall()
             .at(0))
@@ -36,8 +36,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress) {
-        let snake_selector = constants::TRANSFER_OWNERSHIP_SELECTOR;
-        let camel_selector = constants::TRANSFEROWNERSHIP_SELECTOR;
+        let snake_selector = constants::transfer_ownership_SELECTOR;
+        let camel_selector = constants::transferOwnership_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(new_owner.into());
@@ -49,8 +49,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn renounce_ownership(self: @DualCaseOwnable) {
-        let snake_selector = constants::RENOUNCE_OWNERSHIP_SELECTOR;
-        let camel_selector = constants::RENOUNCEOWNERSHIP_SELECTOR;
+        let snake_selector = constants::renounce_ownership_SELECTOR;
+        let camel_selector = constants::renounceOwnership_SELECTOR;
 
         let mut args = ArrayTrait::new();
 

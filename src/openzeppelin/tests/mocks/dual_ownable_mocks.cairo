@@ -27,7 +27,6 @@ mod SnakeOwnableMock {
 #[contract]
 mod CamelOwnableMock {
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
     use openzeppelin::access::ownable::Ownable;
 
     #[constructor]
@@ -54,13 +53,6 @@ mod CamelOwnableMock {
 #[contract]
 mod SnakeOwnablePanicMock {
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use openzeppelin::access::ownable::Ownable;
-
-    #[constructor]
-    fn constructor() {
-        Ownable::initializer();
-    }
 
     #[view]
     fn owner() -> ContractAddress {
@@ -82,13 +74,6 @@ mod SnakeOwnablePanicMock {
 #[contract]
 mod CamelOwnablePanicMock {
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use openzeppelin::access::ownable::Ownable;
-
-    #[constructor]
-    fn constructor() {
-        Ownable::initializer();
-    }
 
     #[view]
     fn owner() -> ContractAddress {

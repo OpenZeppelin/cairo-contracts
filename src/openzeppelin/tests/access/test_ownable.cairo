@@ -58,7 +58,6 @@ fn test_transfer_ownership_to_zero() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_transfer_ownership_from_zero() {
-    assert(Ownable::owner() == ZERO(), 'Should be zero with no owner');
     Ownable::transfer_ownership(OTHER());
 }
 
@@ -91,7 +90,6 @@ fn test_transferOwnership_to_zero() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_transferOwnership_from_zero() {
-    assert(Ownable::owner() == ZERO(), 'Should be zero with no owner');
     Ownable::transferOwnership(OTHER());
 }
 

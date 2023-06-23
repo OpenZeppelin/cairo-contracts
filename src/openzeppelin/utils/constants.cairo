@@ -7,7 +7,7 @@
 const ISRC5_ID: felt252 = 0x3f918d17e5ee77373b56385708f855659a07f75997f365cf87748628532a055;
 
 // Account
-const IACCOUNT_ID: felt252 = 0x10b961a9a7f18bc5dbac79afe344fd4690f1cca85f34ebc5af4c39962207254;
+const IACCOUNT_ID: felt252 = 0x36c738c1c375b993078fe6b517d477e5a3c9b104e40c04662c4bdd3e2f5fa4a;
 
 // ERC721
 // See: https://eips.ethereum.org/EIPS/eip-721

@@ -1,32 +1,25 @@
-use traits::Into;
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
+use traits::Into;
 use zeroable::Zeroable;
 
-// Dispatchers
+use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
 use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
-
-// Dual case AccessControl
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-
-// Mocks
 use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;
 use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-
-// Other
 use openzeppelin::tests::utils;
 use openzeppelin::tests::utils::PanicTrait;
-use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 
 ///
 /// Constants

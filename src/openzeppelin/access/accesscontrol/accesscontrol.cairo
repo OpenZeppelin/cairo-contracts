@@ -87,6 +87,11 @@ mod AccessControl {
     fn supports_interface(interface_id: u32) -> bool {
         ERC165::supports_interface(interface_id)
     }
+    
+    #[view]
+    fn supportsInterface(interface_id: u32) -> bool {
+        ERC165::supports_interface(interface_id)
+    }
 
     #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {

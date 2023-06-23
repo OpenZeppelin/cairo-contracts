@@ -87,9 +87,10 @@ mod AccessControl {
     fn supports_interface(interface_id: u32) -> bool {
         ERC165::supports_interface(interface_id)
     }
-    
+
     #[view]
     fn supportsInterface(interface_id: u32) -> bool {
+        // TODO: Change to camel when available
         ERC165::supports_interface(interface_id)
     }
 

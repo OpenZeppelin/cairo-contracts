@@ -49,7 +49,6 @@ const ROLE: felt252 = 41;
 fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append(ADMIN().into());
-    //set_caller_address(OWNER());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccessControl {
@@ -63,7 +62,6 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
 fn setup_camel() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append(ADMIN().into());
-    //set_caller_address(OWNER());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccessControl {
@@ -76,13 +74,11 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlDispatcher) {
 
 fn setup_non_accesscontrol() -> DualCaseAccessControl {
     let calldata = ArrayTrait::new();
-    //set_caller_address(OWNER());
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseAccessControl { contract_address: target }
 }
 
 fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl) {
-    //set_caller_address(OWNER());
     let snake_target = utils::deploy(
         SnakeAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
     );

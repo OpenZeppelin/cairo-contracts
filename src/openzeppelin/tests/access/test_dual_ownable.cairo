@@ -46,7 +46,13 @@ fn setup_camel() -> (DualCaseOwnable, IOwnableCamelDispatcher) {
     let mut calldata = ArrayTrait::new();
     set_caller_address(OWNER());
     let target = utils::deploy(CamelOwnableMock::TEST_CLASS_HASH, calldata);
-    (DualCaseOwnable { contract_address: target }, IOwnableCamelDispatcher { contract_address: target })
+    (
+        DualCaseOwnable {
+            contract_address: target
+            }, IOwnableCamelDispatcher {
+            contract_address: target
+        }
+    )
 }
 
 fn setup_non_ownable() -> DualCaseOwnable {

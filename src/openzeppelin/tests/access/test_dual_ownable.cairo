@@ -18,7 +18,6 @@ use openzeppelin::tests::mocks::dual_ownable_mocks::SnakeOwnablePanicMock;
 use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnablePanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::PanicTrait;
 
 ///
 /// Constants

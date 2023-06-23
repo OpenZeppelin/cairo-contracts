@@ -51,11 +51,6 @@ mod CamelOwnableMock {
     }
 }
 
-// Although the following modules are designed to panic,
-// functions still need a valid return value. We chose:
-//
-// false for bool
-
 #[contract]
 mod SnakeOwnablePanicMock {
     use starknet::ContractAddress;

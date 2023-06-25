@@ -28,8 +28,8 @@ trait DualCaseAccessControlTrait {
 
 impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     fn has_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) -> bool {
-        let snake_selector = constants::HAS_ROLE_SELECTOR;
-        let camel_selector = constants::HASROLE_SELECTOR;
+        let snake_selector = constants::has_role_SELECTOR;
+        let camel_selector = constants::hasRole_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(role);
@@ -45,8 +45,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn get_role_admin(self: @DualCaseAccessControl, role: felt252) -> felt252 {
-        let snake_selector = constants::GET_ROLE_ADMIN_SELECTOR;
-        let camel_selector = constants::GETROLEADMIN_SELECTOR;
+        let snake_selector = constants::get_role_admin_SELECTOR;
+        let camel_selector = constants::getRoleAdmin_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(role);
@@ -59,8 +59,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let snake_selector = constants::GRANT_ROLE_SELECTOR;
-        let camel_selector = constants::GRANTROLE_SELECTOR;
+        let snake_selector = constants::grant_role_SELECTOR;
+        let camel_selector = constants::grantRole_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(role);
@@ -73,8 +73,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn revoke_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let snake_selector = constants::REVOKE_ROLE_SELECTOR;
-        let camel_selector = constants::REVOKEROLE_SELECTOR;
+        let snake_selector = constants::revoke_role_SELECTOR;
+        let camel_selector = constants::revokeRole_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(role);
@@ -87,8 +87,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn renounce_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let snake_selector = constants::RENOUNCE_ROLE_SELECTOR;
-        let camel_selector = constants::RENOUNCEROLE_SELECTOR;
+        let snake_selector = constants::renounce_role_SELECTOR;
+        let camel_selector = constants::renounceRole_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(role);

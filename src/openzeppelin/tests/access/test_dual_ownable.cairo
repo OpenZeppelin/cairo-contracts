@@ -3,7 +3,6 @@ use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
-use traits::Into;
 use zeroable::Zeroable;
 
 use openzeppelin::access::ownable::interface::IOwnableDispatcher;

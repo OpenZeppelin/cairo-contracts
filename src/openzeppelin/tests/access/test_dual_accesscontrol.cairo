@@ -19,7 +19,6 @@ use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPani
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::PanicTrait;
 
 ///
 /// Constants

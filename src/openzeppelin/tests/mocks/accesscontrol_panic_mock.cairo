@@ -6,9 +6,7 @@
 
 #[contract]
 mod SnakeAccessControlPanicMock {
-    //use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
-    //use zeroable::Zeroable;
 
     #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {
@@ -40,9 +38,7 @@ mod SnakeAccessControlPanicMock {
 
 #[contract]
 mod CamelAccessControlPanicMock {
-    //use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
-    //use zeroable::Zeroable;
 
     #[view]
     fn hasRole(role: felt252, account: ContractAddress) -> bool {

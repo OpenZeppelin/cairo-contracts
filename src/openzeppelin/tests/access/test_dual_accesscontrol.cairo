@@ -252,7 +252,7 @@ fn test_dual_grantRole() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(ADMIN()); //Bug with test-runner
     dispatcher.grant_role(ROLE, AUTHORIZED());
-    assert(target.has_role(ROLE, AUTHORIZED()), 'Should grant role');
+    assert(target.hasRole(ROLE, AUTHORIZED()), 'Should grant role');
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn test_dual_revokeRole() {
     set_contract_address(ADMIN()); //Bug with test-runner
     dispatcher.grant_role(ROLE, AUTHORIZED());
     dispatcher.revoke_role(ROLE, AUTHORIZED());
-    assert(!target.has_role(ROLE, AUTHORIZED()), 'Should revoke role');
+    assert(!target.hasRole(ROLE, AUTHORIZED()), 'Should revoke role');
 }
 
 #[test]
@@ -289,7 +289,7 @@ fn test_dual_renounceRole() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(ADMIN()); //Bug with test-runner
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
-    assert(!target.has_role(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should renounce role');
+    assert(!target.hasRole(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should renounce role');
 }
 
 #[test]

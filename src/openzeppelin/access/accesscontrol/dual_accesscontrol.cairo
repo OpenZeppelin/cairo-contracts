@@ -2,7 +2,6 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use core::result::ResultTrait;
 use option::OptionTrait;
-use starknet::call_contract_syscall;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;

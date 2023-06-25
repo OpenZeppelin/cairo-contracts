@@ -140,7 +140,7 @@ fn test_dual_get_role_admin_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_grant_role() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.grant_role(ROLE, AUTHORIZED());
     assert(target.has_role(ROLE, AUTHORIZED()), 'Should grant role');
 }
@@ -165,7 +165,7 @@ fn test_dual_grant_role_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_revoke_role() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.revoke_role(ROLE, AUTHORIZED());
     assert(!target.has_role(ROLE, AUTHORIZED()), 'Should revoke role');
 }
@@ -190,7 +190,7 @@ fn test_dual_revoke_role_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_renounce_role() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
     assert(!target.has_role(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should renounce role');
 }
@@ -245,12 +245,12 @@ fn test_dual_getRoleAdmin_exists_and_panics() {
     dispatcher.get_role_admin(ROLE);
 }
 
-#[ignore] //Bug with test-runner
+#[ignore] // Bug with test-runner
 #[test]
 #[available_gas(2000000)]
 fn test_dual_grantRole() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.grant_role(ROLE, AUTHORIZED());
     assert(target.hasRole(ROLE, AUTHORIZED()), 'Should grant role');
 }
@@ -263,12 +263,12 @@ fn test_dual_grantRole_exists_and_panics() {
     dispatcher.grant_role(ROLE, AUTHORIZED());
 }
 
-#[ignore] //Bug with test-runner
+#[ignore] // Bug with test-runner
 #[test]
 #[available_gas(2000000)]
 fn test_dual_revokeRole() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.grant_role(ROLE, AUTHORIZED());
     dispatcher.revoke_role(ROLE, AUTHORIZED());
     assert(!target.hasRole(ROLE, AUTHORIZED()), 'Should revoke role');
@@ -282,12 +282,12 @@ fn test_dual_revokeRole_exists_and_panics() {
     dispatcher.revoke_role(ROLE, AUTHORIZED());
 }
 
-#[ignore] //Bug with test-runner
+#[ignore] // Bug with test-runner
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceRole() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(ADMIN()); //Bug with test-runner
+    set_contract_address(ADMIN()); // Bug with test-runner
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
     assert(!target.hasRole(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should renounce role');
 }

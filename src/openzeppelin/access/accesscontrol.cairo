@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 const DEFAULT_ADMIN_ROLE: felt252 = 0;
 const IACCESSCONTROL_ID: felt252 =
-    0x262988e98e77072d75a776162d7e30e5fe024a71909613481916261961df736;
+    0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751;
 
 #[abi]
 trait IAccessControl {

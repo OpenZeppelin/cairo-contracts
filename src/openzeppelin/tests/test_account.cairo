@@ -10,7 +10,7 @@ use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::Call;
-use openzeppelin::account::interface::IERC1271_VALIDATED;
+use openzeppelin::account::interface::ERC1271_VALIDATED;
 use openzeppelin::account::interface::IACCOUNT_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
@@ -127,7 +127,7 @@ fn test_is_valid_signature() {
     Account::set_public_key(data.public_key);
 
     let is_valid = Account::is_valid_signature(message, good_signature);
-    assert(is_valid == IERC1271_VALIDATED, 'Should accept valid signature');
+    assert(is_valid == ERC1271_VALIDATED, 'Should accept valid signature');
 
     let is_valid = Account::is_valid_signature(message, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');

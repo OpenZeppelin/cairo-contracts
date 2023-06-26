@@ -3,7 +3,7 @@ use array::SpanTrait;
 use starknet::ContractAddress;
 
 const IACCOUNT_ID: felt252 = 0x36c738c1c375b993078fe6b517d477e5a3c9b104e40c04662c4bdd3e2f5fa4a;
-const IERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
+const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
 
 #[derive(Serde, Drop)]
 struct Call {

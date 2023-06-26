@@ -49,10 +49,9 @@ mod Account {
 
     use openzeppelin::account::interface::IAccount;
     use openzeppelin::account::interface::IACCOUNT_ID;
-    use openzeppelin::account::interface::IERC1271_VALIDATED;
+    use openzeppelin::account::interface::ERC1271_VALIDATED;
     use openzeppelin::introspection::src5::SRC5;
     use openzeppelin::introspection::src5::ISRC5;
-    use openzeppelin::introspection::src5::ISRC5_ID;
 
     use super::Call;
     use super::QUERY_VERSION;
@@ -95,7 +94,7 @@ mod Account {
 
         fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
             if _is_valid_signature(message, signature.span()) {
-                IERC1271_VALIDATED
+                ERC1271_VALIDATED
             } else {
                 0
             }
@@ -164,7 +163,6 @@ mod Account {
     #[internal]
     fn initializer(_public_key: felt252) {
         SRC5::register_interface(IACCOUNT_ID);
-        SRC5::register_interface(ISRC5_ID);
         public_key::write(_public_key);
     }
 

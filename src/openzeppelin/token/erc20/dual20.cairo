@@ -16,7 +16,7 @@ use openzeppelin::utils::constants;
 
 #[derive(Copy, Drop)]
 struct DualERC20 {
-    target: ContractAddress
+    contract_address: ContractAddress
 }
 
 trait DualERC20Trait {
@@ -35,20 +35,20 @@ trait DualERC20Trait {
 
 impl DualERC20Impl of DualERC20Trait {
     fn name(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.target, constants::name_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(*self.contract_address, constants::name_SELECTOR, ArrayTrait::new().span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.target, constants::symbol_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(*self.contract_address, constants::symbol_SELECTOR, ArrayTrait::new().span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn decimals(self: @DualERC20) -> u8 {
         (*call_contract_syscall(
-            *self.target, constants::decimals_SELECTOR, ArrayTrait::new().span()
+            *self.contract_address, constants::decimals_SELECTOR, ArrayTrait::new().span()
         )
             .unwrap_syscall()
             .at(0))
@@ -62,7 +62,7 @@ impl DualERC20Impl of DualERC20Trait {
 
         let mut args = ArrayTrait::new();
         let res = try_selector_with_fallback(
-            *self.target, snake_selector, camel_selector, args.span()
+            *self.contract_address, snake_selector, camel_selector, args.span()
         )
             .unwrap_syscall();
 
@@ -77,7 +77,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(account.into());
 
         let res = try_selector_with_fallback(
-            *self.target, snake_selector, camel_selector, args.span()
+            *self.contract_address, snake_selector, camel_selector, args.span()
         )
             .unwrap_syscall();
 
@@ -89,7 +89,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(owner.into());
         args.append(spender.into());
 
-        let res = call_contract_syscall(*self.target, constants::allowance_SELECTOR, args.span())
+        let res = call_contract_syscall(*self.contract_address, constants::allowance_SELECTOR, args.span())
             .unwrap_syscall();
 
         u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }
@@ -101,7 +101,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(amount.low.into());
         args.append(amount.high.into());
 
-        (*call_contract_syscall(*self.target, constants::transfer_SELECTOR, args.span())
+        (*call_contract_syscall(*self.contract_address, constants::transfer_SELECTOR, args.span())
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -120,7 +120,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(amount.low.into());
         args.append(amount.high.into());
 
-        (*try_selector_with_fallback(*self.target, snake_selector, camel_selector, args.span())
+        (*try_selector_with_fallback(*self.contract_address, snake_selector, camel_selector, args.span())
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -132,7 +132,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(spender.into());
         args.append(amount.low.into());
         args.append(amount.high.into());
-        (*call_contract_syscall(*self.target, constants::approve_SELECTOR, args.span())
+        (*call_contract_syscall(*self.contract_address, constants::approve_SELECTOR, args.span())
             .unwrap_syscall()
             .at(0))
             .try_into()

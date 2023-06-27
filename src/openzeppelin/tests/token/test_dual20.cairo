@@ -60,7 +60,7 @@ fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
     calldata.append(SUPPLY().high.into());
     calldata.append(OWNER().into());
     let target = utils::deploy(SnakeERC20Mock::TEST_CLASS_HASH, calldata);
-    (DualERC20 { target: target }, IERC20Dispatcher { contract_address: target })
+    (DualERC20 { contract_address: target }, IERC20Dispatcher { contract_address: target })
 }
 
 fn setup_camel() -> (DualERC20, IERC20CamelDispatcher) {
@@ -71,19 +71,19 @@ fn setup_camel() -> (DualERC20, IERC20CamelDispatcher) {
     calldata.append(SUPPLY().high.into());
     calldata.append(OWNER().into());
     let target = utils::deploy(CamelERC20Mock::TEST_CLASS_HASH, calldata);
-    (DualERC20 { target: target }, IERC20CamelDispatcher { contract_address: target })
+    (DualERC20 { contract_address: target }, IERC20CamelDispatcher { contract_address: target })
 }
 
 fn setup_non_erc20() -> DualERC20 {
     let calldata = ArrayTrait::new();
     let target = utils::deploy(NonERC721::TEST_CLASS_HASH, calldata);
-    DualERC20 { target: target }
+    DualERC20 { contract_address: target }
 }
 
 fn setup_erc20_panic() -> (DualERC20, DualERC20) {
     let snake_target = utils::deploy(SnakeERC20Panic::TEST_CLASS_HASH, ArrayTrait::new());
     let camel_target = utils::deploy(CamelERC20Panic::TEST_CLASS_HASH, ArrayTrait::new());
-    (DualERC20 { target: snake_target }, DualERC20 { target: camel_target })
+    (DualERC20 { contract_address: snake_target }, DualERC20 { contract_address: camel_target })
 }
 
 ///

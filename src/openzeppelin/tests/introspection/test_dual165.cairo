@@ -1,25 +1,17 @@
-// Dispatchers
-use openzeppelin::introspection::interface::IERC165Dispatcher;
-use openzeppelin::introspection::interface::IERC165CamelDispatcher;
-use openzeppelin::introspection::interface::IERC165DispatcherTrait;
-use openzeppelin::introspection::interface::IERC165CamelDispatcherTrait;
-
-// Dual165
-use openzeppelin::introspection::dual165::DualCaseERC165Trait;
-use openzeppelin::introspection::dual165::DualCaseERC165;
-
-// Mocks
-use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165Mock;
-use openzeppelin::tests::mocks::dual165_mocks::CamelERC165Mock;
-use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165PanicMock;
-use openzeppelin::tests::mocks::dual165_mocks::CamelERC165PanicMock;
-use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-
-// Other
 use array::ArrayTrait;
-use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::PanicTrait;
+use openzeppelin::introspection::dual165::DualCaseERC165;
+use openzeppelin::introspection::dual165::DualCaseERC165Trait;
 use openzeppelin::introspection::interface::IERC165_ID;
+use openzeppelin::introspection::interface::IERC165Dispatcher;
+use openzeppelin::introspection::interface::IERC165DispatcherTrait;
+use openzeppelin::introspection::interface::IERC165CamelDispatcher;
+use openzeppelin::introspection::interface::IERC165CamelDispatcherTrait;
+use openzeppelin::tests::mocks::dual165_mocks::CamelERC165Mock;
+use openzeppelin::tests::mocks::dual165_mocks::CamelERC165PanicMock;
+use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165Mock;
+use openzeppelin::tests::mocks::dual165_mocks::SnakeERC165PanicMock;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils;
 
 const OTHER_ID: u32 = 0x12345678_u32;
 
@@ -33,10 +25,10 @@ fn setup_snake() -> (DualCaseERC165, IERC165Dispatcher) {
     (DualCaseERC165 { contract_address: target }, IERC165Dispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualCaseERC165, IERC165Dispatcher) {
+fn setup_camel() -> (DualCaseERC165, IERC165CamelDispatcher) {
     let mut calldata = ArrayTrait::new();
     let target = utils::deploy(CamelERC165Mock::TEST_CLASS_HASH, calldata);
-    (DualCaseERC165 { contract_address: target }, IERC165Dispatcher { contract_address: target })
+    (DualCaseERC165 { contract_address: target }, IERC165CamelDispatcher { contract_address: target })
 }
 
 fn setup_non_erc165() -> DualCaseERC165 {

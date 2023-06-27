@@ -111,7 +111,7 @@ fn test_dual_owner_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_transfer_ownership() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
     assert(target.owner() == NEW_OWNER(), 'Should be new owner');
 }
@@ -136,7 +136,7 @@ fn test_dual_transfer_ownership_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_renounce_ownership() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     dispatcher.renounce_ownership();
     assert(target.owner().is_zero(), 'Should be zero');
 }
@@ -162,12 +162,12 @@ fn test_dual_renounce_ownership_exists_and_panics() {
 /// camelCase target
 ///
 
-#[ignore] // Bug with test-runner
+#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432#[test]
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferOwnership() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
     assert(target.owner() == NEW_OWNER(), 'Should be new owner');
 }
@@ -180,12 +180,12 @@ fn test_dual_transferOwnership_exists_and_panics() {
     dispatcher.transfer_ownership(NEW_OWNER());
 }
 
-#[ignore] // Bug with test-runner
+#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432#[test]
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceOwnership() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     dispatcher.renounce_ownership();
     assert(target.owner().is_zero(), 'Should be zero');
 }

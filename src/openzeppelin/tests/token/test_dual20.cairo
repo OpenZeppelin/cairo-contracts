@@ -169,12 +169,12 @@ fn test_dual_decimals_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_transfer() {
     let (snake_dispatcher, snake_target) = setup_snake();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     assert(snake_target.transfer(RECIPIENT(), VALUE()), 'Should return true');
     assert(snake_target.balance_of(RECIPIENT()) == VALUE(), 'Tokens not sent correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     assert(camel_dispatcher.transfer(RECIPIENT(), VALUE()), 'Should return true');
     assert(camel_target.balanceOf(RECIPIENT()) == VALUE(), 'Tokens not sent correctly');
 }
@@ -199,12 +199,12 @@ fn test_dual_transfer_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_approved() {
     let (snake_dispatcher, snake_target) = setup_snake();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     assert(snake_target.approve(SPENDER(), VALUE()), 'Should return true');
     assert(snake_target.allowance(OWNER(), SPENDER()) == VALUE(), 'Spender not approved correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     assert(camel_dispatcher.approve(SPENDER(), VALUE()), 'Should return true');
     assert(camel_target.allowance(OWNER(), SPENDER()) == VALUE(), 'Spender not approved correctly');
 }
@@ -279,7 +279,7 @@ fn test_dual_balance_of_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     target.approve(OPERATOR(), VALUE());
 
     set_contract_address(OPERATOR());
@@ -337,12 +337,12 @@ fn test_dual_balanceOf_exists_and_panics() {
     dispatcher.balance_of(OWNER());
 }
 
-#[ignore] // Bug with test-runner
+#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
-    set_contract_address(OWNER()); // Bug with test-runner
+    set_contract_address(OWNER());
     target.approve(OPERATOR(), VALUE());
 
     set_contract_address(OPERATOR());

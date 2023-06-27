@@ -23,8 +23,8 @@ trait DualCaseERC165Trait {
 
 impl DualCaseERC165Impl of DualCaseERC165Trait {
     fn supports_interface(self: @DualCaseERC165, interface_id: u32) -> bool {
-        let snake_selector = constants::SUPPORTS_INTERFACE_SELECTOR;
-        let camel_selector = constants::SUPPORTSINTERFACE_SELECTOR;
+        let snake_selector = constants::supports_interface_SELECTOR;
+        let camel_selector = constants::supportsInterface_SELECTOR;
 
         let mut args = ArrayTrait::new();
         args.append(interface_id.into());

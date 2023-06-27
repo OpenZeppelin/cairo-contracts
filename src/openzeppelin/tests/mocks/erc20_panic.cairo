@@ -1,7 +1,13 @@
+// Although these modules are designed to panic, functions
+// still need a valid return value. We chose:
+//
+// 3 for felt252
+// zero for ContractAddress
+// u256 { 3, 3 } for u256
+
 #[contract]
 mod SnakeERC20Panic {
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     ///
     /// Agnostic
@@ -68,9 +74,7 @@ mod SnakeERC20Panic {
 
 #[contract]
 mod CamelERC20Panic {
-    use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[view]
     fn totalSupply() -> u256 {

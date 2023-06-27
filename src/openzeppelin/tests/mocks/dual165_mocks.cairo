@@ -18,11 +18,6 @@ mod CamelERC165Mock {
     }
 }
 
-// Although the following modules are designed to panic,
-// functions still need a valid return value. We chose:
-//
-// false for bool
-
 #[contract]
 mod SnakeERC165PanicMock {
     use openzeppelin::introspection::erc165::ERC165;

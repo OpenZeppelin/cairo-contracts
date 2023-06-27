@@ -35,13 +35,17 @@ trait DualERC20Trait {
 
 impl DualERC20Impl of DualERC20Trait {
     fn name(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.contract_address, constants::name_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(
+            *self.contract_address, constants::name_SELECTOR, ArrayTrait::new().span()
+        )
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.contract_address, constants::symbol_SELECTOR, ArrayTrait::new().span())
+        *call_contract_syscall(
+            *self.contract_address, constants::symbol_SELECTOR, ArrayTrait::new().span()
+        )
             .unwrap_syscall()
             .at(0)
     }
@@ -89,7 +93,9 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(owner.into());
         args.append(spender.into());
 
-        let res = call_contract_syscall(*self.contract_address, constants::allowance_SELECTOR, args.span())
+        let res = call_contract_syscall(
+            *self.contract_address, constants::allowance_SELECTOR, args.span()
+        )
             .unwrap_syscall();
 
         u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }
@@ -120,7 +126,9 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(amount.low.into());
         args.append(amount.high.into());
 
-        (*try_selector_with_fallback(*self.contract_address, snake_selector, camel_selector, args.span())
+        (*try_selector_with_fallback(
+            *self.contract_address, snake_selector, camel_selector, args.span()
+        )
             .unwrap_syscall()
             .at(0))
             .try_into()

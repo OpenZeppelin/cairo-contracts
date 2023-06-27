@@ -170,7 +170,7 @@ fn test_dual_decimals_exists_and_panics() {
 fn test_dual_transfer() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    assert(snake_target.transfer(RECIPIENT(), VALUE()), 'Should return true');
+    assert(snake_dispatcher.transfer(RECIPIENT(), VALUE()), 'Should return true');
     assert(snake_target.balance_of(RECIPIENT()) == VALUE(), 'Tokens not sent correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
@@ -200,7 +200,7 @@ fn test_dual_transfer_exists_and_panics() {
 fn test_dual_approved() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    assert(snake_target.approve(SPENDER(), VALUE()), 'Should return true');
+    assert(snake_dispatcher.approve(SPENDER(), VALUE()), 'Should return true');
     assert(snake_target.allowance(OWNER(), SPENDER()) == VALUE(), 'Spender not approved correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
@@ -280,7 +280,7 @@ fn test_dual_balance_of_exists_and_panics() {
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
-    target.approve(OPERATOR(), VALUE());
+    dispatcher.approve(OPERATOR(), VALUE());
 
     set_contract_address(OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE());
@@ -343,7 +343,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
-    target.approve(OPERATOR(), VALUE());
+    dispatcher.approve(OPERATOR(), VALUE());
 
     set_contract_address(OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE());

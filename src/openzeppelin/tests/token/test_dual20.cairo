@@ -20,8 +20,6 @@ use openzeppelin::tests::mocks::erc20_panic::CamelERC20Panic;
 use openzeppelin::tests::mocks::non721_mock::NonERC721;
 use openzeppelin::tests::utils;
 
-use openzeppelin::tests::utils::PanicTrait;
-
 ///
 /// Constants
 ///

@@ -28,7 +28,13 @@ fn setup_snake() -> (DualCaseERC165, IERC165Dispatcher) {
 fn setup_camel() -> (DualCaseERC165, IERC165CamelDispatcher) {
     let mut calldata = ArrayTrait::new();
     let target = utils::deploy(CamelERC165Mock::TEST_CLASS_HASH, calldata);
-    (DualCaseERC165 { contract_address: target }, IERC165CamelDispatcher { contract_address: target })
+    (
+        DualCaseERC165 {
+            contract_address: target
+            }, IERC165CamelDispatcher {
+            contract_address: target
+        }
+    )
 }
 
 fn setup_non_erc165() -> DualCaseERC165 {

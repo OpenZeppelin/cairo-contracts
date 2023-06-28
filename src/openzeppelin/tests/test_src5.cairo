@@ -36,7 +36,7 @@ fn test_deregister_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Invalid id', ))]
+#[should_panic(expected: ('SRC5: invalid id', ))]
 fn test_deregister_default_interface() {
     SRC5::deregister_interface(ISRC5_ID);
 }

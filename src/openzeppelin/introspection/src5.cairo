@@ -34,7 +34,7 @@ mod SRC5 {
 
     #[internal]
     fn deregister_interface(interface_id: felt252) {
-        assert(interface_id != src5::ISRC5_ID, 'Invalid id');
+        assert(interface_id != src5::ISRC5_ID, 'SRC5: invalid id');
         supported_interfaces::write(interface_id, false);
     }
 }

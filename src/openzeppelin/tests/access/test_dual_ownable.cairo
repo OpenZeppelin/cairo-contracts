@@ -162,7 +162,6 @@ fn test_dual_renounce_ownership_exists_and_panics() {
 /// camelCase target
 ///
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferOwnership() {
@@ -180,7 +179,6 @@ fn test_dual_transferOwnership_exists_and_panics() {
     dispatcher.transfer_ownership(NEW_OWNER());
 }
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceOwnership() {

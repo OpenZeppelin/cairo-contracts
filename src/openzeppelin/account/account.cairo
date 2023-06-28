@@ -51,7 +51,6 @@ mod Account {
     use openzeppelin::account::interface::IACCOUNT_ID;
     use openzeppelin::account::interface::ERC1271_VALIDATED;
     use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::introspection::src5::ISRC5;
 
     use super::Call;
     use super::QUERY_VERSION;

@@ -4,7 +4,6 @@ use core::result::ResultTrait;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
 use traits::Into;
 use traits::TryInto;
 

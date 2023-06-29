@@ -36,17 +36,13 @@ trait DualERC20Trait {
 
 impl DualERC20Impl of DualERC20Trait {
     fn name(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(
-            *self.contract_address, selectors::name, ArrayTrait::new().span()
-        )
+        *call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(
-            *self.contract_address, selectors::symbol, ArrayTrait::new().span()
-        )
+        *call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
             .unwrap_syscall()
             .at(0)
     }
@@ -94,9 +90,7 @@ impl DualERC20Impl of DualERC20Trait {
         args.append(owner.into());
         args.append(spender.into());
 
-        let res = call_contract_syscall(
-            *self.contract_address, selectors::allowance, args.span()
-        )
+        let res = call_contract_syscall(*self.contract_address, selectors::allowance, args.span())
             .unwrap_syscall();
 
         u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }

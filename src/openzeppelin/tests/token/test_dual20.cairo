@@ -1,24 +1,20 @@
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
 use traits::Into;
 
-use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::interface::IERC20;
-use openzeppelin::token::erc20::interface::IERC20Camel;
-use openzeppelin::token::erc20::interface::IERC20Dispatcher;
-use openzeppelin::token::erc20::interface::IERC20CamelDispatcher;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin::token::erc20::interface::IERC20CamelDispatcherTrait;
-use openzeppelin::token::erc20::dual20::DualERC20Trait;
-use openzeppelin::token::erc20::dual20::DualERC20;
-use openzeppelin::tests::mocks::snake20_mock::SnakeERC20Mock;
 use openzeppelin::tests::mocks::camel20_mock::CamelERC20Mock;
 use openzeppelin::tests::mocks::erc20_panic::SnakeERC20Panic;
 use openzeppelin::tests::mocks::erc20_panic::CamelERC20Panic;
 use openzeppelin::tests::mocks::non721_mock::NonERC721;
+use openzeppelin::tests::mocks::snake20_mock::SnakeERC20Mock;
+use openzeppelin::token::erc20::dual20::DualERC20;
+use openzeppelin::token::erc20::dual20::DualERC20Trait;
+use openzeppelin::token::erc20::interface::IERC20CamelDispatcher;
+use openzeppelin::token::erc20::interface::IERC20CamelDispatcherTrait;
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::tests::utils;
 
 ///

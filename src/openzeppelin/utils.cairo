@@ -6,6 +6,7 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use box::BoxTrait;
 mod constants;
+mod selectors;
 mod serde;
 
 fn try_selector_with_fallback(

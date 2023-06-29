@@ -11,7 +11,7 @@ use traits::TryInto;
 
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::constants;
+use openzeppelin::utils::selectors;
 
 #[derive(Copy, Drop)]
 struct DualCaseOwnable {
@@ -26,9 +26,7 @@ trait DualCaseOwnableTrait {
 
 impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress {
-        (*call_contract_syscall(
-            *self.contract_address, constants::owner_SELECTOR, ArrayTrait::new().span()
-        )
+        (*call_contract_syscall(*self.contract_address, selectors::owner, ArrayTrait::new().span())
             .unwrap_syscall()
             .at(0))
             .try_into()
@@ -36,8 +34,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress) {
-        let snake_selector = constants::transfer_ownership_SELECTOR;
-        let camel_selector = constants::transferOwnership_SELECTOR;
+        let snake_selector = selectors::transfer_ownership;
+        let camel_selector = selectors::transferOwnership;
 
         let mut args = ArrayTrait::new();
         args.append(new_owner.into());
@@ -49,8 +47,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn renounce_ownership(self: @DualCaseOwnable) {
-        let snake_selector = constants::renounce_ownership_SELECTOR;
-        let camel_selector = constants::renounceOwnership_SELECTOR;
+        let snake_selector = selectors::renounce_ownership;
+        let camel_selector = selectors::renounceOwnership;
 
         let mut args = ArrayTrait::new();
 

@@ -10,7 +10,7 @@ use traits::TryInto;
 
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::constants;
+use openzeppelin::utils::selectors;
 
 #[derive(Copy, Drop)]
 struct DualCaseERC165 {
@@ -23,8 +23,8 @@ trait DualCaseERC165Trait {
 
 impl DualCaseERC165Impl of DualCaseERC165Trait {
     fn supports_interface(self: @DualCaseERC165, interface_id: u32) -> bool {
-        let snake_selector = constants::supports_interface_SELECTOR;
-        let camel_selector = constants::supportsInterface_SELECTOR;
+        let snake_selector = selectors::supports_interface;
+        let camel_selector = selectors::supportsInterface;
 
         let mut args = ArrayTrait::new();
         args.append(interface_id.into());

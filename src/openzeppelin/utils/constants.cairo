@@ -36,12 +36,3 @@ const IACCESSCONTROL_ID: u32 = 0x7965db0b_u32;
 //
 
 const DEFAULT_ADMIN_ROLE: felt252 = 0;
-
-//
-// Selectors
-//
-
-const supports_interface_SELECTOR: felt252 =
-    0xfe80f537b66d12a00b6d3c072b44afbb716e78dde5c3f0ef116ee93d3e3283;
-const supportsInterface_SELECTOR: felt252 =
-    0x29e211664c0b63c79638fbea474206ca74016b3e9a3dc4f9ac300ffd8bdf2cd;

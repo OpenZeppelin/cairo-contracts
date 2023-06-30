@@ -1,5 +1,5 @@
 //
-// List of selectors with their starknet_keccak calculation
+// Ownable
 //
 
 const owner: felt252 = 0x2016836a56b71f0d02689e69e326f4f4c1b9057164ef592671cf0d37c8040c0;

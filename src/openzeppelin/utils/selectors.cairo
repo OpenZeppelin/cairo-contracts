@@ -1,5 +1,5 @@
 //
-// List of selectors with their starknet_keccak calculation
+// AccessControl
 //
 
 const get_role_admin: felt252 = 0x302e0454f48778e0ca3a2e714a289c4e8d8e03d614b370130abb1a524a47f22;

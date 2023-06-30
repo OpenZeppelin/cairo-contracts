@@ -34,26 +34,26 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress) {
-        let snake_selector = selectors::transfer_ownership;
-        let camel_selector = selectors::transferOwnership;
-
         let mut args = ArrayTrait::new();
         args.append(new_owner.into());
 
         try_selector_with_fallback(
-            *self.contract_address, snake_selector, camel_selector, args.span()
+            *self.contract_address,
+            selectors::transfer_ownership,
+            selectors::transferOwnership,
+            args.span()
         )
             .unwrap_syscall();
     }
 
     fn renounce_ownership(self: @DualCaseOwnable) {
-        let snake_selector = selectors::renounce_ownership;
-        let camel_selector = selectors::renounceOwnership;
-
         let mut args = ArrayTrait::new();
 
         try_selector_with_fallback(
-            *self.contract_address, snake_selector, camel_selector, args.span()
+            *self.contract_address,
+            selectors::renounce_ownership,
+            selectors::renounceOwnership,
+            args.span()
         )
             .unwrap_syscall();
     }

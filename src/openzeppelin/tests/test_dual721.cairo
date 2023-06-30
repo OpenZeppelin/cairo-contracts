@@ -4,9 +4,6 @@ use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
-use openzeppelin::token::erc721::ERC721;
-use openzeppelin::token::erc721::interface::IERC721;
-use openzeppelin::token::erc721::interface::IERC721Camel;
 use openzeppelin::token::erc721::interface::IERC721Dispatcher;
 use openzeppelin::token::erc721::interface::IERC721CamelDispatcher;
 use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
@@ -23,10 +20,8 @@ use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 
-use openzeppelin::tests::utils::PanicTrait;
-
 ///
-/// constants
+/// Constants
 ///
 
 const NAME: felt252 = 111;
@@ -59,7 +54,7 @@ fn DATA(success: bool) -> Span<felt252> {
 }
 
 ///
-/// setup
+/// Setup
 ///
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
@@ -115,7 +110,7 @@ fn setup_receiver() -> ContractAddress {
 }
 
 ///
-/// case agnostic methods
+/// Case agnostic methods
 ///
 
 #[test]
@@ -170,10 +165,10 @@ fn test_dual_symbol_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_approved() {
+fn test_dual_approve() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    snake_target.approve(SPENDER(), TOKEN_ID());
+    snake_dispatcher.approve(SPENDER(), TOKEN_ID());
     assert(snake_target.get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
@@ -277,7 +272,6 @@ fn test_dual_transfer_from_exists_and_panics() {
 fn test_dual_safe_transfer_from() {
     let (dispatcher, target) = setup_snake();
     let receiver = setup_receiver();
-    set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
     assert(target.owner_of(TOKEN_ID()) == receiver, 'Should transfer token');
 }
@@ -452,7 +446,6 @@ fn test_dual_transferFrom_exists_and_panics() {
 fn test_dual_safeTransferFrom() {
     let (dispatcher, target) = setup_camel();
     let receiver = setup_receiver();
-    set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
     assert(target.ownerOf(TOKEN_ID()) == receiver, 'Should transfer token');
 }

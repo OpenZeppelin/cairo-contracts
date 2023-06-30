@@ -15,34 +15,3 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
         .unwrap();
     address
 }
-
-trait PanicTrait<T> {
-    fn panic(self: T);
-}
-
-impl Felt252PanicImpl of PanicTrait<felt252> {
-    fn panic(self: felt252) {
-        panic_with_felt252(self);
-    }
-}
-
-impl ContractAddressPanicImpl of PanicTrait<ContractAddress> {
-    fn panic(self: ContractAddress) {
-        panic_with_felt252(self.into());
-    }
-}
-
-impl U256PanicImpl of PanicTrait<u256> {
-    fn panic(self: u256) {
-        let mut message = ArrayTrait::new();
-        message.append(self.low.into());
-        message.append(self.high.into());
-        panic(message);
-    }
-}
-
-impl BoolPanicImpl of PanicTrait<bool> {
-    fn panic(self: bool) {
-        panic_with_felt252(self.into());
-    }
-}

@@ -8,6 +8,7 @@ const IERC721_METADATA_ID: felt252 =
 const IERC721_RECEIVER_ID: felt252 =
     0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 
+#[abi]
 trait IERC721 {
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -25,6 +26,7 @@ trait IERC721 {
     fn token_uri(token_id: u256) -> felt252;
 }
 
+#[abi]
 trait IERC721Camel {
     fn balanceOf(account: ContractAddress) -> u256;
     fn ownerOf(tokenId: u256) -> ContractAddress;

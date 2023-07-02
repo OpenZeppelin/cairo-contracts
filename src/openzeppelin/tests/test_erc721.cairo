@@ -1,4 +1,4 @@
-use openzeppelin::introspection::erc165;
+use openzeppelin::introspection::src5;
 use openzeppelin::token::erc721;
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::account::Account;
@@ -92,8 +92,7 @@ fn test_constructor() {
     assert(
         ERC721::supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID'
     );
-    assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
-    assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
+    assert(ERC721::supports_interface(src5::ISRC5_ID), 'missing interface ID');
 }
 
 #[test]
@@ -109,8 +108,7 @@ fn test_initialize() {
     assert(
         ERC721::supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID'
     );
-    assert(ERC721::supports_interface(erc165::IERC165_ID), 'missing interface ID');
-    assert(!ERC721::supports_interface(erc165::INVALID_ID), 'invalid interface ID');
+    assert(ERC721::supports_interface(src5::ISRC5_ID), 'missing interface ID');
 }
 
 ///

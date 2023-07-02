@@ -79,7 +79,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let name = 0;
     let symbol = 0;
-    let mut calldata = ArrayTrait::<felt252>::new();
+    let mut calldata = ArrayTrait::new();
 
     calldata.append(name);
     calldata.append(symbol);

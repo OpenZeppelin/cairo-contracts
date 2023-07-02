@@ -1,7 +1,7 @@
 mod test_accesscontrol;
 mod test_reentrancyguard;
 mod test_ownable;
-mod test_erc165;
+mod test_src5;
 mod test_account;
 mod test_erc20;
 mod test_erc721;

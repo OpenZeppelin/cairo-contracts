@@ -15,7 +15,7 @@ mod SnakeERC721Mock {
     // View
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
+    fn supports_interface(interface_id: felt252) -> bool {
         ERC721::supports_interface(interface_id)
     }
 

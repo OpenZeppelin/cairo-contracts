@@ -82,15 +82,10 @@ mod AccessControl {
         }
     }
 
+    // View
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        SRC5::supports_interface(interface_id)
-    }
-
-    #[view]
-    fn supportsInterface(interface_id: felt252) -> bool {
-        // TODO: Change to camel when available
         SRC5::supports_interface(interface_id)
     }
 
@@ -113,6 +108,8 @@ mod AccessControl {
     fn getRoleAdmin(role: felt252) -> felt252 {
         AccessControlCamelImpl::getRoleAdmin(role)
     }
+
+    // External
 
     #[external]
     fn grant_role(role: felt252, account: ContractAddress) {

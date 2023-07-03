@@ -31,7 +31,7 @@ trait AccountABI {
     #[view]
     fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32;
     #[view]
-    fn supports_interface(interface_id: u32) -> bool;
+    fn supports_interface(interface_id: felt252) -> bool;
 }
 
 #[account_contract]
@@ -40,17 +40,17 @@ mod Account {
     use array::ArrayTrait;
     use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
+    use option::OptionTrait;
     use serde::ArraySerde;
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
-    use option::OptionTrait;
     use zeroable::Zeroable;
 
-    use openzeppelin::account::interface::ERC1271_VALIDATED;
     use openzeppelin::account::interface::IAccount;
     use openzeppelin::account::interface::IACCOUNT_ID;
-    use openzeppelin::introspection::erc165::ERC165;
+    use openzeppelin::account::interface::ERC1271_VALIDATED;
+    use openzeppelin::introspection::src5::SRC5;
 
     use super::Call;
     use super::QUERY_VERSION;
@@ -59,6 +59,11 @@ mod Account {
 
     struct Storage {
         public_key: felt252
+    }
+
+    #[constructor]
+    fn constructor(_public_key: felt252) {
+        initializer(_public_key);
     }
 
     impl AccountImpl of IAccount {
@@ -90,18 +95,13 @@ mod Account {
             if _is_valid_signature(message, signature.span()) {
                 ERC1271_VALIDATED
             } else {
-                0_u32
+                0
             }
         }
 
-        fn supports_interface(interface_id: u32) -> bool {
-            ERC165::supports_interface(interface_id)
+        fn supports_interface(interface_id: felt252) -> bool {
+            SRC5::supports_interface(interface_id)
         }
-    }
-
-    #[constructor]
-    fn constructor(_public_key: felt252) {
-        initializer(_public_key);
     }
 
     //
@@ -151,7 +151,7 @@ mod Account {
     }
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
+    fn supports_interface(interface_id: felt252) -> bool {
         AccountImpl::supports_interface(interface_id)
     }
 
@@ -161,7 +161,7 @@ mod Account {
 
     #[internal]
     fn initializer(_public_key: felt252) {
-        ERC165::register_interface(IACCOUNT_ID);
+        SRC5::register_interface(IACCOUNT_ID);
         public_key::write(_public_key);
     }
 

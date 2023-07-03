@@ -1,10 +1,12 @@
 mod reentrancy_attacker_mock;
 mod reentrancy_mock;
 mod erc721_receiver;
+mod erc721_panic_mock;
 mod mock_pausable;
 mod non_implementing_mock;
-
-// AccessControl
 mod accesscontrol_panic_mock;
 mod camel_accesscontrol_mock;
 mod snake_accesscontrol_mock;
+mod snake721_mock;
+mod camel721_mock;
+mod non_implementing_mock;

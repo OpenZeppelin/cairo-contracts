@@ -12,7 +12,9 @@ const renounce_role: felt252 = 0xd80093a4ee6a9e649f2ae3c64963d5096948d50cf4ea055
 const renounceRole: felt252 = 0x3c4022816cd5119ac7938fd7a982062e4cacd4777b4eda6e6a8f64d9e6833;
 const revoke_role: felt252 = 0x246116ed358bad337e64a4df51cb57a40929189494ad5905a39872c489136ec;
 const revokeRole: felt252 = 0xa7ef1739dec1e216a0ba2987650983a3104c707ad0831a30184a3b1382dd7d;
-// ERC721 Selectors
+
+//
+// ERC721
 //
 
 const name: felt252 = 0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60;

@@ -6,6 +6,7 @@ mod mock_pausable;
 mod accesscontrol_panic_mock;
 mod camel_accesscontrol_mock;
 mod snake_accesscontrol_mock;
+mod dual_ownable_mocks;
 mod snake721_mock;
 mod camel721_mock;
 mod non_implementing_mock;

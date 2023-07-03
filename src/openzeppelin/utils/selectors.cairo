@@ -14,6 +14,18 @@ const revoke_role: felt252 = 0x246116ed358bad337e64a4df51cb57a40929189494ad5905a
 const revokeRole: felt252 = 0xa7ef1739dec1e216a0ba2987650983a3104c707ad0831a30184a3b1382dd7d;
 
 //
+// Ownable
+//
+
+const owner: felt252 = 0x2016836a56b71f0d02689e69e326f4f4c1b9057164ef592671cf0d37c8040c0;
+const transfer_ownership: felt252 =
+    0x2a3bb1eaa05b77c4b0eeee0116a3177c6d62319dd7149ae148185d9e09de74a;
+const transferOwnership: felt252 =
+    0x14a390f291e2e1f29874769efdef47ddad94d76f77ff516fad206a385e8995f;
+const renounce_ownership: felt252 = 0x52580a92c73f4428f1a260c5d768ef462b25955307de00f99957df119865d;
+const renounceOwnership: felt252 = 0xd5d33d590e6660853069b37a2aea67c6fdaa0268626bc760350b590490feb5;
+
+//
 // ERC721
 //
 

@@ -82,7 +82,9 @@ mod AccessControl {
         }
     }
 
+    //
     // View
+    //
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
@@ -109,7 +111,9 @@ mod AccessControl {
         AccessControlCamelImpl::getRoleAdmin(role)
     }
 
+    //
     // External
+    //
 
     #[external]
     fn grant_role(role: felt252, account: ContractAddress) {

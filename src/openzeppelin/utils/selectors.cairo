@@ -11,7 +11,7 @@ const renounce_ownership: felt252 = 0x52580a92c73f4428f1a260c5d768ef462b25955307
 const renounceOwnership: felt252 = 0xd5d33d590e6660853069b37a2aea67c6fdaa0268626bc760350b590490feb5;
 
 //
-// ERC721 Selectors
+// ERC721
 //
 
 const name: felt252 = 0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60;

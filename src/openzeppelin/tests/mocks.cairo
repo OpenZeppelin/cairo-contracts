@@ -3,7 +3,6 @@ mod reentrancy_mock;
 mod erc721_receiver;
 mod erc721_panic_mock;
 mod mock_pausable;
-mod non_implementing_mock;
 mod accesscontrol_panic_mock;
 mod camel_accesscontrol_mock;
 mod snake_accesscontrol_mock;

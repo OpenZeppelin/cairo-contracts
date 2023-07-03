@@ -1,7 +1,7 @@
 #[contract]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::erc165::ERC165;
+    use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -84,14 +84,14 @@ mod AccessControl {
 
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
-        ERC165::supports_interface(interface_id)
+    fn supports_interface(interface_id: felt252) -> bool {
+        SRC5::supports_interface(interface_id)
     }
 
     #[view]
-    fn supportsInterface(interface_id: u32) -> bool {
+    fn supportsInterface(interface_id: felt252) -> bool {
         // TODO: Change to camel when available
-        ERC165::supports_interface(interface_id)
+        SRC5::supports_interface(interface_id)
     }
 
     #[view]
@@ -150,7 +150,7 @@ mod AccessControl {
 
     #[internal]
     fn initializer() {
-        ERC165::register_interface(interface::IACCESSCONTROL_ID);
+        SRC5::register_interface(interface::IACCESSCONTROL_ID);
     }
 
     #[internal]

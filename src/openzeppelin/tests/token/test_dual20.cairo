@@ -333,7 +333,6 @@ fn test_dual_balanceOf_exists_and_panics() {
     dual_dispatcher.balance_of(OWNER());
 }
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferFrom() {

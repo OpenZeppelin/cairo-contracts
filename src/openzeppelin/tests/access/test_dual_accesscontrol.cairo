@@ -243,7 +243,6 @@ fn test_dual_getRoleAdmin_exists_and_panics() {
     dispatcher.get_role_admin(ROLE);
 }
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_grantRole() {
@@ -261,7 +260,6 @@ fn test_dual_grantRole_exists_and_panics() {
     dispatcher.grant_role(ROLE, AUTHORIZED());
 }
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_revokeRole() {
@@ -280,7 +278,6 @@ fn test_dual_revokeRole_exists_and_panics() {
     dispatcher.revoke_role(ROLE, AUTHORIZED());
 }
 
-#[ignore] // Potential bug mentioned here: https://github.com/starkware-libs/cairo/issues/3432
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceRole() {

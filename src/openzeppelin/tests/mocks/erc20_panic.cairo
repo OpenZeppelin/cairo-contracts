@@ -1,8 +1,9 @@
 // Although these modules are designed to panic, functions
 // still need a valid return value. We chose:
 //
-// 3 for felt252
+// 3 for felt252 and u8
 // zero for ContractAddress
+// false for bool
 // u256 { 3, 3 } for u256
 
 #[contract]

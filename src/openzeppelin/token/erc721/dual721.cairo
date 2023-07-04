@@ -12,6 +12,7 @@ use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::UnwrapAndCast;
 
 #[derive(Copy, Drop)]
 struct DualCaseERC721 {
@@ -44,15 +45,13 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
+            .unwrap_and_cast()
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
+            .unwrap_and_cast()
     }
 
     fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
@@ -60,23 +59,20 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        *try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
         )
-            .unwrap_syscall()
-            .at(0)
+            .unwrap_and_cast()
     }
 
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {
         let mut args = ArrayTrait::new();
         args.append(account.into());
 
-        let res = try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::balance_of, selectors::balanceOf, args.span()
         )
-            .unwrap_syscall();
-
-        u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }
+            .unwrap_and_cast()
     }
 
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
@@ -84,13 +80,10 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::owner_of, selectors::ownerOf, args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
@@ -98,13 +91,10 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::get_approved, selectors::getApproved, args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn is_approved_for_all(
@@ -114,16 +104,13 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(owner.into());
         args.append(operator.into());
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address,
             selectors::is_approved_for_all,
             selectors::isApprovedForAll,
             args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256) {

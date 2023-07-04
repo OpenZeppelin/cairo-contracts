@@ -24,13 +24,9 @@ use openzeppelin::tests::utils;
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 const DECIMALS: u8 = 18_u8;
+const SUPPLY: u256 = 2000;
+const VALUE: u256 = 300;
 
-fn SUPPLY() -> u256 {
-    2000_u256
-}
-fn VALUE() -> u256 {
-    300_u256
-}
 fn OWNER() -> ContractAddress {
     contract_address_const::<10>()
 }
@@ -48,13 +44,14 @@ fn OPERATOR() -> ContractAddress {
 /// Setup
 ///
 
+use openzeppelin::tests::utils::SerializedAppend;
+
 fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(NAME);
-    calldata.append(SYMBOL);
-    calldata.append(SUPPLY().low.into());
-    calldata.append(SUPPLY().high.into());
-    calldata.append(OWNER().into());
+    calldata.append_serde(NAME);
+    calldata.append_serde(SYMBOL);
+    calldata.append_serde(SUPPLY());
+    calldata.append_serde(OWNER());
     let target = utils::deploy(SnakeERC20Mock::TEST_CLASS_HASH, calldata);
     (DualERC20 { contract_address: target }, IERC20Dispatcher { contract_address: target })
 }

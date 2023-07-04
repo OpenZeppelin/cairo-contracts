@@ -66,12 +66,6 @@ trait UnwrapAndCast<T> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> T;
 }
 
-impl UnwrapAndCastFelt252 of UnwrapAndCast<felt252> {
-    fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> felt252 {
-        *self.unwrap_syscall().at(0)
-    }
-}
-
 impl UnwrapAndCastBool of UnwrapAndCast<bool> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> bool {
         (*self.unwrap_syscall().at(0)).try_into().unwrap()

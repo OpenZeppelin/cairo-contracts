@@ -45,13 +45,15 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
-            .unwrap_and_cast()
+        *call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
+            .unwrap_syscall()
+            .at(0)
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
-            .unwrap_and_cast()
+        *call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
+            .unwrap_syscall()
+            .at(0)
     }
 
     fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
@@ -59,10 +61,11 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append(token_id.low.into());
         args.append(token_id.high.into());
 
-        try_selector_with_fallback(
+        *try_selector_with_fallback(
             *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
         )
-            .unwrap_and_cast()
+            .unwrap_syscall()
+            .at(0)
     }
 
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {

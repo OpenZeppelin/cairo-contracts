@@ -1,7 +1,7 @@
+use openzeppelin::account::Account;
 use openzeppelin::introspection::src5;
 use openzeppelin::token::erc721;
 use openzeppelin::token::erc721::ERC721;
-use openzeppelin::account::Account;
 
 use openzeppelin::tests::utils;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
@@ -21,10 +21,7 @@ use zeroable::Zeroable;
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 const URI: felt252 = 333;
-
-fn TOKEN_ID() -> u256 {
-    7.into()
-}
+const TOKEN_ID: u256 = 7;
 
 fn ZERO() -> ContractAddress {
     Zeroable::zero()
@@ -61,7 +58,7 @@ fn DATA(success: bool) -> Span<felt252> {
 
 fn setup() {
     ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(OWNER(), TOKEN_ID());
+    ERC721::_mint(OWNER(), TOKEN_ID);
 }
 
 fn setup_receiver() -> ContractAddress {
@@ -133,7 +130,7 @@ fn test_balance_of_zero() {
 #[available_gas(2000000)]
 fn test_owner_of() {
     setup();
-    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Should return owner');
+    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
@@ -155,7 +152,7 @@ fn test_token_uri_non_minted() {
 fn test_get_approved() {
     setup();
     let spender = SPENDER();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
 
     assert(ERC721::get_approved(token_id) == ZERO(), 'Should return non-approval');
     ERC721::_approve(spender, token_id);
@@ -173,7 +170,7 @@ fn test_get_approved_nonexistent() {
 #[available_gas(2000000)]
 fn test__exists() {
     let zero = ZERO();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     assert(!ERC721::_exists(token_id), 'Token should not exist');
     assert(ERC721::_owners::read(token_id) == zero, 'Invalid owner');
 
@@ -198,8 +195,8 @@ fn test_approve_from_owner() {
     setup();
 
     set_caller_address(OWNER());
-    ERC721::approve(SPENDER(), TOKEN_ID());
-    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+    ERC721::approve(SPENDER(), TOKEN_ID);
+    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -211,8 +208,8 @@ fn test_approve_from_operator() {
     ERC721::set_approval_for_all(OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::approve(SPENDER(), TOKEN_ID());
-    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+    ERC721::approve(SPENDER(), TOKEN_ID);
+    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -222,7 +219,7 @@ fn test_approve_from_unauthorized() {
     setup();
 
     set_caller_address(OTHER());
-    ERC721::approve(SPENDER(), TOKEN_ID());
+    ERC721::approve(SPENDER(), TOKEN_ID);
 }
 
 #[test]
@@ -232,14 +229,14 @@ fn test_approve_to_owner() {
     setup();
 
     set_caller_address(OWNER());
-    ERC721::approve(OWNER(), TOKEN_ID());
+    ERC721::approve(OWNER(), TOKEN_ID);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_approve_nonexistent() {
-    ERC721::approve(SPENDER(), TOKEN_ID());
+    ERC721::approve(SPENDER(), TOKEN_ID);
 }
 
 #[test]
@@ -247,8 +244,8 @@ fn test_approve_nonexistent() {
 fn test__approve() {
     setup();
 
-    ERC721::_approve(SPENDER(), TOKEN_ID());
-    assert(ERC721::get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+    ERC721::_approve(SPENDER(), TOKEN_ID);
+    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -257,14 +254,14 @@ fn test__approve() {
 fn test__approve_to_owner() {
     setup();
 
-    ERC721::_approve(OWNER(), TOKEN_ID());
+    ERC721::_approve(OWNER(), TOKEN_ID);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__approve_nonexistent() {
-    ERC721::_approve(SPENDER(), TOKEN_ID());
+    ERC721::_approve(SPENDER(), TOKEN_ID);
 }
 
 ///
@@ -334,7 +331,7 @@ fn test__set_approval_for_all_owner_equal_operator_false() {
 #[available_gas(2000000)]
 fn test_transfer_from_owner() {
     setup();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     // set approval to check reset
@@ -353,7 +350,7 @@ fn test_transfer_from_owner() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_transfer_from_nonexistent() {
-    ERC721::transfer_from(ZERO(), RECIPIENT(), TOKEN_ID());
+    ERC721::transfer_from(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
@@ -363,7 +360,7 @@ fn test_transfer_from_to_zero() {
     setup();
 
     set_caller_address(OWNER());
-    ERC721::transfer_from(OWNER(), ZERO(), TOKEN_ID());
+    ERC721::transfer_from(OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
@@ -371,13 +368,13 @@ fn test_transfer_from_to_zero() {
 fn test_transfer_from_to_owner() {
     setup();
 
-    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
     assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner before');
 
     set_caller_address(OWNER());
-    ERC721::transfer_from(OWNER(), OWNER(), TOKEN_ID());
+    ERC721::transfer_from(OWNER(), OWNER(), TOKEN_ID);
 
-    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership after');
+    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner after');
 }
 
@@ -385,7 +382,7 @@ fn test_transfer_from_to_owner() {
 #[available_gas(2000000)]
 fn test_transfer_from_approved() {
     setup();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     assert_state_before_transfer(token_id, owner, recipient);
@@ -403,7 +400,7 @@ fn test_transfer_from_approved() {
 #[available_gas(2000000)]
 fn test_transfer_from_approved_for_all() {
     setup();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
 
@@ -425,7 +422,7 @@ fn test_transfer_from_unauthorized() {
     setup();
 
     set_caller_address(OTHER());
-    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 //
@@ -437,7 +434,7 @@ fn test_transfer_from_unauthorized() {
 fn test_safe_transfer_from_to_account() {
     setup();
     let account = setup_account();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(token_id, owner, account);
@@ -453,7 +450,7 @@ fn test_safe_transfer_from_to_account() {
 fn test_safe_transfer_from_to_receiver() {
     setup();
     let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(token_id, owner, receiver);
@@ -470,7 +467,7 @@ fn test_safe_transfer_from_to_receiver() {
 fn test_safe_transfer_from_to_receiver_failure() {
     setup();
     let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
@@ -483,7 +480,7 @@ fn test_safe_transfer_from_to_receiver_failure() {
 fn test_safe_transfer_from_to_non_receiver() {
     setup();
     let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
@@ -494,7 +491,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_safe_transfer_from_nonexistent() {
-    ERC721::safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID(), DATA(true));
+    ERC721::safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -504,13 +501,13 @@ fn test_safe_transfer_from_to_zero() {
     setup();
 
     set_caller_address(OWNER());
-    ERC721::safe_transfer_from(OWNER(), ZERO(), TOKEN_ID(), DATA(true));
+    ERC721::safe_transfer_from(OWNER(), ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_safe_transfer_from_to_owner() {
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = setup_receiver();
     ERC721::initializer(NAME, SYMBOL);
     ERC721::_mint(owner, token_id);
@@ -530,7 +527,7 @@ fn test_safe_transfer_from_to_owner() {
 fn test_safe_transfer_from_approved() {
     setup();
     let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(token_id, owner, receiver);
@@ -549,7 +546,7 @@ fn test_safe_transfer_from_approved() {
 fn test_safe_transfer_from_approved_for_all() {
     setup();
     let receiver = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(token_id, owner, receiver);
@@ -569,7 +566,7 @@ fn test_safe_transfer_from_approved_for_all() {
 fn test_safe_transfer_from_unauthorized() {
     setup();
     set_caller_address(OTHER());
-    ERC721::safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID(), DATA(true));
+    ERC721::safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 //
@@ -580,7 +577,7 @@ fn test_safe_transfer_from_unauthorized() {
 #[available_gas(2000000)]
 fn test__transfer() {
     setup();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
 
@@ -593,7 +590,7 @@ fn test__transfer() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__transfer_nonexistent() {
-    ERC721::_transfer(ZERO(), RECIPIENT(), TOKEN_ID());
+    ERC721::_transfer(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
@@ -602,7 +599,7 @@ fn test__transfer_nonexistent() {
 fn test__transfer_to_zero() {
     setup();
 
-    ERC721::_transfer(OWNER(), ZERO(), TOKEN_ID());
+    ERC721::_transfer(OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
@@ -611,7 +608,7 @@ fn test__transfer_to_zero() {
 fn test__transfer_from_invalid_owner() {
     setup();
 
-    ERC721::_transfer(RECIPIENT(), OWNER(), TOKEN_ID());
+    ERC721::_transfer(RECIPIENT(), OWNER(), TOKEN_ID);
 }
 
 ///
@@ -622,9 +619,9 @@ fn test__transfer_from_invalid_owner() {
 #[available_gas(2000000)]
 fn test__mint() {
     let recipient = RECIPIENT();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
     assert_state_before_mint(recipient);
-    ERC721::_mint(RECIPIENT(), TOKEN_ID());
+    ERC721::_mint(RECIPIENT(), TOKEN_ID);
     assert_state_after_mint(token_id, recipient);
 }
 
@@ -632,7 +629,7 @@ fn test__mint() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test__mint_to_zero() {
-    ERC721::_mint(ZERO(), TOKEN_ID());
+    ERC721::_mint(ZERO(), TOKEN_ID);
 }
 
 #[test]
@@ -641,7 +638,7 @@ fn test__mint_to_zero() {
 fn test__mint_already_exist() {
     setup();
 
-    ERC721::_mint(RECIPIENT(), TOKEN_ID());
+    ERC721::_mint(RECIPIENT(), TOKEN_ID);
 }
 
 ///
@@ -652,7 +649,7 @@ fn test__mint_already_exist() {
 #[available_gas(2000000)]
 fn test__safe_mint_to_receiver() {
     let recipient = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     ERC721::_safe_mint(recipient, token_id, DATA(true));
@@ -663,7 +660,7 @@ fn test__safe_mint_to_receiver() {
 #[available_gas(2000000)]
 fn test__safe_mint_to_account() {
     let account = setup_account();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
     ERC721::_safe_mint(account, token_id, DATA(true));
@@ -675,7 +672,7 @@ fn test__safe_mint_to_account() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test__safe_mint_to_non_receiver() {
     let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     ERC721::_safe_mint(recipient, token_id, DATA(true));
@@ -687,7 +684,7 @@ fn test__safe_mint_to_non_receiver() {
 #[should_panic(expected: ('ERC721: safe mint failed', ))]
 fn test__safe_mint_to_receiver_failure() {
     let recipient = setup_receiver();
-    let token_id = TOKEN_ID();
+    let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     ERC721::_safe_mint(recipient, token_id, DATA(false));
@@ -698,7 +695,7 @@ fn test__safe_mint_to_receiver_failure() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test__safe_mint_to_zero() {
-    ERC721::_safe_mint(ZERO(), TOKEN_ID(), DATA(true));
+    ERC721::_safe_mint(ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -706,7 +703,7 @@ fn test__safe_mint_to_zero() {
 #[should_panic(expected: ('ERC721: token already minted', ))]
 fn test__safe_mint_already_exist() {
     setup();
-    ERC721::_safe_mint(RECIPIENT(), TOKEN_ID(), DATA(true));
+    ERC721::_safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 ///
@@ -718,24 +715,24 @@ fn test__safe_mint_already_exist() {
 fn test__burn() {
     setup();
 
-    ERC721::_approve(OTHER(), TOKEN_ID());
+    ERC721::_approve(OTHER(), TOKEN_ID);
 
-    assert(ERC721::owner_of(TOKEN_ID()) == OWNER(), 'Ownership before');
+    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
     assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner before');
-    assert(ERC721::get_approved(TOKEN_ID()) == OTHER(), 'Approval before');
+    assert(ERC721::get_approved(TOKEN_ID) == OTHER(), 'Approval before');
 
-    ERC721::_burn(TOKEN_ID());
+    ERC721::_burn(TOKEN_ID);
 
-    assert(ERC721::_owners::read(TOKEN_ID()) == ZERO(), 'Ownership after');
+    assert(ERC721::_owners::read(TOKEN_ID) == ZERO(), 'Ownership after');
     assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance of owner after');
-    assert(ERC721::_token_approvals::read(TOKEN_ID()) == ZERO(), 'Approval after');
+    assert(ERC721::_token_approvals::read(TOKEN_ID) == ZERO(), 'Approval after');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__burn_nonexistent() {
-    ERC721::_burn(TOKEN_ID());
+    ERC721::_burn(TOKEN_ID);
 }
 
 ///
@@ -747,16 +744,16 @@ fn test__burn_nonexistent() {
 fn test__set_token_uri() {
     setup();
 
-    assert(ERC721::token_uri(TOKEN_ID()) == 0, 'URI should be 0');
-    ERC721::_set_token_uri(TOKEN_ID(), URI);
-    assert(ERC721::token_uri(TOKEN_ID()) == URI, 'URI should be set');
+    assert(ERC721::token_uri(TOKEN_ID) == 0, 'URI should be 0');
+    ERC721::_set_token_uri(TOKEN_ID, URI);
+    assert(ERC721::token_uri(TOKEN_ID) == URI, 'URI should be set');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__set_token_uri_nonexistent() {
-    ERC721::_set_token_uri(TOKEN_ID(), URI);
+    ERC721::_set_token_uri(TOKEN_ID, URI);
 }
 
 //

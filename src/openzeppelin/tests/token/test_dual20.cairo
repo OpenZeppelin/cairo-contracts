@@ -16,6 +16,7 @@ use openzeppelin::token::erc20::interface::IERC20CamelDispatcherTrait;
 use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::SerializedAppend;
 
 ///
 /// Constants
@@ -44,8 +45,6 @@ fn OPERATOR() -> ContractAddress {
 /// Setup
 ///
 
-use openzeppelin::tests::utils::SerializedAppend;
-
 fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append_serde(NAME);
@@ -58,11 +57,10 @@ fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
 
 fn setup_camel() -> (DualERC20, IERC20CamelDispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(NAME);
-    calldata.append(SYMBOL);
-    calldata.append(SUPPLY.low.into());
-    calldata.append(SUPPLY.high.into());
-    calldata.append(OWNER().into());
+    calldata.append_serde(NAME);
+    calldata.append_serde(SYMBOL);
+    calldata.append_serde(SUPPLY);
+    calldata.append_serde(OWNER());
     let target = utils::deploy(CamelERC20Mock::TEST_CLASS_HASH, calldata);
     (DualERC20 { contract_address: target }, IERC20CamelDispatcher { contract_address: target })
 }

@@ -16,13 +16,14 @@ use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
 use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::SerializedAppend;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::ERC20ABIDispatcher;
 use openzeppelin::token::erc20::ERC20ABIDispatcherTrait;
+use openzeppelin::utils::selectors;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;
-const TRANSFER_SELECTOR: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
 const SALT: felt252 = 123;
 
 #[derive(Drop)]
@@ -81,11 +82,10 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> ERC20ABIDis
     let symbol = 0;
     let mut calldata = ArrayTrait::new();
 
-    calldata.append(name);
-    calldata.append(symbol);
-    calldata.append(initial_supply.low.into());
-    calldata.append(initial_supply.high.into());
-    calldata.append(recipient.into());
+    calldata.append_serde(name);
+    calldata.append_serde(symbol);
+    calldata.append_serde(initial_supply);
+    calldata.append_serde(recipient);
 
     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
     ERC20ABIDispatcher { contract_address: address }
@@ -241,10 +241,9 @@ fn test_execute_with_version(version: Option<felt252>) {
     // Craft call and add to calls array
     let mut calldata = ArrayTrait::new();
     let amount: u256 = 200;
-    calldata.append(recipient.into());
-    calldata.append(amount.low.into());
-    calldata.append(amount.high.into());
-    let call = Call { to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata };
+    calldata.append_serde(recipient);
+    calldata.append_serde(amount);
+    let call = Call { to: erc20.contract_address, selector: selectors::transfer, calldata: calldata };
     let mut calls = ArrayTrait::new();
     calls.append(call);
 
@@ -318,21 +317,19 @@ fn test_multicall() {
     // Craft call1
     let mut calldata1 = ArrayTrait::new();
     let amount1: u256 = 300;
-    calldata1.append(recipient1.into());
-    calldata1.append(amount1.low.into());
-    calldata1.append(amount1.high.into());
+    calldata1.append_serde(recipient1);
+    calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata1
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
     };
 
     // Craft call2
     let mut calldata2 = ArrayTrait::new();
     let amount2: u256 = 500;
-    calldata2.append(recipient2.into());
-    calldata2.append(amount2.low.into());
-    calldata2.append(amount2.high.into());
+    calldata2.append_serde(recipient2);
+    calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: TRANSFER_SELECTOR, calldata: calldata2
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
     };
 
     // Bundle calls and exeute

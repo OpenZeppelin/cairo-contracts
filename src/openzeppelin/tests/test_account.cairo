@@ -243,7 +243,9 @@ fn test_execute_with_version(version: Option<felt252>) {
     let amount: u256 = 200;
     calldata.append_serde(recipient);
     calldata.append_serde(amount);
-    let call = Call { to: erc20.contract_address, selector: selectors::transfer, calldata: calldata };
+    let call = Call {
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
+    };
     let mut calls = ArrayTrait::new();
     calls.append(call);
 

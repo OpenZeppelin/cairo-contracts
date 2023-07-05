@@ -17,6 +17,7 @@ use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPani
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
+use openzeppelin::utils::serde::SerializedAppend;
 
 ///
 /// Constants
@@ -38,7 +39,7 @@ fn AUTHORIZED() -> ContractAddress {
 
 fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(ADMIN().into());
+    calldata.append_serde(ADMIN());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccessControl {
@@ -51,7 +52,7 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
 
 fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(ADMIN().into());
+    calldata.append_serde(ADMIN());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccessControl {

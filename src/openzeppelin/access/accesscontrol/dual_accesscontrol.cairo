@@ -8,8 +8,9 @@ use starknet::SyscallResultTrait;
 use traits::Into;
 use traits::TryInto;
 
-use openzeppelin::utils::selectors;
 use openzeppelin::utils::Felt252TryIntoBool;
+use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 
 
@@ -32,8 +33,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let camel_selector = selectors::hasRole;
 
         let mut args = ArrayTrait::new();
-        args.append(role);
-        args.append(account.into());
+        args.append_serde(role);
+        args.append_serde(account);
 
         (*try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -49,7 +50,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let camel_selector = selectors::getRoleAdmin;
 
         let mut args = ArrayTrait::new();
-        args.append(role);
+        args.append_serde(role);
 
         *try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -63,8 +64,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let camel_selector = selectors::grantRole;
 
         let mut args = ArrayTrait::new();
-        args.append(role);
-        args.append(account.into());
+        args.append_serde(role);
+        args.append_serde(account);
 
         try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -77,8 +78,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let camel_selector = selectors::revokeRole;
 
         let mut args = ArrayTrait::new();
-        args.append(role);
-        args.append(account.into());
+        args.append_serde(role);
+        args.append_serde(account);
 
         try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -91,8 +92,8 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let camel_selector = selectors::renounceRole;
 
         let mut args = ArrayTrait::new();
-        args.append(role);
-        args.append(account.into());
+        args.append_serde(role);
+        args.append_serde(account);
 
         try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()

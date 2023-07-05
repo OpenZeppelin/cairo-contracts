@@ -17,8 +17,8 @@ use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::ERC20ABIDispatcher;
-use openzeppelin::token::erc20::ERC20ABIDispatcherTrait;
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 
@@ -77,7 +77,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
     AccountABIDispatcher { contract_address: address }
 }
 
-fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> ERC20ABIDispatcher {
+fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let name = 0;
     let symbol = 0;
     let mut calldata = ArrayTrait::new();
@@ -88,7 +88,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> ERC20ABIDis
     calldata.append_serde(recipient);
 
     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
-    ERC20ABIDispatcher { contract_address: address }
+    IERC20Dispatcher { contract_address: address }
 }
 
 #[test]

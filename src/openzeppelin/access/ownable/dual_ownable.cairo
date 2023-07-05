@@ -26,7 +26,9 @@ trait DualCaseOwnableTrait {
 
 impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress {
-        (*call_contract_syscall(*self.contract_address, selectors::owner, ArrayTrait::new().span())
+        let args = ArrayTrait::new();
+
+        (*call_contract_syscall(*self.contract_address, selectors::owner, args.span())
             .unwrap_syscall()
             .at(0))
             .try_into()

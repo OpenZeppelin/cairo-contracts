@@ -37,20 +37,26 @@ trait DualERC20Trait {
 
 impl DualERC20Impl of DualERC20Trait {
     fn name(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
+        let args = ArrayTrait::new();
+
+        *call_contract_syscall(*self.contract_address, selectors::name, args.span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualERC20) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
+        let args = ArrayTrait::new();
+
+        *call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn decimals(self: @DualERC20) -> u8 {
+        let args = ArrayTrait::new();
+
         (*call_contract_syscall(
-            *self.contract_address, selectors::decimals, ArrayTrait::new().span()
+            *self.contract_address, selectors::decimals, args.span()
         )
             .unwrap_syscall()
             .at(0))

@@ -45,13 +45,17 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::name, ArrayTrait::new().span())
+        let args = ArrayTrait::new();
+
+        *call_contract_syscall(*self.contract_address, selectors::name, args.span())
             .unwrap_syscall()
             .at(0)
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        *call_contract_syscall(*self.contract_address, selectors::symbol, ArrayTrait::new().span())
+        let args = ArrayTrait::new();
+
+        *call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
             .unwrap_syscall()
             .at(0)
     }

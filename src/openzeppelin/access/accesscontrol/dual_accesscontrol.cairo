@@ -5,7 +5,6 @@ use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;
-use traits::Into;
 use traits::TryInto;
 
 use openzeppelin::utils::Felt252TryIntoBool;

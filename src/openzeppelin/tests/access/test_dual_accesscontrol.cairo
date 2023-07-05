@@ -2,7 +2,6 @@ use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_contract_address;
-use traits::Into;
 
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;

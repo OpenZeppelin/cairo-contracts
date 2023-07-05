@@ -50,7 +50,7 @@ fn test_initializer() {
     assert(ERC20::name() == NAME, 'Name should be NAME');
     assert(ERC20::symbol() == SYMBOL, 'Symbol should be SYMBOL');
     assert(ERC20::decimals() == DECIMALS, 'Decimals should be 18');
-    assert(ERC20::total_supply() == 0.into(), 'Supply should eq 0');
+    assert(ERC20::total_supply() == 0, 'Supply should eq 0');
 }
 
 
@@ -200,7 +200,7 @@ fn test__transfer_not_enough_balance() {
     setup();
     set_caller_address(OWNER());
 
-    let balance_plus_one = SUPPLY + 1.into();
+    let balance_plus_one = SUPPLY + 1;
     ERC20::_transfer(OWNER(), RECIPIENT(), balance_plus_one);
 }
 
@@ -236,7 +236,7 @@ fn test_transfer_from() {
 
     assert(ERC20::balance_of(RECIPIENT()) == VALUE, 'Should eq amount');
     assert(ERC20::balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
-    assert(ERC20::allowance(OWNER(), SPENDER()) == 0.into(), 'Should eq 0');
+    assert(ERC20::allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(ERC20::total_supply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -264,7 +264,7 @@ fn test_transfer_from_greater_than_allowance() {
     ERC20::approve(SPENDER(), VALUE);
 
     set_caller_address(SPENDER());
-    let allowance_plus_one = VALUE + 1.into();
+    let allowance_plus_one = VALUE + 1;
     ERC20::transfer_from(OWNER(), RECIPIENT(), allowance_plus_one);
 }
 
@@ -300,7 +300,7 @@ fn test_transferFrom() {
 
     assert(ERC20::balanceOf(RECIPIENT()) == VALUE, 'Should eq amount');
     assert(ERC20::balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
-    assert(ERC20::allowance(OWNER(), SPENDER()) == 0.into(), 'Should eq 0');
+    assert(ERC20::allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(ERC20::totalSupply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -328,7 +328,7 @@ fn test_transferFrom_greater_than_allowance() {
     ERC20::approve(SPENDER(), VALUE);
 
     set_caller_address(SPENDER());
-    let allowance_plus_one = VALUE + 1.into();
+    let allowance_plus_one = VALUE + 1;
     ERC20::transferFrom(OWNER(), RECIPIENT(), allowance_plus_one);
 }
 
@@ -364,7 +364,7 @@ fn test_increase_allowance() {
     ERC20::approve(SPENDER(), VALUE);
 
     assert(ERC20::increase_allowance(SPENDER(), VALUE), 'Should return true');
-    assert(ERC20::allowance(OWNER(), SPENDER()) == VALUE * 2.into(), 'Should be amount * 2');
+    assert(ERC20::allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
 #[test]
@@ -392,7 +392,7 @@ fn test_increaseAllowance() {
     ERC20::approve(SPENDER(), VALUE);
 
     assert(ERC20::increaseAllowance(SPENDER(), VALUE), 'Should return true');
-    assert(ERC20::allowance(OWNER(), SPENDER()) == VALUE * 2.into(), 'Should be amount * 2');
+    assert(ERC20::allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
 #[test]
@@ -492,7 +492,7 @@ fn test__spend_allowance_unlimited() {
     setup();
     ERC20::_approve(OWNER(), SPENDER(), BoundedInt::max());
 
-    let max_minus_one: u256 = BoundedInt::max() - 1.into();
+    let max_minus_one: u256 = BoundedInt::max() - 1;
     ERC20::_spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
     assert(

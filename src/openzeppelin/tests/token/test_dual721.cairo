@@ -1,4 +1,3 @@
-use traits::Into;
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;

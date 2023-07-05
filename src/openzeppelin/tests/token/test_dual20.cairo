@@ -2,7 +2,6 @@ use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_contract_address;
-use traits::Into;
 
 use openzeppelin::tests::mocks::camel20_mock::CamelERC20Mock;
 use openzeppelin::tests::mocks::erc20_panic::SnakeERC20Panic;

@@ -370,7 +370,7 @@ mod ERC721 {
         assert(!_exists(token_id), 'ERC721: token already minted');
 
         // Update balances
-        _balances::write(to, _balances::read(to) + 1.into());
+        _balances::write(to, _balances::read(to) + 1);
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -389,8 +389,8 @@ mod ERC721 {
         _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(from, _balances::read(from) - 1.into());
-        _balances::write(to, _balances::read(to) + 1.into());
+        _balances::write(from, _balances::read(from) - 1);
+        _balances::write(to, _balances::read(to) + 1);
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -407,7 +407,7 @@ mod ERC721 {
         _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(owner, _balances::read(owner) - 1.into());
+        _balances::write(owner, _balances::read(owner) - 1);
 
         // Delete owner
         _owners::write(token_id, Zeroable::zero());

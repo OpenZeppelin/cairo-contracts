@@ -83,7 +83,7 @@ fn test_constructor() {
 
     assert(ERC721::name() == NAME, 'Name should be NAME');
     assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance should be zero');
+    assert(ERC721::balance_of(OWNER()) == 0, 'Balance should be zero');
 
     assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
     assert(
@@ -99,7 +99,7 @@ fn test_initialize() {
 
     assert(ERC721::name() == NAME, 'Name should be NAME');
     assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance should be zero');
+    assert(ERC721::balance_of(OWNER()) == 0, 'Balance should be zero');
 
     assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
     assert(
@@ -116,7 +116,7 @@ fn test_initialize() {
 #[available_gas(2000000)]
 fn test_balance_of() {
     setup();
-    assert(ERC721::balance_of(OWNER()) == 1.into(), 'Should return balance');
+    assert(ERC721::balance_of(OWNER()) == 1, 'Should return balance');
 }
 
 #[test]
@@ -369,13 +369,13 @@ fn test_transfer_from_to_owner() {
     setup();
 
     assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner before');
+    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner before');
 
     set_caller_address(OWNER());
     ERC721::transfer_from(OWNER(), OWNER(), TOKEN_ID);
 
     assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner after');
+    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner after');
 }
 
 #[test]
@@ -513,13 +513,13 @@ fn test_safe_transfer_from_to_owner() {
     ERC721::_mint(owner, token_id);
 
     assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1.into(), 'Balance of owner before');
+    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
 
     set_caller_address(owner);
     ERC721::safe_transfer_from(owner, owner, token_id, DATA(true));
 
     assert(ERC721::owner_of(token_id) == owner, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 1.into(), 'Balance of owner after');
+    assert(ERC721::balance_of(owner) == 1, 'Balance of owner after');
 }
 
 #[test]
@@ -718,13 +718,13 @@ fn test__burn() {
     ERC721::_approve(OTHER(), TOKEN_ID);
 
     assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(ERC721::balance_of(OWNER()) == 1.into(), 'Balance of owner before');
+    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner before');
     assert(ERC721::get_approved(TOKEN_ID) == OTHER(), 'Approval before');
 
     ERC721::_burn(TOKEN_ID);
 
     assert(ERC721::_owners::read(TOKEN_ID) == ZERO(), 'Ownership after');
-    assert(ERC721::balance_of(OWNER()) == 0.into(), 'Balance of owner after');
+    assert(ERC721::balance_of(OWNER()) == 0, 'Balance of owner after');
     assert(ERC721::_token_approvals::read(TOKEN_ID) == ZERO(), 'Approval after');
 }
 
@@ -764,23 +764,23 @@ fn assert_state_before_transfer(
     token_id: u256, owner: ContractAddress, recipient: ContractAddress
 ) {
     assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1.into(), 'Balance of owner before');
-    assert(ERC721::balance_of(recipient) == 0.into(), 'Balance of recipient before');
+    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
+    assert(ERC721::balance_of(recipient) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_transfer(token_id: u256, owner: ContractAddress, recipient: ContractAddress) {
     assert(ERC721::owner_of(token_id) == recipient, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 0.into(), 'Balance of owner after');
-    assert(ERC721::balance_of(recipient) == 1.into(), 'Balance of recipient after');
+    assert(ERC721::balance_of(owner) == 0, 'Balance of owner after');
+    assert(ERC721::balance_of(recipient) == 1, 'Balance of recipient after');
     assert(ERC721::get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
 }
 
 fn assert_state_before_mint(recipient: ContractAddress) {
-    assert(ERC721::balance_of(recipient) == 0.into(), 'Balance of recipient before');
+    assert(ERC721::balance_of(recipient) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
     assert(ERC721::owner_of(token_id) == recipient, 'Ownership after');
-    assert(ERC721::balance_of(recipient) == 1.into(), 'Balance of recipient after');
+    assert(ERC721::balance_of(recipient) == 1, 'Balance of recipient after');
     assert(ERC721::get_approved(token_id) == ZERO(), 'Approval implicitly set');
 }

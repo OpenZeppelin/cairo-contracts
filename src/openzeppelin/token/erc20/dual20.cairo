@@ -55,9 +55,7 @@ impl DualERC20Impl of DualERC20Trait {
     fn decimals(self: @DualERC20) -> u8 {
         let args = ArrayTrait::new();
 
-        (*call_contract_syscall(
-            *self.contract_address, selectors::decimals, args.span()
-        )
+        (*call_contract_syscall(*self.contract_address, selectors::decimals, args.span())
             .unwrap_syscall()
             .at(0))
             .try_into()

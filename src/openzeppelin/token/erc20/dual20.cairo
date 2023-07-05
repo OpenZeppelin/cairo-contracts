@@ -14,6 +14,7 @@ use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
 
 #[derive(Copy, Drop)]
 struct DualERC20 {
@@ -75,7 +76,7 @@ impl DualERC20Impl of DualERC20Trait {
         let camel_selector = selectors::balanceOf;
 
         let mut args = ArrayTrait::new();
-        args.append(account.into());
+        args.append_serde(account);
 
         let res = try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -87,8 +88,8 @@ impl DualERC20Impl of DualERC20Trait {
 
     fn allowance(self: @DualERC20, owner: ContractAddress, spender: ContractAddress) -> u256 {
         let mut args = ArrayTrait::new();
-        args.append(owner.into());
-        args.append(spender.into());
+        args.append_serde(owner);
+        args.append_serde(spender);
 
         let res = call_contract_syscall(*self.contract_address, selectors::allowance, args.span())
             .unwrap_syscall();
@@ -98,9 +99,8 @@ impl DualERC20Impl of DualERC20Trait {
 
     fn transfer(self: @DualERC20, recipient: ContractAddress, amount: u256) -> bool {
         let mut args = ArrayTrait::new();
-        args.append(recipient.into());
-        args.append(amount.low.into());
-        args.append(amount.high.into());
+        args.append_serde(recipient);
+        args.append_serde(amount);
 
         (*call_contract_syscall(*self.contract_address, selectors::transfer, args.span())
             .unwrap_syscall()
@@ -116,10 +116,9 @@ impl DualERC20Impl of DualERC20Trait {
         let camel_selector = selectors::transferFrom;
 
         let mut args = ArrayTrait::new();
-        args.append(sender.into());
-        args.append(recipient.into());
-        args.append(amount.low.into());
-        args.append(amount.high.into());
+        args.append_serde(sender);
+        args.append_serde(recipient);
+        args.append_serde(amount);
 
         (*try_selector_with_fallback(
             *self.contract_address, snake_selector, camel_selector, args.span()
@@ -132,9 +131,8 @@ impl DualERC20Impl of DualERC20Trait {
 
     fn approve(self: @DualERC20, spender: ContractAddress, amount: u256) -> bool {
         let mut args = ArrayTrait::new();
-        args.append(spender.into());
-        args.append(amount.low.into());
-        args.append(amount.high.into());
+        args.append_serde(spender);
+        args.append_serde(amount);
         (*call_contract_syscall(*self.contract_address, selectors::approve, args.span())
             .unwrap_syscall()
             .at(0))

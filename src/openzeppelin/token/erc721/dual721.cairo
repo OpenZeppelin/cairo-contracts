@@ -12,6 +12,7 @@ use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
 
 #[derive(Copy, Drop)]
 struct DualCaseERC721 {
@@ -57,8 +58,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
     fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
         let mut args = ArrayTrait::new();
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
+        args.append_serde(token_id);
 
         *try_selector_with_fallback(
             *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
@@ -69,7 +69,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {
         let mut args = ArrayTrait::new();
-        args.append(account.into());
+        args.append_serde(account);
 
         let res = try_selector_with_fallback(
             *self.contract_address, selectors::balance_of, selectors::balanceOf, args.span()
@@ -81,8 +81,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
         let mut args = ArrayTrait::new();
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
+        args.append_serde(token_id);
 
         (*try_selector_with_fallback(
             *self.contract_address, selectors::owner_of, selectors::ownerOf, args.span()
@@ -95,8 +94,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
         let mut args = ArrayTrait::new();
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
+        args.append_serde(token_id);
 
         (*try_selector_with_fallback(
             *self.contract_address, selectors::get_approved, selectors::getApproved, args.span()
@@ -111,8 +109,8 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         self: @DualCaseERC721, owner: ContractAddress, operator: ContractAddress
     ) -> bool {
         let mut args = ArrayTrait::new();
-        args.append(owner.into());
-        args.append(operator.into());
+        args.append_serde(owner);
+        args.append_serde(operator);
 
         (*try_selector_with_fallback(
             *self.contract_address,
@@ -128,17 +126,16 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
     fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256) {
         let mut args = ArrayTrait::new();
-        args.append(to.into());
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
+        args.append_serde(to);
+        args.append_serde(token_id);
         call_contract_syscall(*self.contract_address, selectors::approve, args.span())
             .unwrap_syscall();
     }
 
     fn set_approval_for_all(self: @DualCaseERC721, operator: ContractAddress, approved: bool) {
         let mut args = ArrayTrait::new();
-        args.append(operator.into());
-        args.append(approved.into());
+        args.append_serde(operator);
+        args.append_serde(approved);
 
         try_selector_with_fallback(
             *self.contract_address,
@@ -153,10 +150,9 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         self: @DualCaseERC721, from: ContractAddress, to: ContractAddress, token_id: u256
     ) {
         let mut args = ArrayTrait::new();
-        args.append(from.into());
-        args.append(to.into());
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
+        args.append_serde(from);
+        args.append_serde(to);
+        args.append_serde(token_id);
 
         try_selector_with_fallback(
             *self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span()
@@ -172,20 +168,10 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         mut data: Span<felt252>
     ) {
         let mut args = ArrayTrait::new();
-        args.append(from.into());
-        args.append(to.into());
-        args.append(token_id.low.into());
-        args.append(token_id.high.into());
-        args.append(data.len().into());
-
-        loop {
-            match data.pop_front() {
-                Option::Some(x) => args.append(*x),
-                Option::None(_) => {
-                    break ();
-                }
-            };
-        };
+        args.append_serde(from);
+        args.append_serde(to);
+        args.append_serde(token_id);
+        args.append_serde(data);
 
         try_selector_with_fallback(
             *self.contract_address,

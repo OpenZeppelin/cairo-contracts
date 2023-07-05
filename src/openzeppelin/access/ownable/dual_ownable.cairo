@@ -12,6 +12,7 @@ use traits::TryInto;
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
 
 #[derive(Copy, Drop)]
 struct DualCaseOwnable {
@@ -35,7 +36,7 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
 
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress) {
         let mut args = ArrayTrait::new();
-        args.append(new_owner.into());
+        args.append_serde(new_owner);
 
         try_selector_with_fallback(
             *self.contract_address,

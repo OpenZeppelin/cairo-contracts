@@ -59,12 +59,9 @@ impl DualERC20Impl of DualERC20Trait {
     }
 
     fn total_supply(self: @DualERC20) -> u256 {
-        let snake_selector = selectors::total_supply;
-        let camel_selector = selectors::totalSupply;
-
         let mut args = ArrayTrait::new();
         let res = try_selector_with_fallback(
-            *self.contract_address, snake_selector, camel_selector, args.span()
+            *self.contract_address, selectors::total_supply, selectors::totalSupply, args.span()
         )
             .unwrap_syscall();
 
@@ -72,14 +69,11 @@ impl DualERC20Impl of DualERC20Trait {
     }
 
     fn balance_of(self: @DualERC20, account: ContractAddress) -> u256 {
-        let snake_selector = selectors::balance_of;
-        let camel_selector = selectors::balanceOf;
-
         let mut args = ArrayTrait::new();
         args.append_serde(account);
 
         let res = try_selector_with_fallback(
-            *self.contract_address, snake_selector, camel_selector, args.span()
+            *self.contract_address, selectors::balance_of, selectors::balanceOf, args.span()
         )
             .unwrap_syscall();
 
@@ -112,16 +106,13 @@ impl DualERC20Impl of DualERC20Trait {
     fn transfer_from(
         self: @DualERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool {
-        let snake_selector = selectors::transfer_from;
-        let camel_selector = selectors::transferFrom;
-
         let mut args = ArrayTrait::new();
         args.append_serde(sender);
         args.append_serde(recipient);
         args.append_serde(amount);
 
         (*try_selector_with_fallback(
-            *self.contract_address, snake_selector, camel_selector, args.span()
+            *self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span()
         )
             .unwrap_syscall()
             .at(0))
@@ -133,6 +124,7 @@ impl DualERC20Impl of DualERC20Trait {
         let mut args = ArrayTrait::new();
         args.append_serde(spender);
         args.append_serde(amount);
+
         (*call_contract_syscall(*self.contract_address, selectors::approve, args.span())
             .unwrap_syscall()
             .at(0))

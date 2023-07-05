@@ -16,7 +16,7 @@ use openzeppelin::token::erc20::interface::IERC20CamelDispatcherTrait;
 use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::SerializedAppend;
+use openzeppelin::utils::serde::SerializedAppend;
 
 ///
 /// Constants

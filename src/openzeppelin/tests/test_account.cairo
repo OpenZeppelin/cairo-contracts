@@ -16,11 +16,11 @@ use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
 use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::SerializedAppend;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::ERC20ABIDispatcher;
 use openzeppelin::token::erc20::ERC20ABIDispatcherTrait;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;

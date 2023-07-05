@@ -19,7 +19,7 @@ use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
-use openzeppelin::tests::utils::SerializedAppend;
+use openzeppelin::utils::serde::SerializedAppend;
 
 ///
 /// Constants

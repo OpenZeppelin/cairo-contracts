@@ -22,6 +22,8 @@ use openzeppelin::tests::utils;
 /// Constants
 ///
 
+const ROLE: felt252 = 41;
+
 fn ADMIN() -> ContractAddress {
     contract_address_const::<10>()
 }
@@ -29,8 +31,6 @@ fn ADMIN() -> ContractAddress {
 fn AUTHORIZED() -> ContractAddress {
     contract_address_const::<20>()
 }
-
-const ROLE: felt252 = 41;
 
 ///
 /// Setup

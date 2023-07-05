@@ -78,6 +78,12 @@ impl UnwrapAndCastContractAddress of UnwrapAndCast<ContractAddress> {
     }
 }
 
+impl UnwrapAndCastU8 of UnwrapAndCast<u8> {
+    fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> u8 {
+        (*self.unwrap_syscall().at(0)).try_into().unwrap()
+    }
+}
+
 impl UnwrapAndCastU256 of UnwrapAndCast<u256> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> u256 {
         let unwrapped = self.unwrap_syscall();

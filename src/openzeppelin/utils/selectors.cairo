@@ -1,4 +1,19 @@
 //
+// AccessControl
+//
+
+const get_role_admin: felt252 = 0x302e0454f48778e0ca3a2e714a289c4e8d8e03d614b370130abb1a524a47f22;
+const getRoleAdmin: felt252 = 0x2034da88f3e3f3382ab0faf97fe5f74fe34d551ddff7fda974d756bf12130a0;
+const grant_role: felt252 = 0x18a2f881894a5eb15a2a00f598839abaa75bd7f1fea1a37e42779d7fbcd9cf8;
+const grantRole: felt252 = 0x37322ff1aabefe50aec25a14eb84b168b7be4f2d66fbbdb5dd8135e8234c37a;
+const has_role: felt252 = 0x30559321b47d576b645ed7bd24089943dd5fd3a359ecdd6fa8f05c1bab67d6b;
+const hasRole: felt252 = 0x35ed3407ba17dc741dd3af821fa1548619ebcdc87c95bcea9e3bc510951fae8;
+const renounce_role: felt252 = 0xd80093a4ee6a9e649f2ae3c64963d5096948d50cf4ea055500aa03a342fd43;
+const renounceRole: felt252 = 0x3c4022816cd5119ac7938fd7a982062e4cacd4777b4eda6e6a8f64d9e6833;
+const revoke_role: felt252 = 0x246116ed358bad337e64a4df51cb57a40929189494ad5905a39872c489136ec;
+const revokeRole: felt252 = 0xa7ef1739dec1e216a0ba2987650983a3104c707ad0831a30184a3b1382dd7d;
+
+//
 // Ownable
 //
 
@@ -37,3 +52,15 @@ const transferFrom: felt252 = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9
 const safe_transfer_from: felt252 =
     0x16f0218b33b5cf273196787d7cf139a9ad13d58e6674dcdce722b3bf8389863;
 const safeTransferFrom: felt252 = 0x19d59d013d4aa1a8b1ce4c8299086f070733b453c02d0dc46e735edc04d6444;
+
+//
+// ERC20
+//
+
+// The following ERC20 selectors are already defined in ERC721 above:
+// name, symbol, balance_of, balanceOf, transfer_from, transferFrom, approve
+const decimals: felt252 = 0x4c4fb1ab068f6039d5780c68dd0fa2f8742cceb3426d19667778ca7f3518a9;
+const total_supply: felt252 = 0x1557182e4359a1f0c6301278e8f5b35a776ab58d39892581e357578fb287836;
+const totalSupply: felt252 = 0x80aa9fdbfaf9615e4afc7f5f722e265daca5ccc655360fa5ccacf9c267936d;
+const allowance: felt252 = 0x1e888a1026b19c8c0b57c72d63ed1737106aa10034105b980ba117bd0c29fe1;
+const transfer: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;

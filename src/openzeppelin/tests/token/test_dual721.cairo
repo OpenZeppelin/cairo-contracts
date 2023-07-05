@@ -1,4 +1,3 @@
-use traits::Into;
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -19,6 +18,7 @@ use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
+use openzeppelin::utils::serde::SerializedAppend;
 
 ///
 /// Constants
@@ -27,10 +27,8 @@ use openzeppelin::tests::utils;
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 const URI: felt252 = 333;
+const TOKEN_ID: u256 = 7;
 
-fn TOKEN_ID() -> u256 {
-    7.into()
-}
 fn OWNER() -> ContractAddress {
     contract_address_const::<10>()
 }
@@ -46,9 +44,9 @@ fn OPERATOR() -> ContractAddress {
 fn DATA(success: bool) -> Span<felt252> {
     let mut data = ArrayTrait::new();
     if success {
-        data.append(SUCCESS);
+        data.append_serde(SUCCESS);
     } else {
-        data.append(FAILURE);
+        data.append_serde(FAILURE);
     }
     data.span()
 }
@@ -59,11 +57,10 @@ fn DATA(success: bool) -> Span<felt252> {
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(NAME);
-    calldata.append(SYMBOL);
-    calldata.append(TOKEN_ID().low.into());
-    calldata.append(TOKEN_ID().high.into());
-    calldata.append(URI);
+    calldata.append_serde(NAME);
+    calldata.append_serde(SYMBOL);
+    calldata.append_serde(TOKEN_ID);
+    calldata.append_serde(URI);
     set_caller_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
@@ -71,11 +68,10 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
 
 fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
     let mut calldata = ArrayTrait::new();
-    calldata.append(NAME);
-    calldata.append(SYMBOL);
-    calldata.append(TOKEN_ID().low.into());
-    calldata.append(TOKEN_ID().high.into());
-    calldata.append(URI);
+    calldata.append_serde(NAME);
+    calldata.append_serde(SYMBOL);
+    calldata.append_serde(TOKEN_ID);
+    calldata.append_serde(URI);
     set_caller_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
@@ -168,13 +164,13 @@ fn test_dual_symbol_exists_and_panics() {
 fn test_dual_approve() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    snake_dispatcher.approve(SPENDER(), TOKEN_ID());
-    assert(snake_target.get_approved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+    snake_dispatcher.approve(SPENDER(), TOKEN_ID);
+    assert(snake_target.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 
     let (camel_dispatcher, camel_target) = setup_camel();
     set_contract_address(OWNER());
-    camel_dispatcher.approve(SPENDER(), TOKEN_ID());
-    assert(camel_target.getApproved(TOKEN_ID()) == SPENDER(), 'Spender not approved correctly');
+    camel_dispatcher.approve(SPENDER(), TOKEN_ID);
+    assert(camel_target.getApproved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -182,7 +178,7 @@ fn test_dual_approve() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_approve() {
     let dispatcher = setup_non_erc721();
-    dispatcher.approve(SPENDER(), TOKEN_ID());
+    dispatcher.approve(SPENDER(), TOKEN_ID);
 }
 
 #[test]
@@ -190,7 +186,7 @@ fn test_dual_no_approve() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.approve(SPENDER(), TOKEN_ID());
+    dispatcher.approve(SPENDER(), TOKEN_ID);
 }
 
 ///
@@ -224,7 +220,7 @@ fn test_dual_balance_of_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_owner_of() {
     let (dispatcher, target) = setup_snake();
-    assert(dispatcher.owner_of(TOKEN_ID()) == OWNER(), 'Should return owner');
+    assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
@@ -232,7 +228,7 @@ fn test_dual_owner_of() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_owner_of() {
     let dispatcher = setup_non_erc721();
-    dispatcher.owner_of(TOKEN_ID());
+    dispatcher.owner_of(TOKEN_ID);
 }
 
 #[test]
@@ -240,15 +236,15 @@ fn test_dual_no_owner_of() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_owner_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.owner_of(TOKEN_ID());
+    dispatcher.owner_of(TOKEN_ID);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
-    assert(target.owner_of(TOKEN_ID()) == RECIPIENT(), 'Should transfer token');
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
+    assert(target.owner_of(TOKEN_ID) == RECIPIENT(), 'Should transfer token');
 }
 
 #[test]
@@ -256,7 +252,7 @@ fn test_dual_transfer_from() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc721();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
@@ -264,7 +260,7 @@ fn test_dual_no_transfer_from() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
@@ -272,8 +268,8 @@ fn test_dual_transfer_from_exists_and_panics() {
 fn test_dual_safe_transfer_from() {
     let (dispatcher, target) = setup_snake();
     let receiver = setup_receiver();
-    dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
-    assert(target.owner_of(TOKEN_ID()) == receiver, 'Should transfer token');
+    dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID, DATA(true));
+    assert(target.owner_of(TOKEN_ID) == receiver, 'Should transfer token');
 }
 
 #[test]
@@ -281,7 +277,7 @@ fn test_dual_safe_transfer_from() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc721();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID(), DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -289,7 +285,7 @@ fn test_dual_no_safe_transfer_from() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID(), DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -297,8 +293,8 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 fn test_dual_get_approved() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
-    target.approve(SPENDER(), TOKEN_ID());
-    assert(dispatcher.get_approved(TOKEN_ID()) == SPENDER(), 'Should return approval');
+    target.approve(SPENDER(), TOKEN_ID);
+    assert(dispatcher.get_approved(TOKEN_ID) == SPENDER(), 'Should return approval');
 }
 
 #[test]
@@ -306,7 +302,7 @@ fn test_dual_get_approved() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_get_approved() {
     let dispatcher = setup_non_erc721();
-    dispatcher.get_approved(TOKEN_ID());
+    dispatcher.get_approved(TOKEN_ID);
 }
 
 #[test]
@@ -314,7 +310,7 @@ fn test_dual_no_get_approved() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_get_approved_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.get_approved(TOKEN_ID());
+    dispatcher.get_approved(TOKEN_ID);
 }
 
 #[test]
@@ -371,7 +367,7 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_token_uri() {
     let (dispatcher, target) = setup_snake();
-    assert(dispatcher.token_uri(TOKEN_ID()) == URI, 'Should return URI');
+    assert(dispatcher.token_uri(TOKEN_ID) == URI, 'Should return URI');
 }
 
 #[test]
@@ -379,7 +375,7 @@ fn test_dual_token_uri() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_token_uri() {
     let dispatcher = setup_non_erc721();
-    dispatcher.token_uri(TOKEN_ID());
+    dispatcher.token_uri(TOKEN_ID);
 }
 
 #[test]
@@ -387,7 +383,7 @@ fn test_dual_no_token_uri() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_token_uri_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
-    dispatcher.token_uri(TOKEN_ID());
+    dispatcher.token_uri(TOKEN_ID);
 }
 
 ///
@@ -413,7 +409,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_ownerOf() {
     let (dispatcher, target) = setup_camel();
-    assert(dispatcher.owner_of(TOKEN_ID()) == OWNER(), 'Should return owner');
+    assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
@@ -421,7 +417,7 @@ fn test_dual_ownerOf() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_ownerOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.owner_of(TOKEN_ID());
+    dispatcher.owner_of(TOKEN_ID);
 }
 
 #[test]
@@ -429,8 +425,8 @@ fn test_dual_ownerOf_exists_and_panics() {
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
-    assert(target.ownerOf(TOKEN_ID()) == RECIPIENT(), 'Should transfer token');
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
+    assert(target.ownerOf(TOKEN_ID) == RECIPIENT(), 'Should transfer token');
 }
 
 #[test]
@@ -438,7 +434,7 @@ fn test_dual_transferFrom() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID());
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
@@ -446,8 +442,8 @@ fn test_dual_transferFrom_exists_and_panics() {
 fn test_dual_safeTransferFrom() {
     let (dispatcher, target) = setup_camel();
     let receiver = setup_receiver();
-    dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID(), DATA(true));
-    assert(target.ownerOf(TOKEN_ID()) == receiver, 'Should transfer token');
+    dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID, DATA(true));
+    assert(target.ownerOf(TOKEN_ID) == receiver, 'Should transfer token');
 }
 
 #[test]
@@ -455,7 +451,7 @@ fn test_dual_safeTransferFrom() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID(), DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -463,8 +459,8 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 fn test_dual_getApproved() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
-    target.approve(SPENDER(), TOKEN_ID());
-    assert(dispatcher.get_approved(TOKEN_ID()) == SPENDER(), 'Should return approval');
+    target.approve(SPENDER(), TOKEN_ID);
+    assert(dispatcher.get_approved(TOKEN_ID) == SPENDER(), 'Should return approval');
 }
 
 #[test]
@@ -472,7 +468,7 @@ fn test_dual_getApproved() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.get_approved(TOKEN_ID());
+    dispatcher.get_approved(TOKEN_ID);
 }
 
 #[test]
@@ -513,7 +509,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 #[available_gas(2000000)]
 fn test_dual_tokenUri() {
     let (dispatcher, target) = setup_camel();
-    assert(dispatcher.token_uri(TOKEN_ID()) == URI, 'Should return URI');
+    assert(dispatcher.token_uri(TOKEN_ID) == URI, 'Should return URI');
 }
 
 #[test]
@@ -521,5 +517,5 @@ fn test_dual_tokenUri() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_tokenUri_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.token_uri(TOKEN_ID());
+    dispatcher.token_uri(TOKEN_ID);
 }

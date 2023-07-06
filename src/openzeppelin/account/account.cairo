@@ -29,7 +29,7 @@ trait AccountABI {
     #[view]
     fn get_public_key() -> felt252;
     #[view]
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32;
+    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252;
     #[view]
     fn supports_interface(interface_id: felt252) -> bool;
 }
@@ -47,9 +47,11 @@ mod Account {
     use starknet::get_contract_address;
     use zeroable::Zeroable;
 
-    use openzeppelin::account::interface::IAccount;
-    use openzeppelin::account::interface::IACCOUNT_ID;
-    use openzeppelin::account::interface::ERC1271_VALIDATED;
+    use openzeppelin::account::interface::IStandardAccount;
+    use openzeppelin::account::interface::IDeclarer;
+    use openzeppelin::account::interface::ISTANDARDACCOUNT_ID;
+    use openzeppelin::account::interface::VALIDATE_MAGIC_VALUE;
+    use openzeppelin::introspection::src5::ISRC5;
     use openzeppelin::introspection::src5::SRC5;
 
     use super::Call;
@@ -66,7 +68,7 @@ mod Account {
         initializer(_public_key);
     }
 
-    impl AccountImpl of IAccount {
+    impl StandardAccountImpl of IStandardAccount {
         fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
@@ -87,18 +89,22 @@ mod Account {
             validate_transaction()
         }
 
-        fn __validate_declare__(class_hash: felt252) -> felt252 {
-            validate_transaction()
-        }
-
-        fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
+        fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
             if _is_valid_signature(message, signature.span()) {
-                ERC1271_VALIDATED
+                VALIDATE_MAGIC_VALUE
             } else {
                 0
             }
         }
+    }
 
+    impl DeclarerImpl of IDeclarer {
+        fn __validate_declare__(class_hash: felt252) -> felt252 {
+            validate_transaction()
+        }
+    }
+
+    impl SRC5Impl of ISRC5 {
         fn supports_interface(interface_id: felt252) -> bool {
             SRC5::supports_interface(interface_id)
         }
@@ -110,17 +116,17 @@ mod Account {
 
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        AccountImpl::__execute__(calls)
+        StandardAccountImpl::__execute__(calls)
     }
 
     #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
-        AccountImpl::__validate__(calls)
+        StandardAccountImpl::__validate__(calls)
     }
 
     #[external]
     fn __validate_declare__(class_hash: felt252) -> felt252 {
-        AccountImpl::__validate_declare__(class_hash)
+        DeclarerImpl::__validate_declare__(class_hash)
     }
 
     #[external]
@@ -146,13 +152,13 @@ mod Account {
     }
 
     #[view]
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32 {
-        AccountImpl::is_valid_signature(message, signature)
+    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
+        StandardAccountImpl::is_valid_signature(message, signature)
     }
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        AccountImpl::supports_interface(interface_id)
+        SRC5Impl::supports_interface(interface_id)
     }
 
     //
@@ -161,7 +167,7 @@ mod Account {
 
     #[internal]
     fn initializer(_public_key: felt252) {
-        SRC5::register_interface(IACCOUNT_ID);
+        SRC5::register_interface(ISTANDARDACCOUNT_ID);
         public_key::write(_public_key);
     }
 

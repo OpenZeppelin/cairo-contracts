@@ -2,7 +2,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use starknet::ContractAddress;
 
-const ISTANDARDACCOUNT_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
+const ISTANDARDACCOUNT_ID: felt252 =
+    0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
 const VALIDATE_MAGIC_VALUE: felt252 = 'VALID';
 
 #[derive(Serde, Drop)]

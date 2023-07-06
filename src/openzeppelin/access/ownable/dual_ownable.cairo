@@ -8,10 +8,11 @@ use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
 use traits::TryInto;
 
-use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin::utils::try_selector_with_fallback;
+use openzeppelin::utils::UnwrapAndCast;
 
 #[derive(Copy, Drop)]
 struct DualCaseOwnable {
@@ -28,11 +29,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress {
         let args = ArrayTrait::new();
 
-        (*call_contract_syscall(*self.contract_address, selectors::owner, args.span())
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+        call_contract_syscall(*self.contract_address, selectors::owner, args.span())
+            .unwrap_and_cast()
     }
 
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress) {

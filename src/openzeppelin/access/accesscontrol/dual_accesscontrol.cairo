@@ -11,6 +11,7 @@ use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
+use openzeppelin::utils::UnwrapAndCast;
 
 #[derive(Copy, Drop)]
 struct DualCaseAccessControl {
@@ -31,13 +32,10 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         args.append_serde(role);
         args.append_serde(account);
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::has_role, selectors::hasRole, args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn get_role_admin(self: @DualCaseAccessControl, role: felt252) -> felt252 {

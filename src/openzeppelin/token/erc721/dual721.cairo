@@ -12,6 +12,7 @@ use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
+use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::serde::SerializedAppend;
 
 #[derive(Copy, Drop)]
@@ -75,38 +76,30 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         let mut args = ArrayTrait::new();
         args.append_serde(account);
 
-        let res = try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::balance_of, selectors::balanceOf, args.span()
         )
-            .unwrap_syscall();
-
-        u256 { low: (*res.at(0)).try_into().unwrap(), high: (*res.at(1)).try_into().unwrap(),  }
+            .unwrap_and_cast()
     }
 
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
         let mut args = ArrayTrait::new();
         args.append_serde(token_id);
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::owner_of, selectors::ownerOf, args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
         let mut args = ArrayTrait::new();
         args.append_serde(token_id);
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::get_approved, selectors::getApproved, args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn is_approved_for_all(
@@ -116,16 +109,13 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(owner);
         args.append_serde(operator);
 
-        (*try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address,
             selectors::is_approved_for_all,
             selectors::isApprovedForAll,
             args.span()
         )
-            .unwrap_syscall()
-            .at(0))
-            .try_into()
-            .unwrap()
+            .unwrap_and_cast()
     }
 
     fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256) {

@@ -47,8 +47,8 @@ mod Account {
     use starknet::get_contract_address;
     use zeroable::Zeroable;
 
-    use openzeppelin::account::interface::ISRC6;
     use openzeppelin::account::interface::IDeclarer;
+    use openzeppelin::account::interface::ISRC6;
     use openzeppelin::account::interface::ISRC6_ID;
     use openzeppelin::introspection::src5::ISRC5;
     use openzeppelin::introspection::src5::SRC5;

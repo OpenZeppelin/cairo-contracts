@@ -2,8 +2,8 @@ use array::ArrayTrait;
 use core::traits::Into;
 use option::OptionTrait;
 use serde::Serde;
-use starknet::ContractAddress;
 use starknet::contract_address_const;
+use starknet::ContractAddress;
 use starknet::testing;
 
 use openzeppelin::account::Account;

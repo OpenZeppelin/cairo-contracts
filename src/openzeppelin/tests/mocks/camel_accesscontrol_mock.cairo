@@ -4,7 +4,6 @@ mod CamelAccessControlMock {
     use starknet::get_caller_address;
     use openzeppelin::access::accesscontrol::AccessControl;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::utils::serde::SpanSerde;
 
     #[constructor]
     fn constructor(admin: ContractAddress) {

@@ -27,7 +27,6 @@ use openzeppelin::utils::serde::SerializedAppend;
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;
-const CLASS_HASH: felt252 = Account::TEST_CLASS_HASH;
 const SALT: felt252 = 123;
 
 #[derive(Drop)]
@@ -39,6 +38,9 @@ struct SignedTransactionData {
     s: felt252
 }
 
+fn CLASS_HASH() -> felt252 {
+    Account::TEST_CLASS_HASH
+}
 fn ACCOUNT_ADDRESS() -> ContractAddress {
     contract_address_const::<0x111111>()
 }
@@ -78,7 +80,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
         calldata.append(PUBLIC_KEY);
     }
 
-    let address = utils::deploy(CLASS_HASH, calldata);
+    let address = utils::deploy(CLASS_HASH(), calldata);
     AccountABIDispatcher { contract_address: address }
 }
 
@@ -198,7 +200,7 @@ fn test_validate_deploy() {
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
     assert(
-        account.__validate_deploy__(CLASS_HASH, SALT, PUBLIC_KEY) == starknet::VALIDATED,
+        account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY) == starknet::VALIDATED,
         'Should validate correctly'
     );
 }
@@ -211,7 +213,7 @@ fn test_validate_deploy_invalid_signature_data() {
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_deploy__(CLASS_HASH, SALT, PUBLIC_KEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -224,7 +226,7 @@ fn test_validate_deploy_invalid_signature_length() {
     signature.append(0x1);
     testing::set_signature(signature.span());
 
-    account.__validate_deploy__(CLASS_HASH, SALT, PUBLIC_KEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -235,7 +237,7 @@ fn test_validate_deploy_empty_signature() {
     let empty_sig = ArrayTrait::new();
 
     testing::set_signature(empty_sig.span());
-    account.__validate_deploy__(CLASS_HASH, SALT, PUBLIC_KEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
 }
 
 #[test]
@@ -247,7 +249,7 @@ fn test_validate_declare() {
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
     assert(
-        account.__validate_declare__(CLASS_HASH) == starknet::VALIDATED,
+        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
         'Should validate correctly'
     );
 }
@@ -260,7 +262,7 @@ fn test_validate_declare_invalid_signature_data() {
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_declare__(CLASS_HASH);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 #[test]
@@ -273,7 +275,7 @@ fn test_validate_declare_invalid_signature_length() {
     signature.append(0x1);
     testing::set_signature(signature.span());
 
-    account.__validate_declare__(CLASS_HASH);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 #[test]
@@ -285,7 +287,7 @@ fn test_validate_declare_empty_signature() {
 
     testing::set_signature(empty_sig.span());
 
-    account.__validate_declare__(CLASS_HASH);
+    account.__validate_declare__(CLASS_HASH());
 }
 
 fn test_execute_with_version(version: Option<felt252>) {

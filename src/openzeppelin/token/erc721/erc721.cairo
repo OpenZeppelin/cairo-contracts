@@ -456,7 +456,7 @@ mod ERC721 {
         } else {
             ISRC5Dispatcher {
                 contract_address: to
-            }.supports_interface(account::interface::ISTANDARDACCOUNT_ID)
+            }.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

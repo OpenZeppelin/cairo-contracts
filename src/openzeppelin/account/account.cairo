@@ -47,10 +47,9 @@ mod Account {
     use starknet::get_contract_address;
     use zeroable::Zeroable;
 
-    use openzeppelin::account::interface::IStandardAccount;
+    use openzeppelin::account::interface::ISRC6;
     use openzeppelin::account::interface::IDeclarer;
-    use openzeppelin::account::interface::ISTANDARDACCOUNT_ID;
-    use openzeppelin::account::interface::VALIDATE_MAGIC_VALUE;
+    use openzeppelin::account::interface::ISRC6_ID;
     use openzeppelin::introspection::src5::ISRC5;
     use openzeppelin::introspection::src5::SRC5;
 
@@ -68,7 +67,7 @@ mod Account {
         initializer(_public_key);
     }
 
-    impl StandardAccountImpl of IStandardAccount {
+    impl SRC6Impl of ISRC6 {
         fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
@@ -91,7 +90,7 @@ mod Account {
 
         fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
             if _is_valid_signature(message, signature.span()) {
-                VALIDATE_MAGIC_VALUE
+                starknet::VALIDATED
             } else {
                 0
             }
@@ -116,12 +115,12 @@ mod Account {
 
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        StandardAccountImpl::__execute__(calls)
+        SRC6Impl::__execute__(calls)
     }
 
     #[external]
     fn __validate__(mut calls: Array<Call>) -> felt252 {
-        StandardAccountImpl::__validate__(calls)
+        SRC6Impl::__validate__(calls)
     }
 
     #[external]
@@ -153,7 +152,7 @@ mod Account {
 
     #[view]
     fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
-        StandardAccountImpl::is_valid_signature(message, signature)
+        SRC6Impl::is_valid_signature(message, signature)
     }
 
     #[view]
@@ -167,7 +166,7 @@ mod Account {
 
     #[internal]
     fn initializer(_public_key: felt252) {
-        SRC5::register_interface(ISTANDARDACCOUNT_ID);
+        SRC5::register_interface(ISRC6_ID);
         public_key::write(_public_key);
     }
 

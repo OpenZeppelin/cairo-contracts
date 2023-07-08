@@ -58,12 +58,14 @@ trait ERC721ReceiverABI {
     ) -> felt252;
 }
 
+#[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> felt252;
 }
 
+#[abi]
 trait IERC721ReceiverCamel {
     fn onERC721Received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Span<felt252>

@@ -15,13 +15,21 @@ struct DualCaseERC721Receiver {
 
 trait DualCaseERC721ReceiverTrait {
     fn on_erc721_received(
-        self: @DualCaseERC721Receiver, operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
+        self: @DualCaseERC721Receiver,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
     ) -> felt252;
 }
 
 impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
     fn on_erc721_received(
-        self: @DualCaseERC721Receiver, operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
+        self: @DualCaseERC721Receiver,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
     ) -> felt252 {
         let mut args = ArrayTrait::new();
         args.append_serde(operator);
@@ -30,7 +38,10 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
         args.append_serde(data);
 
         *try_selector_with_fallback(
-            *self.contract_address, selectors::on_erc721_received, selectors::onERC721Received, args.span()
+            *self.contract_address,
+            selectors::on_erc721_received,
+            selectors::onERC721Received,
+            args.span()
         )
             .unwrap_syscall()
             .at(0)

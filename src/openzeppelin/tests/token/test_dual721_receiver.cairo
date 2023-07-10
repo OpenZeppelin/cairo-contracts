@@ -106,7 +106,8 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 fn test_dual_on_erc721_received() {
     let (dispatcher, _) = setup_snake();
     assert(
-        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
+        dispatcher
+            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -136,7 +137,8 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 fn test_dual_onERC721Received() {
     let (dispatcher, _) = setup_camel();
     assert(
-        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
+        dispatcher
+            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
         'Should return interface id'
     );
 }

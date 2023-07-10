@@ -1,33 +1,33 @@
 #[contract]
 mod SnakeERC721ReceiverMock {
     use starknet::ContractAddress;
-    use openzeppelin::token::erc721::erc721_holder::ERC721Holder;
+    use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
     use openzeppelin::utils::serde::SpanSerde;
 
     #[view]
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> felt252 {
-        ERC721Holder::on_erc721_received(operator, from, token_id, data)
+        ERC721Receiver::on_erc721_received(operator, from, token_id, data)
     }
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        ERC721Holder::supports_interface(interface_id)
+        ERC721Receiver::supports_interface(interface_id)
     }
 }
 
 #[contract]
 mod CamelERC721ReceiverMock {
     use starknet::ContractAddress;
-    use openzeppelin::token::erc721::erc721_holder::ERC721Holder;
+    use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
     use openzeppelin::utils::serde::SpanSerde;
 
     #[view]
     fn onERC721Received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Span<felt252>
     ) -> felt252 {
-        ERC721Holder::on_erc721_received(operator, from, tokenId, data)
+        ERC721Receiver::on_erc721_received(operator, from, tokenId, data)
     }
 }
 

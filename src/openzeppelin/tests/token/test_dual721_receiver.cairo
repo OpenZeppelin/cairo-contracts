@@ -3,6 +3,8 @@ use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
+use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
+use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
 use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin::token::erc721::interface::IERC721ReceiverDispatcher;
 use openzeppelin::token::erc721::interface::IERC721ReceiverCamelDispatcher;
@@ -27,9 +29,13 @@ const SYMBOL: felt252 = 222;
 const URI: felt252 = 333;
 const TOKEN_ID: u256 = 7;
 
-fn DATA() -> Span<felt252> {
+fn DATA(success: bool) -> Span<felt252> {
     let mut data = ArrayTrait::new();
-    data.append_serde(123);
+    if success {
+        data.append(SUCCESS);
+    } else {
+        data.append(FAILURE);
+    }
     data.span()
 }
 
@@ -100,7 +106,7 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 fn test_dual_on_erc721_received() {
     let (dispatcher, _) = setup_snake();
     assert(
-        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA()) == IERC721_RECEIVER_ID,
+        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -110,7 +116,7 @@ fn test_dual_on_erc721_received() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_dual_no_on_erc721_received() {
     let dispatcher = setup_non_erc721_receiver();
-    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA());
+    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
 }
 
 #[test]
@@ -118,7 +124,7 @@ fn test_dual_no_on_erc721_received() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
-    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA());
+    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
 }
 
 //
@@ -130,7 +136,7 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 fn test_dual_onERC721Received() {
     let (dispatcher, _) = setup_camel();
     assert(
-        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA()) == IERC721_RECEIVER_ID,
+        dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -140,5 +146,5 @@ fn test_dual_onERC721Received() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();
-    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA());
+    dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
 }

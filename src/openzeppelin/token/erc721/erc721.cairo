@@ -93,6 +93,12 @@ mod ERC721 {
         initializer(name, symbol);
     }
 
+    impl ISRC5Impl of src5::ISRC5 {
+        fn supports_interface(interface_id: felt252) -> bool {
+            src5::SRC5::supports_interface(interface_id)
+        }
+    }
+
     impl ERC721Impl of erc721::interface::IERC721 {
         fn name() -> felt252 {
             _name::read()
@@ -208,7 +214,7 @@ mod ERC721 {
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        src5::SRC5::supports_interface(interface_id)
+        ISRC5Impl::supports_interface(interface_id)
     }
 
     #[view]

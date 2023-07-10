@@ -4,6 +4,11 @@ mod SnakeAccountMock {
     use openzeppelin::account::Account;
     use openzeppelin::utils::serde::SpanSerde;
 
+    #[constructor]
+    fn constructor(_public_key: felt252) {
+        Account::initializer(_public_key);
+    }
+
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
         Account::__execute__(calls)

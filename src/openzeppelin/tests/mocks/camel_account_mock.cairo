@@ -4,6 +4,11 @@ mod CamelAccountMock {
     use openzeppelin::account::Account;
     use openzeppelin::utils::serde::SpanSerde;
 
+    #[constructor]
+    fn constructor(_publicKey: felt252) {
+        Account::initializer(_publicKey);
+    }
+
     #[external]
     fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
         Account::__execute__(calls)

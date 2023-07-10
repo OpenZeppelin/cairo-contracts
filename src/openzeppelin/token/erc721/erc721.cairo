@@ -212,11 +212,6 @@ mod ERC721 {
     }
 
     #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
-        src5::SRC5::supports_interface(interfaceId)
-    }
-
-    #[view]
     fn name() -> felt252 {
         ERC721Impl::name()
     }

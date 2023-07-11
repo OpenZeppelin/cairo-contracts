@@ -57,6 +57,8 @@ mod ERC721 {
     use openzeppelin::token::erc721;
 
     // Dispatchers
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
     use openzeppelin::introspection::src5::ISRC5Dispatcher;
     use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
     use super::super::interface::ERC721ReceiverABIDispatcher;
@@ -443,7 +445,7 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (ISRC5Dispatcher {
+        if (DualCaseSRC5 {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
             // todo add casing fallback mechanism
@@ -454,7 +456,7 @@ mod ERC721 {
                     get_caller_address(), from, token_id, data
                 ) == erc721::interface::IERC721_RECEIVER_ID
         } else {
-            ISRC5Dispatcher {
+            DualCaseSRC5 {
                 contract_address: to
             }.supports_interface(account::interface::ISRC6_ID)
         }

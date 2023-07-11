@@ -1,6 +1,6 @@
 mod access;
 mod test_reentrancyguard;
-mod test_src5;
+mod introspection;
 mod test_account;
 mod token;
 mod test_initializable;

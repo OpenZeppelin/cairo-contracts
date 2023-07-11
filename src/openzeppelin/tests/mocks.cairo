@@ -14,3 +14,4 @@ mod dual_ownable_mocks;
 mod snake721_mock;
 mod camel721_mock;
 mod non_implementing_mock;
+mod src5_mocks;

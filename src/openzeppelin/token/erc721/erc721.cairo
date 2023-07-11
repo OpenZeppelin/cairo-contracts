@@ -468,9 +468,7 @@ mod ERC721 {
                     get_caller_address(), from, token_id, data
                 ) == erc721::interface::IERC721_RECEIVER_ID
         } else {
-            DualCaseSRC5 {
-                contract_address: to
-            }.supports_interface(account::interface::ISRC6_ID)
+            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

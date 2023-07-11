@@ -21,7 +21,10 @@ impl DualCaseSRC5Impl of DualCaseSRC5Trait {
         args.append_serde(interface_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::supports_interface, selectors::supportsInterface, args.span()
+            *self.contract_address,
+            selectors::supports_interface,
+            selectors::supportsInterface,
+            args.span()
         )
             .unwrap_and_cast()
     }

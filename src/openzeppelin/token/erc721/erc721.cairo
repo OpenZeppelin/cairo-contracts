@@ -99,6 +99,18 @@ mod ERC721 {
         initializer(name, symbol);
     }
 
+    impl ISRC5Impl of src5::ISRC5 {
+        fn supports_interface(interface_id: felt252) -> bool {
+            src5::SRC5::supports_interface(interface_id)
+        }
+    }
+
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
+    }
+
     impl ERC721Impl of erc721::interface::IERC721 {
         fn name() -> felt252 {
             _name::read()
@@ -160,10 +172,6 @@ mod ERC721 {
             );
             _safe_transfer(from, to, token_id, data);
         }
-
-        fn supports_interface(interface_id: felt252) -> bool {
-            src5::SRC5::supports_interface(interface_id)
-        }
     }
 
     impl ERC721CamelImpl of erc721::interface::IERC721Camel {
@@ -212,22 +220,18 @@ mod ERC721 {
         ) {
             ERC721Impl::safe_transfer_from(from, to, tokenId, data)
         }
-
-        fn supportsInterface(interfaceId: felt252) -> bool {
-            src5::SRC5::supportsInterface(interfaceId)
-        }
     }
 
     // View
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        ERC721Impl::supports_interface(interface_id)
+        ISRC5Impl::supports_interface(interface_id)
     }
 
     #[view]
     fn supportsInterface(interfaceId: felt252) -> bool {
-        ERC721CamelImpl::supportsInterface(interfaceId)
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]

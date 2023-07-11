@@ -1,7 +1,7 @@
 #[contract]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -32,11 +32,19 @@ mod AccessControl {
     #[event]
     fn RoleAdminChanged(role: felt252, previous_admin_role: felt252, new_admin_role: felt252) {}
 
-    impl AccessControlImpl of interface::IAccessControl {
+    impl ISRC5Impl of src5::ISRC5 {
         fn supports_interface(interface_id: felt252) -> bool {
-            SRC5::supports_interface(interface_id)
+            src5::SRC5::supports_interface(interface_id)
         }
+    }
 
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
+    }
+
+    impl AccessControlImpl of interface::IAccessControl {
         fn has_role(role: felt252, account: ContractAddress) -> bool {
             role_members::read((role, account))
         }
@@ -65,10 +73,6 @@ mod AccessControl {
     }
 
     impl AccessControlCamelImpl of interface::IAccessControlCamel {
-        fn supportsInterface(interfaceId: felt252) -> bool {
-            SRC5::supportsInterface(interfaceId)
-        }
-
         fn hasRole(role: felt252, account: ContractAddress) -> bool {
             AccessControlImpl::has_role(role, account)
         }
@@ -96,12 +100,12 @@ mod AccessControl {
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        AccessControlImpl::supports_interface(interface_id)
+        ISRC5Impl::supports_interface(interface_id)
     }
 
     #[view]
     fn supportsInterface(interfaceId: felt252) -> bool {
-        AccessControlCamelImpl::supportsInterface(interfaceId)
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]
@@ -164,7 +168,7 @@ mod AccessControl {
 
     #[internal]
     fn initializer() {
-        SRC5::register_interface(interface::IACCESSCONTROL_ID);
+        src5::SRC5::register_interface(interface::IACCESSCONTROL_ID);
     }
 
     #[internal]

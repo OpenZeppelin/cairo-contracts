@@ -2,8 +2,6 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use option::OptionTrait;
 use serde::Serde;
-use serde::deserialize_array_helper;
-use serde::serialize_array_helper;
 use starknet::ContractAddress;
 
 use openzeppelin::account::interface::Call;

@@ -3,39 +3,9 @@
 //
 // 3 for felt252
 // false for bool
-// empty array for Array<Span<felt252>>
 
 #[account_contract]
 mod SnakeAccountPanicMock {
-    use openzeppelin::account::interface::Call;
-    use openzeppelin::utils::serde::SpanSerde;
-
-    #[external]
-    fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        panic_with_felt252('Some error');
-        ArrayTrait::new()
-    }
-
-    #[external]
-    fn __validate__(mut calls: Array<Call>) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
-    #[external]
-    fn __validate_declare__(class_hash: felt252) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
-    #[external]
-    fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
-    ) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
     #[external]
     fn set_public_key(new_public_key: felt252) {
         panic_with_felt252('Some error');
@@ -62,35 +32,6 @@ mod SnakeAccountPanicMock {
 
 #[account_contract]
 mod CamelAccountPanicMock {
-    use openzeppelin::account::interface::Call;
-    use openzeppelin::utils::serde::SpanSerde;
-
-    #[external]
-    fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        panic_with_felt252('Some error');
-        ArrayTrait::new()
-    }
-
-    #[external]
-    fn __validate__(mut calls: Array<Call>) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
-    #[external]
-    fn __validate_declare__(class_hash: felt252) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
-    #[external]
-    fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
-    ) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
-
     #[external]
     fn setPublicKey(newPublicKey: felt252) {
         panic_with_felt252('Some error');

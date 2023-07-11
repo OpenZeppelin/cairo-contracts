@@ -1,17 +1,9 @@
 use array::ArrayTrait;
-use array::SpanTrait;
-use core::result::ResultTrait;
-use integer::Felt252TryIntoU8;
-use option::OptionTrait;
 use starknet::call_contract_syscall;
 use starknet::ContractAddress;
-use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;
-use traits::TryInto;
 
 use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::UnwrapAndCast;
@@ -39,17 +31,15 @@ impl DualERC20Impl of DualERC20Trait {
     fn name(self: @DualERC20) -> felt252 {
         let args = ArrayTrait::new();
 
-        *call_contract_syscall(*self.contract_address, selectors::name, args.span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::name, args.span())
+            .unwrap_and_cast()
     }
 
     fn symbol(self: @DualERC20) -> felt252 {
         let args = ArrayTrait::new();
 
-        *call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
+            .unwrap_and_cast()
     }
 
     fn decimals(self: @DualERC20) -> u8 {

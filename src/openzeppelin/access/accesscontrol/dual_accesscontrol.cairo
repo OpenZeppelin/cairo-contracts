@@ -1,11 +1,6 @@
 use array::ArrayTrait;
-use array::SpanTrait;
-use core::result::ResultTrait;
-use option::OptionTrait;
 use starknet::ContractAddress;
-use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;
-use traits::TryInto;
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::selectors;
@@ -42,11 +37,10 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let mut args = ArrayTrait::new();
         args.append_serde(role);
 
-        *try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::get_role_admin, selectors::getRoleAdmin, args.span()
         )
-            .unwrap_syscall()
-            .at(0)
+            .unwrap_and_cast()
     }
 
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {

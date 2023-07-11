@@ -13,6 +13,11 @@ mod CamelAccessControlMock {
     }
 
     #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        AccessControl::supportsInterface(interfaceId)
+    }
+
+    #[view]
     fn hasRole(role: felt252, account: ContractAddress) -> bool {
         AccessControl::hasRole(role, account)
     }

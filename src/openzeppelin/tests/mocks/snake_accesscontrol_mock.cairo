@@ -13,6 +13,11 @@ mod SnakeAccessControlMock {
     }
 
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool {
+        AccessControl::supports_interface(interface_id)
+    }
+
+    #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {
         AccessControl::has_role(role, account)
     }

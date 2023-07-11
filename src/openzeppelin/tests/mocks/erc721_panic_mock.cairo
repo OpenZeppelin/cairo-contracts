@@ -37,6 +37,12 @@ mod SnakeERC721PanicMock {
     //
 
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool {
+        panic_with_felt252('Some error');
+        false
+    }
+
+    #[view]
     fn token_uri(token_id: u256) -> felt252 {
         panic_with_felt252('Some error');
         3
@@ -89,6 +95,12 @@ mod CamelERC721PanicMock {
     use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
     use zeroable::Zeroable;
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        panic_with_felt252('Some error');
+        false
+    }
 
     #[view]
     fn tokenUri(tokenId: u256) -> felt252 {

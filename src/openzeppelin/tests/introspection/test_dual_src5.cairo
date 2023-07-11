@@ -47,6 +47,10 @@ fn setup_src5_panic() -> (DualCaseSRC5, DualCaseSRC5) {
     )
 }
 
+//
+// snake_case target
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_dual_supports_interface() {
@@ -69,6 +73,10 @@ fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_src5_panic();
     dispatcher.supports_interface(ISRC5_ID);
 }
+
+//
+// camelCase target
+//
 
 #[test]
 #[available_gas(2000000)]

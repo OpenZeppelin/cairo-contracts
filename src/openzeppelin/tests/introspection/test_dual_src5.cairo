@@ -23,35 +23,11 @@ fn setup_snake() -> DualCaseSRC5 {
     DualCaseSRC5 { contract_address: target }
 }
 
-//fn setup_snake() -> (DualCaseSRC5, ISRC5Dispatcher) {
-//    let mut calldata = ArrayTrait::new();
-//    let target = utils::deploy(SnakeSRC5Mock::TEST_CLASS_HASH, calldata);
-//    (
-//        DualCaseSRC5 {
-//            contract_address: target
-//            }, ISRC5Dispatcher {
-//            contract_address: target
-//        }
-//    )
-//}
-
 fn setup_camel() -> DualCaseSRC5 {
     let mut calldata = ArrayTrait::new();
     let target = utils::deploy(CamelSRC5Mock::TEST_CLASS_HASH, calldata);
     DualCaseSRC5 { contract_address: target }
 }
-
-//fn setup_camel() -> (DualCaseSRC5, ISRC5CamelDispatcher) {
-//    let mut calldata = ArrayTrait::new();
-//    let target = utils::deploy(CamelSRC5Mock::TEST_CLASS_HASH, calldata);
-//    (
-//        DualCaseSRC5 {
-//            contract_address: target
-//            }, ISRC5CamelDispatcher {
-//            contract_address: target
-//        }
-//    )
-//}
 
 fn setup_non_src5() -> DualCaseSRC5 {
     let calldata = ArrayTrait::new();

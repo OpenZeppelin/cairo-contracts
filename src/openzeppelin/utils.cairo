@@ -72,6 +72,12 @@ impl UnwrapAndCastBool of UnwrapAndCast<bool> {
     }
 }
 
+impl UnwrapAndCastFelt of UnwrapAndCast<felt252> {
+    fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> felt252 {
+        (*self.unwrap_syscall().at(0))
+    }
+}
+
 impl UnwrapAndCastContractAddress of UnwrapAndCast<ContractAddress> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> ContractAddress {
         (*self.unwrap_syscall().at(0)).try_into().unwrap()

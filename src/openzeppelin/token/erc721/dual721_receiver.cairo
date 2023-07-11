@@ -1,12 +1,10 @@
-use core::result::ResultTrait;
-use array::SpanTrait;
 use array::ArrayTrait;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin::utils::UnwrapAndCast;
 
 #[derive(Copy, Drop)]
 struct DualCaseERC721Receiver {
@@ -37,13 +35,14 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
         args.append_serde(token_id);
         args.append_serde(data);
 
-        *try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address,
             selectors::on_erc721_received,
             selectors::onERC721Received,
             args.span()
         )
-            .unwrap_syscall()
-            .at(0)
+            .unwrap_and_cast()
+            //.unwrap_syscall()
+            //.at(0)
     }
 }

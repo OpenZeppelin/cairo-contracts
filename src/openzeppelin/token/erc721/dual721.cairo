@@ -34,6 +34,7 @@ trait DualCaseERC721Trait {
         token_id: u256,
         data: Span<felt252>
     );
+    fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool;
 }
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
@@ -163,5 +164,15 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
             args.span()
         )
             .unwrap_syscall();
+    }
+
+    fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool {
+        let mut args = ArrayTrait::new();
+        args.append_serde(interface_id);
+
+        try_selector_with_fallback(
+            *self.contract_address, selectors::supports_interface, selectors::supportsInterface, args.span()
+        )
+            .unwrap_and_cast()
     }
 }

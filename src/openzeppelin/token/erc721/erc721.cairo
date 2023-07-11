@@ -11,6 +11,8 @@ trait ERC721ABI {
     fn approve(to: ContractAddress, token_id: u256);
     // snake_case
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool;
+    #[view]
     fn balance_of(account: ContractAddress) -> u256;
     #[view]
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -29,6 +31,8 @@ trait ERC721ABI {
     #[view]
     fn token_uri(token_id: u256) -> felt252;
     // camelCase
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool;
     #[view]
     fn balanceOf(account: ContractAddress) -> u256;
     #[view]
@@ -158,6 +162,10 @@ mod ERC721 {
             );
             _safe_transfer(from, to, token_id, data);
         }
+
+        fn supports_interface(interface_id: felt252) -> bool {
+            src5::SRC5::supports_interface(interface_id)
+        }
     }
 
     impl ERC721CamelImpl of erc721::interface::IERC721Camel {
@@ -206,18 +214,22 @@ mod ERC721 {
         ) {
             ERC721Impl::safe_transfer_from(from, to, tokenId, data)
         }
+
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
     }
 
     // View
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        src5::SRC5::supports_interface(interface_id)
+        ERC721Impl::supports_interface(interface_id)
     }
 
     #[view]
     fn supportsInterface(interfaceId: felt252) -> bool {
-        src5::SRC5::supports_interface(interfaceId)
+        ERC721CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]

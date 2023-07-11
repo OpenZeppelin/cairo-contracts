@@ -65,6 +65,10 @@ const totalSupply: felt252 = 0x80aa9fdbfaf9615e4afc7f5f722e265daca5ccc655360fa5c
 const allowance: felt252 = 0x1e888a1026b19c8c0b57c72d63ed1737106aa10034105b980ba117bd0c29fe1;
 const transfer: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
 
+//
+// SRC5
+//
+
 const supports_interface: felt252 =
     0xfe80f537b66d12a00b6d3c072b44afbb716e78dde5c3f0ef116ee93d3e3283;
 const supportsInterface: felt252 =

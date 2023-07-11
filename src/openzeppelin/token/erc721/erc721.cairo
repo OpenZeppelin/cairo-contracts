@@ -63,8 +63,6 @@ mod ERC721 {
     // Dispatchers
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-    use openzeppelin::introspection::src5::ISRC5Dispatcher;
-    use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
     use super::super::interface::ERC721ReceiverABIDispatcher;
     use super::super::interface::ERC721ReceiverABIDispatcherTrait;
 

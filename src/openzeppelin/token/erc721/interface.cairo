@@ -24,8 +24,6 @@ trait IERC721 {
     fn name() -> felt252;
     fn symbol() -> felt252;
     fn token_uri(token_id: u256) -> felt252;
-    // ISRC5 (formerly IERC165)
-    fn supports_interface(interface_id: felt252) -> bool;
 }
 
 #[abi]
@@ -44,8 +42,6 @@ trait IERC721Camel {
     fn name() -> felt252;
     fn symbol() -> felt252;
     fn tokenUri(tokenId: u256) -> felt252;
-    // ISRC5 (formerly IERC165)
-    fn supportsInterface(interfaceId: felt252) -> bool;
 }
 
 //

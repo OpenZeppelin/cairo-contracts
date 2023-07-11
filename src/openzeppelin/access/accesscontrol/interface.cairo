@@ -6,8 +6,6 @@ const IACCESSCONTROL_ID: felt252 =
 #[abi]
 trait IAccessControl {
     #[view]
-    fn supports_interface(interface_id: felt252) -> bool;
-    #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool;
     #[view]
     fn get_role_admin(role: felt252) -> felt252;
@@ -21,8 +19,6 @@ trait IAccessControl {
 
 #[abi]
 trait IAccessControlCamel {
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool;
     #[view]
     fn hasRole(role: felt252, account: ContractAddress) -> bool;
     #[view]

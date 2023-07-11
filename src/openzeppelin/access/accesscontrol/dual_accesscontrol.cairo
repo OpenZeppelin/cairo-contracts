@@ -19,6 +19,7 @@ trait DualCaseAccessControlTrait {
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
     fn revoke_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
     fn renounce_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
+    fn supports_interface(self: @DualCaseAccessControl, interface_id: felt252) -> bool;
 }
 
 impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
@@ -74,5 +75,15 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
             *self.contract_address, selectors::renounce_role, selectors::renounceRole, args.span()
         )
             .unwrap_syscall();
+    }
+
+    fn supports_interface(self: @DualCaseAccessControl, interface_id: felt252) -> bool {
+        let mut args = ArrayTrait::new();
+        args.append_serde(interface_id);
+
+        try_selector_with_fallback(
+            *self.contract_address, selectors::supports_interface, selectors::supportsInterface, args.span()
+        )
+            .unwrap_and_cast()
     }
 }

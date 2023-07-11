@@ -33,6 +33,10 @@ mod AccessControl {
     fn RoleAdminChanged(role: felt252, previous_admin_role: felt252, new_admin_role: felt252) {}
 
     impl AccessControlImpl of interface::IAccessControl {
+        fn supports_interface(interface_id: felt252) -> bool {
+            SRC5::supports_interface(interface_id)
+        }
+
         fn has_role(role: felt252, account: ContractAddress) -> bool {
             role_members::read((role, account))
         }
@@ -61,6 +65,10 @@ mod AccessControl {
     }
 
     impl AccessControlCamelImpl of interface::IAccessControlCamel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            SRC5::supportsInterface(interfaceId)
+        }
+
         fn hasRole(role: felt252, account: ContractAddress) -> bool {
             AccessControlImpl::has_role(role, account)
         }
@@ -88,7 +96,12 @@ mod AccessControl {
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        SRC5::supports_interface(interface_id)
+        AccessControlImpl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        AccessControlCamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]

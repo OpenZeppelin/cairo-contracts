@@ -5,6 +5,11 @@ trait ISRC5 {
     fn supports_interface(interface_id: felt252) -> bool;
 }
 
+#[abi]
+trait ISRC5Camel {
+    fn supportsInterface(interfaceId: felt252) -> bool;
+}
+
 #[contract]
 mod SRC5 {
     use openzeppelin::introspection::src5;
@@ -22,9 +27,20 @@ mod SRC5 {
         }
     }
 
+    impl SRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            SRC5Impl::supports_interface(interfaceId)
+        }
+    }
+
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
         SRC5Impl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        SRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[internal]

@@ -3,6 +3,7 @@ use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
+use openzeppelin::token::erc721::interface::IERC721_ID;
 use openzeppelin::token::erc721::interface::IERC721Dispatcher;
 use openzeppelin::token::erc721::interface::IERC721CamelDispatcher;
 use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
@@ -386,6 +387,29 @@ fn test_dual_token_uri_exists_and_panics() {
     dispatcher.token_uri(TOKEN_ID);
 }
 
+#[test]
+#[available_gas(2000000)]
+fn test_dual_supports_interface() {
+    let (dispatcher, _) = setup_snake();
+    assert(dispatcher.supports_interface(IERC721_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+fn test_dual_no_supports_interface() {
+    let dispatcher = setup_non_erc721();
+    dispatcher.supports_interface(IERC721_ID);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+fn test_dual_supports_interface_exists_and_panics() {
+    let (dispatcher, _) = setup_erc721_panic();
+    dispatcher.supports_interface(IERC721_ID);
+}
+
 ///
 /// camelCase target
 ///
@@ -518,4 +542,19 @@ fn test_dual_tokenUri() {
 fn test_dual_tokenUri_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.token_uri(TOKEN_ID);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_dual_supportsInterface() {
+    let (dispatcher, _) = setup_camel();
+    assert(dispatcher.supports_interface(IERC721_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+fn test_dual_supportsInterface_exists_and_panics() {
+    let (_, dispatcher) = setup_erc721_panic();
+    dispatcher.supports_interface(IERC721_ID);
 }

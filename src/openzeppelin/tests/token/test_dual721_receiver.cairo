@@ -1,8 +1,6 @@
 use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::testing::set_caller_address;
-use starknet::testing::set_contract_address;
 use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
 use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
@@ -18,15 +16,11 @@ use openzeppelin::tests::mocks::dual721_receiver_mocks::SnakeERC721ReceiverPanic
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
 
 ///
 /// Constants
 ///
 
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-const URI: felt252 = 333;
 const TOKEN_ID: u256 = 7;
 
 fn DATA(success: bool) -> Span<felt252> {

@@ -1,20 +1,18 @@
+use openzeppelin::introspection::src5::SRC5;
+
 #[contract]
 mod SnakeSRC5Mock {
-    use openzeppelin::introspection::src5::SRC5;
-
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
-        SRC5::supports_interface(interface_id)
+        super::SRC5::supports_interface(interface_id)
     }
 }
 
 #[contract]
 mod CamelSRC5Mock {
-    use openzeppelin::introspection::src5::SRC5;
-
     #[view]
     fn supportsInterface(interfaceId: felt252) -> bool {
-        SRC5::supportsInterface(interfaceId)
+        super::SRC5::supportsInterface(interfaceId)
     }
 }
 

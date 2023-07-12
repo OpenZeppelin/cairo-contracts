@@ -658,7 +658,7 @@ fn test_safe_transfer_from_approved_for_all() {
 #[available_gas(2000000)]
 fn test_safe_transfer_from_approved_for_all_camel() {
     setup();
-    let receiver = setup_receiver();
+    let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 

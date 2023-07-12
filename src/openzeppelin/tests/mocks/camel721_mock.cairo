@@ -16,7 +16,7 @@ mod CamelERC721Mock {
 
     #[view]
     fn supportsInterface(interfaceId: felt252) -> bool {
-        ERC721::supports_interface(interfaceId)
+        ERC721::supportsInterface(interfaceId)
     }
 
     #[view]

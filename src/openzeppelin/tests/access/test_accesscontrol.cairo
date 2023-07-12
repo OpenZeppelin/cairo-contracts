@@ -41,7 +41,7 @@ fn test_initializer() {
 }
 
 //
-// supports_interface
+// supports_interface & supportsInterface
 //
 
 #[test]
@@ -49,6 +49,13 @@ fn test_initializer() {
 fn test_supports_interface() {
     AccessControl::initializer();
     assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_supportsInterface() {
+    AccessControl::initializer();
+    assert(AccessControl::supportsInterface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 //

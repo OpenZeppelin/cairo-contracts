@@ -4,6 +4,7 @@ use starknet::contract_address_const;
 use starknet::testing::set_contract_address;
 
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
@@ -18,9 +19,9 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 const ROLE: felt252 = 41;
 
@@ -32,9 +33,9 @@ fn AUTHORIZED() -> ContractAddress {
     contract_address_const::<20>()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -84,9 +85,32 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
     )
 }
 
-///
-/// snake_case target
-///
+//
+// snake_case target
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_dual_supports_interface() {
+    let (dispatcher, _) = setup_snake();
+    assert(dispatcher.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+fn test_dual_no_supports_interface() {
+    let dispatcher = setup_non_accesscontrol();
+    dispatcher.supports_interface(IACCESSCONTROL_ID);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+fn test_dual_supports_interface_exists_and_panics() {
+    let (dispatcher, _) = setup_accesscontrol_panic();
+    dispatcher.supports_interface(IACCESSCONTROL_ID);
+}
 
 #[test]
 #[available_gas(2000000)]
@@ -209,9 +233,24 @@ fn test_dual_renounce_role_exists_and_panics() {
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
 }
 
-///
-/// camelCase target
-///
+//
+// camelCase target
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_dual_supportsInterface() {
+    let (dispatcher, _) = setup_camel();
+    assert(dispatcher.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+fn test_dual_supportsInterface_exists_and_panics() {
+    let (_, dispatcher) = setup_accesscontrol_panic();
+    dispatcher.supports_interface(IACCESSCONTROL_ID);
+}
 
 #[test]
 #[available_gas(2000000)]

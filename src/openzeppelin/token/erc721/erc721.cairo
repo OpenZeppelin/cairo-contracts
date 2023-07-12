@@ -11,6 +11,8 @@ trait ERC721ABI {
     fn approve(to: ContractAddress, token_id: u256);
     // snake_case
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool;
+    #[view]
     fn balance_of(account: ContractAddress) -> u256;
     #[view]
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -29,6 +31,8 @@ trait ERC721ABI {
     #[view]
     fn token_uri(token_id: u256) -> felt252;
     // camelCase
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool;
     #[view]
     fn balanceOf(account: ContractAddress) -> u256;
     #[view]
@@ -54,10 +58,12 @@ mod ERC721 {
     use openzeppelin::account;
     use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721;
-    use openzeppelin::introspection::src5::ISRC5Dispatcher;
-    use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
+    //use openzeppelin::introspection::src5::ISRC5Dispatcher;
+    //use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
     use super::super::interface::ERC721ReceiverABIDispatcher;
     use super::super::interface::ERC721ReceiverABIDispatcherTrait;
 
@@ -96,6 +102,12 @@ mod ERC721 {
     impl ISRC5Impl of src5::ISRC5 {
         fn supports_interface(interface_id: felt252) -> bool {
             src5::SRC5::supports_interface(interface_id)
+        }
+    }
+
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
         }
     }
 
@@ -215,6 +227,11 @@ mod ERC721 {
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
         ISRC5Impl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]
@@ -442,7 +459,7 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (ISRC5Dispatcher {
+        if (DualCaseSRC5 {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
             DualCaseERC721Receiver {
@@ -452,9 +469,7 @@ mod ERC721 {
                     get_caller_address(), from, token_id, data
                 ) == erc721::interface::IERC721_RECEIVER_ID
         } else {
-            ISRC5Dispatcher {
-                contract_address: to
-            }.supports_interface(account::interface::IACCOUNT_ID)
+            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

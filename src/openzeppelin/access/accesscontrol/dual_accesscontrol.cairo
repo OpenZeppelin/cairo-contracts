@@ -1,11 +1,6 @@
 use array::ArrayTrait;
-use array::SpanTrait;
-use core::result::ResultTrait;
-use option::OptionTrait;
 use starknet::ContractAddress;
-use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;
-use traits::TryInto;
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::selectors;
@@ -24,6 +19,7 @@ trait DualCaseAccessControlTrait {
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
     fn revoke_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
     fn renounce_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);
+    fn supports_interface(self: @DualCaseAccessControl, interface_id: felt252) -> bool;
 }
 
 impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
@@ -42,11 +38,10 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let mut args = ArrayTrait::new();
         args.append_serde(role);
 
-        *try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::get_role_admin, selectors::getRoleAdmin, args.span()
         )
-            .unwrap_syscall()
-            .at(0)
+            .unwrap_and_cast()
     }
 
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
@@ -80,5 +75,18 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
             *self.contract_address, selectors::renounce_role, selectors::renounceRole, args.span()
         )
             .unwrap_syscall();
+    }
+
+    fn supports_interface(self: @DualCaseAccessControl, interface_id: felt252) -> bool {
+        let mut args = ArrayTrait::new();
+        args.append_serde(interface_id);
+
+        try_selector_with_fallback(
+            *self.contract_address,
+            selectors::supports_interface,
+            selectors::supportsInterface,
+            args.span()
+        )
+            .unwrap_and_cast()
     }
 }

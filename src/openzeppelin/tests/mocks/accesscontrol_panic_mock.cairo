@@ -9,6 +9,12 @@ mod SnakeAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool {
+        panic_with_felt252('Some error');
+        false
+    }
+
+    #[view]
     fn has_role(role: felt252, account: ContractAddress) -> bool {
         panic_with_felt252('Some error');
         false
@@ -39,6 +45,12 @@ mod SnakeAccessControlPanicMock {
 #[contract]
 mod CamelAccessControlPanicMock {
     use starknet::ContractAddress;
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        panic_with_felt252('Some error');
+        false
+    }
 
     #[view]
     fn hasRole(role: felt252, account: ContractAddress) -> bool {

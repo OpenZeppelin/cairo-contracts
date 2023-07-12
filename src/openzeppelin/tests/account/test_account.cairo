@@ -2,16 +2,15 @@ use array::ArrayTrait;
 use core::traits::Into;
 use option::OptionTrait;
 use serde::Serde;
-use starknet::ContractAddress;
 use starknet::contract_address_const;
+use starknet::ContractAddress;
 use starknet::testing;
 
 use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::Call;
-use openzeppelin::account::interface::ERC1271_VALIDATED;
-use openzeppelin::account::interface::IACCOUNT_ID;
+use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::src5::ISRC5_ID;
@@ -21,6 +20,10 @@ use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+
+//
+// Constants
+//
 
 const PUBLIC_KEY: felt252 = 0x333333;
 const NEW_PUBKEY: felt252 = 0x789789;
@@ -51,6 +54,10 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
     }
 }
 
+//
+// Setup
+//
+
 fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
     // Set the transaction version
     testing::set_version(TRANSACTION_VERSION);
@@ -73,7 +80,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
         calldata.append(PUBLIC_KEY);
     }
 
-    let address = utils::deploy(Account::TEST_CLASS_HASH, calldata);
+    let address = utils::deploy(CLASS_HASH(), calldata);
     AccountABIDispatcher { contract_address: address }
 }
 
@@ -91,6 +98,10 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     IERC20Dispatcher { contract_address: address }
 }
 
+//
+// constructor
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_constructor() {
@@ -98,23 +109,43 @@ fn test_constructor() {
     assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
 }
 
+//
+// supports_interface & supportsInterface
+//
+
 #[test]
 #[available_gas(2000000)]
-fn test_interfaces() {
+fn test_supports_interface() {
     Account::constructor(PUBLIC_KEY);
 
     let supports_default_interface = Account::supports_interface(ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supports_interface(IACCOUNT_ID);
+    let supports_account_interface = Account::supports_interface(ISRC6_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
 #[test]
 #[available_gas(2000000)]
+fn test_supportsInterface() {
+    Account::constructor(PUBLIC_KEY);
+
+    let supports_default_interface = Account::supportsInterface(ISRC5_ID);
+    assert(supports_default_interface, 'Should support base interface');
+
+    let supports_account_interface = Account::supportsInterface(ISRC6_ID);
+    assert(supports_account_interface, 'Should support account id');
+}
+
+//
+// is_valid_signature & isValidSignature
+//
+
+#[test]
+#[available_gas(2000000)]
 fn test_is_valid_signature() {
     let data = SIGNED_TX_DATA();
-    let message = data.transaction_hash;
+    let hash = data.transaction_hash;
 
     let mut good_signature = ArrayTrait::new();
     good_signature.append(data.r);
@@ -126,12 +157,39 @@ fn test_is_valid_signature() {
 
     Account::set_public_key(data.public_key);
 
-    let is_valid = Account::is_valid_signature(message, good_signature);
-    assert(is_valid == ERC1271_VALIDATED, 'Should accept valid signature');
+    let is_valid = Account::is_valid_signature(hash, good_signature);
+    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = Account::is_valid_signature(message, bad_signature);
+    let is_valid = Account::is_valid_signature(hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
+
+#[test]
+#[available_gas(2000000)]
+fn test_isValidSignature() {
+    let data = SIGNED_TX_DATA();
+    let hash = data.transaction_hash;
+
+    let mut good_signature = ArrayTrait::new();
+    good_signature.append(data.r);
+    good_signature.append(data.s);
+
+    let mut bad_signature = ArrayTrait::new();
+    bad_signature.append(0x987);
+    bad_signature.append(0x564);
+
+    Account::set_public_key(data.public_key);
+
+    let is_valid = Account::is_valid_signature(hash, good_signature);
+    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+
+    let is_valid = Account::is_valid_signature(hash, bad_signature);
+    assert(is_valid == 0, 'Should reject invalid signature');
+}
+
+//
+// Entry points
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -367,6 +425,21 @@ fn test_multicall_zero_calls() {
 
 #[test]
 #[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid caller', ))]
+fn test_account_called_from_contract() {
+    let calls = ArrayTrait::new();
+    let caller = contract_address_const::<0x123>();
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    testing::set_caller_address(caller);
+    Account::__execute__(calls);
+}
+
+//
+// set_public_key & get_public_key
+//
+
+#[test]
+#[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
@@ -386,15 +459,29 @@ fn test_public_key_setter_different_account() {
     Account::set_public_key(NEW_PUBKEY);
 }
 
+//
+// setPublicKey & getPublicKey
+//
+
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid caller', ))]
-fn test_account_called_from_contract() {
-    let calls = ArrayTrait::new();
+fn test_public_key_setter_and_getter_camel() {
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    testing::set_caller_address(ACCOUNT_ADDRESS());
+    Account::setPublicKey(NEW_PUBKEY);
+
+    let public_key = Account::getPublicKey();
+    assert(public_key == NEW_PUBKEY, 'Should update key');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: unauthorized', ))]
+fn test_public_key_setter_different_account_camel() {
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
-    Account::__execute__(calls);
+    Account::setPublicKey(NEW_PUBKEY);
 }
 
 //
@@ -430,7 +517,7 @@ fn test_assert_only_self_false() {
 #[available_gas(2000000)]
 fn test__is_valid_signature() {
     let data = SIGNED_TX_DATA();
-    let message = data.transaction_hash;
+    let hash = data.transaction_hash;
 
     let mut good_signature = ArrayTrait::new();
     good_signature.append(data.r);
@@ -445,12 +532,12 @@ fn test__is_valid_signature() {
 
     Account::set_public_key(data.public_key);
 
-    let is_valid = Account::_is_valid_signature(message, good_signature.span());
+    let is_valid = Account::_is_valid_signature(hash, good_signature.span());
     assert(is_valid, 'Should accept valid signature');
 
-    let is_valid = Account::_is_valid_signature(message, bad_signature.span());
+    let is_valid = Account::_is_valid_signature(hash, bad_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
 
-    let is_valid = Account::_is_valid_signature(message, invalid_length_signature.span());
+    let is_valid = Account::_is_valid_signature(hash, invalid_length_signature.span());
     assert(!is_valid, 'Should reject invalid length');
 }

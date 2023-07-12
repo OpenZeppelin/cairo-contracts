@@ -18,9 +18,9 @@ use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnablePanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 fn OWNER() -> ContractAddress {
     contract_address_const::<10>()
@@ -30,9 +30,9 @@ fn NEW_OWNER() -> ContractAddress {
     contract_address_const::<20>()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualCaseOwnable, IOwnableDispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -74,9 +74,9 @@ fn setup_ownable_panic() -> (DualCaseOwnable, DualCaseOwnable) {
     )
 }
 
-///
-/// Case agnostic methods
-///
+//
+// Case agnostic methods
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -103,9 +103,9 @@ fn test_dual_owner_exists_and_panics() {
     dispatcher.owner();
 }
 
-///
-/// snake_case target
-///
+//
+// snake_case target
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -158,9 +158,9 @@ fn test_dual_renounce_ownership_exists_and_panics() {
     dispatcher.renounce_ownership();
 }
 
-///
-/// camelCase target
-///
+//
+// camelCase target
+//
 
 #[test]
 #[available_gas(2000000)]

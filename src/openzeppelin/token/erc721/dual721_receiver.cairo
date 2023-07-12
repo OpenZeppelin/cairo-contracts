@@ -42,7 +42,5 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
             args.span()
         )
             .unwrap_and_cast()
-            //.unwrap_syscall()
-            //.at(0)
     }
 }

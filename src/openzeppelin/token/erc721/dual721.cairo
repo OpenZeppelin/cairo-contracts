@@ -1,16 +1,8 @@
-use core::result::ResultTrait;
-use traits::Into;
-use traits::TryInto;
-use array::SpanTrait;
 use array::ArrayTrait;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
-use starknet::Felt252TryIntoContractAddress;
 use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::BoolIntoFelt252;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -42,34 +34,32 @@ trait DualCaseERC721Trait {
         token_id: u256,
         data: Span<felt252>
     );
+    fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool;
 }
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
         let args = ArrayTrait::new();
 
-        *call_contract_syscall(*self.contract_address, selectors::name, args.span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::name, args.span())
+            .unwrap_and_cast()
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
         let args = ArrayTrait::new();
 
-        *call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
-            .unwrap_syscall()
-            .at(0)
+        call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
+            .unwrap_and_cast()
     }
 
     fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
         let mut args = ArrayTrait::new();
         args.append_serde(token_id);
 
-        *try_selector_with_fallback(
+        try_selector_with_fallback(
             *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
         )
-            .unwrap_syscall()
-            .at(0)
+            .unwrap_and_cast()
     }
 
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {
@@ -174,5 +164,18 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
             args.span()
         )
             .unwrap_syscall();
+    }
+
+    fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool {
+        let mut args = ArrayTrait::new();
+        args.append_serde(interface_id);
+
+        try_selector_with_fallback(
+            *self.contract_address,
+            selectors::supports_interface,
+            selectors::supportsInterface,
+            args.span()
+        )
+            .unwrap_and_cast()
     }
 }

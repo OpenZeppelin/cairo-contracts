@@ -38,6 +38,12 @@ mod AccessControl {
         }
     }
 
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
+    }
+
     impl AccessControlImpl of interface::IAccessControl {
         fn has_role(role: felt252, account: ContractAddress) -> bool {
             role_members::read((role, account))
@@ -95,6 +101,11 @@ mod AccessControl {
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
         ISRC5Impl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]

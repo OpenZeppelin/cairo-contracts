@@ -23,6 +23,12 @@ mod ERC721Receiver {
         }
     }
 
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
+    }
+
     impl ERC721ReceiverImpl of IERC721Receiver {
         fn on_erc721_received(
             operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
@@ -46,6 +52,11 @@ mod ERC721Receiver {
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
         ISRC5Impl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[external]

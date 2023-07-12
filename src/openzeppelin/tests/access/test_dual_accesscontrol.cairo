@@ -19,9 +19,9 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 const ROLE: felt252 = 41;
 
@@ -33,9 +33,9 @@ fn AUTHORIZED() -> ContractAddress {
     contract_address_const::<20>()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -85,9 +85,9 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
     )
 }
 
-///
-/// snake_case target
-///
+//
+// snake_case target
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -233,9 +233,9 @@ fn test_dual_renounce_role_exists_and_panics() {
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
 }
 
-///
-/// camelCase target
-///
+//
+// camelCase target
+//
 
 #[test]
 #[available_gas(2000000)]

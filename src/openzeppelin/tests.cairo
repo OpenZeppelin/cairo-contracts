@@ -1,7 +1,7 @@
 mod access;
 mod test_reentrancyguard;
 mod introspection;
-mod test_account;
+mod account;
 mod token;
 mod test_initializable;
 mod test_pausable;

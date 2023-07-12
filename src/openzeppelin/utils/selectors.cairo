@@ -66,9 +66,16 @@ const allowance: felt252 = 0x1e888a1026b19c8c0b57c72d63ed1737106aa10034105b980ba
 const transfer: felt252 = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
 
 //
-// SRC5
+// Account
 //
 
+const set_public_key: felt252 = 0x2e3e21ff5952b2531241e37999d9c4c8b3034cccc89a202a6bf019bdf5294f9;
+const setPublicKey: felt252 = 0xbc0eb87884ab91e330445c3584a50d7ddf4b568f02fbeb456a6242cce3f5d9;
+const get_public_key: felt252 = 0x1a35984e05126dbecb7c3bb9929e7dd9106d460c59b1633739a5c733a5fb13b;
+const getPublicKey: felt252 = 0x1a6c6a0bdec86cc645c91997d8eea83e87148659e3e61122f72361fd5e94079;
+const is_valid_signature: felt252 =
+    0x28420862938116cb3bbdbedee07451ccc54d4e9412dbef71142ad1980a30941;
+const isValidSignature: felt252 = 0x213dfe25e2ca309c4d615a09cfc95fdb2fc7dc73fbcad12c450fe93b1f2ff9e;
 const supports_interface: felt252 =
     0xfe80f537b66d12a00b6d3c072b44afbb716e78dde5c3f0ef116ee93d3e3283;
 const supportsInterface: felt252 =

@@ -1,8 +1,19 @@
+use openzeppelin::introspection::src5::SRC5;
+use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
+use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver::IERC721_RECEIVER_ID;
+
 #[contract]
 mod SnakeERC721ReceiverMock {
-    use starknet::ContractAddress;
-    use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
     use openzeppelin::utils::serde::SpanSerde;
+    use starknet::ContractAddress;
+    use super::ERC721Receiver;
+    use super::IERC721_RECEIVER_ID;
+    use super::SRC5;
+
+    #[constructor]
+    fn constructor() {
+        SRC5::register_interface(IERC721_RECEIVER_ID);
+    }
 
     #[view]
     fn on_erc721_received(
@@ -19,9 +30,16 @@ mod SnakeERC721ReceiverMock {
 
 #[contract]
 mod CamelERC721ReceiverMock {
-    use starknet::ContractAddress;
-    use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
     use openzeppelin::utils::serde::SpanSerde;
+    use starknet::ContractAddress;
+    use super::ERC721Receiver;
+    use super::IERC721_RECEIVER_ID;
+    use super::SRC5;
+
+    #[constructor]
+    fn constructor() {
+        SRC5::register_interface(IERC721_RECEIVER_ID);
+    }
 
     #[view]
     fn onERC721Received(
@@ -29,12 +47,17 @@ mod CamelERC721ReceiverMock {
     ) -> felt252 {
         ERC721Receiver::on_erc721_received(operator, from, tokenId, data)
     }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ERC721Receiver::supportsInterface(interfaceId)
+    }
 }
 
 #[contract]
 mod SnakeERC721ReceiverPanicMock {
-    use starknet::ContractAddress;
     use openzeppelin::utils::serde::SpanSerde;
+    use starknet::ContractAddress;
 
     #[view]
     fn on_erc721_received(
@@ -43,18 +66,12 @@ mod SnakeERC721ReceiverPanicMock {
         panic_with_felt252('Some error');
         3
     }
-
-    #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
-        false
-    }
 }
 
 #[contract]
 mod CamelERC721ReceiverPanicMock {
-    use starknet::ContractAddress;
     use openzeppelin::utils::serde::SpanSerde;
+    use starknet::ContractAddress;
 
     #[view]
     fn onERC721Received(

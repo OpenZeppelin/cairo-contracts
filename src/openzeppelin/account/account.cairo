@@ -69,9 +69,9 @@ mod Account {
     use starknet::get_contract_address;
     use zeroable::Zeroable;
 
+    use openzeppelin::account::interface::IDeclarer;
     use openzeppelin::account::interface::ISRC6;
     use openzeppelin::account::interface::ISRC6Camel;
-    use openzeppelin::account::interface::IDeclarer;
     use openzeppelin::account::interface::ISRC6_ID;
     use openzeppelin::introspection::src5::ISRC5;
     use openzeppelin::introspection::src5::SRC5;
@@ -121,6 +121,14 @@ mod Account {
     }
 
     impl SRC6CamelImpl of ISRC6Camel {
+        fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
+            SRC6Impl::__execute__(calls)
+        }
+
+        fn __validate__(mut calls: Array<Call>) -> felt252 {
+            SRC6Impl::__validate__(calls)
+        }
+
         fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
             SRC6Impl::is_valid_signature(hash, signature)
         }
@@ -196,7 +204,7 @@ mod Account {
 
     #[view]
     fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
-        is_valid_signature(hash, signature)
+        SRC6CamelImpl::isValidSignature(hash, signature)
     }
 
     #[view]

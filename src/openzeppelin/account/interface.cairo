@@ -18,6 +18,8 @@ trait ISRC6 {
 }
 
 trait ISRC6Camel {
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(calls: Array<Call>) -> felt252;
     fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
 }
 

@@ -22,9 +22,9 @@ fn setup() {
     Ownable::initializer();
 }
 
-///
-/// initializer
-///
+//
+// initializer
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -34,9 +34,9 @@ fn test_initializer() {
     assert(Ownable::owner() == OWNER(), 'Owner should be set');
 }
 
-///
-/// transfer_ownership & transferOwnership
-///
+//
+// transfer_ownership & transferOwnership
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -102,9 +102,9 @@ fn test_transferOwnership_from_nonowner() {
     Ownable::transferOwnership(OTHER());
 }
 
-///
-/// renounce_ownership & renounceOwnership
-///
+//
+// renounce_ownership & renounceOwnership
+//
 
 #[test]
 #[available_gas(2000000)]

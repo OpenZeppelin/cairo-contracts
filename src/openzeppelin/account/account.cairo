@@ -2,11 +2,10 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use option::OptionTrait;
 use serde::Serde;
-use serde::deserialize_array_helper;
-use serde::serialize_array_helper;
 use starknet::ContractAddress;
 
 use openzeppelin::account::interface::Call;
+use openzeppelin::utils::serde::SpanSerde;
 
 const TRANSACTION_VERSION: felt252 = 1;
 // 2**128 + TRANSACTION_VERSION
@@ -29,9 +28,32 @@ trait AccountABI {
     #[view]
     fn get_public_key() -> felt252;
     #[view]
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252;
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
     #[view]
     fn supports_interface(interface_id: felt252) -> bool;
+}
+
+// Entry points case-convention is enforced by the protocol
+#[abi]
+trait AccountABICamel {
+    #[external]
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    #[external]
+    fn __validate__(calls: Array<Call>) -> felt252;
+    #[external]
+    fn __validate_declare__(classHash: felt252) -> felt252;
+    #[external]
+    fn __validate_deploy__(
+        classHash: felt252, contractAddressSalt: felt252, _publicKey: felt252
+    ) -> felt252;
+    #[external]
+    fn setPublicKey(newPublicKey: felt252);
+    #[view]
+    fn getPublicKey() -> felt252;
+    #[view]
+    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool;
 }
 
 #[account_contract]
@@ -49,6 +71,7 @@ mod Account {
 
     use openzeppelin::account::interface::IDeclarer;
     use openzeppelin::account::interface::ISRC6;
+    use openzeppelin::account::interface::ISRC6Camel;
     use openzeppelin::account::interface::ISRC6_ID;
     use openzeppelin::introspection::src5::ISRC5;
     use openzeppelin::introspection::src5::SRC5;
@@ -88,12 +111,26 @@ mod Account {
             validate_transaction()
         }
 
-        fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
-            if _is_valid_signature(message, signature.span()) {
+        fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252 {
+            if _is_valid_signature(hash, signature.span()) {
                 starknet::VALIDATED
             } else {
                 0
             }
+        }
+    }
+
+    impl SRC6CamelImpl of ISRC6Camel {
+        fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
+            SRC6Impl::__execute__(calls)
+        }
+
+        fn __validate__(mut calls: Array<Call>) -> felt252 {
+            SRC6Impl::__validate__(calls)
+        }
+
+        fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
+            SRC6Impl::is_valid_signature(hash, signature)
         }
     }
 
@@ -141,6 +178,11 @@ mod Account {
         public_key::write(new_public_key);
     }
 
+    #[external]
+    fn setPublicKey(newPublicKey: felt252) {
+        set_public_key(newPublicKey);
+    }
+
     //
     // View
     //
@@ -151,13 +193,28 @@ mod Account {
     }
 
     #[view]
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> felt252 {
-        SRC6Impl::is_valid_signature(message, signature)
+    fn getPublicKey() -> felt252 {
+        get_public_key()
+    }
+
+    #[view]
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252 {
+        SRC6Impl::is_valid_signature(hash, signature)
+    }
+
+    #[view]
+    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
+        SRC6CamelImpl::isValidSignature(hash, signature)
     }
 
     #[view]
     fn supports_interface(interface_id: felt252) -> bool {
         SRC5Impl::supports_interface(interface_id)
+    }
+
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        supports_interface(interfaceId)
     }
 
     //
@@ -187,12 +244,12 @@ mod Account {
     }
 
     #[internal]
-    fn _is_valid_signature(message: felt252, signature: Span<felt252>) -> bool {
+    fn _is_valid_signature(hash: felt252, signature: Span<felt252>) -> bool {
         let valid_length = signature.len() == 2_u32;
 
         if valid_length {
             check_ecdsa_signature(
-                message, public_key::read(), *signature.at(0_u32), *signature.at(1_u32)
+                hash, public_key::read(), *signature.at(0_u32), *signature.at(1_u32)
             )
         } else {
             false
@@ -220,19 +277,5 @@ mod Account {
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
-    }
-}
-
-impl SpanSerde<
-    T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>
-> of Serde<Span<T>> {
-    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
-        (*self).len().serialize(ref output);
-        serialize_array_helper(*self, ref output);
-    }
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
-        let length = *serialized.pop_front()?;
-        let mut arr = ArrayTrait::new();
-        Option::Some(deserialize_array_helper(ref serialized, arr, length)?.span())
     }
 }

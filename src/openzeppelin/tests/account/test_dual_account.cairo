@@ -191,7 +191,6 @@ fn test_dual_supports_interface_exists_and_panics() {
     dispatcher.supports_interface(ISRC5_ID);
 }
 
-
 //
 // camelCase target
 //

@@ -56,21 +56,18 @@ trait ERC721ABI {
 #[contract]
 mod ERC721 {
     use openzeppelin::account;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
     use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
-    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
-    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-    use super::super::interface::ERC721ReceiverABIDispatcher;
-    use super::super::interface::ERC721ReceiverABIDispatcherTrait;
+    use openzeppelin::utils::serde::SpanSerde;
 
     use array::SpanTrait;
     use option::OptionTrait;
-    use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use traits::Into;
     use zeroable::Zeroable;
 
     struct Storage {

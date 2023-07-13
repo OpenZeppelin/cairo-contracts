@@ -1,39 +1,52 @@
-#[contract]
+#[starknet::contract]
 mod Pausable {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
+    #[storage]
     struct Storage {
         paused: bool
     }
 
     #[event]
-    fn Paused(account: ContractAddress) {}
-
-    #[event]
-    fn Unpaused(account: ContractAddress) {}
-
-    fn is_paused() -> bool {
-        paused::read()
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Paused: Paused,
+        Unpaused: Unpaused,
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Paused {
+        account: ContractAddress
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Unpaused {
+        account: ContractAddress
     }
 
-    fn assert_not_paused() {
-        assert(!is_paused(), 'Pausable: paused');
-    }
+    #[generate_trait]
+    impl StorageImpl of StorageTrait {
+        fn is_paused(self: @ContractState) -> bool {
+            self.paused.read()
+        }
 
-    fn assert_paused() {
-        assert(is_paused(), 'Pausable: not paused');
-    }
+        fn assert_not_paused(self: @ContractState) {
+            assert(!self.is_paused(), 'Pausable: paused');
+        }
 
-    fn pause() {
-        assert_not_paused();
-        paused::write(true);
-        Paused(get_caller_address());
-    }
+        fn assert_paused(self: @ContractState) {
+            assert(self.is_paused(), 'Pausable: not paused');
+        }
 
-    fn unpause() {
-        assert_paused();
-        paused::write(false);
-        Unpaused(get_caller_address());
+        fn pause(ref self: ContractState) {
+            self.assert_not_paused();
+            self.paused.write(true);
+            self.emit(Event::Paused(Paused { account: get_caller_address() }));
+        }
+
+        fn unpause(ref self: ContractState) {
+            self.assert_paused();
+            self.paused.write(false);
+            self.emit(Event::Unpaused(Unpaused { account: get_caller_address() }));
+        }
     }
 }

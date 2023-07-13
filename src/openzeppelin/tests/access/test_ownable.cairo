@@ -19,7 +19,7 @@ fn OTHER() -> ContractAddress {
 
 fn setup() {
     testing::set_caller_address(OWNER());
-    Ownable::initializer();
+    Ownable::initializer(OWNER());
 }
 
 //

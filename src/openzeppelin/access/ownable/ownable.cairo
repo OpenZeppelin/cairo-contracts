@@ -71,9 +71,8 @@ mod Ownable {
     // Internals
 
     #[internal]
-    fn initializer() {
-        let caller: ContractAddress = get_caller_address();
-        _transfer_ownership(caller);
+    fn initializer(owner: ContractAddress) {
+        _transfer_ownership(owner);
     }
 
     #[internal]

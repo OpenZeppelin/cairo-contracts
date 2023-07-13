@@ -17,6 +17,7 @@ use openzeppelin::tests::mocks::dual_ownable_mocks::SnakeOwnablePanicMock;
 use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnablePanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
+use openzeppelin::utils::serde::SerializedAppend;
 
 //
 // Constants
@@ -36,14 +37,14 @@ fn NEW_OWNER() -> ContractAddress {
 
 fn setup_snake() -> (DualCaseOwnable, IOwnableDispatcher) {
     let mut calldata = ArrayTrait::new();
-    set_caller_address(OWNER());
+    calldata.append_serde(OWNER());
     let target = utils::deploy(SnakeOwnableMock::TEST_CLASS_HASH, calldata);
     (DualCaseOwnable { contract_address: target }, IOwnableDispatcher { contract_address: target })
 }
 
 fn setup_camel() -> (DualCaseOwnable, IOwnableCamelDispatcher) {
     let mut calldata = ArrayTrait::new();
-    set_caller_address(OWNER());
+    calldata.append_serde(OWNER());
     let target = utils::deploy(CamelOwnableMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseOwnable {
@@ -56,13 +57,11 @@ fn setup_camel() -> (DualCaseOwnable, IOwnableCamelDispatcher) {
 
 fn setup_non_ownable() -> DualCaseOwnable {
     let calldata = ArrayTrait::new();
-    set_caller_address(OWNER());
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseOwnable { contract_address: target }
 }
 
 fn setup_ownable_panic() -> (DualCaseOwnable, DualCaseOwnable) {
-    set_caller_address(OWNER());
     let snake_target = utils::deploy(SnakeOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     let camel_target = utils::deploy(CamelOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     (

@@ -1,47 +1,106 @@
-use openzeppelin::tests::mocks::mock_pausable::MockPausable;
+use openzeppelin::security::pausable::Pausable;
+use openzeppelin::security::pausable::Pausable::StorageTrait;
+
+fn internal_state() -> Pausable::ContractState {
+    Pausable::contract_state_for_testing()
+}
+
+//
+// is_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_is_paused() {
+    let mut contract = internal_state();
+    assert(!contract.is_paused(), 'Should not be paused');
+
+    contract.pause();
+    assert(contract.is_paused(), 'Should be paused');
+
+    contract.unpause();
+    assert(!contract.is_paused(), 'Should not be paused');
+}
+
+//
+// assert_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_assert_paused_when_paused() {
+    let mut contract = internal_state();
+    contract.pause();
+    contract.assert_paused();
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Pausable: not paused', ))]
+fn test_assert_paused_when_not_paused() {
+    let mut contract = internal_state();
+    contract.assert_paused();
+}
+
+//
+// assert_not_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Pausable: paused', ))]
+fn test_assert_not_paused_when_paused() {
+    let mut contract = internal_state();
+    contract.pause();
+    contract.assert_not_paused();
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_assert_not_paused_when_not_paused() {
+    let mut contract = internal_state();
+    contract.assert_not_paused();
+}
+
+//
+// pause
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_pause_when_unpaused() {
-    assert(!MockPausable::is_paused(), 'Should not be paused');
-    assert(MockPausable::get_count() == 0, 'Should be 0');
-    MockPausable::assert_unpaused_and_increment();
-    assert(MockPausable::get_count() == 1, 'Should increment');
-    MockPausable::pause();
-    assert(MockPausable::is_paused(), 'Should be paused');
+    let mut contract = internal_state();
+    contract.pause();
+    assert(contract.is_paused(), 'Should be paused');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused', ))]
 fn test_pause_when_paused() {
-    MockPausable::pause();
-    MockPausable::pause();
+    let mut contract = internal_state();
+    contract.pause();
+    contract.pause();
 }
 
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: paused', ))]
-fn test_pause_increment() {
-    MockPausable::pause();
-    MockPausable::assert_unpaused_and_increment();
-}
+//
+// unpause
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_unpause_when_paused() {
-    MockPausable::pause();
-    assert(MockPausable::is_paused(), 'Should be paused');
-    MockPausable::unpause();
-    assert(!MockPausable::is_paused(), 'Should not be paused');
-    MockPausable::assert_unpaused_and_increment();
-    assert(MockPausable::get_count() == 1, 'Should increment');
+    let mut contract = internal_state();
+    contract.pause();
+    contract.unpause();
+    assert(!contract.is_paused(), 'Should not be paused');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused', ))]
 fn test_unpause_when_unpaused() {
-    assert(!MockPausable::is_paused(), 'Should be unpaused');
-    MockPausable::unpause();
+    let mut contract = internal_state();
+    assert(!contract.is_paused(), 'Should be paused');
+    contract.unpause();
 }

@@ -17,9 +17,9 @@ use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverPanic
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 const TOKEN_ID: u256 = 7;
 

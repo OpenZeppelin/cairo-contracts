@@ -24,7 +24,7 @@ const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 const URI: felt252 = 333;
 const TOKEN_ID: u256 = 7;
-const PUBKEY: felt252 = 1234678;
+const PUBKEY: felt252 = 444;
 
 fn ZERO() -> ContractAddress {
     Zeroable::zero()

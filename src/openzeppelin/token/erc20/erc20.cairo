@@ -247,9 +247,9 @@ mod ERC20 {
         decrease_allowance(spender, subtractedValue)
     }
 
-    ///
-    /// Internals
-    ///
+    //
+    // Internals
+    //
 
     #[internal]
     fn initializer(name_: felt252, symbol_: felt252) {

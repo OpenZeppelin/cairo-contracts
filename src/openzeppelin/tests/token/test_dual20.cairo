@@ -17,9 +17,9 @@ use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
@@ -40,9 +40,9 @@ fn OPERATOR() -> ContractAddress {
     contract_address_const::<40>()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -76,9 +76,9 @@ fn setup_erc20_panic() -> (DualERC20, DualERC20) {
     (DualERC20 { contract_address: snake_target }, DualERC20 { contract_address: camel_target })
 }
 
-///
-/// Case agnostic methods
-///
+//
+// Case agnostic methods
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -215,9 +215,9 @@ fn test_dual_approve_exists_and_panics() {
     dispatcher.approve(SPENDER(), VALUE);
 }
 
-///
-/// snake_case target
-///
+//
+// snake_case target
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -293,9 +293,9 @@ fn test_dual_transfer_from_exists_and_panics() {
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
 }
 
-///
-/// camelCase target
-///
+//
+// camelCase target
+//
 
 #[test]
 #[available_gas(2000000)]

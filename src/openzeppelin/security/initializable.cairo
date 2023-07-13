@@ -1,17 +1,19 @@
-#[contract]
+#[starknet::contract]
 mod Initializable {
+    #[storage]
     struct Storage {
         initialized: bool
     }
 
-    #[internal]
-    fn is_initialized() -> bool {
-        initialized::read()
-    }
+    #[generate_trait]
+    impl StorageImpl of StorageTrait {
+        fn is_initialized(self: @ContractState) -> bool {
+            self.initialized.read()
+        }
 
-    #[internal]
-    fn initialize() {
-        assert(!is_initialized(), 'Initializable: is initialized');
-        initialized::write(true);
+        fn initialize(ref self: ContractState) {
+            assert(!self.is_initialized(), 'Initializable: is initialized');
+            self.initialized.write(true);
+        }
     }
 }

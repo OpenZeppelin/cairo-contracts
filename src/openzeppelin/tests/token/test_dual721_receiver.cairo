@@ -41,9 +41,9 @@ fn OPERATOR() -> ContractAddress {
     contract_address_const::<20>()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualCaseERC721Receiver, IERC721ReceiverDispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -92,7 +92,7 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 }
 
 //
-/// snake_case target
+// snake_case target
 //
 
 #[test]
@@ -123,7 +123,7 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 }
 
 //
-/// camelCase target
+// camelCase target
 //
 
 #[test]

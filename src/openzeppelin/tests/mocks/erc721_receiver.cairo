@@ -6,11 +6,28 @@ mod ERC721Receiver {
     use openzeppelin::token::erc721::interface::IERC721Receiver;
     use openzeppelin::token::erc721::interface::IERC721ReceiverCamel;
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5;
 
+    use array::SpanTrait;
     use openzeppelin::utils::serde::SpanSerde;
     use starknet::ContractAddress;
-    use array::SpanTrait;
+
+    #[constructor]
+    fn constructor() {
+        src5::SRC5::register_interface(IERC721_RECEIVER_ID);
+    }
+
+    impl ISRC5Impl of src5::ISRC5 {
+        fn supports_interface(interface_id: felt252) -> bool {
+            src5::SRC5::supports_interface(interface_id)
+        }
+    }
+
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
+    }
 
     impl ERC721ReceiverImpl of IERC721Receiver {
         fn on_erc721_received(
@@ -32,14 +49,14 @@ mod ERC721Receiver {
         }
     }
 
-    #[constructor]
-    fn constructor() {
-        SRC5::register_interface(IERC721_RECEIVER_ID);
+    #[view]
+    fn supports_interface(interface_id: felt252) -> bool {
+        ISRC5Impl::supports_interface(interface_id)
     }
 
     #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
-        SRC5::supports_interface(interface_id)
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[external]

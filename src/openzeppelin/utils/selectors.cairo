@@ -54,6 +54,14 @@ const safe_transfer_from: felt252 =
 const safeTransferFrom: felt252 = 0x19d59d013d4aa1a8b1ce4c8299086f070733b453c02d0dc46e735edc04d6444;
 
 //
+// ERC721Receiver
+//
+
+const on_erc721_received: felt252 =
+    0x38c7ee9f0855dfe219aea022b141d9b2ec0f6b68395d221c3f331c7ca4fb608;
+const onERC721Received: felt252 = 0xfa119a8fafc6f1a02deb36fe5efbcc4929ef2021e50cf1cb6d1a780ccd009b;
+
+//
 // ERC20
 //
 

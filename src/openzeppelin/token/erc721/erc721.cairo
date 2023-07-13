@@ -55,25 +55,20 @@ trait ERC721ABI {
 
 #[contract]
 mod ERC721 {
-    // OZ modules
     use openzeppelin::account;
-    use openzeppelin::introspection::src5;
-    use openzeppelin::token::erc721;
-
-    // Dispatchers
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-    use super::super::interface::ERC721ReceiverABIDispatcher;
-    use super::super::interface::ERC721ReceiverABIDispatcherTrait;
+    use openzeppelin::introspection::src5;
+    use openzeppelin::token::erc721;
+    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
+    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
+    use openzeppelin::utils::serde::SpanSerde;
 
-    // Other
+    use array::SpanTrait;
+    use option::OptionTrait;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
-    use option::OptionTrait;
-    use array::SpanTrait;
-    use traits::Into;
-    use openzeppelin::utils::serde::SpanSerde;
 
     struct Storage {
         _name: felt252,
@@ -462,8 +457,7 @@ mod ERC721 {
         if (DualCaseSRC5 {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
-            // todo add casing fallback mechanism
-            ERC721ReceiverABIDispatcher {
+            DualCaseERC721Receiver {
                 contract_address: to
             }
                 .on_erc721_received(

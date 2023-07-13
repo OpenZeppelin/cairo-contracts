@@ -21,9 +21,9 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 
-///
-/// Constants
-///
+//
+// Constants
+//
 
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
@@ -52,9 +52,9 @@ fn DATA(success: bool) -> Span<felt252> {
     data.span()
 }
 
-///
-/// Setup
-///
+//
+// Setup
+//
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = ArrayTrait::new();
@@ -106,9 +106,9 @@ fn setup_receiver() -> ContractAddress {
     utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
 }
 
-///
-/// Case agnostic methods
-///
+//
+// Case agnostic methods
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -190,9 +190,9 @@ fn test_dual_approve_exists_and_panics() {
     dispatcher.approve(SPENDER(), TOKEN_ID);
 }
 
-///
-/// snake_case target
-///
+//
+// snake_case target
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -410,9 +410,9 @@ fn test_dual_supports_interface_exists_and_panics() {
     dispatcher.supports_interface(IERC721_ID);
 }
 
-///
-/// camelCase target
-///
+//
+// camelCase target
+//
 
 #[test]
 #[available_gas(2000000)]

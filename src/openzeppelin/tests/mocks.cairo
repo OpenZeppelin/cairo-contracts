@@ -17,4 +17,5 @@ mod dual_ownable_mocks;
 mod snake721_mock;
 mod camel721_mock;
 mod non_implementing_mock;
+mod dual721_receiver_mocks;
 mod src5_mocks;

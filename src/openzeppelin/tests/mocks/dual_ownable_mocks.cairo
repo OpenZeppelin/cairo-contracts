@@ -4,8 +4,8 @@ mod SnakeOwnableMock {
     use openzeppelin::access::ownable::Ownable;
 
     #[constructor]
-    fn constructor() {
-        Ownable::initializer();
+    fn constructor(owner: ContractAddress) {
+        Ownable::initializer(owner);
     }
 
     #[view]
@@ -30,8 +30,8 @@ mod CamelOwnableMock {
     use openzeppelin::access::ownable::Ownable;
 
     #[constructor]
-    fn constructor() {
-        Ownable::initializer();
+    fn constructor(owner: ContractAddress) {
+        Ownable::initializer(owner);
     }
 
     #[view]

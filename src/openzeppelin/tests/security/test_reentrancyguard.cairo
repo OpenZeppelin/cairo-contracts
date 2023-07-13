@@ -1,11 +1,14 @@
 use openzeppelin::security::reentrancyguard::ReentrancyGuard;
+use openzeppelin::security::reentrancyguard::ReentrancyGuard::StorageTrait;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
 use openzeppelin::tests::utils;
 
-use array::ArrayTrait;
+fn internal_state() -> ReentrancyGuard::ContractState {
+    ReentrancyGuard::contract_state_for_testing()
+}
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
     let calldata = ArrayTrait::new();
@@ -20,25 +23,31 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_start() {
-    assert(!ReentrancyGuard::entered::read(), 'Guard should not be active');
-    ReentrancyGuard::start();
-    assert(ReentrancyGuard::entered::read(), 'Guard should be active');
+    let mut contract = internal_state();
+
+    assert(!contract.is_entered(), 'Should not be entered');
+    contract.start();
+    assert(contract.is_entered(), 'Should be entered');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_start_when_started() {
-    ReentrancyGuard::start();
-    ReentrancyGuard::start();
+    let mut contract = internal_state();
+    contract.start();
+    contract.start();
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_end() {
-    ReentrancyGuard::start();
-    ReentrancyGuard::end();
-    assert(!ReentrancyGuard::entered::read(), 'Guard should not be active');
+    let mut contract = internal_state();
+
+    contract.start();
+    assert(contract.is_entered(), 'Should be entered');
+    contract.end();
+    assert(!contract.is_entered(), 'Should no longer be entered');
 }
 
 //

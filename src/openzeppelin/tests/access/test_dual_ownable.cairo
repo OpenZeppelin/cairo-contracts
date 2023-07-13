@@ -58,17 +58,13 @@ fn setup_camel() -> (DualCaseOwnable, IOwnableCamelDispatcher) {
 
 fn setup_non_ownable() -> DualCaseOwnable {
     let mut calldata = ArrayTrait::new();
-    calldata.append_serde(OWNER());
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseOwnable { contract_address: target }
 }
 
 fn setup_ownable_panic() -> (DualCaseOwnable, DualCaseOwnable) {
-    let mut calldata = ArrayTrait::new();
-    calldata.append_serde(OWNER());
-
-    let snake_target = utils::deploy(SnakeOwnablePanicMock::TEST_CLASS_HASH, calldata.clone());
-    let camel_target = utils::deploy(CamelOwnablePanicMock::TEST_CLASS_HASH, calldata);
+    let snake_target = utils::deploy(SnakeOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let camel_target = utils::deploy(CamelOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     (
         DualCaseOwnable {
             contract_address: snake_target

@@ -42,11 +42,8 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     calldata.append_serde(ADMIN());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccessControl {
-            contract_address: target
-            }, IAccessControlDispatcher {
-            contract_address: target
-        }
+        DualCaseAccessControl { contract_address: target },
+        IAccessControlDispatcher { contract_address: target }
     )
 }
 
@@ -55,11 +52,8 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
     calldata.append_serde(ADMIN());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccessControl {
-            contract_address: target
-            }, IAccessControlCamelDispatcher {
-            contract_address: target
-        }
+        DualCaseAccessControl { contract_address: target },
+        IAccessControlCamelDispatcher { contract_address: target }
     )
 }
 
@@ -77,11 +71,8 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
         CamelAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
     );
     (
-        DualCaseAccessControl {
-            contract_address: snake_target
-            }, DualCaseAccessControl {
-            contract_address: camel_target
-        }
+        DualCaseAccessControl { contract_address: snake_target },
+        DualCaseAccessControl { contract_address: camel_target }
     )
 }
 

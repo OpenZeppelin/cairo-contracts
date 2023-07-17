@@ -1,17 +1,16 @@
 use openzeppelin::security::reentrancyguard::ReentrancyGuard;
-use openzeppelin::security::reentrancyguard::ReentrancyGuard::StorageTrait;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
 use openzeppelin::tests::utils;
 
-fn internal_state() -> ReentrancyGuard::ContractState {
+fn STATE() -> ReentrancyGuard::ContractState {
     ReentrancyGuard::contract_state_for_testing()
 }
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let address = utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
     IReentrancyMockDispatcher { contract_address: address }
 }
@@ -23,31 +22,32 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_start() {
-    let mut contract = internal_state();
+    let mut state = STATE();
 
-    assert(!contract.is_entered(), 'Should not be entered');
-    contract.start();
-    assert(contract.is_entered(), 'Should be entered');
+    assert(!ReentrancyGuard::StorageTrait::is_entered(@state), 'Should not be entered');
+    ReentrancyGuard::StorageTrait::start(ref state);
+    assert(ReentrancyGuard::StorageTrait::is_entered(@state), 'Should be entered');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
 fn test_reentrancy_guard_start_when_started() {
-    let mut contract = internal_state();
-    contract.start();
-    contract.start();
+    let mut state = STATE();
+
+    ReentrancyGuard::StorageTrait::start(ref state);
+    ReentrancyGuard::StorageTrait::start(ref state);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_end() {
-    let mut contract = internal_state();
+    let mut state = STATE();
 
-    contract.start();
-    assert(contract.is_entered(), 'Should be entered');
-    contract.end();
-    assert(!contract.is_entered(), 'Should no longer be entered');
+    ReentrancyGuard::StorageTrait::start(ref state);
+    assert(ReentrancyGuard::StorageTrait::is_entered(@state), 'Should be entered');
+    ReentrancyGuard::StorageTrait::end(ref state);
+    assert(!ReentrancyGuard::StorageTrait::is_entered(@state), 'Should no longer be entered');
 }
 
 //

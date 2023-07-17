@@ -39,11 +39,8 @@ fn setup_src5_panic() -> (DualCaseSRC5, DualCaseSRC5) {
     let snake_target = utils::deploy(SnakeSRC5PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     let camel_target = utils::deploy(CamelSRC5PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
     (
-        DualCaseSRC5 {
-            contract_address: snake_target
-            }, DualCaseSRC5 {
-            contract_address: camel_target
-        }
+        DualCaseSRC5 { contract_address: snake_target },
+        DualCaseSRC5 { contract_address: camel_target }
     )
 }
 

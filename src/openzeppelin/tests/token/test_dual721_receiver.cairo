@@ -49,11 +49,8 @@ fn setup_snake() -> (DualCaseERC721Receiver, IERC721ReceiverDispatcher) {
     let mut calldata = ArrayTrait::new();
     let target = utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseERC721Receiver {
-            contract_address: target
-            }, IERC721ReceiverDispatcher {
-            contract_address: target
-        }
+        DualCaseERC721Receiver { contract_address: target },
+        IERC721ReceiverDispatcher { contract_address: target }
     )
 }
 
@@ -61,11 +58,8 @@ fn setup_camel() -> (DualCaseERC721Receiver, IERC721ReceiverCamelDispatcher) {
     let mut calldata = ArrayTrait::new();
     let target = utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseERC721Receiver {
-            contract_address: target
-            }, IERC721ReceiverCamelDispatcher {
-            contract_address: target
-        }
+        DualCaseERC721Receiver { contract_address: target },
+        IERC721ReceiverCamelDispatcher { contract_address: target }
     )
 }
 
@@ -83,11 +77,8 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
         CamelERC721ReceiverPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
     );
     (
-        DualCaseERC721Receiver {
-            contract_address: snake_target
-            }, DualCaseERC721Receiver {
-            contract_address: camel_target
-        }
+        DualCaseERC721Receiver { contract_address: snake_target },
+        DualCaseERC721Receiver { contract_address: camel_target }
     )
 }
 

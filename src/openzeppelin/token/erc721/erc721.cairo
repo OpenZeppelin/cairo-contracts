@@ -11,6 +11,8 @@ trait ERC721ABI {
     fn approve(to: ContractAddress, token_id: u256);
     // snake_case
     #[view]
+    fn supports_interface(interface_id: felt252) -> bool;
+    #[view]
     fn balance_of(account: ContractAddress) -> u256;
     #[view]
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -29,6 +31,8 @@ trait ERC721ABI {
     #[view]
     fn token_uri(token_id: u256) -> felt252;
     // camelCase
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool;
     #[view]
     fn balanceOf(account: ContractAddress) -> u256;
     #[view]
@@ -51,25 +55,20 @@ trait ERC721ABI {
 
 #[contract]
 mod ERC721 {
-    // OZ modules
     use openzeppelin::account;
-    use openzeppelin::introspection::erc165;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
+    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
+    use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721;
+    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
+    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
+    use openzeppelin::utils::serde::SpanSerde;
 
-    // Dispatchers
-    use openzeppelin::introspection::erc165::IERC165Dispatcher;
-    use openzeppelin::introspection::erc165::IERC165DispatcherTrait;
-    use super::super::interface::IERC721ReceiverABIDispatcher;
-    use super::super::interface::IERC721ReceiverABIDispatcherTrait;
-
-    // Other
+    use array::SpanTrait;
+    use option::OptionTrait;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
-    use option::OptionTrait;
-    use array::SpanTrait;
-    use traits::Into;
-    use openzeppelin::utils::serde::SpanSerde;
 
     struct Storage {
         _name: felt252,
@@ -93,6 +92,18 @@ mod ERC721 {
     #[constructor]
     fn constructor(name: felt252, symbol: felt252) {
         initializer(name, symbol);
+    }
+
+    impl ISRC5Impl of src5::ISRC5 {
+        fn supports_interface(interface_id: felt252) -> bool {
+            src5::SRC5::supports_interface(interface_id)
+        }
+    }
+
+    impl ISRC5CamelImpl of src5::ISRC5Camel {
+        fn supportsInterface(interfaceId: felt252) -> bool {
+            src5::SRC5::supportsInterface(interfaceId)
+        }
     }
 
     impl ERC721Impl of erc721::interface::IERC721 {
@@ -209,13 +220,13 @@ mod ERC721 {
     // View
 
     #[view]
-    fn supports_interface(interface_id: u32) -> bool {
-        erc165::ERC165::supports_interface(interface_id)
+    fn supports_interface(interface_id: felt252) -> bool {
+        ISRC5Impl::supports_interface(interface_id)
     }
 
     #[view]
-    fn supportsInterface(interfaceId: u32) -> bool {
-        erc165::ERC165::supports_interface(interfaceId)
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        ISRC5CamelImpl::supportsInterface(interfaceId)
     }
 
     #[view]
@@ -325,8 +336,8 @@ mod ERC721 {
     fn initializer(name_: felt252, symbol_: felt252) {
         _name::write(name_);
         _symbol::write(symbol_);
-        erc165::ERC165::register_interface(erc721::interface::IERC721_ID);
-        erc165::ERC165::register_interface(erc721::interface::IERC721_METADATA_ID);
+        src5::SRC5::register_interface(erc721::interface::IERC721_ID);
+        src5::SRC5::register_interface(erc721::interface::IERC721_METADATA_ID);
     }
 
     #[internal]
@@ -370,7 +381,7 @@ mod ERC721 {
         assert(!_exists(token_id), 'ERC721: token already minted');
 
         // Update balances
-        _balances::write(to, _balances::read(to) + 1.into());
+        _balances::write(to, _balances::read(to) + 1);
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -389,8 +400,8 @@ mod ERC721 {
         _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(from, _balances::read(from) - 1.into());
-        _balances::write(to, _balances::read(to) + 1.into());
+        _balances::write(from, _balances::read(from) - 1);
+        _balances::write(to, _balances::read(to) + 1);
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -407,7 +418,7 @@ mod ERC721 {
         _token_approvals::write(token_id, Zeroable::zero());
 
         // Update balances
-        _balances::write(owner, _balances::read(owner) - 1.into());
+        _balances::write(owner, _balances::read(owner) - 1);
 
         // Delete owner
         _owners::write(token_id, Zeroable::zero());
@@ -443,20 +454,17 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (IERC165Dispatcher {
+        if (DualCaseSRC5 {
             contract_address: to
         }.supports_interface(erc721::interface::IERC721_RECEIVER_ID)) {
-            // todo add casing fallback mechanism
-            IERC721ReceiverABIDispatcher {
+            DualCaseERC721Receiver {
                 contract_address: to
             }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == erc721::interface::IERC721_RECEIVER_ID
         } else {
-            IERC165Dispatcher {
-                contract_address: to
-            }.supports_interface(account::interface::IACCOUNT_ID)
+            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

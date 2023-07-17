@@ -16,8 +16,8 @@ use openzeppelin::utils::universal_deployer::IUniversalDeployerDispatcher;
 use openzeppelin::utils::universal_deployer::IUniversalDeployerDispatcherTrait;
 
 use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::IERC20Dispatcher;
-use openzeppelin::token::erc20::IERC20DispatcherTrait;
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 
 const RAW_SALT: felt252 = 123456789;
 

@@ -2,8 +2,7 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use starknet::ContractAddress;
 
-const IACCOUNT_ID: u32 = 0xa66bd575_u32;
-const ERC1271_VALIDATED: u32 = 0x1626ba7e_u32;
+const ISRC6_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
 
 #[derive(Serde, Drop)]
 struct Call {
@@ -12,10 +11,18 @@ struct Call {
     calldata: Array<felt252>
 }
 
-trait IAccount {
+trait ISRC6 {
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(calls: Array<Call>) -> felt252;
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
+}
+
+trait ISRC6Camel {
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(calls: Array<Call>) -> felt252;
+    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
+}
+
+trait IDeclarer {
     fn __validate_declare__(class_hash: felt252) -> felt252;
-    fn is_valid_signature(message: felt252, signature: Array<felt252>) -> u32;
-    fn supports_interface(interface_id: u32) -> bool;
 }

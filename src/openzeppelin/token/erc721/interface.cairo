@@ -2,9 +2,11 @@ use openzeppelin::utils::serde::SpanSerde;
 use starknet::ContractAddress;
 use array::SpanTrait;
 
-const IERC721_ID: u32 = 0x80ac58cd_u32;
-const IERC721_METADATA_ID: u32 = 0x5b5e139f_u32;
-const IERC721_RECEIVER_ID: u32 = 0x150b7a02_u32;
+const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
+const IERC721_METADATA_ID: felt252 =
+    0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd;
+const IERC721_RECEIVER_ID: felt252 =
+    0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 
 #[abi]
 trait IERC721 {
@@ -47,25 +49,25 @@ trait IERC721Camel {
 //
 
 #[abi]
-trait IERC721ReceiverABI {
+trait ERC721ReceiverABI {
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
-    ) -> u32;
+    ) -> felt252;
     fn onERC721Received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Span<felt252>
-    ) -> u32;
+    ) -> felt252;
 }
 
 #[abi]
 trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>
-    ) -> u32;
+    ) -> felt252;
 }
 
 #[abi]
 trait IERC721ReceiverCamel {
     fn onERC721Received(
         operator: ContractAddress, from: ContractAddress, tokenId: u256, data: Span<felt252>
-    ) -> u32;
+    ) -> felt252;
 }

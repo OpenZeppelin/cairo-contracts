@@ -5,93 +5,91 @@ use serde::Serde;
 use starknet::ContractAddress;
 
 use openzeppelin::account::interface::Call;
-use openzeppelin::utils::serde::SpanSerde;
 
 const TRANSACTION_VERSION: felt252 = 1;
+
 // 2**128 + TRANSACTION_VERSION
 const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
 
-#[abi]
-trait AccountABI {
-    #[external]
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
-    #[external]
-    fn __validate__(calls: Array<Call>) -> felt252;
-    #[external]
-    fn __validate_declare__(class_hash: felt252) -> felt252;
-    #[external]
+#[starknet::interface]
+trait AccountTrait<TState> {
+    fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
+    fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
     fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252;
-    #[external]
-    fn set_public_key(new_public_key: felt252);
-    #[view]
-    fn get_public_key() -> felt252;
-    #[view]
-    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
-    #[view]
-    fn supports_interface(interface_id: felt252) -> bool;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
+    fn get_public_key(self: @TState) -> felt252;
+    fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 // Entry points case-convention is enforced by the protocol
-#[abi]
-trait AccountABICamel {
-    #[external]
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
-    #[external]
-    fn __validate__(calls: Array<Call>) -> felt252;
-    #[external]
-    fn __validate_declare__(classHash: felt252) -> felt252;
-    #[external]
+#[starknet::interface]
+trait AccountCamelTrait<TState> {
+    fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
+    fn __validate_declare__(self: @TState, classHash: felt252) -> felt252;
     fn __validate_deploy__(
-        classHash: felt252, contractAddressSalt: felt252, _publicKey: felt252
+        self: @TState, classHash: felt252, contractAddressSalt: felt252, _publicKey: felt252
     ) -> felt252;
-    #[external]
-    fn setPublicKey(newPublicKey: felt252);
-    #[view]
-    fn getPublicKey() -> felt252;
-    #[view]
-    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn getPublicKey(self: @TState) -> felt252;
+    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
 
-#[account_contract]
+#[starknet::interface]
+trait PublicKeyTrait<TState> {
+    fn set_public_key(ref self: TState, new_public_key: felt252);
+    fn get_public_key(self: @TState) -> felt252;
+}
+
+#[starknet::interface]
+trait PublicKeyCamelTrait<TState> {
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn getPublicKey(self: @TState) -> felt252;
+}
+
+#[starknet::contract]
 mod Account {
     use array::SpanTrait;
     use array::ArrayTrait;
     use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
     use option::OptionTrait;
-    use serde::ArraySerde;
     use starknet::get_tx_info;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use zeroable::Zeroable;
 
-    use openzeppelin::account::interface::IDeclarer;
-    use openzeppelin::account::interface::ISRC6;
-    use openzeppelin::account::interface::ISRC6Camel;
-    use openzeppelin::account::interface::ISRC6_ID;
-    use openzeppelin::introspection::src5::ISRC5;
+    use openzeppelin::account::interface;
+    use openzeppelin::introspection::interface::ISRC5;
+    use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
 
     use super::Call;
     use super::QUERY_VERSION;
-    use super::SpanSerde;
     use super::TRANSACTION_VERSION;
 
+    #[storage]
     struct Storage {
         public_key: felt252
     }
 
     #[constructor]
-    fn constructor(_public_key: felt252) {
-        initializer(_public_key);
+    fn constructor(ref self: ContractState, _public_key: felt252) {
+        self.initializer(_public_key);
     }
 
-    impl SRC6Impl of ISRC6 {
-        fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
+    //
+    // External
+    //
+
+    #[external(v0)]
+    impl SRC6Impl of interface::ISRC6<ContractState> {
+        fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = get_caller_address();
@@ -107,12 +105,14 @@ mod Account {
             _execute_calls(calls)
         }
 
-        fn __validate__(mut calls: Array<Call>) -> felt252 {
-            validate_transaction()
+        fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
+            self.validate_transaction()
         }
 
-        fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252 {
-            if _is_valid_signature(hash, signature.span()) {
+        fn is_valid_signature(
+            self: @ContractState, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            if self._is_valid_signature(hash, signature.span()) {
                 starknet::VALIDATED
             } else {
                 0
@@ -120,111 +120,105 @@ mod Account {
         }
     }
 
-    impl SRC6CamelImpl of ISRC6Camel {
-        fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-            SRC6Impl::__execute__(calls)
-        }
-
-        fn __validate__(mut calls: Array<Call>) -> felt252 {
-            SRC6Impl::__validate__(calls)
-        }
-
-        fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
-            SRC6Impl::is_valid_signature(hash, signature)
+    #[external(v0)]
+    impl SRC6CamelOnlyImpl of interface::ISRC6CamelOnly<ContractState> {
+        fn isValidSignature(
+            self: @ContractState, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6Impl::is_valid_signature(self, hash, signature)
         }
     }
 
-    impl DeclarerImpl of IDeclarer {
-        fn __validate_declare__(class_hash: felt252) -> felt252 {
-            validate_transaction()
+    #[external(v0)]
+    impl DeclarerImpl of interface::IDeclarer<ContractState> {
+        fn __validate_declare__(self: @ContractState, class_hash: felt252) -> felt252 {
+            self.validate_transaction()
         }
     }
 
-    impl SRC5Impl of ISRC5 {
-        fn supports_interface(interface_id: felt252) -> bool {
-            SRC5::supports_interface(interface_id)
+    #[external(v0)]
+    impl SRC5Impl of ISRC5<ContractState> {
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
         }
     }
 
-    //
-    // Externals
-    //
-
-    #[external]
-    fn __execute__(mut calls: Array<Call>) -> Array<Span<felt252>> {
-        SRC6Impl::__execute__(calls)
+    #[external(v0)]
+    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+        }
     }
 
-    #[external]
-    fn __validate__(mut calls: Array<Call>) -> felt252 {
-        SRC6Impl::__validate__(calls)
+    #[external(v0)]
+    impl PublicKeyImpl of super::PublicKeyTrait<ContractState> {
+        fn get_public_key(self: @ContractState) -> felt252 {
+            self.public_key.read()
+        }
+
+        fn set_public_key(ref self: ContractState, new_public_key: felt252) {
+            assert_only_self();
+            self.public_key.write(new_public_key);
+        }
     }
 
-    #[external]
-    fn __validate_declare__(class_hash: felt252) -> felt252 {
-        DeclarerImpl::__validate_declare__(class_hash)
+    #[external(v0)]
+    impl PublicKeyCamelImpl of super::PublicKeyCamelTrait<ContractState> {
+        fn getPublicKey(self: @ContractState) -> felt252 {
+            self.public_key.read()
+        }
+
+        fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
+            assert_only_self();
+            self.public_key.write(newPublicKey);
+        }
     }
 
-    #[external]
+    #[external(v0)]
     fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        self: @ContractState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        _public_key: felt252
     ) -> felt252 {
-        validate_transaction()
-    }
-
-    #[external]
-    fn set_public_key(new_public_key: felt252) {
-        assert_only_self();
-        public_key::write(new_public_key);
-    }
-
-    #[external]
-    fn setPublicKey(newPublicKey: felt252) {
-        set_public_key(newPublicKey);
+        self.validate_transaction()
     }
 
     //
-    // View
+    // Internal
     //
 
-    #[view]
-    fn get_public_key() -> felt252 {
-        public_key::read()
-    }
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn initializer(ref self: ContractState, _public_key: felt252) {
+            let mut unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
+            self.public_key.write(_public_key);
+        }
 
-    #[view]
-    fn getPublicKey() -> felt252 {
-        get_public_key()
-    }
+        fn validate_transaction(self: @ContractState) -> felt252 {
+            let tx_info = get_tx_info().unbox();
+            let tx_hash = tx_info.transaction_hash;
+            let signature = tx_info.signature;
+            assert(self._is_valid_signature(tx_hash, signature), 'Account: invalid signature');
+            starknet::VALIDATED
+        }
 
-    #[view]
-    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252 {
-        SRC6Impl::is_valid_signature(hash, signature)
-    }
+        fn _is_valid_signature(
+            self: @ContractState, hash: felt252, signature: Span<felt252>
+        ) -> bool {
+            let valid_length = signature.len() == 2_u32;
 
-    #[view]
-    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
-        SRC6CamelImpl::isValidSignature(hash, signature)
-    }
-
-    #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
-        SRC5Impl::supports_interface(interface_id)
-    }
-
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
-        supports_interface(interfaceId)
-    }
-
-    //
-    // Internals
-    //
-
-    #[internal]
-    fn initializer(_public_key: felt252) {
-        SRC5::register_interface(ISRC6_ID);
-        public_key::write(_public_key);
+            if valid_length {
+                check_ecdsa_signature(
+                    hash, self.public_key.read(), *signature.at(0_u32), *signature.at(1_u32)
+                )
+            } else {
+                false
+            }
+        }
     }
 
     #[internal]
@@ -232,28 +226,6 @@ mod Account {
         let caller = get_caller_address();
         let self = get_contract_address();
         assert(self == caller, 'Account: unauthorized');
-    }
-
-    #[internal]
-    fn validate_transaction() -> felt252 {
-        let tx_info = get_tx_info().unbox();
-        let tx_hash = tx_info.transaction_hash;
-        let signature = tx_info.signature;
-        assert(_is_valid_signature(tx_hash, signature), 'Account: invalid signature');
-        starknet::VALIDATED
-    }
-
-    #[internal]
-    fn _is_valid_signature(hash: felt252, signature: Span<felt252>) -> bool {
-        let valid_length = signature.len() == 2_u32;
-
-        if valid_length {
-            check_ecdsa_signature(
-                hash, public_key::read(), *signature.at(0_u32), *signature.at(1_u32)
-            )
-        } else {
-            false
-        }
     }
 
     #[internal]

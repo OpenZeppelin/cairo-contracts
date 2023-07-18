@@ -1,7 +1,7 @@
 mod account;
 use account::{
-    Account, AccountABIDispatcher, AccountABIDispatcherTrait, AccountABICamelDispatcher,
-    AccountABICamelDispatcherTrait, TRANSACTION_VERSION, QUERY_VERSION
+    Account, AccountCamelTraitDispatcher, AccountCamelTraitDispatcherTrait, AccountTraitDispatcher,
+    AccountTraitDispatcherTrait, TRANSACTION_VERSION, QUERY_VERSION
 };
 
 mod dual_account;

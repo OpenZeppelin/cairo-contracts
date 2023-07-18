@@ -11,18 +11,19 @@ struct Call {
     calldata: Array<felt252>
 }
 
-trait ISRC6 {
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
-    fn __validate__(calls: Array<Call>) -> felt252;
-    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
+#[starknet::interface]
+trait ISRC6<TState> {
+    fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
+    fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 }
 
-trait ISRC6Camel {
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
-    fn __validate__(calls: Array<Call>) -> felt252;
-    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
+#[starknet::interface]
+trait ISRC6CamelOnly<TState> {
+    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 }
 
-trait IDeclarer {
-    fn __validate_declare__(class_hash: felt252) -> felt252;
+#[starknet::interface]
+trait IDeclarer<TState> {
+    fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 }

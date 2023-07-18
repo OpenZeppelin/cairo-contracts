@@ -1,31 +1,38 @@
-#[account_contract]
+#[starknet::contract]
 mod CamelAccountMock {
     use openzeppelin::account::interface::Call;
     use openzeppelin::account::Account;
-    use openzeppelin::utils::serde::SpanSerde;
+
+    #[storage]
+    struct Storage {}
 
     #[constructor]
-    fn constructor(_publicKey: felt252) {
-        Account::initializer(_publicKey);
+    fn constructor(ref self: ContractState, _publicKey: felt252) {
+        let mut unsafe_state = Account::unsafe_new_contract_state();
+        Account::InternalImpl::initializer(ref unsafe_state, _publicKey);
     }
 
-    #[external]
-    fn setPublicKey(newPublicKey: felt252) {
-        Account::setPublicKey(newPublicKey);
+    #[external(v0)]
+    fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
+        let mut unsafe_state = Account::unsafe_new_contract_state();
+        Account::PublicKeyCamelImpl::setPublicKey(ref unsafe_state, newPublicKey);
     }
 
-    #[view]
-    fn getPublicKey() -> felt252 {
-        Account::getPublicKey()
+    #[external(v0)]
+    fn getPublicKey(self: @ContractState) -> felt252 {
+        let unsafe_state = Account::unsafe_new_contract_state();
+        Account::PublicKeyCamelImpl::getPublicKey(@unsafe_state)
     }
 
-    #[view]
-    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252 {
-        Account::isValidSignature(hash, signature)
+    #[external(v0)]
+    fn isValidSignature(self: @ContractState, hash: felt252, signature: Array<felt252>) -> felt252 {
+        let unsafe_state = Account::unsafe_new_contract_state();
+        Account::SRC6CamelOnlyImpl::isValidSignature(@unsafe_state, hash, signature)
     }
 
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
-        Account::supportsInterface(interfaceId)
+    #[external(v0)]
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+        let unsafe_state = Account::unsafe_new_contract_state();
+        Account::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
     }
 }

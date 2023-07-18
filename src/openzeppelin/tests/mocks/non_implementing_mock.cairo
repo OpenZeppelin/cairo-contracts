@@ -1,7 +1,10 @@
-#[contract]
+#[starknet::contract]
 mod NonImplementingMock {
-    #[view]
-    fn nope() -> bool {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn nope(self: @ContractState) -> bool {
         false
     }
 }

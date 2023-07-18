@@ -1,9 +1,9 @@
 use array::ArrayTrait;
-use openzeppelin::introspection::src5::ISRC5_ID;
-use openzeppelin::introspection::src5::ISRC5Dispatcher;
-use openzeppelin::introspection::src5::ISRC5DispatcherTrait;
-use openzeppelin::introspection::src5::ISRC5CamelDispatcher;
-use openzeppelin::introspection::src5::ISRC5CamelDispatcherTrait;
+use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin::introspection::interface::ISRC5Dispatcher;
+use openzeppelin::introspection::interface::ISRC5DispatcherTrait;
+use openzeppelin::introspection::interface::ISRC5CamelDispatcher;
+use openzeppelin::introspection::interface::ISRC5CamelDispatcherTrait;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
 use openzeppelin::tests::mocks::src5_mocks::SnakeSRC5Mock;
@@ -18,26 +18,26 @@ use openzeppelin::tests::utils;
 //
 
 fn setup_snake() -> DualCaseSRC5 {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     let target = utils::deploy(SnakeSRC5Mock::TEST_CLASS_HASH, calldata);
     DualCaseSRC5 { contract_address: target }
 }
 
 fn setup_camel() -> DualCaseSRC5 {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     let target = utils::deploy(CamelSRC5Mock::TEST_CLASS_HASH, calldata);
     DualCaseSRC5 { contract_address: target }
 }
 
 fn setup_non_src5() -> DualCaseSRC5 {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseSRC5 { contract_address: target }
 }
 
 fn setup_src5_panic() -> (DualCaseSRC5, DualCaseSRC5) {
-    let snake_target = utils::deploy(SnakeSRC5PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
-    let camel_target = utils::deploy(CamelSRC5PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let snake_target = utils::deploy(SnakeSRC5PanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelSRC5PanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseSRC5 { contract_address: snake_target },
         DualCaseSRC5 { contract_address: camel_target }

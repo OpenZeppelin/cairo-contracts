@@ -2,7 +2,6 @@ use array::ArrayTrait;
 use starknet::ContractAddress;
 
 use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use openzeppelin::utils::UnwrapAndCast;
 
@@ -17,8 +16,7 @@ trait DualCaseSRC5Trait {
 
 impl DualCaseSRC5Impl of DualCaseSRC5Trait {
     fn supports_interface(self: @DualCaseSRC5, interface_id: felt252) -> bool {
-        let mut args = ArrayTrait::new();
-        args.append_serde(interface_id);
+        let mut args = array![interface_id];
 
         try_selector_with_fallback(
             *self.contract_address,

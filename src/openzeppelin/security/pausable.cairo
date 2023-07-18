@@ -24,7 +24,7 @@ mod Pausable {
     }
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn is_paused(self: @ContractState) -> bool {
             self.paused.read()
         }

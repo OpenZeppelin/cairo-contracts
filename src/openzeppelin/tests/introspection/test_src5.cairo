@@ -27,7 +27,7 @@ fn test_not_registered_interface() {
 #[available_gas(2000000)]
 fn test_register_interface() {
     let mut state = STATE();
-    SRC5::RegisterImpl::register_interface(ref state, OTHER_ID);
+    SRC5::InternalImpl::register_interface(ref state, OTHER_ID);
     let supports_new_interface: bool = SRC5::SRC5Impl::supports_interface(@state, OTHER_ID);
     assert(supports_new_interface, 'Should support new interface');
 }
@@ -36,8 +36,8 @@ fn test_register_interface() {
 #[available_gas(2000000)]
 fn test_deregister_interface() {
     let mut state = STATE();
-    SRC5::RegisterImpl::register_interface(ref state, OTHER_ID);
-    SRC5::RegisterImpl::deregister_interface(ref state, OTHER_ID);
+    SRC5::InternalImpl::register_interface(ref state, OTHER_ID);
+    SRC5::InternalImpl::deregister_interface(ref state, OTHER_ID);
     let supports_old_interface: bool = SRC5::SRC5Impl::supports_interface(@state, OTHER_ID);
     assert(!supports_old_interface, 'Should not support interface');
 }
@@ -47,5 +47,5 @@ fn test_deregister_interface() {
 #[should_panic(expected: ('SRC5: invalid id', ))]
 fn test_deregister_default_interface() {
     let mut state = STATE();
-    SRC5::RegisterImpl::deregister_interface(ref state, ISRC5_ID);
+    SRC5::InternalImpl::deregister_interface(ref state, ISRC5_ID);
 }

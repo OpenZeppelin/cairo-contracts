@@ -9,15 +9,3 @@ trait ISRC5<TState> {
 trait ISRC5Camel<TState> {
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
-
-#[starknet::interface]
-trait RegisterTrait<TState> {
-    fn register_interface(ref self: TState, interface_id: felt252);
-    fn deregister_interface(ref self: TState, interface_id: felt252);
-}
-
-#[starknet::interface]
-trait RegisterCamelTrait<TState> {
-    fn registerInterface(ref self: TState, interfaceId: felt252);
-    fn deregisterInterface(ref self: TState, interfaceId: felt252);
-}

@@ -24,8 +24,8 @@ mod SRC5 {
         }
     }
 
-    #[external(v0)]
-    impl RegisterImpl of interface::RegisterTrait<ContractState> {
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
         fn register_interface(ref self: ContractState, interface_id: felt252) {
             self.supported_interfaces.write(interface_id, true);
         }
@@ -33,18 +33,6 @@ mod SRC5 {
         fn deregister_interface(ref self: ContractState, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, 'SRC5: invalid id');
             self.supported_interfaces.write(interface_id, false);
-        }
-    }
-
-    #[external(v0)]
-    impl RegisterCamelImpl of interface::RegisterCamelTrait<ContractState> {
-        fn registerInterface(ref self: ContractState, interfaceId: felt252) {
-            self.supported_interfaces.write(interfaceId, true);
-        }
-
-        fn deregisterInterface(ref self: ContractState, interfaceId: felt252) {
-            assert(interfaceId != interface::ISRC5_ID, 'SRC5: invalid id');
-            self.supported_interfaces.write(interfaceId, false);
         }
     }
 }

@@ -1,7 +1,10 @@
-#[contract]
+#[starknet::contract]
 mod NonERC721 {
-    #[view]
-    fn nope() -> bool {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn nope(self: @ContractState) -> bool {
         false
     }
 }

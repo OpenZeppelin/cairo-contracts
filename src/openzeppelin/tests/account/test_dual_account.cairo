@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use starknet::testing;
 
 use openzeppelin::account::dual_account::DualCaseAccount;

@@ -32,14 +32,14 @@ mod Ownable {
         }
 
         fn assert_only_owner(self: @ContractState) {
-            let owner: ContractAddress = self._owner.read();
+            let owner: ContractAddress = self.owner();
             let caller: ContractAddress = get_caller_address();
             assert(!caller.is_zero(), 'Caller is the zero address');
             assert(caller == owner, 'Caller is not the owner');
         }
 
         fn _transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-            let previous_owner: ContractAddress = self._owner.read();
+            let previous_owner: ContractAddress = self.owner();
             self._owner.write(new_owner);
             self
                 .emit(

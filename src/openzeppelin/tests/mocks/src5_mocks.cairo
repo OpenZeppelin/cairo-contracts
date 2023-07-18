@@ -1,34 +1,48 @@
 use openzeppelin::introspection::src5::SRC5;
 
-#[contract]
+#[starknet::contract]
 mod SnakeSRC5Mock {
-    #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
-        super::SRC5::supports_interface(interface_id)
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+        let unsafe_state = super::SRC5::unsafe_new_contract_state();
+        super::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
     }
 }
 
-#[contract]
+#[starknet::contract]
 mod CamelSRC5Mock {
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
-        super::SRC5::supportsInterface(interfaceId)
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+        let unsafe_state = super::SRC5::unsafe_new_contract_state();
+        super::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
     }
 }
 
-#[contract]
+#[starknet::contract]
 mod SnakeSRC5PanicMock {
-    #[view]
-    fn supports_interface(interface_id: felt252) -> bool {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
         panic_with_felt252('Some error');
         false
     }
 }
 
-#[contract]
+#[starknet::contract]
 mod CamelSRC5PanicMock {
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
         panic_with_felt252('Some error');
         false
     }

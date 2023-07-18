@@ -1,5 +1,5 @@
 use openzeppelin::security::initializable::Initializable;
-use openzeppelin::security::initializable::Initializable::StorageImpl as internal;
+use openzeppelin::security::initializable::Initializable::InternalImpl;
 
 fn STATE() -> Initializable::ContractState {
     Initializable::contract_state_for_testing()
@@ -9,9 +9,9 @@ fn STATE() -> Initializable::ContractState {
 #[available_gas(2000000)]
 fn test_initialize() {
     let mut state = STATE();
-    assert(!internal::is_initialized(@state), 'Should not be initialized');
-    Initializable::StorageTrait::initialize(ref state);
-    assert(Initializable::StorageTrait::is_initialized(@state), 'Should be initialized');
+    assert(!InternalImpl::is_initialized(@state), 'Should not be initialized');
+    InternalImpl::initialize(ref state);
+    assert(InternalImpl::is_initialized(@state), 'Should be initialized');
 }
 
 #[test]
@@ -19,6 +19,6 @@ fn test_initialize() {
 #[should_panic(expected: ('Initializable: is initialized', ))]
 fn test_initialize_when_initialized() {
     let mut state = STATE();
-    Initializable::StorageTrait::initialize(ref state);
-    Initializable::StorageTrait::initialize(ref state);
+    InternalImpl::initialize(ref state);
+    InternalImpl::initialize(ref state);
 }

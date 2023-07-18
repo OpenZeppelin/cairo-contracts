@@ -1,15 +1,6 @@
 use openzeppelin::access::ownable::Ownable;
-use openzeppelin::access::ownable::Ownable::StorageTrait;
-use openzeppelin::access::ownable::interface::IOwnableDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableDispatcherTrait;
-use openzeppelin::access::ownable::interface::IOwnableCamelDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableCamelDispatcherTrait;
-use openzeppelin::tests::mocks::dual_ownable_mocks::SnakeOwnableMock;
-use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnableMock;
-use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::tests::utils;
+use openzeppelin::access::ownable::OwnableCamel;
 
-use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
@@ -27,28 +18,24 @@ fn OTHER() -> ContractAddress {
     contract_address_const::<20>()
 }
 
-fn internal_state() -> Ownable::ContractState {
+//
+// Setup
+//
+
+fn STATE() -> Ownable::ContractState {
     Ownable::contract_state_for_testing()
 }
 
 fn setup() -> Ownable::ContractState {
-    let mut ownable = internal_state();
-    ownable.initializer(OWNER());
-    ownable
+    let mut state = STATE();
+    Ownable::StorageTrait::initializer(ref state, OWNER());
+    state
 }
 
-fn deploy_mock() -> IOwnableDispatcher {
-    let mut calldata = ArrayTrait::new();
-    calldata.append_serde(OWNER());
-    let address = utils::deploy(SnakeOwnableMock::TEST_CLASS_HASH, calldata);
-    IOwnableDispatcher { contract_address: address }
-}
-
-fn deploy_mock_camel() -> IOwnableCamelDispatcher {
-    let mut calldata = ArrayTrait::new();
-    calldata.append_serde(OWNER());
-    let address = utils::deploy(CamelOwnableMock::TEST_CLASS_HASH, calldata);
-    IOwnableCamelDispatcher { contract_address: address }
+fn setup_camel() -> OwnableCamel::ContractState {
+    let mut camel_state = OwnableCamel::contract_state_for_testing();
+    OwnableCamel::StorageTrait::initializer(ref camel_state, OWNER());
+    camel_state
 }
 
 //
@@ -58,10 +45,10 @@ fn deploy_mock_camel() -> IOwnableCamelDispatcher {
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
-    let mut ownable = internal_state();
-    assert(ownable.owner().is_zero(), 'Should be zero');
-    ownable.initializer(OWNER());
-    assert(ownable.owner() == OWNER(), 'Owner should be set');
+    let mut state = STATE();
+    assert(Ownable::StorageTrait::owner(@state).is_zero(), 'Should be zero');
+    Ownable::StorageTrait::initializer(ref state, OWNER());
+    assert(Ownable::StorageTrait::owner(@state) == OWNER(), 'Owner should be set');
 }
 
 //
@@ -71,26 +58,26 @@ fn test_initializer() {
 #[test]
 #[available_gas(2000000)]
 fn test_assert_only_owner() {
-    let mut ownable = setup();
+    let mut state = setup();
     testing::set_caller_address(OWNER());
-    ownable.assert_only_owner();
+    Ownable::StorageTrait::assert_only_owner(@state);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_assert_only_owner_when_not_owner() {
-    let mut ownable = setup();
+    let mut state = setup();
     testing::set_caller_address(OTHER());
-    ownable.assert_only_owner();
+    Ownable::StorageTrait::assert_only_owner(@state);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_assert_only_owner_when_caller_zero() {
-    let mut ownable = setup();
-    ownable.assert_only_owner();
+    let mut state = setup();
+    Ownable::StorageTrait::assert_only_owner(@state);
 }
 
 //
@@ -100,10 +87,10 @@ fn test_assert_only_owner_when_caller_zero() {
 #[test]
 #[available_gas(2000000)]
 fn test__transfer_ownership() {
-    let mut ownable = setup();
+    let mut state = setup();
     testing::set_caller_address(OWNER());
-    ownable._transfer_ownership(OTHER());
-    assert(ownable.owner() == OTHER(), 'Owner should be OTHER');
+    Ownable::StorageTrait::_transfer_ownership(ref state, OTHER());
+    assert(Ownable::StorageTrait::owner(@state) == OTHER(), 'Owner should be OTHER');
 }
 
 //
@@ -113,71 +100,71 @@ fn test__transfer_ownership() {
 #[test]
 #[available_gas(2000000)]
 fn test_transfer_ownership() {
-    let ownable = deploy_mock();
-    testing::set_contract_address(OWNER());
-    ownable.transfer_ownership(OTHER());
-    assert(ownable.owner() == OTHER(), 'Should transfer ownership');
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    Ownable::IOwnableImpl::transfer_ownership(ref state, OTHER());
+    assert(Ownable::IOwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('New owner is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('New owner is the zero address', ))]
 fn test_transfer_ownership_to_zero() {
-    let ownable = deploy_mock();
-    testing::set_contract_address(OWNER());
-    ownable.transfer_ownership(ZERO());
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    Ownable::IOwnableImpl::transfer_ownership(ref state, ZERO());
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is the zero address', ))]
 fn test_transfer_ownership_from_zero() {
-    let ownable = deploy_mock();
-    ownable.transfer_ownership(OTHER());
+    let mut state = setup();
+    Ownable::IOwnableImpl::transfer_ownership(ref state, OTHER());
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is not the owner', ))]
 fn test_transfer_ownership_from_nonowner() {
-    let ownable = deploy_mock();
-    testing::set_contract_address(OTHER());
-    ownable.transfer_ownership(OTHER());
+    let mut state = setup();
+    testing::set_caller_address(OTHER());
+    Ownable::IOwnableImpl::transfer_ownership(ref state, OTHER());
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_transferOwnership() {
-    let ownable = deploy_mock_camel();
-    testing::set_contract_address(OWNER());
-    ownable.transferOwnership(OTHER());
-    assert(ownable.owner() == OTHER(), 'Should transfer ownership');
+    let mut state = setup_camel();
+    testing::set_caller_address(OWNER());
+    OwnableCamel::IOwnableCamelImpl::transferOwnership(ref state, OTHER());
+    assert(OwnableCamel::IOwnableCamelImpl::owner(@state) == OTHER(), 'Should transfer ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('New owner is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('New owner is the zero address', ))]
 fn test_transferOwnership_to_zero() {
-    let ownable = deploy_mock_camel();
-    testing::set_contract_address(OWNER());
-    ownable.transferOwnership(ZERO());
+    let mut state = setup_camel();
+    testing::set_caller_address(OWNER());
+    OwnableCamel::IOwnableCamelImpl::transferOwnership(ref state, ZERO());
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is the zero address', ))]
 fn test_transferOwnership_from_zero() {
-    let ownable = deploy_mock_camel();
-    ownable.transferOwnership(OTHER());
+    let mut state = setup_camel();
+    OwnableCamel::IOwnableCamelImpl::transferOwnership(ref state, OTHER());
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is not the owner', ))]
 fn test_transferOwnership_from_nonowner() {
-    let ownable = deploy_mock_camel();
-    testing::set_contract_address(OTHER());
-    ownable.transferOwnership(OTHER());
+    let mut state = setup_camel();
+    testing::set_caller_address(OTHER());
+    OwnableCamel::IOwnableCamelImpl::transferOwnership(ref state, OTHER());
 }
 
 //
@@ -187,51 +174,51 @@ fn test_transferOwnership_from_nonowner() {
 #[test]
 #[available_gas(2000000)]
 fn test_renounce_ownership() {
-    let ownable = deploy_mock();
-    testing::set_contract_address(OWNER());
-    ownable.renounce_ownership();
-    assert(ownable.owner() == ZERO(), 'Should renounce ownership');
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    Ownable::IOwnableImpl::renounce_ownership(ref state);
+    assert(Ownable::IOwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is the zero address', ))]
 fn test_renounce_ownership_from_zero_address() {
-    let ownable = deploy_mock();
-    ownable.renounce_ownership();
+    let mut state = setup();
+    Ownable::IOwnableImpl::renounce_ownership(ref state);
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is not the owner', ))]
 fn test_renounce_ownership_from_nonowner() {
-    let ownable = deploy_mock();
-    testing::set_contract_address(OTHER());
-    ownable.renounce_ownership();
+    let mut state = setup();
+    testing::set_caller_address(OTHER());
+    Ownable::IOwnableImpl::renounce_ownership(ref state);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_renounceOwnership() {
-    let ownable = deploy_mock_camel();
-    testing::set_contract_address(OWNER());
-    ownable.renounceOwnership();
-    assert(ownable.owner() == ZERO(), 'Should renounce ownership');
+    let mut state = setup_camel();
+    testing::set_caller_address(OWNER());
+    OwnableCamel::IOwnableCamelImpl::renounceOwnership(ref state);
+    assert(OwnableCamel::IOwnableCamelImpl::owner(@state) == ZERO(), 'Should renounce ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is the zero address', ))]
 fn test_renounceOwnership_from_zero_address() {
-    let ownable = deploy_mock_camel();
-    ownable.renounceOwnership();
+    let mut state = setup_camel();
+    OwnableCamel::IOwnableCamelImpl::renounceOwnership(ref state);
 }
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Caller is not the owner', ))]
 fn test_renounceOwnership_from_nonowner() {
-    let ownable = deploy_mock_camel();
-    testing::set_contract_address(OTHER());
-    ownable.renounceOwnership();
+    let mut state = setup_camel();
+    testing::set_caller_address(OTHER());
+    OwnableCamel::IOwnableCamelImpl::renounceOwnership(ref state);
 }

@@ -1,6 +1,6 @@
 // mod access;
 mod introspection;
-// mod security;
+mod security;
 // mod account;
 // mod token;
 mod tests;

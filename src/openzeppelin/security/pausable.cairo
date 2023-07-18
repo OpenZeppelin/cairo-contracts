@@ -1,3 +1,8 @@
+#[starknet::interface]
+trait IPausable<TState> {
+    fn is_paused(self: @TState) -> bool;
+}
+
 #[starknet::contract]
 mod Pausable {
     use starknet::ContractAddress;
@@ -23,27 +28,30 @@ mod Pausable {
         account: ContractAddress
     }
 
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
+    #[external(v0)]
+    impl PausableImpl of super::IPausable<ContractState> {
         fn is_paused(self: @ContractState) -> bool {
             self.paused.read()
         }
+    }
 
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
         fn assert_not_paused(self: @ContractState) {
-            assert(!self.is_paused(), 'Pausable: paused');
+            assert(!self.paused.read(), 'Pausable: paused');
         }
 
         fn assert_paused(self: @ContractState) {
-            assert(self.is_paused(), 'Pausable: not paused');
+            assert(self.paused.read(), 'Pausable: not paused');
         }
 
-        fn pause(ref self: ContractState) {
+        fn _pause(ref self: ContractState) {
             self.assert_not_paused();
             self.paused.write(true);
             self.emit(Event::Paused(Paused { account: get_caller_address() }));
         }
 
-        fn unpause(ref self: ContractState) {
+        fn _unpause(ref self: ContractState) {
             self.assert_paused();
             self.paused.write(false);
             self.emit(Event::Unpaused(Unpaused { account: get_caller_address() }));

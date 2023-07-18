@@ -1,4 +1,5 @@
 use openzeppelin::security::reentrancyguard::ReentrancyGuard;
+use openzeppelin::security::reentrancyguard::ReentrancyGuard::InternalImpl;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
@@ -24,9 +25,9 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 fn test_reentrancy_guard_start() {
     let mut state = STATE();
 
-    assert(!ReentrancyGuard::StorageTrait::is_entered(@state), 'Should not be entered');
-    ReentrancyGuard::StorageTrait::start(ref state);
-    assert(ReentrancyGuard::StorageTrait::is_entered(@state), 'Should be entered');
+    assert(!InternalImpl::is_entered(@state), 'Should not be entered');
+    InternalImpl::start(ref state);
+    assert(InternalImpl::is_entered(@state), 'Should be entered');
 }
 
 #[test]
@@ -35,8 +36,8 @@ fn test_reentrancy_guard_start() {
 fn test_reentrancy_guard_start_when_started() {
     let mut state = STATE();
 
-    ReentrancyGuard::StorageTrait::start(ref state);
-    ReentrancyGuard::StorageTrait::start(ref state);
+    InternalImpl::start(ref state);
+    InternalImpl::start(ref state);
 }
 
 #[test]
@@ -44,10 +45,10 @@ fn test_reentrancy_guard_start_when_started() {
 fn test_reentrancy_guard_end() {
     let mut state = STATE();
 
-    ReentrancyGuard::StorageTrait::start(ref state);
-    assert(ReentrancyGuard::StorageTrait::is_entered(@state), 'Should be entered');
-    ReentrancyGuard::StorageTrait::end(ref state);
-    assert(!ReentrancyGuard::StorageTrait::is_entered(@state), 'Should no longer be entered');
+    InternalImpl::start(ref state);
+    assert(InternalImpl::is_entered(@state), 'Should be entered');
+    InternalImpl::end(ref state);
+    assert(!InternalImpl::is_entered(@state), 'Should no longer be entered');
 }
 
 //

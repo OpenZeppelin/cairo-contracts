@@ -8,7 +8,7 @@ mod ReentrancyGuard {
     }
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn start(ref self: ContractState) {
             assert(!self.is_entered(), 'ReentrancyGuard: reentrant call');
             self.entered.write(true);

@@ -36,15 +36,15 @@ mod ReentrancyMock {
         }
 
         fn _count_local_recursive(ref self: ContractState, n: felt252) {
-            let mut lib_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::StorageTrait::start(ref lib_state);
+            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
+            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
 
             if n != 0 {
                 self.count();
                 self._count_local_recursive(n - 1);
             }
 
-            ReentrancyGuard::StorageTrait::end(ref lib_state);
+            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
         }
     }
 
@@ -55,10 +55,10 @@ mod ReentrancyMock {
         }
 
         fn callback(ref self: ContractState) {
-            let mut lib_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::StorageTrait::start(ref lib_state);
+            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
+            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
             self.count();
-            ReentrancyGuard::StorageTrait::end(ref lib_state);
+            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
         }
 
         fn count_local_recursive(ref self: ContractState, n: felt252) {
@@ -66,8 +66,8 @@ mod ReentrancyMock {
         }
 
         fn count_external_recursive(ref self: ContractState, n: felt252) {
-            let mut lib_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::StorageTrait::start(ref lib_state);
+            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
+            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
 
             if n != 0 {
                 self.count();
@@ -76,17 +76,17 @@ mod ReentrancyMock {
                     .count_external_recursive(n - 1)
             }
 
-            ReentrancyGuard::StorageTrait::end(ref lib_state);
+            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
         }
 
         fn count_and_call(ref self: ContractState, attacker: ContractAddress) {
-            let mut lib_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::StorageTrait::start(ref lib_state);
+            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
+            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
 
             self.count();
             IAttackerDispatcher { contract_address: attacker }.call_sender();
 
-            ReentrancyGuard::StorageTrait::end(ref lib_state);
+            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
         }
     }
 }

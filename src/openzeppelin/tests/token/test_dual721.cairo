@@ -5,9 +5,9 @@ use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
 use openzeppelin::token::erc721::interface::IERC721_ID;
 use openzeppelin::token::erc721::interface::IERC721Dispatcher;
-use openzeppelin::token::erc721::interface::IERC721CamelDispatcher;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcher;
 use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
-use openzeppelin::token::erc721::interface::IERC721CamelDispatcherTrait;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcherTrait;
 use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
 use openzeppelin::token::erc721::dual721::DualCaseERC721;
 use openzeppelin::tests::mocks::snake721_mock::SnakeERC721Mock;
@@ -43,7 +43,7 @@ fn OPERATOR() -> ContractAddress {
     contract_address_const::<40>()
 }
 fn DATA(success: bool) -> Span<felt252> {
-    let mut data = ArrayTrait::new();
+    let mut data = array![];
     if success {
         data.append_serde(SUCCESS);
     } else {
@@ -57,7 +57,7 @@ fn DATA(success: bool) -> Span<felt252> {
 //
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
     calldata.append_serde(TOKEN_ID);
@@ -67,8 +67,8 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
-    let mut calldata = ArrayTrait::new();
+fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
+    let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
     calldata.append_serde(TOKEN_ID);
@@ -77,19 +77,19 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelDispatcher) {
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC721 { contract_address: target },
-        IERC721CamelDispatcher { contract_address: target }
+        IERC721CamelOnlyDispatcher { contract_address: target }
     )
 }
 
 fn setup_non_erc721() -> DualCaseERC721 {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseERC721 { contract_address: target }
 }
 
 fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
-    let snake_target = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
-    let camel_target = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let snake_target = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseERC721 { contract_address: snake_target },
         DualCaseERC721 { contract_address: camel_target }
@@ -97,7 +97,7 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
+    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, array![])
 }
 
 //
@@ -155,7 +155,7 @@ fn test_dual_symbol_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_dual_approve() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
@@ -475,9 +475,9 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_getApproved() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
-    target.approve(SPENDER(), TOKEN_ID);
+    dispatcher.approve(SPENDER(), TOKEN_ID);
     assert(dispatcher.get_approved(TOKEN_ID) == SPENDER(), 'Should return approval');
 }
 

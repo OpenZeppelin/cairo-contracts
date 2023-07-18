@@ -6,7 +6,7 @@ mod Initializable {
     }
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn is_initialized(self: @ContractState) -> bool {
             self.initialized.read()
         }

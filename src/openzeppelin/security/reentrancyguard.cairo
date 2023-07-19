@@ -10,16 +10,12 @@ mod ReentrancyGuard {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn start(ref self: ContractState) {
-            assert(!self.is_entered(), 'ReentrancyGuard: reentrant call');
+            assert(!self.entered.read(), 'ReentrancyGuard: reentrant call');
             self.entered.write(true);
         }
 
         fn end(ref self: ContractState) {
             self.entered.write(false);
-        }
-
-        fn is_entered(self: @ContractState) -> bool {
-            self.entered.read()
         }
     }
 }

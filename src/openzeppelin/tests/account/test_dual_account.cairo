@@ -1,11 +1,11 @@
 use starknet::testing;
 
 use openzeppelin::account::dual_account::DualCaseAccount;
-use openzeppelin::account::dual_account::DualCaseAccountTrait;
-use openzeppelin::account::AccountCamelTraitDispatcher;
-use openzeppelin::account::AccountCamelTraitDispatcherTrait;
-use openzeppelin::account::AccountTraitDispatcher;
-use openzeppelin::account::AccountTraitDispatcherTrait;
+use openzeppelin::account::dual_account::DualCaseAccountABI;
+use openzeppelin::account::AccountCamelABIDispatcher;
+use openzeppelin::account::AccountCamelABIDispatcherTrait;
+use openzeppelin::account::AccountABIDispatcher;
+use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::account::test_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::account_panic_mock::CamelAccountPanicMock;
@@ -26,21 +26,21 @@ const NEW_PUBLIC_KEY: felt252 = 0x444444;
 // Setup
 //
 
-fn setup_snake() -> (DualCaseAccount, AccountTraitDispatcher) {
+fn setup_snake() -> (DualCaseAccount, AccountABIDispatcher) {
     let mut calldata = array![PUBLIC_KEY];
     let target = utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccount { contract_address: target },
-        AccountTraitDispatcher { contract_address: target }
+        AccountABIDispatcher { contract_address: target }
     )
 }
 
-fn setup_camel() -> (DualCaseAccount, AccountCamelTraitDispatcher) {
+fn setup_camel() -> (DualCaseAccount, AccountCamelABIDispatcher) {
     let mut calldata = array![PUBLIC_KEY];
     let target = utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccount { contract_address: target },
-        AccountCamelTraitDispatcher { contract_address: target }
+        AccountCamelABIDispatcher { contract_address: target }
     )
 }
 

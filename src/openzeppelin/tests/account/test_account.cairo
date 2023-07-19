@@ -2,14 +2,14 @@ use array::ArrayTrait;
 use core::traits::Into;
 use option::OptionTrait;
 use serde::Serde;
+use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
 
 use openzeppelin::account::Account;
-use openzeppelin::account::AccountTraitDispatcher;
-use openzeppelin::account::AccountTraitDispatcherTrait;
-use openzeppelin::account::interface::Call;
+use openzeppelin::account::AccountABIDispatcher;
+use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
@@ -61,7 +61,7 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 // Setup
 //
 
-fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountTraitDispatcher {
+fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
     testing::set_version(TRANSACTION_VERSION);
 
     let mut calldata = array![];
@@ -75,7 +75,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountTraitDispatc
         calldata.append(PUBLIC_KEY);
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    AccountTraitDispatcher { contract_address: address }
+    AccountABIDispatcher { contract_address: address }
 }
 
 // fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {

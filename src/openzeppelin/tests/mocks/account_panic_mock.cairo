@@ -39,6 +39,7 @@ mod SnakeAccountPanicMock {
 mod CamelAccountPanicMock {
     #[storage]
     struct Storage {}
+
     #[external(v0)]
     fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
         panic_with_felt252('Some error');

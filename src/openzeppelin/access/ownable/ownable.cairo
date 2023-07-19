@@ -22,7 +22,7 @@ mod Ownable {
     }
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, owner: ContractAddress) {
             self._transfer_ownership(owner);
         }
@@ -53,7 +53,7 @@ mod Ownable {
     }
 
     #[external(v0)]
-    impl IOwnableImpl of interface::IOwnable<ContractState> {
+    impl OwnableImpl of interface::IOwnable<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
             self.owner()
         }

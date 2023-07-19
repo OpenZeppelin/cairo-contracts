@@ -8,28 +8,28 @@ mod OwnableCamel {
     struct Storage {}
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, owner: ContractAddress) {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::StorageTrait::initializer(ref unsafe_state, owner);
+            Ownable::InternalImpl::initializer(ref unsafe_state, owner);
         }
     }
 
     #[external(v0)]
-    impl IOwnableCamelImpl of interface::IOwnableCamel<ContractState> {
+    impl OwnableCamelImpl of interface::IOwnableCamel<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::owner(@unsafe_state)
+            Ownable::OwnableImpl::owner(@unsafe_state)
         }
 
         fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::transfer_ownership(ref unsafe_state, newOwner);
+            Ownable::OwnableImpl::transfer_ownership(ref unsafe_state, newOwner);
         }
 
         fn renounceOwnership(ref self: ContractState) {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::renounce_ownership(ref unsafe_state);
+            Ownable::OwnableImpl::renounce_ownership(ref unsafe_state);
         }
     }
 }

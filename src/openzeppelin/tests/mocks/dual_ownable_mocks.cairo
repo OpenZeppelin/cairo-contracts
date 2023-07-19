@@ -14,24 +14,24 @@ mod SnakeOwnableMock {
     #[constructor]
     fn constructor(self: @ContractState, owner: ContractAddress) {
         let mut unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::StorageTrait::initializer(ref unsafe_state, owner);
+        Ownable::InternalImpl::initializer(ref unsafe_state, owner);
     }
 
     #[external(v0)]
     impl OwnableImpl of super::IOwnable<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::owner(@unsafe_state)
+            Ownable::OwnableImpl::owner(@unsafe_state)
         }
 
         fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::transfer_ownership(ref unsafe_state, new_owner);
+            Ownable::OwnableImpl::transfer_ownership(ref unsafe_state, new_owner);
         }
 
         fn renounce_ownership(ref self: ContractState) {
             let mut unsafe_state = Ownable::unsafe_new_contract_state();
-            Ownable::IOwnableImpl::renounce_ownership(ref unsafe_state);
+            Ownable::OwnableImpl::renounce_ownership(ref unsafe_state);
         }
     }
 }
@@ -47,24 +47,24 @@ mod CamelOwnableMock {
     #[constructor]
     fn constructor(self: @ContractState, owner: ContractAddress) {
         let mut unsafe_state = OwnableCamel::unsafe_new_contract_state();
-        OwnableCamel::StorageTrait::initializer(ref unsafe_state, owner);
+        OwnableCamel::InternalImpl::initializer(ref unsafe_state, owner);
     }
 
     #[external(v0)]
     impl OwnableCamelImpl of super::IOwnableCamel<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
             let mut unsafe_state = OwnableCamel::unsafe_new_contract_state();
-            OwnableCamel::IOwnableCamelImpl::owner(@unsafe_state)
+            OwnableCamel::OwnableCamelImpl::owner(@unsafe_state)
         }
 
         fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
             let mut unsafe_state = OwnableCamel::unsafe_new_contract_state();
-            OwnableCamel::IOwnableCamelImpl::transferOwnership(ref unsafe_state, newOwner);
+            OwnableCamel::OwnableCamelImpl::transferOwnership(ref unsafe_state, newOwner);
         }
 
         fn renounceOwnership(ref self: ContractState) {
             let mut unsafe_state = OwnableCamel::unsafe_new_contract_state();
-            OwnableCamel::IOwnableCamelImpl::renounceOwnership(ref unsafe_state);
+            OwnableCamel::OwnableCamelImpl::renounceOwnership(ref unsafe_state);
         }
     }
 }

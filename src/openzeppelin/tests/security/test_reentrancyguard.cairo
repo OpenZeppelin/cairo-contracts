@@ -1,5 +1,6 @@
 use openzeppelin::security::reentrancyguard::ReentrancyGuard;
 use openzeppelin::security::reentrancyguard::ReentrancyGuard::InternalImpl;
+use openzeppelin::security::reentrancyguard::ReentrancyGuard::entered::InternalContractStateTrait;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
@@ -25,9 +26,9 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 fn test_reentrancy_guard_start() {
     let mut state = STATE();
 
-    assert(!InternalImpl::is_entered(@state), 'Should not be entered');
+    assert(!state.entered.read(), 'Should not be entered');
     InternalImpl::start(ref state);
-    assert(InternalImpl::is_entered(@state), 'Should be entered');
+    assert(state.entered.read(), 'Should be entered');
 }
 
 #[test]
@@ -46,9 +47,9 @@ fn test_reentrancy_guard_end() {
     let mut state = STATE();
 
     InternalImpl::start(ref state);
-    assert(InternalImpl::is_entered(@state), 'Should be entered');
+    assert(state.entered.read(), 'Should be entered');
     InternalImpl::end(ref state);
-    assert(!InternalImpl::is_entered(@state), 'Should no longer be entered');
+    assert(!state.entered.read(), 'Should no longer be entered');
 }
 
 //

@@ -1,47 +1,107 @@
-use openzeppelin::tests::mocks::mock_pausable::MockPausable;
+use openzeppelin::security::pausable::Pausable;
+use openzeppelin::security::pausable::Pausable::PausableImpl;
+use openzeppelin::security::pausable::Pausable::InternalImpl;
+
+fn STATE() -> Pausable::ContractState {
+    Pausable::contract_state_for_testing()
+}
+
+//
+// is_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_is_paused() {
+    let mut state = STATE();
+    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
+
+    InternalImpl::_pause(ref state);
+    assert(PausableImpl::is_paused(@state), 'Should be paused');
+
+    InternalImpl::_unpause(ref state);
+    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
+}
+
+//
+// assert_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_assert_paused_when_paused() {
+    let mut state = STATE();
+    InternalImpl::_pause(ref state);
+    InternalImpl::assert_paused(@state);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Pausable: not paused', ))]
+fn test_assert_paused_when_not_paused() {
+    let state = STATE();
+    InternalImpl::assert_paused(@state);
+}
+
+//
+// assert_not_paused
+//
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Pausable: paused', ))]
+fn test_assert_not_paused_when_paused() {
+    let mut state = STATE();
+    InternalImpl::_pause(ref state);
+    InternalImpl::assert_not_paused(@state);
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_assert_not_paused_when_not_paused() {
+    let state = STATE();
+    InternalImpl::assert_not_paused(@state);
+}
+
+//
+// pause
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_pause_when_unpaused() {
-    assert(!MockPausable::is_paused(), 'Should not be paused');
-    assert(MockPausable::get_count() == 0, 'Should be 0');
-    MockPausable::assert_unpaused_and_increment();
-    assert(MockPausable::get_count() == 1, 'Should increment');
-    MockPausable::pause();
-    assert(MockPausable::is_paused(), 'Should be paused');
+    let mut state = STATE();
+    InternalImpl::_pause(ref state);
+    assert(PausableImpl::is_paused(@state), 'Should be paused');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused', ))]
 fn test_pause_when_paused() {
-    MockPausable::pause();
-    MockPausable::pause();
+    let mut state = STATE();
+    InternalImpl::_pause(ref state);
+    InternalImpl::_pause(ref state);
 }
 
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: paused', ))]
-fn test_pause_increment() {
-    MockPausable::pause();
-    MockPausable::assert_unpaused_and_increment();
-}
+//
+// unpause
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_unpause_when_paused() {
-    MockPausable::pause();
-    assert(MockPausable::is_paused(), 'Should be paused');
-    MockPausable::unpause();
-    assert(!MockPausable::is_paused(), 'Should not be paused');
-    MockPausable::assert_unpaused_and_increment();
-    assert(MockPausable::get_count() == 1, 'Should increment');
+    let mut state = STATE();
+    InternalImpl::_pause(ref state);
+    InternalImpl::_unpause(ref state);
+    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused', ))]
 fn test_unpause_when_unpaused() {
-    assert(!MockPausable::is_paused(), 'Should be unpaused');
-    MockPausable::unpause();
+    let mut state = STATE();
+    assert(!PausableImpl::is_paused(@state), 'Should be paused');
+    InternalImpl::_unpause(ref state);
 }

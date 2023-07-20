@@ -1,39 +1,60 @@
-#[contract]
+#[starknet::interface]
+trait IPausable<TState> {
+    fn is_paused(self: @TState) -> bool;
+}
+
+#[starknet::contract]
 mod Pausable {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
+    #[storage]
     struct Storage {
         paused: bool
     }
 
     #[event]
-    fn Paused(account: ContractAddress) {}
-
-    #[event]
-    fn Unpaused(account: ContractAddress) {}
-
-    fn is_paused() -> bool {
-        paused::read()
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Paused: Paused,
+        Unpaused: Unpaused,
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Paused {
+        account: ContractAddress
+    }
+    #[derive(Drop, starknet::Event)]
+    struct Unpaused {
+        account: ContractAddress
     }
 
-    fn assert_not_paused() {
-        assert(!is_paused(), 'Pausable: paused');
+    #[external(v0)]
+    impl PausableImpl of super::IPausable<ContractState> {
+        fn is_paused(self: @ContractState) -> bool {
+            self.paused.read()
+        }
     }
 
-    fn assert_paused() {
-        assert(is_paused(), 'Pausable: not paused');
-    }
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn assert_not_paused(self: @ContractState) {
+            assert(!self.paused.read(), 'Pausable: paused');
+        }
 
-    fn pause() {
-        assert_not_paused();
-        paused::write(true);
-        Paused(get_caller_address());
-    }
+        fn assert_paused(self: @ContractState) {
+            assert(self.paused.read(), 'Pausable: not paused');
+        }
 
-    fn unpause() {
-        assert_paused();
-        paused::write(false);
-        Unpaused(get_caller_address());
+        fn _pause(ref self: ContractState) {
+            self.assert_not_paused();
+            self.paused.write(true);
+            self.emit(Paused { account: get_caller_address() });
+        }
+
+        fn _unpause(ref self: ContractState) {
+            self.assert_paused();
+            self.paused.write(false);
+            self.emit(Unpaused { account: get_caller_address() });
+        }
     }
 }

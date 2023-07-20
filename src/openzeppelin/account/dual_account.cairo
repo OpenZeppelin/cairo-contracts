@@ -13,7 +13,7 @@ struct DualCaseAccount {
     contract_address: ContractAddress
 }
 
-trait DualCaseAccountTrait {
+trait DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252);
     fn get_public_key(self: @DualCaseAccount) -> felt252;
     fn is_valid_signature(
@@ -22,10 +22,9 @@ trait DualCaseAccountTrait {
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool;
 }
 
-impl DualCaseAccountImpl of DualCaseAccountTrait {
+impl DualCaseAccountImpl of DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252) {
-        let mut args = ArrayTrait::new();
-        args.append_serde(new_public_key);
+        let mut args = array![new_public_key];
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()
@@ -34,7 +33,7 @@ impl DualCaseAccountImpl of DualCaseAccountTrait {
     }
 
     fn get_public_key(self: @DualCaseAccount) -> felt252 {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
 
         try_selector_with_fallback(
             *self.contract_address, selectors::get_public_key, selectors::getPublicKey, args.span()
@@ -45,8 +44,7 @@ impl DualCaseAccountImpl of DualCaseAccountTrait {
     fn is_valid_signature(
         self: @DualCaseAccount, hash: felt252, signature: Array<felt252>
     ) -> felt252 {
-        let mut args = ArrayTrait::new();
-        args.append_serde(hash);
+        let mut args = array![hash];
         args.append_serde(signature);
 
         try_selector_with_fallback(
@@ -59,8 +57,7 @@ impl DualCaseAccountImpl of DualCaseAccountTrait {
     }
 
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool {
-        let mut args = ArrayTrait::new();
-        args.append_serde(interface_id);
+        let mut args = array![interface_id];
 
         try_selector_with_fallback(
             *self.contract_address,

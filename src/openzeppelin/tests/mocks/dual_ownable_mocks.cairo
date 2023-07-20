@@ -16,7 +16,7 @@ mod SnakeOwnableMock {
 
     #[external(v0)]
     fn owner(self: @ContractState) -> ContractAddress {
-        let mut unsafe_state = Ownable::unsafe_new_contract_state();
+        let unsafe_state = Ownable::unsafe_new_contract_state();
         Ownable::OwnableImpl::owner(@unsafe_state)
     }
 
@@ -49,7 +49,7 @@ mod CamelOwnableMock {
 
     #[external(v0)]
     fn owner(self: @ContractState) -> ContractAddress {
-        let mut unsafe_state = Ownable::unsafe_new_contract_state();
+        let unsafe_state = Ownable::unsafe_new_contract_state();
         Ownable::OwnableImpl::owner(@unsafe_state)
     }
 

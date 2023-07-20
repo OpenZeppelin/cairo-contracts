@@ -5,10 +5,10 @@ trait IAttacker<TContractState> {
 
 #[starknet::contract]
 mod Attacker {
-    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
-    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
+    use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 
     #[storage]
     struct Storage {}

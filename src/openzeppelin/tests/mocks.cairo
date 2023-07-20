@@ -8,11 +8,11 @@
 // mod erc20_panic;
 // mod non721_mock;
 // mod accesscontrol_panic_mock;
-// mod account_panic_mock;
+mod account_panic_mock;
 // mod camel_accesscontrol_mock;
-// mod camel_account_mock;
+mod camel_account_mock;
 // mod snake_accesscontrol_mock;
-// mod snake_account_mock;
+mod snake_account_mock;
 // mod dual_ownable_mocks;
 // mod snake721_mock;
 // mod camel721_mock;

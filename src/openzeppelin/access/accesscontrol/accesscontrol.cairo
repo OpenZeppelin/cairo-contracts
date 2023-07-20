@@ -1,11 +1,11 @@
 #[starknet::contract]
 mod AccessControl {
-    use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::interface::ISRC5Camel;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use openzeppelin::access::accesscontrol::interface;
+    use openzeppelin::introspection::interface::ISRC5;
+    use openzeppelin::introspection::interface::ISRC5Camel;
+    use openzeppelin::introspection::src5::SRC5;
 
     #[storage]
     struct Storage {
@@ -149,14 +149,21 @@ mod AccessControl {
             if AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
                 self.role_members.write((role, account), false);
-                self.emit(Event::RoleRevoked(RoleRevoked { role: role, account: account, sender: caller }));
+                self.emit(RoleRevoked { role: role, account: account, sender: caller });
             }
         }
 
         fn _set_role_admin(ref self: ContractState, role: felt252, admin_role: felt252) {
             let previous_admin_role: felt252 = AccessControlImpl::get_role_admin(@self, role);
             self.role_admin.write(role, admin_role);
-            self.emit(Event::RoleAdminChanged(RoleAdminChanged { role: role, previous_admin_role: previous_admin_role, new_admin_role: admin_role }));
+            self
+                .emit(
+                    RoleAdminChanged {
+                        role: role,
+                        previous_admin_role: previous_admin_role,
+                        new_admin_role: admin_role
+                    }
+                );
         }
     }
 }

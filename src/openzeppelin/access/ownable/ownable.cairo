@@ -43,11 +43,7 @@ mod Ownable {
             self._owner.write(new_owner);
             self
                 .emit(
-                    Event::OwnershipTransferred(
-                        OwnershipTransferred {
-                            previous_owner: previous_owner, new_owner: new_owner
-                        }
-                    )
+                    OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
                 );
         }
     }
@@ -73,12 +69,10 @@ mod Ownable {
     #[external(v0)]
     impl OwnableCamelOnlyImpl of interface::IOwnableCamelOnly<ContractState> {
         fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
-            //let mut unsafe_state = OwnableImpl::unsafe_new_contract_state();
             OwnableImpl::transfer_ownership(ref self, newOwner);
         }
 
         fn renounceOwnership(ref self: ContractState) {
-            //let mut unsafe_state = Ownable::unsafe_new_contract_state();
             OwnableImpl::renounce_ownership(ref self);
         }
     }

@@ -51,7 +51,7 @@ fn test_initializer() {
 #[test]
 #[available_gas(2000000)]
 fn test_assert_only_owner() {
-    let mut state = setup();
+    let state = setup();
     testing::set_caller_address(OWNER());
     InternalImpl::assert_only_owner(@state);
 }
@@ -60,7 +60,7 @@ fn test_assert_only_owner() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_assert_only_owner_when_not_owner() {
-    let mut state = setup();
+    let state = setup();
     testing::set_caller_address(OTHER());
     InternalImpl::assert_only_owner(@state);
 }
@@ -69,7 +69,7 @@ fn test_assert_only_owner_when_not_owner() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_assert_only_owner_when_caller_zero() {
-    let mut state = setup();
+    let state = setup();
     InternalImpl::assert_only_owner(@state);
 }
 

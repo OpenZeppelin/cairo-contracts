@@ -19,12 +19,12 @@ use openzeppelin::token::erc721::ERC721::ERC721MetadataImpl;
 use openzeppelin::token::erc721::ERC721::InternalImpl;
 use openzeppelin::token::erc721::ERC721::SRC5CamelImpl;
 use openzeppelin::token::erc721::ERC721::SRC5Impl;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721NonReceiver;
-use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
-use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
 use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
+use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
+use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
+use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 
 use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
@@ -777,7 +777,7 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -790,7 +790,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -1208,7 +1208,7 @@ fn test__safe_mint_to_account_camel() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = STATE();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, array![]);
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);

@@ -6,7 +6,6 @@ mod erc721_panic_mock;
 // mod camel20_mock;
 // mod snake20_mock;
 // mod erc20_panic;
-mod non721_mock;
 // mod accesscontrol_panic_mock;
 mod account_panic_mock;
 // mod camel_accesscontrol_mock;

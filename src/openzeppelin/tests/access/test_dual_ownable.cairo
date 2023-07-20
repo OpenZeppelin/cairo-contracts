@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
@@ -158,10 +157,10 @@ fn test_dual_renounce_ownership_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferOwnership() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
-    assert(target.owner() == NEW_OWNER(), 'Should be new owner');
+    assert(dispatcher.owner() == NEW_OWNER(), 'Should be new owner');
 }
 
 #[test]
@@ -175,10 +174,10 @@ fn test_dual_transferOwnership_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceOwnership() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.renounce_ownership();
-    assert(target.owner().is_zero(), 'Should be zero');
+    assert(dispatcher.owner().is_zero(), 'Should be zero');
 }
 
 #[test]

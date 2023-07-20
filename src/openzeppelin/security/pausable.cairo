@@ -48,13 +48,13 @@ mod Pausable {
         fn _pause(ref self: ContractState) {
             self.assert_not_paused();
             self.paused.write(true);
-            self.emit(Event::Paused(Paused { account: get_caller_address() }));
+            self.emit(Paused { account: get_caller_address() });
         }
 
         fn _unpause(ref self: ContractState) {
             self.assert_paused();
             self.paused.write(false);
-            self.emit(Event::Unpaused(Unpaused { account: get_caller_address() }));
+            self.emit(Unpaused { account: get_caller_address() });
         }
     }
 }

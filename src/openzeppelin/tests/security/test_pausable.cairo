@@ -39,7 +39,7 @@ fn test_assert_paused_when_paused() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused', ))]
 fn test_assert_paused_when_not_paused() {
-    let mut state = STATE();
+    let state = STATE();
     InternalImpl::assert_paused(@state);
 }
 
@@ -59,7 +59,7 @@ fn test_assert_not_paused_when_paused() {
 #[test]
 #[available_gas(2000000)]
 fn test_assert_not_paused_when_not_paused() {
-    let mut state = STATE();
+    let state = STATE();
     InternalImpl::assert_not_paused(@state);
 }
 

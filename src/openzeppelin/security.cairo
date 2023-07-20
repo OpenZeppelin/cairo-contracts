@@ -1,3 +1,3 @@
 //mod reentrancyguard;
-//mod pausable;
+mod pausable;
 mod initializable;

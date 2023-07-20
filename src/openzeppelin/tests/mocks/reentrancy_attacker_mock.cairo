@@ -1,6 +1,6 @@
 #[starknet::interface]
-trait IAttacker<TContractState> {
-    fn call_sender(self: @TContractState);
+trait IAttacker<TState> {
+    fn call_sender(self: @TState);
 }
 
 #[starknet::contract]

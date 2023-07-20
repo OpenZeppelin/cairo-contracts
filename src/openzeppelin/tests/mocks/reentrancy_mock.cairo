@@ -1,17 +1,17 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-trait IReentrancyGuarded<TContractState> {
-    fn count_external_recursive(ref self: TContractState, n: felt252);
+trait IReentrancyGuarded<TState> {
+    fn count_external_recursive(ref self: TState, n: felt252);
 }
 
 #[starknet::interface]
-trait IReentrancyMock<TContractState> {
-    fn current_count(self: @TContractState) -> felt252;
-    fn callback(ref self: TContractState);
-    fn count_local_recursive(ref self: TContractState, n: felt252);
-    fn count_external_recursive(ref self: TContractState, n: felt252);
-    fn count_and_call(ref self: TContractState, attacker: ContractAddress);
+trait IReentrancyMock<TState> {
+    fn current_count(self: @TState) -> felt252;
+    fn callback(ref self: TState);
+    fn count_local_recursive(ref self: TState, n: felt252);
+    fn count_external_recursive(ref self: TState, n: felt252);
+    fn count_and_call(ref self: TState, attacker: ContractAddress);
 }
 
 #[starknet::contract]

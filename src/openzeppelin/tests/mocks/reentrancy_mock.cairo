@@ -30,7 +30,7 @@ mod ReentrancyMock {
     }
 
     #[generate_trait]
-    impl StorageImpl of StorageTrait {
+    impl InternalImpl of InternalTrait {
         fn count(ref self: ContractState) {
             self.counter.write(self.counter.read() + 1);
         }

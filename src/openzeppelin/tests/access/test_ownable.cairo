@@ -1,6 +1,6 @@
 use openzeppelin::access::ownable::Ownable;
 use openzeppelin::access::ownable::Ownable::InternalImpl;
-use openzeppelin::access::ownable::OwnableCamel;
+//use openzeppelin::access::ownable::OwnableCamelOnly;
 
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -33,11 +33,11 @@ fn setup() -> Ownable::ContractState {
     state
 }
 
-fn setup_camel() -> OwnableCamel::ContractState {
-    let mut camel_state = OwnableCamel::contract_state_for_testing();
-    OwnableCamel::InternalImpl::initializer(ref camel_state, OWNER());
-    camel_state
-}
+//fn setup_camel() -> OwnableCamel::ContractState {
+//    let mut camel_state = OwnableCamel::contract_state_for_testing();
+//    OwnableCamel::InternalImpl::initializer(ref camel_state, OWNER());
+//    camel_state
+//}
 
 //
 // initializer

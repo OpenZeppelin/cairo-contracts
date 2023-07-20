@@ -58,18 +58,13 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
 }
 
 fn setup_non_accesscontrol() -> DualCaseAccessControl {
-    let calldata = array![];
-    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
+    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     DualCaseAccessControl { contract_address: target }
 }
 
 fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl) {
-    let snake_target = utils::deploy(
-        SnakeAccessControlPanicMock::TEST_CLASS_HASH, array![]
-    );
-    let camel_target = utils::deploy(
-        CamelAccessControlPanicMock::TEST_CLASS_HASH, array![]
-    );
+    let snake_target = utils::deploy(SnakeAccessControlPanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelAccessControlPanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseAccessControl { contract_address: snake_target },
         DualCaseAccessControl { contract_address: camel_target }

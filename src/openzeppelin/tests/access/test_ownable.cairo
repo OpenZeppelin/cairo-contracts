@@ -1,11 +1,9 @@
-use openzeppelin::access::ownable::Ownable;
-use openzeppelin::access::ownable::Ownable::InternalImpl;
-use openzeppelin::access::ownable::OwnableCamel;
-
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
 use zeroable::Zeroable;
+use openzeppelin::access::ownable::Ownable;
+use openzeppelin::access::ownable::Ownable::InternalImpl;
 
 fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
@@ -33,12 +31,6 @@ fn setup() -> Ownable::ContractState {
     state
 }
 
-fn setup_camel() -> OwnableCamel::ContractState {
-    let mut camel_state = OwnableCamel::contract_state_for_testing();
-    OwnableCamel::InternalImpl::initializer(ref camel_state, OWNER());
-    camel_state
-}
-
 //
 // initializer
 //
@@ -59,7 +51,7 @@ fn test_initializer() {
 #[test]
 #[available_gas(2000000)]
 fn test_assert_only_owner() {
-    let mut state = setup();
+    let state = setup();
     testing::set_caller_address(OWNER());
     InternalImpl::assert_only_owner(@state);
 }
@@ -68,7 +60,7 @@ fn test_assert_only_owner() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_assert_only_owner_when_not_owner() {
-    let mut state = setup();
+    let state = setup();
     testing::set_caller_address(OTHER());
     InternalImpl::assert_only_owner(@state);
 }
@@ -77,7 +69,7 @@ fn test_assert_only_owner_when_not_owner() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_assert_only_owner_when_caller_zero() {
-    let mut state = setup();
+    let state = setup();
     InternalImpl::assert_only_owner(@state);
 }
 
@@ -136,36 +128,36 @@ fn test_transfer_ownership_from_nonowner() {
 #[test]
 #[available_gas(2000000)]
 fn test_transferOwnership() {
-    let mut state = setup_camel();
+    let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamel::OwnableCamelImpl::transferOwnership(ref state, OTHER());
-    assert(OwnableCamel::OwnableCamelImpl::owner(@state) == OTHER(), 'Should transfer ownership');
+    Ownable::OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
+    assert(Ownable::OwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('New owner is the zero address', ))]
 fn test_transferOwnership_to_zero() {
-    let mut state = setup_camel();
+    let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamel::OwnableCamelImpl::transferOwnership(ref state, ZERO());
+    Ownable::OwnableCamelOnlyImpl::transferOwnership(ref state, ZERO());
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_transferOwnership_from_zero() {
-    let mut state = setup_camel();
-    OwnableCamel::OwnableCamelImpl::transferOwnership(ref state, OTHER());
+    let mut state = setup();
+    Ownable::OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_transferOwnership_from_nonowner() {
-    let mut state = setup_camel();
+    let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableCamel::OwnableCamelImpl::transferOwnership(ref state, OTHER());
+    Ownable::OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
 }
 
 //
@@ -201,25 +193,25 @@ fn test_renounce_ownership_from_nonowner() {
 #[test]
 #[available_gas(2000000)]
 fn test_renounceOwnership() {
-    let mut state = setup_camel();
+    let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamel::OwnableCamelImpl::renounceOwnership(ref state);
-    assert(OwnableCamel::OwnableCamelImpl::owner(@state) == ZERO(), 'Should renounce ownership');
+    Ownable::OwnableCamelOnlyImpl::renounceOwnership(ref state);
+    assert(Ownable::OwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address', ))]
 fn test_renounceOwnership_from_zero_address() {
-    let mut state = setup_camel();
-    OwnableCamel::OwnableCamelImpl::renounceOwnership(ref state);
+    let mut state = setup();
+    Ownable::OwnableCamelOnlyImpl::renounceOwnership(ref state);
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner', ))]
 fn test_renounceOwnership_from_nonowner() {
-    let mut state = setup_camel();
+    let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableCamel::OwnableCamelImpl::renounceOwnership(ref state);
+    Ownable::OwnableCamelOnlyImpl::renounceOwnership(ref state);
 }

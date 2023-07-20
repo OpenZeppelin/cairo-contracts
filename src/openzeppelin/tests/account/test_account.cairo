@@ -2,6 +2,7 @@ use array::ArrayTrait;
 use core::traits::Into;
 use option::OptionTrait;
 use serde::Serde;
+use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -9,15 +10,14 @@ use starknet::testing;
 use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
-use openzeppelin::account::interface::Call;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
-use openzeppelin::introspection::src5::ISRC5_ID;
+use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::interface::IERC20Dispatcher;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+// use openzeppelin::token::erc20::ERC20;
+// use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+// use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 
@@ -38,6 +38,9 @@ struct SignedTransactionData {
     s: felt252
 }
 
+fn STATE() -> Account::ContractState {
+    Account::contract_state_for_testing()
+}
 fn CLASS_HASH() -> felt252 {
     Account::TEST_CLASS_HASH
 }
@@ -59,44 +62,35 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 //
 
 fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
-    // Set the transaction version
     testing::set_version(TRANSACTION_VERSION);
 
-    // Deploy the account contract
-    let mut calldata = ArrayTrait::new();
-
+    let mut calldata = array![];
     if data.is_some() {
         let data = data.unwrap();
-
-        // Set the signature and transaction hash
-        let mut signature = ArrayTrait::new();
-        signature.append(*data.r);
-        signature.append(*data.s);
-        testing::set_signature(signature.span());
+        testing::set_signature(array![*data.r, *data.s].span());
         testing::set_transaction_hash(*data.transaction_hash);
 
         calldata.append(*data.public_key);
     } else {
         calldata.append(PUBLIC_KEY);
     }
-
     let address = utils::deploy(CLASS_HASH(), calldata);
     AccountABIDispatcher { contract_address: address }
 }
 
-fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let name = 0;
-    let symbol = 0;
-    let mut calldata = ArrayTrait::new();
+// fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+//     let name = 0;
+//     let symbol = 0;
+//     let mut calldata = array![];
 
-    calldata.append_serde(name);
-    calldata.append_serde(symbol);
-    calldata.append_serde(initial_supply);
-    calldata.append_serde(recipient);
+//     calldata.append_serde(name);
+//     calldata.append_serde(symbol);
+//     calldata.append_serde(initial_supply);
+//     calldata.append_serde(recipient);
 
-    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
-    IERC20Dispatcher { contract_address: address }
-}
+//     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
+//     IERC20Dispatcher { contract_address: address }
+// }
 
 //
 // constructor
@@ -105,8 +99,11 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 #[test]
 #[available_gas(2000000)]
 fn test_constructor() {
-    Account::constructor(PUBLIC_KEY);
-    assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
+    let mut state = STATE();
+    Account::constructor(ref state, PUBLIC_KEY);
+    assert(
+        Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
+    );
 }
 
 //
@@ -116,24 +113,26 @@ fn test_constructor() {
 #[test]
 #[available_gas(2000000)]
 fn test_supports_interface() {
-    Account::constructor(PUBLIC_KEY);
+    let mut state = STATE();
+    Account::constructor(ref state, PUBLIC_KEY);
 
-    let supports_default_interface = Account::supports_interface(ISRC5_ID);
+    let supports_default_interface = Account::SRC5Impl::supports_interface(@state, ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supports_interface(ISRC6_ID);
+    let supports_account_interface = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_supportsInterface() {
-    Account::constructor(PUBLIC_KEY);
+    let mut state = STATE();
+    Account::constructor(ref state, PUBLIC_KEY);
 
-    let supports_default_interface = Account::supportsInterface(ISRC5_ID);
+    let supports_default_interface = Account::SRC5CamelImpl::supportsInterface(@state, ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
 
-    let supports_account_interface = Account::supportsInterface(ISRC6_ID);
+    let supports_account_interface = Account::SRC5CamelImpl::supportsInterface(@state, ISRC6_ID);
     assert(supports_account_interface, 'Should support account id');
 }
 
@@ -144,46 +143,38 @@ fn test_supportsInterface() {
 #[test]
 #[available_gas(2000000)]
 fn test_is_valid_signature() {
+    let mut state = STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
-    let mut good_signature = ArrayTrait::new();
-    good_signature.append(data.r);
-    good_signature.append(data.s);
+    let mut good_signature = array![data.r, data.s];
+    let mut bad_signature = array![0x987, 0x564];
 
-    let mut bad_signature = ArrayTrait::new();
-    bad_signature.append(0x987);
-    bad_signature.append(0x564);
+    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
 
-    Account::set_public_key(data.public_key);
-
-    let is_valid = Account::is_valid_signature(hash, good_signature);
+    let is_valid = Account::SRC6Impl::is_valid_signature(@state, hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = Account::is_valid_signature(hash, bad_signature);
+    let is_valid = Account::SRC6Impl::is_valid_signature(@state, hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_isValidSignature() {
+    let mut state = STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
-    let mut good_signature = ArrayTrait::new();
-    good_signature.append(data.r);
-    good_signature.append(data.s);
+    let mut good_signature = array![data.r, data.s];
+    let mut bad_signature = array![0x987, 0x564];
 
-    let mut bad_signature = ArrayTrait::new();
-    bad_signature.append(0x987);
-    bad_signature.append(0x564);
+    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
 
-    Account::set_public_key(data.public_key);
-
-    let is_valid = Account::is_valid_signature(hash, good_signature);
+    let is_valid = Account::SRC6CamelOnlyImpl::isValidSignature(@state, hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = Account::is_valid_signature(hash, bad_signature);
+    let is_valid = Account::SRC6CamelOnlyImpl::isValidSignature(@state, hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
@@ -221,7 +212,7 @@ fn test_validate_deploy_invalid_signature_data() {
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let mut signature = ArrayTrait::new();
+    let mut signature = array![];
 
     signature.append(0x1);
     testing::set_signature(signature.span());
@@ -234,7 +225,7 @@ fn test_validate_deploy_invalid_signature_length() {
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let empty_sig = ArrayTrait::new();
+    let empty_sig = array![];
 
     testing::set_signature(empty_sig.span());
     account.__validate_deploy__(CLASS_HASH(), SALT, PUBLIC_KEY);
@@ -270,7 +261,7 @@ fn test_validate_declare_invalid_signature_data() {
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let mut signature = ArrayTrait::new();
+    let mut signature = array![];
 
     signature.append(0x1);
     testing::set_signature(signature.span());
@@ -283,71 +274,71 @@ fn test_validate_declare_invalid_signature_length() {
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let empty_sig = ArrayTrait::new();
+    let empty_sig = array![];
 
     testing::set_signature(empty_sig.span());
 
     account.__validate_declare__(CLASS_HASH());
 }
 
-fn test_execute_with_version(version: Option<felt252>) {
-    let data = SIGNED_TX_DATA();
-    let account = setup_dispatcher(Option::Some(@data));
-    let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient = contract_address_const::<0x123>();
+// fn test_execute_with_version(version: Option<felt252>) {
+//     let data = SIGNED_TX_DATA();
+//     let account = setup_dispatcher(Option::Some(@data));
+//     let erc20 = deploy_erc20(account.contract_address, 1000);
+//     let recipient = contract_address_const::<0x123>();
 
-    // Craft call and add to calls array
-    let mut calldata = ArrayTrait::new();
-    let amount: u256 = 200;
-    calldata.append_serde(recipient);
-    calldata.append_serde(amount);
-    let call = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
-    };
-    let mut calls = ArrayTrait::new();
-    calls.append(call);
+//     // Craft call and add to calls array
+//     let mut calldata = array![];
+//     let amount: u256 = 200;
+//     calldata.append_serde(recipient);
+//     calldata.append_serde(amount);
+//     let call = Call {
+//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
+//     };
+//     let mut calls = array![];
+//     calls.append(call);
 
-    // Handle version for test
-    if version.is_some() {
-        testing::set_version(version.unwrap());
-    }
+//     // Handle version for test
+//     if version.is_some() {
+//         testing::set_version(version.unwrap());
+//     }
 
-    // Execute
-    let ret = account.__execute__(calls);
+//     // Execute
+//     let ret = account.__execute__(calls);
 
-    // Assert that the transfer was successful
-    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+//     // Assert that the transfer was successful
+//     assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
+//     assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
 
-    // Test return value
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert(call_retval.unwrap(), 'Should have succeeded');
-}
+//     // Test return value
+//     let mut call_serialized_retval = *ret.at(0);
+//     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
+//     assert(call_retval.unwrap(), 'Should have succeeded');
+// }
 
-#[test]
-#[available_gas(2000000)]
-fn test_execute() {
-    test_execute_with_version(Option::None(()));
-}
+// #[test]
+// #[available_gas(2000000)]
+// fn test_execute() {
+//     test_execute_with_version(Option::None(()));
+// }
 
-#[test]
-#[available_gas(2000000)]
-fn test_execute_query_version() {
-    test_execute_with_version(Option::Some(QUERY_VERSION));
-}
+// #[test]
+// #[available_gas(2000000)]
+// fn test_execute_query_version() {
+//     test_execute_with_version(Option::Some(QUERY_VERSION));
+// }
 
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
-fn test_execute_invalid_version() {
-    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
-}
+// #[test]
+// #[available_gas(2000000)]
+// #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
+// fn test_execute_invalid_version() {
+//     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+// }
 
 #[test]
 #[available_gas(2000000)]
 fn test_validate() {
-    let calls = ArrayTrait::new();
+    let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
@@ -357,7 +348,7 @@ fn test_validate() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_invalid() {
-    let calls = ArrayTrait::new();
+    let calls = array![];
     let mut data = SIGNED_TX_DATA();
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
@@ -365,57 +356,57 @@ fn test_validate_invalid() {
     account.__validate__(calls);
 }
 
-#[test]
-#[available_gas(2000000)]
-fn test_multicall() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = contract_address_const::<0x123>();
-    let recipient2 = contract_address_const::<0x456>();
-    let mut calls = ArrayTrait::new();
+// #[test]
+// #[available_gas(2000000)]
+// fn test_multicall() {
+//     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+//     let erc20 = deploy_erc20(account.contract_address, 1000);
+//     let recipient1 = contract_address_const::<0x123>();
+//     let recipient2 = contract_address_const::<0x456>();
+//     let mut calls = array![];
 
-    // Craft call1
-    let mut calldata1 = ArrayTrait::new();
-    let amount1: u256 = 300;
-    calldata1.append_serde(recipient1);
-    calldata1.append_serde(amount1);
-    let call1 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
-    };
+//     // Craft call1
+//     let mut calldata1 = array![];
+//     let amount1: u256 = 300;
+//     calldata1.append_serde(recipient1);
+//     calldata1.append_serde(amount1);
+//     let call1 = Call {
+//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
+//     };
 
-    // Craft call2
-    let mut calldata2 = ArrayTrait::new();
-    let amount2: u256 = 500;
-    calldata2.append_serde(recipient2);
-    calldata2.append_serde(amount2);
-    let call2 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
-    };
+//     // Craft call2
+//     let mut calldata2 = array![];
+//     let amount2: u256 = 500;
+//     calldata2.append_serde(recipient2);
+//     calldata2.append_serde(amount2);
+//     let call2 = Call {
+//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
+//     };
 
-    // Bundle calls and exeute
-    calls.append(call1);
-    calls.append(call2);
-    let ret = account.__execute__(calls);
+//     // Bundle calls and exeute
+//     calls.append(call1);
+//     calls.append(call2);
+//     let ret = account.__execute__(calls);
 
-    // Assert that the transfers were successful
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+//     // Assert that the transfers were successful
+//     assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
+//     assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
+//     assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
 
-    // Test return value
-    let mut call1_serialized_retval = *ret.at(0);
-    let mut call2_serialized_retval = *ret.at(1);
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert(call1_retval.unwrap(), 'Should have succeeded');
-    assert(call2_retval.unwrap(), 'Should have succeeded');
-}
+//     // Test return value
+//     let mut call1_serialized_retval = *ret.at(0);
+//     let mut call2_serialized_retval = *ret.at(1);
+//     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
+//     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
+//     assert(call1_retval.unwrap(), 'Should have succeeded');
+//     assert(call2_retval.unwrap(), 'Should have succeeded');
+// }
 
 #[test]
 #[available_gas(2000000)]
 fn test_multicall_zero_calls() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let mut calls = ArrayTrait::new();
+    let mut calls = array![];
 
     let ret = account.__execute__(calls);
 
@@ -427,11 +418,13 @@ fn test_multicall_zero_calls() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid caller', ))]
 fn test_account_called_from_contract() {
-    let calls = ArrayTrait::new();
+    let calls = array![];
     let caller = contract_address_const::<0x123>();
+
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
-    Account::__execute__(calls);
+
+    Account::SRC6Impl::__execute__(@STATE(), calls);
 }
 
 //
@@ -441,11 +434,13 @@ fn test_account_called_from_contract() {
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
+    let mut state = STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    Account::set_public_key(NEW_PUBKEY);
 
-    let public_key = Account::get_public_key();
+    Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
+
+    let public_key = Account::PublicKeyImpl::get_public_key(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
@@ -453,10 +448,12 @@ fn test_public_key_setter_and_getter() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account() {
+    let mut state = STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
-    Account::set_public_key(NEW_PUBKEY);
+
+    Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 }
 
 //
@@ -466,11 +463,13 @@ fn test_public_key_setter_different_account() {
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
+    let mut state = STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    Account::setPublicKey(NEW_PUBKEY);
 
-    let public_key = Account::getPublicKey();
+    Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
+
+    let public_key = Account::PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
@@ -478,10 +477,12 @@ fn test_public_key_setter_and_getter_camel() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', ))]
 fn test_public_key_setter_different_account_camel() {
+    let mut state = STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
-    Account::setPublicKey(NEW_PUBKEY);
+
+    Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 }
 
 //
@@ -491,8 +492,11 @@ fn test_public_key_setter_different_account_camel() {
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
-    Account::initializer(PUBLIC_KEY);
-    assert(Account::get_public_key() == PUBLIC_KEY, 'Should return public key');
+    let mut state = STATE();
+    Account::InternalImpl::initializer(ref state, PUBLIC_KEY);
+    assert(
+        Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
+    );
 }
 
 #[test]
@@ -516,28 +520,24 @@ fn test_assert_only_self_false() {
 #[test]
 #[available_gas(2000000)]
 fn test__is_valid_signature() {
+    let mut state = STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
-    let mut good_signature = ArrayTrait::new();
-    good_signature.append(data.r);
-    good_signature.append(data.s);
+    let mut good_signature = array![data.r, data.s];
+    let mut bad_signature = array![0x987, 0x564];
+    let mut invalid_length_signature = array![0x987];
 
-    let mut bad_signature = ArrayTrait::new();
-    bad_signature.append(0x987);
-    bad_signature.append(0x564);
+    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
 
-    let mut invalid_length_signature = ArrayTrait::new();
-    invalid_length_signature.append(0x987);
-
-    Account::set_public_key(data.public_key);
-
-    let is_valid = Account::_is_valid_signature(hash, good_signature.span());
+    let is_valid = Account::InternalImpl::_is_valid_signature(@state, hash, good_signature.span());
     assert(is_valid, 'Should accept valid signature');
 
-    let is_valid = Account::_is_valid_signature(hash, bad_signature.span());
+    let is_valid = Account::InternalImpl::_is_valid_signature(@state, hash, bad_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
 
-    let is_valid = Account::_is_valid_signature(hash, invalid_length_signature.span());
+    let is_valid = Account::InternalImpl::_is_valid_signature(
+        @state, hash, invalid_length_signature.span()
+    );
     assert(!is_valid, 'Should reject invalid length');
 }

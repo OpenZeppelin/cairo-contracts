@@ -8,8 +8,7 @@ trait IOwnable<TContractState> {
 }
 
 #[starknet::interface]
-trait IOwnableCamel<TContractState> {
-    fn owner(self: @TContractState) -> ContractAddress;
+trait IOwnableCamelOnly<TContractState> {
     fn transferOwnership(ref self: TContractState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TContractState);
 }

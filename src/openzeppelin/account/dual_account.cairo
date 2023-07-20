@@ -13,7 +13,7 @@ struct DualCaseAccount {
     contract_address: ContractAddress
 }
 
-trait DualCaseAccountTrait {
+trait DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252);
     fn get_public_key(self: @DualCaseAccount) -> felt252;
     fn is_valid_signature(
@@ -22,7 +22,7 @@ trait DualCaseAccountTrait {
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool;
 }
 
-impl DualCaseAccountImpl of DualCaseAccountTrait {
+impl DualCaseAccountImpl of DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252) {
         let mut args = array![new_public_key];
 

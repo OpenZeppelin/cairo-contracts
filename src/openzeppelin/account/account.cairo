@@ -2,9 +2,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use option::OptionTrait;
 use serde::Serde;
+use starknet::account::Call;
 use starknet::ContractAddress;
-
-use openzeppelin::account::interface::Call;
 
 const TRANSACTION_VERSION: felt252 = 1;
 
@@ -12,7 +11,7 @@ const TRANSACTION_VERSION: felt252 = 1;
 const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
 
 #[starknet::interface]
-trait AccountTrait<TState> {
+trait AccountABI<TState> {
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
@@ -27,7 +26,7 @@ trait AccountTrait<TState> {
 
 // Entry points case-convention is enforced by the protocol
 #[starknet::interface]
-trait AccountCamelTrait<TState> {
+trait AccountCamelABI<TState> {
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn __validate_declare__(self: @TState, classHash: felt252) -> felt252;
@@ -40,13 +39,11 @@ trait AccountCamelTrait<TState> {
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
 
-#[starknet::interface]
 trait PublicKeyTrait<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
 }
 
-#[starknet::interface]
 trait PublicKeyCamelTrait<TState> {
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;

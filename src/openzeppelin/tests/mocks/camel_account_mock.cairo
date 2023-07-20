@@ -1,6 +1,5 @@
 #[starknet::contract]
 mod CamelAccountMock {
-    use openzeppelin::account::interface::Call;
     use openzeppelin::account::Account;
 
     #[storage]

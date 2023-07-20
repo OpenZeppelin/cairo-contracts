@@ -3,9 +3,8 @@ mod CamelAccessControlMock {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::AccessControl::AccessControlCamelImpl;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::access::accesscontrol::interface::IAccessControlCamel;
-    use openzeppelin::introspection::interface::ISRC5Camel;
 
     #[storage]
     struct Storage {}
@@ -18,38 +17,38 @@ mod CamelAccessControlMock {
     }
 
     #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
-        }
+    fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
+        let unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControlCamelImpl::hasRole(@unsafe_state, role, account)
     }
 
     #[external(v0)]
-    impl AccessControlCamelImpl of IAccessControlCamel<ContractState> {
-        fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-            let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::AccessControlCamelImpl::hasRole(@unsafe_state, role, account)
-        }
+    fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
+        let unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControlCamelImpl::getRoleAdmin(@unsafe_state, role)
+    }
 
-        fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
-            let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::AccessControlCamelImpl::getRoleAdmin(@unsafe_state, role)
-        }
+    #[external(v0)]
+    fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControlCamelImpl::grantRole(ref unsafe_state, role, account);
+    }
 
-        fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::AccessControlCamelImpl::grantRole(ref unsafe_state, role, account);
-        }
+    #[external(v0)]
+    fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControlCamelImpl::revokeRole(ref unsafe_state, role, account);
+    }
 
-        fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::AccessControlCamelImpl::revokeRole(ref unsafe_state, role, account);
-        }
+    #[external(v0)]
+    fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControlCamelImpl::renounceRole(ref unsafe_state, role, account);
+    }
 
-        fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-            AccessControl::AccessControlCamelImpl::renounceRole(ref unsafe_state, role, account);
-        }
+    #[external(v0)]
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+        let unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
     }
 }

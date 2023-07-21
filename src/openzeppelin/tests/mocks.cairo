@@ -3,9 +3,9 @@
 // mod erc721_receiver;
 // mod erc721_panic_mock;
 // mod mock_pausable;
-// mod camel20_mock;
-// mod snake20_mock;
-// mod erc20_panic;
+mod camel20_mock;
+mod snake20_mock;
+mod erc20_panic;
 // mod non721_mock;
 // mod accesscontrol_panic_mock;
 mod account_panic_mock;

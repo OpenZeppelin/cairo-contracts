@@ -20,6 +20,7 @@ mod AccessControl {
         RoleRevoked: RoleRevoked,
         RoleAdminChanged: RoleAdminChanged,
     }
+
     /// Emitted when `account` is granted `role`.
     ///
     /// `sender` is the account that originated the contract call, an admin role
@@ -30,6 +31,7 @@ mod AccessControl {
         account: ContractAddress,
         sender: ContractAddress
     }
+
     /// Emitted when `account` is revoked `role`.
     ///
     /// `sender` is the account that originated the contract call:
@@ -41,6 +43,7 @@ mod AccessControl {
         account: ContractAddress,
         sender: ContractAddress
     }
+
     /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
     ///
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite

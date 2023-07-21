@@ -42,10 +42,7 @@ mod Ownable {
         fn _transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
             let previous_owner: ContractAddress = self.owner();
             self._owner.write(new_owner);
-            self
-                .emit(
-                    OwnershipTransferred { previous_owner, new_owner }
-                );
+            self.emit(OwnershipTransferred { previous_owner, new_owner });
         }
     }
 

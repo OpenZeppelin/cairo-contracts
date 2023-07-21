@@ -159,14 +159,7 @@ mod AccessControl {
         fn _set_role_admin(ref self: ContractState, role: felt252, admin_role: felt252) {
             let previous_admin_role: felt252 = AccessControlImpl::get_role_admin(@self, role);
             self.role_admin.write(role, admin_role);
-            self
-                .emit(
-                    RoleAdminChanged {
-                        role,
-                        previous_admin_role,
-                        new_admin_role: admin_role
-                    }
-                );
+            self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
     }
 }

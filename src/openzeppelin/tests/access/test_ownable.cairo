@@ -6,6 +6,7 @@ use openzeppelin::access::ownable::Ownable;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
 use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::InternalImpl;
+use openzeppelin::access::ownable::Ownable::_owner::InternalContractStateTrait;
 
 fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
@@ -41,9 +42,9 @@ fn setup() -> Ownable::ContractState {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = STATE();
-    assert(InternalImpl::owner(@state).is_zero(), 'Should be zero');
+    assert(state._owner.read().is_zero(), 'Should be zero');
     InternalImpl::initializer(ref state, OWNER());
-    assert(InternalImpl::owner(@state) == OWNER(), 'Owner should be set');
+    assert(state._owner.read() == OWNER(), 'Owner should be set');
 }
 
 //
@@ -83,9 +84,8 @@ fn test_assert_only_owner_when_caller_zero() {
 #[available_gas(2000000)]
 fn test__transfer_ownership() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
     InternalImpl::_transfer_ownership(ref state, OTHER());
-    assert(InternalImpl::owner(@state) == OTHER(), 'Owner should be OTHER');
+    assert(state._owner.read() == OTHER(), 'Owner should be OTHER');
 }
 
 //

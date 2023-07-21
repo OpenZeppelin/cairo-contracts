@@ -96,10 +96,3 @@ mod ERC721Receiver {
         ERC721ReceiverCamelImpl::onERC721Received(self, operator, from, tokenId, data)
     }
 }
-
-
-#[starknet::contract]
-mod ERC721NonReceiver {
-    #[storage]
-    struct Storage {}
-}

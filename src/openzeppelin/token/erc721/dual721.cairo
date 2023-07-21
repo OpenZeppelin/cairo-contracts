@@ -39,21 +39,17 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        let args = ArrayTrait::new();
-
-        call_contract_syscall(*self.contract_address, selectors::name, args.span())
+        call_contract_syscall(*self.contract_address, selectors::name, array![].span())
             .unwrap_and_cast()
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        let args = ArrayTrait::new();
-
-        call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
+        call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 
     fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(token_id);
 
         try_selector_with_fallback(
@@ -63,7 +59,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256 {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(account);
 
         try_selector_with_fallback(
@@ -73,7 +69,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(token_id);
 
         try_selector_with_fallback(
@@ -83,7 +79,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(token_id);
 
         try_selector_with_fallback(
@@ -95,7 +91,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn is_approved_for_all(
         self: @DualCaseERC721, owner: ContractAddress, operator: ContractAddress
     ) -> bool {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(owner);
         args.append_serde(operator);
 
@@ -109,7 +105,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn approve(self: @DualCaseERC721, to: ContractAddress, token_id: u256) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(to);
         args.append_serde(token_id);
         call_contract_syscall(*self.contract_address, selectors::approve, args.span())
@@ -117,7 +113,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn set_approval_for_all(self: @DualCaseERC721, operator: ContractAddress, approved: bool) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(operator);
         args.append_serde(approved);
 
@@ -133,7 +129,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn transfer_from(
         self: @DualCaseERC721, from: ContractAddress, to: ContractAddress, token_id: u256
     ) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(from);
         args.append_serde(to);
         args.append_serde(token_id);
@@ -151,7 +147,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         token_id: u256,
         mut data: Span<felt252>
     ) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(from);
         args.append_serde(to);
         args.append_serde(token_id);
@@ -167,7 +163,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
     }
 
     fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(interface_id);
 
         try_selector_with_fallback(

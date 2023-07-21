@@ -3,5 +3,5 @@ mod account;
 mod introspection;
 mod mocks;
 mod security;
-// mod token;
+mod token;
 mod utils;

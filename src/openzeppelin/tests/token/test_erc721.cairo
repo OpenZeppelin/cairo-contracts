@@ -1,16 +1,3 @@
-use openzeppelin::account::Account;
-use openzeppelin::introspection::src5;
-use openzeppelin::token::erc721;
-use openzeppelin::token::erc721::ERC721;
-
-use openzeppelin::tests::utils;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721NonReceiver;
-use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
-use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
-use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
-use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
-
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
@@ -20,12 +7,38 @@ use array::ArrayTrait;
 use traits::Into;
 use zeroable::Zeroable;
 
+use openzeppelin::account::Account;
+use openzeppelin::introspection;
+use openzeppelin::introspection::src5;
+use openzeppelin::token::erc721;
+use openzeppelin::token::erc721::ERC721;
+use openzeppelin::token::erc721::ERC721::ERC721CamelOnlyImpl;
+use openzeppelin::token::erc721::ERC721::ERC721Impl;
+use openzeppelin::token::erc721::ERC721::ERC721MetadataCamelOnlyImpl;
+use openzeppelin::token::erc721::ERC721::ERC721MetadataImpl;
+use openzeppelin::token::erc721::ERC721::InternalImpl;
+use openzeppelin::token::erc721::ERC721::SRC5CamelImpl;
+use openzeppelin::token::erc721::ERC721::SRC5Impl;
+use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
+use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
+use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
+use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
+use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils;
+
+use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
+use ERC721::_token_approvals::InternalContractStateTrait as TokenApprovalsTrait;
+
 const NAME: felt252 = 111;
 const SYMBOL: felt252 = 222;
 const URI: felt252 = 333;
 const TOKEN_ID: u256 = 7;
 const PUBKEY: felt252 = 444;
 
+fn STATE() -> ERC721::ContractState {
+    ERC721::contract_state_for_testing()
+}
 fn ZERO() -> ContractAddress {
     Zeroable::zero()
 }
@@ -46,7 +59,7 @@ fn OTHER() -> ContractAddress {
 }
 
 fn DATA(success: bool) -> Span<felt252> {
-    let mut data = ArrayTrait::new();
+    let mut data = array![];
     if success {
         data.append(SUCCESS);
     } else {
@@ -59,28 +72,28 @@ fn DATA(success: bool) -> Span<felt252> {
 // Setup
 //
 
-fn setup() {
-    ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(OWNER(), TOKEN_ID);
+fn setup() -> ERC721::ContractState {
+    let mut state = STATE();
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::_mint(ref state, OWNER(), TOKEN_ID);
+    state
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, ArrayTrait::new())
+    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, array![])
 }
 
 fn setup_camel_receiver() -> ContractAddress {
-    utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, ArrayTrait::new())
+    utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 fn setup_account() -> ContractAddress {
-    let mut calldata = ArrayTrait::new();
-    calldata.append(PUBKEY);
+    let mut calldata = array![PUBKEY];
     utils::deploy(Account::TEST_CLASS_HASH, calldata)
 }
 
 fn setup_camel_account() -> ContractAddress {
-    let mut calldata = ArrayTrait::new();
-    calldata.append(PUBKEY);
+    let mut calldata = array![PUBKEY];
     utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata)
 }
 
@@ -89,35 +102,49 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_constructor() {
-    ERC721::constructor(NAME, SYMBOL);
+    let mut state = STATE();
+    ERC721::constructor(ref state, NAME, SYMBOL);
 
-    assert(ERC721::name() == NAME, 'Name should be NAME');
-    assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721::balance_of(OWNER()) == 0, 'Balance should be zero');
+    assert(ERC721MetadataImpl::name(@state) == NAME, 'Name should be NAME');
+    assert(ERC721MetadataImpl::symbol(@state) == SYMBOL, 'Symbol should be SYMBOL');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance should be zero');
 
-    assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
     assert(
-        ERC721::supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID'
+        SRC5Impl::supports_interface(@state, erc721::interface::IERC721_ID), 'Missing interface ID'
     );
-    assert(ERC721::supports_interface(src5::ISRC5_ID), 'missing interface ID');
+    assert(
+        SRC5Impl::supports_interface(@state, erc721::interface::IERC721_METADATA_ID),
+        'missing interface ID'
+    );
+    assert(
+        SRC5Impl::supports_interface(@state, introspection::interface::ISRC5_ID),
+        'missing interface ID'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_initialize() {
-    ERC721::initializer(NAME, SYMBOL);
+    let mut state = STATE();
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
 
-    assert(ERC721::name() == NAME, 'Name should be NAME');
-    assert(ERC721::symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721::balance_of(OWNER()) == 0, 'Balance should be zero');
+    assert(ERC721MetadataImpl::name(@state) == NAME, 'Name should be NAME');
+    assert(ERC721MetadataImpl::symbol(@state) == SYMBOL, 'Symbol should be SYMBOL');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance should be zero');
 
-    assert(ERC721::supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
     assert(
-        ERC721::supports_interface(erc721::interface::IERC721_METADATA_ID), 'missing interface ID'
+        SRC5Impl::supports_interface(@state, erc721::interface::IERC721_ID), 'Missing interface ID'
     );
-    assert(ERC721::supports_interface(src5::ISRC5_ID), 'missing interface ID');
+    assert(
+        SRC5Impl::supports_interface(@state, erc721::interface::IERC721_METADATA_ID),
+        'missing interface ID'
+    );
+    assert(
+        SRC5Impl::supports_interface(@state, introspection::interface::ISRC5_ID),
+        'missing interface ID'
+    );
 }
 
 //
@@ -125,76 +152,78 @@ fn test_initialize() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_balance_of() {
-    setup();
-    assert(ERC721::balance_of(OWNER()) == 1, 'Should return balance');
+    let state = setup();
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Should return balance');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid account', ))]
 fn test_balance_of_zero() {
-    ERC721::balance_of(ZERO());
+    ERC721Impl::balance_of(@STATE(), ZERO());
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_owner_of() {
-    setup();
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
+    let state = setup();
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_owner_of_non_minted() {
-    ERC721::owner_of(u256_from_felt252(7));
+    ERC721Impl::owner_of(@STATE(), u256_from_felt252(7));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_token_uri_non_minted() {
-    ERC721::token_uri(u256_from_felt252(7));
+    ERC721MetadataImpl::token_uri(@STATE(), u256_from_felt252(7));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_get_approved() {
-    setup();
+    let mut state = setup();
     let spender = SPENDER();
     let token_id = TOKEN_ID;
 
-    assert(ERC721::get_approved(token_id) == ZERO(), 'Should return non-approval');
-    ERC721::_approve(spender, token_id);
-    assert(ERC721::get_approved(token_id) == spender, 'Should return approval');
+    assert(ERC721Impl::get_approved(@state, token_id) == ZERO(), 'Should return non-approval');
+    InternalImpl::_approve(ref state, spender, token_id);
+    assert(ERC721Impl::get_approved(@state, token_id) == spender, 'Should return approval');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_get_approved_nonexistent() {
-    ERC721::get_approved(u256_from_felt252(7));
+    ERC721Impl::get_approved(@STATE(), u256_from_felt252(7));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__exists() {
+    let mut state = STATE();
     let zero = ZERO();
     let token_id = TOKEN_ID;
-    assert(!ERC721::_exists(token_id), 'Token should not exist');
-    assert(ERC721::_owners::read(token_id) == zero, 'Invalid owner');
 
-    ERC721::_mint(RECIPIENT(), token_id);
+    assert(!InternalImpl::_exists(@state, token_id), 'Token should not exist');
+    assert(state._owners.read(token_id) == zero, 'Invalid owner');
 
-    assert(ERC721::_exists(token_id), 'Token should exist');
-    assert(ERC721::_owners::read(token_id) == RECIPIENT(), 'Invalid owner');
+    InternalImpl::_mint(ref state, RECIPIENT(), token_id);
 
-    ERC721::_burn(token_id);
+    assert(InternalImpl::_exists(@state, token_id), 'Token should exist');
+    assert(state._owners.read(token_id) == RECIPIENT(), 'Invalid owner');
 
-    assert(!ERC721::_exists(token_id), 'Token should not exist');
-    assert(ERC721::_owners::read(token_id) == zero, 'Invalid owner');
+    InternalImpl::_burn(ref state, token_id);
+
+    assert(!InternalImpl::_exists(@state, token_id), 'Token should not exist');
+    assert(state._owners.read(token_id) == zero, 'Invalid owner');
 }
 
 //
@@ -202,78 +231,84 @@ fn test__exists() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_approve_from_owner() {
-    setup();
+    let mut state = setup();
 
     set_caller_address(OWNER());
-    ERC721::approve(SPENDER(), TOKEN_ID);
-    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
+    assert(
+        ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_approve_from_operator() {
-    setup();
+    let mut state = setup();
 
     set_caller_address(OWNER());
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::approve(SPENDER(), TOKEN_ID);
-    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
+    assert(
+        ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', ))]
 fn test_approve_from_unauthorized() {
-    setup();
+    let mut state = setup();
 
     set_caller_address(OTHER());
-    ERC721::approve(SPENDER(), TOKEN_ID);
+    ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner', ))]
 fn test_approve_to_owner() {
-    setup();
+    let mut state = setup();
 
     set_caller_address(OWNER());
-    ERC721::approve(OWNER(), TOKEN_ID);
+    ERC721Impl::approve(ref state, OWNER(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_approve_nonexistent() {
-    ERC721::approve(SPENDER(), TOKEN_ID);
+    let mut state = STATE();
+    ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__approve() {
-    setup();
-
-    ERC721::_approve(SPENDER(), TOKEN_ID);
-    assert(ERC721::get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let mut state = setup();
+    InternalImpl::_approve(ref state, SPENDER(), TOKEN_ID);
+    assert(
+        ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner', ))]
 fn test__approve_to_owner() {
-    setup();
-
-    ERC721::_approve(OWNER(), TOKEN_ID);
+    let mut state = setup();
+    InternalImpl::_approve(ref state, OWNER(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__approve_nonexistent() {
-    ERC721::_approve(SPENDER(), TOKEN_ID);
+    let mut state = STATE();
+    InternalImpl::_approve(ref state, SPENDER(), TOKEN_ID);
 }
 
 //
@@ -281,58 +316,77 @@ fn test__approve_nonexistent() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_set_approval_for_all() {
+    let mut state = STATE();
     set_caller_address(OWNER());
-    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
 
-    ERC721::set_approval_for_all(OPERATOR(), true);
-    assert(ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    assert(!ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()), 'Invalid default value');
 
-    ERC721::set_approval_for_all(OPERATOR(), false);
-    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
+    assert(
+        ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
+        'Operator not approved correctly'
+    );
+
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), false);
+    assert(
+        !ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
+        'Approval not revoked correctly'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', ))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
+    let mut state = STATE();
     set_caller_address(OWNER());
-    ERC721::set_approval_for_all(OWNER(), true);
+    ERC721Impl::set_approval_for_all(ref state, OWNER(), true);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', ))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
+    let mut state = STATE();
     set_caller_address(OWNER());
-    ERC721::set_approval_for_all(OWNER(), false);
+    ERC721Impl::set_approval_for_all(ref state, OWNER(), false);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__set_approval_for_all() {
-    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    let mut state = STATE();
+    assert(!ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()), 'Invalid default value');
 
-    ERC721::_set_approval_for_all(OWNER(), OPERATOR(), true);
-    assert(ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    InternalImpl::_set_approval_for_all(ref state, OWNER(), OPERATOR(), true);
+    assert(
+        ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
+        'Operator not approved correctly'
+    );
 
-    ERC721::_set_approval_for_all(OWNER(), OPERATOR(), false);
-    assert(!ERC721::is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    InternalImpl::_set_approval_for_all(ref state, OWNER(), OPERATOR(), false);
+    assert(
+        !ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
+        'Operator not approved correctly'
+    );
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', ))]
 fn test__set_approval_for_all_owner_equal_operator_true() {
-    ERC721::_set_approval_for_all(OWNER(), OWNER(), true);
+    let mut state = STATE();
+    InternalImpl::_set_approval_for_all(ref state, OWNER(), OWNER(), true);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', ))]
 fn test__set_approval_for_all_owner_equal_operator_false() {
-    ERC721::_set_approval_for_all(OWNER(), OWNER(), false);
+    let mut state = STATE();
+    InternalImpl::_set_approval_for_all(ref state, OWNER(), OWNER(), false);
 }
 
 //
@@ -340,147 +394,148 @@ fn test__set_approval_for_all_owner_equal_operator_false() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transfer_from_owner() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     // set approval to check reset
-    ERC721::_approve(OTHER(), token_id);
+    InternalImpl::_approve(ref state, OTHER(), token_id);
 
     assert_state_before_transfer(token_id, owner, recipient);
-    assert(ERC721::get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+    assert(ERC721Impl::get_approved(@state, token_id) == OTHER(), 'Approval not implicitly reset');
 
     set_caller_address(owner);
-    ERC721::transfer_from(owner, recipient, token_id);
+    ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transferFrom_owner() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     // set approval to check reset
-    ERC721::_approve(OTHER(), token_id);
+    InternalImpl::_approve(ref state, OTHER(), token_id);
 
     assert_state_before_transfer(token_id, owner, recipient);
-    assert(ERC721::get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+    assert(ERC721Impl::get_approved(@state, token_id) == OTHER(), 'Approval not implicitly reset');
 
     set_caller_address(owner);
-    ERC721::transferFrom(owner, recipient, token_id);
+    ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_transfer_from_nonexistent() {
-    ERC721::transfer_from(ZERO(), RECIPIENT(), TOKEN_ID);
+    let mut state = STATE();
+    ERC721Impl::transfer_from(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_transferFrom_nonexistent() {
-    ERC721::transferFrom(ZERO(), RECIPIENT(), TOKEN_ID);
+    let mut state = STATE();
+    ERC721CamelOnlyImpl::transferFrom(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test_transfer_from_to_zero() {
-    setup();
-
+    let mut state = setup();
     set_caller_address(OWNER());
-    ERC721::transfer_from(OWNER(), ZERO(), TOKEN_ID);
+    ERC721Impl::transfer_from(ref state, OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test_transferFrom_to_zero() {
-    setup();
+    let mut state = setup();
 
     set_caller_address(OWNER());
-    ERC721::transferFrom(OWNER(), ZERO(), TOKEN_ID);
+    ERC721CamelOnlyImpl::transferFrom(ref state, OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transfer_from_to_owner() {
-    setup();
+    let mut state = setup();
 
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner before');
 
     set_caller_address(OWNER());
-    ERC721::transfer_from(OWNER(), OWNER(), TOKEN_ID);
+    ERC721Impl::transfer_from(ref state, OWNER(), OWNER(), TOKEN_ID);
 
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transferFrom_to_owner() {
-    setup();
+    let mut state = setup();
 
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner before');
 
     set_caller_address(OWNER());
-    ERC721::transferFrom(OWNER(), OWNER(), TOKEN_ID);
+    ERC721CamelOnlyImpl::transferFrom(ref state, OWNER(), OWNER(), TOKEN_ID);
 
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transfer_from_approved() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     assert_state_before_transfer(token_id, owner, recipient);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::transfer_from(owner, recipient, token_id);
+    ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transferFrom_approved() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
     assert_state_before_transfer(token_id, owner, recipient);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::transferFrom(owner, recipient, token_id);
+    ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transfer_from_approved_for_all() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
@@ -488,18 +543,18 @@ fn test_transfer_from_approved_for_all() {
     assert_state_before_transfer(token_id, owner, recipient);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::transfer_from(owner, recipient, token_id);
+    ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_transferFrom_approved_for_all() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
@@ -507,32 +562,30 @@ fn test_transferFrom_approved_for_all() {
     assert_state_before_transfer(token_id, owner, recipient);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::transferFrom(owner, recipient, token_id);
+    ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', ))]
 fn test_transfer_from_unauthorized() {
-    setup();
-
+    let mut state = setup();
     set_caller_address(OTHER());
-    ERC721::transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
+    ERC721Impl::transfer_from(ref state, OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', ))]
 fn test_transferFrom_unauthorized() {
-    setup();
-
+    let mut state = setup();
     set_caller_address(OTHER());
-    ERC721::transferFrom(OWNER(), RECIPIENT(), TOKEN_ID);
+    ERC721CamelOnlyImpl::transferFrom(ref state, OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 //
@@ -540,9 +593,9 @@ fn test_transferFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account() {
-    setup();
+    let mut state = setup();
     let account = setup_account();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -550,15 +603,15 @@ fn test_safe_transfer_from_to_account() {
     assert_state_before_transfer(token_id, owner, account);
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, account, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account() {
-    setup();
+    let mut state = setup();
     let account = setup_account();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -566,15 +619,15 @@ fn test_safeTransferFrom_to_account() {
     assert_state_before_transfer(token_id, owner, account);
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, account, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account_camel() {
-    setup();
+    let mut state = setup();
     let account = setup_camel_account();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -582,15 +635,15 @@ fn test_safe_transfer_from_to_account_camel() {
     assert_state_before_transfer(token_id, owner, account);
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, account, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account_camel() {
-    setup();
+    let mut state = setup();
     let account = setup_camel_account();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -598,15 +651,15 @@ fn test_safeTransferFrom_to_account_camel() {
     assert_state_before_transfer(token_id, owner, account);
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, account, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -614,15 +667,15 @@ fn test_safe_transfer_from_to_receiver() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -630,15 +683,15 @@ fn test_safeTransferFrom_to_receiver() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -646,15 +699,15 @@ fn test_safe_transfer_from_to_receiver_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -662,199 +715,203 @@ fn test_safeTransferFrom_to_receiver_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', ))]
 fn test_safe_transfer_from_to_receiver_failure() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(false));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(false));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', ))]
 fn test_safeTransferFrom_to_receiver_failure() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(false));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(false));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', ))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(false));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(false));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', ))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(false));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(false));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_safe_transfer_from_to_non_receiver() {
-    setup();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+    let mut state = setup();
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, recipient, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, recipient, token_id, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test_safeTransferFrom_to_non_receiver() {
-    setup();
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+    let mut state = setup();
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, recipient, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, recipient, token_id, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_safe_transfer_from_nonexistent() {
-    ERC721::safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
+    let mut state = STATE();
+    ERC721Impl::safe_transfer_from(ref state, ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test_safeTransferFrom_nonexistent() {
-    ERC721::safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
+    let mut state = STATE();
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test_safe_transfer_from_to_zero() {
-    setup();
-
+    let mut state = setup();
     set_caller_address(OWNER());
-    ERC721::safe_transfer_from(OWNER(), ZERO(), TOKEN_ID, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, OWNER(), ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test_safeTransferFrom_to_zero() {
-    setup();
-
+    let mut state = setup();
     set_caller_address(OWNER());
-    ERC721::safeTransferFrom(OWNER(), ZERO(), TOKEN_ID, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, OWNER(), ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner() {
+    let mut state = STATE();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
-    ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(owner, token_id);
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::_mint(ref state, owner, token_id);
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, owner, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, owner, token_id, DATA(true));
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner() {
+    let mut state = STATE();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
-    ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(owner, token_id);
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::_mint(ref state, owner, token_id);
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, owner, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, owner, token_id, DATA(true));
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner_camel() {
+    let mut state = STATE();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
-    ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(owner, token_id);
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::_mint(ref state, owner, token_id);
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
 
     set_caller_address(owner);
-    ERC721::safe_transfer_from(owner, owner, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, owner, token_id, DATA(true));
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner_camel() {
+    let mut state = STATE();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
-    ERC721::initializer(NAME, SYMBOL);
-    ERC721::_mint(owner, token_id);
+    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::_mint(ref state, owner, token_id);
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
 
     set_caller_address(owner);
-    ERC721::safeTransferFrom(owner, owner, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, owner, token_id, DATA(true));
 
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner after');
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -862,18 +919,18 @@ fn test_safe_transfer_from_approved() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -881,18 +938,18 @@ fn test_safeTransferFrom_approved() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -900,18 +957,18 @@ fn test_safe_transfer_from_approved_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -919,18 +976,18 @@ fn test_safeTransferFrom_approved_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::approve(OPERATOR(), token_id);
+    ERC721Impl::approve(ref state, OPERATOR(), token_id);
 
     set_caller_address(OPERATOR());
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -938,18 +995,18 @@ fn test_safe_transfer_from_approved_for_all() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all() {
-    setup();
+    let mut state = setup();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -957,18 +1014,18 @@ fn test_safeTransferFrom_approved_for_all() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -976,18 +1033,18 @@ fn test_safe_transfer_from_approved_for_all_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::safe_transfer_from(owner, receiver, token_id, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all_camel() {
-    setup();
+    let mut state = setup();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -995,30 +1052,30 @@ fn test_safeTransferFrom_approved_for_all_camel() {
     assert_state_before_transfer(token_id, owner, receiver);
 
     set_caller_address(owner);
-    ERC721::set_approval_for_all(OPERATOR(), true);
+    ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
 
     set_caller_address(OPERATOR());
-    ERC721::safeTransferFrom(owner, receiver, token_id, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', ))]
 fn test_safe_transfer_from_unauthorized() {
-    setup();
+    let mut state = setup();
     set_caller_address(OTHER());
-    ERC721::safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
+    ERC721Impl::safe_transfer_from(ref state, OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', ))]
 fn test_safeTransferFrom_unauthorized() {
-    setup();
+    let mut state = setup();
     set_caller_address(OTHER());
-    ERC721::safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
+    ERC721CamelOnlyImpl::safeTransferFrom(ref state, OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 //
@@ -1026,41 +1083,40 @@ fn test_safeTransferFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__transfer() {
-    setup();
+    let mut state = setup();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
 
     assert_state_before_transfer(token_id, owner, recipient);
-    ERC721::_transfer(owner, recipient, token_id);
+    InternalImpl::_transfer(ref state, owner, recipient, token_id);
     assert_state_after_transfer(token_id, owner, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__transfer_nonexistent() {
-    ERC721::_transfer(ZERO(), RECIPIENT(), TOKEN_ID);
+    let mut state = STATE();
+    InternalImpl::_transfer(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test__transfer_to_zero() {
-    setup();
-
-    ERC721::_transfer(OWNER(), ZERO(), TOKEN_ID);
+    let mut state = setup();
+    InternalImpl::_transfer(ref state, OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: wrong sender', ))]
 fn test__transfer_from_invalid_owner() {
-    setup();
-
-    ERC721::_transfer(RECIPIENT(), OWNER(), TOKEN_ID);
+    let mut state = setup();
+    InternalImpl::_transfer(ref state, RECIPIENT(), OWNER(), TOKEN_ID);
 }
 
 //
@@ -1068,29 +1124,31 @@ fn test__transfer_from_invalid_owner() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__mint() {
+    let mut state = STATE();
     let recipient = RECIPIENT();
     let token_id = TOKEN_ID;
+
     assert_state_before_mint(recipient);
-    ERC721::_mint(RECIPIENT(), TOKEN_ID);
+    InternalImpl::_mint(ref state, RECIPIENT(), TOKEN_ID);
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test__mint_to_zero() {
-    ERC721::_mint(ZERO(), TOKEN_ID);
+    let mut state = STATE();
+    InternalImpl::_mint(ref state, ZERO(), TOKEN_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted', ))]
 fn test__mint_already_exist() {
-    setup();
-
-    ERC721::_mint(RECIPIENT(), TOKEN_ID);
+    let mut state = setup();
+    InternalImpl::_mint(ref state, RECIPIENT(), TOKEN_ID);
 }
 
 //
@@ -1098,98 +1156,106 @@ fn test__mint_already_exist() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__safe_mint_to_receiver() {
+    let mut state = STATE();
     let recipient = setup_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    ERC721::_safe_mint(recipient, token_id, DATA(true));
+    InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__safe_mint_to_receiver_camel() {
+    let mut state = STATE();
     let recipient = setup_camel_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    ERC721::_safe_mint(recipient, token_id, DATA(true));
+    InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__safe_mint_to_account() {
+    let mut state = STATE();
     let account = setup_account();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    ERC721::_safe_mint(account, token_id, DATA(true));
+    InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
     assert_state_after_mint(token_id, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__safe_mint_to_account_camel() {
+    let mut state = STATE();
     let account = setup_camel_account();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    ERC721::_safe_mint(account, token_id, DATA(true));
+    InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
     assert_state_after_mint(token_id, account);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
 fn test__safe_mint_to_non_receiver() {
-    let recipient = utils::deploy(ERC721NonReceiver::TEST_CLASS_HASH, ArrayTrait::new());
+    let mut state = STATE();
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    ERC721::_safe_mint(recipient, token_id, DATA(true));
+    InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed', ))]
 fn test__safe_mint_to_receiver_failure() {
+    let mut state = STATE();
     let recipient = setup_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    ERC721::_safe_mint(recipient, token_id, DATA(false));
+    InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(false));
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed', ))]
 fn test__safe_mint_to_receiver_failure_camel() {
+    let mut state = STATE();
     let recipient = setup_camel_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    ERC721::_safe_mint(recipient, token_id, DATA(false));
+    InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(false));
     assert_state_after_mint(token_id, recipient);
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', ))]
 fn test__safe_mint_to_zero() {
-    ERC721::_safe_mint(ZERO(), TOKEN_ID, DATA(true));
+    let mut state = STATE();
+    InternalImpl::_safe_mint(ref state, ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted', ))]
 fn test__safe_mint_already_exist() {
-    setup();
-    ERC721::_safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
+    let mut state = setup();
+    InternalImpl::_safe_mint(ref state, RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 //
@@ -1197,28 +1263,29 @@ fn test__safe_mint_already_exist() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__burn() {
-    setup();
+    let mut state = setup();
 
-    ERC721::_approve(OTHER(), TOKEN_ID);
+    InternalImpl::_approve(ref state, OTHER(), TOKEN_ID);
 
-    assert(ERC721::owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(ERC721::balance_of(OWNER()) == 1, 'Balance of owner before');
-    assert(ERC721::get_approved(TOKEN_ID) == OTHER(), 'Approval before');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner before');
+    assert(ERC721Impl::get_approved(@state, TOKEN_ID) == OTHER(), 'Approval before');
 
-    ERC721::_burn(TOKEN_ID);
+    InternalImpl::_burn(ref state, TOKEN_ID);
 
-    assert(ERC721::_owners::read(TOKEN_ID) == ZERO(), 'Ownership after');
-    assert(ERC721::balance_of(OWNER()) == 0, 'Balance of owner after');
-    assert(ERC721::_token_approvals::read(TOKEN_ID) == ZERO(), 'Approval after');
+    assert(state._owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance of owner after');
+    assert(state._token_approvals.read(TOKEN_ID) == ZERO(), 'Approval after');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__burn_nonexistent() {
-    ERC721::_burn(TOKEN_ID);
+    let mut state = STATE();
+    InternalImpl::_burn(ref state, TOKEN_ID);
 }
 
 //
@@ -1226,20 +1293,21 @@ fn test__burn_nonexistent() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test__set_token_uri() {
-    setup();
+    let mut state = setup();
 
-    assert(ERC721::token_uri(TOKEN_ID) == 0, 'URI should be 0');
-    ERC721::_set_token_uri(TOKEN_ID, URI);
-    assert(ERC721::token_uri(TOKEN_ID) == URI, 'URI should be set');
+    assert(ERC721MetadataImpl::token_uri(@state, TOKEN_ID) == 0, 'URI should be 0');
+    InternalImpl::_set_token_uri(ref state, TOKEN_ID, URI);
+    assert(ERC721MetadataImpl::token_uri(@state, TOKEN_ID) == URI, 'URI should be set');
 }
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', ))]
 fn test__set_token_uri_nonexistent() {
-    ERC721::_set_token_uri(TOKEN_ID, URI);
+    let mut state = STATE();
+    InternalImpl::_set_token_uri(ref state, TOKEN_ID, URI);
 }
 
 //
@@ -1249,24 +1317,28 @@ fn test__set_token_uri_nonexistent() {
 fn assert_state_before_transfer(
     token_id: u256, owner: ContractAddress, recipient: ContractAddress
 ) {
-    assert(ERC721::owner_of(token_id) == owner, 'Ownership before');
-    assert(ERC721::balance_of(owner) == 1, 'Balance of owner before');
-    assert(ERC721::balance_of(recipient) == 0, 'Balance of recipient before');
+    let state = STATE();
+    assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
+    assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
+    assert(ERC721Impl::balance_of(@state, recipient) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_transfer(token_id: u256, owner: ContractAddress, recipient: ContractAddress) {
-    assert(ERC721::owner_of(token_id) == recipient, 'Ownership after');
-    assert(ERC721::balance_of(owner) == 0, 'Balance of owner after');
-    assert(ERC721::balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(ERC721::get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+    let state = STATE();
+    assert(ERC721Impl::owner_of(@state, token_id) == recipient, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, owner) == 0, 'Balance of owner after');
+    assert(ERC721Impl::balance_of(@state, recipient) == 1, 'Balance of recipient after');
+    assert(ERC721Impl::get_approved(@state, token_id) == ZERO(), 'Approval not implicitly reset');
 }
 
 fn assert_state_before_mint(recipient: ContractAddress) {
-    assert(ERC721::balance_of(recipient) == 0, 'Balance of recipient before');
+    let state = STATE();
+    assert(ERC721Impl::balance_of(@state, recipient) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
-    assert(ERC721::owner_of(token_id) == recipient, 'Ownership after');
-    assert(ERC721::balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(ERC721::get_approved(token_id) == ZERO(), 'Approval implicitly set');
+    let state = STATE();
+    assert(ERC721Impl::owner_of(@state, token_id) == recipient, 'Ownership after');
+    assert(ERC721Impl::balance_of(@state, recipient) == 1, 'Balance of recipient after');
+    assert(ERC721Impl::get_approved(@state, token_id) == ZERO(), 'Approval implicitly set');
 }

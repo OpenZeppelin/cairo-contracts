@@ -1,6 +1,6 @@
 use openzeppelin::access::accesscontrol::AccessControl;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::IACCESSCONTROL_ID;
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -41,7 +41,25 @@ fn test_initializer() {
 }
 
 //
-// has_role
+// supports_interface & supportsInterface
+//
+
+#[test]
+#[available_gas(2000000)]
+fn test_supports_interface() {
+    AccessControl::initializer();
+    assert(AccessControl::supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_supportsInterface() {
+    AccessControl::initializer();
+    assert(AccessControl::supportsInterface(IACCESSCONTROL_ID), 'Should support own interface');
+}
+
+//
+// has_role & hasRole
 //
 
 #[test]
@@ -51,6 +69,15 @@ fn test_has_role() {
     assert(!AccessControl::has_role(ROLE, AUTHORIZED()), 'should not have role');
     AccessControl::_grant_role(ROLE, AUTHORIZED());
     assert(AccessControl::has_role(ROLE, AUTHORIZED()), 'should have role');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_hasRole() {
+    setup();
+    assert(!AccessControl::hasRole(ROLE, AUTHORIZED()), 'should not have role');
+    AccessControl::_grant_role(ROLE, AUTHORIZED());
+    assert(AccessControl::hasRole(ROLE, AUTHORIZED()), 'should have role');
 }
 
 
@@ -87,7 +114,7 @@ fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
 }
 
 //
-// grant_role
+// grant_role & grantRole
 //
 
 #[test]
@@ -116,8 +143,34 @@ fn test_grant_role_unauthorized() {
     AccessControl::grant_role(ROLE, AUTHORIZED());
 }
 
+#[test]
+#[available_gas(2000000)]
+fn test_grantRole() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    assert(AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should be granted');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_grantRole_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    assert(AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should still be granted');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is missing role', ))]
+fn test_grantRole_unauthorized() {
+    setup();
+    testing::set_caller_address(AUTHORIZED());
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+}
+
 //
-// revoke_role
+// revoke_role & revokeRole
 //
 
 #[test]
@@ -157,8 +210,45 @@ fn test_revoke_role_unauthorized() {
     AccessControl::revoke_role(ROLE, AUTHORIZED());
 }
 
+#[test]
+#[available_gas(2000000)]
+fn test_revokeRole_for_role_not_granted() {
+    setup();
+    AccessControl::revokeRole(ROLE, AUTHORIZED());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_revokeRole_for_granted_role() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    AccessControl::revokeRole(ROLE, AUTHORIZED());
+    assert(!AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should be revoked');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_revokeRole_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+
+    AccessControl::revokeRole(ROLE, AUTHORIZED());
+    AccessControl::revokeRole(ROLE, AUTHORIZED());
+    assert(!AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should still be revoked');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Caller is missing role', ))]
+fn test_revokeRole_unauthorized() {
+    setup();
+
+    testing::set_caller_address(OTHER());
+    AccessControl::revokeRole(ROLE, AUTHORIZED());
+}
+
 //
-// renounce_role
+// renounce_role & renounceRole
 //
 
 #[test]
@@ -202,6 +292,49 @@ fn test_renounce_role_unauthorized() {
 
     // Admin is unauthorized caller
     AccessControl::renounce_role(ROLE, AUTHORIZED());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_renounceRole_for_role_not_granted() {
+    setup();
+    testing::set_caller_address(AUTHORIZED());
+
+    AccessControl::renounceRole(ROLE, AUTHORIZED());
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_renounceRole_for_granted_role() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
+
+    AccessControl::renounceRole(ROLE, AUTHORIZED());
+    assert(!AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should be renounced');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_renounceRole_multiple_times_for_granted_role() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+    testing::set_caller_address(AUTHORIZED());
+
+    AccessControl::renounceRole(ROLE, AUTHORIZED());
+    AccessControl::renounceRole(ROLE, AUTHORIZED());
+    assert(!AccessControl::hasRole(ROLE, AUTHORIZED()), 'Role should still be renounced');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Can only renounce role for self', ))]
+fn test_renounceRole_unauthorized() {
+    setup();
+    AccessControl::grantRole(ROLE, AUTHORIZED());
+
+    // Admin is unauthorized caller
+    AccessControl::renounceRole(ROLE, AUTHORIZED());
 }
 
 //

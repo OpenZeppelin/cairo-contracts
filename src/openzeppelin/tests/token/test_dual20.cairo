@@ -6,7 +6,7 @@ use starknet::testing::set_contract_address;
 use openzeppelin::tests::mocks::camel20_mock::CamelERC20Mock;
 use openzeppelin::tests::mocks::erc20_panic::SnakeERC20Panic;
 use openzeppelin::tests::mocks::erc20_panic::CamelERC20Panic;
-use openzeppelin::tests::mocks::non721_mock::NonERC721;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::mocks::snake20_mock::SnakeERC20Mock;
 use openzeppelin::token::erc20::dual20::DualERC20;
 use openzeppelin::token::erc20::dual20::DualERC20Trait;
@@ -66,7 +66,7 @@ fn setup_camel() -> (DualERC20, IERC20CamelDispatcher) {
 
 fn setup_non_erc20() -> DualERC20 {
     let calldata = ArrayTrait::new();
-    let target = utils::deploy(NonERC721::TEST_CLASS_HASH, calldata);
+    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualERC20 { contract_address: target }
 }
 

@@ -15,6 +15,7 @@ mod Ownable {
     enum Event {
         OwnershipTransferred: OwnershipTransferred
     }
+    
     #[derive(Drop, starknet::Event)]
     struct OwnershipTransferred {
         previous_owner: ContractAddress,

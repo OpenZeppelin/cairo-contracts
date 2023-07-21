@@ -1,17 +1,21 @@
-#[contract]
+#[starknet::contract]
 mod ReentrancyGuard {
     use starknet::get_caller_address;
 
+    #[storage]
     struct Storage {
         entered: bool
     }
 
-    fn start() {
-        assert(!entered::read(), 'ReentrancyGuard: reentrant call');
-        entered::write(true);
-    }
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn start(ref self: ContractState) {
+            assert(!self.entered.read(), 'ReentrancyGuard: reentrant call');
+            self.entered.write(true);
+        }
 
-    fn end() {
-        entered::write(false);
+        fn end(ref self: ContractState) {
+            self.entered.write(false);
+        }
     }
 }

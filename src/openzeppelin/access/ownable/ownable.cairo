@@ -28,19 +28,15 @@ mod Ownable {
             self._transfer_ownership(owner);
         }
 
-        fn owner(self: @ContractState) -> ContractAddress {
-            self._owner.read()
-        }
-
         fn assert_only_owner(self: @ContractState) {
-            let owner: ContractAddress = self.owner();
+            let owner: ContractAddress = self._owner.read();
             let caller: ContractAddress = get_caller_address();
             assert(!caller.is_zero(), 'Caller is the zero address');
             assert(caller == owner, 'Caller is not the owner');
         }
 
         fn _transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-            let previous_owner: ContractAddress = self.owner();
+            let previous_owner: ContractAddress = self._owner.read();
             self._owner.write(new_owner);
             self
                 .emit(
@@ -52,7 +48,7 @@ mod Ownable {
     #[external(v0)]
     impl OwnableImpl of interface::IOwnable<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
-            self.owner()
+            self._owner.read()
         }
 
         fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {

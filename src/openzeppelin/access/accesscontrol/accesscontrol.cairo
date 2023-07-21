@@ -141,7 +141,7 @@ mod AccessControl {
             if !AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
                 self.role_members.write((role, account), true);
-                self.emit(RoleGranted { role: role, account: account, sender: caller });
+                self.emit(RoleGranted { role, account, sender: caller });
             }
         }
 
@@ -149,7 +149,7 @@ mod AccessControl {
             if AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
                 self.role_members.write((role, account), false);
-                self.emit(RoleRevoked { role: role, account: account, sender: caller });
+                self.emit(RoleRevoked { role, account, sender: caller });
             }
         }
 
@@ -159,8 +159,8 @@ mod AccessControl {
             self
                 .emit(
                     RoleAdminChanged {
-                        role: role,
-                        previous_admin_role: previous_admin_role,
+                        role,
+                        previous_admin_role,
                         new_admin_role: admin_role
                     }
                 );

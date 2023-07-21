@@ -15,6 +15,7 @@ mod Ownable {
     enum Event {
         OwnershipTransferred: OwnershipTransferred
     }
+    
     #[derive(Drop, starknet::Event)]
     struct OwnershipTransferred {
         previous_owner: ContractAddress,
@@ -43,7 +44,7 @@ mod Ownable {
             self._owner.write(new_owner);
             self
                 .emit(
-                    OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
+                    OwnershipTransferred { previous_owner, new_owner }
                 );
         }
     }

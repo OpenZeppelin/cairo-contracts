@@ -5,7 +5,6 @@ use serde::Serde;
 use starknet::account::Call;
 use starknet::ContractAddress;
 
-
 const TRANSACTION_VERSION: felt252 = 1;
 
 // 2**128 + TRANSACTION_VERSION

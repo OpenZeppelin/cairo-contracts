@@ -11,7 +11,7 @@ mod account_panic_mock;
 mod camel_account_mock;
 // mod snake_accesscontrol_mock;
 mod snake_account_mock;
-// mod dual_ownable_mocks;
+mod dual_ownable_mocks;
 mod snake721_mock;
 mod camel721_mock;
 mod non_implementing_mock;

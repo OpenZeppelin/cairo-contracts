@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
@@ -6,9 +5,9 @@ use starknet::testing::set_contract_address;
 use zeroable::Zeroable;
 
 use openzeppelin::access::ownable::interface::IOwnableDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableCamelDispatcher;
+use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcher;
 use openzeppelin::access::ownable::interface::IOwnableDispatcherTrait;
-use openzeppelin::access::ownable::interface::IOwnableCamelDispatcherTrait;
+use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcherTrait;
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnableTrait;
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnable;
 use openzeppelin::tests::mocks::dual_ownable_mocks::SnakeOwnableMock;
@@ -42,13 +41,13 @@ fn setup_snake() -> (DualCaseOwnable, IOwnableDispatcher) {
     (DualCaseOwnable { contract_address: target }, IOwnableDispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualCaseOwnable, IOwnableCamelDispatcher) {
+fn setup_camel() -> (DualCaseOwnable, IOwnableCamelOnlyDispatcher) {
     let mut calldata = ArrayTrait::new();
     calldata.append_serde(OWNER());
     let target = utils::deploy(CamelOwnableMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseOwnable { contract_address: target },
-        IOwnableCamelDispatcher { contract_address: target }
+        IOwnableCamelOnlyDispatcher { contract_address: target }
     )
 }
 
@@ -158,10 +157,10 @@ fn test_dual_renounce_ownership_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_transferOwnership() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
-    assert(target.owner() == NEW_OWNER(), 'Should be new owner');
+    assert(dispatcher.owner() == NEW_OWNER(), 'Should be new owner');
 }
 
 #[test]
@@ -175,10 +174,10 @@ fn test_dual_transferOwnership_exists_and_panics() {
 #[test]
 #[available_gas(2000000)]
 fn test_dual_renounceOwnership() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.renounce_ownership();
-    assert(target.owner().is_zero(), 'Should be zero');
+    assert(dispatcher.owner().is_zero(), 'Should be zero');
 }
 
 #[test]

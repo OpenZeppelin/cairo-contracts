@@ -1,21 +1,14 @@
 use starknet::ContractAddress;
 
-#[abi]
-trait IOwnable {
-    #[view]
-    fn owner() -> ContractAddress;
-    #[external]
-    fn transfer_ownership(new_owner: ContractAddress);
-    #[external]
-    fn renounce_ownership();
+#[starknet::interface]
+trait IOwnable<TState> {
+    fn owner(self: @TState) -> ContractAddress;
+    fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
+    fn renounce_ownership(ref self: TState);
 }
 
-#[abi]
-trait IOwnableCamel {
-    #[view]
-    fn owner() -> ContractAddress;
-    #[external]
-    fn transferOwnership(newOwner: ContractAddress);
-    #[external]
-    fn renounceOwnership();
+#[starknet::interface]
+trait IOwnableCamelOnly<TState> {
+    fn transferOwnership(ref self: TState, newOwner: ContractAddress);
+    fn renounceOwnership(ref self: TState);
 }

@@ -30,6 +30,7 @@ mod ERC20 {
         to: ContractAddress,
         value: u256
     }
+
     #[derive(Drop, starknet::Event)]
     struct Approval {
         owner: ContractAddress,
@@ -64,7 +65,7 @@ mod ERC20 {
         }
 
         fn decimals(self: @ContractState) -> u8 {
-            18_u8
+            18
         }
 
         fn total_supply(self: @ContractState) -> u256 {

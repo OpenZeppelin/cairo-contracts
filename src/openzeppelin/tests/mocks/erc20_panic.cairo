@@ -1,10 +1,9 @@
 // Although these modules are designed to panic, functions
 // still need a valid return value. We chose:
 //
-// 3 for felt252 and u8
+// 3 for felt252, u8, and u256
 // zero for ContractAddress
 // false for bool
-// u256 { 3, 3 } for u256
 
 #[starknet::contract]
 mod SnakeERC20Panic {
@@ -28,13 +27,13 @@ mod SnakeERC20Panic {
     #[external(v0)]
     fn decimals(self: @ContractState) -> u8 {
         panic_with_felt252('Some error');
-        3_u8
+        3
     }
 
     #[external(v0)]
     fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
         panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
+        3
     }
 
     #[external(v0)]
@@ -52,13 +51,13 @@ mod SnakeERC20Panic {
     #[external(v0)]
     fn total_supply(self: @ContractState) -> u256 {
         panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
+        3
     }
 
     #[external(v0)]
     fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
         panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
+        3
     }
 
     #[external(v0)]
@@ -80,13 +79,13 @@ mod CamelERC20Panic {
     #[external(v0)]
     fn totalSupply(self: @ContractState) -> u256 {
         panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
+        3
     }
 
     #[external(v0)]
     fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
         panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
+        3
     }
 
     #[external(v0)]

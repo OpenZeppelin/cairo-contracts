@@ -15,9 +15,9 @@ use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils;
-// use openzeppelin::token::erc20::ERC20;
-// use openzeppelin::token::erc20::interface::IERC20Dispatcher;
-// use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin::token::erc20::ERC20;
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 
@@ -78,19 +78,19 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
     AccountABIDispatcher { contract_address: address }
 }
 
-// fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-//     let name = 0;
-//     let symbol = 0;
-//     let mut calldata = array![];
+fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+    let name = 0;
+    let symbol = 0;
+    let mut calldata = array![];
 
-//     calldata.append_serde(name);
-//     calldata.append_serde(symbol);
-//     calldata.append_serde(initial_supply);
-//     calldata.append_serde(recipient);
+    calldata.append_serde(name);
+    calldata.append_serde(symbol);
+    calldata.append_serde(initial_supply);
+    calldata.append_serde(recipient);
 
-//     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
-//     IERC20Dispatcher { contract_address: address }
-// }
+    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
+    IERC20Dispatcher { contract_address: address }
+}
 
 //
 // constructor
@@ -281,59 +281,59 @@ fn test_validate_declare_empty_signature() {
     account.__validate_declare__(CLASS_HASH());
 }
 
-// fn test_execute_with_version(version: Option<felt252>) {
-//     let data = SIGNED_TX_DATA();
-//     let account = setup_dispatcher(Option::Some(@data));
-//     let erc20 = deploy_erc20(account.contract_address, 1000);
-//     let recipient = contract_address_const::<0x123>();
+fn test_execute_with_version(version: Option<felt252>) {
+    let data = SIGNED_TX_DATA();
+    let account = setup_dispatcher(Option::Some(@data));
+    let erc20 = deploy_erc20(account.contract_address, 1000);
+    let recipient = contract_address_const::<0x123>();
 
-//     // Craft call and add to calls array
-//     let mut calldata = array![];
-//     let amount: u256 = 200;
-//     calldata.append_serde(recipient);
-//     calldata.append_serde(amount);
-//     let call = Call {
-//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
-//     };
-//     let mut calls = array![];
-//     calls.append(call);
+    // Craft call and add to calls array
+    let mut calldata = array![];
+    let amount: u256 = 200;
+    calldata.append_serde(recipient);
+    calldata.append_serde(amount);
+    let call = Call {
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
+    };
+    let mut calls = array![];
+    calls.append(call);
 
-//     // Handle version for test
-//     if version.is_some() {
-//         testing::set_version(version.unwrap());
-//     }
+    // Handle version for test
+    if version.is_some() {
+        testing::set_version(version.unwrap());
+    }
 
-//     // Execute
-//     let ret = account.__execute__(calls);
+    // Execute
+    let ret = account.__execute__(calls);
 
-//     // Assert that the transfer was successful
-//     assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-//     assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+    // Assert that the transfer was successful
+    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
+    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
 
-//     // Test return value
-//     let mut call_serialized_retval = *ret.at(0);
-//     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-//     assert(call_retval.unwrap(), 'Should have succeeded');
-// }
+    // Test return value
+    let mut call_serialized_retval = *ret.at(0);
+    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
+    assert(call_retval.unwrap(), 'Should have succeeded');
+}
 
-// #[test]
-// #[available_gas(2000000)]
-// fn test_execute() {
-//     test_execute_with_version(Option::None(()));
-// }
+#[test]
+#[available_gas(2000000)]
+fn test_execute() {
+    test_execute_with_version(Option::None(()));
+}
 
-// #[test]
-// #[available_gas(2000000)]
-// fn test_execute_query_version() {
-//     test_execute_with_version(Option::Some(QUERY_VERSION));
-// }
+#[test]
+#[available_gas(2000000)]
+fn test_execute_query_version() {
+    test_execute_with_version(Option::Some(QUERY_VERSION));
+}
 
-// #[test]
-// #[available_gas(2000000)]
-// #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
-// fn test_execute_invalid_version() {
-//     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
-// }
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
+fn test_execute_invalid_version() {
+    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+}
 
 #[test]
 #[available_gas(2000000)]
@@ -356,51 +356,51 @@ fn test_validate_invalid() {
     account.__validate__(calls);
 }
 
-// #[test]
-// #[available_gas(2000000)]
-// fn test_multicall() {
-//     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-//     let erc20 = deploy_erc20(account.contract_address, 1000);
-//     let recipient1 = contract_address_const::<0x123>();
-//     let recipient2 = contract_address_const::<0x456>();
-//     let mut calls = array![];
+#[test]
+#[available_gas(20000000)]
+fn test_multicall() {
+    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let erc20 = deploy_erc20(account.contract_address, 1000);
+    let recipient1 = contract_address_const::<0x123>();
+    let recipient2 = contract_address_const::<0x456>();
+    let mut calls = array![];
 
-//     // Craft call1
-//     let mut calldata1 = array![];
-//     let amount1: u256 = 300;
-//     calldata1.append_serde(recipient1);
-//     calldata1.append_serde(amount1);
-//     let call1 = Call {
-//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
-//     };
+    // Craft call1
+    let mut calldata1 = array![];
+    let amount1: u256 = 300;
+    calldata1.append_serde(recipient1);
+    calldata1.append_serde(amount1);
+    let call1 = Call {
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
+    };
 
-//     // Craft call2
-//     let mut calldata2 = array![];
-//     let amount2: u256 = 500;
-//     calldata2.append_serde(recipient2);
-//     calldata2.append_serde(amount2);
-//     let call2 = Call {
-//         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
-//     };
+    // Craft call2
+    let mut calldata2 = array![];
+    let amount2: u256 = 500;
+    calldata2.append_serde(recipient2);
+    calldata2.append_serde(amount2);
+    let call2 = Call {
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
+    };
 
-//     // Bundle calls and exeute
-//     calls.append(call1);
-//     calls.append(call2);
-//     let ret = account.__execute__(calls);
+    // Bundle calls and exeute
+    calls.append(call1);
+    calls.append(call2);
+    let ret = account.__execute__(calls);
 
-//     // Assert that the transfers were successful
-//     assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-//     assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-//     assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+    // Assert that the transfers were successful
+    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
+    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
+    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
 
-//     // Test return value
-//     let mut call1_serialized_retval = *ret.at(0);
-//     let mut call2_serialized_retval = *ret.at(1);
-//     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-//     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-//     assert(call1_retval.unwrap(), 'Should have succeeded');
-//     assert(call2_retval.unwrap(), 'Should have succeeded');
-// }
+    // Test return value
+    let mut call1_serialized_retval = *ret.at(0);
+    let mut call2_serialized_retval = *ret.at(1);
+    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
+    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
+    assert(call1_retval.unwrap(), 'Should have succeeded');
+    assert(call2_retval.unwrap(), 'Should have succeeded');
+}
 
 #[test]
 #[available_gas(2000000)]

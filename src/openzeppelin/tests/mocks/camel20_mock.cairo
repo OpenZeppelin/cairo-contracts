@@ -1,58 +1,77 @@
-#[contract]
+#[starknet::contract]
 mod CamelERC20Mock {
     use starknet::ContractAddress;
     use openzeppelin::token::erc20::ERC20;
 
+    #[storage]
+    struct Storage {}
+
     #[constructor]
     fn constructor(
-        name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        initial_supply: u256,
+        recipient: ContractAddress
     ) {
-        ERC20::initializer(name, symbol);
-        ERC20::_mint(recipient, initial_supply);
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
     }
 
-    #[view]
-    fn name() -> felt252 {
-        ERC20::name()
+    #[external(v0)]
+    fn name(self: @ContractState) -> felt252 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::name(@unsafe_state)
     }
 
-    #[view]
-    fn symbol() -> felt252 {
-        ERC20::symbol()
+    #[external(v0)]
+    fn symbol(self: @ContractState) -> felt252 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::symbol(@unsafe_state)
     }
 
-    #[view]
-    fn decimals() -> u8 {
-        ERC20::decimals()
+    #[external(v0)]
+    fn decimals(self: @ContractState) -> u8 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::decimals(@unsafe_state)
     }
 
-    #[view]
-    fn totalSupply() -> u256 {
-        ERC20::totalSupply()
+    #[external(v0)]
+    fn totalSupply(self: @ContractState) -> u256 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20CamelOnlyImpl::totalSupply(@unsafe_state)
     }
 
-    #[view]
-    fn balanceOf(account: ContractAddress) -> u256 {
-        ERC20::balanceOf(account)
+    #[external(v0)]
+    fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20CamelOnlyImpl::balanceOf(@unsafe_state, account)
     }
 
-    #[view]
-    fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256 {
-        ERC20::allowance(owner, spender)
+    #[external(v0)]
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
+        let unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::allowance(@unsafe_state, owner, spender)
     }
 
-    #[external]
-    fn transfer(recipient: ContractAddress, amount: u256) -> bool {
-        ERC20::transfer(recipient, amount)
+    #[external(v0)]
+    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::transfer(ref unsafe_state, recipient, amount)
     }
 
-    #[external]
-    fn transferFrom(sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool {
-        ERC20::transferFrom(sender, recipient, amount)
+    #[external(v0)]
+    fn transferFrom(
+        ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20CamelOnlyImpl::transferFrom(ref unsafe_state, sender, recipient, amount)
     }
 
-    #[external]
-    fn approve(spender: ContractAddress, amount: u256) -> bool {
-        ERC20::approve(spender, amount)
+    #[external(v0)]
+    fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::ERC20Impl::approve(ref unsafe_state, spender, amount)
     }
 }

@@ -38,7 +38,7 @@ fn AUTHORIZED() -> ContractAddress {
 //
 
 fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     calldata.append_serde(ADMIN());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
     (
@@ -48,7 +48,7 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
 }
 
 fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     calldata.append_serde(ADMIN());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
     (
@@ -58,18 +58,13 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
 }
 
 fn setup_non_accesscontrol() -> DualCaseAccessControl {
-    let calldata = ArrayTrait::new();
-    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
+    let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     DualCaseAccessControl { contract_address: target }
 }
 
 fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl) {
-    let snake_target = utils::deploy(
-        SnakeAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
-    );
-    let camel_target = utils::deploy(
-        CamelAccessControlPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
-    );
+    let snake_target = utils::deploy(SnakeAccessControlPanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelAccessControlPanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseAccessControl { contract_address: snake_target },
         DualCaseAccessControl { contract_address: camel_target }

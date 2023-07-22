@@ -24,7 +24,7 @@ trait DualCaseAccessControlTrait {
 
 impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     fn has_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) -> bool {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(role);
         args.append_serde(account);
 
@@ -35,7 +35,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn get_role_admin(self: @DualCaseAccessControl, role: felt252) -> felt252 {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(role);
 
         try_selector_with_fallback(
@@ -45,7 +45,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(role);
         args.append_serde(account);
 
@@ -56,7 +56,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn revoke_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(role);
         args.append_serde(account);
 
@@ -67,7 +67,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn renounce_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(role);
         args.append_serde(account);
 
@@ -78,7 +78,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
     }
 
     fn supports_interface(self: @DualCaseAccessControl, interface_id: felt252) -> bool {
-        let mut args = ArrayTrait::new();
+        let mut args = array![];
         args.append_serde(interface_id);
 
         try_selector_with_fallback(

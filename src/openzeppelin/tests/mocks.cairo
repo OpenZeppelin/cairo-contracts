@@ -17,5 +17,5 @@ mod camel721_mock;
 mod non_implementing_mock;
 mod dual721_receiver_mocks;
 mod src5_mocks;
-//mod upgrades_v1;
-//mod upgrades_v2;
+mod upgrades_v1;
+mod upgrades_v2;

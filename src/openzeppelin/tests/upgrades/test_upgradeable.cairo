@@ -57,6 +57,7 @@ fn test_upgrade_with_class_hash_zero() {
 fn test_persisting_selector_after_upgrade() {
     let v1 = deploy_v1();
     v1.set_value(VALUE);
+    assert(v1.get_value() == VALUE, 'Should be VALUE');
 
     v1.upgrade(V2_CLASS_HASH());
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };

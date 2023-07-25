@@ -46,7 +46,10 @@ mod UpgradesV2 {
         }
 
         fn upgrade_and_call(
-            ref self: ContractState, impl_hash: ClassHash, selector: felt252, calldata: Span<felt252>
+            ref self: ContractState,
+            impl_hash: ClassHash,
+            selector: felt252,
+            calldata: Span<felt252>
         ) {
             let mut unsafe_state = Upgradeable::unsafe_new_contract_state();
             Upgradeable::UpgradeableImpl::upgrade_and_call(

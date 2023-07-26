@@ -117,7 +117,7 @@ fn test_unpause_when_paused() {
     testing::pop_log_raw(ZERO());
 
     InternalImpl::_unpause(ref state);
-    let event = testing::pop_log::<Paused>(ZERO()).unwrap();
+    let event = testing::pop_log::<Unpaused>(ZERO()).unwrap();
     assert(event.account == CALLER(), 'Invalid account');
 
     assert(!PausableImpl::is_paused(@state), 'Should not be paused');

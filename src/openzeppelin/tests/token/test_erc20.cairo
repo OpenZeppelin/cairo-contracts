@@ -1,16 +1,19 @@
 use integer::BoundedInt;
 use integer::u256;
 use integer::u256_from_felt252;
+use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::testing::set_caller_address;
+use starknet::testing;
 use traits::Into;
 use zeroable::Zeroable;
 
 use openzeppelin::token::erc20::ERC20;
+use openzeppelin::token::erc20::ERC20::Approval;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
+use openzeppelin::token::erc20::ERC20::Transfer;
 
 //
 // Constants
@@ -24,6 +27,9 @@ const VALUE: u256 = 300;
 
 fn STATE() -> ERC20::ContractState {
     ERC20::contract_state_for_testing()
+}
+fn ZERO() -> ContractAddress {
+    contract_address_const::<0>()
 }
 fn OWNER() -> ContractAddress {
     contract_address_const::<1>()
@@ -42,6 +48,7 @@ fn RECIPIENT() -> ContractAddress {
 fn setup() -> ERC20::ContractState {
     let mut state = STATE();
     ERC20::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    testing::pop_log_raw(ZERO());
     state
 }
 
@@ -67,6 +74,11 @@ fn test_initializer() {
 fn test_constructor() {
     let mut state = STATE();
     ERC20::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == ZERO(), 'Invalid from');
+    assert(event.to == OWNER(), 'Invalid to');
+    assert(event.value == SUPPLY, 'Invalid value');
 
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY, 'Should eq inital_supply');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Should eq inital_supply');
@@ -115,7 +127,7 @@ fn test_balanceOf() {
 #[available_gas(2000000)]
 fn test_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Should eq VALUE');
@@ -129,8 +141,14 @@ fn test_allowance() {
 #[available_gas(2000000)]
 fn test_approve() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     assert(ERC20Impl::approve(ref state, SPENDER(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == VALUE, 'Invalid value');
+
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
     );
@@ -149,7 +167,7 @@ fn test_approve_from_zero() {
 #[should_panic(expected: ('ERC20: approve to 0', ))]
 fn test_approve_to_zero() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, Zeroable::zero(), VALUE);
 }
 
@@ -157,8 +175,13 @@ fn test_approve_to_zero() {
 #[available_gas(2000000)]
 fn test__approve() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     InternalImpl::_approve(ref state, OWNER(), SPENDER(), VALUE);
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
@@ -178,7 +201,7 @@ fn test__approve_from_zero() {
 #[should_panic(expected: ('ERC20: approve to 0', ))]
 fn test__approve_to_zero() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     InternalImpl::_approve(ref state, OWNER(), Zeroable::zero(), VALUE);
 }
 
@@ -190,8 +213,13 @@ fn test__approve_to_zero() {
 #[available_gas(2000000)]
 fn test_transfer() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     assert(ERC20Impl::transfer(ref state, RECIPIENT(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Balance should eq VALUE');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - VALUE');
@@ -204,6 +232,12 @@ fn test__transfer() {
     let mut state = setup();
 
     InternalImpl::_transfer(ref state, OWNER(), RECIPIENT(), VALUE);
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
+
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Balance should eq amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Total supply should not change');
@@ -214,7 +248,7 @@ fn test__transfer() {
 #[should_panic(expected: ('u256_sub Overflow', ))]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
 
     let balance_plus_one = SUPPLY + 1;
     InternalImpl::_transfer(ref state, OWNER(), RECIPIENT(), balance_plus_one);
@@ -244,11 +278,22 @@ fn test__transfer_to_zero() {
 #[available_gas(2000000)]
 fn test_transfer_from() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     assert(ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 0, 'Invalid value');
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
@@ -260,11 +305,17 @@ fn test_transfer_from() {
 #[available_gas(2000000)]
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), BoundedInt::max());
+    testing::pop_log_raw(ZERO());
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), VALUE);
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == BoundedInt::max(),
@@ -277,10 +328,10 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 #[should_panic(expected: ('u256_sub Overflow', ))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     let allowance_plus_one = VALUE + 1;
     ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), allowance_plus_one);
 }
@@ -290,10 +341,10 @@ fn test_transfer_from_greater_than_allowance() {
 #[should_panic(expected: ('ERC20: transfer to 0', ))]
 fn test_transfer_from_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     ERC20Impl::transfer_from(ref state, OWNER(), Zeroable::zero(), VALUE);
 }
 
@@ -309,15 +360,26 @@ fn test_transfer_from_from_zero_address() {
 #[available_gas(2000000)]
 fn test_transferFrom() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
-    set_caller_address(SPENDER());
-
+    testing::set_caller_address(SPENDER());
     assert(
         ERC20CamelOnlyImpl::transferFrom(ref state, OWNER(), RECIPIENT(), VALUE),
         'Should return true'
     );
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 0, 'Invalid value');
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
+
     assert(ERC20CamelOnlyImpl::balanceOf(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(
         ERC20CamelOnlyImpl::balanceOf(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount'
@@ -330,11 +392,17 @@ fn test_transferFrom() {
 #[available_gas(2000000)]
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), BoundedInt::max());
+    testing::pop_log_raw(ZERO());
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     ERC20CamelOnlyImpl::transferFrom(ref state, OWNER(), RECIPIENT(), VALUE);
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == RECIPIENT(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == BoundedInt::max(),
@@ -347,10 +415,10 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 #[should_panic(expected: ('u256_sub Overflow', ))]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     let allowance_plus_one = VALUE + 1;
     ERC20CamelOnlyImpl::transferFrom(ref state, OWNER(), RECIPIENT(), allowance_plus_one);
 }
@@ -360,10 +428,10 @@ fn test_transferFrom_greater_than_allowance() {
 #[should_panic(expected: ('ERC20: transfer to 0', ))]
 fn test_transferFrom_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
-    set_caller_address(SPENDER());
+    testing::set_caller_address(SPENDER());
     ERC20CamelOnlyImpl::transferFrom(ref state, OWNER(), Zeroable::zero(), VALUE);
 }
 
@@ -383,10 +451,17 @@ fn test_transferFrom_from_zero_address() {
 #[available_gas(2000000)]
 fn test_increase_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
     assert(ERC20::increase_allowance(ref state, SPENDER(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 2 * VALUE, 'Invalid value');
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
@@ -395,7 +470,7 @@ fn test_increase_allowance() {
 #[should_panic(expected: ('ERC20: approve to 0', ))]
 fn test_increase_allowance_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20::increase_allowance(ref state, Zeroable::zero(), VALUE);
 }
 
@@ -411,10 +486,17 @@ fn test_increase_allowance_from_zero_address() {
 #[available_gas(2000000)]
 fn test_increaseAllowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
     assert(ERC20::increaseAllowance(ref state, SPENDER(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 2 * VALUE, 'Invalid value');
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
@@ -423,7 +505,7 @@ fn test_increaseAllowance() {
 #[should_panic(expected: ('ERC20: approve to 0', ))]
 fn test_increaseAllowance_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20::increaseAllowance(ref state, Zeroable::zero(), VALUE);
 }
 
@@ -443,10 +525,17 @@ fn test_increaseAllowance_from_zero_address() {
 #[available_gas(2000000)]
 fn test_decrease_allowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
     assert(ERC20::decrease_allowance(ref state, SPENDER(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 0, 'Invalid value');
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
 }
 
@@ -455,7 +544,7 @@ fn test_decrease_allowance() {
 #[should_panic(expected: ('u256_sub Overflow', ))]
 fn test_decrease_allowance_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20::decrease_allowance(ref state, Zeroable::zero(), VALUE);
 }
 
@@ -471,10 +560,17 @@ fn test_decrease_allowance_from_zero_address() {
 #[available_gas(2000000)]
 fn test_decreaseAllowance() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    testing::pop_log_raw(ZERO());
 
     assert(ERC20::decreaseAllowance(ref state, SPENDER(), VALUE), 'Should return true');
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == 0, 'Invalid value');
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
 }
 
@@ -483,7 +579,7 @@ fn test_decreaseAllowance() {
 #[should_panic(expected: ('u256_sub Overflow', ))]
 fn test_decreaseAllowance_to_zero_address() {
     let mut state = setup();
-    set_caller_address(OWNER());
+    testing::set_caller_address(OWNER());
     ERC20::decreaseAllowance(ref state, Zeroable::zero(), VALUE);
 }
 
@@ -505,7 +601,15 @@ fn test__spend_allowance_not_unlimited() {
     let mut state = setup();
 
     InternalImpl::_approve(ref state, OWNER(), SPENDER(), SUPPLY);
+    testing::pop_log_raw(ZERO());
+
     InternalImpl::_spend_allowance(ref state, OWNER(), SPENDER(), VALUE);
+
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == OWNER(), 'Invalid owner');
+    assert(event.spender == SPENDER(), 'Invalid spender');
+    assert(event.value == SUPPLY - VALUE, 'Invalid value');
+
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == SUPPLY - VALUE,
         'Should eq supply - amount'
@@ -537,6 +641,11 @@ fn test__mint() {
     let mut state = STATE();
     InternalImpl::_mint(ref state, OWNER(), VALUE);
 
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == ZERO(), 'Invalid from');
+    assert(event.to == OWNER(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
+
     assert(ERC20Impl::balance_of(@state, OWNER()) == VALUE, 'Should eq amount');
     assert(ERC20Impl::total_supply(@state) == VALUE, 'Should eq total supply');
 }
@@ -558,6 +667,11 @@ fn test__mint_to_zero() {
 fn test__burn() {
     let mut state = setup();
     InternalImpl::_burn(ref state, OWNER(), VALUE);
+
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == OWNER(), 'Invalid from');
+    assert(event.to == ZERO(), 'Invalid to');
+    assert(event.value == VALUE, 'Invalid value');
 
     assert(ERC20Impl::total_supply(@state) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');

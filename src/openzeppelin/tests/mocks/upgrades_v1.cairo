@@ -27,8 +27,8 @@ mod UpgradesV1 {
     use array::ArrayTrait;
     use starknet::class_hash::ClassHash;
     use starknet::ContractAddress;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     use openzeppelin::upgrades::upgradeable::Upgradeable;
-    use openzeppelin::upgrades::upgradeable::UpgradeableTrait;
 
     #[storage]
     struct Storage {
@@ -36,10 +36,10 @@ mod UpgradesV1 {
     }
 
     #[external(v0)]
-    impl UpgradeableImpl of UpgradeableTrait<ContractState> {
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, impl_hash: ClassHash) {
             let mut unsafe_state = Upgradeable::unsafe_new_contract_state();
-            Upgradeable::UpgradeableImpl::upgrade(ref unsafe_state, impl_hash);
+            Upgradeable::InternalImpl::_upgrade(ref unsafe_state, impl_hash);
         }
 
         fn upgrade_and_call(
@@ -49,7 +49,7 @@ mod UpgradesV1 {
             calldata: Span<felt252>
         ) {
             let mut unsafe_state = Upgradeable::unsafe_new_contract_state();
-            Upgradeable::UpgradeableImpl::upgrade_and_call(
+            Upgradeable::InternalImpl::_upgrade_and_call(
                 ref unsafe_state, impl_hash, selector, calldata
             );
         }

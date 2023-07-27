@@ -137,7 +137,6 @@ fn test_upgrade_and_call_persisting_selector() {
     let v1 = deploy_v1();
     assert(v1.get_value() == 0, 'Should be zero');
 
-
     // upgrade_and_call and check event
     let calldata = array![VALUE];
     v1.upgrade_and_call(V2_CLASS_HASH(), SET_VALUE_SELECTOR, calldata.span());

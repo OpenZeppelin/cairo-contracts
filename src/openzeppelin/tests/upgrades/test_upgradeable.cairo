@@ -3,6 +3,9 @@ use option::OptionTrait;
 use starknet::class_hash::ClassHash;
 use starknet::class_hash::class_hash_const;
 use starknet::class_hash::Felt252TryIntoClassHash;
+use starknet::ContractAddress;
+use starknet::contract_address_const;
+use starknet::testing;
 use traits::TryInto;
 
 use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
@@ -12,6 +15,7 @@ use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
 use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
 use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2DispatcherTrait;
 use openzeppelin::upgrades::upgradeable::Upgradeable;
+use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
 use openzeppelin::tests::utils;
 
 const VALUE: felt252 = 123;
@@ -28,6 +32,10 @@ fn V2_CLASS_HASH() -> ClassHash {
 
 fn CLASS_HASH_ZERO() -> ClassHash {
     class_hash_const::<0>()
+}
+
+fn ZERO() -> ContractAddress {
+    contract_address_const::<0>()
 }
 
 //
@@ -59,9 +67,13 @@ fn test_persisting_selector_after_upgrade() {
     v1.set_value(VALUE);
     assert(v1.get_value() == VALUE, 'Should be VALUE');
 
+    // Upgrade and check event
+    testing::pop_log_raw(ZERO());
     v1.upgrade(V2_CLASS_HASH());
-    let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
+    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
+    assert(event.implementation == V2_CLASS_HASH(), 'Invalid implementation');
 
+    let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
     v2.set_value(VALUE2);
     assert(v2.get_value() == VALUE2, 'Selector should be callable');
 }
@@ -126,9 +138,13 @@ fn test_upgrade_and_call_persisting_selector() {
     let v1 = deploy_v1();
     assert(v1.get_value() == 0, 'Should be zero');
 
-    // upgrade_and_call
+    testing::pop_log_raw(ZERO());
+
+    // upgrade_and_call and check event
     let calldata = array![VALUE];
     v1.upgrade_and_call(V2_CLASS_HASH(), SET_VALUE_SELECTOR, calldata.span());
+    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
+    assert(event.implementation == V2_CLASS_HASH(), 'Invalid implementation');
 
     // Check value is set
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };

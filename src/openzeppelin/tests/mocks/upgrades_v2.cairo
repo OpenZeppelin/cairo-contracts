@@ -3,7 +3,7 @@
 // DO NOT USE IN PRODUCTION.
 
 use array::ArrayTrait;
-use starknet::class_hash::ClassHash;
+use starknet::ClassHash;
 
 #[starknet::interface]
 trait IUpgradesV2<TState> {
@@ -27,7 +27,7 @@ trait UpgradesV2Trait<TState> {
 #[starknet::contract]
 mod UpgradesV2 {
     use array::ArrayTrait;
-    use starknet::class_hash::ClassHash;
+    use starknet::ClassHash;
     use starknet::ContractAddress;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use openzeppelin::upgrades::upgradeable::Upgradeable;

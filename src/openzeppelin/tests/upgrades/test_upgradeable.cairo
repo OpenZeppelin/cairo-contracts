@@ -1,22 +1,22 @@
 use array::ArrayTrait;
 use option::OptionTrait;
-use starknet::class_hash::ClassHash;
-use starknet::class_hash::class_hash_const;
-use starknet::class_hash::Felt252TryIntoClassHash;
+use starknet::ClassHash;
+use starknet::class_hash_const;
+use starknet::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
 use traits::TryInto;
 
-use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
 use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1Dispatcher;
 use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1DispatcherTrait;
-use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
+use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
 use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
 use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2DispatcherTrait;
+use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
+use openzeppelin::tests::utils;
 use openzeppelin::upgrades::upgradeable::Upgradeable;
 use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
-use openzeppelin::tests::utils;
 
 const VALUE: felt252 = 123;
 const VALUE2: felt252 = 789;

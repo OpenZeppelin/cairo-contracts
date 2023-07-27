@@ -1,4 +1,4 @@
-use starknet::class_hash::ClassHash;
+use starknet::ClassHash;
 
 #[starknet::interface]
 trait IUpgradeable<TState> {

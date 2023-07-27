@@ -1,6 +1,6 @@
 #[starknet::contract]
 mod Upgradeable {
-    use starknet::class_hash::ClassHash;
+    use starknet::ClassHash;
     use starknet::get_contract_address;
     use starknet::SyscallResult;
     use zeroable::Zeroable;

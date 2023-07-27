@@ -68,7 +68,6 @@ fn test_persisting_selector_after_upgrade() {
     assert(v1.get_value() == VALUE, 'Should be VALUE');
 
     // Upgrade and check event
-    testing::pop_log_raw(ZERO());
     v1.upgrade(V2_CLASS_HASH());
     let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
     assert(event.implementation == V2_CLASS_HASH(), 'Invalid implementation');
@@ -138,7 +137,6 @@ fn test_upgrade_and_call_persisting_selector() {
     let v1 = deploy_v1();
     assert(v1.get_value() == 0, 'Should be zero');
 
-    testing::pop_log_raw(ZERO());
 
     // upgrade_and_call and check event
     let calldata = array![VALUE];

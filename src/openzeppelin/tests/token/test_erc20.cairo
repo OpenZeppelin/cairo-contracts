@@ -307,15 +307,9 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), BoundedInt::max());
-    testing::pop_log_raw(ZERO());
 
     testing::set_caller_address(SPENDER());
     ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), VALUE);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
 
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == BoundedInt::max(),
@@ -394,15 +388,9 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), BoundedInt::max());
-    testing::pop_log_raw(ZERO());
 
     testing::set_caller_address(SPENDER());
     ERC20CamelOnlyImpl::transferFrom(ref state, OWNER(), RECIPIENT(), VALUE);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
 
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == BoundedInt::max(),

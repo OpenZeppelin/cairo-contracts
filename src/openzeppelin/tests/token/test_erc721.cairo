@@ -242,11 +242,7 @@ fn test_approve_from_owner() {
 
     testing::set_caller_address(OWNER());
     ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
-
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.approved == SPENDER(), 'Invalid approved');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
     assert(
         ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
@@ -264,11 +260,7 @@ fn test_approve_from_operator() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
-
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.approved == SPENDER(), 'Invalid approved');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
     assert(
         ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
@@ -308,11 +300,7 @@ fn test_approve_nonexistent() {
 fn test__approve() {
     let mut state = setup();
     InternalImpl::_approve(ref state, SPENDER(), TOKEN_ID);
-
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.approved == SPENDER(), 'Invalid approved');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
     assert(
         ERC721Impl::get_approved(@state, TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
@@ -348,11 +336,7 @@ fn test_set_approval_for_all() {
     assert(!ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()), 'Invalid default value');
 
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-
-    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.operator == OPERATOR(), 'Invalid operator');
-    assert(event.approved == true, 'Invalid approved');
+    assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
     assert(
         ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
@@ -360,11 +344,7 @@ fn test_set_approval_for_all() {
     );
 
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), false);
-
-    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.operator == OPERATOR(), 'Invalid operator');
-    assert(event.approved == false, 'Invalid approved');
+    assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
     assert(
         !ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
@@ -397,11 +377,7 @@ fn test__set_approval_for_all() {
     assert(!ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()), 'Invalid default value');
 
     InternalImpl::_set_approval_for_all(ref state, OWNER(), OPERATOR(), true);
-
-    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.operator == OPERATOR(), 'Invalid operator');
-    assert(event.approved == true, 'Invalid approved');
+    assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
     assert(
         ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
@@ -409,11 +385,7 @@ fn test__set_approval_for_all() {
     );
 
     InternalImpl::_set_approval_for_all(ref state, OWNER(), OPERATOR(), false);
-
-    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.operator == OPERATOR(), 'Invalid operator');
-    assert(event.approved == false, 'Invalid approved');
+    assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
     assert(
         !ERC721Impl::is_approved_for_all(@state, OWNER(), OPERATOR()),
@@ -457,11 +429,7 @@ fn test_transfer_from_owner() {
 
     testing::set_caller_address(owner);
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -482,11 +450,7 @@ fn test_transferFrom_owner() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -536,11 +500,7 @@ fn test_transfer_from_to_owner() {
 
     testing::set_caller_address(OWNER());
     ERC721Impl::transfer_from(ref state, OWNER(), OWNER(), TOKEN_ID);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == OWNER(), 'Invalid to');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
     assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership after');
     assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner after');
@@ -556,11 +516,7 @@ fn test_transferFrom_to_owner() {
 
     testing::set_caller_address(OWNER());
     ERC721CamelOnlyImpl::transferFrom(ref state, OWNER(), OWNER(), TOKEN_ID);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == OWNER(), 'Invalid to');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
     assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership after');
     assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner after');
@@ -581,11 +537,7 @@ fn test_transfer_from_approved() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -605,11 +557,7 @@ fn test_transferFrom_approved() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -630,11 +578,7 @@ fn test_transfer_from_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -655,11 +599,7 @@ fn test_transferFrom_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -698,11 +638,7 @@ fn test_safe_transfer_from_to_account() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, account, token_id);
 
     assert_state_after_transfer(token_id, owner, account);
 }
@@ -719,11 +655,7 @@ fn test_safeTransferFrom_to_account() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, account, token_id);
 
     assert_state_after_transfer(token_id, owner, account);
 }
@@ -740,11 +672,7 @@ fn test_safe_transfer_from_to_account_camel() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, account, token_id);
 
     assert_state_after_transfer(token_id, owner, account);
 }
@@ -761,11 +689,7 @@ fn test_safeTransferFrom_to_account_camel() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, account, token_id);
 
     assert_state_after_transfer(token_id, owner, account);
 }
@@ -782,11 +706,7 @@ fn test_safe_transfer_from_to_receiver() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -803,11 +723,7 @@ fn test_safeTransferFrom_to_receiver() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -824,11 +740,7 @@ fn test_safe_transfer_from_to_receiver_camel() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -845,11 +757,7 @@ fn test_safeTransferFrom_to_receiver_camel() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -981,11 +889,7 @@ fn test_safe_transfer_from_to_owner() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, owner, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == owner, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, owner, token_id);
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
@@ -1006,11 +910,7 @@ fn test_safeTransferFrom_to_owner() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, owner, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == owner, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, owner, token_id);
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
@@ -1031,11 +931,7 @@ fn test_safe_transfer_from_to_owner_camel() {
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, owner, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == owner, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, owner, token_id);
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
@@ -1056,11 +952,7 @@ fn test_safeTransferFrom_to_owner_camel() {
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, owner, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == owner, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, owner, token_id);
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner after');
@@ -1082,11 +974,7 @@ fn test_safe_transfer_from_approved() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1107,11 +995,7 @@ fn test_safeTransferFrom_approved() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1132,11 +1016,7 @@ fn test_safe_transfer_from_approved_camel() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1157,11 +1037,7 @@ fn test_safeTransferFrom_approved_camel() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1182,11 +1058,7 @@ fn test_safe_transfer_from_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1207,11 +1079,7 @@ fn test_safeTransferFrom_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1232,11 +1100,7 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1257,11 +1121,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == receiver, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(owner, receiver, token_id);
 
     assert_state_after_transfer(token_id, owner, receiver);
 }
@@ -1297,12 +1157,9 @@ fn test__transfer() {
     let recipient = RECIPIENT();
 
     assert_state_before_transfer(token_id, owner, recipient);
-    InternalImpl::_transfer(ref state, owner, recipient, token_id);
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == owner, 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    InternalImpl::_transfer(ref state, owner, recipient, token_id);
+    assert_event_transfer(owner, recipient, token_id);
 
     assert_state_after_transfer(token_id, owner, recipient);
 }
@@ -1344,11 +1201,7 @@ fn test__mint() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_mint(ref state, recipient, TOKEN_ID);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(ZERO(), recipient, token_id);
 
     assert_state_after_mint(token_id, recipient);
 }
@@ -1382,11 +1235,7 @@ fn test__safe_mint_to_receiver() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(ZERO(), recipient, token_id);
 
     assert_state_after_mint(token_id, recipient);
 }
@@ -1400,11 +1249,7 @@ fn test__safe_mint_to_receiver_camel() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == recipient, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(ZERO(), recipient, token_id);
 
     assert_state_after_mint(token_id, recipient);
 }
@@ -1418,11 +1263,7 @@ fn test__safe_mint_to_account() {
 
     assert_state_before_mint(account);
     InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(ZERO(), account, token_id);
 
     assert_state_after_mint(token_id, account);
 }
@@ -1436,11 +1277,7 @@ fn test__safe_mint_to_account_camel() {
 
     assert_state_before_mint(account);
     InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == account, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    assert_event_transfer(ZERO(), account, token_id);
 
     assert_state_after_mint(token_id, account);
 }
@@ -1517,11 +1354,7 @@ fn test__burn() {
     assert(ERC721Impl::get_approved(@state, TOKEN_ID) == OTHER(), 'Approval before');
 
     InternalImpl::_burn(ref state, TOKEN_ID);
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == ZERO(), 'Invalid to');
-    assert(event.token_id == TOKEN_ID, 'Invalid token_id');
+    assert_event_transfer(OWNER(), ZERO(), TOKEN_ID);
 
     assert(state._owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
     assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance of owner after');
@@ -1589,4 +1422,27 @@ fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
     assert(ERC721Impl::owner_of(@state, token_id) == recipient, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, recipient) == 1, 'Balance of recipient after');
     assert(ERC721Impl::get_approved(@state, token_id) == ZERO(), 'Approval implicitly set');
+}
+
+fn assert_event_approval_for_all(
+    owner: ContractAddress, operator: ContractAddress, approved: bool
+) {
+    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
+    assert(event.owner == owner, 'Invalid owner');
+    assert(event.operator == operator, 'Invalid operator');
+    assert(event.approved == approved, 'Invalid approved');
+}
+
+fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == owner, 'Invalid owner');
+    assert(event.approved == approved, 'Invalid approved');
+    assert(event.token_id == token_id, 'Invalid token_id');
+}
+
+fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == from, 'Invalid from');
+    assert(event.to == to, 'Invalid to');
+    assert(event.token_id == token_id, 'Invalid token_id');
 }

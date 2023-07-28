@@ -7,10 +7,10 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use box::BoxTrait;
 use option::OptionTrait;
-use starknet::call_contract_syscall;
 use starknet::ContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
+use starknet::call_contract_syscall;
 use unwrap_and_cast::UnwrapAndCast;
 
 fn try_selector_with_fallback(

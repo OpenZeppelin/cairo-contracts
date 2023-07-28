@@ -1,10 +1,10 @@
 use array::ArrayTrait;
-use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
-use openzeppelin::utils::try_selector_with_fallback;
+use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin::utils::try_selector_with_fallback;
+use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 
 #[derive(Copy, Drop)]
 struct DualCaseERC721Receiver {

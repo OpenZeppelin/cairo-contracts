@@ -1,5 +1,5 @@
-use openzeppelin::security::initializable::Initializable;
 use openzeppelin::security::initializable::Initializable::InternalImpl;
+use openzeppelin::security::initializable::Initializable;
 
 fn STATE() -> Initializable::ContractState {
     Initializable::contract_state_for_testing()

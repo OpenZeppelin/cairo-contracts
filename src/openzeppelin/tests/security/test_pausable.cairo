@@ -1,6 +1,6 @@
-use openzeppelin::security::pausable::Pausable;
-use openzeppelin::security::pausable::Pausable::PausableImpl;
 use openzeppelin::security::pausable::Pausable::InternalImpl;
+use openzeppelin::security::pausable::Pausable::PausableImpl;
+use openzeppelin::security::pausable::Pausable;
 
 fn STATE() -> Pausable::ContractState {
     Pausable::contract_state_for_testing()

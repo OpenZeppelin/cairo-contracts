@@ -1,18 +1,18 @@
-use array::SpanTrait;
 use array::ArrayTrait;
+use array::SpanTrait;
 use core::result::ResultTrait;
+
+use openzeppelin::utils::Felt252TryIntoBool;
+use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin::utils::try_selector_with_fallback;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
 use traits::TryInto;
-
-use openzeppelin::utils::Felt252TryIntoBool;
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::UnwrapAndCast;
 
 #[derive(Copy, Drop)]
 struct DualCaseOwnable {

@@ -1,18 +1,11 @@
 use array::ArrayTrait;
 use core::traits::Into;
-use option::OptionTrait;
-use serde::Serde;
-use starknet::account::Call;
-use starknet::contract_address_const;
-use starknet::ContractAddress;
-use starknet::testing;
-
 use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
-use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
+use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
@@ -20,6 +13,12 @@ use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use option::OptionTrait;
+use serde::Serde;
+use starknet::ContractAddress;
+use starknet::account::Call;
+use starknet::contract_address_const;
+use starknet::testing;
 
 //
 // Constants

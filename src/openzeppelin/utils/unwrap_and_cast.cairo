@@ -1,12 +1,12 @@
 use array::SpanTrait;
+
+use openzeppelin::utils::Felt252TryIntoBool;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
 use traits::TryInto;
-
-use openzeppelin::utils::Felt252TryIntoBool;
 
 trait UnwrapAndCast<T> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> T;

@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod SnakeERC20Mock {
-    use starknet::ContractAddress;
     use openzeppelin::token::erc20::ERC20;
+    use starknet::ContractAddress;
 
     #[storage]
     struct Storage {}

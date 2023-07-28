@@ -1,5 +1,5 @@
-use starknet::ContractAddress;
 use array::SpanTrait;
+use starknet::ContractAddress;
 
 const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
 const IERC721_METADATA_ID: felt252 =

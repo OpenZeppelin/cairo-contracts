@@ -1,5 +1,5 @@
-mod erc20;
 mod dual20;
+mod erc20;
 mod interface;
 
 use erc20::ERC20;

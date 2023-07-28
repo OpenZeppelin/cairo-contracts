@@ -1,7 +1,7 @@
-use openzeppelin::introspection::src5::SRC5;
-use openzeppelin::introspection::src5::SRC5::SRC5Impl;
-use openzeppelin::introspection::src5::SRC5::InternalImpl;
 use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin::introspection::src5::SRC5::InternalImpl;
+use openzeppelin::introspection::src5::SRC5::SRC5Impl;
+use openzeppelin::introspection::src5::SRC5;
 
 const OTHER_ID: felt252 = 0x12345678;
 

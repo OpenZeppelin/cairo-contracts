@@ -16,11 +16,11 @@ trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 mod ReentrancyMock {
-    use starknet::ContractAddress;
-    use starknet::get_contract_address;
     use openzeppelin::security::reentrancyguard::ReentrancyGuard;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
+    use starknet::ContractAddress;
+    use starknet::get_contract_address;
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
 

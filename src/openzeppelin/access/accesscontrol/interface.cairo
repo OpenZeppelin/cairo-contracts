@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/interface.cairo)
+
 use starknet::ContractAddress;
 
 const IACCESSCONTROL_ID: felt252 =

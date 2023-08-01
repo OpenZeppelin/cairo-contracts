@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/unwrap_and_cast.cairo)
+
 use array::SpanTrait;
 use option::OptionTrait;
 use starknet::ContractAddress;

@@ -46,6 +46,23 @@ mod Account {
         public_key: felt252
     }
 
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnerAdded: OwnerAdded,
+        OwnerRemoved: OwnerRemoved,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnerAdded {
+        new_owner: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnerRemoved {
+        old_owner: ContractAddress
+    }
+
     #[constructor]
     fn constructor(ref self: ContractState, _public_key: felt252) {
         self.initializer(_public_key);

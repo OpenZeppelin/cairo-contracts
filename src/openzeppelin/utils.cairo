@@ -1,6 +1,8 @@
 mod constants;
+mod math;
 mod selectors;
 mod serde;
+mod structs;
 mod unwrap_and_cast;
 
 use array::ArrayTrait;

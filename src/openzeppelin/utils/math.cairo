@@ -1,0 +1,19 @@
+use traits::Into;
+
+/// Returns the average of two numbers. The result is rounded towards
+/// zero.
+fn average<
+    T,
+    impl TDrop: Drop<T>,
+    impl TCopy: Copy<T>,
+    impl TAdd: Add<T>,
+    impl TDiv: Div<T>,
+    impl TBitAnd: BitAnd<T>,
+    impl TBitXor: BitXor<T>,
+    impl TInto: Into<u8, T>
+>(
+    a: T, b: T
+) -> T {
+    // (a + b) / 2 can overflow.
+    (a & b) + (a ^ b) / 2_u8.into()
+}

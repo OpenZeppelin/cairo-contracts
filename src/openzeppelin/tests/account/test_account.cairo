@@ -8,6 +8,8 @@ use starknet::ContractAddress;
 use starknet::testing;
 
 use openzeppelin::account::Account;
+use openzeppelin::account::Account::OwnerAdded;
+use openzeppelin::account::Account::OwnerRemoved;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
 use openzeppelin::account::interface::ISRC6_ID;
@@ -36,6 +38,10 @@ struct SignedTransactionData {
     transaction_hash: felt252,
     r: felt252,
     s: felt252
+}
+
+fn ZERO() -> ContractAddress {
+    contract_address_const::<0>()
 }
 
 fn STATE() -> Account::ContractState {
@@ -439,6 +445,12 @@ fn test_public_key_setter_and_getter() {
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
     Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
+
+    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
+    assert(event.public_key == NEW_PUBKEY, 'Invalid implementation');
+
+    let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
+    assert(event.public_key == PUBLIC_KEY, 'Invalid implementation');
 
     let public_key = Account::PublicKeyImpl::get_public_key(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');

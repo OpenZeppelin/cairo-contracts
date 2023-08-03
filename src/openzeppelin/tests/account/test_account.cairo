@@ -448,6 +448,11 @@ fn test_public_key_setter_and_getter() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
+    // Check default
+    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    assert(public_key == 0, 'Should be zero');
+
+    // Set key
     Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 
     let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
@@ -483,6 +488,11 @@ fn test_public_key_setter_and_getter_camel() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
+    // Check default
+    let public_key = Account::PublicKeyCamelImpl::getPublicKey(@state);
+    assert(public_key == 0, 'Should be zero');
+
+    // Set key
     Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 
     let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();

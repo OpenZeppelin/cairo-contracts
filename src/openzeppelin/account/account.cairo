@@ -55,12 +55,12 @@ mod Account {
 
     #[derive(Drop, starknet::Event)]
     struct OwnerAdded {
-        public_key: felt252
+        new_owner_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
     struct OwnerRemoved {
-        public_key: felt252
+        old_owner_key: felt252
     }
 
     #[constructor]
@@ -146,7 +146,7 @@ mod Account {
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
             self._set_public_key(new_public_key);
-            self.emit(OwnerRemoved{ public_key: self.public_key.read() });
+            self.emit(OwnerRemoved{ old_owner_key: self.public_key.read() });
         }
     }
 
@@ -194,7 +194,7 @@ mod Account {
 
         fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
             self.public_key.write(new_public_key);
-            self.emit(OwnerAdded { public_key: new_public_key });
+            self.emit(OwnerAdded { new_owner_key: new_public_key });
         }
 
         fn _is_valid_signature(

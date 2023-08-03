@@ -29,32 +29,32 @@ impl TraceImpl of TraceTrait {
     /// Returns the value in the first (oldest) checkpoint with key greater or equal
     /// than the search key, or zero if there is none.
     fn lower_lookup(self: Trace, key: u64) -> u256 {
-        let mut _checkpoints = self._checkpoints;
-        let len = _checkpoints.len();
-        let pos = _checkpoints._lower_binary_lookup(key, 0, len);
+        let mut checkpoints = self._checkpoints;
+        let len = checkpoints.len();
+        let pos = checkpoints._lower_binary_lookup(key, 0, len);
 
         if pos == len {
             0
         } else {
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(pos);
-            _checkpoint._value
+            let checkpoint: Checkpoint = checkpoints.at(pos);
+            checkpoint._value
         }
     }
 
     /// Returns the value in the last (most recent) checkpoint with key lower or equal
     /// than the search key, or zero if there is none.
     fn upper_lookup(self: Trace, key: u64) -> u256 {
-        let mut _checkpoints = self._checkpoints;
-        let len = _checkpoints.len();
-        let pos = _checkpoints._upper_binary_lookup(key, 0, len);
+        let mut checkpoints = self._checkpoints;
+        let len = checkpoints.len();
+        let pos = checkpoints._upper_binary_lookup(key, 0, len);
 
         if pos == len {
             0
         } else {
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(pos - 1);
-            _checkpoint._value
+            let checkpoint: Checkpoint = checkpoints.at(pos - 1);
+            checkpoint._value
         }
     }
 
@@ -64,8 +64,8 @@ impl TraceImpl of TraceTrait {
     /// NOTE: This is a variant of {upper_lookup} that is optimised to
     /// find "recent" checkpoint (checkpoints with high keys).
     fn upper_lookup_recent(self: Trace, key: u64) -> u256 {
-        let mut _checkpoints = self._checkpoints;
-        let len = _checkpoints.len();
+        let mut checkpoints = self._checkpoints;
+        let len = checkpoints.len();
 
         let mut low = 0;
         let mut high = len;
@@ -73,51 +73,51 @@ impl TraceImpl of TraceTrait {
         if (len > 5) {
             let mid = len - u32_sqrt(len).into();
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(mid);
-            if (key < _checkpoint._key) {
+            let checkpoint: Checkpoint = checkpoints.at(mid);
+            if (key < checkpoint._key) {
                 high = mid;
             } else {
                 low = mid + 1;
             }
         }
 
-        let pos = _checkpoints._upper_binary_lookup(key, low, high);
+        let pos = checkpoints._upper_binary_lookup(key, low, high);
 
         if pos == len {
             0
         } else {
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(pos - 1);
-            _checkpoint._value
+            let checkpoint: Checkpoint = checkpoints.at(pos - 1);
+            checkpoint._value
         }
     }
 
     /// Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
     fn latest(self: Trace) -> u256 {
-        let mut _checkpoints = self._checkpoints;
-        let pos = _checkpoints.len();
+        let mut checkpoints = self._checkpoints;
+        let pos = checkpoints.len();
 
         if pos == 0 {
             0
         } else {
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(pos - 1);
-            _checkpoint._value
+            let checkpoint: Checkpoint = checkpoints.at(pos - 1);
+            checkpoint._value
         }
     }
 
     /// Returns whether there is a checkpoint in the structure (i.e. it is not empty),
     /// and if so the key and value in the most recent checkpoint.
     fn latest_checkpoint(self: Trace) -> (bool, u64, u256) {
-        let mut _checkpoints = self._checkpoints;
-        let pos = _checkpoints.len();
+        let mut checkpoints = self._checkpoints;
+        let pos = checkpoints.len();
 
         if (pos == 0) {
             (false, 0, 0)
         } else {
             /// TODO: Check why it fails to infer the Checkpoint type directly
-            let _checkpoint: Checkpoint = _checkpoints.at(pos - 1);
-            (true, _checkpoint._key, _checkpoint._value)
+            let checkpoint: Checkpoint = checkpoints.at(pos - 1);
+            (true, checkpoint._key, checkpoint._value)
         }
     }
 
@@ -128,8 +128,8 @@ impl TraceImpl of TraceTrait {
 
     /// Returns the checkpoint at given position.
     fn at(self: Trace, pos: u32) -> Checkpoint {
-        let mut _checkpoints = self._checkpoints;
-        _checkpoints.at(pos)
+        let mut checkpoints = self._checkpoints;
+        checkpoints.at(pos)
     }
 }
 
@@ -147,12 +147,14 @@ impl CheckpointImpl of CheckpointTrait {
             assert(last._key <= key, 'Unordered insertion');
 
             // Update or push new checkpoint
+            let prev = last._value;
             if (last._key == key) {
                 last._value = value;
+                self.set(pos - 1, last);
             } else {
                 self.push(Checkpoint { _key: key, _value: value });
             }
-            (last._value, value)
+            (prev, value)
         } else {
             self.push(Checkpoint { _key: key, _value: value });
             (0, value)

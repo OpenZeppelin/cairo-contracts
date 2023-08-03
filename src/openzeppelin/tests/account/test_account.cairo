@@ -107,6 +107,10 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 fn test_constructor() {
     let mut state = STATE();
     Account::constructor(ref state, PUBLIC_KEY);
+
+    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
+
     assert(
         Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
     );
@@ -446,11 +450,11 @@ fn test_public_key_setter_and_getter() {
 
     Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 
-    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.public_key == NEW_PUBKEY, 'Invalid implementation');
-
     let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.public_key == PUBLIC_KEY, 'Invalid implementation');
+    assert(event.old_owner_key == 0, 'Invalid old owner key');
+
+    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
+    assert(event.new_owner_key == NEW_PUBKEY, 'Invalid new owner key');
 
     let public_key = Account::PublicKeyImpl::get_public_key(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
@@ -481,6 +485,12 @@ fn test_public_key_setter_and_getter_camel() {
 
     Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 
+    let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
+    assert(event.old_owner_key == 0, 'Invalid old owner key');
+
+    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
+    assert(event.new_owner_key == NEW_PUBKEY, 'Invalid new owner key');
+
     let public_key = Account::PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
@@ -506,6 +516,10 @@ fn test_public_key_setter_different_account_camel() {
 fn test_initializer() {
     let mut state = STATE();
     Account::InternalImpl::initializer(ref state, PUBLIC_KEY);
+
+    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
+
     assert(
         Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
     );
@@ -552,4 +566,17 @@ fn test__is_valid_signature() {
         @state, hash, invalid_length_signature.span()
     );
     assert(!is_valid, 'Should reject invalid length');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test__set_public_key() {
+    let mut state = STATE();
+    Account::InternalImpl::_set_public_key(ref state, PUBLIC_KEY);
+
+    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
+
+    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    assert(public_key == PUBLIC_KEY, 'Should update key');
 }

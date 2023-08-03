@@ -145,8 +145,8 @@ mod Account {
 
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
-            self._set_public_key(new_public_key);
             self.emit(OwnerRemoved{ old_owner_key: self.public_key.read() });
+            self._set_public_key(new_public_key);
         }
     }
 
@@ -157,8 +157,7 @@ mod Account {
         }
 
         fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
-            assert_only_self();
-            self.public_key.write(newPublicKey);
+            PublicKeyImpl::set_public_key(ref self, newPublicKey);
         }
     }
 

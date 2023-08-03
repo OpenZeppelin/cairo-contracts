@@ -55,12 +55,12 @@ mod Account {
 
     #[derive(Drop, starknet::Event)]
     struct OwnerAdded {
-        new_owner: ContractAddress
+        public_key: felt252
     }
 
     #[derive(Drop, starknet::Event)]
     struct OwnerRemoved {
-        old_owner: ContractAddress
+        public_key: felt252
     }
 
     #[constructor]
@@ -145,7 +145,8 @@ mod Account {
 
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
-            self.public_key.write(new_public_key);
+            self._set_public_key(new_public_key);
+            self.emit(OwnerRemoved{ public_key: self.public_key.read() });
         }
     }
 
@@ -180,7 +181,7 @@ mod Account {
         fn initializer(ref self: ContractState, _public_key: felt252) {
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
-            self.public_key.write(_public_key);
+            self._set_public_key(_public_key);
         }
 
         fn validate_transaction(self: @ContractState) -> felt252 {
@@ -189,6 +190,11 @@ mod Account {
             let signature = tx_info.signature;
             assert(self._is_valid_signature(tx_hash, signature), 'Account: invalid signature');
             starknet::VALIDATED
+        }
+
+        fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
+            self.public_key.write(new_public_key);
+            self.emit(OwnerAdded { public_key: new_public_key });
         }
 
         fn _is_valid_signature(

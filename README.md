@@ -1,21 +1,21 @@
-[![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
-
 # OpenZeppelin Contracts for Cairo
+
+[![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
 ## Usage
 
-> ## ⚠️ WARNING! ⚠️
->
+> **Warning**
 > This repo contains highly experimental code.
 > It has no code coverage checks.
 > It hasn't been audited.
->
+> **Use at your own risk.**
+
+> **Warning**
+> Expect rapid iteration.
 > Some contracts or features are not ready to be deployed.
 > Check the **Unsupported** section below.
->
-> Expect rapid iteration. **Use at your own risk.**
 
 ### Prepare the environment
 

@@ -1,33 +1,24 @@
+use option::OptionTrait;
 use integer::BoundedInt;
 use integer::NumericLiteral;
+use integer::{u256_overflowing_add, u256_overflow_sub};
 
 /// Represents a 220-bit unsigned integer.
 /// TODO: Implement the rest of the traits to make this a full-fledged Cairo integer.
+#[derive(Copy, Drop, PartialEq, Serde)]
 struct u220 {
-    inner: felt252
+    inner: u256
 }
 
 impl NumericLiteralU220 of NumericLiteral<u220>;
 
-fn felt252_overflowing_add(lhs: felt252, rhs: felt252) -> (felt252, bool) {
-    let result = a + b;
-    let overflow = result < a;
-    return (result, overflow);
-}
-
-fn felt252_overflowing_sub(lhs: felt252, rhs: felt252) -> (felt252, bool) {
-    let result = a - b;
-    let overflow = result > a;
-    return (result, overflow);
-}
-
 fn u220_overflowing_add(lhs: u220, rhs: u220) -> (u220, bool) {
-    let (sum, overflow) = felt252_overflowing_add(lhs.inner, rhs.inner);
-    (u220 { inner: sum }, overflow)
+    let (sum, overflow) = u256_overflowing_add(lhs.inner, rhs.inner);
+    (u220 { inner: sum }, overflow || sum > BoundedInt::max().inner)
 }
 
 fn u220_overflow_sub(lhs: u220, rhs: u220) -> (u220, bool) {
-    let (sub, overflow) = felt252_overflowing_sub(lhs.inner, rhs.inner);
+    let (sub, overflow) = u256_overflow_sub(lhs.inner, rhs.inner);
     (u220 { inner: sub }, overflow)
 }
 

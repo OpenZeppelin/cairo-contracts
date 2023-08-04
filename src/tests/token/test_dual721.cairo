@@ -76,8 +76,11 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     set_caller_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseERC721 { contract_address: target },
-        IERC721CamelOnlyDispatcher { contract_address: target }
+        DualCaseERC721 {
+            contract_address: target
+            }, IERC721CamelOnlyDispatcher {
+            contract_address: target
+        }
     )
 }
 
@@ -91,8 +94,11 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
     let snake_target = utils::deploy(SnakeERC721PanicMock::TEST_CLASS_HASH, array![]);
     let camel_target = utils::deploy(CamelERC721PanicMock::TEST_CLASS_HASH, array![]);
     (
-        DualCaseERC721 { contract_address: snake_target },
-        DualCaseERC721 { contract_address: camel_target }
+        DualCaseERC721 {
+            contract_address: snake_target
+            }, DualCaseERC721 {
+            contract_address: camel_target
+        }
     )
 }
 

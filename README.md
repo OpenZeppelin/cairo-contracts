@@ -1,7 +1,6 @@
 # OpenZeppelin Contracts for Cairo
 
-[![Tests and linter](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/coverage.yml)
-[![codecov](https://codecov.io/github/OpenZeppelin/cairo-contracts/branch/main/graph/badge.svg?token=LFSZH8RPOL)](https://codecov.io/github/OpenZeppelin/cairo-contracts)
+[![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
 
 **A library for secure smart contract development** written in Cairo for [StarkNet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
@@ -10,14 +9,13 @@
 > ## ⚠️ WARNING! ⚠️
 >
 > This repo contains highly experimental code.
+> It has no code coverage checks.
 > It hasn't been audited.
-> Expect rapid iteration.
-> **Use at your own risk.**
-
-> ## ⚠️ WARNING! ⚠️
 >
 > Some contracts or features are not ready to be deployed.
-> Check the __Unsupported__ section below.
+> Check the **Unsupported** section below.
+>
+> Expect rapid iteration. **Use at your own risk.**
 
 ### Prepare the environment
 
@@ -66,7 +64,7 @@ Open `src/lib.cairo` and write your contract.
 
 For example, this how to extend the ERC20 standard contract:
 
-```
+```cairo
 #[starknet::contract]
 mod MyToken {
     use starknet::ContractAddress;
@@ -138,7 +136,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 Clone the repository
 
 ```bash
-$ git clone git@github.com:OpenZeppelin/cairo-contracts.git
+git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
 `cd` into it and build:
@@ -154,10 +152,8 @@ Finished release target(s) in 16 seconds
 
 ### Run tests
 
-Run tests using `scarb`:
-
 ```bash
-$ scarb test
+scarb test
 ```
 
 ## Security

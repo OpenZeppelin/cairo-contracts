@@ -4,14 +4,13 @@
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-## Usage
-
 > **Warning**
 > This repo contains highly experimental code.
 > It has no code coverage checks.
 > It hasn't been audited.
 > **Use at your own risk.**
 
+## Usage
 
 > **Warning**
 > Expect rapid iteration.

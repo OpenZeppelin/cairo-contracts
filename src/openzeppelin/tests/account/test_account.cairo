@@ -1,20 +1,15 @@
 use array::ArrayTrait;
 use core::traits::Into;
-use option::OptionTrait;
-use serde::Serde;
-use starknet::account::Call;
-use starknet::contract_address_const;
-use starknet::ContractAddress;
-use starknet::testing;
-
-use openzeppelin::account::Account;
 use openzeppelin::account::Account::OwnerAdded;
 use openzeppelin::account::Account::OwnerRemoved;
+use openzeppelin::account::Account::PublicKeyCamelImpl;
+use openzeppelin::account::Account::PublicKeyImpl;
+use openzeppelin::account::Account;
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::account::AccountABIDispatcherTrait;
-use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::QUERY_VERSION;
 use openzeppelin::account::TRANSACTION_VERSION;
+use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
@@ -22,6 +17,12 @@ use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use option::OptionTrait;
+use serde::Serde;
+use starknet::ContractAddress;
+use starknet::account::Call;
+use starknet::contract_address_const;
+use starknet::testing;
 
 //
 // Constants
@@ -112,7 +113,7 @@ fn test_constructor() {
     assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
 
     assert(
-        Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
+        PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
     );
 }
 
@@ -160,7 +161,7 @@ fn test_is_valid_signature() {
     let mut good_signature = array![data.r, data.s];
     let mut bad_signature = array![0x987, 0x564];
 
-    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
+    PublicKeyImpl::set_public_key(ref state, data.public_key);
 
     let is_valid = Account::SRC6Impl::is_valid_signature(@state, hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
@@ -179,7 +180,7 @@ fn test_isValidSignature() {
     let mut good_signature = array![data.r, data.s];
     let mut bad_signature = array![0x987, 0x564];
 
-    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
+    PublicKeyImpl::set_public_key(ref state, data.public_key);
 
     let is_valid = Account::SRC6CamelOnlyImpl::isValidSignature(@state, hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
@@ -453,7 +454,7 @@ fn test_public_key_setter_and_getter() {
     assert(public_key == 0, 'Should be zero');
 
     // Set key
-    Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
+    PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 
     let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.old_owner_key == 0, 'Invalid old owner key');
@@ -461,7 +462,7 @@ fn test_public_key_setter_and_getter() {
     let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_key == NEW_PUBKEY, 'Invalid new owner key');
 
-    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    let public_key = PublicKeyImpl::get_public_key(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
@@ -474,7 +475,7 @@ fn test_public_key_setter_different_account() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    Account::PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
+    PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 }
 
 //
@@ -489,11 +490,11 @@ fn test_public_key_setter_and_getter_camel() {
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
     // Check default
-    let public_key = Account::PublicKeyCamelImpl::getPublicKey(@state);
+    let public_key = PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == 0, 'Should be zero');
 
     // Set key
-    Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
+    PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 
     let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.old_owner_key == 0, 'Invalid old owner key');
@@ -501,7 +502,7 @@ fn test_public_key_setter_and_getter_camel() {
     let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_key == NEW_PUBKEY, 'Invalid new owner key');
 
-    let public_key = Account::PublicKeyCamelImpl::getPublicKey(@state);
+    let public_key = PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
@@ -514,7 +515,7 @@ fn test_public_key_setter_different_account_camel() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    Account::PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
+    PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 }
 
 //
@@ -531,7 +532,7 @@ fn test_initializer() {
     assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
 
     assert(
-        Account::PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
+        PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
     );
 }
 
@@ -564,7 +565,7 @@ fn test__is_valid_signature() {
     let mut bad_signature = array![0x987, 0x564];
     let mut invalid_length_signature = array![0x987];
 
-    Account::PublicKeyImpl::set_public_key(ref state, data.public_key);
+    PublicKeyImpl::set_public_key(ref state, data.public_key);
 
     let is_valid = Account::InternalImpl::_is_valid_signature(@state, hash, good_signature.span());
     assert(is_valid, 'Should accept valid signature');
@@ -587,6 +588,6 @@ fn test__set_public_key() {
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_key == PUBLIC_KEY, 'Invalid owner key');
 
-    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    let public_key = PublicKeyImpl::get_public_key(@state);
     assert(public_key == PUBLIC_KEY, 'Should update key');
 }

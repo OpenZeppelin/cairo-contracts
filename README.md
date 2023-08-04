@@ -121,7 +121,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 - [Cairo book](https://book.cairo-lang.org/)
 - [Cairo language documentation](https://docs.cairo-lang.org/)
 - [Starknet book](https://book.starknet.io/)
-- [Starknet documentation](https://www.cairo-lang.org/docs/hello_starknet/index.html#hello-starknet)
+- [Starknet documentation](https://docs.starknet.io/documentation/)
 - [Cairo 1.0 mini-docs](https://github.com/Starknet-Africa-Edu/Cairo1.0)
 - [Cairopractice](https://cairopractice.com/)
 

@@ -8,9 +8,6 @@ use starknet::ClassHash;
 #[starknet::interface]
 trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, impl_hash: ClassHash);
-    fn upgrade_and_call(
-        ref self: TState, impl_hash: ClassHash, selector: felt252, calldata: Span<felt252>
-    );
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -43,18 +40,6 @@ mod UpgradesV2 {
         fn upgrade(ref self: ContractState, impl_hash: ClassHash) {
             let mut unsafe_state = Upgradeable::unsafe_new_contract_state();
             Upgradeable::InternalImpl::_upgrade(ref unsafe_state, impl_hash);
-        }
-
-        fn upgrade_and_call(
-            ref self: ContractState,
-            impl_hash: ClassHash,
-            selector: felt252,
-            calldata: Span<felt252>
-        ) {
-            let mut unsafe_state = Upgradeable::unsafe_new_contract_state();
-            Upgradeable::InternalImpl::_upgrade_and_call(
-                ref unsafe_state, impl_hash, selector, calldata
-            );
         }
     }
 

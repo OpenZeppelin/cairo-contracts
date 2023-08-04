@@ -1,9 +1,10 @@
-artifacts/
 .DS_Store
 
 # Cairo 1
-
 corelib/
+
+# Scarb
+target/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -77,9 +78,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-
-# PyBuilder
-target/
 
 # Jupyter Notebook
 .ipynb_checkpoints

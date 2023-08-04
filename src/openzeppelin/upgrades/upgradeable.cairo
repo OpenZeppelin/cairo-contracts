@@ -16,7 +16,7 @@ mod Upgradeable {
 
     #[derive(Drop, starknet::Event)]
     struct Upgraded {
-        implementation: ClassHash
+        class_hash: ClassHash
     }
 
     #[generate_trait]

@@ -449,7 +449,7 @@ fn test_public_key_setter_and_getter() {
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
     // Check default
-    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    let public_key = PublicKeyImpl::get_public_key(@state);
     assert(public_key == 0, 'Should be zero');
 
     // Set key

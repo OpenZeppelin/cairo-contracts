@@ -2,11 +2,10 @@
 // OpenZeppelin Contracts for Cairo v0.7.0 (introspection/dual_src5.cairo)
 
 use array::ArrayTrait;
-use starknet::ContractAddress;
-
+use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::UnwrapAndCast;
+use starknet::ContractAddress;
 
 #[derive(Copy, Drop)]
 struct DualCaseSRC5 {

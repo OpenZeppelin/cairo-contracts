@@ -1,30 +1,22 @@
 use array::ArrayTrait;
+use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1Dispatcher;
+use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1DispatcherTrait;
+use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
+use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2DispatcherTrait;
+use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
+use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
+use openzeppelin::tests::utils;
+use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
 use option::OptionTrait;
 use starknet::ClassHash;
-use starknet::class_hash_const;
-use starknet::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
+use starknet::Felt252TryIntoClassHash;
+use starknet::class_hash_const;
 use starknet::contract_address_const;
 use starknet::testing;
 use traits::TryInto;
 
-use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1Dispatcher;
-use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1DispatcherTrait;
-use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
-use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
-use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2DispatcherTrait;
-use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
-use openzeppelin::tests::utils;
-use openzeppelin::upgrades::upgradeable::Upgradeable;
-use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
-
 const VALUE: felt252 = 123;
-const VALUE2: felt252 = 789;
-const SET_VALUE_SELECTOR: felt252 =
-    0x3d7905601c217734671143d457f0db37f7f8883112abd34b92c4abfeafde0c3;
-const SET_VALUE2_SELECTOR: felt252 =
-    0x47c8c185eb97d3925831a1c97e43bd9077181d2b200133ede551f1c47056a3;
-const REMOVE_SELECTOR: felt252 = 0x2beeaa48bce210364c7d2f2fbb677e08136cb29e8972a6728249364dde19e6f;
 
 fn V2_CLASS_HASH() -> ClassHash {
     UpgradesV2::TEST_CLASS_HASH.try_into().unwrap()

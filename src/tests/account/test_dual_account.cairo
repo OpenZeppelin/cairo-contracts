@@ -29,8 +29,11 @@ fn setup_snake() -> (DualCaseAccount, AccountABIDispatcher) {
     let mut calldata = array![PUBLIC_KEY];
     let target = utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccount { contract_address: target },
-        AccountABIDispatcher { contract_address: target }
+        DualCaseAccount {
+            contract_address: target
+            }, AccountABIDispatcher {
+            contract_address: target
+        }
     )
 }
 
@@ -38,8 +41,11 @@ fn setup_camel() -> (DualCaseAccount, AccountCamelABIDispatcher) {
     let mut calldata = array![PUBLIC_KEY];
     let target = utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccount { contract_address: target },
-        AccountCamelABIDispatcher { contract_address: target }
+        DualCaseAccount {
+            contract_address: target
+            }, AccountCamelABIDispatcher {
+            contract_address: target
+        }
     )
 }
 
@@ -53,8 +59,11 @@ fn setup_account_panic() -> (DualCaseAccount, DualCaseAccount) {
     let snake_target = utils::deploy(SnakeAccountPanicMock::TEST_CLASS_HASH, array![]);
     let camel_target = utils::deploy(CamelAccountPanicMock::TEST_CLASS_HASH, array![]);
     (
-        DualCaseAccount { contract_address: snake_target },
-        DualCaseAccount { contract_address: camel_target }
+        DualCaseAccount {
+            contract_address: snake_target
+            }, DualCaseAccount {
+            contract_address: camel_target
+        }
     )
 }
 

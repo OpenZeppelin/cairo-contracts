@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/accesscontrol.cairo)
+
 #[starknet::contract]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;

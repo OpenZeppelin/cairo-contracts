@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (security/pausable.cairo)
+
 #[starknet::interface]
 trait IPausable<TState> {
     fn is_paused(self: @TState) -> bool;

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/serde.cairo)
+
 use serde::Serde;
 
 trait SerializedAppend<T> {

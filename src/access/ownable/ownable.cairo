@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (access/ownable/ownable.cairo)
+
 #[starknet::contract]
 mod Ownable {
     use openzeppelin::access::ownable::interface;

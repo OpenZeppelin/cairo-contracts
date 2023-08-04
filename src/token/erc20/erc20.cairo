@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
+
 #[starknet::contract]
 mod ERC20 {
     use integer::BoundedInt;

@@ -62,19 +62,12 @@ fn test_upgrade_with_class_hash_zero() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_persisting_selector_after_upgrade() {
+fn test_upgraded_event() {
     let v1 = deploy_v1();
-    v1.set_value(VALUE);
-    assert(v1.get_value() == VALUE, 'Should be VALUE');
-
-    // Upgrade and check event
     v1.upgrade(V2_CLASS_HASH());
-    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
-    assert(event.implementation == V2_CLASS_HASH(), 'Invalid implementation');
 
-    let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
-    v2.set_value(VALUE2);
-    assert(v2.get_value() == VALUE2, 'Selector should be callable');
+    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
+    assert(event.class_hash == V2_CLASS_HASH(), 'Invalid class hash');
 }
 
 #[test]
@@ -116,57 +109,4 @@ fn test_remove_selector_fails_in_v2() {
     v1.upgrade(V2_CLASS_HASH());
     // We use the v1 dispatcher because remove_selector is not in v2 interface
     v1.remove_selector();
-}
-
-//
-// upgrade_and_call
-//
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED', ))]
-fn test_upgrade_and_call_with_class_hash_zero() {
-    let v1 = deploy_v1();
-    let calldata = array![VALUE];
-    v1.upgrade_and_call(CLASS_HASH_ZERO(), SET_VALUE_SELECTOR, calldata.span());
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_upgrade_and_call_persisting_selector() {
-    let v1 = deploy_v1();
-    assert(v1.get_value() == 0, 'Should be zero');
-
-    // upgrade_and_call and check event
-    let calldata = array![VALUE];
-    v1.upgrade_and_call(V2_CLASS_HASH(), SET_VALUE_SELECTOR, calldata.span());
-    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
-    assert(event.implementation == V2_CLASS_HASH(), 'Invalid implementation');
-
-    // Check value is set
-    let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
-    assert(v2.get_value() == VALUE, 'Should set val during upgrade');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_upgrade_and_call_new_selector() {
-    let v1 = deploy_v1();
-
-    // upgrade_and_call
-    let calldata = array![VALUE2];
-    v1.upgrade_and_call(V2_CLASS_HASH(), SET_VALUE2_SELECTOR, calldata.span());
-
-    // Check value2 is set
-    let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
-    assert(v2.get_value2() == VALUE2, 'Should set val during upgrade');
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
-fn test_upgrade_and_call_with_removed_selector() {
-    let v1 = deploy_v1();
-    let calldata = array![];
-    v1.upgrade_and_call(V2_CLASS_HASH(), REMOVE_SELECTOR, calldata.span());
 }

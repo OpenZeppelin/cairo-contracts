@@ -3,11 +3,9 @@ name: Lint and test
 on:
   pull_request:
     branches:
-    - cairo-1
     - cairo-2
   push:
     branches:
-    - cairo-1
     - cairo-2
 
 jobs:
@@ -27,4 +25,4 @@ jobs:
     - name: Cairo lint
       run: make check-format
     - name: Cairo test
-      run: make test
+      run: make update && make test

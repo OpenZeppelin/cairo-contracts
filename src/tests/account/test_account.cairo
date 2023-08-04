@@ -112,9 +112,7 @@ fn test_constructor() {
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
 
-    assert(
-        PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
-    );
+    assert(PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key');
 }
 
 //
@@ -531,9 +529,7 @@ fn test_initializer() {
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
 
-    assert(
-        PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key'
-    );
+    assert(PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key');
 }
 
 #[test]

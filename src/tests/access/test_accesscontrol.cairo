@@ -7,29 +7,9 @@ use openzeppelin::access::accesscontrol::AccessControl::AccessControlImpl;
 use openzeppelin::access::accesscontrol::AccessControl::AccessControlCamelImpl;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-
-const ROLE: felt252 = 41;
-const OTHER_ROLE: felt252 = 42;
-
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
-
-fn ADMIN() -> ContractAddress {
-    contract_address_const::<1>()
-}
-
-fn AUTHORIZED() -> ContractAddress {
-    contract_address_const::<2>()
-}
-
-fn OTHER() -> ContractAddress {
-    contract_address_const::<3>()
-}
-
-fn OTHER_ADMIN() -> ContractAddress {
-    contract_address_const::<4>()
-}
+use openzeppelin::tests::utils::constants::{
+    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
+};
 
 //
 // Setup

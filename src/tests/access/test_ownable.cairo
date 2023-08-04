@@ -9,18 +9,8 @@ use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
 use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::Ownable::_owner::InternalContractStateTrait;
-
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
-
-fn OWNER() -> ContractAddress {
-    contract_address_const::<10>()
-}
-
-fn OTHER() -> ContractAddress {
-    contract_address_const::<20>()
-}
+use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 
 //
 // Setup
@@ -48,9 +38,7 @@ fn test_initializer() {
     assert(state._owner.read().is_zero(), 'Should be zero');
     InternalImpl::initializer(ref state, OWNER());
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == ZERO(), 'Invalid previous_owner');
-    assert(event.new_owner == OWNER(), 'Invalid new_owner');
+    assert_event_ownership_transferred(ZERO(), OWNER());
 
     assert(state._owner.read() == OWNER(), 'Owner should be set');
 }
@@ -94,9 +82,7 @@ fn test__transfer_ownership() {
     let mut state = setup();
     InternalImpl::_transfer_ownership(ref state, OTHER());
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == OWNER(), 'Invalid previous_owner');
-    assert(event.new_owner == OTHER(), 'Invalid new_owner');
+    assert_event_ownership_transferred(OWNER(), OTHER());
 
     assert(state._owner.read() == OTHER(), 'Owner should be OTHER');
 }
@@ -112,9 +98,7 @@ fn test_transfer_ownership() {
     testing::set_caller_address(OWNER());
     OwnableImpl::transfer_ownership(ref state, OTHER());
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == OWNER(), 'Invalid previous_owner');
-    assert(event.new_owner == OTHER(), 'Invalid new_owner');
+    assert_event_ownership_transferred(OWNER(), OTHER());
 
     assert(OwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
 }
@@ -152,9 +136,7 @@ fn test_transferOwnership() {
     testing::set_caller_address(OWNER());
     OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == OWNER(), 'Invalid previous_owner');
-    assert(event.new_owner == OTHER(), 'Invalid new_owner');
+    assert_event_ownership_transferred(OWNER(), OTHER());
 
     assert(OwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
 }
@@ -196,9 +178,7 @@ fn test_renounce_ownership() {
     testing::set_caller_address(OWNER());
     OwnableImpl::renounce_ownership(ref state);
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == OWNER(), 'Invalid previous_owner');
-    assert(event.new_owner == ZERO(), 'Invalid new_owner');
+    assert_event_ownership_transferred(OWNER(), ZERO());
 
     assert(OwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
 }
@@ -227,9 +207,7 @@ fn test_renounceOwnership() {
     testing::set_caller_address(OWNER());
     OwnableCamelOnlyImpl::renounceOwnership(ref state);
 
-    let event = testing::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == OWNER(), 'Invalid previous_owner');
-    assert(event.new_owner == ZERO(), 'Invalid new_owner');
+    assert_event_ownership_transferred(OWNER(), ZERO());
 
     assert(OwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
 }
@@ -249,4 +227,15 @@ fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
     OwnableCamelOnlyImpl::renounceOwnership(ref state);
+}
+
+//
+// Helpers
+//
+
+fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner: ContractAddress) {
+    let event = utils::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
+    assert(event.previous_owner == previous_owner, 'Invalid previous_owner');
+    assert(event.new_owner == new_owner, 'Invalid new_owner');
+    utils::assert_no_events_left(ZERO());
 }

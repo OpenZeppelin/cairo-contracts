@@ -17,21 +17,8 @@ use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPani
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::utils::serde::SerializedAppend;
-
-//
-// Constants
-//
-
-const ROLE: felt252 = 41;
-
-fn ADMIN() -> ContractAddress {
-    contract_address_const::<10>()
-}
-
-fn AUTHORIZED() -> ContractAddress {
-    contract_address_const::<20>()
-}
 
 //
 // Setup

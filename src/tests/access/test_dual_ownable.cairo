@@ -17,18 +17,7 @@ use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnablePanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
-
-//
-// Constants
-//
-
-fn OWNER() -> ContractAddress {
-    contract_address_const::<10>()
-}
-
-fn NEW_OWNER() -> ContractAddress {
-    contract_address_const::<20>()
-}
+use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
 
 //
 // Setup

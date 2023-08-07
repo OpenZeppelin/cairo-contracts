@@ -1,12 +1,15 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/unwrap_and_cast.cairo)
+
 use array::SpanTrait;
+
+use openzeppelin::utils::Felt252TryIntoBool;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
 use traits::TryInto;
-
-use openzeppelin::utils::Felt252TryIntoBool;
 
 trait UnwrapAndCast<T> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> T;

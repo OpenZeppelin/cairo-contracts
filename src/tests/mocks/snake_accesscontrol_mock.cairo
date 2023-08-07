@@ -1,10 +1,10 @@
 #[starknet::contract]
 mod SnakeAccessControlMock {
+    use openzeppelin::access::accesscontrol::AccessControl::AccessControlImpl;
+    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use openzeppelin::access::accesscontrol::AccessControl;
-    use openzeppelin::access::accesscontrol::AccessControl::AccessControlImpl;
-    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 
     #[storage]
     struct Storage {}

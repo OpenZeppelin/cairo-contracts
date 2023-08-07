@@ -1,12 +1,14 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (account/dual_account.cairo)
+
 use array::ArrayTrait;
 use array::SpanTrait;
-use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
-
+use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
-use openzeppelin::utils::UnwrapAndCast;
+use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 
 #[derive(Copy, Drop)]
 struct DualCaseAccount {

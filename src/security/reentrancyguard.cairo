@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
+
 #[starknet::contract]
 mod ReentrancyGuard {
     use starknet::get_caller_address;

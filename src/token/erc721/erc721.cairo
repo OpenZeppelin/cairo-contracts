@@ -1,13 +1,11 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
+
 use starknet::ContractAddress;
 
 #[starknet::contract]
 mod ERC721 {
     use array::SpanTrait;
-    use option::OptionTrait;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use zeroable::Zeroable;
-
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
@@ -17,6 +15,10 @@ mod ERC721 {
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
     use openzeppelin::token::erc721::interface;
+    use option::OptionTrait;
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {

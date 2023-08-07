@@ -1,12 +1,14 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
+
 #[starknet::contract]
 mod ERC20 {
     use integer::BoundedInt;
+    use openzeppelin::token::erc20::interface::IERC20;
+    use openzeppelin::token::erc20::interface::IERC20CamelOnly;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use zeroable::Zeroable;
-
-    use openzeppelin::token::erc20::interface::IERC20;
-    use openzeppelin::token::erc20::interface::IERC20CamelOnly;
 
     #[storage]
     struct Storage {

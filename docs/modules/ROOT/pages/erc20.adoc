@@ -77,7 +77,7 @@ Coming soon!
 
 (*This is currently unsafe*)
 
-ERC20 contracts can be extended by utilizing the contract's _unsafe_new_contract_state()_.
+ERC20 contracts can be extended by utilizing the contract's _unsafe_new_contract_state().
 The unsafe contract state allows access to the _ERC20Impl_.
 This enables IERC20 methods to include additional behaviors.
 

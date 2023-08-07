@@ -392,7 +392,7 @@ Returns: None.
 [#_increase_allowance]
 ==== `_increase_allowance`
 
-Lorem ipsum...
+Atomically increases the allowance granted to `spender` by the caller.
 
 Parameters:
 
@@ -407,7 +407,7 @@ Returns: None.
 [#_decrease_allowance]
 ==== `_decrease_allowance`
 
-Lorem ipsum...
+Atomically decreases the allowance granted to `spender` by the caller.
 
 Parameters:
 
@@ -422,7 +422,8 @@ Returns: None.
 [#_mint]
 ==== `_mint`
 
-Lorem ipsum...
+Creates an `amount` number of tokens and assigns them to `recipient`, by transferring it from the zero address.
+Emits a Transfer event with `from` being the zero address.
 
 Parameters:
 
@@ -437,7 +438,8 @@ Returns: None.
 [#_burn]
 ==== `_burn`
 
-Lorem ipsum...
+Destroys an `amount` number of tokens from `account`, by transferring it to the zero address.
+Emits a Transfer event with `from` set to the zero address.
 
 Parameters:
 
@@ -452,7 +454,8 @@ Returns: None.
 [#_approve]
 ==== `_approve`
 
-Lorem ipsum...
+Sets `value` as the allowance of `spender` over the `owner` s tokens.
+This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
 
 Parameters:
 
@@ -468,7 +471,9 @@ Returns: None.
 [#_transfer]
 ==== `_transfer`
 
-Lorem ipsum...
+Moves a `value` amount of tokens from `from` to `to`.
+This internal function is equivalent to the external transfer, and can be used to implement automatic token fees, slashing mechanisms, etc.
+Emits a Transfer event.
 
 Parameters:
 
@@ -484,7 +489,9 @@ Returns: None.
 [#_spend_allowance]
 ==== `_spend_allowance`
 
-Lorem ipsum...
+Updates `owner` s allowance for `spender` based on spent `value`.
+Does not update the allowance value in case of infinite allowance.
+Possibly emits an Approval event.
 
 Parameters:
 

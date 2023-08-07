@@ -11,211 +11,133 @@ The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.
 * <<extensibility,Extensibility>>
 * <<presets,Presets>>
  ** <<erc20_basic,ERC20 (basic)>>
- ** <<erc20mintable,ERC20Mintable>>
- ** <<erc20pausable,ERC20Pausable>>
- ** <<erc20upgradeable,ERC20Upgradeable>>
 * <<api_specification,API Specification>>
- ** <<methods,Methods>>
+ ** <<erc20impl,ERC20Impl>>
   *** <<name,`name`>>
   *** <<symbol,`symbol`>>
   *** <<decimals,`decimals`>>
-  *** <<totalsupply,`totalSupply`>>
-  *** <<balanceof,`balanceOf`>>
+  *** <<total_supply,`total_supply`>>
+  *** <<balance_of,`balance_of`>>
   *** <<allowance,`allowance`>>
   *** <<transfer,`transfer`>>
-  *** <<transferfrom,`transferFrom`>>
+  *** <<transfer_from,`transfer_from`>>
   *** <<approve,`approve`>>
  ** <<events,Events>>
   *** <<transfer_event,`Transfer (event)`>>
   *** <<approval_event,`Approval (event)`>>
+ ** <<internalimpl,InternalImpl>>
+  *** <<initializer,initializer>>
+  *** <<_increase_allowance,_increase_allowance>>
+  *** <<_decrease_allowance,_decrease_allowance>>
+  *** <<_mint,_mint>>
+  *** <<_burn,_burn>>
+  *** <<_approve,_approve>>
+  *** <<_transfer,_transfer>>
+  *** <<_spend_allowance,_spend_allowance>>
 
 == Interface
 
-[,cairo]
+[,rust]
 ----
-@contract_interface
-namespace IERC20 {
-    func name() -> (name: felt) {
-    }
-
-    func symbol() -> (symbol: felt) {
-    }
-
-    func decimals() -> (decimals: felt) {
-    }
-
-    func totalSupply() -> (totalSupply: Uint256) {
-    }
-
-    func balanceOf(account: felt) -> (balance: Uint256) {
-    }
-
-    func allowance(owner: felt, spender: felt) -> (remaining: Uint256) {
-    }
-
-    func transfer(recipient: felt, amount: Uint256) -> (success: felt) {
-    }
-
-    func transferFrom(sender: felt, recipient: felt, amount: Uint256) -> (success: felt) {
-    }
-
-    func approve(spender: felt, amount: Uint256) -> (success: felt) {
-    }
+#[starknet::interface]
+trait IERC20<TState> {
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
+    fn decimals(self: @TState) -> u8;
+    fn total_supply(self: @TState) -> u256;
+    fn balance_of(self: @TState, account: ContractAddress) -> u256;
+    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool;
+    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 ----
 
 === ERC20 compatibility
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
-* It uses Cairo's `uint256` instead of `felt`.
-* It returns `TRUE` as success.
-* It accepts a `felt` argument for `decimals` in the constructor calldata with a max value of 2{caret}8 (imitating `uint8` type).
+* It uses Cairo's `u256` instead of `felt252`.
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
 
-* `transfer`, `transferFrom` and `approve` will never return anything different from `TRUE` because they will revert on any error.
-* Function selectors are calculated differently between https://github.com/starkware-libs/cairo-lang/blob/7712b21fc3b1cb02321a58d0c0579f5370147a8b/src/starkware/starknet/public/abi.py#L25[Cairo] and https://solidity-by-example.org/function-selector/[Solidity].
+* `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
+* Function selectors are calculated differently between https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo] and https://solidity-by-example.org/function-selector/[Solidity].
 
 == Usage
 
 Use cases go from medium of exchange currency to voting rights, staking, and more.
 
-Considering that the constructor method looks like this:
-
-[,cairo]
-----
-func constructor(
-    name: felt,               // Token name as Cairo short string
-    symbol: felt,             // Token symbol as Cairo short string
-    decimals: felt            // Token decimals (usually 18)
-    initial_supply: Uint256,  // Amount to be minted
-    recipient: felt           // Address where to send initial supply to
-) {
-}
-----
-
-To create a token you need to deploy it like this:
-
-[,python]
-----
-erc20 = await starknet.deploy(
-    "openzeppelin/token/erc20/presets/ERC20.cairo",
-    constructor_calldata=[
-        str_to_felt("Token"),     # name
-        str_to_felt("TKN"),       # symbol
-        18,                       # decimals
-        (1000, 0),                # initial supply
-        account.contract_address  # recipient
-    ]
-)
-----
-
-As most StarkNet contracts, it expects to be called by another contract and it identifies it through `get_caller_address` (analogous to Solidity's `this.address`).
-This is why we need an Account contract to interact with it.
-For example:
-
-[,python]
-----
-signer = MockSigner(PRIVATE_KEY)
-amount = uint(100)
-
-account = await starknet.deploy(
-    "contracts/Account.cairo",
-    constructor_calldata=[signer.public_key]
-)
-
-await signer.send_transaction(account, erc20.contract_address, 'transfer', [recipient_address, *amount])
-----
+Coming soon!
 
 == Extensibility
 
-ERC20 contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
-The basic idea behind integrating the pattern is to import the requisite ERC20 methods from the ERC20 library and incorporate the extended logic thereafter.
-For example, let's say you wanted to implement a pausing mechanism.
-The contract should first import the ERC20 methods and the extended logic from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/security/pausable/library.cairo[Pausable library] i.e. `Pausable.pause`, `Pausable.unpause`.
-Next, the contract should expose the methods with the extended logic therein like this:
+(*This is currently unsafe*)
 
-[,cairo]
+ERC20 contracts can be extended by utilizing the contract's _unsafe_new_contract_state()_.
+The unsafe contract state allows access to the _ERC20Impl_.
+This enables IERC20 methods to include additional behaviors.
+
+[,rust]
 ----
-@external
-func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    recipient: felt, amount: Uint256
-) -> (success: felt) {
-    Pausable.assert_not_paused();                 // imported extended logic
-    return ERC20.transfer(recipient, amount);     // imported library method
+#[external(v0)]
+fn transfer(self: @ContractState, recipient: ContractAddress, amount: u256) -> bool {
+    let unsafe_state = ERC20::unsafe_new_contract_state();
+
+    // Add custom logic here
+
+    ERC20::ERC20Impl::transfer(@unsafe_state, recipient, amount)
 }
 ----
 
-Note that extensibility does not have to be only library-based like in the above example.
-For instance, an ERC20 contract with a pausing mechanism can define the pausing methods directly in the contract or even import the `pausable` methods from the library and tailor them further.
+The unsafe state also allows access to ERC20's _InternalImpl_.
+Having access to ERC20's interal implementation permits contracts, for example, to expose the internal methods like _mint.
 
-Some other ways to extend ERC20 contracts may include:
+[,rust]
+----
+#[external(v0)]
+fn mint(self: @ContractState, to: ContractAddress, amount: u256) {
+    let unsafe_state = ERC20::unsafe_new_contract_state();
+    assert_only_owner();  // Ensure the mint function is protected!
+    ERC20::InternalImpl::_mint(@unsafe_state, to, amount);
+}
+----
 
-* Implementing a minting mechanism.
-* Creating a timelock.
-* Adding roles such as owner or minter.
-
-For full examples of the extensibility pattern being used in ERC20 contracts, see <<presets,Presets>>.
+Note that accessing the contract's state in this way is unsafe at the moment.
 
 == Presets
 
-The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing.
-Each preset mints an initial supply which is especially necessary for presets that do not expose a `mint` method.
+The ERC20 contract itself includes a basic implementation preset and can be used as-is for quick prototyping and testing.
+The basic preset mints an inital supply which is necessary because it does not expose a minting function.
+
+More presets coming soon!
 
 === ERC20 (basic)
 
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
+*TODO: CHANGE LINK TO RELEASE COMMIT WHEN AVAILABLE*
 
-=== ERC20Mintable
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20Mintable.cairo[`ERC20Mintable`] preset allows the contract owner to mint new tokens.
-
-=== ERC20Pausable
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[`ERC20Pausable`] preset allows the contract owner to pause/unpause all state-modifying methods i.e.
-`transfer`, `approve`, etc.
-This preset proves useful for scenarios such as preventing trades until the end of an evaluation period and having an emergency switch for freezing all token transfers in the event of a large bug.
-
-=== ERC20Upgradeable
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20Upgradeable.cairo[`ERC20Upgradeable`] preset allows the contract owner to upgrade a contract by deploying a new ERC20 implementation contract while also maintaining the contract's state.
-This preset proves useful for scenarios such as eliminating bugs and adding new features.
-For more on upgradeability, see xref:proxies.adoc#contract_upgrades[Contract upgrades].
+The https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[`ERC20`] preset offers a quick and easy setup for deploying a basic ERC20 token.
 
 == API Specification
 
-=== Methods
+=== ERC20Impl
 
-[,cairo]
+[,rust]
 ----
-func name() -> (name: felt) {
-}
-
-func symbol() -> (symbol: felt) {
-}
-
-func decimals() -> (decimals: felt) {
-}
-
-func totalSupply() -> (totalSupply: Uint256) {
-}
-
-func balanceOf(account: felt) -> (balance: Uint256) {
-}
-
-func allowance(owner: felt, spender: felt) -> (remaining: Uint256) {
-}
-
-func transfer(recipient: felt, amount: Uint256) -> (success: felt) {
-}
-
-func transferFrom(sender: felt, recipient: felt, amount: Uint256) -> (success: felt) {
-}
-
-func approve(spender: felt, amount: Uint256) -> (success: felt) {
-}
+fn name(self: @TState) -> felt252;
+fn symbol(self: @TState) -> felt252;
+fn decimals(self: @TState) -> u8;
+fn total_supply(self: @TState) -> u256;
+fn balance_of(self: @TState, account: ContractAddress) -> u256;
+fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
+fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
+fn transfer_from(
+    ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+) -> bool;
+fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 ----
 
 ==== `name`
@@ -226,9 +148,9 @@ Parameters: None.
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-name: felt
+name: felt252
 ----
 
 ==== `symbol`
@@ -239,9 +161,9 @@ Parameters: None.
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-symbol: felt
+symbol: felt252
 ----
 
 ==== `decimals`
@@ -253,12 +175,12 @@ Parameters: None.
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-decimals: felt
+decimals: u8
 ----
 
-==== `totalSupply`
+==== `total_supply`
 
 Returns the amount of tokens in existence.
 
@@ -266,143 +188,143 @@ Parameters: None.
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-totalSupply: Uint256
+total_supply: u256
 ----
 
-==== `balanceOf`
+==== `balance_of`
 
 Returns the amount of tokens owned by `account`.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-account: felt
+account: ContractAddress
 ----
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-balance: Uint256
+balance: u256
 ----
 
 ==== `allowance`
 
-Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom`.
+Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`.
 This is zero by default.
 
-This value changes when `approve` or `transferFrom` are called.
+This value changes when `approve` or `transfer_from` are called.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-owner: felt
-spender: felt
+owner: ContractAddress
+spender: ContractAddress
 ----
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-remaining: Uint256
+remaining: u256
 ----
 
 ==== `transfer`
 
 Moves `amount` tokens from the caller's account to `recipient`.
-It returns `1` representing a bool if it succeeds.
+It returns `true` on success.
 
 Emits a <<transfer_event,Transfer>> event.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-recipient: felt
-amount: Uint256
+recipient: ContractAddress
+amount: u256
 ----
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-success: felt
+success: bool
 ----
 
-==== `transferFrom`
+==== `transfer_from`
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
 `amount` is then deducted from the caller's allowance.
-It returns `1` representing a bool if it succeeds.
+It returns `true` on success.
 
 Emits a <<transfer_event,Transfer>> event.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-sender: felt
-recipient: felt
-amount: Uint256
+sender: ContractAddress
+recipient: ContractAddress
+amount: u256
 ----
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-success: felt
+success: bool
 ----
 
 ==== `approve`
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
-It returns `1` representing a bool if it succeeds.
+It returns `true` on success.
 
 Emits an <<approval_event,Approval>> event.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-spender: felt
-amount: Uint256
+spender: ContractAddress
+amount: u256
 ----
 
 Returns:
 
-[,cairo]
+[,rust]
 ----
-success: felt
+success: bool
 ----
 
 === Events
 
-[,cairo]
+[,rust]
 ----
-func Transfer(from_: felt, to: felt, value: Uint256) {
+func Transfer(from: ContractAddress, to: ContractAddress, value: u256) {
 }
 
-func Approval(owner: felt, spender: felt, value: Uint256) {
+func Approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
 }
 ----
 
 ==== `Transfer (event)`
 
-Emitted when `value` tokens are moved from one account (`from_`) to another (`to`).
+Emitted when `value` tokens are moved from one account (`from`) to another (`to`).
 
 Note that `value` may be zero.
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-from_: felt
-to: felt
-value: Uint256
+from: ContractAddress
+to: ContractAddress
+value: u256
 ----
 
 ==== `Approval (event)`
@@ -412,9 +334,165 @@ Emitted when the allowance of a `spender` for an `owner` is set by a call to <<a
 
 Parameters:
 
-[,cairo]
+[,rust]
 ----
-owner: felt
-spender: felt
-value: Uint256
+owner: ContractAddress
+spender: ContractAddress
+value: u256
 ----
+
+=== InternalImpl
+
+[,rust]
+----
+fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252);
+fn _increase_allowance(
+    ref self: ContractState, spender: ContractAddress, added_value: u256
+);
+fn _decrease_allowance(
+    ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+);
+fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256);
+fn _burn(ref self: ContractState, account: ContractAddress, amount: u256);
+fn _approve(
+    ref self: ContractState,
+    owner: ContractAddress,
+    spender: ContractAddress,
+    amount: u256
+);
+fn _transfer(
+    ref self: ContractState,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    amount: u256
+);
+fn _spend_allowance(
+    ref self: ContractState,
+    owner: ContractAddress,
+    spender: ContractAddress,
+    amount: u256
+);
+----
+
+==== `initializer`
+
+Initializes the contract and sets the token name and symbol.
+This should be called in the contract's constructor.
+
+Parameters:
+
+[,rust]
+----
+name_: felt252
+symbol_: felt252
+----
+
+Returns: None.
+
+[#_increase_allowance]
+==== `_increase_allowance`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+spender: ContractAddress
+added_value: u256
+----
+
+Returns: None.
+
+[#_decrease_allowance]
+==== `_decrease_allowance`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+spender: ContractAddress
+subtracted_value: u256
+----
+
+Returns: None.
+
+[#_mint]
+==== `_mint`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+recipient: ContractAddress
+amount: u256
+----
+
+Returns: None.
+
+[#_burn]
+==== `_burn`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+account: ContractAddress
+amount: u256
+----
+
+Returns: None.
+
+[#_approve]
+==== `_approve`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+owner: ContractAddress
+spender: ContractAddress
+amount: u256
+----
+
+Returns: None.
+
+[#_transfer]
+==== `_transfer`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+sender: ContractAddress
+recipient: ContractAddress
+amount: u256
+----
+
+Returns: None.
+
+[#_spend_allowance]
+==== `_spend_allowance`
+
+Lorem ipsum...
+
+Parameters:
+
+[,rust]
+----
+owner: ContractAddress
+spender: ContractAddress
+amount: u256
+----
+
+Returns: None.

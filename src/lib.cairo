@@ -1,5 +1,6 @@
 mod access;
 mod account;
+mod governance;
 mod introspection;
 mod security;
 mod token;

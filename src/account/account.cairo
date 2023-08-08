@@ -46,7 +46,7 @@ mod Account {
 
     #[storage]
     struct Storage {
-        public_key: felt252, 
+        public_key: felt252
     }
 
     #[constructor]

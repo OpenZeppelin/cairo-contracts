@@ -1,2 +1,2 @@
 mod checkpoints;
-mod vec;
+mod storage_array;

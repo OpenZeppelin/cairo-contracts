@@ -49,6 +49,13 @@ mod Account {
         public_key: felt252
     }
 
+    mod Errors {
+        const INVALID_CALLER: felt252 = 'Account: invalid caller';
+        const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
+        const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
+        const UNAUTHORIZED: felt252 = 'Account: unauthorized';
+    }
+
     #[constructor]
     fn constructor(ref self: ContractState, _public_key: felt252) {
         self.initializer(_public_key);
@@ -64,13 +71,13 @@ mod Account {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = get_caller_address();
-            assert(sender.is_zero(), 'Account: invalid caller');
+            assert(sender.is_zero(), Errors::INVALID_CALLER);
 
             // Check tx version
             let tx_info = get_tx_info().unbox();
             let version = tx_info.version;
             if version != TRANSACTION_VERSION {
-                assert(version == QUERY_VERSION, 'Account: invalid tx version');
+                assert(version == QUERY_VERSION, Errors::INVALID_TX_VERSION);
             }
 
             _execute_calls(calls)
@@ -173,7 +180,7 @@ mod Account {
             let tx_info = get_tx_info().unbox();
             let tx_hash = tx_info.transaction_hash;
             let signature = tx_info.signature;
-            assert(self._is_valid_signature(tx_hash, signature), 'Account: invalid signature');
+            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
             starknet::VALIDATED
         }
 
@@ -196,7 +203,7 @@ mod Account {
     fn assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
-        assert(self == caller, 'Account: unauthorized');
+        assert(self == caller, Errors::UNAUTHORIZED);
     }
 
     #[internal]

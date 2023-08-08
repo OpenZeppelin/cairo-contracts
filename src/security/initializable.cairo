@@ -8,6 +8,10 @@ mod Initializable {
         initialized: bool
     }
 
+    mod Errors {
+        const INITIALIZED: felt252 = 'Initializable: is initialized';
+    }
+
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn is_initialized(self: @ContractState) -> bool {
@@ -15,7 +19,7 @@ mod Initializable {
         }
 
         fn initialize(ref self: ContractState) {
-            assert(!self.is_initialized(), 'Initializable: is initialized');
+            assert(!self.is_initialized(), Errors::INITIALIZED);
             self.initialized.write(true);
         }
     }

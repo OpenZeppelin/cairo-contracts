@@ -1,10 +1,10 @@
 #[starknet::contract]
 mod CamelERC721Mock {
+    use openzeppelin::token::erc721::ERC721::ERC721CamelOnlyImpl;
+    use openzeppelin::token::erc721::ERC721::InternalImpl;
+    use openzeppelin::token::erc721::ERC721;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use openzeppelin::token::erc721::ERC721;
-    use openzeppelin::token::erc721::ERC721::InternalImpl;
-    use openzeppelin::token::erc721::ERC721::ERC721CamelOnlyImpl;
 
     #[storage]
     struct Storage {}

@@ -1,16 +1,15 @@
 use integer::BoundedInt;
 use integer::u256;
 use integer::u256_from_felt252;
+use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
+use openzeppelin::token::erc20::ERC20::ERC20Impl;
+use openzeppelin::token::erc20::ERC20::InternalImpl;
+use openzeppelin::token::erc20::ERC20;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use traits::Into;
 use zeroable::Zeroable;
-
-use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
-use openzeppelin::token::erc20::ERC20::ERC20Impl;
-use openzeppelin::token::erc20::ERC20::InternalImpl;
 
 //
 // Constants

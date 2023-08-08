@@ -5,8 +5,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use option::OptionTrait;
 use serde::Serde;
-use starknet::account::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 
 const TRANSACTION_VERSION: felt252 = 1;
 
@@ -25,24 +25,24 @@ trait PublicKeyCamelTrait<TState> {
 
 #[starknet::contract]
 mod Account {
-    use array::SpanTrait;
     use array::ArrayTrait;
+    use array::SpanTrait;
     use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
-    use option::OptionTrait;
-    use starknet::get_tx_info;
-    use starknet::get_caller_address;
-    use starknet::get_contract_address;
-    use zeroable::Zeroable;
 
     use openzeppelin::account::interface;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
+    use option::OptionTrait;
+    use starknet::get_caller_address;
+    use starknet::get_contract_address;
+    use starknet::get_tx_info;
 
     use super::Call;
     use super::QUERY_VERSION;
     use super::TRANSACTION_VERSION;
+    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {

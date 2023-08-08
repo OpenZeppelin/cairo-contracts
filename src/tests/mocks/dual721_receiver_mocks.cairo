@@ -1,6 +1,6 @@
 use openzeppelin::introspection::src5::SRC5;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver::IERC721_RECEIVER_ID;
+use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 
 #[starknet::contract]
 mod SnakeERC721ReceiverMock {

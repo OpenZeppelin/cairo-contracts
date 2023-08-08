@@ -1,8 +1,4 @@
 use array::ArrayTrait;
-use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::testing::set_contract_address;
-
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
@@ -16,9 +12,12 @@ use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
 use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
+use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
+use starknet::ContractAddress;
+use starknet::contract_address_const;
+use starknet::testing::set_contract_address;
 
 //
 // Setup

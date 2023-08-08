@@ -4,14 +4,13 @@ const FAILURE: felt252 = 456456;
 #[starknet::contract]
 mod ERC721Receiver {
     use array::SpanTrait;
-    use starknet::ContractAddress;
-
-    use openzeppelin::token::erc721::interface::IERC721Receiver;
-    use openzeppelin::token::erc721::interface::IERC721ReceiverCamel;
-    use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::token::erc721::interface::IERC721Receiver;
+    use openzeppelin::token::erc721::interface::IERC721ReceiverCamel;
+    use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
+    use starknet::ContractAddress;
 
     #[storage]
     struct Storage {}

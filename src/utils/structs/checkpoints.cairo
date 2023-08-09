@@ -1,19 +1,18 @@
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
-use starknet::Store;
 use super::storage_array::StorageArrayTrait;
 use super::storage_array::StorageArray;
 use traits::Into;
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block number. See {Votes} as an example.
-#[derive(Copy, Drop, Store)]
+#[derive(Copy, Drop, starknet::Store)]
 struct Trace {
     checkpoints: StorageArray<Checkpoint>
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, Store)]
+#[derive(Copy, Drop, starknet::Store)]
 struct Checkpoint {
     key: u32,
     // TODO: Check if is worth implementing a u220 type in corelib for saving gas by packing.
@@ -29,6 +28,7 @@ impl TraceImpl of TraceTrait {
     fn push(ref self: Trace, key: u32, value: u256) -> (u256, u256) {
         self.checkpoints._insert(key, value)
     }
+
     /// Returns the value in the first (oldest) checkpoint with key greater or equal
     /// than the search key, or zero if there is none.
     fn lower_lookup(self: Trace, key: u32) -> u256 {

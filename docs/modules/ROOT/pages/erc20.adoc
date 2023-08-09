@@ -23,17 +23,20 @@ The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.
   *** <<transfer_from,`transfer_from`>>
   *** <<approve,`approve`>>
  ** <<events,Events>>
-  *** <<transfer_event,`Transfer (event)`>>
-  *** <<approval_event,`Approval (event)`>>
+  *** <<Transfer,`Transfer`>>
+  *** <<Approval,`Approval`>>
+ ** <<non-standard-external,Non-standard external>>
+  *** <<increase_allowance,`increase_allowance`>>
+  *** <<decrease_allowance,`decrease_allowance`>>
  ** <<internalimpl,InternalImpl>>
   *** <<initializer,initializer>>
-  *** <<_increase_allowance,_increase_allowance>>
-  *** <<_decrease_allowance,_decrease_allowance>>
-  *** <<_mint,_mint>>
-  *** <<_burn,_burn>>
-  *** <<_approve,_approve>>
-  *** <<_transfer,_transfer>>
-  *** <<_spend_allowance,_spend_allowance>>
+  *** <<internal_increase_allowance,_increase_allowance>>
+  *** <<internal_decrease_allowance,_decrease_allowance>>
+  *** <<internal_mint,_mint>>
+  *** <<internal_burn,_burn>>
+  *** <<internal_approve,_approve>>
+  *** <<internal_transfer,_transfer>>
+  *** <<internal_spend_allowance,_spend_allowance>>
 
 == Interface
 
@@ -127,219 +130,316 @@ The https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20
 
 [,rust]
 ----
-fn name(self: @TState) -> felt252;
-fn symbol(self: @TState) -> felt252;
-fn decimals(self: @TState) -> u8;
-fn total_supply(self: @TState) -> u256;
-fn balance_of(self: @TState, account: ContractAddress) -> u256;
-fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
-fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
+fn name(self: @ContractState) -> felt252;
+fn symbol(self: @ContractState) -> felt252;
+fn decimals(self: @ContractState) -> u8;
+fn total_supply(self: @ContractState) -> u256;
+fn balance_of(self: @ContractState, account: ContractAddress) -> u256;
+fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
+fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool;
 fn transfer_from(
-    ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
 ) -> bool;
-fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool;
 ----
 
 ==== `name`
 
+[.contract-item]
+[[name]]
+==== `[.contract-item-name]#++name++#++(self: @ContractState) → felt252++`
+
 Returns the name of the token.
 
-Parameters: None.
+===== Returns
 
-Returns:
-
-[,rust]
-----
-name: felt252
-----
+- `*felt252*`
++
+Token name.
 
 ==== `symbol`
 
-Returns the ticker symbol of the token.
+[.contract-item]
+[[symbol]]
+==== `[.contract-item-name]#++symbol++#++(self: @ContractState) → felt252++`
 
-Parameters: None.
+Returns the ticker symbol of the token, usually a shorter version of the name.
 
-Returns:
+===== Returns
 
-[,rust]
-----
-symbol: felt252
-----
+- `*felt252*`
++
+Token symbol.
 
 ==== `decimals`
 
-Returns the number of decimals the token uses - e.g.
-`8` means to divide the token amount by `100000000` to get its user representation.
+[.contract-item]
+[[decimals]]
+==== `[.contract-item-name]#++decimals++#++(self: @ContractState) → u8++`
 
-Parameters: None.
+Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
+Returns the number of decimals used to get its user representation.
 
-Returns:
+For example, if `decimals` equals `2`, a balance of `505` tokens should
+be displayed to a user as `5.05` (`505 / 10 ** 2`).
 
-[,rust]
-----
-decimals: u8
-----
+Tokens usually opt for a value of 18, imitating the relationship between
+Ether and Wei. This is the default value returned by this function, unless
+a custom implementation is used.
+
+NOTE: This information is only used for _display_ purposes: it in
+no way affects any of the arithmetic of the contract.
+
+===== Returns
+
+- `*u8*`
++
+Token decimals.
 
 ==== `total_supply`
 
+[.contract-item]
+[[total_supply]]
+==== `[.contract-item-name]#++total_supply++#++(self: @ContractState) → u256++`
+
 Returns the amount of tokens in existence.
 
-Parameters: None.
+===== Returns
 
-Returns:
-
-[,rust]
-----
-total_supply: u256
-----
+- `*u256*`
++
+Total amount of tokens in existence.
 
 ==== `balance_of`
 
+[.contract-item]
+[[balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(self: @ContractState, account: ContractAddress) → u256++`
+
 Returns the amount of tokens owned by `account`.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-account: ContractAddress
-----
+- `*account*`
++
+The account balance to query.
 
-Returns:
+===== Returns
 
-[,rust]
-----
-balance: u256
-----
+- `*u256*`
++
+Token balance of `account`.
 
 ==== `allowance`
 
-Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`.
-This is zero by default.
+[.contract-item]
+[[allowance]]
+==== `[.contract-item-name]#++allowance++#++(self: @ContractState, owner: ContractAddress, spender: ContractAddress) → u256++`
 
-This value changes when `approve` or `transfer_from` are called.
+Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
 
-Parameters:
+This value changes when <<approve,approve>> or <<transfer_from,transfer_from>> are called.
 
-[,rust]
-----
-owner: ContractAddress
-spender: ContractAddress
-----
+===== Arguments
 
-Returns:
+- `*owner*`
++
+The address of the token owner.
+- `*spender*`
++
+The address of the token spender.
 
-[,rust]
-----
-remaining: u256
-----
+===== Returns
+
+- `*u256*`
++
+Current allowance granted by `owner` to `spender`.
 
 ==== `transfer`
 
-Moves `amount` tokens from the caller's account to `recipient`.
-It returns `true` on success.
+[.contract-item]
+[[transfer]]
+==== `[.contract-item-name]#++transfer++#++(ref self: @ContractState, recipient: ContractAddress, amount: u256) → bool++`
 
-Emits a <<transfer_event,Transfer>> event.
+Moves `amount` tokens from the caller's token balance to `to`.
 
-Parameters:
+Emits a <<Transfer,Transfer>> event.
 
-[,rust]
-----
-recipient: ContractAddress
-amount: u256
-----
+===== Arguments
 
-Returns:
+- `*recipient*`
++
+The address receiving `amount` tokens.
+- `*amount*`
++
+The number of tokens to send from the caller to the `recipient`.
 
-[,rust]
-----
-success: bool
-----
+===== Returns
+
+- `*bool*`
++
+`true` on success.
 
 ==== `transfer_from`
 
+[.contract-item]
+[[transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(ref self: @ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++`
+
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
 `amount` is then deducted from the caller's allowance.
-It returns `true` on success.
 
-Emits a <<transfer_event,Transfer>> event.
+Emits a <<Transfer,Transfer>> event.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-sender: ContractAddress
-recipient: ContractAddress
-amount: u256
-----
+- `*sender*`
++
+The address from which the transfer will be initiated.
+- `*recipient*`
++
+The address receiving `amount` tokens.
+- `*amount*`
++
+The number of tokens to send from `sender` to `recipient`.
 
-Returns:
+===== Returns
 
-[,rust]
-----
-success: bool
-----
+- `*bool*`
++
+`true` on success.
 
 ==== `approve`
 
+[.contract-item]
+[[approve]]
+==== `[.contract-item-name]#++approve++#++(ref self: @ContractState, spender: ContractAddress, amount: u256) → bool++`
+
 Sets `amount` as the allowance of `spender` over the caller's tokens.
-It returns `true` on success.
 
-Emits an <<approval_event,Approval>> event.
+Emits an <<Approval,Approval>> event.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-spender: ContractAddress
-amount: u256
-----
+- `*spender*`
++
+The address which may spend `amount` tokens on behalf of the caller.
+- `*amount*`
++
+The token allowance given to the `spender` from the caller.
 
-Returns:
+===== Returns
 
-[,rust]
-----
-success: bool
-----
+- `*bool*`
++
+`true` on success.
 
 === Events
 
 [,rust]
 ----
-func Transfer(from: ContractAddress, to: ContractAddress, value: u256) {
+struct Transfer {
+    from: ContractAddress,
+    to: ContractAddress,
+    value: u256
 }
-
-func Approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
+struct Approval {
+    owner: ContractAddress,
+    spender: ContractAddress,
+    value: u256
 }
 ----
 
-==== `Transfer (event)`
+==== `Transfer` [[Transfer]]
 
-Emitted when `value` tokens are moved from one account (`from`) to another (`to`).
+[.contract-item]
+==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, amount: u256)++`
+
+Emitted when `value` tokens are moved from one address (`from`) to another (`to`).
 
 Note that `value` may be zero.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-from: ContractAddress
-to: ContractAddress
-value: u256
-----
+- `*from*`
++
+The address from which the tokens are sent.
+- `*to*`
++
+The recipient address.
+- `*amount*`
++
+The amount of tokens sent from `from` to `to`.
 
-==== `Approval (event)`
+==== `Approval` [[Approval]]
+
+[.contract-item]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++`
 
 Emitted when the allowance of a `spender` for an `owner` is set by a call to <<approve,approve>>.
 `value` is the new allowance.
 
-Parameters:
+===== Arguments
+
+- `*owner*`
++
+The address which owns the tokens to approve.
+- `*spender*`
++
+The address which may spend the tokens on behalf of the `owner`.
+- `*value*`
++
+The amount which may be spent by the `spender`.
+
+=== Non-standard external [[non-standard-external]]
 
 [,rust]
 ----
-owner: ContractAddress
-spender: ContractAddress
-value: u256
+fn increase_allowance(
+    ref self: ContractState, spender: ContractAddress, added_value: u256
+);
+fn decrease_allowance(
+    ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+);
 ----
+
+==== `increase_allowance`
+
+[.contract-item]
+[[increase_allowance]]
+==== `[.contract-item-name]#++increase_allowance++#++(ref self: @ContractState, spender: ContractAddress, added_value: u256)++`
+
+Atomically increases the allowance granted to `spender` by the caller.
+
+Emits an <<Approval,Approval>> event indicating the updated allowance.
+
+===== Arguments
+
+- `*spender*`
++
+The address which may spend tokens on behalf of the caller.
+- `*added_value*`
++
+The amount of tokens added to the spender's allowance.
+
+==== `decrease_allowance`
+
+[.contract-item]
+[[decrease_allowance]]
+==== `[.contract-item-name]#++decrease_allowance++#++(ref self: @ContractState, spender: ContractAddress, subtracted_value: u256)++`
+
+Atomically decreases the allowance granted to `spender` by the caller.
+
+Emits an <<Approval,Approval>> event indicating the updated allowance.
+
+===== Arguments
+
+- `*spender*`
++
+The address which may spend tokens on behalf of the caller.
+- `*subtracted_value*`
++
+The amount of tokens subtracted from the spender's allowance.
 
 === InternalImpl
 
@@ -376,130 +476,151 @@ fn _spend_allowance(
 
 ==== `initializer`
 
-Initializes the contract and sets the token name and symbol.
-This should be called in the contract's constructor.
+[.contract-item]
+[[initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: @ContractState, name_: felt252, symbol_: felt252)++`
 
-Parameters:
+Initializers the contract by setting the token name and symbol.
+This should be used inside of the contract's constructor.
 
-[,rust]
-----
-name_: felt252
-symbol_: felt252
-----
+===== Arguments
 
-Returns: None.
+- `*name_*`
++
+The token name.
+- `*symbol_*`
++
+The token symbol.
 
-[#_increase_allowance]
-==== `_increase_allowance`
+==== `_increase_allowance` [[internal_increase_allowance]]
+
+[.contract-item]
+==== `[.contract-item-name]#++_increase_allowance++#++(ref self: @ContractState, spender: ContractAddress, added_value: u256)++`
 
 Atomically increases the allowance granted to `spender` by the caller.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-spender: ContractAddress
-added_value: u256
-----
+- `*spender*`
++
+The address which may spend tokens on behalf of the caller.
+- `*added_value*`
++
+The amount of tokens added to the spender's allowance.
 
-Returns: None.
+==== `_decrease_allowance` [[internal_decrease_allowance]]
 
-[#_decrease_allowance]
-==== `_decrease_allowance`
+[.contract-item]
+==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: @ContractState, spender: ContractAddress, subtracted_value: u256)++`
 
 Atomically decreases the allowance granted to `spender` by the caller.
 
-Parameters:
+===== Arguments
 
-[,rust]
-----
-spender: ContractAddress
-subtracted_value: u256
-----
+- `*spender*`
++
+The address which may spend tokens on behalf of the caller.
+- `*subtracted_value*`
++
+The amount of tokens subtracted from the spender's allowance.
 
-Returns: None.
+==== `_mint` [[internal_mint]]
 
-[#_mint]
-==== `_mint`
+[.contract-item]
+==== `[.contract-item-name]#++_mint++#++(ref self: @ContractState, recipient: ContractAddress, amount: u256)++`
 
-Creates an `amount` number of tokens and assigns them to `recipient`, by transferring it from the zero address.
-Emits a Transfer event with `from` being the zero address.
+Creates an `amount` number of tokens and assigns them to `recipient`, by transferring them from the zero address.
 
-Parameters:
+Emits a <<Transfer,Transfer>> event with `from` being the zero address.
 
-[,rust]
-----
-recipient: ContractAddress
-amount: u256
-----
+===== Arguments
 
-Returns: None.
+- `*recipient*`
++
+The address receiving the `amount`.
+- `*amount*`
++
+The number of tokens created.
 
-[#_burn]
-==== `_burn`
+==== `_burn` [[internal_burn]]
 
-Destroys an `amount` number of tokens from `account`, by transferring it to the zero address.
-Emits a Transfer event with `from` set to the zero address.
+[.contract-item]
+==== `[.contract-item-name]#++_burn++#++(ref self: @ContractState, account: ContractAddress, amount: u256)++`
 
-Parameters:
+Destroys `amount` number of tokens from `account`, by transferring them to the zero address.
 
-[,rust]
-----
-account: ContractAddress
-amount: u256
-----
+Emits a <<Transfer,Transfer>> event with `to` set to the zero address.
 
-Returns: None.
+===== Arguments
 
-[#_approve]
-==== `_approve`
+- `*account*`
++
+The owner of the tokens to destroy.
+- `*amount*`
++
+The number of tokens to destroy.
 
-Sets `value` as the allowance of `spender` over the `owner` s tokens.
+==== `_approve` [[internal_approve]]
+
+[.contract-item]
+==== `[.contract-item-name]#++_approve++#++(ref self: @ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++`
+
+Sets `value` as the allowance of `spender` over the `owner` tokens.
 This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
 
-Parameters:
+Emits an <<Approval,Approval>> event.
 
-[,rust]
-----
-owner: ContractAddress
-spender: ContractAddress
-amount: u256
-----
+===== Arguments
 
-Returns: None.
+- `*owner*`
++
+The address which owns the tokens to approve.
+- `*spender*`
++
+The address which may spend the tokens on behalf of the `owner`.
+- `*amount*`
++
+The number of tokens in the `spender` allowance.
 
-[#_transfer]
-==== `_transfer`
+==== `_transfer` [[internal_transfer]]
 
-Moves a `value` amount of tokens from `from` to `to`.
-This internal function is equivalent to the external transfer, and can be used to implement automatic token fees, slashing mechanisms, etc.
-Emits a Transfer event.
+[.contract-item]
+==== `[.contract-item-name]#++_transfer++#++(ref self: @ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++`
 
-Parameters:
+Internal method that moves an `amount` of tokens from `from` to `to`.
 
-[,rust]
-----
-sender: ContractAddress
-recipient: ContractAddress
-amount: u256
-----
+Emits a <<Transfer,Transfer>> event.
 
-Returns: None.
+===== Arguments
 
-[#_spend_allowance]
-==== `_spend_allowance`
+- `*sender*`
++
+The address from which the transfer will be initiated.
+- `*recipient*`
++
+The address receiving `amount` tokens.
+- `*amount*`
++
+The value of tokens the `recipient` receives.
 
-Updates `owner` s allowance for `spender` based on spent `value`.
+==== `_spend_allowance` [[internal_spend_allowance]]
+
+[.contract-item]
+==== `[.contract-item-name]#++_spend_allowance++#++(ref self: @ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++`
+
+Internal method that updates `owner` allowance for `spender` based on spent `amount`.
 Does not update the allowance value in case of infinite allowance.
-Possibly emits an Approval event.
 
-Parameters:
+Possible emits an <<Approval,Approval>> event.
 
-[,rust]
-----
-owner: ContractAddress
-spender: ContractAddress
-amount: u256
-----
+===== Arguments
 
-Returns: None.
+- `*owner*`
++
+The address which owns the tokens to approve.
+- `*spender*`
++
+The address which may spend the tokens on behalf of the `owner`.
+- `*amount*`
++
+The number of tokens in the `spender` allowance.

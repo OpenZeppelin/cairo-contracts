@@ -14,7 +14,7 @@ struct Trace {
 /// Generic checkpoint representation.
 #[derive(Copy, Drop, starknet::Store)]
 struct Checkpoint {
-    key: u32,
+    key: u64,
     // TODO: Check if is worth implementing a u220 type in corelib for saving gas by packing.
     // Maybe is worth using u128 specifically for the fee token, if the token has just 6 decimals.
     value: u256
@@ -25,13 +25,13 @@ impl TraceImpl of TraceTrait {
     /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint.
     ///
     /// Returns previous value and new value.
-    fn push(ref self: Trace, key: u32, value: u256) -> (u256, u256) {
+    fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {
         self.checkpoints._insert(key, value)
     }
 
     /// Returns the value in the first (oldest) checkpoint with key greater or equal
     /// than the search key, or zero if there is none.
-    fn lower_lookup(self: Trace, key: u32) -> u256 {
+    fn lower_lookup(self: Trace, key: u64) -> u256 {
         let mut checkpoints = self.checkpoints;
         let len = checkpoints.len();
         let pos = checkpoints._lower_binary_lookup(key, 0, len);
@@ -47,7 +47,7 @@ impl TraceImpl of TraceTrait {
 
     /// Returns the value in the last (most recent) checkpoint with key lower or equal
     /// than the search key, or zero if there is none.
-    fn upper_lookup(self: Trace, key: u32) -> u256 {
+    fn upper_lookup(self: Trace, key: u64) -> u256 {
         let mut checkpoints = self.checkpoints;
         let len = checkpoints.len();
         let pos = checkpoints._upper_binary_lookup(key, 0, len);
@@ -66,7 +66,7 @@ impl TraceImpl of TraceTrait {
     ///
     /// NOTE: This is a variant of {upper_lookup} that is optimised to
     /// find "recent" checkpoint (checkpoints with high keys).
-    fn upper_lookup_recent(self: Trace, key: u32) -> u256 {
+    fn upper_lookup_recent(self: Trace, key: u64) -> u256 {
         let mut checkpoints = self.checkpoints;
         let len = checkpoints.len();
 
@@ -111,7 +111,7 @@ impl TraceImpl of TraceTrait {
 
     /// Returns whether there is a checkpoint in the structure (i.e. it is not empty),
     /// and if so the key and value in the most recent checkpoint.
-    fn latest_checkpoint(self: Trace) -> (bool, u32, u256) {
+    fn latest_checkpoint(self: Trace) -> (bool, u64, u256) {
         let mut checkpoints = self.checkpoints;
         let pos = checkpoints.len();
 
@@ -140,7 +140,7 @@ impl TraceImpl of TraceTrait {
 impl CheckpointImpl of CheckpointTrait {
     /// Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
     /// or by updating the last one.
-    fn _insert(ref self: StorageArray<Checkpoint>, key: u32, value: u256) -> (u256, u256) {
+    fn _insert(ref self: StorageArray<Checkpoint>, key: u64, value: u256) -> (u256, u256) {
         let pos = self.len();
 
         if (pos > 0) {
@@ -168,7 +168,7 @@ impl CheckpointImpl of CheckpointTrait {
     /// or `high` if there is none. `low` and `high` define a section where to do the search, with
     /// inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(
-        ref self: StorageArray<Checkpoint>, key: u32, low: u32, high: u32
+        ref self: StorageArray<Checkpoint>, key: u64, low: u32, high: u32
     ) -> u32 {
         let mut _low = low;
         let mut _high = high;
@@ -192,7 +192,7 @@ impl CheckpointImpl of CheckpointTrait {
     /// or `high` if there is none. `low` and `high` define a section where to do the search, with
     /// inclusive `low` and exclusive `high`.
     fn _lower_binary_lookup(
-        ref self: StorageArray<Checkpoint>, key: u32, low: u32, high: u32
+        ref self: StorageArray<Checkpoint>, key: u64, low: u32, high: u32
     ) -> u32 {
         let mut _low = low;
         let mut _high = high;

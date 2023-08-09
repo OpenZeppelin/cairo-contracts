@@ -77,8 +77,8 @@ mod ERC20 {
         value: u256
     }
 
-    /// Emitted when the allowance of `spender` for `owner` is set by a call
-    /// to {approve}. `value` is the new allowance.
+    /// Emitted when the allowance of a `spender` for an `owner` is set by a call
+    /// to [approve](approve). `value` is the new allowance.
     ///
     /// # Arguments
     /// * `owner` - The address which owns the tokens to approve.
@@ -120,15 +120,15 @@ mod ERC20 {
         /// Returns the name of the token.
         ///
         /// # Returns
-        /// The token name.
+        /// Token name.
         fn name(self: @ContractState) -> felt252 {
             self._name.read()
         }
 
-        /// Returns the symbol of the token, usually a shorter version of the name.
+        /// Returns the ticker symbol of the token, usually a shorter version of the name.
         ///
         /// # Returns
-        /// The token symbol.
+        /// Token symbol.
         fn symbol(self: @ContractState) -> felt252 {
             self._symbol.read()
         }
@@ -146,7 +146,7 @@ mod ERC20 {
         /// no way affects any of the arithmetic of the contract.
         ///
         /// # Returns
-        /// The number of decimals used.
+        /// Number of decimals used.
         fn decimals(self: @ContractState) -> u8 {
             18
         }
@@ -154,44 +154,45 @@ mod ERC20 {
         /// Returns the value of tokens in existence.
         ///
         /// # Returns
-        /// The amount of tokens in existence.
+        /// Amount of tokens in existence.
         fn total_supply(self: @ContractState) -> u256 {
             self._total_supply.read()
         }
 
-        /// Returns the value of tokens owned by `account`.
+        /// Returns the amount of tokens owned by `account`.
         ///
         /// # Arguments
         /// * `account` - Address to query.
         /// # Returns
-        /// The amount of tokens owned by `account`.
+        /// Amount of tokens owned by `account`.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             self._balances.read(account)
         }
 
         /// Returns the remaining number of tokens that `spender` will be
-        /// allowed to spend on behalf of `owner` through {transfer_from}.
+        /// allowed to spend on behalf of `owner` through [transfer_from](transfer_from).
         /// This is zero by default.
-        /// This value changes when {approve} or {transfer_from} are called.
-        /// Emits an {Approval} event.
+        /// This value changes when [approve](approve) or [transfer_from](transfer_from)
+        /// are called.
         ///
         /// # Arguments
         /// `owner` - The address which owns the tokens to approve.
         /// `spender` - The address which may spend the tokens on behalf of the `owner`.
         /// # Returns
-        /// The amount of tokens which may be spent by the `spender`.
+        /// Amount of tokens which may be spent by the `spender`.
         fn allowance(
             self: @ContractState, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
             self._allowances.read((owner, spender))
         }
 
-        /// Moves a `value` amount of tokens from the caller's address to `to`.
-        /// Emits a {Transfer} event.
+        /// Moves `amount` tokens from the caller's token balance to `to`.
+        ///
+        /// Emits a [Transfer](transfer) event.
         ///
         /// # Arguments
-        /// * `recipient` - The address receiving the tokens.
-        /// * `amount` - The value of tokens the `recipient` receives.
+        /// * `recipient` - The address receiving `amount` tokens.
+        /// * `amount` - The number of tokens to send from the caller to the `recipient`.
         /// # Returns
         /// `true` if the function call succeeds.
         fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
@@ -200,14 +201,15 @@ mod ERC20 {
             true
         }
 
-        /// Moves a `value` amount of tokens from `from` to `to` using the
+        /// Moves `amount` tokens from `from` to `to` using the
         /// allowance mechanism.
-        /// `value` is then deducted from the caller's allowance.
-        /// Emits a {Transfer} event.
+        /// `amount` is then deducted from the caller's allowance.
+        ///
+        /// Emits a [Transfer](Transfer) event.
         ///
         /// # Arguments
-        /// `sender` - The address from which the tokens are sent.
-        /// `recipient` - The address receiving the tokens.
+        /// `sender` - The address from which the transfer will be initiated.
+        /// `recipient` - The address receiving `amount` tokens.
         /// `amount` - The value of tokens the `recipient` receives.
         /// # Returns
         /// `true` if the function call succeeds.
@@ -240,19 +242,19 @@ mod ERC20 {
     #[external(v0)]
     impl ERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
         /// Camel case support.
-        /// See {total_supply}.
+        /// See [total_supply](total-supply).
         fn totalSupply(self: @ContractState) -> u256 {
             ERC20Impl::total_supply(self)
         }
 
         /// Camel case support.
-        /// See {balance_of}.
+        /// See [balance_of](balance_of).
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
             ERC20Impl::balance_of(self, account)
         }
 
         /// Camel case support.
-        /// See {transfer_from}.
+        /// See [transfer_from](transfer_from).
         fn transferFrom(
             ref self: ContractState,
             sender: ContractAddress,
@@ -264,7 +266,8 @@ mod ERC20 {
     }
 
     /// Atomically increases the allowance granted to `spender` by the caller.
-    /// Emits an {Approval} event indicating the updated allowance.
+    ///
+    /// Emits an [Approval](Approval) event indicating the updated allowance.
     ///
     /// # Arguments
     /// `spender` - The address which may spend the `added_value` tokens
@@ -280,7 +283,7 @@ mod ERC20 {
     }
 
     /// Camel case support.
-    /// See {increase_allowance}.
+    /// See [increase_allowance](increase_allowance).
     #[external(v0)]
     fn increaseAllowance(
         ref self: ContractState, spender: ContractAddress, addedValue: u256
@@ -289,7 +292,8 @@ mod ERC20 {
     }
 
     /// Atomically decreases the allowance granted to `spender` by the caller.
-    /// Emits an {Approval} event indicating the updated allowance.
+    ///
+    /// Emits an [Approval](Approval) event indicating the updated allowance.
     ///
     /// # Arguments
     /// `spender` - The address which may spend the `added_value` tokens
@@ -305,7 +309,7 @@ mod ERC20 {
     }
 
     /// Camel case support.
-    /// See {decrease_allowance}.
+    /// See [decrease_allowance](decrease_allowance).
     #[external(v0)]
     fn decreaseAllowance(
         ref self: ContractState, spender: ContractAddress, subtractedValue: u256
@@ -330,7 +334,16 @@ mod ERC20 {
             self._symbol.write(symbol_);
         }
 
-        /// Internal method for the external {increase_allowance}.
+        /// Internal method for the external [increase_allowance](increase_allowance).
+        ///
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        ///
+        /// # Arguments
+        /// `spender` - The address which may spend the `added_value` tokens
+        /// on behalf of the caller.
+        /// * `added_value` - The additional allowance the `spender` may spend.
+        /// # Returns
+        /// `true` if the function call succeeds.
         fn _increase_allowance(
             ref self: ContractState, spender: ContractAddress, added_value: u256
         ) -> bool {
@@ -339,7 +352,16 @@ mod ERC20 {
             true
         }
 
-        /// Internal method for the external {decrease_allowance}.
+        /// Internal method for the external [decrease_allowance](decrease_allowance).
+        ///
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        ///
+        /// # Arguments
+        /// `spender` - The address which may spend the `added_value` tokens
+        /// on behalf of the caller.
+        /// * `subtracted_value` - The amount to subtract from the spender's allowance.
+        /// # Returns
+        /// `true` if the function call succeeds.
         fn _decrease_allowance(
             ref self: ContractState, spender: ContractAddress, subtracted_value: u256
         ) -> bool {
@@ -353,7 +375,7 @@ mod ERC20 {
 
         /// Creates a `value` amount of tokens and assigns them to `account`, by
         /// transferring it from address(0).
-        /// Emits a {Transfer} event with `from` set to the zero address.
+        /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
         ///
         /// # Arguments
         /// `recipient` - The address receiving the `amount`.
@@ -367,7 +389,7 @@ mod ERC20 {
 
         /// Destroys a `value` amount of tokens from `account`, by transferring it
         /// to address(0).
-        /// Emits a {Transfer} event with `to` set to the zero address.
+        /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
         ///
         /// # Arguments
         /// `recipient` - The address receiving the `amount`.
@@ -381,7 +403,7 @@ mod ERC20 {
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
         /// `owner`'s tokens.
-        /// Emits an {Approval} event.
+        /// Emits an [Approval](Approval) event.
         ///
         /// # Arguments
         /// `owner` - The address which owns the tokens to approve.
@@ -397,7 +419,7 @@ mod ERC20 {
         }
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
-        /// Emits a {Transfer} event.
+        /// Emits a [Transfer](Transfer) event.
         ///
         /// # Arguments
         /// `sender` - The address from which the tokens are sent.
@@ -416,9 +438,9 @@ mod ERC20 {
             self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
-        /// Updates `owner` s allowance for `spender` based on spent `value`.
+        /// Updates `owner` s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
-        /// Possible emits an {Approval} event.
+        /// Possible emits an [Approval](Approval) event.
         ///
         /// # Arguments
         /// `owner` - The address which owns the tokens to approve.

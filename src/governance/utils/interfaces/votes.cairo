@@ -9,8 +9,7 @@ trait IVotes<TState> {
     /// Returns the amount of votes that `account` had at a specific moment in the past.
     fn getPastVotes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
 
-    /// Returns the total supply of votes available at a specific moment in the past. If the `clock()` is
-    /// configured to use block numbers, this will return the value at the end of the corresponding block.
+    /// Returns the total supply of votes available at a specific moment in the past.
     ///
     /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
     /// Votes that have not been delegated are still part of total supply, even though they would not participate in a

@@ -22,27 +22,10 @@ struct Checkpoint {
 
 #[generate_trait]
 impl TraceImpl of TraceTrait {
-    /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint.
-    ///
-    /// Returns previous value and new value.
+    /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint
+    /// and returns previous value and new value.
     fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {
         self.checkpoints._insert(key, value)
-    }
-
-    /// Returns the value in the first (oldest) checkpoint with key greater or equal
-    /// than the search key, or zero if there is none.
-    fn lower_lookup(self: Trace, key: u64) -> u256 {
-        let mut checkpoints = self.checkpoints;
-        let len = checkpoints.len();
-        let pos = checkpoints._lower_binary_lookup(key, 0, len);
-
-        if pos == len {
-            0
-        } else {
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = checkpoints.read_at(pos);
-            checkpoint.value
-        }
     }
 
     /// Returns the value in the last (most recent) checkpoint with key lower or equal
@@ -55,9 +38,7 @@ impl TraceImpl of TraceTrait {
         if pos == len {
             0
         } else {
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = checkpoints.read_at(pos - 1);
-            checkpoint.value
+            checkpoints.read_at(pos - 1).value
         }
     }
 
@@ -75,9 +56,7 @@ impl TraceImpl of TraceTrait {
 
         if (len > 5) {
             let mid = len - u32_sqrt(len).into();
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = checkpoints.read_at(mid);
-            if (key < checkpoint.key) {
+            if (key < checkpoints.read_at(mid).key) {
                 high = mid;
             } else {
                 low = mid + 1;
@@ -89,9 +68,7 @@ impl TraceImpl of TraceTrait {
         if pos == len {
             0
         } else {
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = checkpoints.read_at(pos - 1);
-            checkpoint.value
+            checkpoints.read_at(pos - 1).value
         }
     }
 
@@ -103,9 +80,7 @@ impl TraceImpl of TraceTrait {
         if pos == 0 {
             0
         } else {
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = checkpoints.read_at(pos - 1);
-            checkpoint.value
+            checkpoints.read_at(pos - 1).value
         }
     }
 
@@ -118,7 +93,6 @@ impl TraceImpl of TraceTrait {
         if (pos == 0) {
             (false, 0, 0)
         } else {
-            /// TODO: Check why it fails to infer the Checkpoint type directly
             let checkpoint: Checkpoint = checkpoints.read_at(pos - 1);
             (true, checkpoint.key, checkpoint.value)
         }
@@ -177,38 +151,12 @@ impl CheckpointImpl of CheckpointTrait {
                 break;
             }
             let mid = math::average(_low, _high);
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = self.read_at(mid);
-            if (checkpoint.key > key) {
+            if (self.read_at(mid).key > key) {
                 _high = mid;
             } else {
                 _low = mid + 1;
             };
         };
         _high
-    }
-
-    /// Return the index of the first (oldest) checkpoint with key is greater or equal than the search key,
-    /// or `high` if there is none. `low` and `high` define a section where to do the search, with
-    /// inclusive `low` and exclusive `high`.
-    fn _lower_binary_lookup(
-        ref self: StorageArray<Checkpoint>, key: u64, low: u32, high: u32
-    ) -> u32 {
-        let mut _low = low;
-        let mut _high = high;
-        loop {
-            if _low >= _high {
-                break;
-            }
-            let mid = math::average(_low, _high);
-            /// TODO: Check why it fails to infer the Checkpoint type directly
-            let checkpoint: Checkpoint = self.read_at(mid);
-            if (checkpoint.key < key) {
-                _low = mid + 1;
-            } else {
-                _high = mid;
-            };
-        };
-        high
     }
 }

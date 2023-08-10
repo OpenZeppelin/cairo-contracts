@@ -40,21 +40,7 @@ mod ERC20Votes {
     }
 
     mod Errors {
-        const INCONSISTENT_CLOCK: felt252 = 'ERC6372: Inconsistent Clock';
         const FUTURE_LOOKUP: felt252 = 'ERC5805: Future Lookup';
-    }
-
-    /// Clock used for flagging checkpoints.
-    fn clock() -> u64 {
-        starknet::get_block_timestamp()
-    }
-
-    /// Machine-readable description of the clock as specified in EIP-6372.
-    fn CLOCK_MODE() -> felt252 {
-        // Check that the clock was not modified
-        assert(clock() == starknet::get_block_timestamp(), Errors::INCONSISTENT_CLOCK);
-
-        'mode=timestamp'
     }
 
     #[external(v0)]
@@ -64,14 +50,14 @@ mod ERC20Votes {
         }
 
         fn getPastVotes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
-            let current_timepoint = clock();
+            let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 
             self._delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
         }
 
         fn getPastTotalSupply(self: @ContractState, timepoint: u64) -> u256 {
-            let current_timepoint = clock();
+            let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 
             self._total_checkpoints.read().upper_lookup_recent(timepoint)
@@ -117,15 +103,18 @@ mod ERC20Votes {
             ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
             let zero_address = contract_address_const::<0>();
+            let block_timestamp = starknet::get_block_timestamp();
             if (from != to && amount > 0) {
                 if (from != zero_address) {
                     let mut trace = self._delegate_checkpoints.read(from);
-                    let (previous_votes, new_votes) = trace.push(clock(), trace.latest() - amount);
+                    let (previous_votes, new_votes) = trace
+                        .push(block_timestamp, trace.latest() - amount);
                     self.emit(DelegateVotesChanged { delegate: from, previous_votes, new_votes });
                 }
                 if (to != zero_address) {
                     let mut trace = self._delegate_checkpoints.read(to);
-                    let (previous_votes, new_votes) = trace.push(clock(), trace.latest() + amount);
+                    let (previous_votes, new_votes) = trace
+                        .push(block_timestamp, trace.latest() + amount);
                     self.emit(DelegateVotesChanged { delegate: to, previous_votes, new_votes });
                 }
             }
@@ -137,13 +126,14 @@ mod ERC20Votes {
             ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
             let zero_address = contract_address_const::<0>();
+            let block_timestamp = starknet::get_block_timestamp();
             if (from == zero_address) {
                 let mut trace = self._totalCheckpoints.read();
-                trace.push(clock(), trace.latest() + amount);
+                trace.push(block_timestamp, trace.latest() + amount);
             }
             if (to == zero_address) {
                 let mut trace = self._totalCheckpoints.read();
-                trace.push(clock(), trace.latest() - amount);
+                trace.push(block_timestamp, trace.latest() - amount);
             }
             self
                 .move_delegate_votes(

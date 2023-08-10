@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/structs/checkpoints.cairo)
+
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
 use super::storage_array::StorageArrayTrait;

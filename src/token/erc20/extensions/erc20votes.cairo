@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/extensions/erc20votes.cairo)
+
 /// This is a contract that tracks voting units from ERC20 balances, which are a measure of voting power that can be
 /// transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
 /// "representative" that will pool delegated voting units from different accounts and can then use it to vote in
@@ -128,11 +131,11 @@ mod ERC20Votes {
             let zero_address = contract_address_const::<0>();
             let block_timestamp = starknet::get_block_timestamp();
             if (from == zero_address) {
-                let mut trace = self._totalCheckpoints.read();
+                let mut trace = self._total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() + amount);
             }
             if (to == zero_address) {
-                let mut trace = self._totalCheckpoints.read();
+                let mut trace = self._total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() - amount);
             }
             self
@@ -143,12 +146,12 @@ mod ERC20Votes {
 
         /// Get number of checkpoints for `account`.
         fn _num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
-            self._delegateCheckpoints.read(account).length()
+            self._delegate_checkpoints.read(account).length()
         }
 
         /// Get the `pos`-th checkpoint for `account`.
         fn _checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
-            self._delegateCheckpoints.read(account).at(pos)
+            self._delegate_checkpoints.read(account).at(pos)
         }
 
         fn _get_voting_units(self: @ContractState, account: ContractAddress) -> u256 {

@@ -1,8 +1,47 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
-
-use starknet::ContractAddress;
-
+//! # License
+//!
+//! SPDX-License-Identifier: MIT
+//! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
+//!
+//! # ERC721 Contract and Implementation
+//!
+//! # Example
+//!
+//! How to extend the ERC721 contract:
+//! ```
+//! #[starknet::contract]
+//! mod MyToken {
+//!     use starknet::ContractAddress;
+//!     use openzeppelin::token::erc721::ERC721;
+//!
+//!     #[storage]
+//!     struct Storage {}
+//!
+//!     #[constructor]
+//!     fn constructor(
+//!         ref self: ContractState,
+//!         recipient: ContractAddress,
+//!         token_id: u256
+//!     ) {
+//!         let name = 'MyNFT';
+//!         let symbol = 'NFT';
+//!
+//!         let mut unsafe_state = ERC721::unsafe_new_contract_state();
+//!         ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
+//!         ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
+//!     }
+//!
+//!    // Define methods that extend the ERC721 standard contract.
+//!    #[external(v0)]
+//!    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+//!        let unsafe_state = ERC721::unsafe_new_contract_state();
+//!        ERC721::ERC721Impl::balance_of(@unsafe_state, account)
+//!    }
+//!
+//!    ...
+//!
+//! }
+//! ```
 #[starknet::contract]
 mod ERC721 {
     use array::SpanTrait;
@@ -39,6 +78,12 @@ mod ERC721 {
         ApprovalForAll: ApprovalForAll
     }
 
+    /// Emitted when `token_id` token is transferred from `from` to `to`.
+    ///
+    /// # Arguments
+    /// * `from` - The current owner of the NFT.
+    /// * `to` - The new owner of the NFT.
+    /// * `token_id` - The NFT to transfer.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
         from: ContractAddress,
@@ -46,6 +91,12 @@ mod ERC721 {
         token_id: u256
     }
 
+    /// Emitted when `owner` enables `approved` to manage the `token_id` token.
+    ///
+    /// # Arguments
+    /// * `owner` - The owner of the NFT.
+    /// * `approved` - The new approved NFT controller.
+    /// * `token_id` - The NFT to approve.
     #[derive(Drop, starknet::Event)]
     struct Approval {
         owner: ContractAddress,
@@ -53,6 +104,13 @@ mod ERC721 {
         token_id: u256
     }
 
+    /// Emitted when `owner` enables or disables (approved) `operator` to manage
+    /// all of its assets.
+    ///
+    /// # Arguments
+    /// * `owner` - The owner of the NFT.
+    /// * `operator` - Address to add to the set of authorized operators.
+    /// * `approved` - `true` if the operator is approved, `false` to revoke approval.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         owner: ContractAddress,
@@ -60,6 +118,12 @@ mod ERC721 {
         approved: bool
     }
 
+    /// Initializes the state of the ERC721 contract. This includes setting the
+    /// NFT name and symbol.
+    ///
+    /// # Arguments
+    /// * `name` - The NFT name.
+    /// * `symbol` - The NFT symbol.
     #[constructor]
     fn constructor(ref self: ContractState, name: felt252, symbol: felt252) {
         self.initializer(name, symbol);

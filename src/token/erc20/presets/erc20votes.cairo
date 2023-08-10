@@ -118,6 +118,22 @@ mod ERC20VotesPreset {
     }
 
     #[external(v0)]
+    fn increase_allowance(
+        ref self: ContractState, spender: ContractAddress, added_value: u256
+    ) -> bool {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::_increase_allowance(ref unsafe_state, spender, added_value)
+    }
+
+    #[external(v0)]
+    fn decrease_allowance(
+        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::_decrease_allowance(ref unsafe_state, spender, subtracted_value)
+    }
+
+    #[external(v0)]
     impl VotesImpl of IVotes<ContractState> {
         fn get_votes(self: @ContractState, account: ContractAddress) -> u256 {
             let unsafe_state = ERC20Votes::unsafe_new_contract_state();

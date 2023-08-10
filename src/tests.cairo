@@ -1,5 +1,6 @@
 mod access;
 mod account;
+mod extensions;
 mod introspection;
 mod mocks;
 mod presets;

@@ -47,8 +47,6 @@ mod ERC20 {
 
     #[generate_trait]
     impl ERC20HooksImpl of ERC20HooksTrait {
-        /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
         fn _after_update(
             ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
         ) {}

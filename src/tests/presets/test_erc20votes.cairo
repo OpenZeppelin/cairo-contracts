@@ -272,3 +272,18 @@ fn test_decrease_allowance_from_zero_address() {
     let mut state = setup();
     ERC20VotesPreset::decrease_allowance(ref state, SPENDER(), VALUE);
 }
+
+//
+// get_votes
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test_get_votes() {
+    let mut state = setup();
+
+    testing::set_caller_address(OWNER());
+    VotesImpl::delegate(ref state, OWNER());
+
+    assert(VotesImpl::get_votes(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
+}

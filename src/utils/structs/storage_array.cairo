@@ -7,7 +7,7 @@ use option::OptionTrait;
 use poseidon::poseidon_hash_span;
 use starknet::{
     StorageBaseAddress, Store, SyscallResultTrait, SyscallResult, storage_address_from_base,
-    storage_base_address_from_felt252, storage_read_syscall
+    storage_base_address_from_felt252, storage_read_syscall, storage_write_syscall
 };
 use traits::{Into, TryInto};
 
@@ -75,7 +75,7 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
             .unwrap_syscall()
     }
 
-    fn write_at(ref self: StorageArray<T>, index: usize, value: T) -> () {
+    fn write_at(ref self: StorageArray<T>, index: usize, value: T) {
         // Get the storage address of the element.
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
         let element_address = poseidon_hash_span(
@@ -89,7 +89,7 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
             .unwrap_syscall()
     }
 
-    fn append(ref self: StorageArray<T>, value: T) -> () {
+    fn append(ref self: StorageArray<T>, value: T) {
         // Get the storage address of the element.
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
         let element_address = poseidon_hash_span(
@@ -100,7 +100,12 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
         TStore::write(
             self.address_domain, storage_base_address_from_felt252(element_address), value
         )
-            .unwrap_syscall()
+            .unwrap_syscall();
+
+        // Update the len.
+        let new_len: felt252 = (self.len() + 1).into();
+        storage_write_syscall(self.address_domain, storage_address_from_base(self.base), new_len)
+            .unwrap_syscall();
     }
 
     fn len(self: @StorageArray<T>) -> u32 {

@@ -31,7 +31,8 @@ scarb new my_project && cd my_project
 ```
 
 It should look like this
-```
+
+```bash
 $ ls
 
 Scarb.toml src

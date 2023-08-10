@@ -27,13 +27,11 @@
 Create a new project and `cd` into it.
 
 ```bash
-$ scarb new my_project
-
-Created my_project package.
+scarb new my_project && cd my_project
 ```
 
-```bash
-$ cd my_project
+It should look like this
+```
 $ ls
 
 Scarb.toml src

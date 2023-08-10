@@ -135,6 +135,14 @@ mod ERC721 {
 
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
+        /// Checks if the contract supports a specific interface as defined by
+        /// `interface_id`.
+        /// See: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
+        ///
+        /// # Arguments
+        /// * `interface_id` - The calculated interface ID to query.
+        /// # Returns
+        /// `true` if the interface is supported.
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
             let unsafe_state = src5::SRC5::unsafe_new_contract_state();
             src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
@@ -143,6 +151,8 @@ mod ERC721 {
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
+        /// Camel case support.
+        /// See [supports_interface](supports_interface).
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
             let unsafe_state = src5::SRC5::unsafe_new_contract_state();
             src5::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
@@ -151,14 +161,29 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
+        /// Returns the NFT name.
+        ///
+        /// # Returns
+        /// NFT name.
         fn name(self: @ContractState) -> felt252 {
             self._name.read()
         }
 
+        /// Returns the NFT symbol.
+        ///
+        /// # Returns
+        /// NFT symbol.
         fn symbol(self: @ContractState) -> felt252 {
             self._symbol.read()
         }
 
+        /// Returns the Uniform Resource Identifier (URI) for `token_id` token.
+        /// If the URI is not set for the `token_id`, the return value will be `0`.
+        ///
+        /// # Arguments
+        /// `token_id` - The token to query.
+        /// # Returns
+        /// URI of `token_id`.
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_uri.read(token_id)
@@ -167,6 +192,8 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
+        /// Camel case support.
+        /// See [token_uri](token_uri).
         fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
             assert(self._exists(tokenId), 'ERC721: invalid token ID');
             self._token_uri.read(tokenId)
@@ -175,26 +202,56 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721Impl of interface::IERC721<ContractState> {
+        /// Returns the number of NFTs owned by `account`.
+        ///
+        /// # Arguments
+        /// `account` - The address to query.
+        /// # Returns
+        /// Number of NFTs owned by `account`.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             assert(!account.is_zero(), 'ERC721: invalid account');
             self._balances.read(account)
         }
 
+        /// Returns the owner address of `token_id`.
+        ///
+        /// # Arguments
+        /// `token_id` - The token to query.
+        /// # Returns
+        /// Owner address of `token_id`.
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             self._owner_of(token_id)
         }
 
+        /// Returns the address approved for `token_id`.
+        ///
+        /// # Arguments
+        /// `token_id` - The token ID to query.
+        /// # Returns
+        /// Approved address for the `token_id` NFT, or `0` if there is none.
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_approvals.read(token_id)
         }
 
+        /// Query if `operator` is an authorized operator for `owner`.
+        ///
+        /// # Arguments
+        /// `owner` - The address that owns the NFT.
+        /// `operator` - The address that acts on behalf of the `owner`.
+        /// # Returns
+        /// `true` if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
             self._operator_approvals.read((owner, operator))
         }
 
+        /// Change or reaffirm the approved address for an NFT.
+        ///
+        /// # Arguments
+        /// `to` - The new approved NFT controller.
+        /// `token_id` - The NFT to approve.
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -206,12 +263,34 @@ mod ERC721 {
             self._approve(to, token_id);
         }
 
+        /// Enable or disable approval for `operator` to manage all of the
+        /// caller's assets.
+        ///
+        /// Emits an [Approval](Approval) event.
+        ///
+        /// # Arguments
+        /// `operator` - Address to add to the set of authorized operators.
+        /// `approved` - `true` if operator is approved, `false` to revoke approval.
         fn set_approval_for_all(
             ref self: ContractState, operator: ContractAddress, approved: bool
         ) {
             self._set_approval_for_all(get_caller_address(), operator, approved)
         }
 
+        /// Transfer ownership of `token_id` from `from` to `to`.
+        ///
+        /// Note that the caller is responsible to confirm that the recipient is
+        /// capable of receiving ERC721 transfers or else they may be permanently lost.
+        /// Usage of [safe_transfer_from](safe_transfer_from) prevents loss, though
+        /// the caller must understand this adds an external call which potentially
+        /// creates a reentrancy vulnerability.
+        ///
+        /// Emits a [Transfer](Transfer) event.
+        ///
+        /// # Arguments
+        /// `from` - The current owner of the NFT.
+        /// `to` - The new owner.
+        /// `token_id` - The NFT to transfer.
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
@@ -222,6 +301,18 @@ mod ERC721 {
             self._transfer(from, to, token_id);
         }
 
+        /// Safely transfer ownership of `token_id` from `from` to `to`, checking first
+        /// that `to` is aware of the ERC721 protocol to prevent tokens being locked
+        /// forever. For information regarding how contracts communicate their
+        /// awareness of the ERC721 protocol, see [ERC721Received](TODO!).
+        ///
+        /// Emits a [Transfer](Transfer) event.
+        ///
+        /// # Arguments
+        /// `from` - The current owner of the NFT.
+        /// `to` - The new owner.
+        /// `token_id` - The NFT to transfer.
+        /// `data` - Additional data with no specified format, sent in call to `to`
         fn safe_transfer_from(
             ref self: ContractState,
             from: ContractAddress,
@@ -239,34 +330,48 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721CamelOnlyImpl of interface::IERC721CamelOnly<ContractState> {
+        /// Camel case support.
+        /// See [balance_of](balance_of).
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
             ERC721Impl::balance_of(self, account)
         }
 
+        /// Camel case support.
+        /// See [owner_of](owner_of).
         fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
             ERC721Impl::owner_of(self, tokenId)
         }
 
+        /// Camel case support.
+        /// See [get_approved](get_approved).
         fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
             ERC721Impl::get_approved(self, tokenId)
         }
 
+        /// Camel case support.
+        /// See [is_approved_for_all](is_approved_for_all).
         fn isApprovedForAll(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
             ERC721Impl::is_approved_for_all(self, owner, operator)
         }
 
+        /// Camel case support.
+        /// See [set_approval_for_all](set_approval_for_all).
         fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
             ERC721Impl::set_approval_for_all(ref self, operator, approved)
         }
 
+        /// Camel case support.
+        /// See [transfer_from](transfer_from).
         fn transferFrom(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
         ) {
             ERC721Impl::transfer_from(ref self, from, to, tokenId)
         }
 
+        /// Camel case support.
+        /// See [safe_transfer_from](safe_transfer_from).
         fn safeTransferFrom(
             ref self: ContractState,
             from: ContractAddress,

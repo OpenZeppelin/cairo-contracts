@@ -49,24 +49,9 @@ mod ERC20 {
     impl ERC20HooksImpl of ERC20HooksTrait {
         /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
         /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
-        fn _update(
+        fn _after_update(
             ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
-        ) {
-            let zero_address = contract_address_const::<0>();
-            if (from == zero_address) {
-                self._total_supply.write(self._total_supply.read() + amount);
-            } else {
-                self._balances.write(from, self._balances.read(from) - amount);
-            }
-
-            if (recipient == zero_address) {
-                self._total_supply.write(self._total_supply.read() - amount);
-            } else {
-                self._balances.write(recipient, self._balances.read(recipient) + amount);
-            }
-
-            self.emit(Transfer { from, to: recipient, value: amount });
-        }
+        ) {}
     }
 
     #[constructor]
@@ -220,14 +205,14 @@ mod ERC20 {
             ref self: ContractState, recipient: ContractAddress, amount: u256
         ) {
             assert(!recipient.is_zero(), 'ERC20: mint to 0');
-            Hooks::_update(ref self, Zeroable::zero(), recipient, amount);
+            self._update::<Hooks>(Zeroable::zero(), recipient, amount);
         }
 
         fn _burn<impl Hooks: ERC20HooksTrait>(
             ref self: ContractState, account: ContractAddress, amount: u256
         ) {
             assert(!account.is_zero(), 'ERC20: burn from 0');
-            Hooks::_update(ref self, account, Zeroable::zero(), amount);
+            self._update::<Hooks>(account, Zeroable::zero(), amount);
         }
 
         fn _approve(
@@ -247,7 +232,7 @@ mod ERC20 {
         ) {
             assert(!sender.is_zero(), 'ERC20: transfer from 0');
             assert(!recipient.is_zero(), 'ERC20: transfer to 0');
-            Hooks::_update(ref self, sender, recipient, amount);
+            self._update::<Hooks>(sender, recipient, amount);
         }
 
         fn _spend_allowance(
@@ -257,6 +242,29 @@ mod ERC20 {
             if current_allowance != BoundedInt::max() {
                 self._approve(owner, spender, current_allowance - amount);
             }
+        }
+
+        /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+        fn _update<impl Hooks: ERC20HooksTrait>(
+            ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
+        ) {
+            let zero_address = contract_address_const::<0>();
+            if (from == zero_address) {
+                self._total_supply.write(self._total_supply.read() + amount);
+            } else {
+                self._balances.write(from, self._balances.read(from) - amount);
+            }
+
+            if (recipient == zero_address) {
+                self._total_supply.write(self._total_supply.read() - amount);
+            } else {
+                self._balances.write(recipient, self._balances.read(recipient) + amount);
+            }
+
+            self.emit(Transfer { from, to: recipient, value: amount });
+
+            Hooks::_after_update(ref self, Zeroable::zero(), recipient, amount);
         }
     }
 }

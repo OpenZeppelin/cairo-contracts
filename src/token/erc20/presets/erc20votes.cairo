@@ -19,14 +19,12 @@ mod ERC20VotesPreset {
     //
 
     impl ERC20VotesHooksImpl of ERC20::ERC20HooksTrait {
-        fn _update(
+        fn _after_update(
             ref self: ERC20::ContractState,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) {
-            ERC20::ERC20HooksImpl::_update(ref self, from, recipient, amount);
-
             let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
             ERC20Votes::InternalImpl::transfer_voting_units(
                 ref unsafe_state, from, recipient, amount

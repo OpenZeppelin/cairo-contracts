@@ -4,6 +4,7 @@
 /// ERC20 with the ERC20Votes extension.
 #[starknet::contract]
 mod ERC20VotesPreset {
+    use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::token::erc20::extensions::ERC20Votes;
     use openzeppelin::token::erc20::interface::{IERC20, IERC20Camel};
@@ -27,7 +28,9 @@ mod ERC20VotesPreset {
             ERC20::ERC20HooksImpl::_update(ref self, from, recipient, amount);
 
             let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
-            ERC20Votes::InternalImpl::transfer_voting_units(ref unsafe_state, from, recipient, amount);
+            ERC20Votes::InternalImpl::transfer_voting_units(
+                ref unsafe_state, from, recipient, amount
+            );
         }
     }
 
@@ -111,6 +114,34 @@ mod ERC20VotesPreset {
         fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
             let mut unsafe_state = ERC20::unsafe_new_contract_state();
             ERC20::ERC20Impl::approve(ref unsafe_state, spender, amount)
+        }
+    }
+
+    #[external(v0)]
+    impl VotesImpl of IVotes<ContractState> {
+        fn get_votes(self: @ContractState, account: ContractAddress) -> u256 {
+            let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::get_votes(@unsafe_state, account)
+        }
+
+        fn get_past_votes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
+            let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::get_past_votes(@unsafe_state, account, timepoint)
+        }
+
+        fn get_past_total_supply(self: @ContractState, timepoint: u64) -> u256 {
+            let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::get_past_total_supply(@unsafe_state, timepoint)
+        }
+
+        fn delegates(self: @ContractState, account: ContractAddress) -> ContractAddress {
+            let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::delegates(@unsafe_state, account)
+        }
+
+        fn delegate(ref self: ContractState, delegatee: ContractAddress) {
+            let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::delegate(ref unsafe_state, delegatee);
         }
     }
 }

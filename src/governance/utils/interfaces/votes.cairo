@@ -4,17 +4,17 @@ use starknet::ContractAddress;
 #[starknet::interface]
 trait IVotes<TState> {
     /// Returns the current amount of votes that `account` has.
-    fn getVotes(self: @TState, account: ContractAddress) -> u256;
+    fn get_votes(self: @TState, account: ContractAddress) -> u256;
 
     /// Returns the amount of votes that `account` had at a specific moment in the past.
-    fn getPastVotes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
+    fn get_past_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
 
     /// Returns the total supply of votes available at a specific moment in the past.
     ///
     /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
     /// Votes that have not been delegated are still part of total supply, even though they would not participate in a
     /// vote.
-    fn getPastTotalSupply(self: @TState, timepoint: u64) -> u256;
+    fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;
 
     /// Returns the delegate that `account` has chosen.
     fn delegates(self: @TState, account: ContractAddress) -> ContractAddress;

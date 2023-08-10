@@ -48,18 +48,18 @@ mod ERC20Votes {
 
     #[external(v0)]
     impl VotesImpl of IVotes<ContractState> {
-        fn getVotes(self: @ContractState, account: ContractAddress) -> u256 {
+        fn get_votes(self: @ContractState, account: ContractAddress) -> u256 {
             self._delegate_checkpoints.read(account).latest()
         }
 
-        fn getPastVotes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
+        fn get_past_votes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 
             self._delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
         }
 
-        fn getPastTotalSupply(self: @ContractState, timepoint: u64) -> u256 {
+        fn get_past_total_supply(self: @ContractState, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 

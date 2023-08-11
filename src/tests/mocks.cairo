@@ -17,3 +17,5 @@ mod snake721_mock;
 mod snake_accesscontrol_mock;
 mod snake_account_mock;
 mod src5_mocks;
+mod upgrades_v1;
+mod upgrades_v2;

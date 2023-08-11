@@ -12,6 +12,7 @@ use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::constants::ZERO;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
@@ -39,10 +40,6 @@ struct SignedTransactionData {
     transaction_hash: felt252,
     r: felt252,
     s: felt252
-}
-
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
 }
 
 fn STATE() -> Account::ContractState {
@@ -111,6 +108,7 @@ fn test_constructor() {
 
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
+    utils::assert_no_events_left(ZERO());
 
     assert(PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key');
 }
@@ -459,6 +457,7 @@ fn test_public_key_setter_and_getter() {
 
     let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
+    utils::assert_no_events_left(ACCOUNT_ADDRESS());
 
     let public_key = PublicKeyImpl::get_public_key(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
@@ -499,6 +498,8 @@ fn test_public_key_setter_and_getter_camel() {
 
     let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
+    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    
 
     let public_key = PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');
@@ -528,6 +529,7 @@ fn test_initializer() {
 
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
+    utils::assert_no_events_left(ZERO());
 
     assert(PublicKeyImpl::get_public_key(@state) == PUBLIC_KEY, 'Should return public key');
 }
@@ -583,6 +585,7 @@ fn test__set_public_key() {
 
     let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
+    utils::assert_no_events_left(ZERO());
 
     let public_key = PublicKeyImpl::get_public_key(@state);
     assert(public_key == PUBLIC_KEY, 'Should update key');

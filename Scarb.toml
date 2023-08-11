@@ -1,0 +1,21 @@
+[package]
+name = "openzeppelin"
+version = "0.1.0"
+cairo-version = "2.1.0-rc1"
+authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
+description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
+documentation = "https://docs.openzeppelin.com/contracts-cairo"
+readme = "README.md"
+repository = "https://github.com/OpenZeppelin/cairo-contracts"
+license-file = "LICENSE"
+keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
+
+[dependencies]
+starknet = ">=2.1.0-rc0"
+
+[lib]
+
+[[target.starknet-contract]]
+allowed-libfuncs-list.name = "experimental"
+sierra = true
+casm = false

@@ -8,6 +8,7 @@ mod ERC20VotesPreset {
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::token::erc20::extensions::ERC20Votes;
     use openzeppelin::token::erc20::interface::{IERC20, IERC20Camel};
+    use openzeppelin::utils::structs::checkpoints::Checkpoint;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
 
@@ -157,5 +158,19 @@ mod ERC20VotesPreset {
             let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
             ERC20Votes::VotesImpl::delegate(ref unsafe_state, delegatee);
         }
+    }
+
+    /// Get number of checkpoints for `account`.
+    #[external(v0)]
+    fn num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
+        let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+        ERC20Votes::InternalImpl::_num_checkpoints(@unsafe_state, account)
+    }
+
+    /// Get the `pos`-th checkpoint for `account`.
+    #[external(v0)]
+    fn checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
+        let unsafe_state = ERC20Votes::unsafe_new_contract_state();
+        ERC20Votes::InternalImpl::_checkpoints(@unsafe_state, account, pos)
     }
 }

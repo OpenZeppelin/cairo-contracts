@@ -1,6 +1,7 @@
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::extensions::ERC20Votes;
+use openzeppelin::token::erc20::extensions::ERC20Votes::Checkpoint;
 use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateVotesChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::InternalImpl;
@@ -166,20 +167,108 @@ fn test_get_past_total_supply_future_lookup() {
 #[available_gas(20000000)]
 fn test_delegate() {
     let mut state = setup();
-
     testing::set_caller_address(OWNER());
+
+    // Delegate from zero
     VotesImpl::delegate(ref state, OWNER());
 
     assert_event_delegate_changed(OWNER(), ZERO(), OWNER());
     assert_only_event_delegate_votes_changed(OWNER(), 0, SUPPLY);
     assert(VotesImpl::get_votes(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
 
+    // Delegate from non-zero to non-zero
     VotesImpl::delegate(ref state, RECIPIENT());
 
     assert_event_delegate_changed(OWNER(), OWNER(), RECIPIENT());
     assert_event_delegate_votes_changed(OWNER(), SUPPLY, 0);
     assert_only_event_delegate_votes_changed(RECIPIENT(), 0, SUPPLY);
+    assert(VotesImpl::get_votes(@state, OWNER()) == 0, 'Should eq zero');
     assert(VotesImpl::get_votes(@state, RECIPIENT()) == SUPPLY, 'Should eq SUPPLY');
+
+    // Delegate to zero
+    VotesImpl::delegate(ref state, ZERO());
+
+    assert_event_delegate_changed(OWNER(), RECIPIENT(), ZERO());
+    assert_event_delegate_votes_changed(RECIPIENT(), SUPPLY, 0);
+    assert(VotesImpl::get_votes(@state, RECIPIENT()) == 0, 'Should eq zero');
+
+    // Delegate from zero to zero
+    VotesImpl::delegate(ref state, ZERO());
+
+    assert_only_event_delegate_changed(OWNER(), ZERO(), ZERO());
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_delegates() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+
+    VotesImpl::delegate(ref state, OWNER());
+    assert(VotesImpl::delegates(@state, OWNER()) == OWNER(), 'Should eq OWNER');
+
+    VotesImpl::delegate(ref state, RECIPIENT());
+    assert(VotesImpl::delegates(@state, OWNER()) == RECIPIENT(), 'Should eq RECIPIENT');
+}
+
+//
+// _num_checkpoints & _checkpoints
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test__num_checkpoints() {
+    let mut state = setup();
+    let mut trace = state._delegate_checkpoints.read(OWNER());
+
+    trace.push('ts1', 0x111);
+    trace.push('ts2', 0x222);
+    trace.push('ts3', 0x333);
+    trace.push('ts4', 0x444);
+    assert(InternalImpl::_num_checkpoints(@state, OWNER()) == 4, 'Should eq 4');
+
+    trace.push('ts5', 0x555);
+    trace.push('ts6', 0x666);
+    assert(InternalImpl::_num_checkpoints(@state, OWNER()) == 6, 'Should eq 6');
+
+    assert(InternalImpl::_num_checkpoints(@state, RECIPIENT()) == 0, 'Should eq zero');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test__checkpoints() {
+    let mut state = setup();
+    let mut trace = state._delegate_checkpoints.read(OWNER());
+
+    trace.push('ts1', 0x111);
+    trace.push('ts2', 0x222);
+    trace.push('ts3', 0x333);
+    trace.push('ts4', 0x444);
+
+    let checkpoint: Checkpoint = InternalImpl::_checkpoints(@state, OWNER(), 2);
+    assert(checkpoint.key == 'ts3', 'Invalid key');
+    assert(checkpoint.value == 0x333, 'Invalid value');
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Array overflow', ))]
+fn test__checkpoints_array_overflow() {
+    let mut state = setup();
+    let mut trace = state._delegate_checkpoints.read(OWNER());
+
+    InternalImpl::_checkpoints(@state, OWNER(), 1);
+}
+
+//
+// _get_voting_units
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test__get_voting_units() {
+    let mut state = setup();
+    assert(InternalImpl::_get_voting_units(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
 }
 
 //
@@ -193,6 +282,13 @@ fn assert_event_delegate_changed(
     assert(event.delegator == delegator, 'Invalid `delegator`');
     assert(event.from_delegate == from_delegate, 'Invalid `from_delegate`');
     assert(event.to_delegate == to_delegate, 'Invalid `to_delegate`');
+}
+
+fn assert_only_event_delegate_changed(
+    delegator: ContractAddress, from_delegate: ContractAddress, to_delegate: ContractAddress
+) {
+    assert_event_delegate_changed(delegator, from_delegate, to_delegate);
+    utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_delegate_votes_changed(

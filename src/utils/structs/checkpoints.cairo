@@ -3,6 +3,7 @@
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
+use serde::Serde;
 use super::storage_array::StorageArrayTrait;
 use super::storage_array::StorageArray;
 use traits::Into;
@@ -15,7 +16,7 @@ struct Trace {
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, starknet::Store)]
+#[derive(Copy, Drop, Serde, starknet::Store)]
 struct Checkpoint {
     key: u64,
     // TODO: Check if is worth implementing a u220 type in corelib for saving gas by packing.
@@ -108,8 +109,8 @@ impl TraceImpl of TraceTrait {
 
     /// Returns the checkpoint at given position.
     fn at(self: Trace, pos: u32) -> Checkpoint {
-        let mut checkpoints = self.checkpoints;
-        checkpoints.read_at(pos)
+        assert(pos < self.length(), 'Array overflow');
+        self.checkpoints.read_at(pos)
     }
 }
 

@@ -1,36 +1,23 @@
 use array::ArrayTrait;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
-use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
-use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
+use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
 use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;
+use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
+use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
+use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_contract_address;
-
-//
-// Constants
-//
-
-const ROLE: felt252 = 41;
-
-fn ADMIN() -> ContractAddress {
-    contract_address_const::<10>()
-}
-
-fn AUTHORIZED() -> ContractAddress {
-    contract_address_const::<20>()
-}
 
 //
 // Setup

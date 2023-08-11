@@ -1,3 +1,4 @@
+use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::extensions::ERC20Votes;
@@ -15,24 +16,6 @@ use traits::Into;
 
 use ERC20Votes::_delegate_checkpoints::InternalContractStateTrait as DelegateCheckpointsTrait;
 use ERC20Votes::_total_checkpoints::InternalContractStateTrait as TotalCheckpointsTrait;
-
-//
-// Constants
-//
-
-const SUPPLY: u256 = 2000;
-
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
-
-fn OWNER() -> ContractAddress {
-    contract_address_const::<'OWNER'>()
-}
-
-fn RECIPIENT() -> ContractAddress {
-    contract_address_const::<'RECIPIENT'>()
-}
 
 //
 // Setup
@@ -121,7 +104,6 @@ fn test_get_past_votes() {
 #[should_panic(expected: ('ERC5805: Future Lookup', ))]
 fn test_get_past_votes_future_lookup() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
 
     // Past timestamp.
     testing::set_block_timestamp('ts1');
@@ -152,7 +134,6 @@ fn test_get_past_total_supply() {
 #[should_panic(expected: ('ERC5805: Future Lookup', ))]
 fn test_get_past_total_supply_future_lookup() {
     let mut state = setup();
-    let mut trace = state._total_checkpoints.read();
 
     // Past timestamp.
     testing::set_block_timestamp('ts1');

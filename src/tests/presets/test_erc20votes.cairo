@@ -1,4 +1,12 @@
 use integer::BoundedInt;
+use openzeppelin::tests::extensions::test_erc20votes::{
+    assert_event_delegate_changed, assert_only_event_delegate_changed,
+    assert_event_delegate_votes_changed, assert_only_event_delegate_votes_changed
+};
+use openzeppelin::tests::utils::constants::{
+    NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
+};
+use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::ERC20Impl;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::VotesImpl;
@@ -9,38 +17,18 @@ use traits::Into;
 use zeroable::Zeroable;
 
 //
-// Constants
+// Setup
 //
-
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-const DECIMALS: u8 = 18_u8;
-const SUPPLY: u256 = 2000;
-const VALUE: u256 = 300;
 
 fn STATE() -> ERC20VotesPreset::ContractState {
     ERC20VotesPreset::contract_state_for_testing()
 }
 
-fn OWNER() -> ContractAddress {
-    contract_address_const::<1>()
-}
-
-fn SPENDER() -> ContractAddress {
-    contract_address_const::<2>()
-}
-
-fn RECIPIENT() -> ContractAddress {
-    contract_address_const::<3>()
-}
-
-//
-// Setup
-//
-
 fn setup() -> ERC20VotesPreset::ContractState {
     let mut state = STATE();
+    testing::set_block_timestamp('ts0');
     ERC20VotesPreset::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    utils::drop_events(ZERO(), 2);
     state
 }
 
@@ -214,7 +202,7 @@ fn test_transfer_from_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_increase_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -246,7 +234,7 @@ fn test_increase_allowance_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_decrease_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -274,7 +262,7 @@ fn test_decrease_allowance_from_zero_address() {
 }
 
 //
-// get_votes
+// get_votes && get_past_votes
 //
 
 #[test]
@@ -286,4 +274,116 @@ fn test_get_votes() {
     VotesImpl::delegate(ref state, OWNER());
 
     assert(VotesImpl::get_votes(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_get_past_votes() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    VotesImpl::delegate(ref state, OWNER());
+    let amount = 100;
+
+    testing::set_block_timestamp('ts1');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts2');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts4');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+
+    assert(VotesImpl::get_past_votes(@state, OWNER(), 'ts1') == SUPPLY - amount, 'Should eq ts1');
+    assert(
+        VotesImpl::get_past_votes(@state, OWNER(), 'ts3') == SUPPLY - 2 * amount, 'Should eq ts2'
+    );
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC5805: Future Lookup', ))]
+fn test_get_past_votes_future_lookup() {
+    let mut state = setup();
+
+    // Past timestamp.
+    testing::set_block_timestamp('ts1');
+    VotesImpl::get_past_votes(@state, OWNER(), 'ts2');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_get_past_total_supply() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    VotesImpl::delegate(ref state, OWNER());
+    let amount = 100;
+
+    // This should not affect total_supply checkpoints
+    testing::set_block_timestamp('ts1');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts4');
+
+    // ts0 is the timestamp at construction time, when the tokens were minted
+    assert(VotesImpl::get_past_total_supply(@state, 'ts3') == SUPPLY, 'Should eq ts0');
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC5805: Future Lookup', ))]
+fn test_get_past_total_supply_future_lookup() {
+    let mut state = setup();
+
+    // Past timestamp.
+    testing::set_block_timestamp('ts1');
+    VotesImpl::get_past_total_supply(@state, 'ts2');
+}
+
+//
+// delegate & delegates
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test_delegate() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+
+    // Delegate from zero
+    VotesImpl::delegate(ref state, OWNER());
+
+    assert_event_delegate_changed(OWNER(), ZERO(), OWNER());
+    assert_only_event_delegate_votes_changed(OWNER(), 0, SUPPLY);
+    assert(VotesImpl::get_votes(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
+
+    // Delegate from non-zero to non-zero
+    VotesImpl::delegate(ref state, RECIPIENT());
+
+    assert_event_delegate_changed(OWNER(), OWNER(), RECIPIENT());
+    assert_event_delegate_votes_changed(OWNER(), SUPPLY, 0);
+    assert_only_event_delegate_votes_changed(RECIPIENT(), 0, SUPPLY);
+    assert(VotesImpl::get_votes(@state, OWNER()) == 0, 'Should eq zero');
+    assert(VotesImpl::get_votes(@state, RECIPIENT()) == SUPPLY, 'Should eq SUPPLY');
+
+    // Delegate to zero
+    VotesImpl::delegate(ref state, ZERO());
+
+    assert_event_delegate_changed(OWNER(), RECIPIENT(), ZERO());
+    assert_event_delegate_votes_changed(RECIPIENT(), SUPPLY, 0);
+    assert(VotesImpl::get_votes(@state, RECIPIENT()) == 0, 'Should eq zero');
+
+    // Delegate from zero to zero
+    VotesImpl::delegate(ref state, ZERO());
+
+    assert_only_event_delegate_changed(OWNER(), ZERO(), ZERO());
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_delegates() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+
+    VotesImpl::delegate(ref state, OWNER());
+    assert(VotesImpl::delegates(@state, OWNER()) == OWNER(), 'Should eq OWNER');
+
+    VotesImpl::delegate(ref state, RECIPIENT());
+    assert(VotesImpl::delegates(@state, OWNER()) == RECIPIENT(), 'Should eq RECIPIENT');
 }

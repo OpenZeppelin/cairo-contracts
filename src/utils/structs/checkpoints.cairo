@@ -69,7 +69,7 @@ impl TraceImpl of TraceTrait {
 
         let pos = checkpoints._upper_binary_lookup(key, low, high);
 
-        if pos == len {
+        if pos == 0 {
             0
         } else {
             checkpoints.read_at(pos - 1).value

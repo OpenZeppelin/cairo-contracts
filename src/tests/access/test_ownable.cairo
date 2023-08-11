@@ -23,7 +23,7 @@ fn STATE() -> Ownable::ContractState {
 fn setup() -> Ownable::ContractState {
     let mut state = STATE();
     InternalImpl::initializer(ref state, OWNER());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
     state
 }
 

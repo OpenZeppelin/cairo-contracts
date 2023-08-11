@@ -27,7 +27,7 @@ fn STATE() -> AccessControl::ContractState {
 fn setup() -> AccessControl::ContractState {
     let mut state = STATE();
     InternalImpl::_grant_role(ref state, DEFAULT_ADMIN_ROLE, ADMIN());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
     state
 }
 
@@ -224,7 +224,7 @@ fn test_revoke_role_for_granted_role() {
     testing::set_caller_address(ADMIN());
 
     AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
 
@@ -239,7 +239,7 @@ fn test_revokeRole_for_granted_role() {
     testing::set_caller_address(ADMIN());
 
     AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
 
@@ -320,7 +320,7 @@ fn test_renounce_role_for_granted_role() {
     testing::set_caller_address(ADMIN());
 
     AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(AUTHORIZED());
     AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
@@ -336,7 +336,7 @@ fn test_renounceRole_for_granted_role() {
     testing::set_caller_address(ADMIN());
 
     AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(AUTHORIZED());
     AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
@@ -511,7 +511,7 @@ fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: Co
 }
 
 fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = testing::pop_log::<RoleGranted>(ZERO()).unwrap();
+    let event = utils::pop_log::<RoleGranted>(ZERO()).unwrap();
     assert(event.role == role, 'Invalid `role`');
     assert(event.account == account, 'Invalid `account`');
     assert(event.sender == sender, 'Invalid `sender`');

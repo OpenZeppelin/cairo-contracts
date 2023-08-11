@@ -12,17 +12,14 @@ use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
 use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils::constants::{
+    ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
+};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721::Approval;
-use openzeppelin::token::erc721::ERC721::ApprovalForAll;
-use openzeppelin::token::erc721::ERC721::ERC721CamelOnlyImpl;
-use openzeppelin::token::erc721::ERC721::ERC721Impl;
-use openzeppelin::token::erc721::ERC721::ERC721MetadataCamelOnlyImpl;
-use openzeppelin::token::erc721::ERC721::ERC721MetadataImpl;
-use openzeppelin::token::erc721::ERC721::InternalImpl;
-use openzeppelin::token::erc721::ERC721::SRC5CamelImpl;
-use openzeppelin::token::erc721::ERC721::SRC5Impl;
-use openzeppelin::token::erc721::ERC721::Transfer;
+use openzeppelin::token::erc721::ERC721::{
+    Approval, ApprovalForAll, ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataCamelOnlyImpl,
+    ERC721MetadataImpl, InternalImpl, SRC5CamelImpl, SRC5Impl, Transfer,
+};
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
 use option::OptionTrait;
@@ -31,34 +28,6 @@ use starknet::ContractAddress;
 use starknet::testing;
 use traits::Into;
 use zeroable::Zeroable;
-
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-const URI: felt252 = 333;
-const TOKEN_ID: u256 = 7;
-const PUBKEY: felt252 = 444;
-
-fn STATE() -> ERC721::ContractState {
-    ERC721::contract_state_for_testing()
-}
-fn ZERO() -> ContractAddress {
-    Zeroable::zero()
-}
-fn OWNER() -> ContractAddress {
-    contract_address_const::<10>()
-}
-fn RECIPIENT() -> ContractAddress {
-    contract_address_const::<20>()
-}
-fn SPENDER() -> ContractAddress {
-    contract_address_const::<30>()
-}
-fn OPERATOR() -> ContractAddress {
-    contract_address_const::<40>()
-}
-fn OTHER() -> ContractAddress {
-    contract_address_const::<50>()
-}
 
 fn DATA(success: bool) -> Span<felt252> {
     let mut data = array![];
@@ -74,11 +43,15 @@ fn DATA(success: bool) -> Span<felt252> {
 // Setup
 //
 
+fn STATE() -> ERC721::ContractState {
+    ERC721::contract_state_for_testing()
+}
+
 fn setup() -> ERC721::ContractState {
     let mut state = STATE();
     InternalImpl::initializer(ref state, NAME, SYMBOL);
     InternalImpl::_mint(ref state, OWNER(), TOKEN_ID);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
     state
 }
 
@@ -254,7 +227,7 @@ fn test_approve_from_operator() {
 
     testing::set_caller_address(OWNER());
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
@@ -420,16 +393,16 @@ fn test_transfer_from_owner() {
     let recipient = RECIPIENT();
     // set approval to check reset
     InternalImpl::_approve(ref state, OTHER(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
     assert(ERC721Impl::get_approved(@state, token_id) == OTHER(), 'Approval not implicitly reset');
 
     testing::set_caller_address(owner);
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -441,16 +414,16 @@ fn test_transferFrom_owner() {
     let recipient = RECIPIENT();
     // set approval to check reset
     InternalImpl::_approve(ref state, OTHER(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
     assert(ERC721Impl::get_approved(@state, token_id) == OTHER(), 'Approval not implicitly reset');
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -527,17 +500,17 @@ fn test_transfer_from_approved() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -547,17 +520,17 @@ fn test_transferFrom_approved() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -568,17 +541,17 @@ fn test_transfer_from_approved_for_all() {
     let owner = OWNER();
     let recipient = RECIPIENT();
 
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::transfer_from(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -589,17 +562,17 @@ fn test_transferFrom_approved_for_all() {
     let owner = OWNER();
     let recipient = RECIPIENT();
 
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::transferFrom(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -632,13 +605,13 @@ fn test_safe_transfer_from_to_account() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, account);
+    assert_state_before_transfer(owner, account, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
     assert_event_transfer(owner, account, token_id);
 
-    assert_state_after_transfer(token_id, owner, account);
+    assert_state_after_transfer(owner, account, token_id);
 }
 
 #[test]
@@ -649,13 +622,13 @@ fn test_safeTransferFrom_to_account() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, account);
+    assert_state_before_transfer(owner, account, token_id);
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
     assert_event_transfer(owner, account, token_id);
 
-    assert_state_after_transfer(token_id, owner, account);
+    assert_state_after_transfer(owner, account, token_id);
 }
 
 #[test]
@@ -666,13 +639,13 @@ fn test_safe_transfer_from_to_account_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, account);
+    assert_state_before_transfer(owner, account, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, account, token_id, DATA(true));
     assert_event_transfer(owner, account, token_id);
 
-    assert_state_after_transfer(token_id, owner, account);
+    assert_state_after_transfer(owner, account, token_id);
 }
 
 #[test]
@@ -683,13 +656,13 @@ fn test_safeTransferFrom_to_account_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, account);
+    assert_state_before_transfer(owner, account, token_id);
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, account, token_id, DATA(true));
     assert_event_transfer(owner, account, token_id);
 
-    assert_state_after_transfer(token_id, owner, account);
+    assert_state_after_transfer(owner, account, token_id);
 }
 
 #[test]
@@ -700,13 +673,13 @@ fn test_safe_transfer_from_to_receiver() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -717,13 +690,13 @@ fn test_safeTransferFrom_to_receiver() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -734,13 +707,13 @@ fn test_safe_transfer_from_to_receiver_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -751,13 +724,13 @@ fn test_safeTransferFrom_to_receiver_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -880,7 +853,7 @@ fn test_safe_transfer_from_to_owner() {
     let owner = setup_receiver();
     InternalImpl::initializer(ref state, NAME, SYMBOL);
     InternalImpl::_mint(ref state, owner, token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
@@ -901,7 +874,7 @@ fn test_safeTransferFrom_to_owner() {
     let owner = setup_receiver();
     InternalImpl::initializer(ref state, NAME, SYMBOL);
     InternalImpl::_mint(ref state, owner, token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
@@ -922,7 +895,7 @@ fn test_safe_transfer_from_to_owner_camel() {
     let owner = setup_camel_receiver();
     InternalImpl::initializer(ref state, NAME, SYMBOL);
     InternalImpl::_mint(ref state, owner, token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
@@ -943,7 +916,7 @@ fn test_safeTransferFrom_to_owner_camel() {
     let owner = setup_camel_receiver();
     InternalImpl::initializer(ref state, NAME, SYMBOL);
     InternalImpl::_mint(ref state, owner, token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
     assert(ERC721Impl::balance_of(@state, owner) == 1, 'Balance of owner before');
@@ -964,17 +937,17 @@ fn test_safe_transfer_from_approved() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -985,17 +958,17 @@ fn test_safeTransferFrom_approved() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1006,17 +979,17 @@ fn test_safe_transfer_from_approved_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1027,17 +1000,17 @@ fn test_safeTransferFrom_approved_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::approve(ref state, OPERATOR(), token_id);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1048,17 +1021,17 @@ fn test_safe_transfer_from_approved_for_all() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1069,17 +1042,17 @@ fn test_safeTransferFrom_approved_for_all() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1090,17 +1063,17 @@ fn test_safe_transfer_from_approved_for_all_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721Impl::safe_transfer_from(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1111,17 +1084,17 @@ fn test_safeTransferFrom_approved_for_all_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    assert_state_before_transfer(token_id, owner, receiver);
+    assert_state_before_transfer(owner, receiver, token_id);
 
     testing::set_caller_address(owner);
     ERC721Impl::set_approval_for_all(ref state, OPERATOR(), true);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(OPERATOR());
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, owner, receiver, token_id, DATA(true));
     assert_event_transfer(owner, receiver, token_id);
 
-    assert_state_after_transfer(token_id, owner, receiver);
+    assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
@@ -1154,12 +1127,12 @@ fn test__transfer() {
     let owner = OWNER();
     let recipient = RECIPIENT();
 
-    assert_state_before_transfer(token_id, owner, recipient);
+    assert_state_before_transfer(owner, recipient, token_id);
 
     InternalImpl::_transfer(ref state, owner, recipient, token_id);
     assert_event_transfer(owner, recipient, token_id);
 
-    assert_state_after_transfer(token_id, owner, recipient);
+    assert_state_after_transfer(owner, recipient, token_id);
 }
 
 #[test]
@@ -1201,7 +1174,7 @@ fn test__mint() {
     InternalImpl::_mint(ref state, recipient, TOKEN_ID);
     assert_event_transfer(ZERO(), recipient, token_id);
 
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1235,7 +1208,7 @@ fn test__safe_mint_to_receiver() {
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
     assert_event_transfer(ZERO(), recipient, token_id);
 
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1249,7 +1222,7 @@ fn test__safe_mint_to_receiver_camel() {
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
     assert_event_transfer(ZERO(), recipient, token_id);
 
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1263,7 +1236,7 @@ fn test__safe_mint_to_account() {
     InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
     assert_event_transfer(ZERO(), account, token_id);
 
-    assert_state_after_mint(token_id, account);
+    assert_state_after_mint(account, token_id);
 }
 
 #[test]
@@ -1277,7 +1250,7 @@ fn test__safe_mint_to_account_camel() {
     InternalImpl::_safe_mint(ref state, account, token_id, DATA(true));
     assert_event_transfer(ZERO(), account, token_id);
 
-    assert_state_after_mint(token_id, account);
+    assert_state_after_mint(account, token_id);
 }
 
 #[test]
@@ -1290,7 +1263,7 @@ fn test__safe_mint_to_non_receiver() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(true));
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1303,7 +1276,7 @@ fn test__safe_mint_to_receiver_failure() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(false));
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1316,7 +1289,7 @@ fn test__safe_mint_to_receiver_failure_camel() {
 
     assert_state_before_mint(recipient);
     InternalImpl::_safe_mint(ref state, recipient, token_id, DATA(false));
-    assert_state_after_mint(token_id, recipient);
+    assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
@@ -1345,7 +1318,7 @@ fn test__burn() {
     let mut state = setup();
 
     InternalImpl::_approve(ref state, OTHER(), TOKEN_ID);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'Ownership before');
     assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance of owner before');
@@ -1394,7 +1367,7 @@ fn test__set_token_uri_nonexistent() {
 //
 
 fn assert_state_before_transfer(
-    token_id: u256, owner: ContractAddress, recipient: ContractAddress
+    owner: ContractAddress, recipient: ContractAddress, token_id: u256
 ) {
     let state = STATE();
     assert(ERC721Impl::owner_of(@state, token_id) == owner, 'Ownership before');
@@ -1402,7 +1375,7 @@ fn assert_state_before_transfer(
     assert(ERC721Impl::balance_of(@state, recipient) == 0, 'Balance of recipient before');
 }
 
-fn assert_state_after_transfer(token_id: u256, owner: ContractAddress, recipient: ContractAddress) {
+fn assert_state_after_transfer(owner: ContractAddress, recipient: ContractAddress, token_id: u256) {
     let state = STATE();
     assert(ERC721Impl::owner_of(@state, token_id) == recipient, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, owner) == 0, 'Balance of owner after');
@@ -1415,7 +1388,7 @@ fn assert_state_before_mint(recipient: ContractAddress) {
     assert(ERC721Impl::balance_of(@state, recipient) == 0, 'Balance of recipient before');
 }
 
-fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
+fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     let state = STATE();
     assert(ERC721Impl::owner_of(@state, token_id) == recipient, 'Ownership after');
     assert(ERC721Impl::balance_of(@state, recipient) == 1, 'Balance of recipient after');
@@ -1425,22 +1398,25 @@ fn assert_state_after_mint(token_id: u256, recipient: ContractAddress) {
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = testing::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid owner');
-    assert(event.operator == operator, 'Invalid operator');
-    assert(event.approved == approved, 'Invalid approved');
+    let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
+    assert(event.owner == owner, 'Invalid `owner`');
+    assert(event.operator == operator, 'Invalid `operator`');
+    assert(event.approved == approved, 'Invalid `approved`');
+    utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid owner');
-    assert(event.approved == approved, 'Invalid approved');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == owner, 'Invalid `owner`');
+    assert(event.approved == approved, 'Invalid `approved`');
+    assert(event.token_id == token_id, 'Invalid `token_id`');
+    utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid from');
-    assert(event.to == to, 'Invalid to');
-    assert(event.token_id == token_id, 'Invalid token_id');
+    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == from, 'Invalid `from`');
+    assert(event.to == to, 'Invalid `to`');
+    assert(event.token_id == token_id, 'Invalid `token_id`');
+    utils::assert_no_events_left(ZERO());
 }

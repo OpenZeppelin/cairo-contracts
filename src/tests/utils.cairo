@@ -32,3 +32,7 @@ fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
 fn assert_no_events_left(address: ContractAddress) {
     assert(testing::pop_log_raw(address).is_none(), 'Events remaining on queue');
 }
+
+fn drop_event(address: ContractAddress) {
+    testing::pop_log_raw(address);
+}

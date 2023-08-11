@@ -499,7 +499,6 @@ fn test_public_key_setter_and_getter_camel() {
     let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
     utils::assert_no_events_left(ACCOUNT_ADDRESS());
-    
 
     let public_key = PublicKeyCamelImpl::getPublicKey(@state);
     assert(public_key == NEW_PUBKEY, 'Should update key');

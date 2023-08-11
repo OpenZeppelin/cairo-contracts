@@ -3,10 +3,10 @@ name: Lint and test
 on:
   pull_request:
     branches:
-    - cairo-1
+    - cairo-2
   push:
     branches:
-    - cairo-1
+    - cairo-2
 
 jobs:
   lint_and_test:
@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: software-mansion/setup-scarb@v1
       with:
-        submodules: recursive
+        scarb-version: "0.6.0-alpha.1"
     - name: Markdown lint
       uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
       with:
@@ -23,6 +24,6 @@ jobs:
           *.md
           !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
-      run: make check-format
+      run: scarb fmt --check
     - name: Cairo test
-      run: make test
+      run: scarb test

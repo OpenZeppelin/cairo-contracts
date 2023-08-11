@@ -10,6 +10,7 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::ERC20Impl;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::VotesImpl;
+use openzeppelin::utils::structs::checkpoints::Checkpoint;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
@@ -386,4 +387,65 @@ fn test_delegates() {
 
     VotesImpl::delegate(ref state, RECIPIENT());
     assert(VotesImpl::delegates(@state, OWNER()) == RECIPIENT(), 'Should eq RECIPIENT');
+}
+
+
+//
+// num_checkpoints & checkpoints
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test_num_checkpoints() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    VotesImpl::delegate(ref state, OWNER());
+
+    let amount = 100;
+    testing::set_block_timestamp('ts1');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts2');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts4');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+
+    // Delagate to self should increase the number of checkpoints
+    assert(ERC20VotesPreset::num_checkpoints(@state, OWNER()) == 4, 'Should eq 4');
+
+    testing::set_block_timestamp('ts5');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts7');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    assert(ERC20VotesPreset::num_checkpoints(@state, OWNER()) == 6, 'Should eq 6');
+
+    assert(ERC20VotesPreset::num_checkpoints(@state, RECIPIENT()) == 0, 'Should eq zero');
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_checkpoints() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    VotesImpl::delegate(ref state, OWNER());
+
+    let amount = 100;
+    testing::set_block_timestamp('ts1');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts2');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+    testing::set_block_timestamp('ts4');
+    ERC20Impl::transfer(ref state, RECIPIENT(), amount);
+
+    let checkpoint: Checkpoint = ERC20VotesPreset::checkpoints(@state, OWNER(), 2);
+    assert(checkpoint.key == 'ts2', 'Invalid key');
+    assert(checkpoint.value == SUPPLY - 2 * amount, 'Invalid value');
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Array overflow', ))]
+fn test_checkpoints_array_overflow() {
+    let mut state = setup();
+
+    ERC20VotesPreset::checkpoints(@state, OWNER(), 1);
 }

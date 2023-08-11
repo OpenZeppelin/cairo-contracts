@@ -1,6 +1,10 @@
 use integer::BoundedInt;
 use integer::u256;
 use integer::u256_from_felt252;
+use openzeppelin::tests::utils::constants::{
+    ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
+};
+use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20::Approval;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
@@ -15,34 +19,12 @@ use traits::Into;
 use zeroable::Zeroable;
 
 //
-// Constants
+// Setup
 //
-
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-const DECIMALS: u8 = 18_u8;
-const SUPPLY: u256 = 2000;
-const VALUE: u256 = 300;
 
 fn STATE() -> ERC20::ContractState {
     ERC20::contract_state_for_testing()
 }
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
-fn OWNER() -> ContractAddress {
-    contract_address_const::<1>()
-}
-fn SPENDER() -> ContractAddress {
-    contract_address_const::<2>()
-}
-fn RECIPIENT() -> ContractAddress {
-    contract_address_const::<3>()
-}
-
-//
-// Setup
-//
 
 fn setup() -> ERC20::ContractState {
     let mut state = STATE();
@@ -74,10 +56,7 @@ fn test_constructor() {
     let mut state = STATE();
     ERC20::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == OWNER(), 'Invalid to');
-    assert(event.value == SUPPLY, 'Invalid value');
+    assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
 
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY, 'Should eq inital_supply');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Should eq inital_supply');
@@ -143,11 +122,7 @@ fn test_approve() {
     testing::set_caller_address(OWNER());
     assert(ERC20Impl::approve(ref state, SPENDER(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
     );
@@ -177,11 +152,7 @@ fn test__approve() {
     testing::set_caller_address(OWNER());
     InternalImpl::_approve(ref state, OWNER(), SPENDER(), VALUE);
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
     );
@@ -215,11 +186,7 @@ fn test_transfer() {
     testing::set_caller_address(OWNER());
     assert(ERC20Impl::transfer(ref state, RECIPIENT(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Balance should eq VALUE');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - VALUE');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Total supply should not change');
@@ -232,11 +199,7 @@ fn test__transfer() {
 
     InternalImpl::_transfer(ref state, OWNER(), RECIPIENT(), VALUE);
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Balance should eq amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Total supply should not change');
@@ -284,15 +247,8 @@ fn test_transfer_from() {
     testing::set_caller_address(SPENDER());
     assert(ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 0, 'Invalid value');
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
+    assert_event_approval(OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
@@ -363,15 +319,8 @@ fn test_transferFrom() {
         'Should return true'
     );
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 0, 'Invalid value');
-
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == RECIPIENT(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
+    assert_event_approval(OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20CamelOnlyImpl::balanceOf(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(
@@ -444,11 +393,7 @@ fn test_increase_allowance() {
 
     assert(ERC20::increase_allowance(ref state, SPENDER(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 2 * VALUE, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), VALUE * 2);
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
@@ -479,11 +424,7 @@ fn test_increaseAllowance() {
 
     assert(ERC20::increaseAllowance(ref state, SPENDER(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 2 * VALUE, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), 2 * VALUE);
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
@@ -518,11 +459,7 @@ fn test_decrease_allowance() {
 
     assert(ERC20::decrease_allowance(ref state, SPENDER(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 0, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), 0);
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
 }
 
@@ -553,11 +490,7 @@ fn test_decreaseAllowance() {
 
     assert(ERC20::decreaseAllowance(ref state, SPENDER(), VALUE), 'Should return true');
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == 0, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), 0);
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
 }
 
@@ -592,11 +525,7 @@ fn test__spend_allowance_not_unlimited() {
 
     InternalImpl::_spend_allowance(ref state, OWNER(), SPENDER(), VALUE);
 
-    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == OWNER(), 'Invalid owner');
-    assert(event.spender == SPENDER(), 'Invalid spender');
-    assert(event.value == SUPPLY - VALUE, 'Invalid value');
-
+    assert_only_event_approval(OWNER(), SPENDER(), SUPPLY - VALUE);
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == SUPPLY - VALUE,
         'Should eq supply - amount'
@@ -628,11 +557,7 @@ fn test__mint() {
     let mut state = STATE();
     InternalImpl::_mint(ref state, OWNER(), VALUE);
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == ZERO(), 'Invalid from');
-    assert(event.to == OWNER(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_transfer(ZERO(), OWNER(), VALUE);
     assert(ERC20Impl::balance_of(@state, OWNER()) == VALUE, 'Should eq amount');
     assert(ERC20Impl::total_supply(@state) == VALUE, 'Should eq total supply');
 }
@@ -655,11 +580,7 @@ fn test__burn() {
     let mut state = setup();
     InternalImpl::_burn(ref state, OWNER(), VALUE);
 
-    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == OWNER(), 'Invalid from');
-    assert(event.to == ZERO(), 'Invalid to');
-    assert(event.value == VALUE, 'Invalid value');
-
+    assert_only_event_transfer(OWNER(), ZERO(), VALUE);
     assert(ERC20Impl::total_supply(@state) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
 }
@@ -670,4 +591,33 @@ fn test__burn() {
 fn test__burn_from_zero() {
     let mut state = setup();
     InternalImpl::_burn(ref state, Zeroable::zero(), VALUE);
+}
+
+//
+// Helpers
+//
+
+fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
+    let event = testing::pop_log::<Approval>(ZERO()).unwrap();
+    assert(event.owner == owner, 'Invalid `owner`');
+    assert(event.spender == spender, 'Invalid `spender`');
+    assert(event.value == value, 'Invalid `value`');
+}
+
+fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
+    assert_event_approval(owner, spender, value);
+    utils::assert_no_events_left(ZERO());
+}
+
+fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
+    let event = testing::pop_log::<Transfer>(ZERO()).unwrap();
+    assert(event.from == from, 'Invalid `from`');
+    assert(event.to == to, 'Invalid `to`');
+    assert(event.value == value, 'Invalid `value`');
+    utils::assert_no_events_left(ZERO());
+}
+
+fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
+    assert_event_transfer(from, to, value);
+    utils::assert_no_events_left(ZERO());
 }

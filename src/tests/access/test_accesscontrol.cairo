@@ -10,6 +10,7 @@ use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
+use openzeppelin::tests::utils;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -139,11 +140,7 @@ fn test_grant_role() {
     testing::set_caller_address(ADMIN());
     AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleGranted>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == ADMIN(), 'Invalid sender');
-
+    assert_event_role_granted(ROLE, AUTHORIZED(), ADMIN());
     assert(AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be granted');
 }
 
@@ -154,11 +151,7 @@ fn test_grantRole() {
     testing::set_caller_address(ADMIN());
     AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleGranted>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == ADMIN(), 'Invalid sender');
-
+    assert_event_role_granted(ROLE, AUTHORIZED(), ADMIN());
     assert(AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be granted');
 }
 
@@ -235,11 +228,7 @@ fn test_revoke_role_for_granted_role() {
 
     AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleRevoked>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == ADMIN(), 'Invalid sender');
-
+    assert_event_role_revoked(ROLE, AUTHORIZED(), ADMIN());
     assert(!AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
@@ -254,11 +243,7 @@ fn test_revokeRole_for_granted_role() {
 
     AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleRevoked>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == ADMIN(), 'Invalid sender');
-
+    assert_event_role_revoked(ROLE, AUTHORIZED(), ADMIN());
     assert(!AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
@@ -340,11 +325,7 @@ fn test_renounce_role_for_granted_role() {
     testing::set_caller_address(AUTHORIZED());
     AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleRevoked>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == AUTHORIZED(), 'Invalid sender');
-
+    assert_event_role_revoked(ROLE, AUTHORIZED(), AUTHORIZED());
     assert(!AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be renounced');
 }
 
@@ -360,11 +341,7 @@ fn test_renounceRole_for_granted_role() {
     testing::set_caller_address(AUTHORIZED());
     AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
 
-    let event = testing::pop_log::<RoleRevoked>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.account == AUTHORIZED(), 'Invalid account');
-    assert(event.sender == AUTHORIZED(), 'Invalid sender');
-
+    assert_event_role_revoked(ROLE, AUTHORIZED(), AUTHORIZED());
     assert(
         !AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be renounced'
     );
@@ -439,11 +416,7 @@ fn test__set_role_admin() {
     );
     InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
 
-    let event = testing::pop_log::<RoleAdminChanged>(ZERO()).unwrap();
-    assert(event.role == ROLE, 'Invalid role');
-    assert(event.previous_admin_role == DEFAULT_ADMIN_ROLE, 'Invalid previous_admin_role');
-    assert(event.new_admin_role == OTHER_ROLE, 'Invalid new_admin_role');
-
+    assert_event_role_admin_changed(ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);
     assert(
         AccessControlImpl::get_role_admin(@state, ROLE) == OTHER_ROLE,
         'ROLE admin should be OTHER_ROLE'
@@ -502,7 +475,7 @@ fn test_previous_admin_cannot_revoke_roles() {
 }
 
 //
-// default admin
+// Default admin
 //
 
 #[test]
@@ -523,4 +496,34 @@ fn test_default_admin_role_is_its_own_admin() {
         AccessControlImpl::get_role_admin(@state, DEFAULT_ADMIN_ROLE) == DEFAULT_ADMIN_ROLE,
         'Should be DEFAULT_ADMIN_ROLE'
     );
+}
+
+//
+// Helpers
+//
+
+fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: ContractAddress) {
+    let event = utils::pop_log::<RoleRevoked>(ZERO()).unwrap();
+    assert(event.role == role, 'Invalid `role`');
+    assert(event.account == account, 'Invalid `account`');
+    assert(event.sender == sender, 'Invalid `sender`');
+    utils::assert_no_events_left(ZERO());
+}
+
+fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
+    let event = testing::pop_log::<RoleGranted>(ZERO()).unwrap();
+    assert(event.role == role, 'Invalid `role`');
+    assert(event.account == account, 'Invalid `account`');
+    assert(event.sender == sender, 'Invalid `sender`');
+    utils::assert_no_events_left(ZERO());
+}
+
+fn assert_event_role_admin_changed(
+    role: felt252, previous_admin_role: felt252, new_admin_role: felt252
+) {
+    let event = utils::pop_log::<RoleAdminChanged>(ZERO()).unwrap();
+    assert(event.role == role, 'Invalid `role`');
+    assert(event.previous_admin_role == previous_admin_role, 'Invalid `previous_admin_role`');
+    assert(event.new_admin_role == new_admin_role, 'Invalid `new_admin_role`');
+    utils::assert_no_events_left(ZERO());
 }

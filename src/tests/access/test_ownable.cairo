@@ -235,7 +235,7 @@ fn test_renounceOwnership_from_nonowner() {
 
 fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner: ContractAddress) {
     let event = utils::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == previous_owner, 'Invalid previous_owner');
-    assert(event.new_owner == new_owner, 'Invalid new_owner');
+    assert(event.previous_owner == previous_owner, 'Invalid `previous_owner`');
+    assert(event.new_owner == new_owner, 'Invalid `new_owner`');
     utils::assert_no_events_left(ZERO());
 }

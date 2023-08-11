@@ -262,7 +262,7 @@ mod ERC20 {
 
             self.emit(Transfer { from, to: recipient, value: amount });
 
-            Hooks::_after_update(ref self, Zeroable::zero(), recipient, amount);
+            Hooks::_after_update(ref self, from, recipient, amount);
         }
     }
 }

@@ -3,17 +3,17 @@ use openzeppelin::security::pausable::Pausable::PausableImpl;
 use openzeppelin::security::pausable::Pausable::Paused;
 use openzeppelin::security::pausable::Pausable::Unpaused;
 use openzeppelin::security::pausable::Pausable;
+use openzeppelin::tests::utils::constants::{CALLER, ZERO};
+use openzeppelin::tests::utils;
 use option::OptionTrait;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
 
-fn CALLER() -> ContractAddress {
-    contract_address_const::<15>()
-}
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
+//
+// Setup
+//
+
 fn STATE() -> Pausable::ContractState {
     Pausable::contract_state_for_testing()
 }
@@ -86,9 +86,8 @@ fn test_pause_when_unpaused() {
     testing::set_caller_address(CALLER());
 
     InternalImpl::_pause(ref state);
-    let event = testing::pop_log::<Paused>(ZERO()).unwrap();
-    assert(event.account == CALLER(), 'Invalid account');
 
+    assert_event_paused(CALLER());
     assert(PausableImpl::is_paused(@state), 'Should be paused');
 }
 
@@ -115,9 +114,8 @@ fn test_unpause_when_paused() {
     testing::pop_log_raw(ZERO());
 
     InternalImpl::_unpause(ref state);
-    let event = testing::pop_log::<Paused>(ZERO()).unwrap();
-    assert(event.account == CALLER(), 'Invalid account');
 
+    assert_event_unpaused(CALLER());
     assert(!PausableImpl::is_paused(@state), 'Should not be paused');
 }
 
@@ -128,4 +126,20 @@ fn test_unpause_when_unpaused() {
     let mut state = STATE();
     assert(!PausableImpl::is_paused(@state), 'Should be paused');
     InternalImpl::_unpause(ref state);
+}
+
+//
+// Helpers
+//
+
+fn assert_event_paused(account: ContractAddress) {
+    let event = testing::pop_log::<Paused>(ZERO()).unwrap();
+    assert(event.account == account, 'Invalid `account`');
+    utils::assert_no_events_left(ZERO());
+}
+
+fn assert_event_unpaused(account: ContractAddress) {
+    let event = testing::pop_log::<Unpaused>(ZERO()).unwrap();
+    assert(event.account == account, 'Invalid `account`');
+    utils::assert_no_events_left(ZERO());
 }

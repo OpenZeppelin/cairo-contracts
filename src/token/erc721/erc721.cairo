@@ -177,7 +177,7 @@ mod ERC721 {
             self._symbol.read()
         }
 
-        /// Returns the Uniform Resource Identifier (URI) for `token_id` token.
+        /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set for the `token_id`, the return value will be `0`.
         ///
         /// # Arguments
@@ -312,7 +312,7 @@ mod ERC721 {
         /// `from` - The current owner of the NFT.
         /// `to` - The new owner.
         /// `token_id` - The NFT to transfer.
-        /// `data` - Additional data with no specified format, sent in call to `to`
+        /// `data` - Additional data with no specified format, sent in call to `to`.
         fn safe_transfer_from(
             ref self: ContractState,
             from: ContractAddress,

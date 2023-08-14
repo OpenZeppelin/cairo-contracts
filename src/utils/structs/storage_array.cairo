@@ -94,9 +94,7 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
 
         // Get the storage address of the element.
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
-        let element_address = poseidon_hash_span(
-            array![storage_address_felt + len.into()].span()
-        );
+        let element_address = poseidon_hash_span(array![storage_address_felt + len.into()].span());
 
         // Write the element to storage.
         TStore::write(

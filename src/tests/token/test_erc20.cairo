@@ -614,7 +614,6 @@ fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256
     assert(event.from == from, 'Invalid `from`');
     assert(event.to == to, 'Invalid `to`');
     assert(event.value == value, 'Invalid `value`');
-    utils::assert_no_events_left(ZERO());
 }
 
 fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {

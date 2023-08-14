@@ -4,8 +4,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use core::result::ResultTrait;
 use option::OptionTrait;
-use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
+use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::testing;
 use traits::TryInto;
 
@@ -18,7 +18,7 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 }
 
 /// Pop the earliest unpopped logged event for the contract as the requested type
-/// and checks there's no more data left on the event, preventing missing extra params.
+/// and checks there's no more data left on the event, preventing unaccounted params.
 /// Indexed event members are currently not supported, so they are ignored.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress

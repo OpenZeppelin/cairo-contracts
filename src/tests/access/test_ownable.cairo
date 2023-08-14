@@ -1,11 +1,11 @@
-use openzeppelin::access::ownable::Ownable;
 use openzeppelin::access::ownable::Ownable::InternalImpl;
 use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
 use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::Ownable::_owner::InternalContractStateTrait;
-use openzeppelin::tests::utils;
+use openzeppelin::access::ownable::Ownable;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
+use openzeppelin::tests::utils;
 use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;

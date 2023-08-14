@@ -1,8 +1,9 @@
+use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
+use ERC721::_token_approvals::InternalContractStateTrait as TokenApprovalsTrait;
+
 use array::ArrayTrait;
 use integer::u256;
 use integer::u256_from_felt252;
-use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
-use ERC721::_token_approvals::InternalContractStateTrait as TokenApprovalsTrait;
 use openzeppelin::account::Account;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;

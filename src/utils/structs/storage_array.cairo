@@ -90,10 +90,12 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
     }
 
     fn append(ref self: StorageArray<T>, value: T) {
+        let len = self.len();
+
         // Get the storage address of the element.
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
         let element_address = poseidon_hash_span(
-            array![storage_address_felt + self.len().into()].span()
+            array![storage_address_felt + len.into()].span()
         );
 
         // Write the element to storage.
@@ -103,7 +105,7 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
             .unwrap_syscall();
 
         // Update the len.
-        let new_len: felt252 = (self.len() + 1).into();
+        let new_len: felt252 = (len + 1).into();
         storage_write_syscall(self.address_domain, storage_address_from_base(self.base), new_len)
             .unwrap_syscall();
     }

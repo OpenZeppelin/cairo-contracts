@@ -4,32 +4,12 @@ use openzeppelin::access::accesscontrol::AccessControl::InternalImpl;
 use openzeppelin::access::accesscontrol::AccessControl;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin::tests::utils::constants::{
+    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
+};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-
-const ROLE: felt252 = 41;
-const OTHER_ROLE: felt252 = 42;
-
-fn ZERO() -> ContractAddress {
-    contract_address_const::<0>()
-}
-
-fn ADMIN() -> ContractAddress {
-    contract_address_const::<1>()
-}
-
-fn AUTHORIZED() -> ContractAddress {
-    contract_address_const::<2>()
-}
-
-fn OTHER() -> ContractAddress {
-    contract_address_const::<3>()
-}
-
-fn OTHER_ADMIN() -> ContractAddress {
-    contract_address_const::<4>()
-}
 
 //
 // Setup

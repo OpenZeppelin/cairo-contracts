@@ -26,18 +26,18 @@ The `erc721.cairo` contract implements an approximation of https://eips.ethereum
  ** <<erc721_holder,ERC721Holder>>
 * <<api_specification,API Specification>>
  ** <<ierc721_api,`IERC721`>>
-  *** <<balanceof,`balanceOf`>>
-  *** <<ownerof,`ownerOf`>>
-  *** <<safetransferfrom,`safeTransferFrom`>>
-  *** <<transferfrom,`transferFrom`>>
+  *** <<balance_of,`balance_of`>>
+  *** <<owner_of,`owner_of`>>
+  *** <<safe_transfer_from,`safe_transfer_from`>>
+  *** <<transfer_from,`transfer_from`>>
   *** <<approve,`approve`>>
-  *** <<setapprovalforall,`setApprovalForAll`>>
-  *** <<getapproved,`getApproved`>>
-  *** <<isapprovedforall,`isApprovedForAll`>>
+  *** <<set_approval_for_all,`set_approval_for_all`>>
+  *** <<get_approved,`get_approved`>>
+  *** <<is_approved_for_all,`is_approved_for_all`>>
  ** <<events,Events>>
-  *** <<approval_event,`Approval (event)`>>
-  *** <<approvalforall_event,`ApprovalForAll (event)`>>
-  *** <<transfer_event,`Transfer (event)`>>
+  *** <<Approval,`Approval`>>
+  *** <<ApprovalForAll,`ApprovalForAll`>>
+  *** <<Transfer,`Transfer`>>
  ** <<ierc721metadata,`IERC721Metadata`>>
   *** <<name,`name`>>
   *** <<symbol,`symbol`>>
@@ -141,7 +141,7 @@ The `safe_transfer_from` method incorporates the following conditional logic:
 The current implementation of `safe_transfer_from` checks for `on_erc721_received` and requires that the recipient contract supports SRC5 and exposes the `supports_interface` method.
 See <<erc721received,ERC721Received>>.
 
-## Fix me^
+Fix me^
 
 === Interpreting ERC721 URIs
 
@@ -210,7 +210,7 @@ TODO
 
 The `ERC721Metadata` extension allows your smart contract to be interrogated for its name and for details about the assets which your NFTs represent.
 
-We follow OpenZeppelin's Solidity approach of integrating the Metadata methods `name`, `symbol`, and `tokenURI` into all ERC721 implementations.
+We follow OpenZeppelin's Solidity approach of integrating the Metadata methods `name`, `symbol`, and `token_uri` (`tokenURI` in Solidity) into all ERC721 implementations.
 If preferred, a contract can be created that does not import the Metadata methods from the `ERC721` library.
 Note that the `IERC721Metadata` interface id should be removed from the constructor as well.
 
@@ -232,6 +232,8 @@ trait IERC721Metadata<TState> {
 
 [,rust]
 ----
+// SRC5 id: 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943
+
 fn balance_of(self: @ContractState, account: ContractAddress) -> u256;
 fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress;
 fn transfer_from(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256);
@@ -462,10 +464,9 @@ struct Transfer {
 }
 ----
 
-==== `Approval`
+==== `Approval` [[Approval]]
 
 [.contract-item]
-[[Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, approved: ContractAddress, token_id: u256)++`
 
 Emitted when `owner` enables `approved` to manage the `token_id` token.
@@ -482,10 +483,9 @@ The new approved NFT controller.
 +
 The NFT to approve.
 
-==== `ApprovalForAll`
+==== `ApprovalForAll` [[ApprovalForAll]]
 
 [.contract-item]
-[[ApprovalForAll]]
 ==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++`
 
 Emitted when `owner` enables or disables (approved) `operator` to manage all of its assets.
@@ -502,10 +502,9 @@ Address to add to the set of authorized operators.
 +
 `true` if the operator is approved, `false` to revoke approval.
 
-==== `Transfer`
+==== `Transfer` [[Transfer]]
 
 [.contract-item]
-[[Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++`
 
 Emitted when `token_id` token is transferred from `from` to `to`.
@@ -526,6 +525,8 @@ The NFT to transfer.
 
 [,rust]
 ----
+// SRC5 id: 0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd
+
 #[starknet::interface]
 trait IERC721Metadata<TState> {
     fn name(self: @TState) -> felt252;
@@ -585,32 +586,49 @@ The URI of `token_id`.
 
 === IERC721Receiver API
 
-[,cairo]
+[,rust]
 ----
-func onERC721Received(
-    operator: felt, from_: felt, tokenId: Uint256, data_len: felt252data: felt*
-) -> (selector: felt) {
+// SRC5 id: 0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
+
+#[starknet::interface]
+trait IERC721Receiver<TState> {
+    fn on_erc721_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
+    ) -> felt252;
 }
 ----
 
-==== `onERC721Received`
+==== `on_erc721_received`
 
-Whenever an IERC721 `tokenId` token is transferred to this non-account contract via `safeTransferFrom` by `operator` from `from_`, this function is called.
+[.contract-item]
+[[on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(self: @TState, operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++`
 
-Parameters:
+Whenever an IERC721 `token_id` token is transferred to this non-account contract through `safe_transfer_from`, this function is called.
+This function may reject the transfer.
+If this function returns anything other than the IERC721_RECEIVER_ID, the transaction must be reverted.
 
-[,cairo]
-----
-operator: felt
-from_: felt
-tokenId: Uint256
-data_len: felt
-data: felt*
-----
+===== Arguments
+
+- `*operator*`
++
+The address which called `safe_transfer_from` function.
+- `*from*`
++
+The address which previously owned the token.
+- `*token_id*`
++
+The NFT identifier which is being transferred.
+- `*data*`
++
+Additional data with no specified format.
 
 Returns:
 
-[,cairo]
-----
-selector: felt
-----
+- `*felt252*`
++
+The IERC721Receiver magic value _0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc_.

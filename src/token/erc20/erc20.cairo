@@ -196,6 +196,13 @@ mod ERC20 {
         /// * `amount` - The number of tokens to send from the caller to the `recipient`.
         /// # Returns
         /// `true` if the function call succeeds.
+        ///
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - The caller holds less than `amount` in their balance to transfer.
+        /// - The caller is the zero address.
+        /// - `recipient` is the zero address.
         fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
             let sender = get_caller_address();
             self._transfer(sender, recipient, amount);
@@ -214,6 +221,14 @@ mod ERC20 {
         /// `amount` - The value of tokens the `recipient` receives.
         /// # Returns
         /// `true` if the function call succeeds.
+        ///
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - The caller's allowance from `sender` is less than `amount`.
+        /// - `sender` holds less than `amount` in their balance to transfer.
+        /// - `sender` is the zero address.
+        /// - `recipient` is the zero address.
         fn transfer_from(
             ref self: ContractState,
             sender: ContractAddress,
@@ -233,6 +248,12 @@ mod ERC20 {
         /// `amount` - The token allowance given to the `spender` from the caller.
         /// # Returns
         /// `true` if the function call succeeds.
+        ///
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - The caller is the zero address.
+        /// - `spender` is the zero address.
         fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);

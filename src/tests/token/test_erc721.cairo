@@ -104,11 +104,12 @@ fn setup_camel_account() -> ContractAddress {
 #[available_gas(20000000)]
 fn test_constructor() {
     let mut state = STATE();
-    ERC721::constructor(ref state, NAME, SYMBOL);
+    ERC721::constructor(ref state, NAME, SYMBOL, OWNER(), TOKEN_ID);
 
     assert(ERC721MetadataImpl::name(@state) == NAME, 'Name should be NAME');
     assert(ERC721MetadataImpl::symbol(@state) == SYMBOL, 'Symbol should be SYMBOL');
-    assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance should be zero');
+    assert(ERC721Impl::balance_of(@state, OWNER()) == 1, 'Balance should be one');
+    assert(ERC721Impl::owner_of(@state, TOKEN_ID) == OWNER(), 'OWNER should be owner');
 
     assert(
         SRC5Impl::supports_interface(@state, erc721::interface::IERC721_ID), 'Missing interface ID'

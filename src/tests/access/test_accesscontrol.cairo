@@ -511,7 +511,7 @@ fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: Co
 }
 
 fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = testing::pop_log::<RoleGranted>(ZERO()).unwrap();
+    let event = utils::pop_log::<RoleGranted>(ZERO()).unwrap();
     assert(event.role == role, 'Invalid `role`');
     assert(event.account == account, 'Invalid `account`');
     assert(event.sender == sender, 'Invalid `sender`');

@@ -1,10 +1,10 @@
 use array::ArrayTrait;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
 use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;

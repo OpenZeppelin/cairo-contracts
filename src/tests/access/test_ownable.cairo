@@ -1,9 +1,9 @@
-use openzeppelin::access::ownable::Ownable;
 use openzeppelin::access::ownable::Ownable::InternalImpl;
 use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
 use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::Ownable::_owner::InternalContractStateTrait;
+use openzeppelin::access::ownable::Ownable;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
 use option::OptionTrait;
@@ -23,7 +23,7 @@ fn STATE() -> Ownable::ContractState {
 fn setup() -> Ownable::ContractState {
     let mut state = STATE();
     InternalImpl::initializer(ref state, OWNER());
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
     state
 }
 

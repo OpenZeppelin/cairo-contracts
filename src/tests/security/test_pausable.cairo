@@ -111,7 +111,7 @@ fn test_unpause_when_paused() {
     testing::set_caller_address(CALLER());
 
     InternalImpl::_pause(ref state);
-    testing::pop_log_raw(ZERO());
+    utils::drop_event(ZERO());
 
     InternalImpl::_unpause(ref state);
 
@@ -133,13 +133,13 @@ fn test_unpause_when_unpaused() {
 //
 
 fn assert_event_paused(account: ContractAddress) {
-    let event = testing::pop_log::<Paused>(ZERO()).unwrap();
+    let event = utils::pop_log::<Paused>(ZERO()).unwrap();
     assert(event.account == account, 'Invalid `account`');
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_unpaused(account: ContractAddress) {
-    let event = testing::pop_log::<Unpaused>(ZERO()).unwrap();
+    let event = utils::pop_log::<Unpaused>(ZERO()).unwrap();
     assert(event.account == account, 'Invalid `account`');
     utils::assert_no_events_left(ZERO());
 }

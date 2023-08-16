@@ -18,7 +18,7 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 }
 
 /// Pop the earliest unpopped logged event for the contract as the requested type
-/// and checks there's no more data left on the event, preventing missing extra params.
+/// and checks there's no more data left on the event, preventing unaccounted params.
 /// Indexed event members are currently not supported, so they are ignored.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress
@@ -31,4 +31,8 @@ fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
 
 fn assert_no_events_left(address: ContractAddress) {
     assert(testing::pop_log_raw(address).is_none(), 'Events remaining on queue');
+}
+
+fn drop_event(address: ContractAddress) {
+    testing::pop_log_raw(address);
 }

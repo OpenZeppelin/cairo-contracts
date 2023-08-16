@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/math.cairo)
+
 use traits::Into;
 
 /// Returns the average of two numbers. The result is rounded towards

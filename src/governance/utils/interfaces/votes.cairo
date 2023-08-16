@@ -21,14 +21,14 @@ trait IVotes<TState> {
 
     /// Delegates votes from the sender to `delegatee`.
     fn delegate(ref self: TState, delegatee: ContractAddress);
-// /// Delegates votes from signer to `delegatee`.
-// fn delegateBySig(
-//     ref self: TState,
-//     delegatee: ContractAddress,
-//     nonce: felt252,
-//     expiry: felt252,
-//     v: u8,
-//     r: u32,
-//     s: u32
-// );
+
+    /// Delegates votes from `delegator` to `delegatee`.
+    fn delegate_by_sig(
+        ref self: TState,
+        delegator: ContractAddress,
+        delegatee: ContractAddress,
+        nonce: felt252,
+        expiry: u64,
+        signature: Array<felt252>
+    );
 }

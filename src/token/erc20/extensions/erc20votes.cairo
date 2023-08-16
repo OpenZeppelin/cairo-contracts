@@ -8,11 +8,18 @@
 /// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::contract]
 mod ERC20Votes {
+    use array::{ArrayTrait, SpanTrait};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
+    use openzeppelin::utils::cryptography::eip712;
+    use openzeppelin::utils::nonces::Nonces;
+    use openzeppelin::utils::selectors;
+    use openzeppelin::utils::serde::SerializedAppend;
     use openzeppelin::utils::structs::checkpoints::{Checkpoint, Trace, TraceTrait};
+    use poseidon::poseidon_hash_span;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
+    use traits::Into;
 
     #[storage]
     struct Storage {
@@ -43,7 +50,8 @@ mod ERC20Votes {
     }
 
     mod Errors {
-        const FUTURE_LOOKUP: felt252 = 'ERC5805: Future Lookup';
+        const FUTURE_LOOKUP: felt252 = 'ERC5805: future Lookup';
+        const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
     }
 
     #[external(v0)]
@@ -73,6 +81,40 @@ mod ERC20Votes {
         fn delegate(ref self: ContractState, delegatee: ContractAddress) {
             let sender = starknet::get_caller_address();
             self._delegate(sender, delegatee);
+        }
+
+        fn delegate_by_sig(
+            ref self: ContractState,
+            delegator: ContractAddress,
+            delegatee: ContractAddress,
+            nonce: felt252,
+            expiry: u64,
+            signature: Array<felt252>
+        ) {
+            assert(starknet::get_block_timestamp() <= expiry, Errors::EXPIRED_SIGNATURE);
+
+            // Check and increase nonce.
+            let mut unsafe_state = Nonces::unsafe_new_contract_state();
+            Nonces::InternalImpl::_use_checked_nonce(ref unsafe_state, delegator, nonce);
+
+            // Build hash for calling `is_valid_signature`.
+            let domain_separator = eip712::build_domain_separator('OZ-ERC20Votes', 'v4');
+            let struct_hash = poseidon_hash_span(
+                array![DELEGATION_TYPEHASH(), delegatee.into(), nonce, expiry.into()].span()
+            );
+            let hash = eip712::to_typed_data_hash(domain_separator, struct_hash);
+
+            let mut calldata = array![];
+            calldata.append_serde(hash);
+            calldata.append_serde(signature);
+
+            starknet::call_contract_syscall(
+                delegator, selectors::is_valid_signature, calldata.span()
+            )
+                .unwrap_syscall();
+
+            // Delegate votes.
+            self._delegate(delegator, delegatee);
         }
     }
 
@@ -158,5 +200,12 @@ mod ERC20Votes {
             let unsafe_state = ERC20::unsafe_new_contract_state();
             ERC20::ERC20Impl::balance_of(@unsafe_state, account)
         }
+    }
+
+    fn DELEGATION_TYPEHASH() -> felt252 {
+        poseidon_hash_span(
+            array!['Delegation', '(delegatee: ContractAddress,', 'nonce: felt252,', 'expiry: u64)']
+                .span()
+        )
     }
 }

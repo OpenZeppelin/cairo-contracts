@@ -158,6 +158,20 @@ mod ERC20VotesPreset {
             let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
             ERC20Votes::VotesImpl::delegate(ref unsafe_state, delegatee);
         }
+
+        fn delegate_by_sig(
+            ref self: ContractState,
+            delegator: ContractAddress,
+            delegatee: ContractAddress,
+            nonce: felt252,
+            expiry: u64,
+            signature: Array<felt252>
+        ) {
+            let mut unsafe_state = ERC20Votes::unsafe_new_contract_state();
+            ERC20Votes::VotesImpl::delegate_by_sig(
+                ref unsafe_state, delegator, delegatee, nonce, expiry, signature
+            );
+        }
     }
 
     /// Get number of checkpoints for `account`.

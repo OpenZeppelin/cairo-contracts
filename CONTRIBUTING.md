@@ -8,7 +8,9 @@ Before starting development, please [create an issue](https://github.com/OpenZep
 
 ### Coding style
 
-After a few radical changes in the Cairo language (mainly the transition to Cairo 1), our coding style guidelines got automatically deprecated. That's why [we're working on setting new ones](https://github.com/OpenZeppelin/cairo-contracts/issues/696). Feel free to read, contribute, discuss, and ask questions in the issue.
+After a few radical changes in the Cairo language (mainly the transition to Cairo 1), our coding style guidelines became automatically deprecated.
+That's why [we're working on setting new ones](https://github.com/OpenZeppelin/cairo-contracts/issues/696).
+Feel free to read, contribute, discuss, and ask questions in the issue.
 
 ## Creating Pull Requests (PRs)
 

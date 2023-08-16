@@ -84,7 +84,7 @@ If you want to run the documentation UI locally:
 
 ## Integration tests
 
-Currently, starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
+Currently, Starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
 
 We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by the reviewer.
 

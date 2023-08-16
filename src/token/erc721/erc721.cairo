@@ -61,8 +61,15 @@ mod ERC721 {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: felt252, symbol: felt252) {
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        recipient: ContractAddress,
+        token_id: u256
+    ) {
         self.initializer(name, symbol);
+        self._mint(recipient, token_id);
     }
 
     //

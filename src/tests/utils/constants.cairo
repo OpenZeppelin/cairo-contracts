@@ -25,6 +25,10 @@ fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
 }
 
+fn CALLER() -> ContractAddress {
+    contract_address_const::<'CALLER'>()
+}
+
 fn OWNER() -> ContractAddress {
     contract_address_const::<'OWNER'>()
 }

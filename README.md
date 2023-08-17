@@ -26,7 +26,7 @@ Simply [install Cairo and scarb](https://docs.swmansion.com/scarb/download).
 Create a new project and `cd` into it.
 
 ```bash
-$ scarb new my_project && cd my_project
+scarb new my_project && cd my_project
 ```
 
 The contents of `my_project` should look like this:
@@ -134,7 +134,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 Clone the repository:
 
 ```bash
-$ git clone git@github.com:OpenZeppelin/cairo-contracts.git
+git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
 `cd` into it and build:
@@ -151,7 +151,7 @@ Finished release target(s) in 16 seconds
 ### Run tests
 
 ```bash
-$ scarb test
+scarb test
 ```
 
 ## Security

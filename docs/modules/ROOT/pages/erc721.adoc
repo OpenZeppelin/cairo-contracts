@@ -365,8 +365,6 @@ The new approved NFT controller.
 +
 The NFT to approve.
 
-    fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
-
 ==== `set_approval_for_all`
 
 [.contract-item]
@@ -385,7 +383,7 @@ Emits an <<Approval,Approval>> event.
 Address to add to the set of authorized operators.
 - `*approved*`
 +
-`true` if operator is approved, `false` to revoke approval.
+`true` if `operator` is approved, `false` to revoke approval.
 
 ==== `get_approved`
 
@@ -500,7 +498,7 @@ The owner of the NFT.
 Address to add to the set of authorized operators.
 - `*approved*`
 +
-`true` if the operator is approved, `false` to revoke approval.
+`true` if the `operator` is approved, `false` to revoke approval.
 
 ==== `Transfer` [[Transfer]]
 
@@ -632,3 +630,282 @@ Returns:
 - `*felt252*`
 +
 The IERC721Receiver magic value _0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc_.
+
+=== InternalImpl
+
+[,rust]
+----
+fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252);
+fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress;
+fn _exists(self: @ContractState, token_id: u256) -> bool;
+fn _is_approved_or_owner(
+    self: @ContractState,
+    spender: ContractAddress,
+    token_id: u256
+) -> bool;
+fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256);
+fn _set_approval_for_all(
+    ref self: ContractState,
+    owner: ContractAddress,
+    operator: ContractAddress,
+    approved: bool
+);
+fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256);
+fn _transfer(
+    ref self: ContractState,
+    from: ContractAddress,
+    to: ContractAddress,
+    token_id: u256
+);
+fn _burn(ref self: ContractState, token_id: u256);
+fn _safe_mint(
+    ref self: ContractState,
+    to: ContractAddress,
+    token_id: u256,
+    data: Span<felt252>
+);
+fn _safe_transfer(
+    ref self: ContractState,
+    from: ContractAddress,
+    to: ContractAddress,
+    token_id: u256,
+    data: Span<felt252>
+);
+fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252);
+----
+
+==== `initializer`
+
+[.contract-item]
+[[initializer]]
+==== `[.contract-item-name]#++initializer++#++(self: @ContractState, name_: felt252, symbol_: felt252)++`
+
+Initializes the contract by setting the token name and symbol.
+This should be used inside the contract's constructor.
+
+===== Arguments
+
+- `*name_*`
++
+The token name.
+- `*symbol_*`
++
+The token symbol.
+
+==== `_owner_of`
+
+[.contract-item]
+[[_owner_of]]
+==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: u256) -> ContractAddress++`
+
+Internal function that returns the owner address of `token_id`.
+This function will panic if the token does not exist.
+
+===== Arguments
+
+- `*token_id*`
++
+The token to query.
+
+===== Returns
+
+- `*ContractAddress*`
++
+The owner address of `token_id`.
+
+==== `_exists`
+
+[.contract-item]
+[[_exists]]
+==== `[.contract-item-name]#++_exists++#++(self: @ContractState, token_id: u256) -> bool++`
+
+Internal function that returns whether `token_id` exists.
+
+Tokens start existing when they are minted (<<_mint,_mint>>), and stop existing when they are burned (<<_burn,_burn>>).
+
+===== Arguments
+
+- `*token_id*`
++
+The token to query.
+
+===== Returns
+
+- `*bool*`
++
+`true` if the token exists, `false` otherwise.
+
+==== `_is_approved_or_owner`
+
+[.contract-item]
+[[_is_approved_or_owner]]
+==== `[.contract-item-name]#++_is_approved_or_owner++#++(self: @ContractState, spender: ContractAddress, token_id: u256) -> bool++`
+
+Internal function that returns whether `spender` is allowed to manage `token_id`.
+
+This function panics if `token_id` does not exist.
+
+===== Arguments
+
+- `*spender*`
++
+The target address to query.
+- `*token_id*`
++
+The token to query.
+
+===== Returns
+
+- `*bool*`
++
+`true` if the `spender` is either the owner or approved, `false` otherwise.
+
+fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256);
+
+==== `_approve`
+
+[.contract-item]
+[[_approve]]
+==== `[.contract-item-name]#++_approve++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
+
+Internal function that changes or reaffirms the approved address for an NFT.
+
+This function panics if `token_id` does not exist or if `to` is the current token owner.
+
+Emits an <<Approval,Approval>> event.
+
+===== Arguments
+
+- `*to*`
++
+The new approved NFT controller.
+- `*token_id*`
++
+The NFT to approve.
+
+==== `_set_approval_for_all`
+
+[.contract-item]
+[[_set_approval_for_all]]
+==== `[.contract-item-name]#++_set_approval_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress, approved: bool)++`
+
+Internal function that enables or disables approval for `operator` to manage all of the
+`owner` assets.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if `owner` is also `operator`.
+
+===== Arguments
+
+- `*owner*`
++
+The current owner of the NFT.
+- `*operator*`
++
+Address to add to the set of authorized operators.
+- `*approved*`
++
+`true` if `operator` is approved, `false` to revoke approval.
+
+==== `_mint`
+
+[.contract-item]
+[[_mint]]
+==== `[.contract-item-name]#++_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
+
+Internal function that mints `token_id` and transfer it to `to`.
+
+WARNING: Usage of this method is discouraged, use <<_safe_mint,_safe_mint>> whenever possible.
+
+Emits an <<Transfer,Transfer>> event.
+
+This function panics if `to` is the zero address or if the `token_id` already exists.
+
+===== Arguments
+
+- `*to*`
++
+The new owner of the NFT.
+- `*token_id*`
++
+The newly created NFT to transfer.
+
+==== `_transfer`
+
+[.contract-item]
+[[_transfer]]
+==== `[.contract-item-name]#++_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
+
+Internal function that transfers `token_id` from `from` to `to`.
+
+Emits an <<Transfer,Transfer>> event.
+
+This function panics if:
+
+* `to` is the zero address.
+* `from` is not the token owner.
+* `token_id` does not exist.
+
+===== Arguments
+
+- `*from*`
++
+The current NFT owner.
+- `*to*`
++
+The new owner.
+- `*token_id*`
++
+The NFT to transfer.
+
+==== `_burn`
+
+[.contract-item]
+[[_burn]]
+==== `[.contract-item-name]#++_burn++#++(self: @ContractState, token_id: u256)++`
+
+Internal function that destroys `token_id`.
+The approval is cleared when the token is burned.
+This internal function does not check if the sender is authorized to operate on the token.
+
+Emits an <<Transfer,Transfer>> event.
+
+This function panics if:
+
+* `token_id` does not exist.
+
+===== Arguments
+
+- `*token_id*`
++
+The NFT to burn.
+
+==== `_safe_mint`
+
+[.contract-item]
+[[_safe_mint]]
+==== `[.contract-item-name]#++_safe_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
+
+Internal function that safely mints `token_id` and transfers it to `to`.
+If `to` is not an account contract, `to` must support IERC721Receiver; otherwise, the transaction will fail.
+
+Emits an <<Transfer,Transfer>> event.
+
+This function panics if:
+
+* `token_id` does not exist.
+* `to` neither is an account contract nor supports the IERC721Receiver interface.
+
+===== Arguments
+
+- `*to*`
++
+The new owner.
+- `*token_id*`
++
+The newly created NFT to transfer.
+- `*data*`
++
+Additional data with no specified format, sent in call to `to`.
+

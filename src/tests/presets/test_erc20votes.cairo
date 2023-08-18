@@ -3,6 +3,9 @@ use openzeppelin::tests::extensions::test_erc20votes::{
     assert_event_delegate_changed, assert_only_event_delegate_changed,
     assert_event_delegate_votes_changed, assert_only_event_delegate_votes_changed
 };
+use openzeppelin::tests::token::test_erc20::{
+    assert_only_event_transfer, assert_only_event_approval, assert_event_approval
+};
 use openzeppelin::tests::utils::constants::{
     NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
 };
@@ -42,6 +45,8 @@ fn setup() -> ERC20VotesPreset::ContractState {
 fn test_constructor() {
     let mut state = STATE();
     ERC20VotesPreset::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+
+    assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
 
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY, 'Should eq inital_supply');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Should eq inital_supply');
@@ -91,6 +96,8 @@ fn test_approve() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     assert(ERC20Impl::approve(ref state, SPENDER(), VALUE), 'Should return true');
+    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
+
     assert(
         ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
     );
@@ -123,6 +130,7 @@ fn test_transfer() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     assert(ERC20Impl::transfer(ref state, RECIPIENT(), VALUE), 'Should return true');
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Balance should eq VALUE');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - VALUE');
@@ -139,9 +147,13 @@ fn test_transfer_from() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    utils::drop_event(ZERO());
 
     testing::set_caller_address(SPENDER());
     assert(ERC20Impl::transfer_from(ref state, OWNER(), RECIPIENT(), VALUE), 'Should return true');
+
+    assert_event_approval(OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
@@ -208,8 +220,11 @@ fn test_increase_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    utils::drop_event(ZERO());
 
     assert(ERC20VotesPreset::increase_allowance(ref state, SPENDER(), VALUE), 'Should return true');
+    assert_only_event_approval(OWNER(), SPENDER(), VALUE * 2);
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
 }
 
@@ -240,8 +255,11 @@ fn test_decrease_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
+    utils::drop_event(ZERO());
 
     assert(ERC20VotesPreset::decrease_allowance(ref state, SPENDER(), VALUE), 'Should return true');
+    assert_only_event_approval(OWNER(), SPENDER(), 0);
+
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
 }
 

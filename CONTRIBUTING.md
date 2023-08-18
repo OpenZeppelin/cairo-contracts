@@ -62,7 +62,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
 6. Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin Contracts for Cairo.
 
-    *IMPORTANT* Please pay attention to the maintainer's feedback, since its a necessary step to keep up with the standards OpenZeppelin Contracts attains to.
+    *IMPORTANT* Please pay attention to the maintainer's feedback, since it's a necessary step to keep up with the standards OpenZeppelin Contracts attains to.
 
 ## Documentation
 

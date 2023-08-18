@@ -14,8 +14,7 @@ use traits::Into;
 /// `\x19\x01` and hashing the result. It corresponds to the hash signed by the
 /// https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`] JSON-RPC method as part of EIP-712.
 fn to_typed_data_hash(domain_separator: felt252, struct_hash: felt252) -> felt252 {
-    // 0x1901
-    let prefix = '6401';
+    let prefix = 0x1901;
     poseidon_hash_span(array![prefix, domain_separator, struct_hash].span())
 }
 

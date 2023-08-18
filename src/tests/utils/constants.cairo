@@ -8,6 +8,9 @@ const SUPPLY: u256 = 2000;
 const VALUE: u256 = 300;
 const ROLE: felt252 = 'ROLE';
 const OTHER_ROLE: felt252 = 'OTHER_ROLE';
+const URI: felt252 = 'URI';
+const TOKEN_ID: u256 = 21;
+const PUBKEY: felt252 = 'PUBKEY';
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
@@ -47,4 +50,8 @@ fn RECIPIENT() -> ContractAddress {
 
 fn OTHER() -> ContractAddress {
     contract_address_const::<'OTHER'>()
+}
+
+fn OPERATOR() -> ContractAddress {
+    contract_address_const::<'OPERATOR'>()
 }

@@ -62,7 +62,7 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     calldata.append_serde(SYMBOL);
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
-    set_caller_address(OWNER());
+    set_contract_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
 }
@@ -73,7 +73,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     calldata.append_serde(SYMBOL);
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
-    set_caller_address(OWNER());
+    set_contract_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC721 {

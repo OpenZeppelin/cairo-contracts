@@ -594,6 +594,43 @@ fn test__burn_from_zero() {
 }
 
 //
+// _update
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test__update() {
+    let mut state = setup();
+
+    // From non-zero to non-zero
+    InternalImpl::_update(ref state, OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+
+    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Invalid balance');
+    assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Invalid balance');
+
+    // From non-zero to zero
+    InternalImpl::_update(ref state, OWNER(), ZERO(), VALUE);
+    assert_only_event_transfer(OWNER(), ZERO(), VALUE);
+
+    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - 2 * VALUE, 'Invalid balance');
+    assert(ERC20Impl::total_supply(@state) == SUPPLY - VALUE, 'Invalid supply');
+
+    // From zero to non-zero
+    InternalImpl::_update(ref state, ZERO(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(ZERO(), RECIPIENT(), VALUE);
+
+    assert(ERC20Impl::balance_of(@state, RECIPIENT()) == 2 * VALUE, 'Invalid balance');
+    assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Invalid supply');
+
+    // From zero to zero
+    InternalImpl::_update(ref state, ZERO(), ZERO(), VALUE);
+    assert_only_event_transfer(ZERO(), ZERO(), VALUE);
+
+    assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Invalid supply');
+}
+
+//
 // Helpers
 //
 

@@ -245,7 +245,7 @@ mod ERC20 {
         /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
         /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
         fn _update<impl Hooks: ERC20HooksTrait>(
-            ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
             let zero_address = contract_address_const::<0>();
             if (from == zero_address) {
@@ -254,15 +254,15 @@ mod ERC20 {
                 self._balances.write(from, self._balances.read(from) - amount);
             }
 
-            if (recipient == zero_address) {
+            if (to == zero_address) {
                 self._total_supply.write(self._total_supply.read() - amount);
             } else {
-                self._balances.write(recipient, self._balances.read(recipient) + amount);
+                self._balances.write(to, self._balances.read(to) + amount);
             }
 
-            self.emit(Transfer { from, to: recipient, value: amount });
+            self.emit(Transfer { from, to, value: amount });
 
-            Hooks::_after_update(ref self, from, recipient, amount);
+            Hooks::_after_update(ref self, from, to, amount);
         }
     }
 }

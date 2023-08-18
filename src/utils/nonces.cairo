@@ -23,7 +23,7 @@ mod Nonces {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         /// Consumes a nonce, returns the current value, and increments nonce.
-        fn _use_nonce(ref self: ContractState, owner: ContractAddress) -> felt252 {
+        fn use_nonce(ref self: ContractState, owner: ContractAddress) -> felt252 {
             // For each account, the nonce has an initial value of 0, can only be incremented by one, and cannot be
             // decremented or reset. This guarantees that the nonce never overflows.
             let nonce = self._nonces.read(owner);
@@ -32,10 +32,10 @@ mod Nonces {
         }
 
         /// Same as {_use_nonce} but checking that `nonce` is the next valid for `owner`.
-        fn _use_checked_nonce(
+        fn use_checked_nonce(
             ref self: ContractState, owner: ContractAddress, nonce: felt252
         ) -> felt252 {
-            let current = self._use_nonce(owner);
+            let current = self.use_nonce(owner);
             assert(nonce == current, Errors::INVALID_NONCE);
             current
         }

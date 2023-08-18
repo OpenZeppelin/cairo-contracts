@@ -95,7 +95,7 @@ mod ERC20Votes {
 
             // Check and increase nonce.
             let mut unsafe_state = Nonces::unsafe_new_contract_state();
-            Nonces::InternalImpl::_use_checked_nonce(ref unsafe_state, delegator, nonce);
+            Nonces::InternalImpl::use_checked_nonce(ref unsafe_state, delegator, nonce);
 
             // Build hash for calling `is_valid_signature`.
             let domain_separator = eip712::build_domain_separator('OZ-ERC20Votes', 'v4');

@@ -3,10 +3,11 @@
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
+use option::OptionTrait;
 use serde::Serde;
 use super::storage_array::StorageArrayTrait;
 use super::storage_array::StorageArray;
-use traits::Into;
+use traits::{Into, TryInto};
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block number. See {Votes} as an example.
@@ -16,11 +17,9 @@ struct Trace {
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, Serde, starknet::Store)]
+#[derive(Copy, Drop, Serde)]
 struct Checkpoint {
     key: u64,
-    // TODO: Check if is worth implementing a u220 type in corelib for saving gas by packing.
-    // Maybe is worth using u128 specifically for the fee token, if the token has just 6 decimals.
     value: u256
 }
 
@@ -162,5 +161,36 @@ impl CheckpointImpl of CheckpointTrait {
             };
         };
         _high
+    }
+}
+
+/// Packs a Checkpoint into a (felt252, felt252).
+///
+/// The packing is done as follows:
+/// - The first felt of the tuple contains `key` and `value.low`.
+/// - `key` is stored at the 64 most significant bits.
+/// - `value.low` is stored at the 128 less significant bits.
+/// - `value.high` is stored as the second tuple element.
+impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt252)> {
+    fn pack(value: Checkpoint) -> (felt252, felt252) {
+        let checkpoint = value;
+        let key = checkpoint.key.into() * 0x100000000000000000000000000000000000000000000000;
+        let key_and_low = key + checkpoint.value.low.into();
+
+        (key_and_low, checkpoint.value.high.into())
+    }
+
+    fn unpack(value: (felt252, felt252)) -> Checkpoint {
+        let (key_and_low, high) = value;
+
+        let key_and_low: u256 = key_and_low.into();
+        let key: u256 = key_and_low / 0x100000000000000000000000000000000000000000000000;
+        let low = key_and_low & 0xffffffffffffffffffffffffffffffff;
+
+        Checkpoint {
+            key: key.try_into().unwrap(), value: u256 {
+                low: low.try_into().unwrap(), high: high.try_into().unwrap()
+            },
+        }
     }
 }

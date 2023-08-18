@@ -318,7 +318,7 @@ fn test_get_past_votes() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC5805: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup', ))]
 fn test_get_past_votes_future_lookup() {
     let mut state = setup();
 
@@ -346,7 +346,7 @@ fn test_get_past_total_supply() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC5805: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup', ))]
 fn test_get_past_total_supply_future_lookup() {
     let mut state = setup();
 

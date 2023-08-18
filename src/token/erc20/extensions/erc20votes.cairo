@@ -50,7 +50,7 @@ mod ERC20Votes {
     }
 
     mod Errors {
-        const FUTURE_LOOKUP: felt252 = 'ERC5805: future Lookup';
+        const FUTURE_LOOKUP: felt252 = 'Votes: future Lookup';
         const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
     }
 
@@ -140,7 +140,7 @@ mod ERC20Votes {
                 .emit(
                     DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
                 );
-            self.move_delegate_votes(from_delegate, delegatee, self._get_voting_units(account));
+            self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
         }
 
         /// Moves delegated votes from one delegate to another.
@@ -187,16 +187,16 @@ mod ERC20Votes {
         }
 
         /// Get number of checkpoints for `account`.
-        fn _num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
+        fn num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
             self._delegate_checkpoints.read(account).length()
         }
 
         /// Get the `pos`-th checkpoint for `account`.
-        fn _checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
+        fn checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
             self._delegate_checkpoints.read(account).at(pos)
         }
 
-        fn _get_voting_units(self: @ContractState, account: ContractAddress) -> u256 {
+        fn get_voting_units(self: @ContractState, account: ContractAddress) -> u256 {
             let unsafe_state = ERC20::unsafe_new_contract_state();
             ERC20::ERC20Impl::balance_of(@unsafe_state, account)
         }

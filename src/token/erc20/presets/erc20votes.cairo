@@ -178,13 +178,13 @@ mod ERC20VotesPreset {
     #[external(v0)]
     fn num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
         let unsafe_state = ERC20Votes::unsafe_new_contract_state();
-        ERC20Votes::InternalImpl::_num_checkpoints(@unsafe_state, account)
+        ERC20Votes::InternalImpl::num_checkpoints(@unsafe_state, account)
     }
 
     /// Get the `pos`-th checkpoint for `account`.
     #[external(v0)]
     fn checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
         let unsafe_state = ERC20Votes::unsafe_new_contract_state();
-        ERC20Votes::InternalImpl::_checkpoints(@unsafe_state, account, pos)
+        ERC20Votes::InternalImpl::checkpoints(@unsafe_state, account, pos)
     }
 }

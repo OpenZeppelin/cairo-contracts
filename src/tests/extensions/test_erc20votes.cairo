@@ -101,7 +101,7 @@ fn test_get_past_votes() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC5805: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup', ))]
 fn test_get_past_votes_future_lookup() {
     let mut state = setup();
 
@@ -131,7 +131,7 @@ fn test_get_past_total_supply() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC5805: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup', ))]
 fn test_get_past_total_supply_future_lookup() {
     let mut state = setup();
 
@@ -193,12 +193,12 @@ fn test_delegates() {
 }
 
 //
-// _num_checkpoints & _checkpoints
+// num_checkpoints & checkpoints
 //
 
 #[test]
 #[available_gas(20000000)]
-fn test__num_checkpoints() {
+fn test_num_checkpoints() {
     let mut state = setup();
     let mut trace = state._delegate_checkpoints.read(OWNER());
 
@@ -206,18 +206,18 @@ fn test__num_checkpoints() {
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
     trace.push('ts4', 0x444);
-    assert(InternalImpl::_num_checkpoints(@state, OWNER()) == 4, 'Should eq 4');
+    assert(InternalImpl::num_checkpoints(@state, OWNER()) == 4, 'Should eq 4');
 
     trace.push('ts5', 0x555);
     trace.push('ts6', 0x666);
-    assert(InternalImpl::_num_checkpoints(@state, OWNER()) == 6, 'Should eq 6');
+    assert(InternalImpl::num_checkpoints(@state, OWNER()) == 6, 'Should eq 6');
 
-    assert(InternalImpl::_num_checkpoints(@state, RECIPIENT()) == 0, 'Should eq zero');
+    assert(InternalImpl::num_checkpoints(@state, RECIPIENT()) == 0, 'Should eq zero');
 }
 
 #[test]
 #[available_gas(20000000)]
-fn test__checkpoints() {
+fn test_checkpoints() {
     let mut state = setup();
     let mut trace = state._delegate_checkpoints.read(OWNER());
 
@@ -226,7 +226,7 @@ fn test__checkpoints() {
     trace.push('ts3', 0x333);
     trace.push('ts4', 0x444);
 
-    let checkpoint: Checkpoint = InternalImpl::_checkpoints(@state, OWNER(), 2);
+    let checkpoint: Checkpoint = InternalImpl::checkpoints(@state, OWNER(), 2);
     assert(checkpoint.key == 'ts3', 'Invalid key');
     assert(checkpoint.value == 0x333, 'Invalid value');
 }
@@ -238,18 +238,18 @@ fn test__checkpoints_array_overflow() {
     let mut state = setup();
     let mut trace = state._delegate_checkpoints.read(OWNER());
 
-    InternalImpl::_checkpoints(@state, OWNER(), 1);
+    InternalImpl::checkpoints(@state, OWNER(), 1);
 }
 
 //
-// _get_voting_units
+// get_voting_units
 //
 
 #[test]
 #[available_gas(20000000)]
-fn test__get_voting_units() {
+fn test_get_voting_units() {
     let mut state = setup();
-    assert(InternalImpl::_get_voting_units(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
+    assert(InternalImpl::get_voting_units(@state, OWNER()) == SUPPLY, 'Should eq SUPPLY');
 }
 
 //

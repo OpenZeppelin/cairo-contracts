@@ -268,9 +268,7 @@ The account balance to query.
 
 ===== Returns
 
-- `*u256*`
-+
-Token balance of `account`.
+- Token balance of `account`.
 
 ==== `owner_of`
 
@@ -280,6 +278,10 @@ Token balance of `account`.
 
 Returns the owner address of `token_id`.
 
+This function panics if:
+
+- `token_id` does not exist.
+
 ===== Arguments
 
 - `*token_id*`
@@ -288,9 +290,7 @@ The token to query.
 
 ===== Returns
 
-- `*ContractAddress*`
-+
-Owner address of `token_id`.
+- Owner address of `token_id`.
 
 ==== `transfer_from`
 
@@ -300,13 +300,17 @@ Owner address of `token_id`.
 
 Transfer ownership of `token_id` from `from` to `to`.
     
-Note that the caller is responsible to confirm that the recipient is
-capable of receiving ERC721 transfers or else they may be permanently lost.
-Usage of <<safe_transfer_from,safe_transfer_from>> prevents loss, though
-the caller must understand this adds an external call which potentially
-creates a reentrancy vulnerability.
+Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721 transfers or else they may be permanently lost.
+Usage of <<safe_transfer_from,safe_transfer_from>> prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
     
 Emits a <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- Caller is neither approved nor the `token_id` owner.
+- `to` is the zero address.
+- `from` is not the token owner.
+- `token_id` does not exist.
 
 ===== Arguments
 
@@ -333,6 +337,14 @@ awareness of the ERC721 protocol, see <<ERC721Receiver,ERC721Receiver>>(TODO!).
     
 Emits a <<Transfer,Transfer>> event.
 
+This function panics if:
+
+- Caller is neither approved nor the `token_id` owner.
+- `to` is the zero address.
+- `from` is not the token owner.
+- `token_id` does not exist.
+- `to` neither is an account contract nor supports the IERC721Receiver interface.
+
 ===== Arguments
 
 - `*from*`
@@ -356,6 +368,14 @@ Additional data with no specified format, sent in call to `to`.
 
 Change or reaffirm the approved address for an NFT.
 
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- Caller is neither an approved operator nor the `token_id` owner.
+- `to` is either the `owner` or the zero address.
+- `token_id` does not exist.
+
 ===== Arguments
 
 - `*to*`
@@ -371,10 +391,13 @@ The NFT to approve.
 [[set_approval_for_all]]
 ==== `[.contract-item-name]#++set_approval_for_all++#++(self: @ContractState, operator: ContractAddress, approved: bool)++`
 
-Enable or disable approval for `operator` to manage all of the
-caller's assets.
+Enable or disable approval for `operator` to manage all of the caller's assets.
 
 Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- `owner` is the `operator`.
 
 ===== Arguments
 
@@ -393,6 +416,10 @@ Address to add to the set of authorized operators.
 
 Returns the address approved for `token_id`.
 
+This function panics if:
+
+- `token_id` does not exist.
+
 ===== Arguments
 
 - `*token_id*`
@@ -401,9 +428,7 @@ The token ID to query.
 
 ===== Returns
 
-- `*ContractAddress*`
-+
-Approved address for the `token_id` NFT, or `0` if there is none.
+- Approved address for the `token_id` NFT, or `0` if there is none.
 
 ==== `is_approved_for_all`
 
@@ -424,9 +449,7 @@ The address that acts on behalf of the `owner`.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` if `operator` is an authorized operator for `owner`.
+- `true` if `operator` is an authorized operator for `owner`.
 
 === Events
 
@@ -543,9 +566,7 @@ Returns the NFT name.
 
 ===== Returns
 
-- `*felt252*`
-+
-The NFT name.
+- The NFT name.
 
 ==== `symbol`
 
@@ -557,9 +578,7 @@ Returns the NFT ticker symbol.
 
 ===== Returns
 
-- `*felt252*`
-+
-The NFT symbol.
+- The NFT symbol.
 
 ==== `token_uri`
 
@@ -578,9 +597,7 @@ The NFT symbol.
 
 ===== Returns
 
-- `*felt252*`
-+
-The URI of `token_id`.
+- The URI of `token_id`.
 
 === IERC721Receiver API
 
@@ -709,9 +726,7 @@ The token to query.
 
 ===== Returns
 
-- `*ContractAddress*`
-+
-The owner address of `token_id`.
+- The owner address of `token_id`.
 
 ==== `_exists`
 
@@ -731,9 +746,7 @@ The token to query.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` if the token exists, `false` otherwise.
+- `true` if the token exists, `false` otherwise.
 
 ==== `_is_approved_or_owner`
 
@@ -743,7 +756,9 @@ The token to query.
 
 Internal function that returns whether `spender` is allowed to manage `token_id`.
 
-This function panics if `token_id` does not exist.
+This function panics if:
+
+- `token_id` does not exist.
 
 ===== Arguments
 
@@ -756,11 +771,7 @@ The token to query.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` if the `spender` is either the owner or approved, `false` otherwise.
-
-fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256);
+- `true` if the `spender` is either the owner or approved, `false` otherwise.
 
 ==== `_approve`
 
@@ -770,7 +781,10 @@ fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256);
 
 Internal function that changes or reaffirms the approved address for an NFT.
 
-This function panics if `token_id` does not exist or if `to` is the current token owner.
+This function panics if:
+
+- `token_id` does not exist.
+- `to` is the current token owner.
 
 Emits an <<Approval,Approval>> event.
 
@@ -794,7 +808,9 @@ Internal function that enables or disables approval for `operator` to manage all
 
 Emits an <<Approval,Approval>> event.
 
-This function panics if `owner` is also `operator`.
+This function panics if:
+
+-`owner` is the `operator`.
 
 ===== Arguments
 
@@ -820,7 +836,10 @@ WARNING: Usage of this method is discouraged, use <<_safe_mint,_safe_mint>> when
 
 Emits an <<Transfer,Transfer>> event.
 
-This function panics if `to` is the zero address or if the `token_id` already exists.
+This function panics if:
+
+- `to` is the zero address.
+- `token_id` already exists.
 
 ===== Arguments
 
@@ -843,9 +862,9 @@ Emits an <<Transfer,Transfer>> event.
 
 This function panics if:
 
-* `to` is the zero address.
-* `from` is not the token owner.
-* `token_id` does not exist.
+- `to` is the zero address.
+- `from` is not the token owner.
+- `token_id` does not exist.
 
 ===== Arguments
 
@@ -873,7 +892,7 @@ Emits an <<Transfer,Transfer>> event.
 
 This function panics if:
 
-* `token_id` does not exist.
+- `token_id` does not exist.
 
 ===== Arguments
 
@@ -894,8 +913,8 @@ Emits an <<Transfer,Transfer>> event.
 
 This function panics if:
 
-* `token_id` does not exist.
-* `to` neither is an account contract nor supports the IERC721Receiver interface.
+- `token_id` does not exist.
+- `to` neither is an account contract nor supports the IERC721Receiver interface.
 
 ===== Arguments
 
@@ -909,3 +928,61 @@ The newly created NFT to transfer.
 +
 Additional data with no specified format, sent in call to `to`.
 
+==== `_safe_transfer`
+
+[.contract-item]
+[[_safe_transfer]]
+==== `[.contract-item-name]#++_safe_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
+
+Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+
+`data` is additional data, it has no specified format and it is sent in call to `to`.
+
+This function is equivalent to `safe_transfer_from`, and can be used to e.g. implement alternative mechanisms to perform signature-based token transfers.
+
+Emits an <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- `to` is the zero address.
+- `from` is not the token owner.
+- `token_id` does not exist.
+- `to` neither is an account contract nor supports the IERC721Receiver interface.
+
+===== Arguments
+
+- `*from*`
++
+The current NFT owner.
+- `*to*`
++
+The new owner.
+- `*token_id*`
++
+The NFT to transfer.
+- `*data*`
++
+Additional data with no specified format, sent in call to `to`.
+
+        fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
+
+==== `_set_token_uri`
+
+[.contract-item]
+[[_set_token_uri]]
+==== `[.contract-item-name]#++_set_token_uri++#++(self: @ContractState, token_id: u256, token_uri: felt252)++`
+
+Sets the `token_uri` of `token_id`.
+
+This function panics if:
+
+- `token_id` does not exist.
+
+===== Arguments
+
+- `*token_id*`
++
+The target NFT.
+- `*token_uri*`
++
+The new token URI for `token_id`.

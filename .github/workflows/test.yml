@@ -1,3 +1,28 @@
-              - name: Setup Scarb
-                uses: software-mansion/setup-scarb@v1.2.0
-            
+name: Lint and test
+
+on:
+  pull_request:
+    branches:
+    - cairo-1
+  push:
+    branches:
+    - cairo-1
+
+jobs:
+  lint_and_test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Markdown lint
+      uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
+      with:
+        globs: |
+          *.md
+          !PULL_REQUEST_TEMPLATE.md
+    - name: Cairo lint
+      run: make check-format
+    - name: Cairo test
+      run: make test

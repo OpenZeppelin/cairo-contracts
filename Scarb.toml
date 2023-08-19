@@ -1,0 +1,15 @@
+[package]
+name = "openzeppelin"
+version = "0.1.0"
+
+# See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest
+
+[dependencies]
+# foo = { path = "vendor/foo" }
+
+
+[lib]
+
+[[target.starknet-contract]]
+casm = true # Enable CASM codegen.
+name = "compiled"

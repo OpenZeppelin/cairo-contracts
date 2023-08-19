@@ -41,13 +41,22 @@ The `erc721.cairo` contract implements an approximation of https://eips.ethereum
  ** <<ierc721metadata,`IERC721Metadata`>>
   *** <<name,`name`>>
   *** <<symbol,`symbol`>>
-  *** <<tokenuri,`tokenURI`>>
- ** <<ierc721enumerable,`IERC721Enumerable`>>
-  *** <<totalsupply,`totalSupply`>>
-  *** <<tokenbyindex,`tokenByIndex`>>
-  *** <<tokenofownerbyindex,`tokenOfOwnerByIndex`>>
+  *** <<token_uri,`token_uri`>>
  ** <<ierc721receiver_api,`IERC721Receiver`>>
   *** <<onerc721received,`onERC721Received`>>
+ ** <<InternalImpl,`InternalImpl`>>
+  *** <<initializer,`initializer`>>
+  *** <<owner_of_internal,`_owner_of`>>
+  *** <<exists_internal,`_exists`>>
+  *** <<is_approved_or_owner_internal,`_is_approved_or_owner`>>
+  *** <<approve_internal,`_approve`>>
+  *** <<set_approval_for_all_internal,`_set_approval_for_all`>>
+  *** <<mint_internal,`_mint`>>
+  *** <<transfer_internal,`_transfer`>>
+  *** <<burn_internal,`_burn`>>
+  *** <<safe_mint_internal,`_safe_mint`>>
+  *** <<safe_transfer_internal,`_safe_transfer`>>
+  *** <<set_token_uri_internal,`_set_token_uri`>>
 
 == IERC721
 
@@ -93,7 +102,6 @@ trait ISRC5<TState> {
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
 * It uses Cairo's `u256` instead of `felt252`.
-* It returns `true` as success.
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
@@ -104,25 +112,19 @@ If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters at this time.
 See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
-The hardcoded values derive from Solidity's selector calculations.
+The hardcoded values derive from Starknet's selector calculcations.
 See <<supporting_interfaces,Supporting Interfaces>>.
-* `safeTransferFrom` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
+* `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
 The difference between both functions consists of accepting `data` as an argument.
-Because function overloading is currently not possible in Cairo, `safeTransferFrom` by default accepts the `data` argument.
-If `data` is not used, simply insert `0`.
-* `safeTransferFrom` is specified such that the optional `data` argument should be of type bytes.
+Because function overloading is currently not possible in Cairo, `safe_transfer_from` by default accepts the `data` argument.
+If `data` is not used, simply pass an empty array.
+* `safe_transfer_from` is specified such that the optional `data` argument should be of type bytes.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
-In Cairo, arrays are expressed with the array length preceding the actual array;
-hence, the method accepts `data_len` and `data` respectively as types `felt` and `felt*`.
-* `ERC165.register_interface` allows contracts to set and communicate which interfaces they support.
-This follows OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.6.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
-* `IERC721Receiver` compliant contracts (`ERC721Holder`) return a hardcoded selector id according to EVM selectors, since selectors are calculated differently in Cairo.
-This is in line with the ERC165 interfaces design choice towards EVM compatibility.
-See the xref:introspection.adoc[Introspection docs] for more info.
-* `IERC721Receiver` compliant contracts (`ERC721Holder`) must support ERC165 by registering the `IERC721Receiver` selector id in its constructor and exposing the `supportsInterface` method.
+* `SRC5.register_interface` allows contracts to set and communicate which interfaces they support.
+This is similar to OpenZeppelin's https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.6.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage].
+* `IERC721Receiver` compliant contracts return a hardcoded selector id according to Starknet selectors (as opposed to selector calculation in Solidity).
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers.
-* `ERC721Enumerable` tracks the total number of tokens with the `all_tokens` and `all_tokens_len` storage variables mimicking the array of the Solidity implementation.
 
 == Usage
 
@@ -141,8 +143,6 @@ The `safe_transfer_from` method incorporates the following conditional logic:
 The current implementation of `safe_transfer_from` checks for `on_erc721_received` and requires that the recipient contract supports SRC5 and exposes the `supports_interface` method.
 See <<erc721received,ERC721Received>>.
 
-Fix me^
-
 === Interpreting ERC721 URIs
 
 Token URIs in Cairo are stored as single field elements.
@@ -155,21 +155,17 @@ Therefore, this library's ERC721 implementation sets URIs as a single field elem
 === ERC721Received
 
 In order to be sure a contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface (as expressed in the EIP721 specification).
-Methods such as `safe_transfer_from` and `safe_mint` call the recipient contract's `on_erc721_received` method.
+Methods such as `safe_transfer_from` and `_safe_mint` call the recipient contract's `on_erc721_received` method.
 If the contract fails to return the correct magic value, the transaction fails.
 
 Starknet contracts that support safe transfers, however, must also support xref:introspection.adoc#src5[SRC5] and include `supports_interface` as proposed (originally as ERC165) in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
 `safe_transfer_from` requires a means of differentiating between account and non-account contracts.
-`on_erc721_received` will call `supports_interface` with the SRC6 magic value (INSERT ME) on the recipient address.
+Account contracts must support the Starknet standard account interface in order to communicate the contract's ability to receive safe NFT transfers.
+The standard account interface is drafted and defined as https://community.starknet.io/t/snip-starknet-standard-account/95665[SRC-6 in Starknet Shamans].
+`on_erc721_received` will call `supports_interface` with the SRC6 magic value _0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd_ on the recipient address.
 SRC6-compliant account contracts will return `true` thus communicating that the recipient is an account contract.
 Non-account contracts, however, _must_ register support for ERC721 safe transfers.
 Otherwise, the safe transfer will fail.
-
-Currently, Starknet does not support error handling from the contract level;
-therefore, the current ERC721 implementation requires that all contracts that support safe ERC721 transfers (both accounts and non-accounts) include the `supportsInterface` method.
-Further, `supportsInterface` should return `TRUE` if the recipient contract supports the `IERC721Receiver` magic value `0x150b7a02` (which invokes `onERC721Received`).
-If the recipient contract supports the `IAccount` magic value `0x50b70dcb`, `supportsInterface` should return `TRUE`.
-Otherwise, `safeTransferFrom` should fail.
 
 ==== IERC721Receiver
 
@@ -255,7 +251,6 @@ fn is_approved_for_all(
 ==== `balance_of`
 
 [.contract-item]
-[[balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(self: @ContractState, account: ContractAddress) → u256++`
 
 Returns the number of NFTs owned by `account`.
@@ -273,7 +268,6 @@ The account balance to query.
 ==== `owner_of`
 
 [.contract-item]
-[[owner_of]]
 ==== `[.contract-item-name]#++owner_of++#++(self: @ContractState, token_id: u256) → ContractAddress++`
 
 Returns the owner address of `token_id`.
@@ -295,7 +289,6 @@ The token to query.
 ==== `transfer_from`
 
 [.contract-item]
-[[transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
 
 Transfer ownership of `token_id` from `from` to `to`.
@@ -327,7 +320,6 @@ The NFT to transfer.
 ==== `safe_transfer_from`
 
 [.contract-item]
-[[safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Safely transfer ownership of `token_id` from `from` to `to`, checking first
@@ -363,7 +355,6 @@ Additional data with no specified format, sent in call to `to`.
 ==== `approve`
 
 [.contract-item]
-[[approve]]
 ==== `[.contract-item-name]#++approve++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
 
 Change or reaffirm the approved address for an NFT.
@@ -388,7 +379,6 @@ The NFT to approve.
 ==== `set_approval_for_all`
 
 [.contract-item]
-[[set_approval_for_all]]
 ==== `[.contract-item-name]#++set_approval_for_all++#++(self: @ContractState, operator: ContractAddress, approved: bool)++`
 
 Enable or disable approval for `operator` to manage all of the caller's assets.
@@ -411,7 +401,6 @@ Address to add to the set of authorized operators.
 ==== `get_approved`
 
 [.contract-item]
-[[get_approved]]
 ==== `[.contract-item-name]#++get_approved++#++(self: @ContractState, token_id: u256) -> ContractAddress++`
 
 Returns the address approved for `token_id`.
@@ -433,7 +422,6 @@ The token ID to query.
 ==== `is_approved_for_all`
 
 [.contract-item]
-[[is_approved_for_all]]
 ==== `[.contract-item-name]#++is_approved_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++`
 
 Query if `operator` is an authorized operator for `owner`.
@@ -559,7 +547,6 @@ trait IERC721Metadata<TState> {
 ==== `name`
 
 [.contract-item]
-[[name]]
 ==== `[.contract-item-name]#++name++#++(self: @ContractState)++`
 
 Returns the NFT name.
@@ -571,7 +558,6 @@ Returns the NFT name.
 ==== `symbol`
 
 [.contract-item]
-[[symbol]]
 ==== `[.contract-item-name]#++symbol++#++(self: @ContractState)++`
 
 Returns the NFT ticker symbol.
@@ -583,7 +569,6 @@ Returns the NFT ticker symbol.
 ==== `token_uri`
 
 [.contract-item]
-[[token_uri]]
 ==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256)++`
 
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
@@ -620,7 +605,6 @@ trait IERC721Receiver<TState> {
 ==== `on_erc721_received`
 
 [.contract-item]
-[[on_erc721_received]]
 ==== `[.contract-item-name]#++on_erc721_received++#++(self: @TState, operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++`
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract through `safe_transfer_from`, this function is called.
@@ -694,7 +678,6 @@ fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252);
 ==== `initializer`
 
 [.contract-item]
-[[initializer]]
 ==== `[.contract-item-name]#++initializer++#++(self: @ContractState, name_: felt252, symbol_: felt252)++`
 
 Initializes the contract by setting the token name and symbol.
@@ -709,10 +692,9 @@ The token name.
 +
 The token symbol.
 
-==== `_owner_of`
+==== `_owner_of` [[owner_of_internal]]
 
 [.contract-item]
-[[_owner_of]]
 ==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: u256) -> ContractAddress++`
 
 Internal function that returns the owner address of `token_id`.
@@ -728,10 +710,9 @@ The token to query.
 
 - The owner address of `token_id`.
 
-==== `_exists`
+==== `_exists` [[exists_internal]]
 
 [.contract-item]
-[[_exists]]
 ==== `[.contract-item-name]#++_exists++#++(self: @ContractState, token_id: u256) -> bool++`
 
 Internal function that returns whether `token_id` exists.
@@ -748,10 +729,9 @@ The token to query.
 
 - `true` if the token exists, `false` otherwise.
 
-==== `_is_approved_or_owner`
+==== `_is_approved_or_owner` [[is_approved_or_owner_internal]]
 
 [.contract-item]
-[[_is_approved_or_owner]]
 ==== `[.contract-item-name]#++_is_approved_or_owner++#++(self: @ContractState, spender: ContractAddress, token_id: u256) -> bool++`
 
 Internal function that returns whether `spender` is allowed to manage `token_id`.
@@ -773,10 +753,9 @@ The token to query.
 
 - `true` if the `spender` is either the owner or approved, `false` otherwise.
 
-==== `_approve`
+==== `_approve` [[approve_internal]]
 
 [.contract-item]
-[[_approve]]
 ==== `[.contract-item-name]#++_approve++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
 
 Internal function that changes or reaffirms the approved address for an NFT.
@@ -797,10 +776,9 @@ The new approved NFT controller.
 +
 The NFT to approve.
 
-==== `_set_approval_for_all`
+==== `_set_approval_for_all` [[set_approval_for_all_internal]]
 
 [.contract-item]
-[[_set_approval_for_all]]
 ==== `[.contract-item-name]#++_set_approval_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress, approved: bool)++`
 
 Internal function that enables or disables approval for `operator` to manage all of the
@@ -824,10 +802,9 @@ Address to add to the set of authorized operators.
 +
 `true` if `operator` is approved, `false` to revoke approval.
 
-==== `_mint`
+==== `_mint` [[mint_internal]]
 
 [.contract-item]
-[[_mint]]
 ==== `[.contract-item-name]#++_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
 
 Internal function that mints `token_id` and transfer it to `to`.
@@ -850,10 +827,9 @@ The new owner of the NFT.
 +
 The newly created NFT to transfer.
 
-==== `_transfer`
+==== `_transfer` [[transfer_internal]]
 
 [.contract-item]
-[[_transfer]]
 ==== `[.contract-item-name]#++_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
 
 Internal function that transfers `token_id` from `from` to `to`.
@@ -878,10 +854,9 @@ The new owner.
 +
 The NFT to transfer.
 
-==== `_burn`
+==== `_burn` [[burn_internal]]
 
 [.contract-item]
-[[_burn]]
 ==== `[.contract-item-name]#++_burn++#++(self: @ContractState, token_id: u256)++`
 
 Internal function that destroys `token_id`.
@@ -900,10 +875,9 @@ This function panics if:
 +
 The NFT to burn.
 
-==== `_safe_mint`
+==== `_safe_mint` [[safe_mint_internal]]
 
 [.contract-item]
-[[_safe_mint]]
 ==== `[.contract-item-name]#++_safe_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Internal function that safely mints `token_id` and transfers it to `to`.
@@ -928,10 +902,9 @@ The newly created NFT to transfer.
 +
 Additional data with no specified format, sent in call to `to`.
 
-==== `_safe_transfer`
+==== `_safe_transfer` [[safe_transfer_internal]]
 
 [.contract-item]
-[[_safe_transfer]]
 ==== `[.contract-item-name]#++_safe_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
@@ -964,12 +937,9 @@ The NFT to transfer.
 +
 Additional data with no specified format, sent in call to `to`.
 
-        fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-
-==== `_set_token_uri`
+==== `_set_token_uri` [[set_token_uri_internal]]
 
 [.contract-item]
-[[_set_token_uri]]
 ==== `[.contract-item-name]#++_set_token_uri++#++(self: @ContractState, token_id: u256, token_uri: felt252)++`
 
 Sets the `token_uri` of `token_id`.

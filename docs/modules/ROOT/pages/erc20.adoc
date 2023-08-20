@@ -274,6 +274,11 @@ Moves `amount` tokens from the caller's token balance to `to`.
 
 Emits a <<Transfer,Transfer>> event.
 
+This function panics if:
+
+- The caller is the zero address.
+- `recipient` is the zero address.
+
 ===== Arguments
 
 - `*recipient*`
@@ -296,6 +301,11 @@ Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism
 `amount` is then deducted from the caller's allowance.
 
 Emits a <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- `sender` is the zero address.
+- `recipient` is the zero address.
 
 ===== Arguments
 
@@ -321,6 +331,11 @@ The number of tokens to send from `sender` to `recipient`.
 Sets `amount` as the allowance of `spender` over the caller's tokens.
 
 Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
 
 ===== Arguments
 
@@ -413,6 +428,11 @@ Atomically increases the allowance granted to `spender` by the caller.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
 
+Panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
+
 ===== Arguments
 
 - `*spender*`
@@ -430,6 +450,11 @@ The amount of tokens added to the spender's allowance.
 Atomically decreases the allowance granted to `spender` by the caller.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
+
+Panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
 
 ===== Arguments
 
@@ -531,6 +556,10 @@ Creates an `amount` number of tokens and assigns them to `recipient`, by transfe
 
 Emits a <<Transfer,Transfer>> event with `from` being the zero address.
 
+This function panics if:
+
+- `recipient` is the zero address.
+
 ===== Arguments
 
 - `*recipient*`
@@ -548,6 +577,10 @@ The number of tokens created.
 Destroys `amount` number of tokens from `account`, by transferring them to the zero address.
 
 Emits a <<Transfer,Transfer>> event with `to` set to the zero address.
+
+This function panics if:
+
+- `account` is the zero address.
 
 ===== Arguments
 
@@ -568,6 +601,11 @@ This internal function is equivalent to `approve`, and can be used to e.g. set a
 
 Emits an <<Approval,Approval>> event.
 
+This function panics if:
+
+- `owner` is the zero address.
+- `spender` is the zero address.
+
 ===== Arguments
 
 - `*owner*`
@@ -585,9 +623,14 @@ The number of tokens in the `spender` allowance.
 [.contract-item]
 ==== `[.contract-item-name]#++_transfer++#++(ref self: @TState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++`
 
-Internal method that moves an `amount` of tokens from `from` to `to`.
+Internal method that moves an `amount` of tokens from `sender` to `recipient`.
 
 Emits a <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- `sender` is the zero address.
+- `recipient` is the zero address.
 
 ===== Arguments
 

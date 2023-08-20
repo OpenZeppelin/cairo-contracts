@@ -174,7 +174,6 @@ fn approve(
 ==== `name`
 
 [.contract-item]
-[[name]]
 ==== `[.contract-item-name]#++name++#++(self: @TState) → felt252++`
 
 Returns the name of the token.
@@ -186,7 +185,6 @@ Returns the name of the token.
 ==== `symbol`
 
 [.contract-item]
-[[symbol]]
 ==== `[.contract-item-name]#++symbol++#++(self: @TState) → felt252++`
 
 Returns the ticker symbol of the token, usually a shorter version of the name.
@@ -198,7 +196,6 @@ Returns the ticker symbol of the token, usually a shorter version of the name.
 ==== `decimals`
 
 [.contract-item]
-[[decimals]]
 ==== `[.contract-item-name]#++decimals++#++(self: @TState) → u8++`
 
 Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
@@ -221,7 +218,6 @@ no way affects any of the arithmetic of the contract.
 ==== `total_supply`
 
 [.contract-item]
-[[total_supply]]
 ==== `[.contract-item-name]#++total_supply++#++(self: @TState) → u256++`
 
 Returns the amount of tokens in existence.
@@ -233,7 +229,6 @@ Returns the amount of tokens in existence.
 ==== `balance_of`
 
 [.contract-item]
-[[balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(self: @TState, account: ContractAddress) → u256++`
 
 Returns the amount of tokens owned by `account`.
@@ -251,7 +246,6 @@ The account balance to query.
 ==== `allowance`
 
 [.contract-item]
-[[allowance]]
 ==== `[.contract-item-name]#++allowance++#++(self: @TState, owner: ContractAddress, spender: ContractAddress) → u256++`
 
 Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
@@ -274,7 +268,6 @@ The address of the token spender.
 ==== `transfer`
 
 [.contract-item]
-[[transfer]]
 ==== `[.contract-item-name]#++transfer++#++(ref self: @TState, recipient: ContractAddress, amount: u256) → bool++`
 
 Moves `amount` tokens from the caller's token balance to `to`.
@@ -297,7 +290,6 @@ The number of tokens to send from the caller to the `recipient`.
 ==== `transfer_from`
 
 [.contract-item]
-[[transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(ref self: @TState, sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++`
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
@@ -324,7 +316,6 @@ The number of tokens to send from `sender` to `recipient`.
 ==== `approve`
 
 [.contract-item]
-[[approve]]
 ==== `[.contract-item-name]#++approve++#++(ref self: @TState, spender: ContractAddress, amount: u256) → bool++`
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -416,7 +407,6 @@ fn decrease_allowance(
 ==== `increase_allowance`
 
 [.contract-item]
-[[increase_allowance]]
 ==== `[.contract-item-name]#++increase_allowance++#++(ref self: @TState, spender: ContractAddress, added_value: u256)++`
 
 Atomically increases the allowance granted to `spender` by the caller.
@@ -435,7 +425,6 @@ The amount of tokens added to the spender's allowance.
 ==== `decrease_allowance`
 
 [.contract-item]
-[[decrease_allowance]]
 ==== `[.contract-item-name]#++decrease_allowance++#++(ref self: @TState, spender: ContractAddress, subtracted_value: u256)++`
 
 Atomically decreases the allowance granted to `spender` by the caller.
@@ -487,7 +476,6 @@ fn _spend_allowance(
 ==== `initializer`
 
 [.contract-item]
-[[initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: @TState, name_: felt252, symbol_: felt252)++`
 
 Initializers the contract by setting the token name and symbol.

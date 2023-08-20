@@ -428,7 +428,7 @@ Atomically increases the allowance granted to `spender` by the caller.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
 
-Panics if:
+This functions panics if:
 
 - The caller is the zero address.
 - `spender` is the zero address.
@@ -451,7 +451,7 @@ Atomically decreases the allowance granted to `spender` by the caller.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
 
-Panics if:
+This functions panics if:
 
 - The caller is the zero address.
 - `spender` is the zero address.

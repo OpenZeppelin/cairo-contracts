@@ -181,9 +181,7 @@ Returns the name of the token.
 
 ===== Returns
 
-- `*felt252*`
-+
-Token name.
+- Token name.
 
 ==== `symbol`
 
@@ -195,9 +193,7 @@ Returns the ticker symbol of the token, usually a shorter version of the name.
 
 ===== Returns
 
-- `*felt252*`
-+
-Token symbol.
+- Token symbol.
 
 ==== `decimals`
 
@@ -220,9 +216,7 @@ no way affects any of the arithmetic of the contract.
 
 ===== Returns
 
-- `*u8*`
-+
-Token decimals.
+- Token decimals.
 
 ==== `total_supply`
 
@@ -234,9 +228,7 @@ Returns the amount of tokens in existence.
 
 ===== Returns
 
-- `*u256*`
-+
-Total amount of tokens in existence.
+- Total amount of tokens in existence.
 
 ==== `balance_of`
 
@@ -254,9 +246,7 @@ The account balance to query.
 
 ===== Returns
 
-- `*u256*`
-+
-Token balance of `account`.
+- Token balance of `account`.
 
 ==== `allowance`
 
@@ -279,9 +269,7 @@ The address of the token spender.
 
 ===== Returns
 
-- `*u256*`
-+
-Current allowance granted by `owner` to `spender`.
+- Current allowance granted by `owner` to `spender`.
 
 ==== `transfer`
 
@@ -304,9 +292,7 @@ The number of tokens to send from the caller to the `recipient`.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` on success.
+- `true` on success.
 
 ==== `transfer_from`
 
@@ -333,9 +319,7 @@ The number of tokens to send from `sender` to `recipient`.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` on success.
+- `true` on success.
 
 ==== `approve`
 
@@ -358,9 +342,7 @@ The token allowance given to the `spender` from the caller.
 
 ===== Returns
 
-- `*bool*`
-+
-`true` on success.
+- `true` on success.
 
 === Events
 

@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (utils/cryptography/draft_eip712.cairo)
+// OpenZeppelin Contracts for Cairo v0.7.0 (utils/cryptography/typed_message.cairo)
 
-//
+// Utils for off-chain typed message generation.
 // See: https://community.starknet.io/t/snip-off-chain-signatures-a-la-eip712/98029.
-//
 
 use box::BoxTrait;
 use hash::LegacyHash;
@@ -27,7 +26,7 @@ trait IStructHash<T> {
 }
 
 trait IOffchainMessageHash<T> {
-    fn get_message_hash(self: @T) -> felt252;
+    fn get_message_hash(self: @T, name: felt252, version: felt252) -> felt252;
 }
 
 impl StructHashStarknetDomain of IStructHash<StarknetDomain> {

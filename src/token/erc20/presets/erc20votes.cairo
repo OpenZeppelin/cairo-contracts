@@ -8,6 +8,7 @@ mod ERC20VotesPreset {
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::token::erc20::extensions::ERC20Votes;
     use openzeppelin::token::erc20::interface::{IERC20, IERC20Camel};
+    use openzeppelin::utils::cryptography::eip712_draft::EIP712;
     use openzeppelin::utils::structs::checkpoints::Checkpoint;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
@@ -39,12 +40,17 @@ mod ERC20VotesPreset {
         name: felt252,
         symbol: felt252,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
+        dapp_name: felt252,
+        dapp_version: felt252
     ) {
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        let mut eip712_state = EIP712::unsafe_new_contract_state();
+        EIP712::InternalImpl::initializer(ref eip712_state, dapp_name, dapp_version);
+
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
         ERC20::InternalImpl::_mint::<ERC20VotesHooksImpl>(
-            ref unsafe_state, recipient, initial_supply
+            ref erc20_state, recipient, initial_supply
         );
     }
 

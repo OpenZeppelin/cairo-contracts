@@ -11,6 +11,8 @@ const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 const URI: felt252 = 'URI';
 const TOKEN_ID: u256 = 21;
 const PUBKEY: felt252 = 'PUBKEY';
+const DAPP_NAME: felt252 = 'OZ-DAPP';
+const DAPP_VERSION: felt252 = '2.0.0';
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()

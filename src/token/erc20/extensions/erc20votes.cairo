@@ -4,9 +4,9 @@
 use box::BoxTrait;
 use hash::LegacyHash;
 use starknet::ContractAddress;
-use openzeppelin::utils::cryptography::draft_eip712::IOffchainMessageHash;
-use openzeppelin::utils::cryptography::draft_eip712::IStructHash;
-use openzeppelin::utils::cryptography::draft_eip712::StarknetDomain;
+use openzeppelin::utils::cryptography::typed_message::IOffchainMessageHash;
+use openzeppelin::utils::cryptography::typed_message::IStructHash;
+use openzeppelin::utils::cryptography::typed_message::StarknetDomain;
 
 /// This is a contract that tracks voting units from ERC20 balances, which are a measure of voting power that can be
 /// transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
@@ -18,6 +18,7 @@ mod ERC20Votes {
     use array::{ArrayTrait, SpanTrait};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
+    use openzeppelin::utils::cryptography::eip712_draft::EIP712;
     use openzeppelin::utils::nonces::Nonces;
     use openzeppelin::utils::selectors;
     use openzeppelin::utils::serde::SerializedAppend;
@@ -107,7 +108,12 @@ mod ERC20Votes {
 
             // Build hash for calling `is_valid_signature`.
             let delegation = Delegation { delegatee, nonce, expiry };
-            let hash = delegation.get_message_hash();
+
+            let eip712_state = EIP712::unsafe_new_contract_state();
+            let name = EIP712::name(@eip712_state);
+            let version = EIP712::version(@eip712_state);
+
+            let hash = delegation.get_message_hash(name, version);
 
             let mut calldata = array![];
             calldata.append_serde(hash);
@@ -224,9 +230,9 @@ struct Delegation {
 }
 
 impl OffchainMessageHashImpl of IOffchainMessageHash<Delegation> {
-    fn get_message_hash(self: @Delegation) -> felt252 {
+    fn get_message_hash(self: @Delegation, name: felt252, version: felt252) -> felt252 {
         let domain = StarknetDomain {
-            name: 'dappName', version: 1, chain_id: starknet::get_tx_info().unbox().chain_id
+            name, version, chain_id: starknet::get_tx_info().unbox().chain_id
         };
         let mut state = LegacyHash::hash(0, 'StarkNet Message');
         state = LegacyHash::hash(state, domain.hash_struct());

@@ -7,7 +7,7 @@ use openzeppelin::tests::token::test_erc20::{
     assert_only_event_transfer, assert_only_event_approval, assert_event_approval
 };
 use openzeppelin::tests::utils::constants::{
-    NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
+    DAPP_NAME, DAPP_VERSION, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset;
@@ -31,7 +31,9 @@ fn STATE() -> ERC20VotesPreset::ContractState {
 fn setup() -> ERC20VotesPreset::ContractState {
     let mut state = STATE();
     testing::set_block_timestamp('ts0');
-    ERC20VotesPreset::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    ERC20VotesPreset::constructor(
+        ref state, NAME, SYMBOL, SUPPLY, OWNER(), DAPP_NAME, DAPP_VERSION
+    );
     utils::drop_events(ZERO(), 2);
     state
 }
@@ -44,7 +46,9 @@ fn setup() -> ERC20VotesPreset::ContractState {
 #[available_gas(2000000)]
 fn test_constructor() {
     let mut state = STATE();
-    ERC20VotesPreset::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    ERC20VotesPreset::constructor(
+        ref state, NAME, SYMBOL, SUPPLY, OWNER(), DAPP_NAME, DAPP_VERSION
+    );
 
     assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
 
@@ -91,7 +95,7 @@ fn test_allowance() {
 //
 
 #[test]
-#[available_gas(2000000)]
+#[available_gas(20000000)]
 fn test_approve() {
     let mut state = setup();
     testing::set_caller_address(OWNER());

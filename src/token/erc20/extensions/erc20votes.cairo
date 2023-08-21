@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/extensions/erc20votes.cairo)
 
+use box::BoxTrait;
+use hash::LegacyHash;
+use starknet::ContractAddress;
+use openzeppelin::utils::cryptography::draft_eip712::IOffchainMessageHash;
+use openzeppelin::utils::cryptography::draft_eip712::IStructHash;
+use openzeppelin::utils::cryptography::draft_eip712::StarknetDomain;
+
 /// This is a contract that tracks voting units from ERC20 balances, which are a measure of voting power that can be
 /// transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
 /// "representative" that will pool delegated voting units from different accounts and can then use it to vote in
@@ -11,7 +18,6 @@ mod ERC20Votes {
     use array::{ArrayTrait, SpanTrait};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
-    use openzeppelin::utils::cryptography::eip712;
     use openzeppelin::utils::nonces::Nonces;
     use openzeppelin::utils::selectors;
     use openzeppelin::utils::serde::SerializedAppend;
@@ -19,6 +25,8 @@ mod ERC20Votes {
     use poseidon::poseidon_hash_span;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
+    use super::Delegation;
+    use super::IOffchainMessageHash;
     use traits::Into;
 
     #[storage]
@@ -98,11 +106,8 @@ mod ERC20Votes {
             Nonces::InternalImpl::use_checked_nonce(ref unsafe_state, delegator, nonce);
 
             // Build hash for calling `is_valid_signature`.
-            let domain_separator = eip712::build_domain_separator('OZ-ERC20Votes', 'v4');
-            let struct_hash = poseidon_hash_span(
-                array![DELEGATION_TYPEHASH(), delegatee.into(), nonce, expiry.into()].span()
-            );
-            let hash = eip712::to_typed_data_hash(domain_separator, struct_hash);
+            let delegation = Delegation { delegatee, nonce, expiry };
+            let hash = delegation.get_message_hash();
 
             let mut calldata = array![];
             calldata.append_serde(hash);
@@ -201,11 +206,44 @@ mod ERC20Votes {
             ERC20::ERC20Impl::balance_of(@unsafe_state, account)
         }
     }
+}
 
-    fn DELEGATION_TYPEHASH() -> felt252 {
-        poseidon_hash_span(
-            array!['Delegation', '(delegatee: ContractAddress,', 'nonce: felt252,', 'expiry: u64)']
-                .span()
-        )
+//
+// Offchain message hash generation helpers.
+//
+
+// sn_keccak('Delegation(delegatee:felt,nonce:felt,expiry:felt)')
+const DELEGATION_TYPE_HASH: felt252 =
+    0x3199be234dc4a3b2ba2613182079bc0a1f7f9c445a77a7a36ae800010d8c939;
+
+#[derive(Copy, Drop)]
+struct Delegation {
+    delegatee: ContractAddress,
+    nonce: felt252,
+    expiry: u64
+}
+
+impl OffchainMessageHashImpl of IOffchainMessageHash<Delegation> {
+    fn get_message_hash(self: @Delegation) -> felt252 {
+        let domain = StarknetDomain {
+            name: 'dappName', version: 1, chain_id: starknet::get_tx_info().unbox().chain_id
+        };
+        let mut state = LegacyHash::hash(0, 'StarkNet Message');
+        state = LegacyHash::hash(state, domain.hash_struct());
+        state = LegacyHash::hash(state, starknet::get_caller_address());
+        state = LegacyHash::hash(state, self.hash_struct());
+        state = LegacyHash::hash(state, 4);
+        state
+    }
+}
+
+impl StructHashImpl of IStructHash<Delegation> {
+    fn hash_struct(self: @Delegation) -> felt252 {
+        let mut state = LegacyHash::hash(0, DELEGATION_TYPE_HASH);
+        state = LegacyHash::hash(state, *self.delegatee);
+        state = LegacyHash::hash(state, *self.nonce);
+        state = LegacyHash::hash(state, *self.expiry);
+        state = LegacyHash::hash(state, 4);
+        state
     }
 }

@@ -112,7 +112,7 @@ fn transfer(self: @ContractState, recipient: ContractAddress, amount: u256) -> b
 The unsafe state also allows access to ERC20's `InternalImpl`.
 Having access to ERC20's internal implementation permits contracts, for example, to expose the internal methods like `_mint`.
 
-[,rust]
+[,javascript]
 ----
 #[external(v0)]
 fn mint(self: @ContractState, to: ContractAddress, amount: u256) {

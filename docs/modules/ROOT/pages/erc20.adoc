@@ -10,7 +10,7 @@ The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.
 * <<usage,Usage>>
 * <<extensibility,Extensibility>>
 * <<presets,Presets>>
- ** <<erc20_basic,ERC20 (basic)>>
+ ** <<erc20_preset,ERC20 (basic)>>
 * <<api_specification,API Specification>>
  ** <<erc20impl,ERC20Impl>>
   *** <<name,`name`>>
@@ -129,7 +129,7 @@ The basic preset mints an inital supply which is necessary because it does not e
 
 More presets coming soon!
 
-=== ERC20 (basic)
+=== ERC20 (basic) [[erc20_preset]]
 
 *TODO: CHANGE LINK TO RELEASE COMMIT WHEN AVAILABLE*
 

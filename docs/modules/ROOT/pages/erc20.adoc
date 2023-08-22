@@ -169,16 +169,10 @@ fn approve(
 ) -> bool;
 ----
 
-==== `name`
-
 [.contract-item#name]
 ==== `[.contract-item-name]#++name++#++(self: @TState) → felt252++`
 
 Returns the name of the token.
-
-===== Returns
-
-- Token name.
 
 ==== `symbol`
 
@@ -186,10 +180,6 @@ Returns the name of the token.
 ==== `[.contract-item-name]#++symbol++#++(self: @TState) → felt252++`
 
 Returns the ticker symbol of the token, usually a shorter version of the name.
-
-===== Returns
-
-- Token symbol.
 
 ==== `decimals`
 
@@ -209,20 +199,12 @@ a custom implementation is used.
 NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract.
 
-===== Returns
-
-- Token decimals.
-
 ==== `total_supply`
 
 [.contract-item]
 ==== `[.contract-item-name]#++total_supply++#++(self: @TState) → u256++`
 
 Returns the amount of tokens in existence.
-
-===== Returns
-
-- Total amount of tokens in existence.
 
 ==== `balance_of`
 
@@ -236,10 +218,6 @@ Returns the amount of tokens owned by `account`.
 - `*account*`
 +
 The account balance to query.
-
-===== Returns
-
-- Token balance of `account`.
 
 ==== `allowance`
 
@@ -258,10 +236,6 @@ The address of the token owner.
 - `*spender*`
 +
 The address of the token spender.
-
-===== Returns
-
-- Current allowance granted by `owner` to `spender`.
 
 ==== `transfer`
 
@@ -285,10 +259,6 @@ The address receiving `amount` tokens.
 - `*amount*`
 +
 The number of tokens to send from the caller to the `recipient`.
-
-===== Returns
-
-- `true` on success.
 
 ==== `transfer_from`
 
@@ -317,10 +287,6 @@ The address receiving `amount` tokens.
 +
 The number of tokens to send from `sender` to `recipient`.
 
-===== Returns
-
-- `true` on success.
-
 ==== `approve`
 
 [.contract-item]
@@ -343,10 +309,6 @@ The address which may spend `amount` tokens on behalf of the caller.
 - `*amount*`
 +
 The token allowance given to the `spender` from the caller.
-
-===== Returns
-
-- `true` on success.
 
 === Events
 

@@ -3,42 +3,10 @@
 //!
 //! # ERC20 Contract and Implementation
 //!
-//! # Examples
-//!
-//! How to extend the ERC20 contract:
-//! ```
-//! #[starknet::contract]
-//! mod MyToken {
-//!   use openzeppelin::token::erc20::ERC20;
-//!   use starknet::ContractAddress;
-//!
-//!    #[storage]
-//!    struct Storage {}
-//!
-//!    #[constructor]
-//!    fn constructor(
-//!        ref self: ContractState,
-//!        initial_supply: u256,
-//!        recipient: ContractAddress
-//!    ) {
-//!        let name = 'MyToken';
-//!        let symbol = 'MTK';
-//!        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-//!        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
-//!        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
-//!    }
-//!
-//!    // Define methods that extend the ERC20 standard contract.
-//!    #[external(v0)]
-//!    fn name(self: @ContractState) -> felt252 {
-//!        let unsafe_state = ERC20::unsafe_new_contract_state();
-//!        ERC20::ERC20Impl::name(@unsafe_state)
-//!    }
-//!
-//!    ...
-//!
-//! }
-//! ```
+//! This ERC20 contract includes both a library and a basic preset implementation.
+//! The library is agnostic regarding how tokens are created; however,
+//! the preset implementation sets the initial supply in the constructor.
+//! A derived contract can use [_mint](_mint) to create a different supply mechanism.
 #[starknet::contract]
 mod ERC20 {
     use integer::BoundedInt;

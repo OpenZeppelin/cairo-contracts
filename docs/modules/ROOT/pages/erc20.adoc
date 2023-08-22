@@ -122,8 +122,6 @@ fn mint(self: @ContractState, to: ContractAddress, amount: u256) {
 }
 ----
 
-Note that accessing the contract's state in this way is unsafe at the moment.
-
 == Presets
 
 The ERC20 contract itself includes a basic implementation preset and can be used as-is for quick prototyping and testing.

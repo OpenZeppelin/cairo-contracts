@@ -14,7 +14,7 @@ mod Nonces {
         const INVALID_NONCE: felt252 = 'Nonces: invalid nonce';
     }
 
-    /// Returns an the next unused nonce for an address.
+    /// Returns the next unused nonce for an address.
     #[external(v0)]
     fn nonces(self: @ContractState, owner: ContractAddress) -> felt252 {
         self._nonces.read(owner)

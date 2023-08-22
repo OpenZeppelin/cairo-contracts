@@ -148,7 +148,7 @@ mod ERC20 {
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
-        /// Emits a [Transfer](transfer) event.
+        /// Emits a [Transfer](Transfer) event.
         ///
         /// # Panics
         ///

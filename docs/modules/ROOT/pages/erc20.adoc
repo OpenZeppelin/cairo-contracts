@@ -231,7 +231,6 @@ The address of the token spender.
 ==== `[.contract-item-name]#++transfer++#++(ref self: @TState, recipient: ContractAddress, amount: u256) → bool++`
 
 Moves `amount` tokens from the caller's token balance to `to`.
-
 Returns `true` on success.
 
 Emits a <<Transfer,Transfer>> event.
@@ -255,7 +254,6 @@ The number of tokens to send from the caller to the `recipient`.
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
 `amount` is then deducted from the caller's allowance.
-
 Returns `true` on success.
 
 Emits a <<Transfer,Transfer>> event.
@@ -281,7 +279,6 @@ The number of tokens to send from `sender` to `recipient`.
 ==== `[.contract-item-name]#++approve++#++(ref self: @TState, spender: ContractAddress, amount: u256) → bool++`
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
-
 Returns `true` on success.
 
 Emits an <<Approval,Approval>> event.

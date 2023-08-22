@@ -1,7 +1,7 @@
 = ERC20
 
 The ERC20 token standard is a specification for https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungible tokens], a type of token where all the units are exactly equal to each other.
-The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-20[EIP-20] in Cairo for StarkNet.
+The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.org/EIPS/eip-20[EIP-20] in Cairo for Starknet.
 
 == Table of Contents
 

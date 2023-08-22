@@ -232,6 +232,8 @@ The address of the token spender.
 
 Moves `amount` tokens from the caller's token balance to `to`.
 
+Returns `true` on success.
+
 Emits a <<Transfer,Transfer>> event.
 
 This function panics if:
@@ -253,6 +255,8 @@ The number of tokens to send from the caller to the `recipient`.
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
 `amount` is then deducted from the caller's allowance.
+
+Returns `true` on success.
 
 Emits a <<Transfer,Transfer>> event.
 
@@ -277,6 +281,8 @@ The number of tokens to send from `sender` to `recipient`.
 ==== `[.contract-item-name]#++approve++#++(ref self: @TState, spender: ContractAddress, amount: u256) → bool++`
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
+
+Returns `true` on success.
 
 Emits an <<Approval,Approval>> event.
 
@@ -353,16 +359,17 @@ The amount which may be spent by the `spender`.
 ----
 fn increase_allowance(
     ref self: TState, spender: ContractAddress, added_value: u256
-);
+) -> bool;
 fn decrease_allowance(
     ref self: TState, spender: ContractAddress, subtracted_value: u256
-);
+) -> bool;
 ----
 
 [.contract-item#increase_allowance]
-==== `[.contract-item-name]#++increase_allowance++#++(ref self: @TState, spender: ContractAddress, added_value: u256)++`
+==== `[.contract-item-name]#++increase_allowance++#++(ref self: @TState, spender: ContractAddress, added_value: u256) -> bool++`
 
 Atomically increases the allowance granted to `spender` by the caller.
+Returns `true` on success.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
 
@@ -381,9 +388,10 @@ The address which may spend tokens on behalf of the caller.
 The amount of tokens added to the spender's allowance.
 
 [.contract-item#decrease_allowance]
-==== `[.contract-item-name]#++decrease_allowance++#++(ref self: @TState, spender: ContractAddress, subtracted_value: u256)++`
+==== `[.contract-item-name]#++decrease_allowance++#++(ref self: @TState, spender: ContractAddress, subtracted_value: u256) -> bool++`
 
 Atomically decreases the allowance granted to `spender` by the caller.
+Returns `true` on success.
 
 Emits an <<Approval,Approval>> event indicating the updated allowance.
 

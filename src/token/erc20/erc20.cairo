@@ -3,7 +3,7 @@
 //!
 //! # ERC20 Contract and Implementation
 //!
-//! # Example
+//! # Examples
 //!
 //! How to extend the ERC20 contract:
 //! ```
@@ -65,11 +65,6 @@ mod ERC20 {
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
-    ///
-    /// # Arguments
-    /// * `from` - The address from which the tokens are sent.
-    /// * `to` - The recipient address.
-    /// * `value` - The amount of tokens sent from `from` to `to`.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
         from: ContractAddress,
@@ -79,11 +74,6 @@ mod ERC20 {
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to [approve](approve). `value` is the new allowance.
-    ///
-    /// # Arguments
-    /// * `owner` - The address which owns the tokens to approve.
-    /// * `spender` - The address which may spend the tokens on behalf of the `owner`.
-    /// * `value` - The amount which may be spent by the `spender`.
     #[derive(Drop, starknet::Event)]
     struct Approval {
         owner: ContractAddress,
@@ -93,12 +83,6 @@ mod ERC20 {
 
     /// Initializes the state of the ERC20 contract. This includes setting the
     /// initial supply of tokens as well as the recipient of the initial supply.
-    ///
-    /// # Arguments
-    /// * `name` - The token name.
-    /// * `symbol` - The token symbol.
-    /// * `initial_supply` - The total amount of tokens to be minted upon deployment.
-    /// * `recipient` - The address which will receive the `initial_supply`.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -118,17 +102,11 @@ mod ERC20 {
     #[external(v0)]
     impl ERC20Impl of IERC20<ContractState> {
         /// Returns the name of the token.
-        ///
-        /// # Returns
-        /// Token name.
         fn name(self: @ContractState) -> felt252 {
             self._name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
-        ///
-        /// # Returns
-        /// Token symbol.
         fn symbol(self: @ContractState) -> felt252 {
             self._symbol.read()
         }
@@ -144,27 +122,16 @@ mod ERC20 {
         ///
         /// NOTE: This information is only used for _display_ purposes: it in
         /// no way affects any of the arithmetic of the contract.
-        ///
-        /// # Returns
-        /// Number of decimals used.
         fn decimals(self: @ContractState) -> u8 {
             18
         }
 
         /// Returns the value of tokens in existence.
-        ///
-        /// # Returns
-        /// Amount of tokens in existence.
         fn total_supply(self: @ContractState) -> u256 {
             self._total_supply.read()
         }
 
         /// Returns the amount of tokens owned by `account`.
-        ///
-        /// # Arguments
-        /// * `account` - Address to query.
-        /// # Returns
-        /// Amount of tokens owned by `account`.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             self._balances.read(account)
         }
@@ -174,12 +141,6 @@ mod ERC20 {
         /// This is zero by default.
         /// This value changes when [approve](approve) or [transfer_from](transfer_from)
         /// are called.
-        ///
-        /// # Arguments
-        /// `owner` - The address which owns the tokens to approve.
-        /// `spender` - The address which may spend the tokens on behalf of the `owner`.
-        /// # Returns
-        /// Amount of tokens which may be spent by the `spender`.
         fn allowance(
             self: @ContractState, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
@@ -187,14 +148,7 @@ mod ERC20 {
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
-        ///
         /// Emits a [Transfer](transfer) event.
-        ///
-        /// # Arguments
-        /// * `recipient` - The address receiving `amount` tokens.
-        /// * `amount` - The number of tokens to send from the caller to the `recipient`.
-        /// # Returns
-        /// `true` if the function call succeeds.
         ///
         /// # Panics
         ///
@@ -208,18 +162,9 @@ mod ERC20 {
             true
         }
 
-        /// Moves `amount` tokens from `from` to `to` using the
-        /// allowance mechanism.
+        /// Moves `amount` tokens from `from` to `to` using the allowance mechanism.
         /// `amount` is then deducted from the caller's allowance.
-        ///
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Arguments
-        /// `sender` - The address from which the transfer will be initiated.
-        /// `recipient` - The address receiving `amount` tokens.
-        /// `amount` - The value of tokens the `recipient` receives.
-        /// # Returns
-        /// `true` if the function call succeeds.
         ///
         /// # Panics
         ///
@@ -241,12 +186,6 @@ mod ERC20 {
         }
 
         /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
-        ///
-        /// # Arguments
-        /// `spender` - The address which may spend `amount` tokens on behalf of the caller.
-        /// `amount` - The token allowance given to the `spender` from the caller.
-        /// # Returns
-        /// `true` if the function call succeeds.
         ///
         /// # Panics
         ///
@@ -287,15 +226,7 @@ mod ERC20 {
     }
 
     /// Atomically increases the allowance granted to `spender` by the caller.
-    ///
     /// Emits an [Approval](Approval) event indicating the updated allowance.
-    ///
-    /// # Arguments
-    /// `spender` - The address which may spend the `added_value` tokens
-    /// on behalf of the caller.
-    /// * `added_value` - The additional allowance the `spender` may spend.
-    /// # Returns
-    /// `true` if the function call succeeds.
     #[external(v0)]
     fn increase_allowance(
         ref self: ContractState, spender: ContractAddress, added_value: u256
@@ -313,15 +244,7 @@ mod ERC20 {
     }
 
     /// Atomically decreases the allowance granted to `spender` by the caller.
-    ///
     /// Emits an [Approval](Approval) event indicating the updated allowance.
-    ///
-    /// # Arguments
-    /// `spender` - The address which may spend the `added_value` tokens
-    /// on behalf of the caller.
-    /// * `subtracted_value` - The amount to subtract from the spender's allowance.
-    /// # Returns
-    /// `true` if the function call succeeds.
     #[external(v0)]
     fn decrease_allowance(
         ref self: ContractState, spender: ContractAddress, subtracted_value: u256
@@ -346,25 +269,13 @@ mod ERC20 {
     impl InternalImpl of InternalTrait {
         /// Initializes the contract by setting the token name and symbol.
         /// This should be used inside of the contract's constructor.
-        ///
-        /// # Arguments
-        /// * `name_` - The token name.
-        /// * `symbol_` - The token symbol.
         fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
             self._name.write(name_);
             self._symbol.write(symbol_);
         }
 
         /// Internal method for the external [increase_allowance](increase_allowance).
-        ///
         /// Emits an [Approval](Approval) event indicating the updated allowance.
-        ///
-        /// # Arguments
-        /// `spender` - The address which may spend the `added_value` tokens
-        /// on behalf of the caller.
-        /// * `added_value` - The additional allowance the `spender` may spend.
-        /// # Returns
-        /// `true` if the function call succeeds.
         fn _increase_allowance(
             ref self: ContractState, spender: ContractAddress, added_value: u256
         ) -> bool {
@@ -374,15 +285,7 @@ mod ERC20 {
         }
 
         /// Internal method for the external [decrease_allowance](decrease_allowance).
-        ///
         /// Emits an [Approval](Approval) event indicating the updated allowance.
-        ///
-        /// # Arguments
-        /// `spender` - The address which may spend the `added_value` tokens
-        /// on behalf of the caller.
-        /// * `subtracted_value` - The amount to subtract from the spender's allowance.
-        /// # Returns
-        /// `true` if the function call succeeds.
         fn _decrease_allowance(
             ref self: ContractState, spender: ContractAddress, subtracted_value: u256
         ) -> bool {
@@ -398,9 +301,14 @@ mod ERC20 {
         /// transferring it from address(0).
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
         ///
-        /// # Arguments
-        /// `recipient` - The address receiving the `amount`.
-        /// `amount` - The number of tokens created.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `recipient` is the zero address.
+        ///
+        /// # Safety
+        ///
+        /// Exposing this function without access control means anyone can mint tokens.
         fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             assert(!recipient.is_zero(), 'ERC20: mint to 0');
             self._total_supply.write(self._total_supply.read() + amount);
@@ -412,9 +320,14 @@ mod ERC20 {
         /// to address(0).
         /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
         ///
-        /// # Arguments
-        /// `recipient` - The address receiving the `amount`.
-        /// `amount` - The number of tokens created.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `account` is the zero address.
+        ///
+        /// # Safety
+        ///
+        /// Exposing this function without access control means anyone can burn any tokens.
         fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), 'ERC20: burn from 0');
             self._total_supply.write(self._total_supply.read() - amount);
@@ -423,13 +336,18 @@ mod ERC20 {
         }
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
-        /// `owner`'s tokens.
+        /// `owner`s tokens.
         /// Emits an [Approval](Approval) event.
         ///
-        /// # Arguments
-        /// `owner` - The address which owns the tokens to approve.
-        /// `spender` - The address which may spend the tokens on behalf of the `owner`.
-        /// `amount` - The number of tokens in the `spender`'s allowance.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `owner` is the zero address.
+        /// - `spender` is the zero address.
+        ///
+        /// # Safety
+        ///
+        /// Exposing this function without access control means anyone can set approvals for any address.
         fn _approve(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {
@@ -442,10 +360,17 @@ mod ERC20 {
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
         /// Emits a [Transfer](Transfer) event.
         ///
-        /// # Arguments
-        /// `sender` - The address from which the tokens are sent.
-        /// `recipient` - The address receiving the tokens.
-        /// `amount` - The value of tokens the `recipient` receives.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `sender` holds less than `amount` in their balance to transfer.
+        /// - `sender` is the zero address.
+        /// - `recipient` is the zero address.
+        ///
+        /// # Safety
+        ///
+        /// Exposing this function without access control means anyone can transfer tokens
+        /// from any address.
         fn _transfer(
             ref self: ContractState,
             sender: ContractAddress,
@@ -459,14 +384,9 @@ mod ERC20 {
             self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
-        /// Updates `owner` s allowance for `spender` based on spent `amount`.
+        /// Updates `owner`s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
-        /// Possible emits an [Approval](Approval) event.
-        ///
-        /// # Arguments
-        /// `owner` - The address which owns the tokens to approve.
-        /// `spender` - The address which may spend the tokens on behalf of the `owner`.
-        /// `amount` - The number of tokens in the `spender`'s allowance.
+        /// Possibly emits an [Approval](Approval) event.
         fn _spend_allowance(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {

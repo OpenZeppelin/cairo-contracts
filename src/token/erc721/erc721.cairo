@@ -1,5 +1,3 @@
-//! # License
-//!
 //! SPDX-License-Identifier: MIT
 //! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 //!
@@ -79,11 +77,6 @@ mod ERC721 {
     }
 
     /// Emitted when `token_id` token is transferred from `from` to `to`.
-    ///
-    /// # Arguments
-    /// * `from` - The current owner of the NFT.
-    /// * `to` - The new owner of the NFT.
-    /// * `token_id` - The NFT to transfer.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
         from: ContractAddress,
@@ -92,11 +85,6 @@ mod ERC721 {
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
-    ///
-    /// # Arguments
-    /// * `owner` - The owner of the NFT.
-    /// * `approved` - The new approved NFT controller.
-    /// * `token_id` - The NFT to approve.
     #[derive(Drop, starknet::Event)]
     struct Approval {
         owner: ContractAddress,
@@ -106,11 +94,6 @@ mod ERC721 {
 
     /// Emitted when `owner` enables or disables (approved) `operator` to manage
     /// all of its assets.
-    ///
-    /// # Arguments
-    /// * `owner` - The owner of the NFT.
-    /// * `operator` - Address to add to the set of authorized operators.
-    /// * `approved` - `true` if the operator is approved, `false` to revoke approval.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         owner: ContractAddress,
@@ -120,10 +103,6 @@ mod ERC721 {
 
     /// Initializes the state of the ERC721 contract. This includes setting the
     /// NFT name and symbol.
-    ///
-    /// # Arguments
-    /// * `name` - The NFT name.
-    /// * `symbol` - The NFT symbol.
     #[constructor]
     fn constructor(ref self: ContractState, name: felt252, symbol: felt252) {
         self.initializer(name, symbol);
@@ -138,11 +117,6 @@ mod ERC721 {
         /// Checks if the contract supports a specific interface as defined by
         /// `interface_id`.
         /// See: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
-        ///
-        /// # Arguments
-        /// * `interface_id` - The calculated interface ID to query.
-        /// # Returns
-        /// `true` if the interface is supported.
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
             let unsafe_state = src5::SRC5::unsafe_new_contract_state();
             src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
@@ -162,28 +136,17 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
         /// Returns the NFT name.
-        ///
-        /// # Returns
-        /// NFT name.
         fn name(self: @ContractState) -> felt252 {
             self._name.read()
         }
 
         /// Returns the NFT symbol.
-        ///
-        /// # Returns
-        /// NFT symbol.
         fn symbol(self: @ContractState) -> felt252 {
             self._symbol.read()
         }
 
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set for the `token_id`, the return value will be `0`.
-        ///
-        /// # Arguments
-        /// `token_id` - The token to query.
-        /// # Returns
-        /// URI of `token_id`.
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_uri.read(token_id)
@@ -203,44 +166,33 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721Impl of interface::IERC721<ContractState> {
         /// Returns the number of NFTs owned by `account`.
+        /// 
+        /// # Panics
         ///
-        /// # Arguments
-        /// `account` - The address to query.
-        /// # Returns
-        /// Number of NFTs owned by `account`.
+        /// This function panics if:
+        /// - `token_id` does not exist.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             assert(!account.is_zero(), 'ERC721: invalid account');
             self._balances.read(account)
         }
 
         /// Returns the owner address of `token_id`.
-        ///
-        /// # Arguments
-        /// `token_id` - The token to query.
-        /// # Returns
-        /// Owner address of `token_id`.
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             self._owner_of(token_id)
         }
 
         /// Returns the address approved for `token_id`.
         ///
-        /// # Arguments
-        /// `token_id` - The token ID to query.
-        /// # Returns
-        /// Approved address for the `token_id` NFT, or `0` if there is none.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `token_id` does not exist.
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_approvals.read(token_id)
         }
 
         /// Query if `operator` is an authorized operator for `owner`.
-        ///
-        /// # Arguments
-        /// `owner` - The address that owns the NFT.
-        /// `operator` - The address that acts on behalf of the `owner`.
-        /// # Returns
-        /// `true` if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
@@ -248,10 +200,13 @@ mod ERC721 {
         }
 
         /// Change or reaffirm the approved address for an NFT.
+        /// Emits an [Approval](Approval) event.
         ///
-        /// # Arguments
-        /// `to` - The new approved NFT controller.
-        /// `token_id` - The NFT to approve.
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - The caller is neither the NFT owner nor authorized.
+        /// - The NFT owner is `to`.
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -265,12 +220,7 @@ mod ERC721 {
 
         /// Enable or disable approval for `operator` to manage all of the
         /// caller's assets.
-        ///
         /// Emits an [Approval](Approval) event.
-        ///
-        /// # Arguments
-        /// `operator` - Address to add to the set of authorized operators.
-        /// `approved` - `true` if operator is approved, `false` to revoke approval.
         fn set_approval_for_all(
             ref self: ContractState, operator: ContractAddress, approved: bool
         ) {
@@ -287,10 +237,12 @@ mod ERC721 {
         ///
         /// Emits a [Transfer](Transfer) event.
         ///
-        /// # Arguments
-        /// `from` - The current owner of the NFT.
-        /// `to` - The new owner.
-        /// `token_id` - The NFT to transfer.
+        /// # Panics
+        ///
+        /// - The caller is neither approved nor the `token_id` owner.
+        /// - `to` is the zero address.
+        /// - `from` is not the token owner.
+        /// - `token_id` does not exist.
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
@@ -308,11 +260,14 @@ mod ERC721 {
         ///
         /// Emits a [Transfer](Transfer) event.
         ///
-        /// # Arguments
-        /// `from` - The current owner of the NFT.
-        /// `to` - The new owner.
-        /// `token_id` - The NFT to transfer.
-        /// `data` - Additional data with no specified format, sent in call to `to`.
+        /// # Panics
+        ///
+        /// This functions panics if:
+        /// - The caller is neither approved nor the `token_id` owner.
+        /// - `to` is the zero address.
+        /// - `from` is not the token owner.
+        /// - `token_id` does not exist.
+        /// - `to` neither is an account contract nor supports the IERC721Receiver interface.
         fn safe_transfer_from(
             ref self: ContractState,
             from: ContractAddress,
@@ -389,6 +344,8 @@ mod ERC721 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
+        /// Initializes the contract by setting the token name and symbol.
+        /// This should be used inside the contract's constructor.
         fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
             self._name.write(name_);
             self._symbol.write(symbol_);
@@ -400,6 +357,12 @@ mod ERC721 {
             );
         }
 
+        /// Returns the owner address of `token_id`.
+        ///
+        /// # Panics
+        ///
+        /// This function panics if:
+        /// - `token_id` does not exist.
         fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             let owner = self._owners.read(token_id);
             match owner.is_zero() {
@@ -408,10 +371,12 @@ mod ERC721 {
             }
         }
 
+        /// Returns whether `token_id` exists.
         fn _exists(self: @ContractState, token_id: u256) -> bool {
             !self._owners.read(token_id).is_zero()
         }
 
+        /// Returns whether `spender` is allowed to manage `token_id`.
         fn _is_approved_or_owner(
             self: @ContractState, spender: ContractAddress, token_id: u256
         ) -> bool {

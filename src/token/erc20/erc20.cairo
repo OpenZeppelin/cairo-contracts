@@ -149,13 +149,6 @@ mod ERC20 {
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - The caller holds less than `amount` in their balance to transfer.
-        /// - The caller is the zero address.
-        /// - `recipient` is the zero address.
         fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
             let sender = get_caller_address();
             self._transfer(sender, recipient, amount);
@@ -165,14 +158,6 @@ mod ERC20 {
         /// Moves `amount` tokens from `from` to `to` using the allowance mechanism.
         /// `amount` is then deducted from the caller's allowance.
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - The caller's allowance from `sender` is less than `amount`.
-        /// - `sender` holds less than `amount` in their balance to transfer.
-        /// - `sender` is the zero address.
-        /// - `recipient` is the zero address.
         fn transfer_from(
             ref self: ContractState,
             sender: ContractAddress,
@@ -186,12 +171,6 @@ mod ERC20 {
         }
 
         /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - The caller is the zero address.
-        /// - `spender` is the zero address.
         fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);
@@ -300,15 +279,6 @@ mod ERC20 {
         /// Creates a `value` amount of tokens and assigns them to `account`, by
         /// transferring it from address(0).
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `recipient` is the zero address.
-        ///
-        /// # Safety
-        ///
-        /// Exposing this function without access control means anyone can mint tokens.
         fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             assert(!recipient.is_zero(), 'ERC20: mint to 0');
             self._total_supply.write(self._total_supply.read() + amount);
@@ -319,15 +289,6 @@ mod ERC20 {
         /// Destroys a `value` amount of tokens from `account`, by transferring it
         /// to address(0).
         /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `account` is the zero address.
-        ///
-        /// # Safety
-        ///
-        /// Exposing this function without access control means anyone can burn any tokens.
         fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), 'ERC20: burn from 0');
             self._total_supply.write(self._total_supply.read() - amount);
@@ -338,16 +299,6 @@ mod ERC20 {
         /// Internal method that sets `amount` as the allowance of `spender` over the
         /// `owner`s tokens.
         /// Emits an [Approval](Approval) event.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `owner` is the zero address.
-        /// - `spender` is the zero address.
-        ///
-        /// # Safety
-        ///
-        /// Exposing this function without access control means anyone can set approvals for any address.
         fn _approve(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {
@@ -359,18 +310,6 @@ mod ERC20 {
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `sender` holds less than `amount` in their balance to transfer.
-        /// - `sender` is the zero address.
-        /// - `recipient` is the zero address.
-        ///
-        /// # Safety
-        ///
-        /// Exposing this function without access control means anyone can transfer tokens
-        /// from any address.
         fn _transfer(
             ref self: ContractState,
             sender: ContractAddress,
@@ -387,11 +326,6 @@ mod ERC20 {
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
         /// Possibly emits an [Approval](Approval) event.
-        ///
-        /// # Safety
-        ///
-        /// Exposing this function without access control means anyone can decrease an address's
-        /// allowance.
         fn _spend_allowance(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {

@@ -387,6 +387,11 @@ mod ERC20 {
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
         /// Possibly emits an [Approval](Approval) event.
+        ///
+        /// # Safety
+        ///
+        /// Exposing this function without access control means anyone can decrease an address's
+        /// allowance.
         fn _spend_allowance(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {

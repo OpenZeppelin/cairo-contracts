@@ -40,7 +40,7 @@ The `ERC20.cairo` contract implements an approximation of https://eips.ethereum.
 
 == Interface
 
-[,rust]
+[,javascript]
 ----
 #[starknet::interface]
 trait IERC20<TState> {
@@ -93,11 +93,11 @@ Coming soon!
 
 WARNING: This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully. Extensibility will be revisited after {components} are introduced.
 
-ERC20 contracts can be extended by utilizing the contract's _unsafe_new_contract_state().
-The unsafe contract state allows access to the _ERC20Impl_.
-This enables IERC20 methods to include additional behaviors.
+ERC20 contracts can be extended by utilizing the contract's `_unsafe_new_contract_state()`.
+The unsafe contract state allows access to the `ERC20Impl`.
+This enables `IERC20` methods to include additional behaviors.
 
-[,rust]
+[,javascript]
 ----
 #[external(v0)]
 fn transfer(self: @ContractState, recipient: ContractAddress, amount: u256) -> bool {
@@ -109,8 +109,8 @@ fn transfer(self: @ContractState, recipient: ContractAddress, amount: u256) -> b
 }
 ----
 
-The unsafe state also allows access to ERC20's _InternalImpl_.
-Having access to ERC20's interal implementation permits contracts, for example, to expose the internal methods like _mint.
+The unsafe state also allows access to ERC20's `InternalImpl`.
+Having access to ERC20's internal implementation permits contracts, for example, to expose the internal methods like `_mint`.
 
 [,rust]
 ----
@@ -141,7 +141,7 @@ The https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20
 
 === ERC20Impl
 
-[,rust]
+[,javascript]
 ----
 fn name(self: @TState) -> felt252;
 fn symbol(self: @TState) -> felt252;
@@ -173,7 +173,7 @@ fn approve(
 
 ==== `name`
 
-[.contract-item]
+[.contract-item#name]
 ==== `[.contract-item-name]#++name++#++(self: @TState) → felt252++`
 
 Returns the name of the token.

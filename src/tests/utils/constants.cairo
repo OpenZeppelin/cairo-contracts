@@ -13,6 +13,8 @@ const TOKEN_ID: u256 = 21;
 const PUBKEY: felt252 = 'PUBKEY';
 const DAPP_NAME: felt252 = 'OZ-DAPP';
 const DAPP_VERSION: felt252 = '2.0.0';
+// Public key of the private key equal 0x1234
+const PUBLIC_KEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()

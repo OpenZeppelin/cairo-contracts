@@ -1,3 +1,4 @@
+use core::option::OptionTrait;
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/extensions/erc20votes.cairo)
 
@@ -23,6 +24,7 @@ mod ERC20Votes {
     use openzeppelin::utils::selectors;
     use openzeppelin::utils::serde::SerializedAppend;
     use openzeppelin::utils::structs::checkpoints::{Checkpoint, Trace, TraceTrait};
+    use option::OptionTrait;
     use poseidon::poseidon_hash_span;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
@@ -61,6 +63,7 @@ mod ERC20Votes {
     mod Errors {
         const FUTURE_LOOKUP: felt252 = 'Votes: future Lookup';
         const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
+        const INVALID_SIGNATURE: felt252 = 'Votes: invalid signature';
     }
 
     #[external(v0)]
@@ -113,16 +116,25 @@ mod ERC20Votes {
             let name = EIP712::name(@eip712_state);
             let version = EIP712::version(@eip712_state);
 
-            let hash = delegation.get_message_hash(name, version);
+            let hash = delegation.get_message_hash(name, version, delegator);
 
             let mut calldata = array![];
             calldata.append_serde(hash);
             calldata.append_serde(signature);
 
-            starknet::call_contract_syscall(
+            let mut is_valid_signature_raw = starknet::call_contract_syscall(
                 delegator, selectors::is_valid_signature, calldata.span()
             )
                 .unwrap_syscall();
+
+            let is_valid_signature_felt = Serde::<felt252>::deserialize(ref is_valid_signature_raw)
+                .unwrap();
+
+            // Check either 'VALID' or True for backwards compatibility.
+            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+                || is_valid_signature_felt == 1;
+
+            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
 
             // Delegate votes.
             self._delegate(delegator, delegatee);
@@ -230,13 +242,15 @@ struct Delegation {
 }
 
 impl OffchainMessageHashImpl of IOffchainMessageHash<Delegation> {
-    fn get_message_hash(self: @Delegation, name: felt252, version: felt252) -> felt252 {
+    fn get_message_hash(
+        self: @Delegation, name: felt252, version: felt252, owner: ContractAddress
+    ) -> felt252 {
         let domain = StarknetDomain {
             name, version, chain_id: starknet::get_tx_info().unbox().chain_id
         };
         let mut state = LegacyHash::hash(0, 'StarkNet Message');
         state = LegacyHash::hash(state, domain.hash_struct());
-        state = LegacyHash::hash(state, starknet::get_caller_address());
+        state = LegacyHash::hash(state, owner);
         state = LegacyHash::hash(state, self.hash_struct());
         state = LegacyHash::hash(state, 4);
         state

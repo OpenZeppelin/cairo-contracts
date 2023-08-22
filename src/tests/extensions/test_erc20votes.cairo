@@ -1,4 +1,8 @@
-use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin::account::Account;
+use openzeppelin::account::TRANSACTION_VERSION;
+use openzeppelin::tests::utils::constants::{
+    SUPPLY, ZERO, OWNER, PUBLIC_KEY, RECIPIENT, DAPP_NAME, DAPP_VERSION
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::extensions::ERC20Votes;
@@ -7,6 +11,8 @@ use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateVotesChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::InternalImpl;
 use openzeppelin::token::erc20::extensions::ERC20Votes::VotesImpl;
+use openzeppelin::token::erc20::extensions::erc20votes::{Delegation, IOffchainMessageHash};
+use openzeppelin::utils::cryptography::eip712_draft::EIP712;
 use openzeppelin::utils::structs::checkpoints::{Trace, TraceTrait};
 use option::OptionTrait;
 use starknet::ContractAddress;
@@ -35,6 +41,14 @@ fn setup() -> ERC20Votes::ContractState {
     InternalImpl::transfer_voting_units(ref state, ZERO(), OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
+}
+
+fn deploy_account() -> ContractAddress {
+    testing::set_version(TRANSACTION_VERSION);
+
+    let mut calldata = array![PUBLIC_KEY];
+
+    utils::deploy(Account::TEST_CLASS_HASH, calldata)
 }
 
 //
@@ -190,6 +204,102 @@ fn test_delegates() {
 
     VotesImpl::delegate(ref state, RECIPIENT());
     assert(VotesImpl::delegates(@state, OWNER()) == RECIPIENT(), 'Should eq RECIPIENT');
+}
+
+//
+// delegate_by_sig
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test_delegate_by_sig_hash_generation() {
+    let mut state = setup();
+    let account = deploy_account();
+    testing::set_chain_id('SN_TEST');
+
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = RECIPIENT();
+    let delegation = Delegation { delegatee, nonce, expiry };
+
+    let hash = delegation.get_message_hash('OZ-DAPP', '2.0.0', delegator);
+    // This hash was computed using starknet js sdk from the following values:
+    // - name: 'OZ-DAPP'
+    // - version: '2.0.0'
+    // - chainId: 'SN_TEST'
+    // - account: 0x1
+    // - delegatee: 'RECIPIENT'
+    // - nonce: 0
+    // - expiry: 'ts2'
+    let expected_hash = 0x204adc4d076dc4298323e6920e1bf9ce6278df42824a07f49eb3c1f9cd19ef7;
+    assert(hash == expected_hash, 'Invalid hash');
+}
+
+
+#[test]
+#[available_gas(20000000)]
+fn test_delegate_by_sig() {
+    let mut state = setup();
+    let account = deploy_account();
+    testing::set_chain_id('SN_TEST');
+
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = RECIPIENT();
+    let delegation = Delegation { delegatee, nonce, expiry };
+
+    // Simulate construction time EIP712 initializer.
+    let mut eip712_state = EIP712::unsafe_new_contract_state();
+    EIP712::InternalImpl::initializer(ref eip712_state, DAPP_NAME, DAPP_VERSION);
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: 1234
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0x204adc4d076dc4298323e6920e1bf9ce6278df42824a07f49eb3c1f9cd19ef7
+    let signature = array![
+        0x4bc155529014b501c42ba0a862de476d5cab3ce412f6de9066a89e757687918,
+        0x2fd7e5261a70805cd526844f0eff2c71483185dc13d00ac0578cf72a94c5266
+    ];
+
+    testing::set_block_timestamp('ts1');
+    VotesImpl::delegate_by_sig(ref state, delegator, delegatee, nonce, expiry, signature);
+
+    assert_only_event_delegate_changed(delegator, ZERO(), delegatee);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Votes: expired signature', ))]
+fn test_delegate_by_sig_past_expiry() {
+    let mut state = setup();
+    let expiry = 'ts4';
+    let signature = array![0, 0];
+
+    testing::set_block_timestamp('ts5');
+    VotesImpl::delegate_by_sig(ref state, OWNER(), RECIPIENT(), 0, expiry, signature);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Nonces: invalid nonce', ))]
+fn test_delegate_by_sig_invalid_nonce() {
+    let mut state = setup();
+    let signature = array![0, 0];
+
+    VotesImpl::delegate_by_sig(ref state, OWNER(), RECIPIENT(), 1, 0, signature);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('Votes: invalid signature', ))]
+fn test_delegate_by_sig_invalid_signature() {
+    let mut state = setup();
+    let account = deploy_account();
+    let signature = array![0, 0];
+
+    VotesImpl::delegate_by_sig(ref state, account, RECIPIENT(), 0, 0, signature);
 }
 
 //

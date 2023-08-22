@@ -7,7 +7,8 @@
 use box::BoxTrait;
 use hash::LegacyHash;
 use starknet::{
-    contract_address_const, get_tx_info, get_caller_address, testing::set_caller_address
+    contract_address_const, ContractAddress, get_tx_info, get_caller_address,
+    testing::set_caller_address
 };
 
 // sn_keccak('StarkNetDomain(name:felt,version:felt,chainId:felt)')
@@ -26,7 +27,9 @@ trait IStructHash<T> {
 }
 
 trait IOffchainMessageHash<T> {
-    fn get_message_hash(self: @T, name: felt252, version: felt252) -> felt252;
+    fn get_message_hash(
+        self: @T, name: felt252, version: felt252, owner: ContractAddress
+    ) -> felt252;
 }
 
 impl StructHashStarknetDomain of IStructHash<StarknetDomain> {

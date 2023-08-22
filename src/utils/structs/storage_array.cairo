@@ -46,8 +46,8 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
     #[inline(always)]
     fn size() -> u8 {
         // TODO: Check with size make sense in this context.
-        // 1 was selected because the len is stored at base.
-        1_u8
+        // 0 was selected because the read method doesn't actually read from storage.
+        0_u8
     }
 }
 

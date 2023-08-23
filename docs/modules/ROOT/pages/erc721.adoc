@@ -60,7 +60,7 @@ The `erc721.cairo` contract implements an approximation of https://eips.ethereum
 
 == IERC721
 
-[,rust]
+[,javascript]
 ----
 #[starknet::interface]
 trait IERC721<TState> {
@@ -171,7 +171,7 @@ Otherwise, the safe transfer will fail.
 
 Interface for any contract that wants to support safe transfers from ERC721 asset contracts.
 
-[,rust]
+[,javascript]
 ----
 #[starknet::interface]
 trait IERC721Receiver<TState> {
@@ -212,7 +212,7 @@ Note that the `IERC721Metadata` interface id should be removed from the construc
 
 ==== IERC721Metadata
 
-[,rust]
+[,javascript]
 ----
 #[starknet::interface]
 trait IERC721Metadata<TState> {
@@ -226,7 +226,7 @@ trait IERC721Metadata<TState> {
 
 === IERC721 API
 
-[,rust]
+[,javascript]
 ----
 // SRC5 id: 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943
 
@@ -441,7 +441,7 @@ The address that acts on behalf of the `owner`.
 
 === Events
 
-[,rust]
+[,javascript]
 ----
 #[event]
 #[derive(Drop, starknet::Event)]
@@ -532,7 +532,7 @@ The NFT to transfer.
 
 === IERC721Metadata API
 
-[,rust]
+[,javascript]
 ----
 // SRC5 id: 0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd
 
@@ -586,7 +586,7 @@ The NFT symbol.
 
 === IERC721Receiver API
 
-[,rust]
+[,javascript]
 ----
 // SRC5 id: 0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
 
@@ -634,7 +634,7 @@ The IERC721Receiver magic value _0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402
 
 === InternalImpl
 
-[,rust]
+[,javascript]
 ----
 fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252);
 fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress;

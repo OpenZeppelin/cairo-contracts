@@ -1,0 +1,53 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+
+= Account
+
+Reference of interfaces and utilities related to Account contracts.
+
+TIP: For an overview of Accounts, read our xref:accounts.adoc[Accounts guide].
+
+== Core
+
+[.contract]
+[[ISRC6]]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/b40c35b5ca82598ae5bd9610aa3ffd0ded1f3c5f/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::account::interface::ISRC6;
+```
+
+Interface of the ISRC6 standard as defined in the SNIP.
+
+
+[.contract-index]
+.Functions
+--
+* xref:#\\__execute__[`++__execute__(calls: Array<Call>)++`]
+* xref:#\\__validate__[`++__validate__(calls: Array<Call>)++`]
+* xref:#\\__is_valid_signature__[`++__is_valid_signature__(hash: felt252, signature: Array<felt252>)++`]
+--
+
+[.contract-item]
+[[__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+
+Executes the list of calls as a transaction after validation.
+
+Returns the list of each call output.
+
+[.contract-item]
+[[__validate__]]
+==== `[.contract-item-name]#++__validate__++#++(calls: Array<Call>) → felt252++` [.item-kind]#external#
+
+Validates a transaction before execution.
+
+Returns the short string `'VALID'` if valid, or any other value otherwise.
+
+[.contract-item]
+[[__is_valid_signature__]]
+==== `[.contract-item-name]#++__is_valid_signature__++#++(hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+Validates whether a signature is valid or not for the given message hash.
+
+Returns the short string `'VALID'` if valid, or any other value otherwise.

@@ -1,632 +1,117 @@
 :test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/tests/signers.py
+:snip-5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
+:snip-6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md
 
 = Accounts
 
-Unlike Ethereum where accounts are directly derived from a private key, there's no native account concept on StarkNet.
+Unlike Ethereum where accounts are directly derived from a private key, there's no native Externally Owned Account (EOA) concept on Starknet.
 
-Instead, signature validation has to be done at the contract level.
-To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
+Instead, the L2 features native account abstraction, and signature validation has to be done at the contract level. To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility, we make use of Account contracts to deal with transaction authentication.
 
 For a general overview of the account abstraction, see StarkWare's https://medium.com/starkware/starknet-alpha-0-10-0-923007290470[StarkNet Alpha 0.10].
 A more detailed discussion on the topic can be found in https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1].
 
+TIP: For detailed information on the usage and implementation check the xref:/api/account.adoc[API Reference] section.
+
 == Table of Contents
 
-* <<quickstart,Quickstart>>
-* <<account_entrypoints,Account entrypoints>>
- ** <<counterfactual_deployments,`Counterfactual deployments`>>
-* <<standard_interface,Standard interface>>
-* <<keys_signatures_and_signers,Keys, signatures and signers>>
-** <<signature_validation, Signature validation>>
- ** <<signer,Signer>>
- ** <<mocksigner_utility,MockSigner utility>>
- ** <<mockethsigner_utility,MockEthSigner utility>>
-* <<call_and_accountcallarray_format,Call and AccountCallArray format>>
- ** <<call,Call>>
- ** <<accountcallarray,AccountCallArray>>
-* <<multicall_transactions,Multicall transactions>>
-* <<api_specification,API Specification>>
- ** <<constructor, `constructor`>>
- ** <<getpublickey,`getPublicKey`>>
- ** <<supportsinterface,`supportsInterface`>>
- ** <<setpublickey,`setPublicKey`>>
- ** <<isvalidsignature,`isValidSignature`>>
- ** <<validate,`\\__validate__`>>
- ** <<validate_declare,`\\__validate_declare__`>>
- ** <<validate_deploy,`\\__validate_deploy__`>>
- ** <<execute,`\\__execute__`>>
-* <<presets,Presets>>
- ** <<account,Account>>
- ** <<eth_account,Eth Account>>
-* <<account_introspection_with_erc165,Account introspection with ERC165>>
-* <<extending_the_account_contract,Extending the Account contract>>
-* <<l1_escape_hatch_mechanism,L1 escape hatch mechanism>>
-* <<paying_for_gas,Paying for gas>>
+* <<basic_account,Basic Account>>
+** <<account_entrypoints,Account entrypoints>>
+** <<interface,Interface>>
+* <<standard_account_interface,Standard Account Interface>>
+** <<isrc6_interface,ISRC6 Interface>>
+** <<isrc5_interface,ISRC5 Interface>>
+* <<deploying_an_account,Deploying an Account>>
 
-== Quickstart
+== Basic Account
 
-The general workflow is:
+As we mentioned, Accounts in Starknet are smart contracts, and so they can be deployed and interacted with like any other contract, and can be extended to implement any custom logic. However, the Account is a special type of contract that is used to validate and execute transactions, and there are a set of entrypoints that must be implemented for enabling these features.
 
-. Account contract is deployed to StarkNet.
-. Signed transactions can now be sent to the Account contract which validates and executes them.
 
-In Python, this would look as follows:
+=== Account entrypoints
 
-[,python]
+The first two following methods are protocol-level enforced functions that must be implemented by any Account contract. The third one is optional and can be used for enabling declarations.
+
+1. `\\__validate__` verifies the validity of the transaction to be executed. Is usually used to validate signatures, but following the account abstraction design, the entrypoint implementation can be customized to feature any different validation mechanism.
+
+2. `\\__execute__` executes the transaction if the validation is successful.
+
+3. `\\__validate_declare__` Optional entrypoint similar to \\__validate__ but for transactions meant to declare other contracts.
+
+
+NOTE: Even when this entrypoints can be called directly at contract level, they are not designed for that, but to be called by the Starknet OS in the transaction execution flow.
+
+=== Interface
+
+Notice that we haven't mentioned the parameters or the return values of these entrypoints. This is because function selectors in Starknet are computed from the function name, without including the rest of the signature. This means that the entrypoints can be implemented with any signature, and the protocol will be able to call them as long as the function name is correct.
+
+In the following interface, we are using the `Array<Call>` for enabling multicall transactions. Notice that we don't need signature related parameters, because they are part of the transaction information that is accesible using the global context (ex: `starknet::get_tx_info()`).
+
+[,javascript]
 ----
-from starkware.starknet.testing.starknet import Starknet
-from utils import get_contract_class
-from signers import MockSigner
-
-signer = MockSigner(123456789987654321)
-
-starknet = await Starknet.empty()
-
-# 1. Deploy Account
-account = await starknet.deploy(
-    get_contract_class("Account"),
-    constructor_calldata=[signer.public_key]
-)
-
-# 2. Send transaction through Account
-await signer.send_transaction(account, some_contract_address, 'some_function', [some_parameter])
-----
-
-== Account entrypoints
-
-Account contracts have only three entry points for all user interactions:
-
-1. <<validate_declare,`\\__validate_declare__`>> validates the declaration signature prior to the declaration.
-As of Cairo v0.10.0, contract classes should be declared from an Account contract.
-
-2. <<validate,`\\__validate__`>> verifies the transaction signature before executing the transaction with `\\__execute__`.
-
-3. <<execute,`\\__execute__`>> acts as the state-changing entry point for all user interaction with any contract, including managing the account contract itself.
-That's why if you want to change the public key controlling the Account, you would send a transaction targeting the very Account contract:
-
-[,python]
-----
-await signer.send_transaction(
-    account,
-    account.contract_address,
-    'set_public_key',
-    [NEW_KEY]
-)
-----
-
-Or if you want to update the Account's L1 address on the `AccountRegistry` contract, you would
-
-[,python]
-----
-await signer.send_transaction(account, registry.contract_address, 'set_L1_address', [NEW_ADDRESS])
-----
-
-NOTE: You can read more about how messages are structured and hashed in the https://github.com/OpenZeppelin/cairo-contracts/discussions/24[Account message scheme  discussion].
-For more information on the design choices and implementation of multicall, you can read the https://github.com/OpenZeppelin/cairo-contracts/discussions/27[How should Account multicall work discussion].
-
-The `\\__validate__` and `\\__execute__` methods accept the same arguments; however, `\\__execute__` returns a transaction response:
-
-[,cairo]
-----
-func __validate__(
-    call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*) {
-}
-
-func __execute__(
-    call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-) -> (response_len: felt, response: felt*) {
-}
-----
-
-Where:
-
-* `call_array_len` is the number of calls.
-* `call_array` is an array representing each `Call`.
-* `calldata_len` is the number of calldata parameters.
-* `calldata` is an array representing the function parameters.
-
-NOTE: The scheme of building multicall transactions within the `\\__execute__` method will change once StarkNet allows for pointers in struct arrays.
-In which case, multiple transactions can be passed to (as opposed to built within) `\\__execute__`.
-
-There's a fourth canonical entrypoint for accounts, the `\\__validate_deploy__` method. It is **only callable by the protocol** during the execution of a `DeployAccount` type of transaction, but not by any other contract. This entrypoint is for counterfactual deployments.
-
-=== Counterfactual Deployments
-
-Counterfactual means something that hasn't happened.
-
-A deployment is said to be counterfactual when the deployed contract pays for it. It's called like this because we need to send the funds to the address before deployment. A deployment that hasn't happened.
-
-The steps are the following:
-
-1. Precompute the `address` given a `class_hash`, `salt`, and constructor `calldata`.
-2. Send funds to `address`.
-3. Send a `DeployAccount` type transaction.
-4. The protocol will then validate with `\\__validate_deploy__`.
-5. If successful, the protocol deploys the contract and the contract itself pays for the transaction.
-
-Since `address` will ultimately depend on the `class_hash` and `calldata`, it's safe for the protocol to validate the signature and spend the funds on that address.
-
-== Standard interface
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/account/IAccount.cairo[`IAccount.cairo`] contract interface contains the standard account interface proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/41[#41] and adopted by OpenZeppelin and Argent.
-It implements https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and it is agnostic of signature validation. Further, nonce management is handled on the protocol level.
-
-NOTE: `\\__validate_deploy__` is not part of the interface since it's only callable by the protocol. Also contracts don't need to implement it to be considered accounts.
-
-[,cairo]
-----
+/// Represents a call to a target contract function.
 struct Call {
-    to: felt,
-    selector: felt,
-    calldata_len: felt,
-    calldata: felt*,
+    to: ContractAddress,
+    selector: felt252,
+    calldata: Array<felt252>
 }
 
-// Tmp struct introduced while we wait for Cairo to support passing `[Call]` to __execute__
-struct CallArray {
-    to: felt,
-    selector: felt,
-    data_offset: felt,
-    data_len: felt,
-}
+trait BaseAccount {
+    /// Executes a transaction through the account.
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
 
+    /// Asserts whether the transaction is valid to be executed.
+    fn __validate__(calls: Array<Call>) -> felt252;
 
-@contract_interface
-namespace IAccount {
-    func supportsInterface(interfaceId: felt) -> (success: felt) {
-    }
-
-    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
-    }
-
-    func __validate__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) {
-    }
-
-    func __validate_declare__(class_hash: felt) {
-    }
-
-    func __execute__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
-    }
-}
-
-----
-
-== Keys, signatures and signers
-
-While the interface is agnostic of signature validation schemes, this implementation assumes there's a public-private key pair controlling the Account.
-That's why the `constructor` function expects a `public_key` parameter to set it.
-Since there's also a `setPublicKey()` method, accounts can be effectively transferred.
-
-=== Signature validation
-
-Signature validation occurs separately from execution as of Cairo v0.10.
-Upon receiving transactions, an account contract first calls `\\__validate__`.
-An account will only execute a transaction if, and only if, the signature proves valid.
-This decoupling allows for a protocol-level distinction between invalid and reverted transactions.
-See <<account_entrypoints,Account entrypoints>>.
-
-=== Signer
-
-The signer is responsible for creating a transaction signature with the user's private key for a given transaction.
-This implementation utilizes https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's Signer] class to create transaction signatures through the `Signer` method `sign_transaction`.
-
-`sign_transaction` expects the following parameters per transaction:
-
-* `sender` the contract address invoking the tx.
-* `calls` a list containing a sublist of each call to be sent.
-Each sublist must consist of:
- .. `to` the address of the target contract of the message.
- .. `selector` the function to be called on the target contract.
- .. `calldata` the parameters for the given `selector`.
-* `nonce` an unique identifier of this message to prevent transaction replays.
-* `max_fee` the maximum fee a user will pay.
-
-Which returns:
-
-* `calldata` a list of arguments for each call.
-* `sig_r` the transaction signature.
-* `sig_s` the transaction signature.
-
-While the `Signer` class performs much of the work for a transaction to be sent, it neither manages nonces nor invokes the actual transaction on the Account contract.
-To simplify Account management, most of this is abstracted away with `MockSigner`.
-
-=== MockSigner utility
-
-The `MockSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account, crafting the transaction and managing nonces.
-
-NOTE: StarkNet's testing framework does not currently support transaction invocations from account contracts. `MockSigner` therefore utilizes StarkNet's API gateway to manually execute the `InvokeFunction` for testing.
-
-A `MockSigner` instance exposes the following methods:
-
-* `send_transaction(account, to, selector_name, calldata, nonce=None, max_fee=0)` returns a link:https://docs.python.org/3/library/asyncio-future.html[future] of a signed transaction, ready to be sent.
-* `send_transactions(account, calls, nonce=None, max_fee=0)` returns a future of batched signed transactions, ready to be sent.
-* `declare_class(account, contract_name, nonce=None, max_fee=0)` returns a future of a declaration transaction.
-* `deploy_account(state, calldata, salt=0, nonce=0, max_fee=0)`: returns a future of a counterfactual deployment.
-
-To use `MockSigner`, pass a private key when instantiating the class:
-
-[,python]
-----
-from utils import MockSigner
-
-PRIVATE_KEY = 123456789987654321
-signer = MockSigner(PRIVATE_KEY)
-----
-
-Then send single transactions with the `send_transaction` method.
-
-[,python]
-----
-await signer.send_transaction(account, contract_address, 'method_name', [])
-----
-
-If utilizing multicall, send multiple transactions with the `send_transactions` method.
-
-[,python]
-----
-await signer.send_transactions(
-    account,
-    [
-        (contract_address, 'method_name', [param1, param2]),
-        (contract_address, 'another_method', [])
-    ]
-)
-----
-
-Use `declare_class` to declare a contract:
-
-[,python]
-----
-await signer.declare_class(account, "MyToken")
-----
-
-And `deploy_account` to <<counterfactual_deployments,counterfactually>> deploy an account:
-
-[,python]
-----
-await signer.deploy_account(state, [signer.public_key])
-----
-
-
-=== MockEthSigner utility
-
-The `MockEthSigner` class in {test-signers}[signers.py] is used to perform transactions on a given Account with a secp256k1 curve key pair, crafting the transaction and managing nonces.
-It differs from the `MockSigner` implementation by:
-
-* Not using the public key but its derived address instead (the last 20 bytes of the keccak256 hash of the public key and adding `0x` to the beginning).
-* Signing the message with a secp256k1 curve address.
-
-== `Call` and `AccountCallArray` format
-
-The idea is for all user intent to be encoded into a `Call` representing a smart contract call.
-Users can also pack multiple messages into a single transaction (creating a multicall transaction).
-Cairo currently does not support arrays of structs with pointers which means the `\\__execute__` function cannot properly iterate through multiple ``Call``s.
-Instead, this implementation utilizes a workaround with the `AccountCallArray` struct.
-See <<multicall_transactions,Multicall transactions>>.
-
-=== `Call`
-
-A single `Call` is structured as follows:
-
-[,cairo]
-----
-struct Call {
-    to: felt
-    selector: felt
-    calldata_len: felt
-    calldata: felt*
+    // (Optional) Asserts whether the transaction is valid to be declared.
+    fn __validate_declare__(class_hash: felt252) -> felt252;
 }
 ----
 
-Where:
+== Standard Account Interface
 
-* `to` is the address of the target contract of the message.
-* `selector` is the selector of the function to be called on the target contract.
-* `calldata_len` is the number of calldata parameters.
-* `calldata` is an array representing the function parameters.
+In the previous section we've presented the minimal interface a contract must implement to act as an Account by propagating transactions through the network. However, this interface lacks some features required for supporting interoperability among accounts and DApps in the ecosystem. For example, there is no mechanism for recognizing on-chain whether a contract is an Account or not.
 
-=== `AccountCallArray`
+To address this issue, we have the {snip-6}[SNIP-6] proposal, which defines a standard interface for Account contracts.
 
-`AccountCallArray` is structured as:
+=== ISRC6 Interface
 
-[,cairo]
+[,javascript]
 ----
-struct AccountCallArray {
-    to: felt
-    selector: felt
-    data_offset: felt
-    data_len: felt
+/// Standard Account Interface
+trait ISRC6 {
+    /// Executes a transaction through the account.
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+
+    /// Asserts whether the transaction is valid to be executed.
+    fn __validate__(calls: Array<Call>) -> felt252;
+
+    /// Asserts whether a given signature for a given hash is valid.
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
 }
 ----
 
-Where:
+The {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for DApps to verify the validity of signatures, supporting features like Sign In with Starknet.
 
-* `to` is the address of the target contract of the message.
-* `selector` is the selector of the function to be called on the target contract.
-* `data_offset` is the starting position of the calldata array that holds the ``Call``'s calldata.
-* `data_len` is the number of calldata elements in the `Call`.
+The SNIP-6 also defines that compliant Accounts must implement the SRC5 interface following {snip-5}[SNIP-5], as a mechanism for detecting whether a contract is an Account or not through introspection.
 
-== Multicall transactions
+=== ISRC5 Interface
 
-A multicall transaction packs the `to`, `selector`, `calldata_offset`, and `calldata_len` of each call into the `AccountCallArray` struct and keeps the cumulative calldata for every call in a separate array.
-The `\\__execute__` function rebuilds each message by combining the `AccountCallArray` with its calldata (demarcated by the offset and calldata length specified for that particular call).
-The rebuilding logic is set in the internal `_from_call_array_to_call`.
-
-This is the basic flow:
-
-First, the user sends the messages for the transaction through a Signer instantiation which looks like this:
-
-[,python]
+[,javascript]
 ----
-await signer.send_transaction(
-    account, [
-        (contract_address, 'contract_method', [arg_1]),
-        (contract_address, 'another_method', [arg_1, arg_2])
-    ]
-)
-----
-
-Then the `from_call_to_call_array` method in link:https://github.com/OpenZeppelin/nile/blob/main/src/nile/signer.py[Nile's signer] converts each call into the `AccountCallArray` format and cumulatively stores the calldata of every call into a single array.
-Next, both arrays (as well as the `sender`, `nonce`, and `max_fee`) are used to create the transaction hash.
-The Signer then invokes `\__execute__` with the signature and passes `AccountCallArray`, calldata, and nonce as arguments.
-
-Finally, the `\\__execute__` method takes the `AccountCallArray` and calldata and builds an array of ``Call``s (MultiCall).
-
-NOTE: Every transaction utilizes `AccountCallArray`.
-A single `Call` is treated as a bundle with one message.
-
-== API Specification
-
-This in a nutshell is the Account contract public API:
-
-[,cairo]
-----
-namespace Account {
-    func constructor(publicKey: felt) {
-    }
-
-    func getPublicKey() -> (publicKey: felt) {
-    }
-
-    func supportsInterface(interfaceId: felt) -> (success: felt) {
-    }
-
-    func setPublicKey(newPublicKey: felt) {
-    }
-
-    func isValidSignature(hash: felt, signature_len: felt, signature: felt*) -> (isValid: felt) {
-    }
-
-    func __validate__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
-    }
-
-    func __validate_declare__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
-    }
-
-    func __execute__(
-        call_array_len: felt, call_array: AccountCallArray*, calldata_len: felt, calldata: felt*
-    ) -> (response_len: felt, response: felt*) {
+/// Standard Interface Detection
+trait ISRC5 {
+    /// Queries if a contract implements a given interface.
+    fn supports_interface(interface_id: felt252) -> bool;
 }
 ----
 
-=== `constructor`
+{snip-6}[SNIP-6] compliant Accounts must return `true` when queried for the ISRC6 interface Id.
 
-Initializes and sets the public key for the Account contract.
+Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling interoperability with the ecosystem.
 
-Parameters:
+== Deploying an Account
 
-[,cairo]
-----
-publicKey: felt
-----
+In Starknet, there are two different ways for deploying smart contracts: the regular deployment using the `deploy_syscall` and the counterfactual deployment. The xref:udc.adoc[Universal Deployer Contract (UDC)] provides an interface for deploying arbitrary contracts through account calls (leveraging the first way through the `deploy_syscall`), but if you are deploying your first Account, you will probably want to use the counterfactual deployment, from the fact that you don't have an Account for calling the UDC in the first place.
 
-Returns: None.
-
-=== `getPublicKey`
-
-Returns the public key associated with the Account.
-
-Parameters: None.
-
-Returns:
-
-[,cairo]
-----
-publicKey: felt
-----
-
-=== `supportsInterface`
-
-Returns `TRUE` if this contract implements the interface defined by `interfaceId`.
-Account contracts now implement ERC165 through static support (see <<account_introspection_with_erc165,Account introspection with ERC165>>).
-
-Parameters:
-
-[,cairo]
-----
-interfaceId: felt
-----
-
-Returns:
-
-[,cairo]
-----
-success: felt
-----
-
-=== `setPublicKey`
-
-Sets the public key that will control this Account.
-It can be used to rotate keys for security, change them in case of compromised keys or even transferring ownership of the account.
-
-Parameters:
-
-[,cairo]
-----
-newPublicKey: felt
-----
-
-Returns: None.
-
-=== `isValidSignature`
-
-This function is inspired by https://eips.ethereum.org/EIPS/eip-1271[EIP-1271] and returns `TRUE` if a given signature is valid, otherwise it reverts.
-In the future it will return `FALSE` if a given signature is invalid (for more info please check https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-
-Parameters:
-
-[,cairo]
-----
-hash: felt
-signature_len: felt
-signature: felt*
-----
-
-Returns:
-
-[,cairo]
-----
-isValid: felt
-----
-
-NOTE: It may return `FALSE` in the future if a given signature is invalid (follow the discussion on https://github.com/OpenZeppelin/cairo-contracts/issues/327[this issue]).
-
-=== `\\__validate__`
-
-Validates the transaction signature and is called prior to `\\__execute__`.
-
-Parameters:
-
-[,cairo]
-----
-call_array_len: felt
-call_array: AccountCallArray*
-calldata_len: felt
-calldata: felt*
-----
-
-Returns: None.
-
-=== `\\__validate_declare__`
-
-Validates the signature for declaration transactions.
-
-Parameters:
-
-[,cairo]
-----
-class_hash: felt
-----
-
-Returns: None.
-
-=== `\\__validate_deploy__`
-
-Validates the signature for counterfactual deployment transactions.
-
-It takes the `class_hash` of the account being deployed along with the `salt` and `calldata`, the latter being expanded. For example if the account is deployed with calldata `[arg_1, ..., arg_n]`:
-
-Parameters:
-
-[,cairo]
-----
-class_hash: felt
-salt: felt
-arg_1: felt
-...
-arg_n: felt
-----
-
-Returns: None.
-
-=== `\\__execute__`
-
-This is the only external entrypoint to interact with the Account contract.
-It:
-
-. Calls the target contract with the intended function selector and calldata parameters.
-. Forwards the contract call response data as return value.
-
-Parameters:
-
-[,cairo]
-----
-call_array_len: felt
-call_array: AccountCallArray*
-calldata_len: felt
-calldata: felt*
-----
-
-NOTE: The current signature scheme expects a 2-element array like `[sig_r, sig_s]`.
-
-Returns:
-
-[,cairo]
-----
-response_len: felt
-response: felt*
-----
-
-== Presets
-
-The following contract presets are ready to deploy and can be used as-is for quick prototyping and testing.
-Each preset differs on the signature type being used by the Account.
-
-=== Account
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/account/presets/Account.cairo[`Account`] preset uses StarkNet keys to validate transactions.
-
-=== Eth Account
-
-The https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/account/presets/EthAccount.cairo[`EthAccount`] preset supports Ethereum addresses, validating transactions with secp256k1 keys.
-
-== Account introspection with ERC165
-
-Certain contracts like ERC721 or ERC1155 require a means to differentiate between account contracts and non-account contracts.
-For a contract to declare itself as an account, it should implement https://eips.ethereum.org/EIPS/eip-165[ERC165] as proposed in https://github.com/OpenZeppelin/cairo-contracts/discussions/100[#100].
-
-To be in compliance with ERC165 specifications, we calculate the account contract ID as the XOR of ``IAccount``'s equivalent EVM selectors (not StarkNet selectors).
-This magic value has been tracking the changes of the still evolving Account interface standard, and **its current value is `0xa66bd575`**.
-
-Our ERC165 integration on StarkNet is inspired by OpenZeppelin's Solidity implementation of https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage] which stores the interfaces that the implementing contract supports.
-In the case of account contracts, querying `supportsInterface` of an account's address with the `IAccount` magic value should return `TRUE`.
-
-NOTE: For Account contracts, ERC165 support is static and does not require Account contracts to register.
-
-== Extending the Account contract
-
-Account contracts can be extended by following the xref:extensibility.adoc#the_pattern[extensibility pattern].
-
-To implement custom account contracts, it's required by the StarkNet compiler that they include the three entrypoint functions `\\__validate__`, `\\__validate_declare__`, and `\\__execute__`.
-
-`\\__validate__` and `\\__validate_declare__` should include the same signature validation method; whereas, `\\__execute__` should only handle the actual transaction. Incorporating a new validation scheme necessitates only that it's invoked by both `\\__validate__` and `\\__validate_declare__`.
-
-This is why the Account library comes with different flavors of signature validation methods like `is_valid_eth_signature` and the vanilla `is_valid_signature`.
-
-Account contract developers are encouraged to implement the https://github.com/OpenZeppelin/cairo-contracts/discussions/41[standard Account interface] and incorporate the custom logic thereafter.
-
-IMPORTANT: Due to current inconsistencies between the testing framework and the actual StarkNet network, extreme caution should be used when integrating new Account contracts.
-Instances have occurred where account functionality tests pass and transactions execute correctly on the local node; yet, they fail on public networks.
-For this reason, it's highly encouraged that new account contracts are also deployed and tested on the public testnet.
-See https://github.com/OpenZeppelin/cairo-contracts/issues/386[issue #386] for more information.
-
-Some other validation schemes to look out for in the future:
-
-* Multisig.
-* Guardian logic like in https://github.com/argentlabs/argent-contracts-starknet/blob/de5654555309fa76160ba3d7393d32d2b12e7349/contracts/ArgentAccount.cairo[Argent's account].
-
-== L1 escape hatch mechanism
-
-[unknown, to be defined]
-
-== Paying for gas
-
-[unknown, to be defined]
+For using counterfactual deployments, you need to implement another protocol-level entrypoint (not specific to accounts) named `\\__validate_deploy__`. You can check the xref:/guides/deployment.adoc[Deploying Contracts] guide for getting into the specifics.

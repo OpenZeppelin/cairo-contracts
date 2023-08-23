@@ -3,9 +3,11 @@ name: Lint and test
 on:
   pull_request:
     branches:
+    - main
     - cairo-2
   push:
     branches:
+    - main
     - cairo-2
 
 jobs:

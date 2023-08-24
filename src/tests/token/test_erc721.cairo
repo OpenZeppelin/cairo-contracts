@@ -1,5 +1,5 @@
-use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
-use ERC721::_token_approvals::InternalContractStateTrait as TokenApprovalsTrait;
+use ERC721::_owners::InternalContractMemberStateTrait as OwnersTrait;
+use ERC721::_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
 use array::ArrayTrait;
 use integer::u256;

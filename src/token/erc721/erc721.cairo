@@ -2,44 +2,6 @@
 //! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 //!
 //! # ERC721 Contract and Implementation
-//!
-//! # Example
-//!
-//! How to extend the ERC721 contract:
-//! ```
-//! #[starknet::contract]
-//! mod MyToken {
-//!     use starknet::ContractAddress;
-//!     use openzeppelin::token::erc721::ERC721;
-//!
-//!     #[storage]
-//!     struct Storage {}
-//!
-//!     #[constructor]
-//!     fn constructor(
-//!         ref self: ContractState,
-//!         recipient: ContractAddress,
-//!         token_id: u256
-//!     ) {
-//!         let name = 'MyNFT';
-//!         let symbol = 'NFT';
-//!
-//!         let mut unsafe_state = ERC721::unsafe_new_contract_state();
-//!         ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-//!         ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
-//!     }
-//!
-//!    // Define methods that extend the ERC721 standard contract.
-//!    #[external(v0)]
-//!    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-//!        let unsafe_state = ERC721::unsafe_new_contract_state();
-//!        ERC721::ERC721Impl::balance_of(@unsafe_state, account)
-//!    }
-//!
-//!    ...
-//!
-//! }
-//! ```
 #[starknet::contract]
 mod ERC721 {
     use array::SpanTrait;

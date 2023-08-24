@@ -177,13 +177,6 @@ mod ERC721 {
         }
 
         /// Transfer ownership of `token_id` from `from` to `to`.
-        ///
-        /// Note that the caller is responsible to confirm that the recipient is
-        /// capable of receiving ERC721 transfers or else they may be permanently lost.
-        /// Usage of [safe_transfer_from](safe_transfer_from) prevents loss, though
-        /// the caller must understand this adds an external call which potentially
-        /// creates a reentrancy vulnerability.
-        ///
         /// Emits a [Transfer](Transfer) event.
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
@@ -197,9 +190,7 @@ mod ERC721 {
 
         /// Safely transfer ownership of `token_id` from `from` to `to`, checking first
         /// that `to` is aware of the ERC721 protocol to prevent tokens being locked
-        /// forever. For information regarding how contracts communicate their
-        /// awareness of the ERC721 protocol, see [ERC721Received](TODO!).
-        ///
+        /// forever.
         /// Emits a [Transfer](Transfer) event.
         fn safe_transfer_from(
             ref self: ContractState,
@@ -315,6 +306,8 @@ mod ERC721 {
                 || spender == ERC721Impl::get_approved(self, token_id)
         }
 
+        /// Internal function that changes or reaffirms the approved address for an NFT.
+        /// Emits an [Approval[(Approval) event.
         fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
             assert(owner != to, 'ERC721: approval to owner');
@@ -323,6 +316,9 @@ mod ERC721 {
             self.emit(Approval { owner, approved: to, token_id });
         }
 
+        /// Internal function that enables or disables approval for `operator`
+        /// to manage all of the `owner` assets.
+        /// Emits an [Approval[(Approval) event.
         fn _set_approval_for_all(
             ref self: ContractState,
             owner: ContractAddress,
@@ -334,6 +330,8 @@ mod ERC721 {
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
+        /// Internal function that mints `token_id` and transfers it to `to`.
+        /// Emits a [Transfer](Transfer) event.
         fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
             assert(!to.is_zero(), 'ERC721: invalid receiver');
             assert(!self._exists(token_id), 'ERC721: token already minted');
@@ -344,6 +342,8 @@ mod ERC721 {
             self.emit(Transfer { from: Zeroable::zero(), to, token_id });
         }
 
+        /// Internal function that transfers `token_id` from `from` to `to`.
+        /// Emits a [Transfer](Transfer) event.
         fn _transfer(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
@@ -361,6 +361,11 @@ mod ERC721 {
             self.emit(Transfer { from, to, token_id });
         }
 
+        /// Internal function that destroys `token_id`. The approval is cleared when
+        /// the token is burned.
+        /// This internal function does not check if the sender is authorized
+        /// to operate on the token.
+        /// Emits a [Transfer](Transfer) event.
         fn _burn(ref self: ContractState, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -373,6 +378,10 @@ mod ERC721 {
             self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id });
         }
 
+        /// Internal function that safely mints `token_id` and transfers it to `to`.
+        /// If `to` is not an account contract, `to` must support IERC721Receiver;
+        /// otherwise, the transaction will fail.
+        /// Emits a [Transfer](Transfer) event.
         fn _safe_mint(
             ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>
         ) {
@@ -383,6 +392,10 @@ mod ERC721 {
             );
         }
 
+        /// Internal function that safely transfers `token_id` token from `from` to `to`,
+        /// checking first that contract recipients are aware of the ERC721 protocol to
+        /// prevent tokens from being forever locked.
+        /// Emits a [Transfer](Transfer) event.
         fn _safe_transfer(
             ref self: ContractState,
             from: ContractAddress,
@@ -396,6 +409,7 @@ mod ERC721 {
             );
         }
 
+        /// Sets the `token_uri` of `token_id`.
         fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_uri.write(token_id, token_uri)
@@ -403,6 +417,9 @@ mod ERC721 {
     }
 
     #[internal]
+    /// Internal function that checks if `to` either is an account contract or
+    /// has registered support for the ERC721 interface through SRC-5.
+    /// The transaction does not execute if both cases are false.
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {

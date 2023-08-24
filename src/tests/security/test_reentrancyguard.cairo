@@ -33,7 +33,7 @@ fn test_reentrancy_guard_start() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_reentrancy_guard_start_when_started() {
     let mut state = STATE();
 

@@ -423,7 +423,7 @@ fn test_multicall_zero_calls() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid caller', ))]
+#[should_panic(expected: ('Account: invalid caller',))]
 fn test_account_called_from_contract() {
     let calls = array![];
     let caller = contract_address_const::<0x123>();
@@ -465,7 +465,7 @@ fn test_public_key_setter_and_getter() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = STATE();
     let caller = contract_address_const::<0x123>();
@@ -506,7 +506,7 @@ fn test_public_key_setter_and_getter_camel() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = STATE();
     let caller = contract_address_const::<0x123>();
@@ -543,7 +543,7 @@ fn test_assert_only_self_true() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized', ))]
+#[should_panic(expected: ('Account: unauthorized',))]
 fn test_assert_only_self_false() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     let other = contract_address_const::<0x4567>();

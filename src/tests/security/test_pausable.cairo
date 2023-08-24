@@ -49,7 +49,7 @@ fn test_assert_paused_when_paused() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: not paused', ))]
+#[should_panic(expected: ('Pausable: not paused',))]
 fn test_assert_paused_when_not_paused() {
     let state = STATE();
     InternalImpl::assert_paused(@state);
@@ -61,7 +61,7 @@ fn test_assert_paused_when_not_paused() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: paused', ))]
+#[should_panic(expected: ('Pausable: paused',))]
 fn test_assert_not_paused_when_paused() {
     let mut state = STATE();
     InternalImpl::_pause(ref state);
@@ -93,7 +93,7 @@ fn test_pause_when_unpaused() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: paused', ))]
+#[should_panic(expected: ('Pausable: paused',))]
 fn test_pause_when_paused() {
     let mut state = STATE();
     InternalImpl::_pause(ref state);
@@ -121,7 +121,7 @@ fn test_unpause_when_paused() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Pausable: not paused', ))]
+#[should_panic(expected: ('Pausable: not paused',))]
 fn test_unpause_when_unpaused() {
     let mut state = STATE();
     assert(!PausableImpl::is_paused(@state), 'Should be paused');

@@ -1,8 +1,9 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 
 = Account
 
-Reference of interfaces and utilities related to Account contracts.
+Reference of interfaces, presets, and utilities related to Account contracts.
 
 TIP: For an overview of Accounts, read our xref:accounts.adoc[Accounts guide].
 
@@ -10,26 +11,26 @@ TIP: For an overview of Accounts, read our xref:accounts.adoc[Accounts guide].
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/b40c35b5ca82598ae5bd9610aa3ffd0ded1f3c5f/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/interface.cairo#L12[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::account::interface::ISRC6;
 ```
 
-Interface of the ISRC6 standard as defined in the SNIP.
+Interface of the ISRC6 standard as defined in the {snip6}.
 
 
 [.contract-index]
 .Functions
 --
-* xref:#\\__execute__[`++__execute__(calls: Array<Call>)++`]
-* xref:#\\__validate__[`++__validate__(calls: Array<Call>)++`]
-* xref:#\\__is_valid_signature__[`++__is_valid_signature__(hash: felt252, signature: Array<felt252>)++`]
+* xref:#ISRC6-\\__execute__[`++__execute__(calls: Array<Call>)++`]
+* xref:#ISRC6-\\__validate__[`++__validate__(calls: Array<Call>)++`]
+* xref:#ISRC6-is_valid_signature[`++is_valid_signature(hash: felt252, signature: Array<felt252>)++`]
 --
 
 [.contract-item]
-[[__execute__]]
+[[ISRC6-__execute__]]
 ==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
 
 Executes the list of calls as a transaction after validation.
@@ -37,7 +38,7 @@ Executes the list of calls as a transaction after validation.
 Returns the list of each call output.
 
 [.contract-item]
-[[__validate__]]
+[[ISRC6-__validate__]]
 ==== `[.contract-item-name]#++__validate__++#++(calls: Array<Call>) → felt252++` [.item-kind]#external#
 
 Validates a transaction before execution.
@@ -45,9 +46,86 @@ Validates a transaction before execution.
 Returns the short string `'VALID'` if valid, or any other value otherwise.
 
 [.contract-item]
-[[__is_valid_signature__]]
-==== `[.contract-item-name]#++__is_valid_signature__++#++(hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+[[ISRC6-is_valid_signature]]
+==== `[.contract-item-name]#++is_valid_signature++#++(hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
 
 Validates whether a signature is valid or not for the given message hash.
 
 Returns the short string `'VALID'` if valid, or any other value otherwise.
+
+[.contract]
+[[Account]]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/account.cairo#L27[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::account::Account;
+```
+
+Base Account contract implementation.
+
+
+[.contract-index]
+.Functions
+--
+* xref:#Account-\\__execute__[`++__execute__(calls: Array<Call>)++`]
+* xref:#Account-\\__validate__[`++__validate__(calls: Array<Call>)++`]
+* xref:#Account-\\__validate_declare__[`++__validate_declare__(class_hash: felt252)++`]
+* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(hash: felt252, signature: Array<felt252>)++`]
+* xref:#Account-set_public_key[`++set_public_key(new_public_key: felt252)++`]
+* xref:#Account-get_public_key[`++get_public_key()++`]
+* xref:#Account-is_valid_signature[`++is_valid_signature(hash: felt252, signature: Array<felt252>)++`]
+* xref:#Account-supports_interface[`++supports_interface(interface_id: felt252)++`]
+--
+
+[.contract-item]
+[[Account-__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+
+See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
+
+[.contract-item]
+[[Account-__validate__]]
+==== `[.contract-item-name]#++__validate__++#++(calls: Array<Call>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-\\__validate__[ISRC6::\\__validate__].
+
+[.contract-item]
+[[Account-__validate_declare__]]
+==== `[.contract-item-name]#++__validate_declare__++#++(class_hash: felt252) → felt252++` [.item-kind]#external#
+
+Validates a Declare transaction.
+
+Returns the short string `'VALID'` if valid, or any other value otherwise.
+
+[.contract-item]
+[[Account-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
+
+Validates a DeployAccount transaction.
+
+Returns the short string `'VALID'` if valid, or any other value otherwise.
+
+[.contract-item]
+[[Account-set_public_key]]
+==== `[.contract-item-name]#++set_public_key++#++(new_public_key: felt252)++` [.item-kind]#external#
+
+Sets a new public key for the account.
+
+[.contract-item]
+[[Account-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++()++ → felt252` [.item-kind]#external#
+
+Returns the current public key of the account.
+
+[.contract-item]
+[[Account-is_valid_signature]]
+==== `[.contract-item-name]#++is_valid_signature++#++(hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
+
+[.contract-item]
+[[Account-supports_interface]]
+==== `[.contract-item-name]#++supports_interface++#++(interface_id: felt252) → bool++` [.item-kind]#external#
+
+Returns whether a contract implements a given interface or not.

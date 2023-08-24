@@ -19,7 +19,7 @@
 * xref:contracts::index.adoc[Contracts for Solidity]
 
 * Guides
-** xref:/guides/deployment.adoc[Deploying contracts]
+** xref:/guides/deployment.adoc[Counterfactual Deployments]
 
 * API
 ** xref:/api/account.adoc[Account]

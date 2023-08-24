@@ -114,4 +114,4 @@ Even though these interfaces are not enforced by the protocol, it's recommended 
 
 In Starknet, there are two different ways for deploying smart contracts: the regular deployment using the `deploy_syscall` and the counterfactual deployment. The xref:udc.adoc[Universal Deployer Contract (UDC)] provides an interface for deploying arbitrary contracts through account calls (leveraging the first way through the `deploy_syscall`), but if you are deploying your first Account, you will probably want to use the counterfactual deployment, from the fact that you don't have an Account for calling the UDC in the first place.
 
-For using counterfactual deployments, you need to implement another protocol-level entrypoint (not specific to accounts) named `\\__validate_deploy__`. You can check the xref:/guides/deployment.adoc[Deploying Contracts] guide for getting into the specifics.
+For using counterfactual deployments, you need to implement another protocol-level entrypoint named `\\__validate_deploy__`. You can check the xref:/guides/deployment.adoc[Counterfactual Deployments] guide for getting into the specifics.

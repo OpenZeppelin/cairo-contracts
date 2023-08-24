@@ -766,7 +766,7 @@ Address to add to the set of authorized operators.
 [.contract-item#_mint]
 ==== `[.contract-item-name]#++_mint++#++(ref self: TState, to: ContractAddress, token_id: u256)++`
 
-Internal function that mints `token_id` and transfer it to `to`.
+Internal function that mints `token_id` and transfers it to `to`.
 
 WARNING: Usage of this method is discouraged, use <<_safe_mint,_safe_mint>> whenever possible.
 

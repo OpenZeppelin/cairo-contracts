@@ -2,6 +2,9 @@
 //! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 //!
 //! # ERC721 Contract and Implementation
+//!
+//! This ERC721 contract includes both a library and a basic preset implementation
+//! which includes the IERC721Metadata implementation.
 #[starknet::contract]
 mod ERC721 {
     use array::SpanTrait;

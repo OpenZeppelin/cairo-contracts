@@ -166,11 +166,6 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721Impl of interface::IERC721<ContractState> {
         /// Returns the number of NFTs owned by `account`.
-        /// 
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `token_id` does not exist.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             assert(!account.is_zero(), 'ERC721: invalid account');
             self._balances.read(account)
@@ -182,11 +177,6 @@ mod ERC721 {
         }
 
         /// Returns the address approved for `token_id`.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `token_id` does not exist.
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
             assert(self._exists(token_id), 'ERC721: invalid token ID');
             self._token_approvals.read(token_id)
@@ -201,12 +191,6 @@ mod ERC721 {
 
         /// Change or reaffirm the approved address for an NFT.
         /// Emits an [Approval](Approval) event.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - The caller is neither the NFT owner nor authorized.
-        /// - The NFT owner is `to`.
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -236,13 +220,6 @@ mod ERC721 {
         /// creates a reentrancy vulnerability.
         ///
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Panics
-        ///
-        /// - The caller is neither approved nor the `token_id` owner.
-        /// - `to` is the zero address.
-        /// - `from` is not the token owner.
-        /// - `token_id` does not exist.
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
@@ -259,15 +236,6 @@ mod ERC721 {
         /// awareness of the ERC721 protocol, see [ERC721Received](TODO!).
         ///
         /// Emits a [Transfer](Transfer) event.
-        ///
-        /// # Panics
-        ///
-        /// This functions panics if:
-        /// - The caller is neither approved nor the `token_id` owner.
-        /// - `to` is the zero address.
-        /// - `from` is not the token owner.
-        /// - `token_id` does not exist.
-        /// - `to` neither is an account contract nor supports the IERC721Receiver interface.
         fn safe_transfer_from(
             ref self: ContractState,
             from: ContractAddress,
@@ -358,11 +326,6 @@ mod ERC721 {
         }
 
         /// Returns the owner address of `token_id`.
-        ///
-        /// # Panics
-        ///
-        /// This function panics if:
-        /// - `token_id` does not exist.
         fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             let owner = self._owners.read(token_id);
             match owner.is_zero() {

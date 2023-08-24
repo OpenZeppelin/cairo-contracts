@@ -1,0 +1,262 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+
+= ERC20
+
+Reference of interfaces and utilities related to ERC20 contracts.
+
+TIP: For an overview of ERC20, read our xref:erc20.adoc[ERC20 guide].
+
+== Core
+
+[.contract]
+[[IERC20]]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/interface.cairo#L6-L19[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::token::erc20::interface::IERC20;
+```
+
+Interface of the IERC20 standard as defined in the EIP.
+
+[.contract-index]
+.Functions
+--
+* xref:#total_supply[`++total_supply()++`]
+* xref:#balance_of[`++balance_of()++`]
+* xref:#allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
+* xref:#transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
+* xref:#transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
+* xref:#approve[`++approve(spender: ContractAddress, amount: u256)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
+* xref:#Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+--
+
+[.contract-item]
+[[total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() → u256++` [.item-kind]#external#
+
+Returns the amount of tokens in existence.
+
+[.contract-item]
+[[balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the amount of tokens owned by `account`.
+
+[.contract-item]
+[[allowance]]
+==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
+
+This value changes when <<approve,approve>> or <<transfer_from,transfer_from>> are called.
+
+[.contract-item]
+[[transfer]]
+==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+Moves `amount` tokens from the caller's token balance to `to`.
+Returns `true` on success.
+
+Emits a <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- The caller is the zero address.
+- `recipient` is the zero address.
+
+[.contract-item]
+[[transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
+`amount` is then deducted from the caller's allowance.
+Returns `true` on success.
+
+Emits a <<Transfer,Transfer>> event.
+
+This function panics if:
+
+- `sender` is the zero address.
+- `recipient` is the zero address.
+
+[.contract-item]
+[[approve]]
+==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over the caller's tokens.
+Returns `true` on success.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
+
+[.contract-item]
+[[Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
+
+Emitted when `value` tokens are moved from one address (`from`) to another (`to`).
+
+Note that `value` may be zero.
+
+[.contract-item]
+[[Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
+
+Emitted when the allowance of a `spender` for an `owner` is set by a call to <<approve,approve>>.
+`value` is the new allowance.
+
+[.contract]
+[[ERC20]]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::token::erc20::ERC20;
+```
+
+Implementation of the <<IERC20,IERC20>> interface.
+
+[.contract-index]
+.Functions
+--
+* xref:#constructor[`++constructor(name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++`]
+* xref:#name[`++name()++`]
+* xref:#symbol[`++symbol()++`]
+* xref:#decimals[`++decimals()++`]
+* xref:#impl_total_supply[`++total_supply()++`]
+* xref:#impl_balance_of[`++balance_of()++`]
+* xref:#impl_allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
+* xref:#impl_transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
+* xref:#impl_transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
+* xref:#impl_approve[`++approve(spender: ContractAddress, amount: u256)++`]
+* xref:#increase_allowance[`++increase_allowance(spender: ContractAddress, added_value: u256)++`]
+* xref:#decrease_allowance[`++decrease_allowance(spender: ContractAddress, subtracted_value: u256)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#impl_Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
+* xref:#impl_Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+--
+
+[.contract-item]
+[[constructor]]
+==== `[.contract-item-name]#++constructor++#++(name_: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#external#
+
+Sets both the token name and symbol and mints `initial_supply` to `recipient`.
+Note that the token name and symbol are immutable once set through the constructor.
+
+[.contract-item]
+[[name]]
+==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+
+Returns the name of the token.
+
+[.contract-item]
+[[symbol]]
+==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+
+Returns the ticker symbol of the token.
+
+[.contract-item]
+[[decimals]]
+==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+
+Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
+
+For example, if `decimals` equals `2`, a balance of `505` tokens should
+be displayed to a user as `5.05` (`505 / 10 ** 2`).
+
+Tokens usually opt for a value of 18, imitating the relationship between
+Ether and Wei. This is the default value returned by this function, unless
+a custom implementation is used.
+
+NOTE: This information is only used for _display_ purposes: it in
+no way affects any of the arithmetic of the contract.
+
+[.contract-item]
+[[impl_total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() → u256++` [.item-kind]#external#
+
+See <<total_supply,IERC20::total_supply>>.
+
+[.contract-item]
+[[impl_balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
+
+See <<balance_of,IERC20::balance_of>>.
+
+[.contract-item]
+[[allowance]]
+==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
+
+See <<allowance,IERC20::allowance>>.
+
+[.contract-item]
+[[impl_transfer]]
+==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+See <<transfer,IERC20::transfer>>.
+
+[.contract-item]
+[[impl_transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+See <<transfer_from,IERC20::transfer_from>>.
+
+[.contract-item]
+[[impl_approve]]
+==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+
+See <<approve,IERC20::approve>>.
+
+[.contract-item]
+[[increase_allowance]]
+==== `[.contract-item-name]#++increase_allowance++#++(spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
+
+Atomically increases the allowance granted to `spender` by the caller.
+Returns `true` on success.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
+
+[.contract-item]
+[[decrease_allowance]]
+==== `[.contract-item-name]#++decrease_allowance++#++(spender: ContractAddress, subtracted_value: u256) → bool++` [.item-kind]#external#
+
+Atomically decreases the allowance granted to `spender` by the caller.
+Returns `true` on success.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- The caller is the zero address.
+- `spender` is the zero address.
+
+[.contract-item]
+[[impl_Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
+
+See <<Transfer,IERC20::Transfer>>.
+
+[.contract-item]
+[[impl_Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
+
+See <<Approval,IERC20::Approval>>.

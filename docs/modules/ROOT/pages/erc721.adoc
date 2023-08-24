@@ -230,26 +230,33 @@ trait IERC721Metadata<TState> {
 ----
 // SRC5 id: 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943
 
-fn balance_of(self: @ContractState, account: ContractAddress) -> u256;
-fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress;
-fn transfer_from(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256);
+fn balance_of(self: @TState, account: ContractAddress) -> u256;
+fn owner_of(self: @TState, token_id: u256) -> ContractAddress;
+fn transfer_from(
+    ref self: TState,
+    from: ContractAddress,
+    to: ContractAddress,
+    token_id: u256
+);
 fn safe_transfer_from(
-    ref self: ContractState,
+    ref self: TState,
     from: ContractAddress,
     to: ContractAddress,
     token_id: u256,
     data: Span<felt252>
 );
-fn approve(ref self: ContractState, to: ContractAddress, token_id: u256);
-fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool);
-fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress;
+fn approve(ref self: TState, to: ContractAddress, token_id: u256);
+fn set_approval_for_all(
+    ref self: TState, operator: ContractAddress, approved: bool
+);
+fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
 fn is_approved_for_all(
-    self: @ContractState, owner: ContractAddress, operator: ContractAddress
+    self: @TState, owner: ContractAddress, operator: ContractAddress
 ) -> bool;
 ----
 
 [.contract-item#balance_of]
-==== `[.contract-item-name]#++balance_of++#++(self: @ContractState, account: ContractAddress) → u256++`
+==== `[.contract-item-name]#++balance_of++#++(self: @TState, account: ContractAddress) → u256++`
 
 Returns the number of NFTs owned by `account`.
 
@@ -264,7 +271,7 @@ The account balance to query.
 - Token balance of `account`.
 
 [.contract-item#owner_of]
-==== `[.contract-item-name]#++owner_of++#++(self: @ContractState, token_id: u256) → ContractAddress++`
+==== `[.contract-item-name]#++owner_of++#++(self: @TState, token_id: u256) → ContractAddress++`
 
 Returns the owner address of `token_id`.
 
@@ -283,7 +290,7 @@ The token to query.
 - Owner address of `token_id`.
 
 [.contract-item#transfer_from]
-==== `[.contract-item-name]#++transfer_from++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
+==== `[.contract-item-name]#++transfer_from++#++(self: @TState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
 
 Transfer ownership of `token_id` from `from` to `to`.
     
@@ -312,7 +319,7 @@ The new owner.
 The NFT to transfer.
 
 [.contract-item#safe_transfer_from]
-==== `[.contract-item-name]#++safe_transfer_from++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
+==== `[.contract-item-name]#++safe_transfer_from++#++(self: @TState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Safely transfer ownership of `token_id` from `from` to `to`, checking first
 that `to` is aware of the ERC721 protocol to prevent tokens being locked
@@ -345,7 +352,7 @@ The NFT to transfer.
 Additional data with no specified format, sent in call to `to`.
 
 [.contract-item#approve]
-==== `[.contract-item-name]#++approve++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
+==== `[.contract-item-name]#++approve++#++(self: @TState, to: ContractAddress, token_id: u256)++`
 
 Change or reaffirm the approved address for an NFT.
 
@@ -367,7 +374,7 @@ The new approved NFT controller.
 The NFT to approve.
 
 [.contract-item#set_approval_for_all]
-==== `[.contract-item-name]#++set_approval_for_all++#++(self: @ContractState, operator: ContractAddress, approved: bool)++`
+==== `[.contract-item-name]#++set_approval_for_all++#++(self: @TState, operator: ContractAddress, approved: bool)++`
 
 Enable or disable approval for `operator` to manage all of the caller's assets.
 
@@ -387,7 +394,7 @@ Address to add to the set of authorized operators.
 `true` if `operator` is approved, `false` to revoke approval.
 
 [.contract-item#get_approved]
-==== `[.contract-item-name]#++get_approved++#++(self: @ContractState, token_id: u256) -> ContractAddress++`
+==== `[.contract-item-name]#++get_approved++#++(self: @TState, token_id: u256) -> ContractAddress++`
 
 Returns the address approved for `token_id`.
 
@@ -406,7 +413,7 @@ The token ID to query.
 - Approved address for the `token_id` NFT, or `0` if there is none.
 
 [.contract-item#is_approved_for_all]
-==== `[.contract-item-name]#++is_approved_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++`
+==== `[.contract-item-name]#++is_approved_for_all++#++(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool++`
 
 Query if `operator` is an authorized operator for `owner`.
 
@@ -427,14 +434,6 @@ The address that acts on behalf of the `owner`.
 
 [,javascript]
 ----
-#[event]
-#[derive(Drop, starknet::Event)]
-enum Event {
-    Transfer: Transfer,
-    Approval: Approval,
-    ApprovalForAll: ApprovalForAll
-}
-
 #[derive(Drop, starknet::Event)]
 struct Approval {
     owner: ContractAddress,
@@ -527,7 +526,7 @@ trait IERC721Metadata<TState> {
 ----
 
 [.contract-item#name]
-==== `[.contract-item-name]#++name++#++(self: @ContractState)++`
+==== `[.contract-item-name]#++name++#++(self: @TState)++`
 
 Returns the NFT name.
 
@@ -536,7 +535,7 @@ Returns the NFT name.
 - The NFT name.
 
 [.contract-item#symbol]
-==== `[.contract-item-name]#++symbol++#++(self: @ContractState)++`
+==== `[.contract-item-name]#++symbol++#++(self: @TState)++`
 
 Returns the NFT ticker symbol.
 
@@ -545,7 +544,7 @@ Returns the NFT ticker symbol.
 - The NFT symbol.
 
 [.contract-item#token_uri]
-==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256)++`
+==== `[.contract-item-name]#++token_uri++#++(self: @TState, token_id: u256)++`
 
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for the `token_id`, the return value will be `0`.
@@ -610,47 +609,47 @@ The IERC721Receiver magic value _0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402
 
 [,javascript]
 ----
-fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252);
-fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress;
-fn _exists(self: @ContractState, token_id: u256) -> bool;
+fn initializer(ref self: TState, name_: felt252, symbol_: felt252);
+fn _owner_of(self: @TState, token_id: u256) -> ContractAddress;
+fn _exists(self: @TState, token_id: u256) -> bool;
 fn _is_approved_or_owner(
-    self: @ContractState,
+    self: @TState,
     spender: ContractAddress,
     token_id: u256
 ) -> bool;
-fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256);
+fn _approve(ref self: TState, to: ContractAddress, token_id: u256);
 fn _set_approval_for_all(
-    ref self: ContractState,
+    ref self: TState,
     owner: ContractAddress,
     operator: ContractAddress,
     approved: bool
 );
-fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256);
+fn _mint(ref self: TState, to: ContractAddress, token_id: u256);
 fn _transfer(
-    ref self: ContractState,
+    ref self: TState,
     from: ContractAddress,
     to: ContractAddress,
     token_id: u256
 );
-fn _burn(ref self: ContractState, token_id: u256);
+fn _burn(ref self: TState, token_id: u256);
 fn _safe_mint(
-    ref self: ContractState,
+    ref self: TState,
     to: ContractAddress,
     token_id: u256,
     data: Span<felt252>
 );
 fn _safe_transfer(
-    ref self: ContractState,
+    ref self: TState,
     from: ContractAddress,
     to: ContractAddress,
     token_id: u256,
     data: Span<felt252>
 );
-fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252);
+fn _set_token_uri(ref self: TState, token_id: u256, token_uri: felt252);
 ----
 
 [.contract-item#initializer]
-==== `[.contract-item-name]#++initializer++#++(self: @ContractState, name_: felt252, symbol_: felt252)++`
+==== `[.contract-item-name]#++initializer++#++(ref self: TState, name_: felt252, symbol_: felt252)++`
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside the contract's constructor.
@@ -665,7 +664,7 @@ The token name.
 The token symbol.
 
 [.contract-item#_owner_of]
-==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: u256) -> ContractAddress++`
+==== `[.contract-item-name]#++_owner_of++#++(self: @TState, token_id: u256) -> ContractAddress++`
 
 Internal function that returns the owner address of `token_id`.
 This function will panic if the token does not exist.
@@ -681,7 +680,7 @@ The token to query.
 - The owner address of `token_id`.
 
 [.contract-item#_exists]
-==== `[.contract-item-name]#++_exists++#++(self: @ContractState, token_id: u256) -> bool++`
+==== `[.contract-item-name]#++_exists++#++(self: @TState, token_id: u256) -> bool++`
 
 Internal function that returns whether `token_id` exists.
 
@@ -698,7 +697,7 @@ The token to query.
 - `true` if the token exists, `false` otherwise.
 
 [.contract-item#_is_approved_or_owner]
-==== `[.contract-item-name]#++_is_approved_or_owner++#++(self: @ContractState, spender: ContractAddress, token_id: u256) -> bool++`
+==== `[.contract-item-name]#++_is_approved_or_owner++#++(self: @TState, spender: ContractAddress, token_id: u256) -> bool++`
 
 Internal function that returns whether `spender` is allowed to manage `token_id`.
 
@@ -720,7 +719,7 @@ The token to query.
 - `true` if the `spender` is either the owner or approved, `false` otherwise.
 
 [.contract-item#_approve]
-==== `[.contract-item-name]#++_approve++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
+==== `[.contract-item-name]#++_approve++#++(ref self: TState, to: ContractAddress, token_id: u256)++`
 
 Internal function that changes or reaffirms the approved address for an NFT.
 
@@ -741,7 +740,7 @@ The new approved NFT controller.
 The NFT to approve.
 
 [.contract-item#_set_approval_for_all]
-==== `[.contract-item-name]#++_set_approval_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress, approved: bool)++`
+==== `[.contract-item-name]#++_set_approval_for_all++#++(ref self: TState, owner: ContractAddress, operator: ContractAddress, approved: bool)++`
 
 Internal function that enables or disables approval for `operator` to manage all of the
 `owner` assets.
@@ -765,7 +764,7 @@ Address to add to the set of authorized operators.
 `true` if `operator` is approved, `false` to revoke approval.
 
 [.contract-item#_mint]
-==== `[.contract-item-name]#++_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256)++`
+==== `[.contract-item-name]#++_mint++#++(ref self: TState, to: ContractAddress, token_id: u256)++`
 
 Internal function that mints `token_id` and transfer it to `to`.
 
@@ -788,7 +787,7 @@ The new owner of the NFT.
 The newly created NFT to transfer.
 
 [.contract-item#_transfer]
-==== `[.contract-item-name]#++_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
+==== `[.contract-item-name]#++_transfer++#++(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256)++`
 
 Internal function that transfers `token_id` from `from` to `to`.
 
@@ -813,7 +812,7 @@ The new owner.
 The NFT to transfer.
 
 [.contract-item#_burn]
-==== `[.contract-item-name]#++_burn++#++(self: @ContractState, token_id: u256)++`
+==== `[.contract-item-name]#++_burn++#++(ref self: TState, token_id: u256)++`
 
 Internal function that destroys `token_id`.
 The approval is cleared when the token is burned.
@@ -832,7 +831,7 @@ This function panics if:
 The NFT to burn.
 
 [.contract-item#_safe_mint]
-==== `[.contract-item-name]#++_safe_mint++#++(self: @ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
+==== `[.contract-item-name]#++_safe_mint++#++(ref self: TState, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Internal function that safely mints `token_id` and transfers it to `to`.
 If `to` is not an account contract, `to` must support IERC721Receiver; otherwise, the transaction will fail.
@@ -857,7 +856,7 @@ The newly created NFT to transfer.
 Additional data with no specified format, sent in call to `to`.
 
 [.contract-item#_safe_transfer]
-==== `[.contract-item-name]#++_safe_transfer++#++(self: @ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
+==== `[.contract-item-name]#++_safe_transfer++#++(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++`
 
 Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
@@ -890,7 +889,7 @@ The NFT to transfer.
 Additional data with no specified format, sent in call to `to`.
 
 [.contract-item#_set_token_uri]
-==== `[.contract-item-name]#++_set_token_uri++#++(self: @ContractState, token_id: u256, token_uri: felt252)++`
+==== `[.contract-item-name]#++_set_token_uri++#++(ref self: TState, token_id: u256, token_uri: felt252)++`
 
 Sets the `token_uri` of `token_id`.
 

@@ -46,7 +46,7 @@ fn deploy_v1() -> IUpgradesV1Dispatcher {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
 fn test_upgrade_with_class_hash_zero() {
     let v1 = deploy_v1();
     v1.upgrade(CLASS_HASH_ZERO());
@@ -95,7 +95,7 @@ fn test_remove_selector_passes_in_v1() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_remove_selector_fails_in_v2() {
     let v1 = deploy_v1();
     v1.upgrade(V2_CLASS_HASH());

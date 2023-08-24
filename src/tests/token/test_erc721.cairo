@@ -1,5 +1,5 @@
-use ERC721::_owners::InternalContractStateTrait as OwnersTrait;
-use ERC721::_token_approvals::InternalContractStateTrait as TokenApprovalsTrait;
+use ERC721::_owners::InternalContractMemberStateTrait as OwnersTrait;
+use ERC721::_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
 use array::ArrayTrait;
 use integer::u256;
@@ -138,7 +138,7 @@ fn test_balance_of() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid account', ))]
+#[should_panic(expected: ('ERC721: invalid account',))]
 fn test_balance_of_zero() {
     ERC721Impl::balance_of(@STATE(), ZERO());
 }
@@ -152,14 +152,14 @@ fn test_owner_of() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_owner_of_non_minted() {
     ERC721Impl::owner_of(@STATE(), u256_from_felt252(7));
 }
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_token_uri_non_minted() {
     ERC721MetadataImpl::token_uri(@STATE(), u256_from_felt252(7));
 }
@@ -178,7 +178,7 @@ fn test_get_approved() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_get_approved_nonexistent() {
     ERC721Impl::get_approved(@STATE(), u256_from_felt252(7));
 }
@@ -242,7 +242,7 @@ fn test_approve_from_operator() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: unauthorized caller', ))]
+#[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_approve_from_unauthorized() {
     let mut state = setup();
 
@@ -252,7 +252,7 @@ fn test_approve_from_unauthorized() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: approval to owner', ))]
+#[should_panic(expected: ('ERC721: approval to owner',))]
 fn test_approve_to_owner() {
     let mut state = setup();
 
@@ -262,7 +262,7 @@ fn test_approve_to_owner() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_approve_nonexistent() {
     let mut state = STATE();
     ERC721Impl::approve(ref state, SPENDER(), TOKEN_ID);
@@ -282,7 +282,7 @@ fn test__approve() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: approval to owner', ))]
+#[should_panic(expected: ('ERC721: approval to owner',))]
 fn test__approve_to_owner() {
     let mut state = setup();
     InternalImpl::_approve(ref state, OWNER(), TOKEN_ID);
@@ -290,7 +290,7 @@ fn test__approve_to_owner() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__approve_nonexistent() {
     let mut state = STATE();
     InternalImpl::_approve(ref state, SPENDER(), TOKEN_ID);
@@ -327,7 +327,7 @@ fn test_set_approval_for_all() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: self approval', ))]
+#[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let mut state = STATE();
     testing::set_caller_address(OWNER());
@@ -336,7 +336,7 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: self approval', ))]
+#[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let mut state = STATE();
     testing::set_caller_address(OWNER());
@@ -368,7 +368,7 @@ fn test__set_approval_for_all() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: self approval', ))]
+#[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_true() {
     let mut state = STATE();
     InternalImpl::_set_approval_for_all(ref state, OWNER(), OWNER(), true);
@@ -376,7 +376,7 @@ fn test__set_approval_for_all_owner_equal_operator_true() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: self approval', ))]
+#[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_false() {
     let mut state = STATE();
     InternalImpl::_set_approval_for_all(ref state, OWNER(), OWNER(), false);
@@ -430,7 +430,7 @@ fn test_transferFrom_owner() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transfer_from_nonexistent() {
     let mut state = STATE();
     ERC721Impl::transfer_from(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
@@ -438,7 +438,7 @@ fn test_transfer_from_nonexistent() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transferFrom_nonexistent() {
     let mut state = STATE();
     ERC721CamelOnlyImpl::transferFrom(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
@@ -446,7 +446,7 @@ fn test_transferFrom_nonexistent() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transfer_from_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -455,7 +455,7 @@ fn test_transfer_from_to_zero() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transferFrom_to_zero() {
     let mut state = setup();
 
@@ -579,7 +579,7 @@ fn test_transferFrom_approved_for_all() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: unauthorized caller', ))]
+#[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transfer_from_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -588,7 +588,7 @@ fn test_transfer_from_unauthorized() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: unauthorized caller', ))]
+#[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transferFrom_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -737,7 +737,7 @@ fn test_safeTransferFrom_to_receiver_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe transfer failed', ))]
+#[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -750,7 +750,7 @@ fn test_safe_transfer_from_to_receiver_failure() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe transfer failed', ))]
+#[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -763,7 +763,7 @@ fn test_safeTransferFrom_to_receiver_failure() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe transfer failed', ))]
+#[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -776,7 +776,7 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe transfer failed', ))]
+#[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -789,7 +789,7 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
     let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
@@ -802,7 +802,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
     let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
@@ -815,7 +815,7 @@ fn test_safeTransferFrom_to_non_receiver() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safe_transfer_from_nonexistent() {
     let mut state = STATE();
     ERC721Impl::safe_transfer_from(ref state, ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
@@ -823,7 +823,7 @@ fn test_safe_transfer_from_nonexistent() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safeTransferFrom_nonexistent() {
     let mut state = STATE();
     ERC721CamelOnlyImpl::safeTransferFrom(ref state, ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
@@ -831,7 +831,7 @@ fn test_safeTransferFrom_nonexistent() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -840,7 +840,7 @@ fn test_safe_transfer_from_to_zero() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safeTransferFrom_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -1101,7 +1101,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: unauthorized caller', ))]
+#[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safe_transfer_from_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -1110,7 +1110,7 @@ fn test_safe_transfer_from_unauthorized() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: unauthorized caller', ))]
+#[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safeTransferFrom_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -1139,7 +1139,7 @@ fn test__transfer() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__transfer_nonexistent() {
     let mut state = STATE();
     InternalImpl::_transfer(ref state, ZERO(), RECIPIENT(), TOKEN_ID);
@@ -1147,7 +1147,7 @@ fn test__transfer_nonexistent() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
     InternalImpl::_transfer(ref state, OWNER(), ZERO(), TOKEN_ID);
@@ -1155,7 +1155,7 @@ fn test__transfer_to_zero() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: wrong sender', ))]
+#[should_panic(expected: ('ERC721: wrong sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
     InternalImpl::_transfer(ref state, RECIPIENT(), OWNER(), TOKEN_ID);
@@ -1181,7 +1181,7 @@ fn test__mint() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__mint_to_zero() {
     let mut state = STATE();
     InternalImpl::_mint(ref state, ZERO(), TOKEN_ID);
@@ -1189,7 +1189,7 @@ fn test__mint_to_zero() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: token already minted', ))]
+#[should_panic(expected: ('ERC721: token already minted',))]
 fn test__mint_already_exist() {
     let mut state = setup();
     InternalImpl::_mint(ref state, RECIPIENT(), TOKEN_ID);
@@ -1257,7 +1257,7 @@ fn test__safe_mint_to_account_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = STATE();
     let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
@@ -1270,7 +1270,7 @@ fn test__safe_mint_to_non_receiver() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe mint failed', ))]
+#[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure() {
     let mut state = STATE();
     let recipient = setup_receiver();
@@ -1283,7 +1283,7 @@ fn test__safe_mint_to_receiver_failure() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: safe mint failed', ))]
+#[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure_camel() {
     let mut state = STATE();
     let recipient = setup_camel_receiver();
@@ -1296,7 +1296,7 @@ fn test__safe_mint_to_receiver_failure_camel() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid receiver', ))]
+#[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__safe_mint_to_zero() {
     let mut state = STATE();
     InternalImpl::_safe_mint(ref state, ZERO(), TOKEN_ID, DATA(true));
@@ -1304,7 +1304,7 @@ fn test__safe_mint_to_zero() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: token already minted', ))]
+#[should_panic(expected: ('ERC721: token already minted',))]
 fn test__safe_mint_already_exist() {
     let mut state = setup();
     InternalImpl::_safe_mint(ref state, RECIPIENT(), TOKEN_ID, DATA(true));
@@ -1336,7 +1336,7 @@ fn test__burn() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__burn_nonexistent() {
     let mut state = STATE();
     InternalImpl::_burn(ref state, TOKEN_ID);
@@ -1358,7 +1358,7 @@ fn test__set_token_uri() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: invalid token ID', ))]
+#[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__set_token_uri_nonexistent() {
     let mut state = STATE();
     InternalImpl::_set_token_uri(ref state, TOKEN_ID, URI);

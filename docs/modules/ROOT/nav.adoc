@@ -17,3 +17,6 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
+
+* API
+** xref:/api/erc721.adoc[ERC721]

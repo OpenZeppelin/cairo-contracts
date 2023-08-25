@@ -22,7 +22,7 @@ TIP: For testing this flow you can check the {foundry} or the {starkli} guides f
 
 == Deployment validation
 
-As you noticed, for contracts being able to be counterfactually deployed, they must implement the `\\__validate_deploy__` entrypoint, and it is called by the protocol when a `DeployAccount` transaction is sent to the network.
+For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is called by the protocol when a `DeployAccount` transaction is sent to the network.
 
 [,javascript]
 ----

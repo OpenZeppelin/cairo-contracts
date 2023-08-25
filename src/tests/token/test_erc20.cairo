@@ -28,7 +28,7 @@ fn STATE() -> ERC20::ContractState {
 
 fn setup() -> ERC20::ContractState {
     let mut state = STATE();
-    ERC20::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    ERC20::constructor(ref state, NAME, SYMBOL, DECIMALS, SUPPLY, OWNER());
     utils::drop_event(ZERO());
     state
 }
@@ -41,7 +41,7 @@ fn setup() -> ERC20::ContractState {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = STATE();
-    InternalImpl::initializer(ref state, NAME, SYMBOL);
+    InternalImpl::initializer(ref state, NAME, SYMBOL, DECIMALS);
 
     assert(ERC20Impl::name(@state) == NAME, 'Name should be NAME');
     assert(ERC20Impl::symbol(@state) == SYMBOL, 'Symbol should be SYMBOL');
@@ -54,7 +54,7 @@ fn test_initializer() {
 #[available_gas(2000000)]
 fn test_constructor() {
     let mut state = STATE();
-    ERC20::constructor(ref state, NAME, SYMBOL, SUPPLY, OWNER());
+    ERC20::constructor(ref state, NAME, SYMBOL, DECIMALS, SUPPLY, OWNER());
 
     assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
 
@@ -109,6 +109,13 @@ fn test_allowance() {
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
 
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == VALUE, 'Should eq VALUE');
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_decimals() {
+    let mut state = setup();
+    assert(ERC20Impl::decimals(@state) == DECIMALS, 'Should eq DECIMALS')
 }
 
 //

@@ -11,11 +11,12 @@ mod SnakeERC20Mock {
         ref self: ContractState,
         name: felt252,
         symbol: felt252,
+        decimals: u8,
         initial_supply: u256,
         recipient: ContractAddress
     ) {
         let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol, decimals);
         ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
     }
 

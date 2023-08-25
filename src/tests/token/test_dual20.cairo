@@ -47,6 +47,7 @@ fn setup_snake() -> (DualERC20, IERC20Dispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(DECIMALS);
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
     let target = utils::deploy(SnakeERC20Mock::TEST_CLASS_HASH, calldata);
@@ -57,6 +58,7 @@ fn setup_camel() -> (DualERC20, IERC20CamelDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(DECIMALS);
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
     let target = utils::deploy(CamelERC20Mock::TEST_CLASS_HASH, calldata);

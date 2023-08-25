@@ -14,6 +14,7 @@ mod ERC20 {
     struct Storage {
         _name: felt252,
         _symbol: felt252,
+        _decimals: u8,
         _total_supply: u256,
         _balances: LegacyMap<ContractAddress, u256>,
         _allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
@@ -45,10 +46,11 @@ mod ERC20 {
         ref self: ContractState,
         name: felt252,
         symbol: felt252,
+        decimals: u8,
         initial_supply: u256,
         recipient: ContractAddress
     ) {
-        self.initializer(name, symbol);
+        self.initializer(name, symbol, decimals);
         self._mint(recipient, initial_supply);
     }
 
@@ -67,7 +69,7 @@ mod ERC20 {
         }
 
         fn decimals(self: @ContractState) -> u8 {
-            18
+            self._decimals.read()
         }
 
         fn total_supply(self: @ContractState) -> u256 {
@@ -163,9 +165,10 @@ mod ERC20 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
+        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252, decimals_: u8) {
             self._name.write(name_);
             self._symbol.write(symbol_);
+            self._decimals.write(decimals_)
         }
 
         fn _increase_allowance(

@@ -1,10 +1,13 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
+:erc20-guide: xref:erc20.adoc[ERC20 guide]
+
 
 = ERC20
 
 Reference of interfaces and utilities related to ERC20 contracts.
 
-TIP: For an overview of ERC20, read our xref:erc20.adoc[ERC20 guide].
+TIP: For an overview of ERC20, read our {erc20-guide}.
 
 == Core
 
@@ -17,40 +20,40 @@ TIP: For an overview of ERC20, read our xref:erc20.adoc[ERC20 guide].
 use openzeppelin::token::erc20::interface::IERC20;
 ```
 
-Interface of the IERC20 standard as defined in the EIP.
+Interface of the IERC20 standard as defined in {eip20}.
 
 [.contract-index]
 .Functions
 --
-* xref:#total_supply[`++total_supply()++`]
-* xref:#balance_of[`++balance_of()++`]
-* xref:#allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
-* xref:#transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
-* xref:#transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
-* xref:#approve[`++approve(spender: ContractAddress, amount: u256)++`]
+* xref:#IERC20-total_supply[`++total_supply()++`]
+* xref:#IERC20-balance_of[`++balance_of()++`]
+* xref:#IERC20-allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
+* xref:#IERC20-transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
+* xref:#IERC20-transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
+* xref:#IERC20-approve[`++approve(spender: ContractAddress, amount: u256)++`]
 --
 
 [.contract-index]
 .Events
 --
-* xref:#Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
-* xref:#Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+* xref:#IERC20-Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
+* xref:#IERC20-Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
 --
 
 [.contract-item]
-[[total_supply]]
+[[IERC20-total_supply]]
 ==== `[.contract-item-name]#++total_supply++#++() → u256++` [.item-kind]#external#
 
 Returns the amount of tokens in existence.
 
 [.contract-item]
-[[balance_of]]
+[[IERC20-balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the amount of tokens owned by `account`.
 
 [.contract-item]
-[[allowance]]
+[[IERC20-allowance]]
 ==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
@@ -58,7 +61,7 @@ Returns the remaining number of tokens that `spender` will be allowed to spend o
 This value changes when <<approve,approve>> or <<transfer_from,transfer_from>> are called.
 
 [.contract-item]
-[[transfer]]
+[[IERC20-transfer]]
 ==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 Moves `amount` tokens from the caller's token balance to `to`.
@@ -72,7 +75,7 @@ This function panics if:
 - `recipient` is the zero address.
 
 [.contract-item]
-[[transfer_from]]
+[[IERC20-transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
@@ -87,7 +90,7 @@ This function panics if:
 - `recipient` is the zero address.
 
 [.contract-item]
-[[approve]]
+[[IERC20-approve]]
 ==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -101,7 +104,7 @@ This function panics if:
 - `spender` is the zero address.
 
 [.contract-item]
-[[Transfer]]
+[[IERC20-Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
 
 Emitted when `value` tokens are moved from one address (`from`) to another (`to`).
@@ -109,7 +112,7 @@ Emitted when `value` tokens are moved from one address (`from`) to another (`to`
 Note that `value` may be zero.
 
 [.contract-item]
-[[Approval]]
+[[IERC20-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
 Emitted when the allowance of a `spender` for an `owner` is set by a call to <<approve,approve>>.
@@ -133,12 +136,12 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#name[`++name()++`]
 * xref:#symbol[`++symbol()++`]
 * xref:#decimals[`++decimals()++`]
-* xref:#impl_total_supply[`++total_supply()++`]
-* xref:#impl_balance_of[`++balance_of()++`]
-* xref:#impl_allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
-* xref:#impl_transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
-* xref:#impl_transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
-* xref:#impl_approve[`++approve(spender: ContractAddress, amount: u256)++`]
+* xref:#total_supply[`++total_supply()++`]
+* xref:#balance_of[`++balance_of()++`]
+* xref:#allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
+* xref:#transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
+* xref:#transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
+* xref:#approve[`++approve(spender: ContractAddress, amount: u256)++`]
 * xref:#increase_allowance[`++increase_allowance(spender: ContractAddress, added_value: u256)++`]
 * xref:#decrease_allowance[`++decrease_allowance(spender: ContractAddress, subtracted_value: u256)++`]
 --
@@ -186,40 +189,40 @@ NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract.
 
 [.contract-item]
-[[impl_total_supply]]
+[[total_supply]]
 ==== `[.contract-item-name]#++total_supply++#++() → u256++` [.item-kind]#external#
 
-See <<total_supply,IERC20::total_supply>>.
+See <<IERC20-total_supply,IERC20::total_supply>>.
 
 [.contract-item]
-[[impl_balance_of]]
+[[balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
 
-See <<balance_of,IERC20::balance_of>>.
+See <<IERC20-balance_of,IERC20::balance_of>>.
 
 [.contract-item]
 [[allowance]]
 ==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
 
-See <<allowance,IERC20::allowance>>.
+See <<IERC20-allowance,IERC20::allowance>>.
 
 [.contract-item]
-[[impl_transfer]]
+[[transfer]]
 ==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<transfer,IERC20::transfer>>.
+See <<IERC20-transfer,IERC20::transfer>>.
 
 [.contract-item]
-[[impl_transfer_from]]
+[[transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<transfer_from,IERC20::transfer_from>>.
+See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
 [.contract-item]
-[[impl_approve]]
+[[approve]]
 ==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<approve,IERC20::approve>>.
+See <<IERC20-approve,IERC20::approve>>.
 
 [.contract-item]
 [[increase_allowance]]
@@ -250,13 +253,13 @@ This function panics if:
 - `spender` is the zero address.
 
 [.contract-item]
-[[impl_Transfer]]
+[[Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<Transfer,IERC20::Transfer>>.
+See <<IERC20-Transfer,IERC20::Transfer>>.
 
 [.contract-item]
-[[impl_Approval]]
+[[Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<Approval,IERC20::Approval>>.
+See <<IERC20-Approval,IERC20::Approval>>.

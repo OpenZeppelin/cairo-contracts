@@ -3,7 +3,7 @@
 
 = Counterfactual deployments
 
-A deployment is said to be counterfactual when the one paying for the deployment fees is the address of the contract to be deployed. It’s called like this because we need to send the funds to the address even when the deployment hasn’t happened.
+A deployment is said to be counterfactual when the one paying for the deployment fees is the address of the contract to be deployed. In other words, we need to send the funds to the address even when the deployment hasn’t happened.
 
 This process can be described with the following steps:
 
@@ -22,7 +22,7 @@ TIP: For testing this flow you can check the {foundry} or the {starkli} guides f
 
 == Deployment validation
 
-As you noticed, for contracts being able to be counterfactually deployed, they must implement the `\\__validate_deploy__` entrypoint, and it is called by the protocol when a `DeployAccount` transaction is sent to the network.
+For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is called by the protocol when a `DeployAccount` transaction is sent to the network.
 
 [,javascript]
 ----

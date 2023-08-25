@@ -3,7 +3,7 @@
 
 = Counterfactual deployments
 
-A deployment is said to be counterfactual when the one paying for the deployment fees is the address of the contract to be deployed. It’s called like this because we need to send the funds to the address even when the deployment hasn’t happened.
+A deployment is said to be counterfactual when the one paying for the deployment fees is the address of the contract to be deployed. In other words, we need to send the funds to the address even when the deployment hasn’t happened.
 
 This process can be described with the following steps:
 

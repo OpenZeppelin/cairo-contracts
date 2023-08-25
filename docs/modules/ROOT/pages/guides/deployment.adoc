@@ -3,15 +3,19 @@
 
 = Counterfactual deployments
 
-A deployment is said to be counterfactual when the one paying for the deployment fees is the address of the contract to be deployed. In other words, we need to send the funds to the address even when the deployment hasn’t happened.
+A deployment is said to be counterfactual when the one paying for the deployment fees is the address of
+the contract to be deployed. In other words, we need to send the funds to the address even when the
+deploymenthasn’t happened.
 
 This process can be described with the following steps:
 
 TIP: For testing this flow you can check the {foundry} or the {starkli} guides for deploying accounts.
 
-1. Deterministically precompute the `contract_address` given a `class_hash`, `salt`, and constructor `calldata`. Note that the `class_hash` must be previously declared for the deployment to succeed.
+1. Deterministically precompute the `contract_address` given a `class_hash`, `salt`, and constructor `calldata`.
+Note that the `class_hash` must be previously declared for the deployment to succeed.
 
-2. Send funds to the `contract_address`. Usually you will estimate the fee of the transaction first. Existing tools usually do this for you.
+2. Send funds to the `contract_address`. Usually you will estimate the fee of the transaction first. Existing
+tools usually do this for you.
 
 3. Send a `DeployAccount` type transaction to the network.
 
@@ -22,7 +26,8 @@ TIP: For testing this flow you can check the {foundry} or the {starkli} guides f
 
 == Deployment validation
 
-For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is called by the protocol when a `DeployAccount` transaction is sent to the network.
+For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is
+called by the protocol when a `DeployAccount` transaction is sent to the network.
 
 [,javascript]
 ----

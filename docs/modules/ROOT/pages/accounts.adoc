@@ -32,7 +32,7 @@ As we mentioned, Accounts in Starknet are smart contracts, and so they can be de
 
 The first two following methods are protocol-level enforced functions that must be implemented by any Account contract. The third one is optional and can be used for enabling declarations.
 
-1. `\\__validate__` verifies the validity of the transaction to be executed. Is usually used to validate signatures, but following the account abstraction design, the entrypoint implementation can be customized to feature any different validation mechanism.
+1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures, but following the account abstraction design, the entrypoint implementation can be customized to feature any validation mechanism.
 
 2. `\\__execute__` executes the transaction if the validation is successful.
 

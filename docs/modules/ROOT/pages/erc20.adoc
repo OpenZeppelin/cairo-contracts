@@ -9,15 +9,6 @@ The `ERC20.cairo` contract implements an approximation of {eip20} in Cairo for S
 
 TIP: For detailed information on the usage and implementation check the {erc20-api} section.
 
-== Table of Contents
-
-* <<interface,Interface>>
- ** <<erc20_compatibility,ERC20 compatibility>>
-* <<extensibility,Extensibility>>
-* <<presets,Presets>>
- ** <<basic-erc20,Basic ERC20>>
-* <<extensions,Extensions>>
-
 == Interface
 
 [,javascript]

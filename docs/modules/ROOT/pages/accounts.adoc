@@ -45,7 +45,7 @@ NOTE: Even when this entrypoints can be called directly at contract level, they 
 
 Notice that we haven't mentioned the parameters or the return values of these entrypoints. This is because function selectors in Starknet are computed from the function name, without including the rest of the signature. This means that the entrypoints can be implemented with any signature, and the protocol will be able to call them as long as the function name is correct.
 
-In the following interface, we are using the `Array<Call>` for enabling multicall transactions. Notice that we don't need signature related parameters, because they are part of the transaction information that is accesible using the global context (ex: `starknet::get_tx_info()`).
+In the following interface, we are using the `Array<Call>` for enabling multicall transactions. Notice that we don't need signature-related parameters, because they are part of the transaction information that is accesible using the global context (ex: `starknet::get_tx_info()`).
 
 [,javascript]
 ----

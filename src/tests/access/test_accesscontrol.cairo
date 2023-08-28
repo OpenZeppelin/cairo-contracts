@@ -111,7 +111,7 @@ fn test_assert_only_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_assert_only_role_unauthorized() {
     let state = setup();
     testing::set_caller_address(OTHER());
@@ -120,7 +120,7 @@ fn test_assert_only_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
     let mut state = setup();
     AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
@@ -181,7 +181,7 @@ fn test_grantRole_multiple_times_for_granted_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_grant_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
@@ -190,7 +190,7 @@ fn test_grant_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_grantRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
@@ -277,7 +277,7 @@ fn test_revokeRole_multiple_times_for_granted_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_revoke_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -286,7 +286,7 @@ fn test_revoke_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_revokeRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
@@ -380,7 +380,7 @@ fn test_renounceRole_multiple_times_for_granted_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Can only renounce role for self', ))]
+#[should_panic(expected: ('Can only renounce role for self',))]
 fn test_renounce_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
@@ -392,7 +392,7 @@ fn test_renounce_role_unauthorized() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Can only renounce role for self', ))]
+#[should_panic(expected: ('Can only renounce role for self',))]
 fn test_renounceRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
@@ -456,7 +456,7 @@ fn test_new_admin_can_revoke_roles() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_grant_roles() {
     let mut state = setup();
     InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
@@ -466,7 +466,7 @@ fn test_previous_admin_cannot_grant_roles() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Caller is missing role', ))]
+#[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_revoke_roles() {
     let mut state = setup();
     InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);

@@ -1,3 +1,4 @@
+use integer::BoundedInt;
 use openzeppelin::account::Account;
 use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::tests::utils::constants::{
@@ -14,14 +15,12 @@ use openzeppelin::token::erc20::extensions::ERC20Votes::VotesImpl;
 use openzeppelin::token::erc20::extensions::erc20votes::{Delegation, IOffchainMessageHash};
 use openzeppelin::utils::cryptography::eip712_draft::EIP712;
 use openzeppelin::utils::structs::checkpoints::{Trace, TraceTrait};
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use traits::Into;
 
-use ERC20Votes::_delegate_checkpoints::InternalContractStateTrait as DelegateCheckpointsTrait;
-use ERC20Votes::_total_checkpoints::InternalContractStateTrait as TotalCheckpointsTrait;
+use ERC20Votes::_delegate_checkpoints::InternalContractMemberStateTrait as DelegateCheckpointsTrait;
+use ERC20Votes::_total_checkpoints::InternalContractMemberStateTrait as TotalCheckpointsTrait;
 
 //
 // Setup
@@ -57,7 +56,7 @@ fn deploy_account() -> ContractAddress {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Unordered insertion', ))]
+#[should_panic(expected: ('Unordered insertion',))]
 fn test__delegate_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state._delegate_checkpoints.read(OWNER());
@@ -69,7 +68,7 @@ fn test__delegate_checkpoints_unordered_insertion() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Unordered insertion', ))]
+#[should_panic(expected: ('Unordered insertion',))]
 fn test__total_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state._total_checkpoints.read();
@@ -105,17 +104,23 @@ fn test_get_past_votes() {
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
-    trace.push('ts4', 0x444);
-    trace.push('ts6', 0x666);
-    trace.push('ts8', 0x888);
+
+    // Big numbers (high different from 0x0)
+    let big1: u256 = BoundedInt::<u128>::max().into() + 0x444;
+    let big2: u256 = BoundedInt::<u128>::max().into() + 0x666;
+    let big3: u256 = BoundedInt::<u128>::max().into() + 0x888;
+    trace.push('ts4', big1);
+    trace.push('ts6', big2);
+    trace.push('ts8', big3);
 
     assert(VotesImpl::get_past_votes(@state, OWNER(), 'ts2') == 0x222, 'Should eq ts2');
-    assert(VotesImpl::get_past_votes(@state, OWNER(), 'ts5') == 0x444, 'Should eq ts4');
+    assert(VotesImpl::get_past_votes(@state, OWNER(), 'ts5') == big1, 'Should eq ts4');
+    assert(VotesImpl::get_past_votes(@state, OWNER(), 'ts8') == big3, 'Should eq ts8');
 }
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_votes_future_lookup() {
     let mut state = setup();
 
@@ -135,17 +140,23 @@ fn test_get_past_total_supply() {
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
-    trace.push('ts4', 0x444);
-    trace.push('ts6', 0x666);
-    trace.push('ts8', 0x888);
+
+    // Big numbers (high different from 0x0)
+    let big1: u256 = BoundedInt::<u128>::max().into() + 0x444;
+    let big2: u256 = BoundedInt::<u128>::max().into() + 0x666;
+    let big3: u256 = BoundedInt::<u128>::max().into() + 0x888;
+    trace.push('ts4', big1);
+    trace.push('ts6', big2);
+    trace.push('ts8', big3);
 
     assert(VotesImpl::get_past_total_supply(@state, 'ts2') == 0x222, 'Should eq ts2');
-    assert(VotesImpl::get_past_total_supply(@state, 'ts5') == 0x444, 'Should eq ts4');
+    assert(VotesImpl::get_past_total_supply(@state, 'ts5') == big1, 'Should eq ts4');
+    assert(VotesImpl::get_past_total_supply(@state, 'ts8') == big3, 'Should eq ts8');
 }
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_total_supply_future_lookup() {
     let mut state = setup();
 
@@ -271,7 +282,7 @@ fn test_delegate_by_sig() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: expired signature', ))]
+#[should_panic(expected: ('Votes: expired signature',))]
 fn test_delegate_by_sig_past_expiry() {
     let mut state = setup();
     let expiry = 'ts4';
@@ -283,7 +294,7 @@ fn test_delegate_by_sig_past_expiry() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Nonces: invalid nonce', ))]
+#[should_panic(expected: ('Nonces: invalid nonce',))]
 fn test_delegate_by_sig_invalid_nonce() {
     let mut state = setup();
     let signature = array![0, 0];
@@ -293,7 +304,7 @@ fn test_delegate_by_sig_invalid_nonce() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: invalid signature', ))]
+#[should_panic(expected: ('Votes: invalid signature',))]
 fn test_delegate_by_sig_invalid_signature() {
     let mut state = setup();
     let account = deploy_account();
@@ -343,7 +354,7 @@ fn test_checkpoints() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Array overflow', ))]
+#[should_panic(expected: ('Array overflow',))]
 fn test__checkpoints_array_overflow() {
     let mut state = setup();
     let mut trace = state._delegate_checkpoints.read(OWNER());

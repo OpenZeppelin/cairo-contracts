@@ -4,12 +4,8 @@
 // Utils for off-chain typed message generation.
 // See: https://community.starknet.io/t/snip-off-chain-signatures-a-la-eip712/98029.
 
-use box::BoxTrait;
 use hash::LegacyHash;
-use starknet::{
-    contract_address_const, ContractAddress, get_tx_info, get_caller_address,
-    testing::set_caller_address
-};
+use starknet::ContractAddress;
 
 // sn_keccak('StarkNetDomain(name:felt,version:felt,chainId:felt)')
 const STARKNET_DOMAIN_TYPE_HASH: felt252 =

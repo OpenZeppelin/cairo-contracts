@@ -17,8 +17,6 @@ use openzeppelin::utils::structs::checkpoints::Checkpoint;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use traits::Into;
-use zeroable::Zeroable;
 
 //
 // Setup
@@ -109,7 +107,7 @@ fn test_approve() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve from 0', ))]
+#[should_panic(expected: ('ERC20: approve from 0',))]
 fn test_approve_from_zero() {
     let mut state = setup();
     ERC20Impl::approve(ref state, SPENDER(), VALUE);
@@ -117,7 +115,7 @@ fn test_approve_from_zero() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve to 0', ))]
+#[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_approve_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -183,7 +181,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('u256_sub Overflow', ))]
+#[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -196,7 +194,7 @@ fn test_transfer_from_greater_than_allowance() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC20: transfer to 0', ))]
+#[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transfer_from_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -208,7 +206,7 @@ fn test_transfer_from_to_zero_address() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('u256_sub Overflow', ))]
+#[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
     ERC20Impl::transfer_from(ref state, Zeroable::zero(), RECIPIENT(), VALUE);
@@ -234,7 +232,7 @@ fn test_increase_allowance() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve to 0', ))]
+#[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_increase_allowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -243,7 +241,7 @@ fn test_increase_allowance_to_zero_address() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve from 0', ))]
+#[should_panic(expected: ('ERC20: approve from 0',))]
 fn test_increase_allowance_from_zero_address() {
     let mut state = setup();
     ERC20VotesPreset::increase_allowance(ref state, SPENDER(), VALUE);
@@ -269,7 +267,7 @@ fn test_decrease_allowance() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('u256_sub Overflow', ))]
+#[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decrease_allowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -278,7 +276,7 @@ fn test_decrease_allowance_to_zero_address() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('u256_sub Overflow', ))]
+#[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decrease_allowance_from_zero_address() {
     let mut state = setup();
     ERC20VotesPreset::decrease_allowance(ref state, SPENDER(), VALUE);
@@ -322,7 +320,7 @@ fn test_get_past_votes() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_votes_future_lookup() {
     let mut state = setup();
 
@@ -350,7 +348,7 @@ fn test_get_past_total_supply() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Votes: future Lookup', ))]
+#[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_total_supply_future_lookup() {
     let mut state = setup();
 
@@ -465,7 +463,7 @@ fn test_checkpoints() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('Array overflow', ))]
+#[should_panic(expected: ('Array overflow',))]
 fn test_checkpoints_array_overflow() {
     let mut state = setup();
 

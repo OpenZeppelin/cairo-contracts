@@ -2,14 +2,11 @@
 // OpenZeppelin Contracts for Cairo v0.7.0 (utils/structs/storage_array.cairo)
 
 use array::ArrayTrait;
-use integer::Felt252TryIntoU32;
-use option::OptionTrait;
 use poseidon::poseidon_hash_span;
 use starknet::{
     StorageBaseAddress, Store, SyscallResultTrait, SyscallResult, storage_address_from_base,
     storage_base_address_from_felt252, storage_read_syscall, storage_write_syscall
 };
-use traits::{Into, TryInto};
 
 const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 

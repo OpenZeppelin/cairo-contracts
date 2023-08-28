@@ -1,8 +1,6 @@
-use core::option::OptionTrait;
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/extensions/erc20votes.cairo)
 
-use box::BoxTrait;
 use hash::LegacyHash;
 use starknet::ContractAddress;
 use openzeppelin::utils::cryptography::typed_message::IOffchainMessageHash;
@@ -16,7 +14,6 @@ use openzeppelin::utils::cryptography::typed_message::StarknetDomain;
 /// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::contract]
 mod ERC20Votes {
-    use array::{ArrayTrait, SpanTrait};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::utils::cryptography::eip712_draft::EIP712;
@@ -24,13 +21,10 @@ mod ERC20Votes {
     use openzeppelin::utils::selectors;
     use openzeppelin::utils::serde::SerializedAppend;
     use openzeppelin::utils::structs::checkpoints::{Checkpoint, Trace, TraceTrait};
-    use option::OptionTrait;
-    use poseidon::poseidon_hash_span;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
     use super::Delegation;
     use super::IOffchainMessageHash;
-    use traits::Into;
 
     #[storage]
     struct Storage {
@@ -125,7 +119,7 @@ mod ERC20Votes {
             let mut is_valid_signature_raw = starknet::call_contract_syscall(
                 delegator, selectors::is_valid_signature, calldata.span()
             )
-                .unwrap_syscall();
+                .unwrap();
 
             let is_valid_signature_felt = Serde::<felt252>::deserialize(ref is_valid_signature_raw)
                 .unwrap();

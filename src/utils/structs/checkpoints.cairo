@@ -3,11 +3,8 @@
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
-use option::OptionTrait;
-use serde::Serde;
 use super::storage_array::StorageArrayTrait;
 use super::storage_array::StorageArray;
-use traits::{Into, TryInto};
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block number. See {Votes} as an example.
@@ -188,9 +185,8 @@ impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt
         let low = key_and_low & 0xffffffffffffffffffffffffffffffff;
 
         Checkpoint {
-            key: key.try_into().unwrap(), value: u256 {
-                low: low.try_into().unwrap(), high: high.try_into().unwrap()
-            },
+            key: key.try_into().unwrap(),
+            value: u256 { low: low.try_into().unwrap(), high: high.try_into().unwrap() },
         }
     }
 }

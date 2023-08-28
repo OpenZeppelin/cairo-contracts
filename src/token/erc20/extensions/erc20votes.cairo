@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/extensions/erc20votes.cairo)
 
-use hash::LegacyHash;
-use starknet::ContractAddress;
+use core::hash::HashStateExTrait;
+use hash::{HashStateTrait, Hash};
 use openzeppelin::utils::cryptography::typed_message::IOffchainMessageHash;
 use openzeppelin::utils::cryptography::typed_message::IStructHash;
 use openzeppelin::utils::cryptography::typed_message::StarknetDomain;
+use pedersen::{PedersenTrait, HashState};
+use starknet::ContractAddress;
 
 /// This is a contract that tracks voting units from ERC20 balances, which are a measure of voting power that can be
 /// transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
@@ -146,7 +148,7 @@ mod ERC20Votes {
             self._total_checkpoints.read().latest()
         }
 
-        /// Delegate all of `account`'s voting units to `delegatee`.
+        /// Delegates all of `account`'s voting units to `delegatee`.
         fn _delegate(
             ref self: ContractState, account: ContractAddress, delegatee: ContractAddress
         ) {
@@ -228,7 +230,7 @@ mod ERC20Votes {
 const DELEGATION_TYPE_HASH: felt252 =
     0x3199be234dc4a3b2ba2613182079bc0a1f7f9c445a77a7a36ae800010d8c939;
 
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Hash)]
 struct Delegation {
     delegatee: ContractAddress,
     nonce: felt252,
@@ -242,22 +244,20 @@ impl OffchainMessageHashImpl of IOffchainMessageHash<Delegation> {
         let domain = StarknetDomain {
             name, version, chain_id: starknet::get_tx_info().unbox().chain_id
         };
-        let mut state = LegacyHash::hash(0, 'StarkNet Message');
-        state = LegacyHash::hash(state, domain.hash_struct());
-        state = LegacyHash::hash(state, owner);
-        state = LegacyHash::hash(state, self.hash_struct());
-        state = LegacyHash::hash(state, 4);
-        state
+        let hash_state = PedersenTrait::new(0);
+        hash_state
+            .update_with('StarkNet Message')
+            .update_with(domain.hash_struct())
+            .update_with(owner)
+            .update_with(self.hash_struct())
+            .update_with(4)
+            .finalize()
     }
 }
 
 impl StructHashImpl of IStructHash<Delegation> {
     fn hash_struct(self: @Delegation) -> felt252 {
-        let mut state = LegacyHash::hash(0, DELEGATION_TYPE_HASH);
-        state = LegacyHash::hash(state, *self.delegatee);
-        state = LegacyHash::hash(state, *self.nonce);
-        state = LegacyHash::hash(state, *self.expiry);
-        state = LegacyHash::hash(state, 4);
-        state
+        let hash_state = PedersenTrait::new(0);
+        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).update_with(4).finalize()
     }
 }

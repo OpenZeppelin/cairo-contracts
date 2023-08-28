@@ -1,5 +1,5 @@
 use openzeppelin::security::reentrancyguard::ReentrancyGuard::InternalImpl;
-use openzeppelin::security::reentrancyguard::ReentrancyGuard::entered::InternalContractStateTrait;
+use openzeppelin::security::reentrancyguard::ReentrancyGuard::entered::InternalContractMemberStateTrait;
 use openzeppelin::security::reentrancyguard::ReentrancyGuard;
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
@@ -33,7 +33,7 @@ fn test_reentrancy_guard_start() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call', ))]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_reentrancy_guard_start_when_started() {
     let mut state = STATE();
 

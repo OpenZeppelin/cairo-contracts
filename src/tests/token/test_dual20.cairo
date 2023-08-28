@@ -90,7 +90,7 @@ fn test_dual_name() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_name() {
     let dispatcher = setup_non_erc20();
     dispatcher.name();
@@ -98,7 +98,7 @@ fn test_dual_no_name() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.name();
@@ -115,7 +115,7 @@ fn test_dual_symbol() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_symbol() {
     let dispatcher = setup_non_erc20();
     dispatcher.symbol();
@@ -123,7 +123,7 @@ fn test_dual_no_symbol() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_symbol_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.symbol();
@@ -140,7 +140,7 @@ fn test_dual_decimals() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_decimals() {
     let dispatcher = setup_non_erc20();
     dispatcher.decimals();
@@ -148,7 +148,7 @@ fn test_dual_no_decimals() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_decimals_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.decimals();
@@ -170,7 +170,7 @@ fn test_dual_transfer() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer() {
     let dispatcher = setup_non_erc20();
     dispatcher.transfer(RECIPIENT(), VALUE);
@@ -178,7 +178,7 @@ fn test_dual_no_transfer() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer(RECIPIENT(), VALUE);
@@ -200,7 +200,7 @@ fn test_dual_approve() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_approve() {
     let dispatcher = setup_non_erc20();
     dispatcher.approve(SPENDER(), VALUE);
@@ -208,7 +208,7 @@ fn test_dual_no_approve() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.approve(SPENDER(), VALUE);
@@ -227,7 +227,7 @@ fn test_dual_total_supply() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_total_supply() {
     let dispatcher = setup_non_erc20();
     dispatcher.total_supply();
@@ -235,7 +235,7 @@ fn test_dual_no_total_supply() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_total_supply_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.total_supply();
@@ -250,7 +250,7 @@ fn test_dual_balance_of() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc20();
     dispatcher.balance_of(OWNER());
@@ -258,7 +258,7 @@ fn test_dual_no_balance_of() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
@@ -278,7 +278,7 @@ fn test_dual_transfer_from() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc20();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
@@ -286,7 +286,7 @@ fn test_dual_no_transfer_from() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
@@ -305,7 +305,7 @@ fn test_dual_totalSupply() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_totalSupply_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.total_supply();
@@ -320,7 +320,7 @@ fn test_dual_balanceOf() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
@@ -340,7 +340,7 @@ fn test_dual_transferFrom() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);

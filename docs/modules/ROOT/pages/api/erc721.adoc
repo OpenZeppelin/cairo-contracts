@@ -204,3 +204,103 @@ See {eip721}.
 * xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
+
+[.contract-item]
+[[IERC721Metadata-name]]
+==== `[.contract-item-name]#++name++#++() -> felt252++` [.item-kind]#external#
+
+Returns the NFT name.
+
+[.contract-item]
+[[IERC721Metadata-symbol]]
+==== `[.contract-item-name]#++symbol++#++() -> felt252++` [.item-kind]#external#
+
+Returns the NFT ticker symbol.
+
+[.contract-item]
+[[IERC721Metadata-token_uri]]
+==== `[.contract-item-name]#++token_uri++#++(token_id: u256) -> felt252++` [.item-kind]#external#
+
+Returns the Uniform Resource Identifier (URI) as a short string for the `token_id` token.
+If the URI is not set for `token_id`, the return value will be `0`.
+
+[.contract]
+[[ERC721]]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::token::erc721::ERC721;
+```
+
+Implementation of ERC721 which includes the IERC721Metadata extension as specified in https://eips.ethereum.org/EIPS/eip-721[EIP-721].
+
+[.contract-index]
+.Functions
+--
+* xref:#ERC721-constructor[`++constructor(name, symbol)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+* xref:#IERC721Metadata-name[`++name()++`]
+* xref:#IERC721Metadata-symbol[`++symbol()++`]
+* xref:#IERC721Metadata-token_uri[`++token_uri(token_id)++`]
+
+[.contract-subindex-inherited]
+.IERC721
+
+* xref:#IERC721-balance_of[`++balance_of(account)++`]
+* xref:#IERC721-owner_of[`++owner_of(token_id)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
+* xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
+* xref:#IERC721-approve[`++approve(to, token_id)++`]
+* xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
+* xref:#IERC721-get_approved[`++get_approved(token_id)++`]
+* xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
+
+[.contract-subindex-inherited]
+.ISRC5
+
+* xref:#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
+--
+
+[.contract-index]
+.Events
+--
+[.contract-subindex-inherited]
+.IERC721
+
+* xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
+* xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
+* xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
+--
+
+[.contract-item]
+[[ERC721-constructor]]
+==== `[.contract-item-name]#++constructor++#++(name: felt252, symbol: felt252)++` [.item-kind]#constructor#
+
+Initializes the state of the ERC721 contract by setting the token name and symbol.
+The constructor also registers the IERC721_ID and IERC721_METADATA_ID interface ids according to SRC-5.
+
+[.contract]
+[[IERC721Receiver]]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```javascript
+use openzeppelin::token::erc721::interface::IERC721Receiver;
+```
+
+[.contract-index]
+.Functions
+--
+* xref:#ERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
+--
+
+[.contract-item]
+[[ERC721Receiver-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>)++` [.item-kind]#external#
+
+Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721.safe_transfer_from,IERC721.safe_transfer_from>> by `operator` from `from`, this function is called.
+

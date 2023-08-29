@@ -2,7 +2,6 @@
 // OpenZeppelin Contracts for Cairo v0.7.0 (utils.cairo)
 
 mod constants;
-mod selectors;
 mod serde;
 mod unwrap_and_cast;
 

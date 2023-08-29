@@ -23,3 +23,4 @@
 
 * API
 ** xref:/api/account.adoc[Account]
+** xref:/api/access.adoc[Access Control]

@@ -7,7 +7,6 @@ use core::result::ResultTrait;
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::UnwrapAndCast;
-use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use option::OptionTrait;
@@ -32,7 +31,7 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress {
         let args = ArrayTrait::new();
 
-        call_contract_syscall(*self.contract_address, selectors::owner, args.span())
+        call_contract_syscall(*self.contract_address, selector!("owner"), args.span())
             .unwrap_and_cast()
     }
 
@@ -42,8 +41,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selectors::transfer_ownership,
-            selectors::transferOwnership,
+            selector!("transfer_ownership"),
+            selector!("transferOwnership"),
             args.span()
         )
             .unwrap_syscall();
@@ -54,8 +53,8 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selectors::renounce_ownership,
-            selectors::renounceOwnership,
+            selector!("renounce_ownership"),
+            selector!("renounceOwnership"),
             args.span()
         )
             .unwrap_syscall();

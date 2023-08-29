@@ -4,7 +4,6 @@
 use array::ArrayTrait;
 use array::SpanTrait;
 use openzeppelin::utils::UnwrapAndCast;
-use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
@@ -29,7 +28,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
         let mut args = array![new_public_key];
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()
+            *self.contract_address, selector!("set_public_key"), selector!("setPublicKey"), args.span()
         )
             .unwrap_syscall();
     }
@@ -38,7 +37,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
         let mut args = array![];
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::get_public_key, selectors::getPublicKey, args.span()
+            *self.contract_address, selector!("get_public_key"), selector!("getPublicKey"), args.span()
         )
             .unwrap_and_cast()
     }
@@ -51,8 +50,8 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selectors::is_valid_signature,
-            selectors::isValidSignature,
+            selector!("is_valid_signature"),
+            selector!("isValidSignature"),
             args.span()
         )
             .unwrap_and_cast()
@@ -63,8 +62,8 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
+            selector!("supports_interface"),
+            selector!("supportsInterface"),
             args.span()
         )
             .unwrap_and_cast()

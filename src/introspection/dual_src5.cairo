@@ -3,7 +3,6 @@
 
 use array::ArrayTrait;
 use openzeppelin::utils::UnwrapAndCast;
-use openzeppelin::utils::selectors;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 
@@ -22,8 +21,8 @@ impl DualCaseSRC5Impl of DualCaseSRC5Trait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
+            selector!("supports_interface"),
+            selector!("supportsInterface"),
             args.span()
         )
             .unwrap_and_cast()

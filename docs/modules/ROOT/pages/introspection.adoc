@@ -1,160 +1,68 @@
+:eip165: https://eips.ethereum.org/EIPS/eip-165[EIP165]
+:src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
+:src5-rs: https://github.com/ericnordelo/src5-rs[src5-rs]
+
 = Introspection
 
-CAUTION: Expect this module to evolve.
+In the Ethereum ecosystem, smart contracts often need to exercise https://en.wikipedia.org/wiki/Type_introspection[type introspection]
+on other contracts, for interoperability purposes. The {eip165} standard supports this allowing contracts to declare
+their support for a given interface, and for other contracts to query this support.
 
-== Table of Contents
+Starknet is not an exception to this rule, having to exercise type introspection among smart contracts as well. From the
+differences between Starknet and Ethereum, instead of trying to replicate the EVM's interface ID calculation, the community
+has defined {src5} which is a Starknet-specific standard for type introspection:
 
-* <<erc165,ERC165>>
- ** <<interface_calculations,Interface calculations>>
- ** <<registering_interfaces,Registering interfaces>>
- ** <<querying_interfaces,Querying interfaces>>
- ** <<ierc165,IERC165>>
- ** <<ierc165_api_specification,IERC165 API Specification>>
-  *** <<supportsinterface,`supportsInterface`>>
- ** <<erc165_library_functions,ERC165 Library Functions>>
-  *** <<supportsinterface2,`supports_interface`>>
-  *** <<register_interface,`register_interface`>>
+== SRC5
 
-== ERC165
+Similar to the Ethereum counterpart, the {src5} standard requires the contract to implement a `supports_interface` function,
+which can be used to query the contract's support for a given interface:
 
-The ERC165 standard allows smart contracts to exercise https://en.wikipedia.org/wiki/Type_introspection[type introspection] on other contracts, that is, examining which functions can be called on them.
-This is usually referred to as a contract's interface.
+[,javascript]
+----
+trait ISRC5 {
+    /// Query if a contract implements an interface.
+    /// Receives the interface identifier as specified in SRC-5.
+    /// Returns `true` if the contract implements `interface_id`, `false` otherwise.
+    fn supports_interface(interface_id: felt252) -> bool;
+}
+----
 
-Cairo contracts, like Ethereum contracts, have no native concept of an interface, so applications must usually simply trust they are not making an incorrect call.
-For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with.
-There may even not be any direct calls to them!
-(e.g.
-ERC20 tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever).
-In these cases, a contract declaring its interface can be very helpful in preventing errors.
+=== Computing the interface ID
 
-It should be noted that the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/utils/constants/library.cairo[constants library] includes constant variables referencing all of the interface ids used in these contracts.
-This allows for more legible code i.e.
-using `IERC165_ID` instead of `0x01ffc9a7`.
-
-=== Interface calculations
-
-In order to ensure EVM/StarkNet compatibility, interface identifiers are not calculated on StarkNet.
-Instead, the interface IDs are hardcoded from their EVM calculations.
-On the EVM, the interface ID is calculated from the selector's first four bytes of the hash of the function's signature while Cairo selectors are 252 bytes long.
-Due to this difference, hardcoding EVM's already-calculated interface IDs is the most consistent approach to both follow the EIP165 standard and EVM compatibility.
+The interface ID, as specified in the standard, is the https://en.wikipedia.org/wiki/Exclusive_or[XOR] of all the
+https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#extended-function-selector[Extended Function Selectors]
+of the interface. We strongly advice to read the SNIP for getting into the specifics of obtaining these
+Extended Function Selectors, but there are tools that can help with this process, such as {src5-rs}.
 
 === Registering interfaces
 
-For a contract to declare its support for a given interface, the contract should import the ERC165 library and register its support.
-It's recommended to register interface support upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
+For a contract to declare its support for a given interface, the contract should import the SRC5 module and
+register its support. It's recommended to register interface support upon contract deployment through a constructor
+either directly or indirectly (as an initializer) like this:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.introspection.erc165.library import ERC165
+#[starknet::contract]
+mod Contract {
+    use openzeppelin::account::interface;
+    use openzeppelin::introspection::src5::SRC5;
 
-INTERFACE_ID = 0x12345678
+    #[storage]
+    struct Storage {}
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    ERC165.register_interface(INTERFACE_ID);
-    return ();
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        let mut unsafe_state = SRC5::unsafe_new_contract_state();
+        SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
+    }
+
+    (...)
 }
 ----
 
 === Querying interfaces
 
-To query a target contract's support for an interface, the querying contract should call `supportsInterface` through IERC165 with the target contract's address and the queried interface id.
-Here's an example:
+Use the `supports_interface` function to query a contract's support for a given interface.
 
-[,cairo]
-----
-from openzeppelin.introspection.erc265.IERC165 import IERC165
-
-INTERFACE_ID = 0x12345678
-
-func check_support{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    target_contract: felt
-) -> (success: felt) {
-    let (is_supported) = IERC165.supportsInterface(target_contract, INTERFACE_ID);
-    return (is_supported);
-}
-----
-
-NOTE: `supportsInterface` is camelCased because it is an exposed contract method as part of ERC165's interface.
-This differs from library methods (such as `supports_interface` from the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/introspection/erc165/library.cairo[ERC165 library]) which are snake_cased and not exposed.
-See the xref:extensibility.adoc#function_names_and_coding_style[Function names and coding style] for more details.
-
-=== IERC165
-
-[,cairo]
-----
-@contract_interface
-namespace IERC165 {
-    func supportsInterface(interfaceId: felt) -> (success: felt) {
-    }
-}
-----
-
-=== IERC165 API Specification
-
-[,cairo]
-----
-func supportsInterface(interfaceId: felt) -> (success: felt) {
-}
-----
-
-==== `supportsInterface`
-
-Returns true if this contract implements the interface defined by `interfaceId`.
-
-Parameters:
-
-[,cairo]
-----
-interfaceId: felt
-----
-
-Returns:
-
-[,cairo]
-----
-success: felt
-----
-
-=== ERC165 Library Functions
-
-[,cairo]
-----
-func supports_interface(interface_id: felt) -> (success: felt) {
-}
-
-func register_interface(interface_id: felt) {
-}
-----
-
-[#supportsinterface2]
-==== `supports_interface`
-
-Returns true if this contract implements the interface defined by `interface_id`.
-
-Parameters:
-
-[,cairo]
-----
-interface_id: felt
-----
-
-Returns:
-
-[,cairo]
-----
-success: felt
-----
-
-==== `register_interface`
-
-Calling contract declares support for a specific interface defined by `interface_id`.
-
-Parameters:
-
-[,cairo]
-----
-interface_id: felt
-----
-
-Returns: None.
+TIP: If you are unsure whether the contract implements SRC5 or not, you can follow the process described in
+https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#how-to-detect-if-a-contract-implements-src-5[here].

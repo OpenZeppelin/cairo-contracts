@@ -130,6 +130,8 @@ trait ISRC5 {
 
 {snip-6}[SNIP-6] compliant Accounts must return `true` when queried for the ISRC6 interface Id.
 
+TIP: Check the xref:introspection.adoc[Introspection] section for more information about the {snip-5}[SNIP-5].
+
 Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling
 interoperability with the ecosystem.
 

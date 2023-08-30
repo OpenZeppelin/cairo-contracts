@@ -4,6 +4,8 @@
 * xref:proxies.adoc[Proxies and Upgrades]
 
 * xref:accounts.adoc[Accounts]
+** xref:/guides/deployment.adoc[Counterfactual Deployments]
+
 * xref:access.adoc[Access Control]
 
 * Tokens
@@ -17,9 +19,6 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-
-* Guides
-** xref:/guides/deployment.adoc[Counterfactual Deployments]
 
 * API
 ** xref:/api/account.adoc[Account]

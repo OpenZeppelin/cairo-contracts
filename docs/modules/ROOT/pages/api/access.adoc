@@ -35,7 +35,7 @@ to restrict their use to the owner.
 [.contract-index]
 .Utilities
 --
-* xref:Ownable-assert_only_owner[`++InternalImpl::assert_only_owner(self: @ContractState)++`]
+* xref:Ownable-assert_only_owner[`++InternalImpl::assert_only_owner(self)++`]
 --
 
 [.contract-index]
@@ -44,15 +44,15 @@ to restrict their use to the owner.
 [.contract-subindex-inherited]
 .InternalImpl
 
-* xref:Ownable-initializer[`++initializer(ref self: ContractState, owner: ContractAddress)++`]
-* xref:Ownable-_transfer_ownership[`++_transfer_ownership(ref self: ContractState, new_owner: ContractAddress)++`]
+* xref:Ownable-initializer[`++initializer(self, owner)++`]
+* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 
 [.contract-subindex-inherited]
 .OwnableImpl
 
-* xref:Ownable-owner[`++owner(self: @ContractState)++`]
-* xref:Ownable-renounce_ownership[`++renounce_ownership(ref self: ContractState)++`]
-* xref:Ownable-transfer_ownership[`++transfer_ownership(ref self: ContractState, new_owner: ContractAddress)++`]
+* xref:Ownable-owner[`++owner(self)++`]
+* xref:Ownable-renounce_ownership[`++renounce_ownership(self)++`]
+* xref:Ownable-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 
 --
 
@@ -136,11 +136,11 @@ External interface of AccessControl declared to support https://github.com/stark
 [.contract-index]
 .Functions
 --
-* xref:IAccessControl-has_role[`++has_role(role: felt252, account: ContractAddress)++`]
-* xref:IAccessControl-get_role_admin[`++get_role_admin(role: felt252)++`]
-* xref:IAccessControl-grant_role[`++grant_role(role: felt252, account: ContractAddress)++`]
-* xref:IAccessControl-revoke_role[`++revoke_role(role: felt252, account: ContractAddress)++`]
-* xref:IAccessControl-renounce_role[`++renounce_role(role: felt252, account: ContractAddress)++`]
+* xref:IAccessControl-has_role[`++has_role(role, account)++`]
+* xref:IAccessControl-get_role_admin[`++get_role_admin(role)++`]
+* xref:IAccessControl-grant_role[`++grant_role(role, account)++`]
+* xref:IAccessControl-revoke_role[`++revoke_role(role, account)++`]
+* xref:IAccessControl-renounce_role[`++renounce_role(role, account)++`]
 
 --
 
@@ -306,23 +306,23 @@ accounts that have been granted it.
 [.contract-subindex-inherited]
 .InternalImpl
 
-* xref:#AccessControl-initializer[`++initializer(ref self: ContractState)++`]
-* xref:#AccessControl-_set_role_admin[`++_set_role_admin(ref self: ContractState, role: felt252, admin_role: felt252)++`]
-* xref:#AccessControl-_grant_role[`++_grant_role(ref self: ContractState, role: felt252, account: ContractAddress)++`]
-* xref:#AccessControl-_revoke_role[`++_revoke_role(ref self: ContractState, role: felt252, account: ContractAddress)++`]
+* xref:#AccessControl-initializer[`++initializer(self)++`]
+* xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
+* xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
+* xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
 
 [.contract-subindex-inherited]
 .AccessControlImpl
 
-* xref:#AccessControl-has_role[`++has_role(self: @ContractState, role: felt252, account: ContractAddress)++`]
-* xref:#AccessControl-get_role_admin[`++get_role_admin(self: @ContractState, role: felt252)++`]
-* xref:#AccessControl-grant_role[`++grant_role(ref self: ContractState, role: felt252, account: ContractAddress)++`]
-* xref:#AccessControl-revoke_role[`++revoke_role(ref self: ContractState, role: felt252, account: ContractAddress)++`]
-* xref:#AccessControl-renounce_role[`++renounce_role(ref self: ContractState, role: felt252, account: ContractAddress)++`]
+* xref:#AccessControl-has_role[`++has_role(self, role, account)++`]
+* xref:#AccessControl-get_role_admin[`++get_role_admin(self, role)++`]
+* xref:#AccessControl-grant_role[`++grant_role(self, role, account)++`]
+* xref:#AccessControl-revoke_role[`++revoke_role(self, role, account)++`]
+* xref:#AccessControl-renounce_role[`++renounce_role(self, role, account)++`]
 
 [.contract-subindex-inherited]
 .SRC5Impl
-* xref:#AccessControl-supports_interface[`++supports_interface(self: @ContractState, interface_id: felt252)++`]
+* xref:#AccessControl-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
 --
 
 [.contract-index]

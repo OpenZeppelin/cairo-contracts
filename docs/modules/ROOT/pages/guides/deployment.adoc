@@ -24,6 +24,7 @@ tools usually do this for you.
 
 5. If the validation succeeds, the protocol will charge the fee and then register the contract as deployed.
 
+NOTE: Although this method is very popular to deploy accounts, this works for any kind of contract.
 
 == Deployment validation
 

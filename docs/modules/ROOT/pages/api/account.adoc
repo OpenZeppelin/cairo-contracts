@@ -160,7 +160,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 
 Sets a new public key for the account. Can be called only by self through the `\\__execute__` mechanism.
 
-Emits an {OwnerRemoved}, and an {OwnerAdded} event.
+Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
 [.contract-item]
 [[Account-get_public_key]]

@@ -3,7 +3,7 @@
 
 = Account
 
-Reference of interfaces, presets, and utilities related to Account contracts.
+Reference of interfaces, presets, and utilities related to account contracts.
 
 == Core
 

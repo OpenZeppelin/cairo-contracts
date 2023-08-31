@@ -32,7 +32,7 @@ Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 Executes the list of calls as a transaction after validation.
 
-Returns the list of each call output.
+Returns an array with each call's output.
 
 NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/account.cairo#L3[corelib].
 
@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise ir reverts.
 ```javascript
 use openzeppelin::account::Account;
 ```
-Base Account contract implementation.
+Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 [.contract-index]
 .Utilities
@@ -119,7 +119,7 @@ Base Account contract implementation.
 [[Account-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a DeployAccount transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction]. See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -151,7 +151,7 @@ Returns whether a contract implements a given interface or not.
 [[Account-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a Declare transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -159,9 +159,9 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
-Sets a new public key for the account. Can be called only by self through the `\\__execute__` mechanism.
+Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
-Emits an {OwnerRemoved}, and an {OwnerAdded} event.
+Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
 [.contract-item]
 [[Account-get_public_key]]
@@ -183,7 +183,7 @@ Emits an {OwnerAdded} event.
 
 Validates a transaction signature from the global context.
 
-Returns the short string `'VALID'` if valid.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-_set_public_key]]
@@ -205,7 +205,7 @@ Validates the provided `signature` for the `hash`, using the account current pub
 [[Account-OwnerAdded]]
 ==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
 
-Emitted when the account `public_key` is updated.
+Emitted when a `public_key` is added.
 
 [.contract-item]
 [[Account-OwnerRemoved]]

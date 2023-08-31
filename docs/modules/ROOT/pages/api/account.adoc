@@ -231,4 +231,4 @@ Emitted when a `public_key` is added.
 [[Account-OwnerRemoved]]
 ==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
 
-Emitted when the account `public_key` is updated except for initialization.
+Emitted when a `public_key` is removed.

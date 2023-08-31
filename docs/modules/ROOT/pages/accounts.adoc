@@ -9,8 +9,8 @@ concept on Starknet.
 
 Instead, the network features native account abstraction and signature validation happens at the contract level.
 
-For a general overview of the account abstraction, see StarkWare's
-https://medium.com/starkware/starknet-alpha-0-10-0-923007290470[StarkNet Alpha 0.10].
+For a general overview of the account abstraction, see
+https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/introduction/[Starknet's documentation].
 A more detailed discussion on the topic can be found in
 https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1].
 

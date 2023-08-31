@@ -4,7 +4,7 @@
 
 = Accounts
 
-Unlike Ethereum where accounts are directly derived from a private key, there's no native Externally Owned Account (EOA)
+Unlike Ethereum where accounts are derived from a private key, all Starknet accounts are contracts. This means there's no Externally Owned Account (EOA)
 concept on Starknet.
 
 Instead, the network features native account abstraction, and signature validation has to be done at the contract level.

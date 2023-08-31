@@ -28,7 +28,7 @@ NOTE: Although this method is very popular to deploy accounts, this works for an
 
 == Deployment validation
 
-For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is
+To counterfactually deploy contracts, they must implement the `\\__validate_deploy__` entrypoint,
 called by the protocol when a `DeployAccount` transaction is sent to the network.
 
 [,javascript]

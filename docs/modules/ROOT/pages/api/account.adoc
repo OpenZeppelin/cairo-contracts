@@ -62,7 +62,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 ```javascript
 use openzeppelin::account::Account;
 ```
-Base Account contract implementation.
+Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 [.contract-index]
 .Utilities

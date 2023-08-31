@@ -204,7 +204,7 @@ Validates the provided `signature` for the `hash`, using the account current pub
 [[Account-OwnerAdded]]
 ==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
 
-Emitted when the account `public_key` is updated.
+Emitted when a `public_key` is added.
 
 [.contract-item]
 [[Account-OwnerRemoved]]

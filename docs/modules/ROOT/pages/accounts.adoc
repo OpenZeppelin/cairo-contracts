@@ -12,7 +12,7 @@ Instead, the network features native account abstraction and signature validatio
 For a general overview of the account abstraction, see
 https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/introduction/[Starknet's documentation].
 A more detailed discussion on the topic can be found in
-https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[StarkNet Account Abstraction Part 1].
+https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[Starknet Shaman's forum].
 
 TIP: For detailed information on the usage and implementation check the xref:/api/account.adoc[API Reference] section.
 

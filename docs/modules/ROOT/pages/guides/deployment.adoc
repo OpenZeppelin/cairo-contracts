@@ -3,9 +3,10 @@
 
 = Counterfactual deployments
 
-A deployment is said to be counterfactual when the one paying for the deployment fees is the address of
-the contract to be deployed. In other words, we need to send the funds to the address even when the
-deploymenthasn’t happened.
+A counterfactual contract is a contract we can interact with even before actually deploying it on-chain.
+For example, we can send funds or assign privileges to a contract that doesn't yet exist.
+Why? Because deployments in Starknet are deterministic, allowing us to predict the address where our contract will be deployed.
+We can leverage this property to make a contract pay for its own deployment by simply sending funds in advance. We call this a counterfactual deployment.
 
 This process can be described with the following steps:
 

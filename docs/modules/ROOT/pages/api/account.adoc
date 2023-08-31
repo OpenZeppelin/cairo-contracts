@@ -16,8 +16,7 @@ Reference of interfaces, presets, and utilities related to Account contracts.
 use openzeppelin::account::interface::ISRC6;
 ```
 
-Interface of the ISRC6 standard as defined in the {snip6}.
-
+Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 [.contract-index]
 .Functions
@@ -35,13 +34,15 @@ Executes the list of calls as a transaction after validation.
 
 Returns the list of each call output.
 
+NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/account.cairo#L3[corelib].
+
 [.contract-item]
 [[ISRC6-__validate__]]
 ==== `[.contract-item-name]#++__validate__++#++(calls: Array<Call>) → felt252++` [.item-kind]#external#
 
 Validates a transaction before execution.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 [.contract-item]
 [[ISRC6-is_valid_signature]]
@@ -49,7 +50,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 
 Validates whether a signature is valid or not for the given message hash.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 [.contract]
 [[Account]]
@@ -120,7 +121,7 @@ Base Account contract implementation.
 
 Validates a DeployAccount transaction.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-__execute__]]
@@ -152,7 +153,7 @@ Returns whether a contract implements a given interface or not.
 
 Validates a Declare transaction.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-set_public_key]]

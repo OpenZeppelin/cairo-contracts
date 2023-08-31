@@ -158,7 +158,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
-Sets a new public key for the account. Can be called only by self through the `\\__execute__` mechanism.
+Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 

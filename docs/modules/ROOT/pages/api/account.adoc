@@ -150,7 +150,7 @@ Returns whether a contract implements a given interface or not.
 [[Account-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a Declare transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
 
 Returns the short string `'VALID'` if valid, or any other value otherwise.
 

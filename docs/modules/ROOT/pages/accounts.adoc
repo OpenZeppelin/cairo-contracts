@@ -7,7 +7,7 @@
 Unlike Ethereum where accounts are derived from a private key, all Starknet accounts are contracts. This means there's no Externally Owned Account (EOA)
 concept on Starknet.
 
-Instead, the network features native account abstraction, and signature validation has to be done at the contract level.
+Instead, the network features native account abstraction and signature validation happens at the contract level.
 To relieve smart contract applications such as ERC20 tokens or exchanges from this responsibility,
 we make use of Account contracts to deal with transaction authentication.
 

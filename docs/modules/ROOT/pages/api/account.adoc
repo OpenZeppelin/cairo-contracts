@@ -26,6 +26,9 @@ Interface of the SRC6 Standard Account as defined in the {snip6}.
 * xref:#ISRC6-is_valid_signature[`++is_valid_signature(hash, signature)++`]
 --
 
+[#ISRC6-Functions]
+==== Functions
+
 [.contract-item]
 [[ISRC6-__execute__]]
 ==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
@@ -115,11 +118,24 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
+[#Account-Utilities]
+==== Utilities
+
+[.contract-item]
+[[Account-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
+
+[#Account-Functions]
+==== Functions
+
 [.contract-item]
 [[Account-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction]. See xref:/guides/deployment.adoc[Counterfactual Deployments].
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -200,6 +216,9 @@ CAUTION: The usage of this method outside the `set_public_key` function is disco
 ==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
 
 Validates the provided `signature` for the `hash`, using the account current public key.
+
+[#Account-Events]
+==== Events
 
 [.contract-item]
 [[Account-OwnerAdded]]

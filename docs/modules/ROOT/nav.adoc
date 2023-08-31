@@ -4,7 +4,7 @@
 * xref:proxies.adoc[Proxies and Upgrades]
 
 * xref:accounts.adoc[Accounts]
-** xref:/guides/deployment.adoc[Counterfactual Deployments]
+** xref:/guides/deployment.adoc[Counterfactual deployments]
 
 * xref:access.adoc[Access Control]
 

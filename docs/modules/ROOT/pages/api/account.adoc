@@ -3,7 +3,7 @@
 
 = Account
 
-Reference of interfaces, presets, and utilities related to Account contracts.
+Reference of interfaces, presets, and utilities related to account contracts.
 
 == Core
 
@@ -16,8 +16,7 @@ Reference of interfaces, presets, and utilities related to Account contracts.
 use openzeppelin::account::interface::ISRC6;
 ```
 
-Interface of the ISRC6 standard as defined in the {snip6}.
-
+Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 [.contract-index]
 .Functions
@@ -27,13 +26,18 @@ Interface of the ISRC6 standard as defined in the {snip6}.
 * xref:#ISRC6-is_valid_signature[`++is_valid_signature(hash, signature)++`]
 --
 
+[#ISRC6-Functions]
+==== Functions
+
 [.contract-item]
 [[ISRC6-__execute__]]
 ==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
 
 Executes the list of calls as a transaction after validation.
 
-Returns the list of each call output.
+Returns an array with each call's output.
+
+NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/account.cairo#L3[corelib].
 
 [.contract-item]
 [[ISRC6-__validate__]]
@@ -41,7 +45,7 @@ Returns the list of each call output.
 
 Validates a transaction before execution.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 [.contract-item]
 [[ISRC6-is_valid_signature]]
@@ -49,7 +53,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 
 Validates whether a signature is valid or not for the given message hash.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 [.contract]
 [[Account]]
@@ -62,7 +66,7 @@ Returns the short string `'VALID'` if valid, or any other value otherwise.
 ```javascript
 use openzeppelin::account::Account;
 ```
-Base Account contract implementation.
+Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 [.contract-index]
 .Utilities
@@ -114,13 +118,26 @@ Base Account contract implementation.
 * xref:#Account-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
+[#Account-Utilities]
+==== Utilities
+
+[.contract-item]
+[[Account-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
+
+[#Account-Functions]
+==== Functions
+
 [.contract-item]
 [[Account-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a DeployAccount transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-__execute__]]
@@ -150,17 +167,17 @@ Returns whether a contract implements a given interface or not.
 [[Account-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a Declare transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
-Sets a new public key for the account. Can be called only by self through the `\\__execute__` mechanism.
+Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
-Emits an {OwnerRemoved}, and an {OwnerAdded} event.
+Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
 [.contract-item]
 [[Account-get_public_key]]
@@ -180,15 +197,16 @@ Emits an {OwnerAdded} event.
 [[Account-validate_transaction]]
 ==== `[.contract-item-name]#++validate_transaction++#++(self: @ContractState)++ → felt252` [.item-kind]#internal#
 
-Validates a transaction signature from the global context.
+Validates a transaction signature from the
+https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/info.cairo#L61[global context].
 
-Returns the short string `'VALID'` if valid.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-_set_public_key]]
 ==== `[.contract-item-name]#++_set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#internal#
 
-Set the public key without asserting the context.
+Set the public key without asserting the caller.
 
 Emits an {OwnerAdded} event.
 
@@ -200,14 +218,17 @@ CAUTION: The usage of this method outside the `set_public_key` function is disco
 
 Validates the provided `signature` for the `hash`, using the account current public key.
 
+[#Account-Events]
+==== Events
+
 [.contract-item]
 [[Account-OwnerAdded]]
 ==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
 
-Emitted when the account `public_key` is updated.
+Emitted when a `public_key` is added.
 
 [.contract-item]
 [[Account-OwnerRemoved]]
 ==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
 
-Emitted when the account `public_key` is updated except for initialization.
+Emitted when a `public_key` is removed.

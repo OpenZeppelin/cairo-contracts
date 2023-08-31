@@ -33,7 +33,7 @@ Interface of the ISRC6 standard as defined in the {snip6}.
 
 Executes the list of calls as a transaction after validation.
 
-Returns the list of each call output.
+Returns an array with each call's output.
 
 [.contract-item]
 [[ISRC6-__validate__]]

@@ -41,7 +41,7 @@ Returns an array with each call's output.
 
 Validates a transaction before execution.
 
-Returns the short string `'VALID'` if valid, or any other value otherwise.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[ISRC6-is_valid_signature]]

@@ -29,7 +29,7 @@ TIP: For detailed information on the usage and implementation check the xref:/ap
 == Basic Account
 
 As mentioned, accounts in Starknet are smart contracts and so they can be deployed and interacted
-with like any other contract, and can be extended to implement any custom logic. However, the Account is a special
+with like any other contract, and can be extended to implement any custom logic. However accounts are a special
 type of contract that is used to validate and execute transactions, and there are a set of entrypoints
 that must be implemented for enabling these features.
 

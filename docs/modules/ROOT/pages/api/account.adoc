@@ -182,7 +182,7 @@ Emits an {OwnerAdded} event.
 
 Validates a transaction signature from the global context.
 
-Returns the short string `'VALID'` if valid.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-_set_public_key]]

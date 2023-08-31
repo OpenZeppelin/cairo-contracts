@@ -118,7 +118,7 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [[Account-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a DeployAccount transaction.
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction]. See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, or any other value otherwise.
 

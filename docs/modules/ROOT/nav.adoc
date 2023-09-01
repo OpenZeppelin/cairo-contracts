@@ -4,9 +4,11 @@
 * xref:proxies.adoc[Proxies and Upgrades]
 
 * xref:accounts.adoc[Accounts]
-** xref:/guides/deployment.adoc[Counterfactual Deployments]
+** xref:/guides/deployment.adoc[Counterfactual deployments]
+** xref:/api/account.adoc[API Reference]
 
 * xref:access.adoc[Access Control]
+** xref:/api/access.adoc[API Reference]
 
 * Tokens
 ** xref:erc20.adoc[ERC20]
@@ -14,13 +16,11 @@
 ** xref:erc1155.adoc[ERC1155]
 
 * xref:security.adoc[Security]
+
 * xref:introspection.adoc[Introspection]
+** xref:/api/introspection.adoc[API Reference]
+
 * xref:udc.adoc[Universal Deployer Contract]
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-
-* API
-** xref:/api/account.adoc[Account]
-** xref:/api/access.adoc[Access Control]
-** xref:/api/introspection.adoc[Introspection]

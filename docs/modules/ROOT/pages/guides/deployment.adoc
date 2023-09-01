@@ -3,9 +3,10 @@
 
 = Counterfactual deployments
 
-A deployment is said to be counterfactual when the one paying for the deployment fees is the address of
-the contract to be deployed. In other words, we need to send the funds to the address even when the
-deploymenthasn’t happened.
+A counterfactual contract is a contract we can interact with even before actually deploying it on-chain.
+For example, we can send funds or assign privileges to a contract that doesn't yet exist.
+Why? Because deployments in Starknet are deterministic, allowing us to predict the address where our contract will be deployed.
+We can leverage this property to make a contract pay for its own deployment by simply sending funds in advance. We call this a counterfactual deployment.
 
 This process can be described with the following steps:
 
@@ -19,14 +20,15 @@ tools usually do this for you.
 
 3. Send a `DeployAccount` type transaction to the network.
 
-4. The protocol will then validate the transaction with the `\\__validate_deploy__` entrypoint.
+4. The protocol will then validate the transaction with the `\\__validate_deploy__` entrypoint of the contract to be deployed.
 
 5. If the validation succeeds, the protocol will charge the fee and then register the contract as deployed.
 
+NOTE: Although this method is very popular to deploy accounts, this works for any kind of contract.
 
 == Deployment validation
 
-For counterfactual deployments, contracts must implement the `\\__validate_deploy__` entrypoint, and it is
+To counterfactually deploy contracts, they must implement the `\\__validate_deploy__` entrypoint,
 called by the protocol when a `DeployAccount` transaction is sent to the network.
 
 [,javascript]

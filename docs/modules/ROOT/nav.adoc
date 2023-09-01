@@ -5,6 +5,7 @@
 
 * xref:accounts.adoc[Accounts]
 ** xref:/guides/deployment.adoc[Counterfactual deployments]
+** xref:/api/account.adoc[API Reference]
 
 * xref:access.adoc[Access Control]
 
@@ -19,6 +20,3 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-
-* API
-** xref:/api/account.adoc[Account]

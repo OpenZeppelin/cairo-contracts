@@ -161,7 +161,7 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 [[Account-supports_interface]]
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
-Returns whether a contract implements a given interface or not.
+See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
 
 [.contract-item]
 [[Account-__validate_declare__]]

@@ -62,11 +62,17 @@ to restrict their use to the owner.
 * xref:Ownable-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
 --
 
+[#Ownable-Utilities]
+==== Utilities
+
 [.contract-item]
 [[Ownable-assert_only_owner]]
 ==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
 
 Throws if called by any account other than the owner.
+
+[#Ownable-Functions]
+==== Functions
 
 [.contract-item]
 [[Ownable-initializer]]
@@ -110,6 +116,9 @@ Can only be called by the current owner.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
+[#Ownable-Events]
+==== Events
+
 [.contract-item]
 [[Ownable-OwnershipTransferred]]
 ==== `[.contract-item-name]#++OwnershipTransferred++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
@@ -152,6 +161,9 @@ External interface of AccessControl declared to support https://github.com/stark
 * xref:IAccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
 
 --
+
+[#IAccessControl-Functions]
+==== Functions
 
 [.contract-item]
 [[IAccessControl-has_role]]
@@ -210,6 +222,8 @@ Requirements:
 
 - the caller must be `account`.
 
+[#IAccessControl-Events]
+==== Events
 
 [.contract-item]
 [[IAccessControl-RoleAdminChanged]]
@@ -330,16 +344,22 @@ accounts that have been granted it.
 --
 [.contract-subindex-inherited]
 .IAccessControl
-* xref:#IAccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
-* xref:#IAccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]
-* xref:#IAccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+* xref:#AccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
+* xref:#AccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]
+* xref:#AccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
 --
+
+[#AccessControl-Utilities]
+==== Utilities
 
 [.contract-item]
 [[AccessControl-assert_only_role]]
 ==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
 
 Throws if called by any account without the given `role`.
+
+[#AccessControl-Functions]
+==== Functions
 
 [.contract-item]
 [[AccessControl-initializer]]
@@ -443,3 +463,25 @@ May emit a {RoleRevoked} event.
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
 Returns whether a contract implements a given interface or not.
+
+
+[#AccessControl-Events]
+==== Events
+
+[.contract-item]
+[[AccessControl-RoleAdminChanged]]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(role: felt252, previous_admin_role: ContractAddress, new_admin_role: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleAdminChanged[IAccessControl::RoleAdminChanged].
+
+[.contract-item]
+[[AccessControl-RoleGranted]]
+==== `[.contract-item-name]#++RoleGranted++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleGranted[IAccessControl::RoleGranted].
+
+[.contract-item]
+[[AccessControl-RoleRevoked]]
+==== `[.contract-item-name]#++RoleRevoked++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleRevoked[IAccessControl::RoleRevoked].

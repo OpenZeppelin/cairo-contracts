@@ -110,7 +110,7 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
-        fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             assert(self._exists(tokenId), 'ERC721: invalid token ID');
             self._token_uri.read(tokenId)
         }

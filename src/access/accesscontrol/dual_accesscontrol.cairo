@@ -41,7 +41,10 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         args.append_serde(role);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("get_role_admin"), selector!("getRoleAdmin"), args.span()
+            *self.contract_address,
+            selector!("get_role_admin"),
+            selector!("getRoleAdmin"),
+            args.span()
         )
             .unwrap_and_cast()
     }
@@ -74,7 +77,10 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         args.append_serde(account);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("renounce_role"), selector!("renounceRole"), args.span()
+            *self.contract_address,
+            selector!("renounce_role"),
+            selector!("renounceRole"),
+            args.span()
         )
             .unwrap_syscall();
     }

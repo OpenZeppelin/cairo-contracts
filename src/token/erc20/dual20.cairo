@@ -92,7 +92,10 @@ impl DualERC20Impl of DualERC20Trait {
         args.append_serde(amount);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("transfer_from"), selector!("transferFrom"), args.span()
+            *self.contract_address,
+            selector!("transfer_from"),
+            selector!("transferFrom"),
+            args.span()
         )
             .unwrap_and_cast()
     }

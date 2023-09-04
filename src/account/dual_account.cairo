@@ -28,7 +28,10 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
         let mut args = array![new_public_key];
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("set_public_key"), selector!("setPublicKey"), args.span()
+            *self.contract_address,
+            selector!("set_public_key"),
+            selector!("setPublicKey"),
+            args.span()
         )
             .unwrap_syscall();
     }
@@ -37,7 +40,10 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
         let mut args = array![];
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("get_public_key"), selector!("getPublicKey"), args.span()
+            *self.contract_address,
+            selector!("get_public_key"),
+            selector!("getPublicKey"),
+            args.span()
         )
             .unwrap_and_cast()
     }

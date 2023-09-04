@@ -43,7 +43,7 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0-rc.0" }
 ```
 
 Build the project to download it:

@@ -53,8 +53,6 @@ But some differences can still be found, such as:
 
 :components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
 
-WARNING: This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully. Extensibility will be revisited after {components} are introduced.
-
 ERC20 contracts can be extended by utilizing the contract's `_unsafe_new_contract_state()`.
 The unsafe contract state allows access to the `ERC20Impl`.
 This enables `IERC20` methods to include additional behaviors.
@@ -85,6 +83,8 @@ fn mint(self: @ContractState, to: ContractAddress, amount: u256) {
     ERC20::InternalImpl::_mint(@unsafe_state, to, amount);
 }
 ----
+
+WARNING: This mechanism is unsafe because storage members could clash among used contracts if not reviewed carefully. Extensibility will be revisited after {components} are introduced.
 
 == Presets
 

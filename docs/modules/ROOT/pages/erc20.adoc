@@ -79,7 +79,9 @@ Having access to ERC20's internal implementation permits contracts, for example,
 #[external(v0)]
 fn mint(self: @ContractState, to: ContractAddress, amount: u256) {
     let unsafe_state = ERC20::unsafe_new_contract_state();
-    assert_only_owner();  // Ensure the mint function is protected!
+    
+    // Ensures the mint function is protected!
+    assert_only_owner(); 
     ERC20::InternalImpl::_mint(@unsafe_state, to, amount);
 }
 ----

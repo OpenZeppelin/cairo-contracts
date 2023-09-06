@@ -8,6 +8,7 @@
 
 * Tokens
 ** xref:erc20.adoc[ERC20]
+*** xref:/api/erc20.adoc[API Reference]
 ** xref:erc721.adoc[ERC721]
 ** xref:erc1155.adoc[ERC1155]
 
@@ -17,6 +18,3 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-
-* API
-** xref:/api/erc20.adoc[ERC20]

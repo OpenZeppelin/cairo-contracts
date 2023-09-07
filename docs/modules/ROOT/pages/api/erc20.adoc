@@ -132,49 +132,69 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .Functions
 --
-* xref:#constructor[`++constructor(name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++`]
-* xref:#name[`++name()++`]
-* xref:#symbol[`++symbol()++`]
-* xref:#decimals[`++decimals()++`]
-* xref:#total_supply[`++total_supply()++`]
-* xref:#balance_of[`++balance_of()++`]
-* xref:#allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
-* xref:#transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
-* xref:#transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
-* xref:#approve[`++approve(spender: ContractAddress, amount: u256)++`]
-* xref:#increase_allowance[`++increase_allowance(spender: ContractAddress, added_value: u256)++`]
-* xref:#decrease_allowance[`++decrease_allowance(spender: ContractAddress, subtracted_value: u256)++`]
+* xref:#constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
+* xref:#name[`++name(self)++`]
+* xref:#symbol[`++symbol(self)++`]
+* xref:#decimals[`++decimals(self)++`]
+* xref:#increase_allowance[`++increase_allowance(self, spender, added_value)++`]
+* xref:#decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
+
+[.contract-subindex-inherited]
+.IERC20
+
+* xref:#total_supply[`++total_supply(self)++`]
+* xref:#balance_of[`++balance_of(self, account)++`]
+* xref:#allowance[`++allowance(self, owner, spender)++`]
+* xref:#transfer[`++transfer(self, recipient, amount)++`]
+* xref:#transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
+* xref:#approve[`++approve(self, spender, amount)++`]
+
+[.contract-subindex-inherited]
+.InternalImpl
+
+* xref:#initializer[`++initializer(self, name_, symbol_)++`]
+* xref:#_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
+* xref:#_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
+* xref:#_mint[`++_mint(self, recipient, amount)++`]
+* xref:#_burn[`++_burn(self, account, amount)++`]
+* xref:#_approve[`++_approve(self, owner, spender, amount)++`]
+* xref:#_transfer[`++_transfer(self, sender, recipient, amount)++`]
+* xref:#_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
+
 --
 
 [.contract-index]
 .Events
 --
-* xref:#impl_Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
-* xref:#impl_Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+* xref:#Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
+* xref:#Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
 --
+
+[#ERC20-Functions]
+==== Functions
 
 [.contract-item]
 [[constructor]]
-==== `[.contract-item-name]#++constructor++#++(name_: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#external#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name_: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
 
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
 
 [.contract-item]
 [[name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++(@self: ContractState) → felt252++` [.item-kind]#external#
 
 Returns the name of the token.
 
 [.contract-item]
 [[symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++(@self: ContractState) → felt252++` [.item-kind]#external#
 
 Returns the ticker symbol of the token.
 
 [.contract-item]
 [[decimals]]
-==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
 
 Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
 
@@ -190,43 +210,43 @@ no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[total_supply]]
-==== `[.contract-item-name]#++total_supply++#++() → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++total_supply++#++(@self: ContractState) → u256++` [.item-kind]#external#
 
 See <<IERC20-total_supply,IERC20::total_supply>>.
 
 [.contract-item]
 [[balance_of]]
-==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++balance_of++#++(@self: ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
 See <<IERC20-balance_of,IERC20::balance_of>>.
 
 [.contract-item]
 [[allowance]]
-==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++allowance++#++(@self: ContractState, owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
 
 See <<IERC20-allowance,IERC20::allowance>>.
 
 [.contract-item]
 [[transfer]]
-==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transfer++#++(ref self: ContractState, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 See <<IERC20-transfer,IERC20::transfer>>.
 
 [.contract-item]
 [[transfer_from]]
-==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
 [.contract-item]
 [[approve]]
-==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++approve++#++(ref self: ContractState, spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 See <<IERC20-approve,IERC20::approve>>.
 
 [.contract-item]
 [[increase_allowance]]
-==== `[.contract-item-name]#++increase_allowance++#++(spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
 
 Atomically increases the allowance granted to `spender` by the caller.
 Returns `true` on success.
@@ -240,7 +260,7 @@ This function panics if:
 
 [.contract-item]
 [[decrease_allowance]]
-==== `[.contract-item-name]#++decrease_allowance++#++(spender: ContractAddress, subtracted_value: u256) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256) → bool++` [.item-kind]#external#
 
 Atomically decreases the allowance granted to `spender` by the caller.
 Returns `true` on success.
@@ -251,6 +271,93 @@ This function panics if:
 
 - The caller is the zero address.
 - `spender` is the zero address.
+
+[.contract-item]
+[[initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name_: felt252, symbol_: felt252)++` [.item-kind]#internal#
+
+Initializes the contract by setting the token name and symbol.
+This should be used inside of the contract's constructor.
+
+[.contract-item]
+[[_increase_allowance]]
+==== `[.contract-item-name]#++_increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256)++` [.item-kind]#internal#
+
+Atomically increases the allowance granted to `spender` by the caller.
+
+Emits an <<Approval,Approval>> event.
+
+[.contract-item]
+[[_decrease_allowance]]
+==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256)++` [.item-kind]#internal#
+
+Atomically decreases the allowance granted to `spender` by the caller.
+
+Emits an <<Approval,Approval>> event.
+
+[.contract-item]
+[[_mint]]
+==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Creates an `amount` number of tokens and assigns them to `recipient`, by transferring them from the zero address.
+
+Emits a <<Transfer,Transfer>> event with `from` being the zero address.
+
+This function panics if:
+
+- `recipient` is the zero address.
+
+[.contract-item]
+[[_burn]]
+==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, account: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Destroys `amount` number of tokens from `account`, by transferring them to the zero address.
+
+Emits a <<Transfer,Transfer>> event with `to` set to the zero address.
+
+This function panics if:
+
+- `account` is the zero address.
+
+[.contract-item]
+[[_approve]]
+==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Sets `amount` as the allowance of `spender` over the `owner` tokens.
+This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- `owner` is the zero address.
+- `spender` is the zero address.
+
+[.contract-item]
+[[_transfer]]
+==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Sets `amount` as the allowance of `spender` over the `owner` tokens.
+This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
+
+Emits an <<Approval,Approval>> event.
+
+This function panics if:
+
+- `owner` is the zero address.
+- `spender` is the zero address.
+
+[.contract-item]
+[[_spend_allowance]]
+==== `[.contract-item-name]#++_spend_allowance++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Internal method that updates `owner` allowance for `spender` based on spent `amount`.
+Does not update the allowance value in case of infinite allowance.
+
+Possibly emits an <<Approval,Approval>> event.
+
+[#ERC20-Events]
+==== Events
 
 [.contract-item]
 [[Transfer]]

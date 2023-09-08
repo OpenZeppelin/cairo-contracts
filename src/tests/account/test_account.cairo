@@ -16,6 +16,7 @@ use openzeppelin::tests::utils::constants::ZERO;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use option::OptionTrait;
 use serde::Serde;
@@ -299,7 +300,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(recipient);
     calldata.append_serde(amount);
     let call = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
     };
     let mut calls = array![];
     calls.append(call);
@@ -377,7 +378,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
     };
 
     // Craft call2
@@ -386,7 +387,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
     };
 
     // Bundle calls and exeute

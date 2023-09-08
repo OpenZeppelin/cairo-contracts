@@ -1,0 +1,139 @@
+= Creating ERC20 Supply
+
+:eip-20: https://eips.ethereum.org/EIPS/eip-20[EIP20]
+
+In this guide, you will learn how to create an ERC20 token with a custom supply mechanism.
+We will showcase the creation of both a fixed supply and a dynamic supply that you will be able to apply to your own smart contract development practice.
+
+The standard interface implemented by tokens built on Starknet comes from the popular token standard on Ethereum called ERC20.
+{eip-20}, from which the ERC20 contract is derived, does not specify how tokens are created.
+We'll go over two strategies for creating token supply.
+
+== Fixed Supply
+
+Let's say we want to create a token named MyToken with a fixed token supply.
+We can achieve this by setting the token supply in the constructor which will execute upon deployment.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyToken {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc20::ERC20;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        self: @ContractState,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        let name = 'MyToken';
+        let symbol = 'MTK';
+
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
+    }
+}
+----
+
+In the constructor, we're first grabbing the ERC20 state and calling the ERC20 initializer to set the token name and symbol.
+Next, we're calling the internal `_mint` function which creates `initial_supply` of tokens and allocates them to `recipient`.
+Since the internal `_mint` is not exposed in the ERC20 library, it will not be possible to create any more tokens.
+In other words, we've implemented a fixed token supply!
+
+== Dynamic Supply
+
+:access-control: xref:/access.adoc[Access Control]
+
+ERC20 contracts with a dynamic supply must include a mechanism for creating (and potentially destroying) tokens.
+Let's make a few changes to the almighty MyToken contract and create a minting mechanism.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyToken {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc20::ERC20;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(self: @ContractState) {
+        let name = 'MyToken';
+        let symbol = 'MTK';
+
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+    }
+
+    #[external(v0)]
+    fn mint(
+        self: @ContractState,
+        recipient: ContractAddress,
+        amount: u256
+    ) {
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, amount);
+    }
+}
+----
+
+The exposed `mint` above will create `amount` tokens and allocate them to `recipient`.
+We now have our minting mechanism!
+
+There is, however, a big problem.
+`mint` does not include any restrictions on who can call this function.
+For the sake of good practices, let's implement a simple permissioning mechanism with Ownable.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyToken {
+    use starknet::ContractAddress;
+    use openzeppelin::access::ownable::Ownable;
+    use openzeppelin::token::erc20::ERC20;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(self: @ContractState, owner: ContractAddress) {
+        // Set contract owner
+        let mut unsafe_ownable = Ownable::unsafe_new_contract_state();
+        Ownable::InternalImpl::initializer(ref unsafe_ownable, owner);
+    
+        // Initialize ERC20
+        let name = 'MyToken';
+        let symbol = 'MTK';
+
+        let mut unsafe_erc20 = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_erc20, name, symbol);
+    }
+
+    #[external(v0)]
+    fn mint(
+        self: @ContractState,
+        recipient: ContractAddress,
+        amount: u256
+    ) {
+        // Set permissions with Ownable
+        let unsafe_ownable = Ownable::unsafe_new_contract_state();
+        Ownable::InternalImpl::assert_only_owner(@unsafe_ownable);
+
+        // Mint tokens if called by the contract owner
+        let mut unsafe_erc20 = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::_mint(ref unsafe_erc20, recipient, amount);
+    }
+}
+----
+
+In the constructor, we pass the owner address to set the owner of the MyToken contract.
+The `mint` function includes `assert_only_owner` which will ensure that only the contract owner can call this function.
+Now, we have a protected ERC20 minting mechanism to create a dynamic token supply.
+
+TIP: For a more thorough explanation of permission mechanisms, see {access-control}.

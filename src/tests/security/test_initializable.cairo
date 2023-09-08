@@ -16,7 +16,7 @@ fn test_initialize() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Initializable: is initialized', ))]
+#[should_panic(expected: ('Initializable: is initialized',))]
 fn test_initialize_when_initialized() {
     let mut state = STATE();
     InternalImpl::initialize(ref state);

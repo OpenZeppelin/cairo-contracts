@@ -1,36 +1,23 @@
 use array::ArrayTrait;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
-use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
-use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
+use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
+use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
 use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;
+use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
+use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
+use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
+use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_contract_address;
-
-//
-// Constants
-//
-
-const ROLE: felt252 = 41;
-
-fn ADMIN() -> ContractAddress {
-    contract_address_const::<10>()
-}
-
-fn AUTHORIZED() -> ContractAddress {
-    contract_address_const::<20>()
-}
 
 //
 // Setup
@@ -41,11 +28,8 @@ fn setup_snake() -> (DualCaseAccessControl, IAccessControlDispatcher) {
     calldata.append_serde(ADMIN());
     let target = utils::deploy(SnakeAccessControlMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccessControl {
-            contract_address: target
-            }, IAccessControlDispatcher {
-            contract_address: target
-        }
+        DualCaseAccessControl { contract_address: target },
+        IAccessControlDispatcher { contract_address: target }
     )
 }
 
@@ -54,11 +38,8 @@ fn setup_camel() -> (DualCaseAccessControl, IAccessControlCamelDispatcher) {
     calldata.append_serde(ADMIN());
     let target = utils::deploy(CamelAccessControlMock::TEST_CLASS_HASH, calldata);
     (
-        DualCaseAccessControl {
-            contract_address: target
-            }, IAccessControlCamelDispatcher {
-            contract_address: target
-        }
+        DualCaseAccessControl { contract_address: target },
+        IAccessControlCamelDispatcher { contract_address: target }
     )
 }
 
@@ -71,11 +52,8 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
     let snake_target = utils::deploy(SnakeAccessControlPanicMock::TEST_CLASS_HASH, array![]);
     let camel_target = utils::deploy(CamelAccessControlPanicMock::TEST_CLASS_HASH, array![]);
     (
-        DualCaseAccessControl {
-            contract_address: snake_target
-            }, DualCaseAccessControl {
-            contract_address: camel_target
-        }
+        DualCaseAccessControl { contract_address: snake_target },
+        DualCaseAccessControl { contract_address: camel_target }
     )
 }
 
@@ -92,7 +70,7 @@ fn test_dual_supports_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -100,7 +78,7 @@ fn test_dual_no_supports_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -115,7 +93,7 @@ fn test_dual_has_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_has_role() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -123,7 +101,7 @@ fn test_dual_no_has_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_has_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -138,7 +116,7 @@ fn test_dual_get_role_admin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_role_admin() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.get_role_admin(ROLE);
@@ -146,7 +124,7 @@ fn test_dual_no_get_role_admin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_role_admin_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.get_role_admin(ROLE);
@@ -163,7 +141,7 @@ fn test_dual_grant_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_grant_role() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -171,7 +149,7 @@ fn test_dual_no_grant_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_grant_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -188,7 +166,7 @@ fn test_dual_revoke_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_revoke_role() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -196,7 +174,7 @@ fn test_dual_no_revoke_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_revoke_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -213,7 +191,7 @@ fn test_dual_renounce_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', ))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_role() {
     let dispatcher = setup_non_accesscontrol();
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -221,7 +199,7 @@ fn test_dual_no_renounce_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounce_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -240,7 +218,7 @@ fn test_dual_supportsInterface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -255,7 +233,7 @@ fn test_dual_hasRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_hasRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -270,7 +248,7 @@ fn test_dual_getRoleAdmin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_getRoleAdmin_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.get_role_admin(ROLE);
@@ -287,7 +265,7 @@ fn test_dual_grantRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_grantRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -305,7 +283,7 @@ fn test_dual_revokeRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_revokeRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -322,7 +300,7 @@ fn test_dual_renounceRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED', ))]
+#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounceRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());

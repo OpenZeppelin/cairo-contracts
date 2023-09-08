@@ -21,10 +21,8 @@ const revokeRole: felt252 = selector!("revokeRole");
 //
 
 const owner: felt252 = selector!("owner");
-const transfer_ownership: felt252 =
-    selector!("transfer_ownership");
-const transferOwnership: felt252 =
-    selector!("transferOwnership");
+const transfer_ownership: felt252 = selector!("transfer_ownership");
+const transferOwnership: felt252 = selector!("transferOwnership");
 const renounce_ownership: felt252 = selector!("renounce_ownership");
 const renounceOwnership: felt252 = selector!("renounceOwnership");
 
@@ -42,26 +40,21 @@ const owner_of: felt252 = selector!("owner_of");
 const ownerOf: felt252 = selector!("ownerOf");
 const get_approved: felt252 = selector!("get_approved");
 const getApproved: felt252 = selector!("getApproved");
-const is_approved_for_all: felt252 =
-    selector!("is_approved_for_all");
+const is_approved_for_all: felt252 = selector!("is_approved_for_all");
 const isApprovedForAll: felt252 = selector!("isApprovedForAll");
 const approve: felt252 = selector!("approve");
-const set_approval_for_all: felt252 =
-    selector!("set_approval_for_all");
-const setApprovalForAll: felt252 =
-    selector!("setApprovalForAll");
+const set_approval_for_all: felt252 = selector!("set_approval_for_all");
+const setApprovalForAll: felt252 = selector!("setApprovalForAll");
 const transfer_from: felt252 = selector!("transfer_from");
 const transferFrom: felt252 = selector!("transferFrom");
-const safe_transfer_from: felt252 =
-    selector!("safe_transfer_from");
+const safe_transfer_from: felt252 = selector!("safe_transfer_from");
 const safeTransferFrom: felt252 = selector!("safeTransferFrom");
 
 //
 // ERC721Receiver
 //
 
-const on_erc721_received: felt252 =
-    selector!("on_erc721_received");
+const on_erc721_received: felt252 = selector!("on_erc721_received");
 const onERC721Received: felt252 = selector!("onERC721Received");
 
 //
@@ -84,10 +77,7 @@ const set_public_key: felt252 = selector!("set_public_key");
 const setPublicKey: felt252 = selector!("setPublicKey");
 const get_public_key: felt252 = selector!("get_public_key");
 const getPublicKey: felt252 = selector!("getPublicKey");
-const is_valid_signature: felt252 =
-    selector!("is_valid_signature");
+const is_valid_signature: felt252 = selector!("is_valid_signature");
 const isValidSignature: felt252 = selector!("isValidSignature");
-const supports_interface: felt252 =
-    selector!("supports_interface");
-const supportsInterface: felt252 =
-    selector!("supportsInterface");
+const supports_interface: felt252 = selector!("supports_interface");
+const supportsInterface: felt252 = selector!("supportsInterface");

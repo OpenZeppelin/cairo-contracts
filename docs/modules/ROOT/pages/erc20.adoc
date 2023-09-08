@@ -90,14 +90,14 @@ WARNING: This mechanism is unsafe because storage members could clash among used
 
 The ERC20 contract itself includes a basic implementation preset and can be used as-is for quick prototyping and testing.
 
-More presets coming soon!
-
 === Basic ERC20 [[basic-erc20]]
 
 :erc20-basic: https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[ERC20]
 
 The {erc20-basic} preset offers a quick and easy setup for deploying a basic ERC20 token.
 This preset mints an inital supply which is necessary because it does not expose a minting function.
+
+More presets coming soon!
 
 == Extensions
 

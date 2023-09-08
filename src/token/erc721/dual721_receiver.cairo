@@ -3,6 +3,7 @@
 
 use array::ArrayTrait;
 use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
@@ -39,8 +40,8 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selector!("on_erc721_received"),
-            selector!("onERC721Received"),
+            selectors::on_erc721_received,
+            selectors::onERC721Received,
             args.span()
         )
             .unwrap_and_cast()

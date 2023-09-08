@@ -3,6 +3,7 @@
 
 use array::ArrayTrait;
 use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
@@ -41,12 +42,12 @@ trait DualCaseERC721Trait {
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
     fn name(self: @DualCaseERC721) -> felt252 {
-        call_contract_syscall(*self.contract_address, selector!("name"), array![].span())
+        call_contract_syscall(*self.contract_address, selectors::name, array![].span())
             .unwrap_and_cast()
     }
 
     fn symbol(self: @DualCaseERC721) -> felt252 {
-        call_contract_syscall(*self.contract_address, selector!("symbol"), array![].span())
+        call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 
@@ -55,7 +56,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("token_uri"), selector!("tokenURI"), args.span()
+            *self.contract_address, selectors::token_uri, selectors::tokenURI, args.span()
         )
             .unwrap_and_cast()
     }
@@ -65,7 +66,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(account);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("balance_of"), selector!("balanceOf"), args.span()
+            *self.contract_address, selectors::balance_of, selectors::balanceOf, args.span()
         )
             .unwrap_and_cast()
     }
@@ -75,7 +76,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("owner_of"), selector!("ownerOf"), args.span()
+            *self.contract_address, selectors::owner_of, selectors::ownerOf, args.span()
         )
             .unwrap_and_cast()
     }
@@ -85,7 +86,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selector!("get_approved"), selector!("getApproved"), args.span()
+            *self.contract_address, selectors::get_approved, selectors::getApproved, args.span()
         )
             .unwrap_and_cast()
     }
@@ -99,8 +100,8 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selector!("is_approved_for_all"),
-            selector!("isApprovedForAll"),
+            selectors::is_approved_for_all,
+            selectors::isApprovedForAll,
             args.span()
         )
             .unwrap_and_cast()
@@ -110,7 +111,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         let mut args = array![];
         args.append_serde(to);
         args.append_serde(token_id);
-        call_contract_syscall(*self.contract_address, selector!("approve"), args.span())
+        call_contract_syscall(*self.contract_address, selectors::approve, args.span())
             .unwrap_syscall();
     }
 
@@ -121,8 +122,8 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selector!("set_approval_for_all"),
-            selector!("setApprovalForAll"),
+            selectors::set_approval_for_all,
+            selectors::setApprovalForAll,
             args.span()
         )
             .unwrap_syscall();
@@ -137,10 +138,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address,
-            selector!("transfer_from"),
-            selector!("transferFrom"),
-            args.span()
+            *self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span()
         )
             .unwrap_syscall();
     }
@@ -160,8 +158,8 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selector!("safe_transfer_from"),
-            selector!("safeTransferFrom"),
+            selectors::safe_transfer_from,
+            selectors::safeTransferFrom,
             args.span()
         )
             .unwrap_syscall();
@@ -173,8 +171,8 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
 
         try_selector_with_fallback(
             *self.contract_address,
-            selector!("supports_interface"),
-            selector!("supportsInterface"),
+            selectors::supports_interface,
+            selectors::supportsInterface,
             args.span()
         )
             .unwrap_and_cast()

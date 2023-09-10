@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP721]
+:erc721-receiver: xref:/erc721.adoc#receiving_tokens[ERC721Receiver]
 
 = ERC721
 
@@ -86,7 +87,7 @@ This function panics if:
 Safely transfer ownership of `token_id` from `from` to `to`, checking first
 that `to` is aware of the ERC721 protocol to prevent tokens being locked
 forever. For information regarding how contracts communicate their
-awareness of the ERC721 protocol, see <<ERC721Receiver,ERC721Receiver>>(TODO!).
+awareness of the ERC721 protocol, see {erc721-receiver}.
     
 Emits a <<IERC721-Transfer,Transfer>> event.
 

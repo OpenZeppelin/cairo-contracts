@@ -46,6 +46,8 @@ Interface of the IERC721 standard as defined in {eip721}.
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
 
+===== Functions
+
 [.contract-item]
 [[IERC721-balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
@@ -141,6 +143,8 @@ This function panics if:
 
 Query if `operator` is an authorized operator for `owner`.
 
+==== Events
+
 [.contract-item]
 [[IERC721-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, approved: ContractAddress, token_id: u256)++` [.item-kind]#event#
@@ -205,6 +209,8 @@ See {eip721}.
 * xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
+
+==== Functions
 
 [.contract-item]
 [[IERC721Metadata-name]]
@@ -292,6 +298,8 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
+
+==== Functions
 
 [.contract-item]
 [[ERC721-constructor]]
@@ -406,18 +414,18 @@ This function panics if:
 ==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
 Internal function that safely mints `token_id` and transfers it to `to`.
-If `to` is not an account contract, `to` must support IERC721Receiver; otherwise, the transaction will fail.
+If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
 This function panics if:
 
 - `token_id` does not exist.
-- `to` neither is an account contract nor supports the IERC721Receiver interface.
+- `to` neither is an account contract nor supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[ERC721-_safe_transfer]]
-==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
 Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
@@ -432,9 +440,7 @@ This function panics if:
 - `to` is the zero address.
 - `from` is not the token owner.
 - `token_id` does not exist.
-- `to` neither is an account contract nor supports the IERC721Receiver interface.
-
-* xref:#ERC721-_set_token_uri[`++_set_token_uri(self, token_id, token_uri)++`]
+- `to` neither is an account contract nor supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[ERC721-_set_token_uri]]
@@ -458,11 +464,13 @@ use openzeppelin::token::erc721::interface::IERC721Receiver;
 [.contract-index]
 .Functions
 --
-* xref:#ERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
+* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
 --
 
+==== Functions
+
 [.contract-item]
-[[ERC721Receiver-on_erc721_received]]
+[[IERC721Receiver-on_erc721_received]]
 ==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>)++` [.item-kind]#external#
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721.safe_transfer_from,IERC721.safe_transfer_from>> by `operator` from `from`, this function is called.

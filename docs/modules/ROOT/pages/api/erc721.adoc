@@ -306,7 +306,7 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#constructor#
 
 Initializes the state of the ERC721 contract by setting the token name and symbol.
-The constructor also registers the IERC721_ID and IERC721_METADATA_ID interface ids according to SRC-5.
+The constructor also registers the IERC721 and IERC721_METADATA interface ids according to SRC-5.
 
 [.contract-item]
 [[ERC721-initializer]]
@@ -425,13 +425,13 @@ This function panics if:
 
 [.contract-item]
 [[ERC721-_safe_transfer]]
-==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
 Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
 
-This function is equivalent to `safe_transfer_from`, and can be used to e.g. implement alternative mechanisms to perform signature-based token transfers.
+This function is equivalent to <<IERC721-safe_transfer_from,safe_transfer_from>>, and can be used to e.g. implement alternative mechanisms to perform signature-based token transfers.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 

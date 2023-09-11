@@ -9,7 +9,7 @@ concept on Starknet.
 
 Instead, the network features native account abstraction and signature validation happens at the contract level.
 
-For a general overview of the account abstraction, see
+For a general overview of account abstraction, see
 https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/introduction/[Starknet's documentation].
 A more detailed discussion on the topic can be found in
 https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[Starknet Shaman's forum].
@@ -37,7 +37,7 @@ validation mechanism.
 meant to declare other contracts.
 
 
-NOTE: Even when this entrypoints can be called directly at contract level, they are not designed for that,
+NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
 but to be called by the Starknet OS in the transaction execution flow.
 
 === Interface
@@ -98,10 +98,10 @@ trait ISRC6 {
 }
 ----
 
-The {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
+{snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
 DApps to verify the validity of signatures, supporting features like Sign In with Starknet.
 
-The SNIP-6 also defines that compliant accounts must implement the SRC5 interface following {snip-5}[SNIP-5], as
+SNIP-6 also defines that compliant accounts must implement the SRC5 interface following {snip-5}[SNIP-5], as
 a mechanism for detecting whether a contract is an account or not through introspection.
 
 === ISRC5 Interface

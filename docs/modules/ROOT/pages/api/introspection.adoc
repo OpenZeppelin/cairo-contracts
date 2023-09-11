@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
 
-= Intropection
+= Introspection
 
 Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/Type_introspection[type introspection].
 

@@ -9,7 +9,7 @@ on other contracts, for interoperability purposes. The {eip165} standard support
 their support for a given interface, and for other contracts to query this support.
 
 Starknet is not an exception to this rule, having to exercise type introspection among smart contracts as well. From the
-differences between Starknet and Ethereum, instead of trying to replicate the EVM's interface ID calculation, the community
+Instead of trying to replicate the EVM's interface ID calculation, the community
 has defined {src5} which is a Starknet-specific standard for type introspection:
 
 == SRC5

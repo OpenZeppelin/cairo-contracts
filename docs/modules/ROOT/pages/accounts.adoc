@@ -101,7 +101,7 @@ trait ISRC6 {
 {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
 DApps to verify the validity of signatures, supporting features like Sign In with Starknet.
 
-The SNIP-6 also defines that compliant accounts must implement the SRC5 interface following {snip-5}[SNIP-5], as
+SNIP-6 also defines that compliant accounts must implement the SRC5 interface following {snip-5}[SNIP-5], as
 a mechanism for detecting whether a contract is an account or not through introspection.
 
 === ISRC5 Interface

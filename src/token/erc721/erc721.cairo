@@ -110,7 +110,7 @@ mod ERC721 {
 
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
-        fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             assert(self._exists(tokenId), 'ERC721: invalid token ID');
             self._token_uri.read(tokenId)
         }
@@ -351,12 +351,9 @@ mod ERC721 {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (DualCaseSRC5 {
-            contract_address: to
-        }.supports_interface(interface::IERC721_RECEIVER_ID)) {
-            DualCaseERC721Receiver {
-                contract_address: to
-            }
+        if (DualCaseSRC5 { contract_address: to }
+            .supports_interface(interface::IERC721_RECEIVER_ID)) {
+            DualCaseERC721Receiver { contract_address: to }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == interface::IERC721_RECEIVER_ID

@@ -38,9 +38,9 @@ mod CamelERC721Mock {
     }
 
     #[external(v0)]
-    fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+    fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
         let unsafe_state = ERC721::unsafe_new_contract_state();
-        ERC721::ERC721MetadataCamelOnlyImpl::tokenUri(@unsafe_state, tokenId)
+        ERC721::ERC721MetadataCamelOnlyImpl::tokenURI(@unsafe_state, tokenId)
     }
 
     #[external(v0)]

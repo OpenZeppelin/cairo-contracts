@@ -1,6 +1,7 @@
 :test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/tests/signers.py
 :snip-5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
 :snip-6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md
+:counterfactual: xref:/guides/deployment.adoc[Counterfactual Deployments]
 
 = Accounts
 
@@ -16,40 +17,15 @@ https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[St
 
 TIP: For detailed information on the usage and implementation check the xref:/api/account.adoc[API Reference] section.
 
-== Basic Account
+== Standard Account Interface
 
-As we mentioned, accounts in Starknet are smart contracts, and so they can be deployed and interacted
+Accounts in Starknet are smart contracts, and so they can be deployed and interacted
 with like any other contract, and can be extended to implement any custom logic. However, an account is a special type
-of contract that is used to validate and execute transactions, for which it must implement a minimum set of functions.
+of contract that is used to validate and execute transactions. For this reason, it must implement a set of entrypoints
+that the protocol uses for this execution flow. The {snip-6}[SNIP-6] proposal defines a standard interface for accounts,
+supporting this execution flow and interoperability with DApps in the ecosystem.
 
-=== Account methods
-
-SRC6 standard account contracts must implement the following methods, the first two being enforced by the protocol.
-The third one is optional and can be used for enabling declarations.
-
-1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,
-but following the account abstraction design, the entrypoint implementation can be customized to feature any
-validation mechanism.
-
-2. `\\__execute__` executes the transaction if the validation is successful.
-
-3. `\\__validate_declare__` Optional entrypoint similar to `\\__validate__` but for transactions
-meant to declare other contracts.
-
-
-NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
-but to be called by the Starknet OS in the transaction execution flow.
-
-=== Interface
-
-Notice that we haven't mentioned the parameters or the return values of these entrypoints. This is because function
-selectors in Starknet are computed from the function name, without including the rest of the signature. This means
-that the entrypoints can be implemented with any signature, and the protocol will be able to call them as long
-as the function name is correct.
-
-In the following interface, we are using the `Array<Call>` for enabling multicall transactions. Note that we
-don't need signature related parameters, because they are part of the transaction information that is accesible
-using the global context (ex: `starknet::get_tx_info()`).
+=== ISRC6 Interface
 
 [,javascript]
 ----
@@ -60,31 +36,6 @@ struct Call {
     calldata: Array<felt252>
 }
 
-trait BaseAccount {
-    /// Executes a transaction through the account.
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
-
-    /// Asserts whether the transaction is valid to be executed.
-    fn __validate__(calls: Array<Call>) -> felt252;
-
-    // (Optional) Asserts whether the transaction is valid to be declared.
-    fn __validate_declare__(class_hash: felt252) -> felt252;
-}
-----
-
-== Standard Account Interface
-
-In the previous section we've presented the minimal interface a contract must implement to act as an account by
-propagating transactions through the network. However, this interface lacks some features required for supporting
-interoperability among accounts and DApps in the ecosystem. For example, there is no mechanism for
-recognizing on-chain whether a contract is an Account or not.
-
-To address this issue, we have the {snip-6}[SNIP-6] proposal, which defines a standard interface for account contracts.
-
-=== ISRC6 Interface
-
-[,javascript]
-----
 /// Standard Account Interface
 trait ISRC6 {
     /// Executes a transaction through the account.
@@ -120,6 +71,26 @@ trait ISRC5 {
 Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling
 interoperability with the ecosystem.
 
+
+== Protocol-level methods
+
+In this section we will describe the methods that the protocol uses for abstracting the accounts. The first two
+are required for enabling accounts to be used for executing transactions. The rest are optional:
+
+1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,
+but following the account abstraction design, the entrypoint implementation can be customized to feature any
+validation mechanism.
+
+2. `\\__execute__` executes the transaction if the validation is successful.
+
+3. `\\__validate_declare__` optional entrypoint similar to `\\__validate__` but for transactions
+meant to declare other contracts.
+
+4. `\\__validate_deploy__` optional entrypoint similar to `\\__validate__` but meant for {counterfactual}.
+
+NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
+but to be called by the Starknet OS in the transaction execution flow.
+
 == Deploying an account
 
 In Starknet there are two ways of deploying smart contracts: using the `deploy_syscall` and doing
@@ -129,4 +100,4 @@ wraps and exposes the `deploy_syscall` to provide arbitrary deployments through 
 But if you don't have an account to invoke it, you will probably want to use the latter.
 
 To do counterfactual deployments, you need to implement another protocol-level entrypoint named
-`\\__validate_deploy__`. You can check the xref:/guides/deployment.adoc[Counterfactual Deployments] guide to learn how.
+`\\__validate_deploy__`. You can check the {counterfactual} guide to learn how.

@@ -387,7 +387,7 @@ May emit a {RoleGranted} event.
 
 [.contract-item]
 [[AccessControl-_revoke_role]]
-==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractState)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
 
 Revokes `role` from `account`.
 

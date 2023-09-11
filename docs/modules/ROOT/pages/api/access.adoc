@@ -1,6 +1,8 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :AccessControl: xref:AccessControl[AccessControl]
 :Ownable: xref:Ownable[Ownable]
+:src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
+:_set_role_admin: xref:#AccessControl-_set_role_admin[_set_role_admin]
 
 = Access Control
 
@@ -9,10 +11,10 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 This directory provides ways to restrict who can access the functions of a contract or when they can do it.
 
+- {Ownable} is a simple mechanism with a single owner "role" that can be assigned to a single account.
+This mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
 - {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and
 assigned each to multiple accounts.
-- {Ownable} is a simpler mechanism with a single owner "role" that can be assigned to a single account.
-This simpler mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
 
 == Authorization
 
@@ -140,7 +142,8 @@ Emitted when the ownership is transferred.
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 ```
 
-External interface of AccessControl declared to support https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5] detection.
+External interface of AccessControl declared to support {src5} detection.
+The {src5} ID for this interface is `0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751`.
 
 [.contract-index]
 .Functions
@@ -178,7 +181,7 @@ Returns `true` if `account` has been granted `role`.
 Returns the admin role that controls `role`. See {grant_role} and
 {revoke_role}.
 
-To change a role's admin, use {AccessControl-_setRoleAdmin}.
+To change a role's admin, use {_set_role_admin}.
 
 [.contract-item]
 [[IAccessControl-grant_role]]
@@ -261,7 +264,6 @@ Emitted when `account` is revoked `role`.
 :assert_only_role: xref:#AccessControl-assert_only_role
 :grant_role: xref:#AccessControl-grant_role[grant_role]
 :revoke_role: xref:#AccessControl-revoke_role[revoke_role]
-:set_role_admin: xref:#AccessControl-set_role_admin[set_role_admin]
 
 [.hljs-theme-light.nopadding]
 ```javascript
@@ -371,7 +373,7 @@ Initializes the contract by registering the IAccessControl interface ID.
 [[AccessControl-_set_role_admin]]
 ==== `[.contract-item-name]#++_set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
 
-Sets `adminRole` as ``role``'s admin role.
+Sets `admin_role` as ``role``'s admin role.
 
 Emits a {RoleAdminChanged} event.
 
@@ -408,7 +410,7 @@ Returns `true` if `account` has been granted `role`.
 Returns the admin role that controls `role`. See {grant_role} and
 {revoke_role}.
 
-To change a role's admin, use {_setRoleAdmin}.
+To change a role's admin, use {_set_role_admin}.
 
 [.contract-item]
 [[AccessControl-grant_role_]]

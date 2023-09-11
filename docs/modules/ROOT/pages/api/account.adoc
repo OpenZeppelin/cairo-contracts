@@ -19,7 +19,7 @@ use openzeppelin::account::interface::ISRC6;
 Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 [.contract-index]
-.External Functions
+.Functions
 --
 * xref:#ISRC6-\\__execute__[`++__execute__(calls)++`]
 * xref:#ISRC6-\\__validate__[`++__validate__(calls)++`]
@@ -27,7 +27,7 @@ Interface of the SRC6 Standard Account as defined in the {snip6}.
 --
 
 [#ISRC6-Functions]
-==== External Functions
+==== Functions
 
 [.contract-item]
 [[ISRC6-__execute__]]

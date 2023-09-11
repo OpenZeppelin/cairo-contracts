@@ -525,7 +525,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_tokenUri() {
+fn test_dual_tokenURI() {
     let (dispatcher, target) = setup_camel();
     assert(dispatcher.token_uri(TOKEN_ID) == URI, 'Should return URI');
 }
@@ -533,7 +533,7 @@ fn test_dual_tokenUri() {
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_tokenUri_exists_and_panics() {
+fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.token_uri(TOKEN_ID);
 }

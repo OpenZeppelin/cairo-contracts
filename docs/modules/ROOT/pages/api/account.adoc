@@ -45,7 +45,7 @@ NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/bl
 
 Validates a transaction before execution.
 
-Returns the short string `'VALID'` if valid, otherwise ir reverts.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[ISRC6-is_valid_signature]]
@@ -53,7 +53,7 @@ Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 Validates whether a signature is valid or not for the given message hash.
 
-Returns the short string `'VALID'` if valid, otherwise ir reverts.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[Account]]
@@ -75,7 +75,7 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 --
 
 [.contract-index]
-.Functions
+.External Functions
 --
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
@@ -101,6 +101,12 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+* xref:#Account-constructor[`++constructor(self, _public_key)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl
@@ -129,6 +135,14 @@ Validates that the caller is the account itself. Otherwise it reverts.
 
 [#Account-Functions]
 ==== Functions
+
+[.contract-item]
+[[Account-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, _public_key: felt252)++` [.item-kind]#constructor#
+
+Initializes the account with the given public key, and registers the ISRC6 interface ID.
+
+Emits an {OwnerAdded} event.
 
 [.contract-item]
 [[Account-__validate_deploy__]]
@@ -206,7 +220,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[Account-_set_public_key]]
 ==== `[.contract-item-name]#++_set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#internal#
 
-Set the public key without asserting the caller.
+Set the public key without validating the caller.
 
 Emits an {OwnerAdded} event.
 

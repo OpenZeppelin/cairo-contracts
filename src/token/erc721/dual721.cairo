@@ -56,7 +56,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
+            *self.contract_address, selectors::token_uri, selectors::tokenURI, args.span()
         )
             .unwrap_and_cast()
     }

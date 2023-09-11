@@ -17,7 +17,6 @@ TIP: For detailed information on the usage and implementation check the {erc721-
  ** <<token_transfers,Token Transfers>>
  ** <<receiving_tokens,Receiving tokens>>
  ** <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
- ** <<supporting_interfaces,Supporting Interfaces>>
 * <<presets,Presets>>
 * <<extensions,Extensions>>
  ** <<erc721metadata,ERC721Metadata>>
@@ -106,12 +105,13 @@ See <<erc721received,ERC721Received>>.
 
 :erc165-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/100[this discussion]
 :src-6: https://community.starknet.io/t/snip-starknet-standard-account/95665[SRC-6 in Starknet Shamans]
+:src-5: xref:introspection.adoc#src5[SRC-5]
 
 In order to be sure a contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface (as expressed in the EIP721 specification).
 Methods such as `safe_transfer_from` and `_safe_mint` call the recipient contract's `on_erc721_received` method.
 If the contract fails to return the correct magic value, the transaction fails.
 
-Starknet contracts that support safe transfers, however, must also support xref:introspection.adoc#src5[SRC5] and include `supports_interface` as proposed (originally as ERC165) in {erc165-discussion}.
+Starknet contracts that support safe transfers, however, must also support {src-5} and include `supports_interface` as proposed (originally as ERC165) in {erc165-discussion}.
 `safe_transfer_from` requires a means of differentiating between account and non-account contracts.
 Account contracts must support the Starknet standard account interface in order to communicate the contract's ability to receive safe NFT transfers.
 The standard account interface is drafted and defined as {src-6}.
@@ -144,10 +144,6 @@ Each field element equates to 252-bits (or 31.5 bytes) which means that a token'
 NOTE: Storing the URI as an array of felts was considered to accommodate larger strings.
 While this approach is more flexible regarding URIs, a returned array further deviates from the standard set in https://eips.ethereum.org/EIPS/eip-721[EIP721].
 Therefore, this library's ERC721 implementation sets URIs as a single field element.
-
-=== Supporting Interfaces
-
-TODO
 
 == Presets
 

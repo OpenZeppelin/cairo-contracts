@@ -356,7 +356,7 @@ accounts that have been granted it.
 [[AccessControl-assert_only_role]]
 ==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
 
-Throws if called by any account without the given `role`.
+Panics if called by any account without the given `role`.
 
 [#AccessControl-Functions]
 ==== Functions

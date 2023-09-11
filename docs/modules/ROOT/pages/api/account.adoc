@@ -53,7 +53,7 @@ Returns the short string `'VALID'` if valid, otherwise ir reverts.
 
 Validates whether a signature is valid or not for the given message hash.
 
-Returns the short string `'VALID'` if valid, otherwise ir reverts.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[Account]]

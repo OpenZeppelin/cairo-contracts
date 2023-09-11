@@ -19,7 +19,7 @@ use openzeppelin::account::interface::ISRC6;
 Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 [.contract-index]
-.Functions
+.External Functions
 --
 * xref:#ISRC6-\\__execute__[`++__execute__(calls)++`]
 * xref:#ISRC6-\\__validate__[`++__validate__(calls)++`]
@@ -27,7 +27,7 @@ Interface of the SRC6 Standard Account as defined in the {snip6}.
 --
 
 [#ISRC6-Functions]
-==== Functions
+==== External Functions
 
 [.contract-item]
 [[ISRC6-__execute__]]
@@ -75,9 +75,8 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 --
 
 [.contract-index]
-.Functions
+.External Functions
 --
-* xref:#Account-constructor[`++constructor(self, _public_key)++`]
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
 [.contract-subindex-inherited]
@@ -102,6 +101,12 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+* xref:#Account-constructor[`++constructor(self, _public_key)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl

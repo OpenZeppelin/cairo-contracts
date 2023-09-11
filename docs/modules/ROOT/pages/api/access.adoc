@@ -69,7 +69,7 @@ to restrict their use to the owner.
 [[Ownable-assert_only_owner]]
 ==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
 
-Throws if called by any account other than the owner.
+Panics if called by any account other than the owner.
 
 [#Ownable-Functions]
 ==== Functions

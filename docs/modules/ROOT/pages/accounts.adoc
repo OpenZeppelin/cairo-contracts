@@ -37,7 +37,7 @@ validation mechanism.
 meant to declare other contracts.
 
 
-NOTE: Even when this entrypoints can be called directly at contract level, they are not designed for that,
+NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
 but to be called by the Starknet OS in the transaction execution flow.
 
 === Interface

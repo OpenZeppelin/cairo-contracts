@@ -221,7 +221,7 @@ mod Account {
         assert(self == caller, 'Account: unauthorized');
     }
 
-    #[internal]
+    #[private]
     fn _execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
         let mut res = ArrayTrait::new();
         loop {
@@ -238,7 +238,7 @@ mod Account {
         res
     }
 
-    #[internal]
+    #[private]
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()

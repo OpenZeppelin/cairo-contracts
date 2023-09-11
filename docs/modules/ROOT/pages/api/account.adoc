@@ -77,6 +77,7 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [.contract-index]
 .Functions
 --
+* xref:#Account-constructor[`++constructor(self, _public_key)++`]
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
 [.contract-subindex-inherited]
@@ -129,6 +130,14 @@ Validates that the caller is the account itself. Otherwise it reverts.
 
 [#Account-Functions]
 ==== Functions
+
+[.contract-item]
+[[Account-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, _public_key: felt252)++` [.item-kind]#constructor#
+
+Initializes the account with the given public key, and registers the ISRC6 interface ID.
+
+Emits an {OwnerAdded} event.
 
 [.contract-item]
 [[Account-__validate_deploy__]]

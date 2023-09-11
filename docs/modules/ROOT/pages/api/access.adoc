@@ -377,7 +377,7 @@ Emits a {RoleAdminChanged} event.
 
 [.contract-item]
 [[AccessControl-_grant_role]]
-==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractState)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
 
 Grants `role` to `account`.
 

@@ -5,7 +5,7 @@
 = Introspection
 
 In the Ethereum ecosystem, smart contracts often need to exercise https://en.wikipedia.org/wiki/Type_introspection[type introspection]
-on other contracts, for interoperability purposes. The {eip165} standard supports this allowing contracts to declare
+on other contracts, for interoperability purposes. The {eip165} standard supports this by allowing contracts to declare
 their support for a given interface, and for other contracts to query this support.
 
 Starknet also exercises type introspection among smart contracts but with a different approach.

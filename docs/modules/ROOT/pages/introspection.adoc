@@ -10,7 +10,7 @@ their support for a given interface, and for other contracts to query this suppo
 
 Starknet also exercises type introspection among smart contracts but with a different approach.
 Instead of trying to replicate the EVM's interface ID calculation, the community
-has defined {src5} which is a Starknet-specific standard for type introspection:
+defined {src5} which is a Starknet-specific standard for type introspection:
 
 == SRC5
 

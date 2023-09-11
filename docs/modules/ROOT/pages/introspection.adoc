@@ -32,7 +32,7 @@ trait ISRC5 {
 The interface ID, as specified in the standard, is the https://en.wikipedia.org/wiki/Exclusive_or[XOR] of all the
 https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#extended-function-selector[Extended Function Selectors]
 of the interface. We strongly advise reading the SNIP to understand the specifics of obtaining these
-Extended Function Selectors, but there are tools that can help with this process, such as {src5-rs}.
+extended function selectors, but there are tools that can help with this process, such as {src5-rs}.
 
 === Registering interfaces
 

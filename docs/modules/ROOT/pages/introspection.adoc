@@ -5,12 +5,12 @@
 = Introspection
 
 In the Ethereum ecosystem, smart contracts often need to exercise https://en.wikipedia.org/wiki/Type_introspection[type introspection]
-on other contracts, for interoperability purposes. The {eip165} standard supports this allowing contracts to declare
+on other contracts, for interoperability purposes. The {eip165} standard supports this by allowing contracts to declare
 their support for a given interface, and for other contracts to query this support.
 
-Starknet is not an exception to this rule, having to exercise type introspection among smart contracts as well. From the
-differences between Starknet and Ethereum, instead of trying to replicate the EVM's interface ID calculation, the community
-has defined {src5} which is a Starknet-specific standard for type introspection:
+Starknet also exercises type introspection among smart contracts but with a different approach.
+Instead of trying to replicate the EVM's interface ID calculation, the community
+defined {src5} which is a Starknet-specific standard for type introspection:
 
 == SRC5
 
@@ -31,8 +31,8 @@ trait ISRC5 {
 
 The interface ID, as specified in the standard, is the https://en.wikipedia.org/wiki/Exclusive_or[XOR] of all the
 https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#extended-function-selector[Extended Function Selectors]
-of the interface. We strongly advice to read the SNIP for getting into the specifics of obtaining these
-Extended Function Selectors, but there are tools that can help with this process, such as {src5-rs}.
+of the interface. We strongly advise reading the SNIP to understand the specifics of obtaining these
+extended function selectors, but there are tools that can help with this process, such as {src5-rs}.
 
 === Registering interfaces
 

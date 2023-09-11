@@ -24,7 +24,7 @@ of contract that are used to validate and execute transactions, for which they m
 
 === Account methods
 
-The first two following methods are protocol-level enforced functions that must be implemented by any account contract.
+SRC6 standard account contracts must implement the following methods, the first two being enforced by the protocol.
 The third one is optional and can be used for enabling declarations.
 
 1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,

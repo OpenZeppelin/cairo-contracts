@@ -45,7 +45,7 @@ NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/bl
 
 Validates a transaction before execution.
 
-Returns the short string `'VALID'` if valid, otherwise ir reverts.
+Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[ISRC6-is_valid_signature]]

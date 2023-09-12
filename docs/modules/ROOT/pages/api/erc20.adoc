@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
-
+:casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 
 = ERC20
 
@@ -180,7 +180,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 --
 
 [#ERC20-Functions]
-==== Functions
+==== Constructor
 
 [.contract-item]
 [[constructor]]
@@ -188,6 +188,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
+
+==== External Functions
 
 [.contract-item]
 [[name]]
@@ -281,10 +283,6 @@ This function panics if:
 - The caller is the zero address.
 - `spender` is the zero address.
 
-==== ERC20Camel
-
-:casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
-
 [.contract-item]
 [[totalSupply]]
 ==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#camelCase#
@@ -325,7 +323,7 @@ See <<decrease_allowance,decrease_allowance>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
-==== Internal
+==== Internal Functions
 
 [.contract-item]
 [[initializer]]

@@ -94,7 +94,7 @@ mod ERC20 {
             self._balances.read(account)
         }
 
-        /// Returns the remaining number of tokens that `spender` will be
+        /// Returns the remaining number of tokens that `spender` is
         /// allowed to spend on behalf of `owner` through [transfer_from](transfer_from).
         /// This is zero by default.
         /// This value changes when [approve](approve) or [transfer_from](transfer_from)
@@ -162,7 +162,7 @@ mod ERC20 {
         }
     }
 
-    /// Atomically increases the allowance granted to `spender` by the caller.
+    /// Increases the allowance granted from the caller to `spender` by `added_value`.
     /// Emits an [Approval](Approval) event indicating the updated allowance.
     #[external(v0)]
     fn increase_allowance(
@@ -205,7 +205,7 @@ mod ERC20 {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         /// Initializes the contract by setting the token name and symbol.
-        /// This should be used inside of the contract's constructor.
+        /// To prevent reinitialization, this should only be used inside of a contract's constructor.
         fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
             self._name.write(name_);
             self._symbol.write(symbol_);
@@ -234,7 +234,7 @@ mod ERC20 {
             true
         }
 
-        /// Creates a `value` amount of tokens and assigns them to `account`, by
+        /// Creates a `value` amount of tokens and assigns them to `account`,
         /// transferring it from address(0).
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
         fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
@@ -244,8 +244,7 @@ mod ERC20 {
             self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
         }
 
-        /// Destroys a `value` amount of tokens from `account`, by transferring it
-        /// to address(0).
+        /// Destroys a `value` amount of tokens from `account`.
         /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
         fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), 'ERC20: burn from 0');

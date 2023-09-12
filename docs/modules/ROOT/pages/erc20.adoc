@@ -5,7 +5,7 @@
 :erc20-api: xref:/api/erc20.adoc[API Reference]
 
 The ERC20 token standard is a specification for {fungible-tokens}, a type of token where all the units are exactly equal to each other.
-The `ERC20.cairo` contract implements an approximation of {eip20} in Cairo for Starknet.
+The `token::erc20::ERC20` contract implements an approximation of {eip20} in Cairo for Starknet.
 
 TIP: For detailed information on the usage and implementation check the {erc20-api} section.
 
@@ -41,12 +41,11 @@ trait IERC20 {
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
-* It uses Cairo's `u256` instead of `felt252`.
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:
 
-* Function selectors are written in snake case as opposed to camel case in Solidity.
+* Function selectors are written in snake_case as opposed to camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
 
 == Extensibility
@@ -95,7 +94,7 @@ The ERC20 contract itself includes a basic implementation preset and can be used
 :erc20-basic: https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[ERC20]
 
 The {erc20-basic} preset offers a quick and easy setup for deploying a basic ERC20 token.
-This preset mints an inital supply which is necessary because it does not expose a minting function.
+This preset mints an inital supply and it does not expose a minting function.
 
 More presets coming soon!
 

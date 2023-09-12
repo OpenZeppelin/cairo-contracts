@@ -56,7 +56,7 @@ Returns the amount of tokens owned by `account`.
 [[IERC20-allowance]]
 ==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
 
-Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
+Returns the remaining number of tokens that `spender` is allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
 
 This value changes when <<approve,approve>> or <<transfer_from,transfer_from>> are called.
 
@@ -65,7 +65,7 @@ This value changes when <<approve,approve>> or <<transfer_from,transfer_from>> a
 ==== `[.contract-item-name]#++transfer++#++(recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 Moves `amount` tokens from the caller's token balance to `to`.
-Returns `true` on success.
+Returns `true` on success, reverts otherwise.
 
 Emits a <<Transfer,Transfer>> event.
 
@@ -80,7 +80,7 @@ This function panics if:
 
 Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
 `amount` is then deducted from the caller's allowance.
-Returns `true` on success.
+Returns `true` on success, reverts otherwise.
 
 Emits a <<Transfer,Transfer>> event.
 
@@ -94,7 +94,7 @@ This function panics if:
 ==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 Sets `amount` as the allowance of `spender` over the caller's tokens.
-Returns `true` on success.
+Returns `true` on success, reverts otherwise.
 
 Emits an <<Approval,Approval>> event.
 
@@ -115,7 +115,7 @@ Note that `value` may be zero.
 [[IERC20-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
-Emitted when the allowance of a `spender` for an `owner` is set by a call to <<approve,approve>>.
+Emitted when the allowance of a `spender` for an `owner` is set.
 `value` is the new allowance.
 
 [.contract]
@@ -175,7 +175,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 
 [.contract-item]
 [[constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name_: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
 
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
@@ -196,12 +196,12 @@ Returns the ticker symbol of the token.
 [[decimals]]
 ==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
 
-Returns the number of decimals the token uses - e.g. 8 means to divide the token amount by 100000000 to get its user representation.
+Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
 
 For example, if `decimals` equals `2`, a balance of `505` tokens should
 be displayed to a user as `5.05` (`505 / 10 ** 2`).
 
-Tokens usually opt for a value of 18, imitating the relationship between
+Tokens usually opt for a value of `18`, imitating the relationship between
 Ether and Wei. This is the default value returned by this function, unless
 a custom implementation is used.
 
@@ -248,8 +248,8 @@ See <<IERC20-approve,IERC20::approve>>.
 [[increase_allowance]]
 ==== `[.contract-item-name]#++increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
 
-Atomically increases the allowance granted to `spender` by the caller.
-Returns `true` on success.
+Increases the allowance granted from the caller to `spender` by `added_value`
+Returns `true` on success, reverts otherwise.
 
 Emits an <<Approval,Approval>> event.
 
@@ -262,7 +262,7 @@ This function panics if:
 [[decrease_allowance]]
 ==== `[.contract-item-name]#++decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256) → bool++` [.item-kind]#external#
 
-Atomically decreases the allowance granted to `spender` by the caller.
+Decreases the allowance granted from the caller to `spender` by `subtracted_value`
 Returns `true` on success.
 
 Emits an <<Approval,Approval>> event.
@@ -283,7 +283,7 @@ This should be used inside of the contract's constructor.
 [[_increase_allowance]]
 ==== `[.contract-item-name]#++_increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256)++` [.item-kind]#internal#
 
-Atomically increases the allowance granted to `spender` by the caller.
+Increases the allowance granted from the caller to `spender` by `added_value`
 
 Emits an <<Approval,Approval>> event.
 
@@ -291,7 +291,7 @@ Emits an <<Approval,Approval>> event.
 [[_decrease_allowance]]
 ==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256)++` [.item-kind]#internal#
 
-Atomically decreases the allowance granted to `spender` by the caller.
+Decreases the allowance granted from the caller to `spender` by `subtracted_value`
 
 Emits an <<Approval,Approval>> event.
 
@@ -299,7 +299,7 @@ Emits an <<Approval,Approval>> event.
 [[_mint]]
 ==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Creates an `amount` number of tokens and assigns them to `recipient`, by transferring them from the zero address.
+Creates an `amount` number of tokens and assigns them to `recipient`.
 
 Emits a <<Transfer,Transfer>> event with `from` being the zero address.
 
@@ -311,7 +311,7 @@ This function panics if:
 [[_burn]]
 ==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, account: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Destroys `amount` number of tokens from `account`, by transferring them to the zero address.
+Destroys `amount` number of tokens from `account`.
 
 Emits a <<Transfer,Transfer>> event with `to` set to the zero address.
 
@@ -323,7 +323,7 @@ This function panics if:
 [[_approve]]
 ==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Sets `amount` as the allowance of `spender` over the `owner` tokens.
+Sets `amount` as the allowance of `spender` over `owner`'s tokens.
 This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
 
 Emits an <<Approval,Approval>> event.

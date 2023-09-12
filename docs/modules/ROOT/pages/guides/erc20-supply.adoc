@@ -11,7 +11,7 @@ We'll go over two strategies for creating token supply.
 
 == Fixed Supply
 
-Let's say we want to create a token named MyToken with a fixed token supply.
+Let's say we want to create a token named `MyToken` with a fixed token supply.
 We can achieve this by setting the token supply in the constructor which will execute upon deployment.
 
 [,javascript]
@@ -42,15 +42,15 @@ mod MyToken {
 
 In the constructor, we're first grabbing the ERC20 state and calling the ERC20 initializer to set the token name and symbol.
 Next, we're calling the internal `_mint` function which creates `initial_supply` of tokens and allocates them to `recipient`.
-Since the internal `_mint` is not exposed in the ERC20 library, it will not be possible to create any more tokens.
+Since the internal `_mint` is not exposed in our contract, it will not be possible to create any more tokens.
 In other words, we've implemented a fixed token supply!
 
 == Dynamic Supply
 
 :access-control: xref:/access.adoc[Access Control]
 
-ERC20 contracts with a dynamic supply must include a mechanism for creating (and potentially destroying) tokens.
-Let's make a few changes to the almighty MyToken contract and create a minting mechanism.
+ERC20 contracts with a dynamic supply include a mechanism for creating or destroying tokens.
+Let's make a few changes to the almighty `MyToken` contract and create a minting mechanism.
 
 [,javascript]
 ----
@@ -88,7 +88,7 @@ We now have our minting mechanism!
 
 There is, however, a big problem.
 `mint` does not include any restrictions on who can call this function.
-For the sake of good practices, let's implement a simple permissioning mechanism with Ownable.
+For the sake of good practices, let's implement a simple permissioning mechanism with `Ownable`.
 
 [,javascript]
 ----
@@ -132,7 +132,7 @@ mod MyToken {
 }
 ----
 
-In the constructor, we pass the owner address to set the owner of the MyToken contract.
+In the constructor, we pass the owner address to set the owner of the `MyToken` contract.
 The `mint` function includes `assert_only_owner` which will ensure that only the contract owner can call this function.
 Now, we have a protected ERC20 minting mechanism to create a dynamic token supply.
 

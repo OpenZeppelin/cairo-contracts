@@ -285,7 +285,7 @@ This function panics if:
 
 [.contract-item]
 [[totalSupply]]
-==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#camelCase#
+==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#external#
 
 See <<IERC20::total_supply,IERC20::total_supply>>.
 
@@ -293,7 +293,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[balanceOf]]
-==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#camelCase#
+==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
 See <<IERC20::balance_of,IERC20::balance_of>>.
 
@@ -301,7 +301,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[transferFrom]]
-==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress) → bool++` [.item-kind]#camelCase#
+==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress) → bool++` [.item-kind]#external#
 
 See <<IERC20::transfer_from,IERC20::transfer_from>>.
 
@@ -309,7 +309,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[increaseAllowance]]
-==== `[.contract-item-name]#++increaseAllowance++#++(ref self: ContractState, spender: ContractAddress, addedValue: u256) → bool++` [.item-kind]#camelCase#
+==== `[.contract-item-name]#++increaseAllowance++#++(ref self: ContractState, spender: ContractAddress, addedValue: u256) → bool++` [.item-kind]#external#
 
 See <<increase_allowance,increase_allowance>>.
 
@@ -317,7 +317,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[decreaseAllowance]]
-==== `[.contract-item-name]#++decreaseAllowance++#++(ref self: ContractState, spender: ContractAddress, subtractedValue: u256) → bool++` [.item-kind]#camelCase#
+==== `[.contract-item-name]#++decreaseAllowance++#++(ref self: ContractState, spender: ContractAddress, subtractedValue: u256) → bool++` [.item-kind]#external#
 
 See <<decrease_allowance,decrease_allowance>>.
 

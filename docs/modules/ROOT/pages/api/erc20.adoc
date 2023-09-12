@@ -15,7 +15,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 [[IERC20]]
 === `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/interface.cairo#L6-L19[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc20::interface::IERC20;
 ```
@@ -122,7 +122,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 [[ERC20]]
 === `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc20::ERC20;
 ```

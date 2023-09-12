@@ -44,7 +44,7 @@ fn test_deregister_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('SRC5: invalid id', ))]
+#[should_panic(expected: ('SRC5: invalid id',))]
 fn test_deregister_default_interface() {
     let mut state = STATE();
     InternalImpl::deregister_interface(ref state, ISRC5_ID);

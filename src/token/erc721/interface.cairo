@@ -60,7 +60,7 @@ trait IERC721Metadata<TState> {
 
 #[starknet::interface]
 trait IERC721MetadataCamelOnly<TState> {
-    fn tokenUri(self: @TState, tokenId: u256) -> felt252;
+    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
 }
 
 //

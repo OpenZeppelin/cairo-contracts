@@ -27,17 +27,17 @@ Interface of the IERC20 standard as defined in {eip20}.
 --
 * xref:#IERC20-total_supply[`++total_supply()++`]
 * xref:#IERC20-balance_of[`++balance_of()++`]
-* xref:#IERC20-allowance[`++allowance(owner: ContractAddress, spender: ContractAddress)++`]
-* xref:#IERC20-transfer[`++transfer(recipient: ContractAddress, amount: u256)++`]
-* xref:#IERC20-transfer_from[`++transfer_from(sender: ContractAddress, recipient: ContractAddress, amount: u256)++`]
-* xref:#IERC20-approve[`++approve(spender: ContractAddress, amount: u256)++`]
+* xref:#IERC20-allowance[`++allowance(owner, spender)++`]
+* xref:#IERC20-transfer[`++transfer(recipient, amount)++`]
+* xref:#IERC20-transfer_from[`++transfer_from(sender, recipient, amount)++`]
+* xref:#IERC20-approve[`++approve(spender, amount)++`]
 --
 
 [.contract-index]
 .Events
 --
-* xref:#IERC20-Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
-* xref:#IERC20-Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+* xref:#IERC20-Transfer[`++Transfer(from, to, value)++`]
+* xref:#IERC20-Approval[`++Approval(owner, spender, value)++`]
 --
 
 [.contract-item]

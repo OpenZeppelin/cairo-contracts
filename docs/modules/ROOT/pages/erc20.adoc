@@ -39,6 +39,9 @@ trait IERC20 {
 
 === ERC20 compatibility
 
+:cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]
+:solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
+
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard, in the following ways:
 
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
@@ -47,6 +50,7 @@ But some differences can still be found, such as:
 
 * Function selectors are written in snake_case as opposed to camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
+* Function selectors are calculated differently between {cairo-selectors} and {solidity-selectors}.
 
 == Usage
 

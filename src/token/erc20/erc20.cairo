@@ -235,7 +235,7 @@ mod ERC20 {
         }
 
         /// Creates a `value` amount of tokens and assigns them to `account`,
-        /// transferring it from address(0).
+        /// transferring it from the zero address.
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
         fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             assert(!recipient.is_zero(), 'ERC20: mint to 0');

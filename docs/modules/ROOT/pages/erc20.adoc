@@ -9,15 +9,6 @@ The `token::erc20::ERC20` contract implements an approximation of {eip20} in Cai
 
 TIP: For detailed information on the usage and implementation check the {erc20-api} section.
 
-== Table of Contents
-
-* <<interface,Interface>>
- ** <<erc20_compatibility,ERC20 compatibility>>
-* <<usage,Usage>>
-* <<presets,Presets>>
- ** <<basic-erc20,Basic ERC20>>
-* <<extensions,Extensions>>
-
 == Interface
 
 [,javascript]

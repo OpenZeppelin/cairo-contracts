@@ -49,6 +49,23 @@ mod Account {
         public_key: felt252
     }
 
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnerAdded: OwnerAdded,
+        OwnerRemoved: OwnerRemoved,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnerAdded {
+        new_owner_guid: felt252
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnerRemoved {
+        removed_owner_guid: felt252
+    }
+
     mod Errors {
         const INVALID_CALLER: felt252 = 'Account: invalid caller';
         const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
@@ -138,7 +155,8 @@ mod Account {
 
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
-            self.public_key.write(new_public_key);
+            self.emit(OwnerRemoved { removed_owner_guid: self.public_key.read() });
+            self._set_public_key(new_public_key);
         }
     }
 
@@ -149,8 +167,7 @@ mod Account {
         }
 
         fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
-            assert_only_self();
-            self.public_key.write(newPublicKey);
+            PublicKeyImpl::set_public_key(ref self, newPublicKey);
         }
     }
 
@@ -173,7 +190,7 @@ mod Account {
         fn initializer(ref self: ContractState, _public_key: felt252) {
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
-            self.public_key.write(_public_key);
+            self._set_public_key(_public_key);
         }
 
         fn validate_transaction(self: @ContractState) -> felt252 {
@@ -182,6 +199,11 @@ mod Account {
             let signature = tx_info.signature;
             assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
             starknet::VALIDATED
+        }
+
+        fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
+            self.public_key.write(new_public_key);
+            self.emit(OwnerAdded { new_owner_guid: new_public_key });
         }
 
         fn _is_valid_signature(
@@ -226,6 +248,6 @@ mod Account {
     #[internal]
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
-        starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
+        starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()
     }
 }

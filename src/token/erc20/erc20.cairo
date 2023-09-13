@@ -180,7 +180,7 @@ mod ERC20 {
         increase_allowance(ref self, spender, addedValue)
     }
 
-    /// Atomically decreases the allowance granted to `spender` by the caller.
+    /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
     /// Emits an [Approval](Approval) event indicating the updated allowance.
     #[external(v0)]
     fn decrease_allowance(

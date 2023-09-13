@@ -13,7 +13,7 @@ TIP: For detailed information on the usage and implementation check the {erc20-a
 
 * <<interface,Interface>>
  ** <<erc20_compatibility,ERC20 compatibility>>
-* <<extensibility,Extensibility>>
+* <<usage,Usage>>
 * <<presets,Presets>>
  ** <<basic-erc20,Basic ERC20>>
 * <<extensions,Extensions>>
@@ -48,42 +48,60 @@ But some differences can still be found, such as:
 * Function selectors are written in snake_case as opposed to camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
 
-== Extensibility
+== Usage
 
 :components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
+:erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
-ERC20 contracts can be extended by utilizing the contract's `_unsafe_new_contract_state()`.
-The unsafe contract state allows access to the `ERC20Impl`.
-This enables `IERC20` methods to include additional behaviors.
-
-[,javascript]
-----
-#[external(v0)]
-fn transfer(self: @ContractState, recipient: ContractAddress, amount: u256) -> bool {
-    let unsafe_state = ERC20::unsafe_new_contract_state();
-
-    // Add custom logic here
-
-    ERC20::ERC20Impl::transfer(@unsafe_state, recipient, amount)
-}
-----
-
-The unsafe state also allows access to ERC20's `InternalImpl`.
-Having access to ERC20's internal implementation permits contracts, for example, to expose the internal methods like `_mint`.
+Using Contracts for Cairo, constructing an ERC20 contract requires setting up the constructor and exposing the ERC20 interface.
+Here's what that looks like:
 
 [,javascript]
 ----
-#[external(v0)]
-fn mint(self: @ContractState, to: ContractAddress, amount: u256) {
-    let unsafe_state = ERC20::unsafe_new_contract_state();
-    
-    // Ensures the mint function is protected!
-    assert_only_owner(); 
-    ERC20::InternalImpl::_mint(@unsafe_state, to, amount);
+#[starknet::contract]
+mod MyToken {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc20::ERC20;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        self: @ContractState,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        let name = 'MyToken';
+        let symbol = 'MTK';
+
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
+    }
+}
+
+    #[external(v0)]
+    impl MyTokenImpl of IERC20<ContractState> {
+        fn name(self: @ContractState) -> felt252 {
+            let mut unsafe_state = ERC20::unsafe_new_contract_state();
+            ERC20::ERC20Impl::name(ref unsafe_state, name, symbol); 
+        }
+
+        ...
+    }
 }
 ----
 
-WARNING: This mechanism is unsafe because storage members could clash among used contracts if not reviewed carefully. Extensibility will be revisited after {components} are introduced.
+In order for `MyToken` contract to extend the ERC20 contract, it utilizes the `unsafe_new_contract_state`.
+The unsafe contract state allows access to ERC20's implementations.
+With this access, the constructor first calls the initializer to set the token name and symbol.
+The constructor then calls `_mint` to create a fixed supply of tokens.
+
+TIP: For a more complete guide to ERC20 token mechanisms, see {erc20-supply}.
+
+In the external implementation, notice that `MyTokenImpl` is an implementation of `IERC20`.
+This ensures that the external implementation will include all of the methods defined in the interface.
 
 == Presets
 

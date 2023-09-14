@@ -130,9 +130,8 @@ use openzeppelin::token::erc20::ERC20;
 Implementation of the <<IERC20,IERC20>> interface.
 
 [.contract-index]
-.Functions
+.External Functions
 --
-* xref:#constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
 * xref:#name[`++name(self)++`]
 * xref:#symbol[`++symbol(self)++`]
 * xref:#decimals[`++decimals(self)++`]
@@ -157,6 +156,12 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
 * xref:#increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
 * xref:#decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+* xref:#constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl
@@ -180,7 +185,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 --
 
 [#ERC20-Functions]
-==== Constructor
+==== Functions
 
 [.contract-item]
 [[constructor]]
@@ -188,8 +193,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
-
-==== External Functions
 
 [.contract-item]
 [[name]]
@@ -322,8 +325,6 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 See <<decrease_allowance,decrease_allowance>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
-
-==== Internal Functions
 
 [.contract-item]
 [[initializer]]

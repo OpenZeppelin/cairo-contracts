@@ -381,7 +381,7 @@ Requirements:
 ==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Sets `amount` as the allowance of `spender` over `owner`'s tokens.
-This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
+This internal function is equivalent to <<IERC20::approve,IERC20::approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
 
 Emits an <<Approval,Approval>> event.
 

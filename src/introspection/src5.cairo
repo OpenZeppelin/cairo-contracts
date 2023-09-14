@@ -10,6 +10,10 @@ mod SRC5 {
         supported_interfaces: LegacyMap<felt252, bool>
     }
 
+    mod Errors {
+        const INVALID_ID: felt252 = 'SRC5: invalid id';
+    }
+
     #[external(v0)]
     impl SRC5Impl of interface::ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
@@ -34,7 +38,7 @@ mod SRC5 {
         }
 
         fn deregister_interface(ref self: ContractState, interface_id: felt252) {
-            assert(interface_id != interface::ISRC5_ID, 'SRC5: invalid id');
+            assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
             self.supported_interfaces.write(interface_id, false);
         }
     }

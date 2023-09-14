@@ -60,6 +60,19 @@ mod ERC721 {
         approved: bool
     }
 
+    mod Errors {
+        const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
+        const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
+        const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
+        const APPROVAL_TO_OWNER: felt252 = 'ERC721: approval to owner';
+        const SELF_APPROVAL: felt252 = 'ERC721: self approval';
+        const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
+        const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
+        const WRONG_SENDER: felt252 = 'ERC721: wrong sender';
+        const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
+        const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
+    }
+
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -103,7 +116,7 @@ mod ERC721 {
         }
 
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self._token_uri.read(token_id)
         }
     }
@@ -111,7 +124,7 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
         fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
-            assert(self._exists(tokenId), 'ERC721: invalid token ID');
+            assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
             self._token_uri.read(tokenId)
         }
     }
@@ -119,7 +132,7 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721Impl of interface::IERC721<ContractState> {
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            assert(!account.is_zero(), 'ERC721: invalid account');
+            assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
             self._balances.read(account)
         }
 
@@ -128,7 +141,7 @@ mod ERC721 {
         }
 
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self._token_approvals.read(token_id)
         }
 
@@ -144,7 +157,7 @@ mod ERC721 {
             let caller = get_caller_address();
             assert(
                 owner == caller || ERC721Impl::is_approved_for_all(@self, owner, caller),
-                'ERC721: unauthorized caller'
+                Errors::UNAUTHORIZED
             );
             self._approve(to, token_id);
         }
@@ -159,8 +172,7 @@ mod ERC721 {
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
             assert(
-                self._is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
             );
             self._transfer(from, to, token_id);
         }
@@ -173,8 +185,7 @@ mod ERC721 {
             data: Span<felt252>
         ) {
             assert(
-                self._is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
             );
             self._safe_transfer(from, to, token_id, data);
         }
@@ -242,7 +253,7 @@ mod ERC721 {
             let owner = self._owners.read(token_id);
             match owner.is_zero() {
                 bool::False(()) => owner,
-                bool::True(()) => panic_with_felt252('ERC721: invalid token ID')
+                bool::True(()) => panic_with_felt252(Errors::INVALID_TOKEN_ID)
             }
         }
 
@@ -262,7 +273,7 @@ mod ERC721 {
 
         fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
-            assert(owner != to, 'ERC721: approval to owner');
+            assert(owner != to, Errors::APPROVAL_TO_OWNER);
 
             self._token_approvals.write(token_id, to);
             self.emit(Approval { owner, approved: to, token_id });
@@ -274,14 +285,14 @@ mod ERC721 {
             operator: ContractAddress,
             approved: bool
         ) {
-            assert(owner != operator, 'ERC721: self approval');
+            assert(owner != operator, Errors::SELF_APPROVAL);
             self._operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
         fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            assert(!to.is_zero(), 'ERC721: invalid receiver');
-            assert(!self._exists(token_id), 'ERC721: token already minted');
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
+            assert(!self._exists(token_id), Errors::ALREADY_MINTED);
 
             self._balances.write(to, self._balances.read(to) + 1);
             self._owners.write(token_id, to);
@@ -292,9 +303,9 @@ mod ERC721 {
         fn _transfer(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
-            assert(!to.is_zero(), 'ERC721: invalid receiver');
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             let owner = self._owner_of(token_id);
-            assert(from == owner, 'ERC721: wrong sender');
+            assert(from == owner, Errors::WRONG_SENDER);
 
             // Implicit clear approvals, no need to emit an event
             self._token_approvals.write(token_id, Zeroable::zero());
@@ -324,7 +335,7 @@ mod ERC721 {
             self._mint(to, token_id);
             assert(
                 _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
-                'ERC721: safe mint failed'
+                Errors::SAFE_MINT_FAILED
             );
         }
 
@@ -337,12 +348,12 @@ mod ERC721 {
         ) {
             self._transfer(from, to, token_id);
             assert(
-                _check_on_erc721_received(from, to, token_id, data), 'ERC721: safe transfer failed'
+                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
             );
         }
 
         fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self._token_uri.write(token_id, token_uri)
         }
     }

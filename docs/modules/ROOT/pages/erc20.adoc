@@ -92,7 +92,7 @@ mod MyToken {
 }
 ----
 
-In order for `MyToken` contract to extend the ERC20 contract, it utilizes the `unsafe_new_contract_state`.
+In order for the `MyToken` contract to extend the ERC20 contract, it utilizes the `unsafe_new_contract_state`.
 The unsafe contract state allows access to ERC20's implementations.
 With this access, the constructor first calls the initializer to set the token name and symbol.
 The constructor then calls `_mint` to create a fixed supply of tokens.

@@ -1,4 +1,6 @@
+use starknet::ClassHash;
 use starknet::ContractAddress;
+use starknet::class_hash_const;
 use starknet::contract_address_const;
 
 const NAME: felt252 = 'NAME';
@@ -22,6 +24,10 @@ fn AUTHORIZED() -> ContractAddress {
 
 fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
+}
+
+fn CLASS_HASH_ZERO() -> ClassHash {
+    class_hash_const::<0>()
 }
 
 fn CALLER() -> ContractAddress {

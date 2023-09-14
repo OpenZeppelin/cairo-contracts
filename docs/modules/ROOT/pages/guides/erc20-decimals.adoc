@@ -1,0 +1,93 @@
+= Customizing decimals
+
+:floating-point: https://en.wikipedia.org//wiki/Floating-point_arithmetic[floating-point numbers]
+:eip-discussion: https://github.com/ethereum/EIPs/issues/724[EIP discussion]
+
+Cairo, like Solidity, does not support {floating-point}.
+To get around this limitation, ERC20 offers a `decimals` field which communicates to outside interfaces (wallets, exchanges, etc.) how the token should be displayed.
+For instance, suppose a token had a `decimals` value of `3` and the total token supply was `1234`.
+An outside interface would display the token supply as `1.234`.
+In the actual contract, however, the supply would still be the integer `1234`.
+In other words, *the decimals field in no way changes the actual arithmetic* because all operations are still performed on integers.
+
+Most contracts use `18` decimals and this was even proposed to be compulsory (see the {eip-discussion}).
+The Contracts for Cairo ERC20 implementation of `decimals` returns `18` by default to save on gas fees.
+For those who want an ERC20 token with a configurable number of decimals, the following guide shows two ways to achieve this.
+
+== The static approach
+
+The simplest way to customize `decimals` consists of returning the target value when exposing the `decimals` method.
+For example:
+
+[,javascript]
+----
+#[external(v0)]
+impl MyTokenImpl of IERC20<ContractState> {
+    ...
+
+
+    fn decimals(self: @ContractState) -> u8 {
+        // Change the `3` below to the desired number of decimals
+        3 
+    }
+
+    ...
+}
+
+----
+
+== The storage approach
+
+For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate. 
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyToken {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc20::ERC20;
+
+    #[storage]
+    struct Storage {
+        // The decimals value is stored locally
+        _decimals: u8,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        decimals: u8
+    ) {
+        // Call the internal function that writes decimals to storage
+        self._set_decimals(decimals);
+
+        // Initialize ERC20
+        let name = 'MyToken';
+        let symbol = 'MTK';
+
+        let mut unsafe_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+    }
+
+    /// This is a standalone function for brevity.
+    /// It's recommended to create an implementation of IERC20
+    /// to ensure that the contract exposes the entire ERC20 interface.
+    /// See the previous example.
+    #[external(v0)]
+    fn decimals(self: @ContractState) -> u8 {
+        self._decimals.read()
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn _set_decimals(ref self: ContractState, decimals: u8) {
+            self._decimals.write(decimals);
+        }
+    }
+}
+----
+
+This contract expects a `decimals` argument in the constructor and uses an internal function to write the decimals to storage.
+Note that the `_decimals` state variable must be stored in the local contract's storage because this variable does not exist in the Contracts for Cairo library.
+It's important to include the correct logic in the exposed `decimals` method and to NOT use the Contracts for Cairo `decimals` implementation in this specific case.
+The library's `decimals` implementation does not read from storage and will return `18`.

@@ -47,6 +47,8 @@ But some differences can still be found, such as:
 
 :components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
+:erc20-decimals: xref:/guides/erc20-decimals.adoc[Customizing Decimals]
+:api-decimals: xref:/api/erc20.adoc#IERC20::decimals[decimals]
 
 WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
 This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully.
@@ -101,6 +103,11 @@ TIP: For a more complete guide to ERC20 token mechanisms, see {erc20-supply}.
 
 In the external implementation, notice that `MyTokenImpl` is an implementation of `IERC20`.
 This ensures that the external implementation will include all of the methods defined in the interface.
+
+=== Decimals
+
+The {api-decimals} method of this library's ERC20 implementation returns `18` by default.
+To set a custom `decimals` value, see the {erc20-decimals} guide.
 
 == Presets
 

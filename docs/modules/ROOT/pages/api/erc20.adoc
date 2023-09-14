@@ -25,6 +25,9 @@ Interface of the IERC20 standard as defined in {eip20}.
 [.contract-index]
 .Functions
 --
+* xref:#IERC20::name[`++name()++`]
+* xref:#IERC20::symbol[`++symbol()++`]
+* xref:#IERC20::decimals[`++decimals()++`]
 * xref:#IERC20::total_supply[`++total_supply()++`]
 * xref:#IERC20::balance_of[`++balance_of()++`]
 * xref:#IERC20::allowance[`++allowance(owner, spender)++`]
@@ -39,6 +42,34 @@ Interface of the IERC20 standard as defined in {eip20}.
 * xref:#IERC20::Transfer[`++Transfer(from, to, value)++`]
 * xref:#IERC20::Approval[`++Approval(owner, spender, value)++`]
 --
+
+[.contract-item]
+[[IERC20::name]]
+==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+
+Returns the name of the token.
+
+[.contract-item]
+[[IERC20::symbol]]
+==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+
+Returns the ticker symbol of the token.
+
+[.contract-item]
+[[IERC20::decimals]]
+==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+
+Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
+
+For example, if `decimals` equals `2`, a balance of `505` tokens should
+be displayed to a user as `5.05` (`505 / 10 ** 2`).
+
+Tokens usually opt for a value of `18`, imitating the relationship between
+Ether and Wei. This is the default value returned by this function, unless
+a custom implementation is used.
+
+NOTE: This information is only used for _display_ purposes: it in
+no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[IERC20::total_supply]]
@@ -132,15 +163,15 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .External Functions
 --
-* xref:#name[`++name(self)++`]
-* xref:#symbol[`++symbol(self)++`]
-* xref:#decimals[`++decimals(self)++`]
 * xref:#increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 
 [.contract-subindex-inherited]
 .IERC20
 
+* xref:#name[`++name(self)++`]
+* xref:#symbol[`++symbol(self)++`]
+* xref:#decimals[`++decimals(self)++`]
 * xref:#total_supply[`++total_supply(self)++`]
 * xref:#balance_of[`++balance_of(self, account)++`]
 * xref:#allowance[`++allowance(self, owner, spender)++`]
@@ -193,34 +224,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
-
-[.contract-item]
-[[name]]
-==== `[.contract-item-name]#++name++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-Returns the name of the token.
-
-[.contract-item]
-[[symbol]]
-==== `[.contract-item-name]#++symbol++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-Returns the ticker symbol of the token.
-
-[.contract-item]
-[[decimals]]
-==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
-
-Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
-
-For example, if `decimals` equals `2`, a balance of `505` tokens should
-be displayed to a user as `5.05` (`505 / 10 ** 2`).
-
-Tokens usually opt for a value of `18`, imitating the relationship between
-Ether and Wei. This is the default value returned by this function, unless
-a custom implementation is used.
-
-NOTE: This information is only used for _display_ purposes: it in
-no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[total_supply]]

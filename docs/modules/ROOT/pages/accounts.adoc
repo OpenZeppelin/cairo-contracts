@@ -78,8 +78,7 @@ In this section we will describe the methods that the protocol uses for abstract
 are required for enabling accounts to be used for executing transactions. The rest are optional:
 
 1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,
-but following the account abstraction design, the entrypoint implementation can be customized to feature any
-validation mechanism.
+but the entrypoint implementation can be customized to feature any validation mechanism https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/validate_and_execute/#validate_limitations[with some limitations].
 
 2. `\\__execute__` executes the transaction if the validation is successful.
 

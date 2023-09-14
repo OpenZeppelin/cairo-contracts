@@ -394,15 +394,17 @@ This function panics if:
 [[_transfer]]
 ==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Sets `amount` as the allowance of `spender` over the `owner` tokens.
-This internal function is equivalent to `approve`, and can be used to e.g. set automatic allowances for certain subsystems, etc.
+Moves amount of tokens from `from` to `to`.
 
-Emits an <<Approval,Approval>> event.
+This internal function is equivalent to <<IERC20::transfer,IERC20::transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
 
-This function panics if:
+Emits a <<Transfer,Transfer>> event.
 
-- `owner` is the zero address.
-- `spender` is the zero address.
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `from` must have a balance of at least `amount`.
 
 [.contract-item]
 [[_spend_allowance]]

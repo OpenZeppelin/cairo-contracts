@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverPanicMock;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::SnakeERC721ReceiverMock;

@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 
-use starknet::ContractAddress;
-
 #[starknet::contract]
 mod ERC721 {
-    use array::SpanTrait;
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
+    use openzeppelin::introspection::src5::unsafe_state as src5_state;
     use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
     use openzeppelin::token::erc721::interface;
-    use option::OptionTrait;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {
@@ -92,16 +88,14 @@ mod ERC721 {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            src5::SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            src5::SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
@@ -242,7 +236,7 @@ mod ERC721 {
             self._name.write(name_);
             self._symbol.write(symbol_);
 
-            let mut unsafe_state = src5::SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             src5::SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_ID);
             src5::SRC5::InternalImpl::register_interface(
                 ref unsafe_state, interface::IERC721_METADATA_ID

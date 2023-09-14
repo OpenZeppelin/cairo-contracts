@@ -43,3 +43,8 @@ mod SRC5 {
         }
     }
 }
+
+#[inline(always)]
+fn unsafe_state() -> SRC5::ContractState {
+    SRC5::unsafe_new_contract_state()
+}

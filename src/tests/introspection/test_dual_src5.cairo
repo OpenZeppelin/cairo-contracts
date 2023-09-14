@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
 use openzeppelin::introspection::interface::ISRC5CamelDispatcher;

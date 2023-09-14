@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (account/account.cairo)
 
-use array::ArrayTrait;
-use array::SpanTrait;
-use option::OptionTrait;
-use serde::Serde;
-use starknet::ContractAddress;
-use starknet::account::Call;
-
-const TRANSACTION_VERSION: felt252 = 1;
-
-// 2**128 + TRANSACTION_VERSION
-const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
-
 trait PublicKeyTrait<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
@@ -25,24 +13,19 @@ trait PublicKeyCamelTrait<TState> {
 
 #[starknet::contract]
 mod Account {
-    use array::ArrayTrait;
-    use array::SpanTrait;
-    use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
 
+    use openzeppelin::account::QUERY_VERSION;
+    use openzeppelin::account::TRANSACTION_VERSION;
     use openzeppelin::account::interface;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
-    use option::OptionTrait;
+    use openzeppelin::introspection::src5::unsafe_state as src5_state;
+    use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
-
-    use super::Call;
-    use super::QUERY_VERSION;
-    use super::TRANSACTION_VERSION;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {
@@ -134,16 +117,14 @@ mod Account {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
@@ -188,7 +169,7 @@ mod Account {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, _public_key: felt252) {
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
             self._set_public_key(_public_key);
         }

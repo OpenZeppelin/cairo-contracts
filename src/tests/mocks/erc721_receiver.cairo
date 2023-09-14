@@ -3,7 +3,6 @@ const FAILURE: felt252 = 456456;
 
 #[starknet::contract]
 mod ERC721Receiver {
-    use array::SpanTrait;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;

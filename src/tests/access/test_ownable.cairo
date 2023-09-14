@@ -6,11 +6,9 @@ use openzeppelin::access::ownable::Ownable::_owner::InternalContractMemberStateT
 use openzeppelin::access::ownable::Ownable;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use zeroable::Zeroable;
 
 //
 // Setup

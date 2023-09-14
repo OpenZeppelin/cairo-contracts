@@ -1,7 +1,6 @@
 use ERC721::_owners::InternalContractMemberStateTrait as OwnersTrait;
 use ERC721::_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
-use array::ArrayTrait;
 use integer::u256;
 use integer::u256_from_felt252;
 use openzeppelin::account::Account;
@@ -23,12 +22,9 @@ use openzeppelin::token::erc721::ERC721::{
 };
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
-use option::OptionTrait;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
-use traits::Into;
-use zeroable::Zeroable;
 
 fn DATA(success: bool) -> Span<felt252> {
     let mut data = array![];

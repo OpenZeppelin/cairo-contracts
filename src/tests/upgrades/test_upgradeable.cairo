@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1Dispatcher;
 use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1DispatcherTrait;
 use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
@@ -7,14 +6,12 @@ use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
 use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
 use openzeppelin::tests::utils;
 use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
-use option::OptionTrait;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoClassHash;
 use starknet::class_hash_const;
 use starknet::contract_address_const;
 use starknet::testing;
-use traits::TryInto;
 
 const VALUE: felt252 = 123;
 

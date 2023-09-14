@@ -1,4 +1,3 @@
-use array::ArrayTrait;
 use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
 use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;

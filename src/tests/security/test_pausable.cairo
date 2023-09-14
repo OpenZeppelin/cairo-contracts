@@ -5,7 +5,6 @@ use openzeppelin::security::pausable::Pausable::Unpaused;
 use openzeppelin::security::pausable::Pausable;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
-use option::OptionTrait;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;

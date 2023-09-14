@@ -1,5 +1,3 @@
-use array::ArrayTrait;
-use core::traits::Into;
 use openzeppelin::account::Account::OwnerAdded;
 use openzeppelin::account::Account::OwnerRemoved;
 use openzeppelin::account::Account::PublicKeyCamelImpl;
@@ -18,8 +16,6 @@ use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use option::OptionTrait;
-use serde::Serde;
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;

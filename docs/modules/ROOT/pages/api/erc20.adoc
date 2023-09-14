@@ -100,10 +100,10 @@ Returns `true` on success, reverts otherwise.
 
 Emits a <<Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- The caller is the zero address.
-- `recipient` is the zero address.
+- `recipient` cannot be the zero address.
+- The caller must have a balance of at least `amount`.
 
 [.contract-item]
 [[IERC20::transfer_from]]
@@ -115,10 +115,12 @@ Returns `true` on success, reverts otherwise.
 
 Emits a <<Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `sender` is the zero address.
-- `recipient` is the zero address.
+- `sender` cannot be the zero address.
+- `recipient` cannot be the zero address.
+- `sender` must have a balance of at least `amount`.
+- The caller must have allowance for ``sender``'s tokens of at least `amount`.
 
 [.contract-item]
 [[IERC20::approve]]
@@ -129,10 +131,9 @@ Returns `true` on success, reverts otherwise.
 
 Emits an <<Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- The caller is the zero address.
-- `spender` is the zero address.
+- `spender` cannot be the zero address.
 
 [.contract-item]
 [[IERC20::Transfer]]
@@ -270,10 +271,9 @@ Returns `true` on success, reverts otherwise.
 
 Emits an <<Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- The caller is the zero address.
-- `spender` is the zero address.
+- `spender` cannot be the zero address.
 
 [.contract-item]
 [[decrease_allowance]]
@@ -284,10 +284,10 @@ Returns `true` on success.
 
 Emits an <<Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- The caller is the zero address.
-- `spender` is the zero address.
+- `spender` cannot be the zero address.
+- `spender` must have allowance for the caller of at least `subtracted_value`.
 
 [.contract-item]
 [[totalSupply]]
@@ -360,9 +360,9 @@ Creates an `amount` number of tokens and assigns them to `recipient`.
 
 Emits a <<Transfer,Transfer>> event with `from` being the zero address.
 
-This function panics if:
+Requirements:
 
-- `recipient` is the zero address.
+- `recipient` cannot be the zero address.
 
 [.contract-item]
 [[_burn]]
@@ -372,9 +372,9 @@ Destroys `amount` number of tokens from `account`.
 
 Emits a <<Transfer,Transfer>> event with `to` set to the zero address.
 
-This function panics if:
+Requirements:
 
-- `account` is the zero address.
+- `account` cannot be the zero address.
 
 [.contract-item]
 [[_approve]]
@@ -385,10 +385,10 @@ This internal function is equivalent to `approve`, and can be used to e.g. set a
 
 Emits an <<Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- `owner` is the zero address.
-- `spender` is the zero address.
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
 
 [.contract-item]
 [[_transfer]]

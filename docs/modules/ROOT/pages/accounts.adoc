@@ -88,8 +88,7 @@ meant to declare other contracts.
 
 4. `\\__validate_deploy__` optional entrypoint similar to `\\__validate__` but meant for {counterfactual}.
 
-NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
-but to be called by the Starknet OS in the transaction execution flow.
+NOTE: Although these entrypoints are available to the protocol for its regular transaction flow, they can also be called like any other method.
 
 == Deploying an account
 

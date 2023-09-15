@@ -14,7 +14,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 [[IERC721]]
 === `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc721::interface::IERC721;
 ```
@@ -167,7 +167,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 [[IERC721Metadata]]
 === `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc721::interface::IERC721Metadata;
 ```
@@ -235,7 +235,7 @@ If the URI is not set for `token_id`, the return value will be `0`.
 [[ERC721]]
 === `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc721::ERC721;
 ```
@@ -456,7 +456,7 @@ This function panics if:
 [[IERC721Receiver]]
 === `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
+[.hljs-theme-dark]
 ```javascript
 use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```

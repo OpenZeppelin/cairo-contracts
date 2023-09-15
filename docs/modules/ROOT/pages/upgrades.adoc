@@ -52,5 +52,5 @@ This allows developers to add features, update logic, and fix bugs without touch
 
 In Starknet, implementing a proxy pattern has an important limitation: there is no fallback mechanism to be used
 for redirecting every potential function call to the implementation contract. This means a generic proxy contract
-can't be implemented. Instead, a proxy contract must be implemented which each specific function that is going to be redirected.
+can't be implemented. Instead, a proxy contract must be implemented with each specific function that is going to be redirected.
 This can still be useful for example for upgrading the logic of some functions.

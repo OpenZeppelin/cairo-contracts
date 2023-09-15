@@ -2,12 +2,9 @@
 
 :eip-20: https://eips.ethereum.org/EIPS/eip-20[EIP20]
 
-In this guide, you will learn how to create an ERC20 token with a custom supply mechanism.
-We will showcase the creation of both a fixed supply and a dynamic supply that you will be able to apply to your own smart contract development practice.
-
 The standard interface implemented by tokens built on Starknet comes from the popular token standard on Ethereum called ERC20.
-{eip-20}, from which the ERC20 contract is derived, does not specify how tokens are created.
-We'll go over two strategies for creating token supply.
+{eip-20}, from which ERC20 contracts are derived, does not specify how tokens are created.
+This guide will go over strategies for creating both a fixed token supply and a dynamic token supply.
 
 == Fixed Supply
 

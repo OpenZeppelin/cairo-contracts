@@ -36,7 +36,7 @@ fn _upgrade(new_class_hash: ClassHash) {
 }
 ----
 
-NOTE: If the contract was deployed without this mechanism, the source code is effectively immutable.
+NOTE: If a contract is deployed without this mechanism, the source code is effectively immutable.
 
 == Proxies and Starknet
 

@@ -174,7 +174,7 @@ CAUTION: Make sure you fully understand how xref:api/access.adoc#AccessControl[A
 using it on your system, or copy-pasting the examples from this guide.
 
 While clear and explicit, this isn't anything we wouldn't have been able to achieve with
-xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines is in scenarios where granular
+xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines the most is in scenarios where granular
 permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:

@@ -24,7 +24,7 @@ The Starknet stack will use this class for processing transactions going through
 
 As mentioned, this class hash determines the contract source code, which is designed to be immutable.
 However, since sometimes it is necessary to update the contract source code, the `{replace_class_syscall}` syscall
-was introduced. This syscall allows to replace the class hash of an already deployed contract.
+was introduced. This syscall allows developers to replace the class hash of an already deployed contract.
 
 
 [,javascript]

@@ -25,15 +25,15 @@ Interface of the IERC20 standard as defined in {eip20}.
 [.contract-index]
 .Functions
 --
-* xref:#IERC20::name[`++name()++`]
-* xref:#IERC20::symbol[`++symbol()++`]
-* xref:#IERC20::decimals[`++decimals()++`]
-* xref:#IERC20::total_supply[`++total_supply()++`]
-* xref:#IERC20::balance_of[`++balance_of()++`]
-* xref:#IERC20::allowance[`++allowance(owner, spender)++`]
-* xref:#IERC20::transfer[`++transfer(recipient, amount)++`]
-* xref:#IERC20::transfer_from[`++transfer_from(sender, recipient, amount)++`]
-* xref:#IERC20::approve[`++approve(spender, amount)++`]
+* xref:#IERC20-name[`++name()++`]
+* xref:#IERC20-symbol[`++symbol()++`]
+* xref:#IERC20-decimals[`++decimals()++`]
+* xref:#IERC20-total_supply[`++total_supply()++`]
+* xref:#IERC20-balance_of[`++balance_of()++`]
+* xref:#IERC20-allowance[`++allowance(owner, spender)++`]
+* xref:#IERC20-transfer[`++transfer(recipient, amount)++`]
+* xref:#IERC20-transfer_from[`++transfer_from(sender, recipient, amount)++`]
+* xref:#IERC20-approve[`++approve(spender, amount)++`]
 --
 
 [.contract-index]
@@ -170,9 +170,9 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-subindex-inherited]
 .IERC20
 
-* xref:#name[`++name(self)++`]
-* xref:#symbol[`++symbol(self)++`]
-* xref:#decimals[`++decimals(self)++`]
+* xref:#ERC20-name[`++name(self)++`]
+* xref:#ERC20-symbol[`++symbol(self)++`]
+* xref:#ERC20-decimals[`++decimals(self)++`]
 * xref:#total_supply[`++total_supply(self)++`]
 * xref:#balance_of[`++balance_of(self, account)++`]
 * xref:#allowance[`++allowance(self, owner, spender)++`]

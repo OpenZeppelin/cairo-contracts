@@ -46,7 +46,7 @@ Interface of the IERC721 standard as defined in {eip721}.
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
 
-===== Functions
+==== Functions
 
 [.contract-item]
 [[IERC721-balance_of]]

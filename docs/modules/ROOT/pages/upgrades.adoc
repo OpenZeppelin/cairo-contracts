@@ -14,9 +14,9 @@ Starknet simplifies upgradeability by offering a syscall that "updates" the cont
 
 == Replacing Contract Classes
 
-For understanding how upgradeability works in Cairo, it is important to understand first the separation
-between a contract declaration and its instances. When deploying a contract, a requirement is that the
-source code must have been declared before. After deployment, the contract address is then associated to the previously
+It's important to understand the difference between a contract declaration and a contract instance in order to better comprehend how upgradeability works in Cairo.
+A contract must first be declared before it can be deployed.
+After deployment, the contract address is then associated to the previously
 declared {contract_class}, by passing the corresponding {class_hash}, becoming an "instance" of this "class".
 The Starknet stack will use this class for processing transactions going through the contract.
 

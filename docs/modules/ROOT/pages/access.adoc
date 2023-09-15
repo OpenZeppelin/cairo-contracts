@@ -389,7 +389,7 @@ Some ideas to consider:
 * Use Cairo friendly hashing algorithms like Poseidon, which are implemented in the
 https://github.com/starkware-libs/cairo/blob/main/corelib/src/poseidon.cairo[Cairo corelib].
 
-TIP: The `selector!` macro can be used for computing the {sn_keccak} in Cairo.
+TIP: The `selector!` macro can be used to compute {sn_keccak} in Cairo.
 
 === Interface
 

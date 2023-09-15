@@ -5,23 +5,24 @@ This section describes the interfaces OpenZeppelin Contracts for Cairo offer, an
 Interfaces can be found in the module tree under the `interface` submodule, such as `token::erc20::interface`. For example:
 
 ```javascript
-use openzeppelin::token::erc20::interface::IERC20Dispatcher;
+use openzeppelin::token::erc20::interface::IERC20;
 ```
 
 or
 
 ```javascript
-use openzeppelin::token::erc20::dual20::DualERC20Trait;
+use openzeppelin::token::erc20::dual20::DualCaseERC20;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.
 
-== Interface types
-The library offers three types of traits:
+== Interface traits
+The library offers three types of traits to implement or interact with contracts:
 
-=== Interface traits (`IERC20`)
+=== Standard traits
 
-These are associated with a predefined interface such a standard. This includes only the functions defined in the interface, and is the standard way to interact with a compliant contract.
+These are associated with a predefined interface such as a standard.
+This includes only the functions defined in the interface, and is the standard way to interact with a compliant contract.
 
 ```javascript
 #[starknet::interface]
@@ -40,9 +41,9 @@ trait IERC20<TState> {
 }
 ```
 
-=== ABI traits (`ERC20ABI`)
+=== ABI traits
 
-They describe a contract's interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes non-standard functions like `increase_allowance`.
+They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes non-standard functions like `increase_allowance`.
 
 ```javascript
 #[starknet::interface]
@@ -65,31 +66,31 @@ trait ERC20ABI<TState> {
 }
 ```
 
-=== Dispatcher traits (`DualERC20`)
+=== Dispatcher traits
 This is a utility trait to interface with contracts whose interface is unknown. Read more in the xref:#dualcase_dispatchers[DualCase Dispatchers] section.
 
 ```javascript
 #[derive(Copy, Drop)]
-struct DualERC20 {
+struct DualCaseERC20 {
     contract_address: ContractAddress
 }
 
-trait DualERC20Trait {
-    fn name(self: @DualERC20) -> felt252;
-    fn symbol(self: @DualERC20) -> felt252;
-    fn decimals(self: @DualERC20) -> u8;
-    fn total_supply(self: @DualERC20) -> u256;
-    fn balance_of(self: @DualERC20, account: ContractAddress) -> u256;
-    fn allowance(self: @DualERC20, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(self: @DualERC20, recipient: ContractAddress, amount: u256) -> bool;
+trait DualCaseERC20Trait {
+    fn name(self: @DualCaseERC20) -> felt252;
+    fn symbol(self: @DualCaseERC20) -> felt252;
+    fn decimals(self: @DualCaseERC20) -> u8;
+    fn total_supply(self: @DualCaseERC20) -> u256;
+    fn balance_of(self: @DualCaseERC20, account: ContractAddress) -> u256;
+    fn allowance(self: @DualCaseERC20, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(self: @DualCaseERC20, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        self: @DualERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        self: @DualCaseERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
-    fn approve(self: @DualERC20, spender: ContractAddress, amount: u256) -> bool;
+    fn approve(self: @DualCaseERC20, spender: ContractAddress, amount: u256) -> bool;
 }
 ```
 
-== Dual Interfaces
+== Dual interfaces
 
 Following the https://community.starknet.io/t/the-great-interface-migration/92107[Great Interface Migration] plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.
 
@@ -144,16 +145,19 @@ trait IERC20Camel<TState> {
 }
 ```
 
-== `DualCase` Dispatchers
+== `DualCase` dispatchers
+
+WARNING: `DualCase` dispatchers won't work on live chains (`mainnet` or testnets) until they implement panic handling in their runtime. Dispatchers work fine in testing environments.
 
 In order to ease this transition, OpenZeppelin Contracts for Cairo offer what we call `DualCase` dispatchers such as `DualCaseERC721` or `DualCaseAccount`.
 
-These modules wrap a target contract with a compatibility layer to expose a `snake_case` interface no matter what casing the underlying contract uses. This way, an AMM wouldn't have problems integrating tokens independently of their interface.
+These modules wrap a target contract with a compatibility layer to expose a `snake_case` interface no matter what casing the underlying contract uses.
+This way, an AMM wouldn't have problems integrating tokens independently of their interface.
 
 For example:
 
 ```javascript
-let token = DualERC20 { contract_address: target };
+let token = DualCaseERC20 { contract_address: target };
 token.transfer_from(OWNER(), RECIPIENT(), VALUE);
 ```
 

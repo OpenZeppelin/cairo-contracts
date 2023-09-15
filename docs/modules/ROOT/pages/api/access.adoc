@@ -22,7 +22,6 @@ assigned each to multiple accounts.
 [[Ownable]]
 === `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::access::ownable::Ownable;
 ```
@@ -137,13 +136,17 @@ Emitted when the ownership is transferred.
 :RoleRevoked: xref:#IAccessControl-RoleRevoked[RoleRevoked]
 :RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
 
-[.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 ```
 
-External interface of AccessControl declared to support {src5} detection.
-The {src5} ID for this interface is `0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751`.
+External interface of AccessControl.
+
+[.contract-index]
+.Interface ID
+--
+0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751
+--
 
 [.contract-index]
 .Functions
@@ -153,7 +156,6 @@ The {src5} ID for this interface is `0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f
 * xref:IAccessControl-grant_role[`++grant_role(role, account)++`]
 * xref:IAccessControl-revoke_role[`++revoke_role(role, account)++`]
 * xref:IAccessControl-renounce_role[`++renounce_role(role, account)++`]
-
 --
 
 [.contract-index]
@@ -265,7 +267,6 @@ Emitted when `account` is revoked `role`.
 :grant_role: xref:#AccessControl-grant_role[grant_role]
 :revoke_role: xref:#AccessControl-revoke_role[revoke_role]
 
-[.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::access::accesscontrol::AccessControl;
 ```
@@ -313,20 +314,12 @@ accounts that have been granted it.
 [.contract-index]
 .Utilities
 --
-* xref:#AccessControl-assert_only_role[`++InternalImpl::assert_only_role(self: @ContractState, role: felt252)++`]
+* xref:#AccessControl-assert_only_role[`++InternalImpl::assert_only_role(self, role)++`]
 --
 
 [.contract-index]
-.Functions
+.External Functions
 --
-[.contract-subindex-inherited]
-.InternalImpl
-
-* xref:#AccessControl-initializer[`++initializer(self)++`]
-* xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
-* xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
-* xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
-
 [.contract-subindex-inherited]
 .AccessControlImpl
 
@@ -339,6 +332,18 @@ accounts that have been granted it.
 [.contract-subindex-inherited]
 .SRC5Impl
 * xref:#AccessControl-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+[.contract-subindex-inherited]
+.InternalImpl
+
+* xref:#AccessControl-initializer[`++initializer(self)++`]
+* xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
+* xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
+* xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
 --
 
 [.contract-index]
@@ -413,7 +418,7 @@ Returns the admin role that controls `role`. See {grant_role} and
 To change a role's admin, use {_set_role_admin}.
 
 [.contract-item]
-[[AccessControl-grant_role_]]
+[[AccessControl-grant_role]]
 ==== `[.contract-item-name]#++grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
 
 Grants `role` to `account`.

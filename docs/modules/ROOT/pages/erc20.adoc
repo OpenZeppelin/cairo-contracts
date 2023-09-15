@@ -83,7 +83,7 @@ mod MyToken {
     impl MyTokenImpl of IERC20<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             let mut unsafe_state = ERC20::unsafe_new_contract_state();
-            ERC20::ERC20Impl::name(ref unsafe_state, name, symbol); 
+            ERC20::ERC20Impl::name(@unsafe_state)
         }
 
         ...

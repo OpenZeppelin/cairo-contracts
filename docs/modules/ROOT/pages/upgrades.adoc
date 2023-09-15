@@ -8,16 +8,15 @@ Smart contracts are immutable by design, preventing any update after the contrac
 This supports decentralization and trustlessness, but in certain cases can be an drawback for example
 by removing the ability of fixing bugs or vulnerabilities.
 
-Multiple patterns have been developed for making a contract upgradeable. Being probably proxies the most widely addopted.
+Multiple patterns have been developed for making a contract upgradeable including the widely adopted proxy pattern.
 
-In Starknet, this mechanism has been simplified by adding a syscall that "updates" the contract source code,
-removing the need for proxies.
+Starknet simplifies upgradeability by offering a syscall that "updates" the contract source code, removing the need for proxies.
 
 == Replacing Contract Classes
 
-For understanding how upgradeability works in Cairo, it is important to understand first the separation
-between a contract declaration and its instances. When deploying a contract, a requirement is that the
-source code must have been declared before. After deployment, the contract address is then associated to the previously
+It's important to understand the difference between a contract declaration and a contract instance in order to better comprehend how upgradeability works in Cairo.
+A contract must first be declared before it can be deployed.
+After deployment, the contract address is then associated to the previously
 declared {contract_class}, by passing the corresponding {class_hash}, becoming an "instance" of this "class".
 The Starknet stack will use this class for processing transactions going through the contract.
 
@@ -25,7 +24,7 @@ The Starknet stack will use this class for processing transactions going through
 
 As mentioned, this class hash determines the contract source code, which is designed to be immutable.
 However, since sometimes it is necessary to update the contract source code, the `{replace_class_syscall}` syscall
-was introduced. This syscall allows to replace the class hash of an already deployed contract.
+was introduced. This syscall allows developers to replace the class hash of an already deployed contract.
 
 
 [,javascript]
@@ -37,7 +36,7 @@ fn _upgrade(new_class_hash: ClassHash) {
 }
 ----
 
-NOTE: If the contract was deployed without this mechanism, the source code is effectively immutable.
+NOTE: If a contract is deployed without this mechanism, the source code is effectively immutable.
 
 == Proxies and Starknet
 
@@ -54,5 +53,5 @@ This allows developers to add features, update logic, and fix bugs without touch
 
 In Starknet, implementing a proxy pattern has an important limitation: there is no fallback mechanism to be used
 for redirecting every potential function call to the implementation contract. This means a generic proxy contract
-can't be implemented. Instead, a proxy contract must be implemented which each specific function that is going to be redirected.
-This can still be useful for example for upgrading the logic of some functions.
+can't be implemented. Instead, a proxy contract must be implemented with each specific function that is going to be redirected.
+This can still be useful for example with upgrading the logic of some functions.

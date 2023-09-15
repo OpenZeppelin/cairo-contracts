@@ -10,8 +10,7 @@ by removing the ability of fixing bugs or vulnerabilities.
 
 Multiple patterns have been developed for making a contract upgradeable including the widely adopted proxy pattern.
 
-In Starknet, this mechanism has been simplified by adding a syscall that "updates" the contract source code,
-removing the need for proxies.
+Starknet simplifies upgradeability by offering a syscall that "updates" the contract source code, removing the need for proxies.
 
 == Replacing Contract Classes
 

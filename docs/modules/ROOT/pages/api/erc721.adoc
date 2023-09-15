@@ -60,9 +60,9 @@ Returns the number of NFTs owned by `account`.
 
 Returns the owner address of `token_id`.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
+- `token_id` exists.
 
 [.contract-item]
 [[IERC721-transfer_from]]
@@ -75,12 +75,12 @@ Usage of <<IERC721-safe_transfer_from,safe_transfer_from>> prevents loss, though
     
 Emits a <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- Caller is neither approved nor the `token_id` owner.
-- `to` is the zero address.
-- `from` is not the token owner.
-- `token_id` does not exist.
+- Caller either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
 
 [.contract-item]
 [[IERC721-safe_transfer_from]]
@@ -93,13 +93,13 @@ awareness of the ERC721 protocol, see {erc721-receiver}.
     
 Emits a <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- Caller is neither approved nor the `token_id` owner.
-- `to` is the zero address.
-- `from` is not the token owner.
-- `token_id` does not exist.
-- `to` neither is an account contract nor supports the IERC721Receiver interface.
+- Caller is either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
+- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[IERC721-approve]]
@@ -109,11 +109,11 @@ Change or reaffirm the approved address for an NFT.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- Caller is neither an approved operator nor the `token_id` owner.
-- `to` is either the `owner` or the zero address.
-- `token_id` does not exist.
+- The caller is either an approved operator or the `token_id` owner.
+- `to` cannot be the token owner or the zero address.
+- `token_id` exists.
 
 [.contract-item]
 [[IERC721-set_approval_for_all]]
@@ -123,9 +123,9 @@ Enable or disable approval for `operator` to manage all of the caller's assets.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- `owner` is the `operator`.
+- `operator` cannot be the caller.
 
 [.contract-item]
 [[IERC721-get_approved]]
@@ -133,9 +133,9 @@ This function panics if:
 
 Returns the address approved for `token_id`.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
+- `token_id` exists.
 
 [.contract-item]
 [[IERC721-is_approved_for_all]]
@@ -336,9 +336,9 @@ Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop ex
 
 Internal function that returns whether `spender` is allowed to manage `token_id`.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
+- `token_id` exists.
 
 [.contract-item]
 [[ERC721-_approve]]
@@ -348,10 +348,10 @@ Internal function that changes or reaffirms the approved address for an NFT.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
-- `to` is the current token owner.
+- `token_id` exists.
+`to` is not the current token owner.
 
 [.contract-item]
 [[ERC721-_set_approval_for_all]]
@@ -362,9 +362,9 @@ Internal function that enables or disables approval for `operator` to manage all
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-This function panics if:
+Requirements:
 
--`owner` is the `operator`.
+- `operator` cannot be the caller.
 
 [.contract-item]
 [[ERC721-_mint]]
@@ -376,10 +376,10 @@ Internal function that mints `token_id` and transfers it to `to`.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `to` is the zero address.
-- `token_id` already exists.
+- `to` is not the zero address.
+- `token_id` does not already exist.
 
 [.contract-item]
 [[ERC721-_transfer]]
@@ -389,11 +389,11 @@ Internal function that transfers `token_id` from `from` to `to`.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `to` is the zero address.
-- `from` is not the token owner.
-- `token_id` does not exist.
+- `to` is not the zero address.
+- `from` is the token owner.
+- `token_id` exists.
 
 [.contract-item]
 [[ERC721-_burn]]
@@ -405,9 +405,9 @@ This internal function does not check if the sender is authorized to operate on 
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
+`token_id` exists.
 
 [.contract-item]
 [[ERC721-_safe_mint]]
@@ -418,10 +418,15 @@ If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721R
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
-- `to` neither is an account contract nor supports the <<IERC721Receiver,IERC721Receiver>> interface.
+`token_id` exists.
+- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+
+Requirements:
+
+- `token_id` exists.
+- `to` either is an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[ERC721-_safe_transfer]]
@@ -435,12 +440,12 @@ This function is equivalent to <<IERC721-safe_transfer_from,safe_transfer_from>>
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 
-This function panics if:
+Requirements:
 
-- `to` is the zero address.
-- `from` is not the token owner.
-- `token_id` does not exist.
-- `to` neither is an account contract nor supports the <<IERC721Receiver,IERC721Receiver>> interface.
+- `to` cannot be the zero address.
+- `from` must be the token owner.
+- `token_id` exists.
+- `to` either is an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[ERC721-_set_token_uri]]
@@ -448,9 +453,9 @@ This function panics if:
 
 Sets the `token_uri` of `token_id`.
 
-This function panics if:
+Requirements:
 
-- `token_id` does not exist.
+- `token_id` exists.
 
 [.contract]
 [[IERC721Receiver]]

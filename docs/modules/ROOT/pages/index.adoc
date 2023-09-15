@@ -45,7 +45,7 @@ Scarb.toml src
 
 ==== Install the library
 
-Add the library to your project be adding the openzeppelin dependency to the `Scarb.toml` file:
+Install the library by declaring it as a dependency in the project's `Scarb.toml` file:
 
 [,text]
 ----

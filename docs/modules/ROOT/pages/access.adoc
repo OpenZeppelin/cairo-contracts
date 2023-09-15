@@ -385,7 +385,7 @@ Cairo field elements (`felt252`) store a maximum of 252 bits.
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 
-* Use the {sn_keccak} instead.
+* Use {sn_keccak} instead.
 * Use Cairo friendly hashing algorithms like Poseidon, which are implemented in the
 https://github.com/starkware-libs/cairo/blob/main/corelib/src/poseidon.cairo[Cairo corelib].
 

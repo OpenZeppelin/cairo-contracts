@@ -4,7 +4,7 @@
 
 The standard interface implemented by tokens built on Starknet comes from the popular token standard on Ethereum called ERC20.
 {eip-20}, from which ERC20 contracts are derived, does not specify how tokens are created.
-This guide will go over strategies for creating both a fixed token supply and a dynamic token supply.
+This guide will go over strategies for creating both a fixed and dynamic token supply.
 
 == Fixed Supply
 

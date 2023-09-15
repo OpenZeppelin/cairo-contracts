@@ -9,7 +9,6 @@
 * Tokens
 ** xref:erc20.adoc[ERC20]
 *** xref:/guides/erc20-supply.adoc[Creating Supply]
-*** xref:/guides/erc20-decimals.adoc[Customizing Decimals]
 *** xref:/api/erc20.adoc[API Reference]
 ** xref:erc721.adoc[ERC721]
 ** xref:erc1155.adoc[ERC1155]

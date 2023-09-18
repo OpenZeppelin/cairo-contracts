@@ -410,7 +410,6 @@ trait IAccessControl {
 }
 ----
 
-AccessControl also lets you:
-
-- `renounce_role` from the calling account. The method expects an account as input as an extra security measure, to
-ensure you are not renuncing a role from an unintended account.
+`AccessControl` also lets you `renounce_role` from the calling account.
+The method expects an account as input as an extra security measure, to ensure you are
+not renuncing a role from an unintended account.

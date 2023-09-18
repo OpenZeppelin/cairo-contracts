@@ -2,6 +2,7 @@
 :AccessControl: xref:AccessControl[AccessControl]
 :Ownable: xref:Ownable[Ownable]
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5]
 :_set_role_admin: xref:#AccessControl-_set_role_admin[_set_role_admin]
 
 = Access Control
@@ -37,21 +38,24 @@ to restrict their use to the owner.
 --
 
 [.contract-index]
-.Functions
+.External Functions
 --
-[.contract-subindex-inherited]
-.InternalImpl
-
-* xref:Ownable-initializer[`++initializer(self, owner)++`]
-* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
-
 [.contract-subindex-inherited]
 .OwnableImpl
 
 * xref:Ownable-owner[`++owner(self)++`]
 * xref:Ownable-renounce_ownership[`++renounce_ownership(self)++`]
 * xref:Ownable-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
+--
 
+[.contract-index]
+.Internal Functions
+--
+[.contract-subindex-inherited]
+.InternalImpl
+
+* xref:Ownable-initializer[`++initializer(self, owner)++`]
+* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 --
 
 [.contract-index]
@@ -71,23 +75,6 @@ Panics if called by any account other than the owner.
 
 [#Ownable-Functions]
 ==== Functions
-
-[.contract-item]
-[[Ownable-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
-
-Initializes the contract setting `owner` as the initial owner.
-
-Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
-
-[.contract-item]
-[[Ownable-_transfer_ownership]]
-==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
-
-Transfers ownership of the contract to a new account (`new_owner`).
-Internal function without access restriction.
-
-Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
 [[Ownable-owner]]
@@ -111,6 +98,23 @@ thereby removing any functionality that is only available to the owner.
 
 Transfers ownership of the contract to a new account (`new_owner`).
 Can only be called by the current owner.
+
+Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
+
+Initializes the contract setting `owner` as the initial owner.
+
+Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-_transfer_ownership]]
+==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
+
+Transfers ownership of the contract to a new account (`new_owner`).
+Internal function without access restriction.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
@@ -140,7 +144,7 @@ use openzeppelin::access::accesscontrol::interface::IAccessControl;
 External interface of AccessControl.
 
 [.contract-index]
-.Interface ID
+.{inner-src5} ID
 --
 0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751
 --
@@ -366,40 +370,6 @@ Panics if called by any account without the given `role`.
 ==== Functions
 
 [.contract-item]
-[[AccessControl-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
-
-Initializes the contract by registering the IAccessControl interface ID.
-
-[.contract-item]
-[[AccessControl-_set_role_admin]]
-==== `[.contract-item-name]#++_set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
-
-Sets `admin_role` as ``role``'s admin role.
-
-Emits a {RoleAdminChanged} event.
-
-[.contract-item]
-[[AccessControl-_grant_role]]
-==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
-
-Grants `role` to `account`.
-
-Internal function without access restriction.
-
-May emit a {RoleGranted} event.
-
-[.contract-item]
-[[AccessControl-_revoke_role]]
-==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
-
-Revokes `role` from `account`.
-
-Internal function without access restriction.
-
-May emit a {RoleRevoked} event.
-
-[.contract-item]
 [[AccessControl-has_role]]
 ==== `[.contract-item-name]#++has_role++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
 
@@ -467,6 +437,40 @@ May emit a {RoleRevoked} event.
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
 See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
+
+[.contract-item]
+[[AccessControl-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Initializes the contract by registering the IAccessControl interface ID.
+
+[.contract-item]
+[[AccessControl-_set_role_admin]]
+==== `[.contract-item-name]#++_set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
+
+Sets `admin_role` as ``role``'s admin role.
+
+Emits a {RoleAdminChanged} event.
+
+[.contract-item]
+[[AccessControl-_grant_role]]
+==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
+
+Grants `role` to `account`.
+
+Internal function without access restriction.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControl-_revoke_role]]
+==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
+
+Revokes `role` from `account`.
+
+Internal function without access restriction.
+
+May emit a {RoleRevoked} event.
 
 [#AccessControl-Events]
 ==== Events

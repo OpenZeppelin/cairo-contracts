@@ -24,12 +24,18 @@ sierra: 1.3.0
 
 === Set up your project
 
-Create an empty directory, then `cd` into it, and initialize a new scarb project by running:
+Create an empty directory, and `cd` into it:
 
 [,bash]
 ----
-$ mkdir my_project/ && cd my_project/
-$ scarb init
+mkdir my_project/ && cd my_project/
+----
+
+Initialize a new Scarb project:
+
+[,bash]
+----
+scarb init
 ----
 
 The contents of `my_project/` should now look like this:

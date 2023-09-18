@@ -3,23 +3,12 @@
 :token-types: https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[non-fungible tokens]
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP-721]
 :erc721-api: xref:/api/erc721.adoc[API Reference]
+:introspection: xref:/introspection.adoc[Introspection]
 
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.
 The `erc721.cairo` contract implements an approximation of {eip721} in Cairo for StarkNet.
 
 TIP: For detailed information on the usage and implementation check the {erc721-api} section.
-
-== Table of Contents
-
-* <<ierc721,IERC721>>
-** <<erc721_compatibility,ERC721 Compatibility>>
-* <<usage,Usage>>
- ** <<token_transfers,Token Transfers>>
- ** <<receiving_tokens,Receiving tokens>>
- ** <<interpreting_erc721_uris,Interpreting ERC721 URIs>>
-* <<presets,Presets>>
-* <<extensions,Extensions>>
- ** <<erc721metadata,ERC721Metadata>>
 
 == IERC721
 
@@ -70,10 +59,10 @@ But some differences can still be found, such as:
 The EIP721 standard, however, states that the return value should be of type string.
 If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters at this time.
-See <<interpreting_erc721_uris,Interpreting ERC721 URIs>>.
+See <<storing_erc721_uris,Storing ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Starknet's selector calculcations.
-See <<supporting_interfaces,Supporting Interfaces>>.
+See the {introspection} docs.
 * `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
 The difference between both functions consists of accepting `data` as an argument.
 Because function overloading is currently not possible in Cairo, `safe_transfer_from` by default accepts the `data` argument.
@@ -88,18 +77,110 @@ In doing so, recipient contracts (both accounts and non-accounts) can be verifie
 
 == Usage
 
+:components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
+
+WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
+This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully.
+Extensibility will be revisited after {components} are introduced.
+
+Using Contracts for Cairo, constructing an ERC721 contract requires setting up the constructor and exposing the ERC721 interface.
+Here’s what that looks like:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyNFT {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc721::ERC721;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        self: @ContractState,
+        recipient: ContractAddress
+    ) {
+        let name = 'MyNFT';
+        let symbol = 'NFT';
+        let token_id = 1;
+        let token_uri = 'NFT_URI';
+
+        let mut unsafe_state = ERC721::unsafe_new_contract_state();
+        // Initialize ERC721
+        ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        // Mint NFT
+        ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
+        // Set the token's URI
+        ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+    }
+
+    // Implement the standard IERC721 interface
+    #[external(v0)]
+    impl MyTokenImpl of ERC721ABI<ContractState> {
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721Impl::balance_of(@unsafe_state, account) 
+        }
+
+        ...
+    }
+
+    // Implement the IERC721Metadata interface
+    #[external(v0)]
+    impl MyTokenMetadataImpl of IERC721Metadata<ContractState> {
+        fn name(self: @ContractState) -> felt252 {
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721Impl::name(@unsafe_state) 
+        }
+
+        ...
+    }
+}
+----
+
+In order for the `MyNFT` contract to extend the ERC721 contract, it utilizes the `unsafe_new_contract_state`.
+The unsafe contract state allows access to ERC721's implementations.
+With this access, the constructor first calls the initializer to set the NFT name and symbol.
+The constructor then calls `_mint` to create a one-of-one NFT. Finally, the constructor sets the token URI.
+
+Below the constructor, this contract includes two implementations: `IERC721` and `IERC721Metadata`.
+`IERC721Metadata` isn't technically required to create an ERC721 contract; however, most contracts include the metadata interface which exposes `name`, `symbol`, and `token_uri`.
+
 === Token Transfers
+
+:src-5: xref:introspection.adoc#src5[SRC-5]
 
 This library includes `transfer_from` and `safe_transfer_from` to transfer NFTs.
 If using `transfer_from`, *the caller is responsible to confirm that the recipient is capable of receiving NFTs or else they may be permanently lost.*
+The `safe_transfer_from` method mitigates this risk by querying the recipient contract's interface support.
 
-The `safe_transfer_from` method incorporates the following conditional logic:
 
-. If the calling address is an account contract, the token transfer will behave as if `transfer_from` was called.
-. If the calling address is not an account contract, the safe function will check that the contract supports ERC721 tokens.
+The safe mechanism first queries if the recipient contract supports the IERC721Receiver interface through introspection ({src-5}).
+If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the ISRC-6 interface, which is the standard account contract interface.
+If either case is true, then the token transfer behaves as if `transfer_from` was called.
+Otherwise, the transfer will fail.
 
-The current implementation of `safe_transfer_from` checks for `on_erc721_received` and requires that the recipient contract supports SRC5 and exposes the `supports_interface` method.
-See <<erc721received,ERC721Received>>.
+To better visualize the process, see the snippet below.
+
+[,javascript]
+----
+fn _check_on_erc721_received(
+    from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
+) -> bool {
+    // Check if `to` has declared support for IERC721Receiver
+    if (DualCaseSRC5 { contract_address: to }
+        .supports_interface(interface::IERC721_RECEIVER_ID)) {
+        DualCaseERC721Receiver { contract_address: to }
+            .on_erc721_received(
+                get_caller_address(), from, token_id, data
+            ) == interface::IERC721_RECEIVER_ID
+    } else {
+        // Check if `to` is an account contract
+        DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
+    }
+}
+----
 
 === Receiving tokens
 
@@ -107,22 +188,9 @@ See <<erc721received,ERC721Received>>.
 :src-6: https://community.starknet.io/t/snip-starknet-standard-account/95665[SRC-6 in Starknet Shamans]
 :src-5: xref:introspection.adoc#src5[SRC-5]
 
-In order to be sure a contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface (as expressed in the EIP721 specification).
-Methods such as `safe_transfer_from` and `_safe_mint` call the recipient contract's `on_erc721_received` method.
-If the contract fails to return the correct magic value, the transaction fails.
-
-Starknet contracts that support safe transfers, however, must also support {src-5} and include `supports_interface` as proposed (originally as ERC165) in {erc165-discussion}.
-`safe_transfer_from` requires a means of differentiating between account and non-account contracts.
-Account contracts must support the Starknet standard account interface in order to communicate the contract's ability to receive safe NFT transfers.
-The standard account interface is drafted and defined as {src-6}.
-`on_erc721_received` will call `supports_interface` with the SRC6 magic value _0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd_ on the recipient address.
-SRC6-compliant account contracts will return `true` thus communicating that the recipient is an account contract.
-Non-account contracts, however, _must_ register support for ERC721 safe transfers.
-Otherwise, the safe transfer will fail.
+In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement both the `IERC721Receiver` interface (as expressed in the EIP721 specification) and the `ISRC5` interface which supports introspection.
 
 ==== IERC721Receiver
-
-The IERC721Receiver interface must be implemented in any non-account contract that wants to support safe transfers from ERC721 asset contracts.
 
 [,javascript]
 ----
@@ -136,14 +204,79 @@ trait IERC721Receiver {
 }
 ----
 
-=== Interpreting ERC721 URIs
+Implementing the `IERC721Receiver` interface exposes the `on_erc721_received` method.
+When safe methods such as `safe_transfer_from` and `_safe_mint` are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the IERC721Receiver interface ID.
+Otherwise, the transaction will fail.
+
+==== ISRC-5
+
+[,javascript]
+----
+trait ISRC5 {
+    fn supports_interface(interface_id: felt252) -> bool;
+}
+----
+
+The `ISRC5` interface allows the safe methods to query if the recipient supports the `IERC721Receiver` interface ID.
+See {introspection} for more information.
+
+==== Creating a token receiver contract
+
+[,javascript]
+----
+#[starknet::contract]
+mod ERC721Receiver {
+    use starknet::ContractAddress;
+    use openzeppelin::token::erc721::ERC721;
+    use openzeppelin::token::erc721::interface;
+    use openzeppelin::introspection::interface::ISRC5;
+    use openzeppelin::introspection::src5::SRC5;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        // Register the token receiver interface
+        let mut unsafe_state = SRC5::unsafe_new_contract_state();
+        SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_RECEIVER_ID);
+    }
+
+    /// Implement the ISRC-5 interface so the sender contract can query
+    /// if the recipient supports the token receiver interface ID
+    #[external(v0)]
+    impl ISRC5Impl of ISRC5<ContractState> {
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+        }
+    }
+
+    /// Implement the token receiver interface
+    #[external(v0)]
+    impl ERC721ReceiverImpl of interface::IERC721Receiver<ContractState> {
+        fn on_erc721_received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            interface::IERC721_RECEIVER_ID
+        }
+    }
+}
+----
+
+=== Storing ERC721 URIs
+
+:string-roadmap: https://github.com/orgs/starkware-libs/projects/1/views/1?pane=issue&itemId=28823165[here]
 
 Token URIs in Cairo are stored as single field elements.
 Each field element equates to 252-bits (or 31.5 bytes) which means that a token's URI can be no longer than 31 characters.
 
-NOTE: Storing the URI as an array of felts was considered to accommodate larger strings.
-While this approach is more flexible regarding URIs, a returned array further deviates from the standard set in https://eips.ethereum.org/EIPS/eip-721[EIP721].
-Therefore, this library's ERC721 implementation sets URIs as a single field element.
+NOTE: Native string support in Cairo is currently in progress and tracked {string-roadmap}.
+Once Cairo offers full string support, this will be revisited.
 
 == Presets
 

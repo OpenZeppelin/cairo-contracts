@@ -57,7 +57,7 @@ mod ERC721 {
         token_id: u256
     }
 
-    /// Emitted when `owner` enables or disables (approved) `operator` to manage
+    /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
@@ -207,9 +207,9 @@ mod ERC721 {
             self._transfer(from, to, token_id);
         }
 
-        /// Safely transfer ownership of `token_id` from `from` to `to`, checking first
-        /// that `to` is aware of the ERC721 protocol to prevent tokens being locked
-        /// forever.
+        /// Safely transfer ownership of `token_id` from `from` to `to`.
+        /// If `to` is not an account contract, `to` must support IERC721Receiver;
+        /// otherwise, the transaction will fail.
         /// Emits a [Transfer](Transfer) event.
         fn safe_transfer_from(
             ref self: ContractState,
@@ -411,8 +411,8 @@ mod ERC721 {
         }
 
         /// Internal function that safely transfers `token_id` token from `from` to `to`,
-        /// checking first that contract recipients are aware of the ERC721 protocol to
-        /// prevent tokens from being forever locked.
+        /// If `to` is not an account contract, `to` must support IERC721Receiver;
+        /// otherwise, the transaction will fail.
         /// Emits a [Transfer](Transfer) event.
         fn _safe_transfer(
             ref self: ContractState,
@@ -437,7 +437,7 @@ mod ERC721 {
     #[internal]
     /// Internal function that checks if `to` either is an account contract or
     /// has registered support for the ERC721 interface through SRC-5.
-    /// The transaction does not execute if both cases are false.
+    /// The transaction will fail if both cases are false.
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {

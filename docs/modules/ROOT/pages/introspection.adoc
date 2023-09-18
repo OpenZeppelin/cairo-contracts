@@ -13,8 +13,8 @@ In Starknet this is defined by the {src5} standard for interface introspection.
 
 == SRC5
 
-Similar to the Ethereum counterpart, the {src5} standard requires the contract to implement a `supports_interface` function,
-which can be used to query the contract's support for a given interface:
+Similar to its Ethereum counterpart, the {src5} standard requires contracts to implement the `supports_interface` function,
+which can be used by others to query if a given interface is supported:
 
 [,javascript]
 ----

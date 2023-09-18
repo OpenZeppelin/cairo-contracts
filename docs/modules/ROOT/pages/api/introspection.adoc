@@ -69,7 +69,7 @@ SRC5 contract implementation extending xref:ISRC5[`ISRC5`].
 [[SRC5-register_interface]]
 ==== `[.contract-item-name]#++register_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Registers the given interface ID as supported by the contract.
+Registers support for the given interface ID.
 
 [.contract-item]
 [[SRC5-deregister_interface]]

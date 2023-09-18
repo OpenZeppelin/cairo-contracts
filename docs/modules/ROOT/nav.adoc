@@ -4,6 +4,9 @@
 * xref:proxies.adoc[Proxies and Upgrades]
 
 * xref:accounts.adoc[Accounts]
+** xref:/guides/deployment.adoc[Counterfactual deployments]
+** xref:/api/account.adoc[API Reference]
+
 * xref:access.adoc[Access Control]
 
 * Tokens

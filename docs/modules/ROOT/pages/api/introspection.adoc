@@ -48,18 +48,22 @@ use openzeppelin::introspection::src5::SRC5;
 SRC5 contract implementation extending xref:ISRC5[`ISRC5`].
 
 [.contract-index]
-.Functions
+.External Functions
+--
+[.contract-subindex-inherited]
+.SRC5Impl
+
+* xref:#SRC5-supports_interface[`++supports_interface(self, interface_id)++`]
+--
+
+[.contract-index]
+.Internal Functions
 --
 [.contract-subindex-inherited]
 .InternalImpl
 
-* xref:#SRC5-register_interface[`++register_interface(ref self: ContractState, interface_id: felt252)++`]
-* xref:#SRC5-deregister_interface[`++deregister_interface(ref self: ContractState, interface_id: felt252)++`]
-
-[.contract-subindex-inherited]
-.SRC5Impl
-
-* xref:#SRC5-supports_interface[`++supports_interface(self: @ContractState, interface_id: felt252)++`]
+* xref:#SRC5-register_interface[`++register_interface(self, interface_id)++`]
+* xref:#SRC5-deregister_interface[`++deregister_interface(self, interface_id)++`]
 --
 
 [#SRC5-Functions]

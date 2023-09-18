@@ -1,6 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP721]
 :erc721-receiver: xref:/erc721.adoc#receiving_tokens[ERC721Receiver]
+:casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 
 = ERC721
 
@@ -35,7 +36,7 @@ Interface of the IERC721 standard as defined in {eip721}.
 [.contract-subindex-inherited]
 .ISRC5
 
-* xref:#IERC721-supports_interface[`++supports_interface(interface_id)++`]
+* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
 [.contract-index]
@@ -196,7 +197,7 @@ See {eip721}.
 [.contract-subindex-inherited]
 .ISRC5
 
-* xref:#IERC721-supports_interface[`++supports_interface(interface_id)++`]
+* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
 [.contract-index]
@@ -267,9 +268,26 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
 
 [.contract-subindex-inherited]
+.ER721Camel
+
+* xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
+* xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
+* xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
+* xref:#ERC721-transferFrom[`++transferFrom(self, from, to, tokenId)++`]
+* xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
+* xref:#ERC721-setApprovalForAll[`++setApprovalForAll(self, operator, approved)++`]
+* xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
+* xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
+
+[.contract-subindex-inherited]
 .ISRC5
 
-* xref:#ISRC5-supports_interface[`++supports_interface(self, interface_id)++`]
+* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(self, interface_id)++`]
+
+[.contract-subindex-inherited]
+.SRC5Camel
+
+* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supportsInterface(self, interfaceId)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl
@@ -307,6 +325,72 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 
 Initializes the state of the ERC721 contract by setting the token name and symbol.
 The constructor also registers the IERC721 and IERC721_METADATA interface ids according to SRC-5.
+
+[.contract-item]
+[[ERC721-tokenURI]]
+==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-token_uri,IERC721Metadata-token_uri>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-balanceOf]]
+==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) -> u256++` [.item-kind]#external#
+
+See <<IERC721-balance_of,IERC721-balance_of>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-ownerOf]]
+==== `[.contract-item-name]#++ownerOf++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
+
+See <<IERC721-owner_of,IERC721-owner_of>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-transferFrom]]
+==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256)++` [.item-kind]#external#
+
+See <<IERC721-transfer_from,IERC721-transfer_from>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-safeTransferFrom]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>)++` [.item-kind]#external#
+
+See <<IERC721-safe_transfer_from,IERC721-safe_transfer_from>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+* xref:#IERC721-setApprovalForAll[`++setApprovalForAll(operator, approved)++`]
+
+[.contract-item]
+[[ERC721-setApprovalForAll]]
+==== `[.contract-item-name]#++setApprovalForAll++#++(ref self: ContractState, operator: ContractAddress, approved: bool)++` [.item-kind]#external#
+
+See <<IERC721-safe_transfer_from,IERC721-safe_transfer_from>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-getApproved]]
+==== `[.contract-item-name]#++getApproved++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
+
+See <<IERC721-get_approved,IERC721-get_approved>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-isApprovedForAll]]
+==== `[.contract-item-name]#++isApprovedForAll++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
+
+See <<IERC721-is_approved_for_all,IERC721-is_approved_for_all>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
 [.contract-item]
 [[ERC721-initializer]]

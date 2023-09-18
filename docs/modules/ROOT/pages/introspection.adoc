@@ -4,18 +4,17 @@
 
 = Introspection
 
-In the Ethereum ecosystem, smart contracts often need to exercise https://en.wikipedia.org/wiki/Type_introspection[type introspection]
-on other contracts, for interoperability purposes. The {eip165} standard supports this by allowing contracts to declare
-their support for a given interface, and for other contracts to query this support.
+To smooth interoperability, often standards require smart contracts to implement https://en.wikipedia.org/wiki/Type_introspection[introspection mechanisms].
 
-Starknet also exercises type introspection among smart contracts but with a different approach.
-Instead of trying to replicate the EVM's interface ID calculation, the community
-defined {src5} which is a Starknet-specific standard for type introspection:
+In Ethereum the {eip165} standard defines how contracts should declare
+they support a given interface, and how should other contracts query this support.
+
+In Starknet this is defined by the {src5} standard for interface introspection.
 
 == SRC5
 
-Similar to the Ethereum counterpart, the {src5} standard requires the contract to implement a `supports_interface` function,
-which can be used to query the contract's support for a given interface:
+Similar to its Ethereum counterpart, the {src5} standard requires contracts to implement the `supports_interface` function,
+which can be used by others to query if a given interface is supported:
 
 [,javascript]
 ----
@@ -31,8 +30,8 @@ trait ISRC5 {
 
 The interface ID, as specified in the standard, is the https://en.wikipedia.org/wiki/Exclusive_or[XOR] of all the
 https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#extended-function-selector[Extended Function Selectors]
-of the interface. We strongly advise reading the SNIP to understand the specifics of obtaining these
-extended function selectors, but there are tools that can help with this process, such as {src5-rs}.
+of the interface. We strongly advise reading the SNIP to understand the specifics of computing these
+extended function selectors. There are tools such as {src5-rs} that can help with this process.
 
 === Registering interfaces
 

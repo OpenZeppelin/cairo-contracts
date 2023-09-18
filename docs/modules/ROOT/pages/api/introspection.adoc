@@ -16,7 +16,7 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 use openzeppelin::introspection::interface::ISRC5;
 ```
 
-Interface of the SRC5 Introspection Standard as defined in the {snip5}.
+Interface of the SRC5 Introspection Standard as defined in {snip5}.
 
 [.contract-index]
 .Functions
@@ -69,13 +69,13 @@ SRC5 contract implementation extending xref:ISRC5[`ISRC5`].
 [[SRC5-register_interface]]
 ==== `[.contract-item-name]#++register_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Registers the given interface ID as supported by the contract.
+Registers support for the given interface ID.
 
 [.contract-item]
 [[SRC5-deregister_interface]]
 ==== `[.contract-item-name]#++deregister_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Deregisters the given interface ID as supported by the contract.
+Deregisters support for the given interface ID.
 
 [.contract-item]
 [[SRC5-supports_interface]]

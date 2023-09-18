@@ -57,7 +57,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0" }
 ----
 
-WARNING: Make sure the correct tag matching the release is selected.
+WARNING: Make sure the tag matches the target release.
 
 == Basic usage
 

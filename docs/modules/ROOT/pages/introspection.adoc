@@ -63,5 +63,30 @@ mod Contract {
 
 Use the `supports_interface` function to query a contract's support for a given interface.
 
+[,javascript]
+----
+#[starknet::contract]
+mod Contract {
+    use openzeppelin::account::interface;
+    use openzeppelin::introspection::src5::SRC5;
+    use starknet::ContractAddress;
+
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    fn foo(ref self: ContractState, target: ContractAddress) {
+        let args = array![interface::ISRC6_ID];
+        let selector = selector!("supports_interface");
+
+        let mut is_account_raw = starknet::call_contract_syscall(target, selector, args.span())
+            .unwrap();
+        let is_account = Serde::<bool>::deserialize(ref is_account_raw).unwrap();
+
+        (...)
+    }
+}
+----
+
 TIP: If you are unsure whether the contract implements SRC5 or not, you can follow the process described in
 https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#how-to-detect-if-a-contract-implements-src-5[here].

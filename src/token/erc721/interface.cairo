@@ -132,11 +132,11 @@ trait ERC721CamelABI<TState> {
         tokenId: u256,
         data: Span<felt252>
     );
-    fn approve(ref self: TState, to: ContractAddress, token_id: u256);
+    fn approve(ref self: TState, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
     fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(
         self: @TState, owner: ContractAddress, operator: ContractAddress
     ) -> bool;
-    fn supportsInterface(self: @TState, interface_id: felt252) -> bool;
+    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }

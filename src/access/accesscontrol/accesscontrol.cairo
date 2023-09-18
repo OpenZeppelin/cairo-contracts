@@ -58,6 +58,11 @@ mod AccessControl {
         new_admin_role: felt252
     }
 
+    mod Errors {
+        const INVALID_CALLER: felt252 = 'Can only renounce role for self';
+        const MISSING_ROLE: felt252 = 'Caller is missing role';
+    }
+
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
@@ -98,7 +103,7 @@ mod AccessControl {
 
         fn renounce_role(ref self: ContractState, role: felt252, account: ContractAddress) {
             let caller: ContractAddress = get_caller_address();
-            assert(caller == account, 'Can only renounce role for self');
+            assert(caller == account, Errors::INVALID_CALLER);
             self._revoke_role(role, account);
         }
     }
@@ -140,7 +145,7 @@ mod AccessControl {
         fn assert_only_role(self: @ContractState, role: felt252) {
             let caller: ContractAddress = get_caller_address();
             let authorized: bool = AccessControlImpl::has_role(self, role, caller);
-            assert(authorized, 'Caller is missing role');
+            assert(authorized, Errors::MISSING_ROLE);
         }
 
         fn _grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {

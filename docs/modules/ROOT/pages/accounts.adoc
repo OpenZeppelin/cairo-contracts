@@ -68,11 +68,8 @@ trait ISRC5 {
 
 {snip-6}[SNIP-6] compliant accounts must return `true` when queried for the ISRC6 interface Id.
 
-TIP: Check the xref:introspection.adoc[Introspection] section for more information about the {snip-5}[SNIP-5].
-
 Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling
 interoperability with the ecosystem.
-
 
 == Protocol-level methods
 
@@ -100,4 +97,4 @@ wraps and exposes the `deploy_syscall` to provide arbitrary deployments through 
 But if you don't have an account to invoke it, you will probably want to use the latter.
 
 To do counterfactual deployments, you need to implement another protocol-level entrypoint named
-`\\__validate_deploy__`. You can check the {counterfactual} guide to learn how.
+`\\__validate_deploy__`. Check the {counterfactual} guide to learn how.

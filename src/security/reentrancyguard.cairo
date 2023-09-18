@@ -10,10 +10,14 @@ mod ReentrancyGuard {
         entered: bool
     }
 
+    mod Errors {
+        const REENTRANT_CALL: felt252 = 'ReentrancyGuard: reentrant call';
+    }
+
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn start(ref self: ContractState) {
-            assert(!self.entered.read(), 'ReentrancyGuard: reentrant call');
+            assert(!self.entered.read(), Errors::REENTRANT_CALL);
             self.entered.write(true);
         }
 

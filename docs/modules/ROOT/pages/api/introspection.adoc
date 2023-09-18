@@ -75,7 +75,7 @@ Registers support for the given interface ID.
 [[SRC5-deregister_interface]]
 ==== `[.contract-item-name]#++deregister_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Deregisters the given interface ID as supported by the contract.
+Deregisters support for the given interface ID.
 
 [.contract-item]
 [[SRC5-supports_interface]]

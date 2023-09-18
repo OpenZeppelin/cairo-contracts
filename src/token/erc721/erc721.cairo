@@ -66,8 +66,6 @@ mod ERC721 {
         approved: bool
     }
 
-    /// Initializes the state of the ERC721 contract. This includes setting the
-    /// NFT name and symbol.
     mod Errors {
         const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
@@ -81,6 +79,8 @@ mod ERC721 {
         const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
     }
 
+    /// Initializes the state of the ERC721 contract. This includes setting both the
+    /// NFT name and symbol as well as minting `token_id` to `recipient`.
     #[constructor]
     fn constructor(
         ref self: ContractState,

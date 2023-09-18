@@ -297,8 +297,6 @@ trait IERC721Metadata {
 }
 ----
 
-The `ERC721Metadata` extension allows your smart contract to be interrogated for its name and for details about the assets which your NFTs represent.
+The `ERC721Metadata` extension allows a smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
 
-We follow OpenZeppelin's Solidity approach of integrating the Metadata methods `name`, `symbol`, and `token_uri` (`tokenURI` in Solidity) into all ERC721 implementations.
-If preferred, a contract can be created that does not import the Metadata methods from the `ERC721` library.
-Note that the `IERC721Metadata` interface id should be removed from the constructor as well.
+Contracts for Cairo follows the Solidity Contracts approach of integrating the metadata methods `name`, `symbol`, and `token_uri` (`tokenURI` in Solidity) into all ERC721 implementations.

@@ -121,7 +121,7 @@ mod MyNFT {
             ERC721::ERC721Impl::balance_of(@unsafe_state, account) 
         }
 
-        ...
+        (...)
     }
 
     // Implement the IERC721Metadata interface
@@ -132,7 +132,7 @@ mod MyNFT {
             ERC721::ERC721Impl::name(@unsafe_state) 
         }
 
-        ...
+        (...)
     }
 }
 ----

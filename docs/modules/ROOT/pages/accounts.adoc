@@ -80,8 +80,7 @@ In this section we will describe the methods that the protocol uses for abstract
 are required for enabling accounts to be used for executing transactions. The rest are optional:
 
 1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,
-but following the account abstraction design, the entrypoint implementation can be customized to feature any
-validation mechanism.
+but the entrypoint implementation can be customized to feature any validation mechanism https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/validate_and_execute/#validate_limitations[with some limitations].
 
 2. `\\__execute__` executes the transaction if the validation is successful.
 
@@ -90,8 +89,7 @@ meant to declare other contracts.
 
 4. `\\__validate_deploy__` optional entrypoint similar to `\\__validate__` but meant for {counterfactual}.
 
-NOTE: Even though these entrypoints _can_ be called directly at the contract level, they are not designed for that,
-but to be called by the Starknet OS in the transaction execution flow.
+NOTE: Although these entrypoints are available to the protocol for its regular transaction flow, they can also be called like any other method.
 
 == Deploying an account
 

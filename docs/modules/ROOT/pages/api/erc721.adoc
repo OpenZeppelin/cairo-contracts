@@ -244,10 +244,8 @@ use openzeppelin::token::erc721::ERC721;
 Implementation of ERC721 which includes the IERC721Metadata extension as specified in https://eips.ethereum.org/EIPS/eip-721[EIP-721].
 
 [.contract-index]
-.Functions
+.External Functions
 --
-* xref:#ERC721-constructor[`++constructor(self, name, symbol)++`]
-
 [.contract-subindex-inherited]
 .IERC721Metadata
 
@@ -288,6 +286,13 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 .SRC5Camel
 
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supportsInterface(self, interfaceId)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+
+* xref:#ERC721-constructor[`++constructor(self, name, symbol)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl

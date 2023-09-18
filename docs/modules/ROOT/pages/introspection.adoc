@@ -9,9 +9,7 @@ To smooth interoperability, often standards require smart contracts to implement
 In Ethereum the {eip165} standard defines how contracts should declare
 they support a given interface, and how should other contracts query this support.
 
-Starknet also exercises type introspection among smart contracts but with a different approach.
-Instead of trying to replicate the EVM's interface ID calculation, the community
-defined {src5} which is a Starknet-specific standard for type introspection:
+In Starknet this is defined by the {src5} standard for interface introspection.
 
 == SRC5
 

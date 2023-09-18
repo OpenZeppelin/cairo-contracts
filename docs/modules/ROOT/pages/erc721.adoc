@@ -72,7 +72,6 @@ To be as close as possible to the standard, it accepts a dynamic array of felts.
 * `SRC5.register_interface` allows contracts to set and communicate which interfaces they support.
 This is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded selector id according to Starknet selectors (as opposed to selector calculation in Solidity).
-In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC721 transfers.
 
 == Usage
 

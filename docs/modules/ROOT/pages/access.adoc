@@ -21,7 +21,7 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 
 Integrating this module into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
-`initializer` like this:
+xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 
 [,javascript]
 ----
@@ -49,17 +49,17 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 
 [,javascript]
 ----
-
-use openzeppelin::access::ownable::Ownable;
-
 #[starknet::contract]
 mod Contract {
+    use openzeppelin::access::ownable::Ownable;
+
     (...)
 
     #[external(v0)]
     fn foo(ref self: ContractState) {
         // This function can only be called by the owner
-        self.assert_only_owner();
+        let unsafe_state = Ownable::unsafe_new_contract_state();
+        Ownable::InternalImpl::assert_only_owner(@unsafe_state);
 
         (...)
     }
@@ -102,7 +102,7 @@ flexibility in this regard.
 
 In essence, we will be defining multiple roles, each allowed to perform different sets of actions.
 An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for
-instead of simply using `assert_only_owner`. This check can be enforced through `assert_only_role`.
+instead of simply using xref:/api/access.adoc#Ownable-assert_only_owner[`assert_only_owner`]. This check can be enforced through xref:/api/access.adoc#AccessControl-assert_only_role[`assert_only_role`].
 Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
 Most software uses access control systems that are role-based: some users are regular users, some may be supervisors
@@ -120,8 +120,7 @@ and sets a 'minter' role:
 [,javascript]
 ----
 // sn_keccak('MINTER_ROLE')
-const MINTER_ROLE: felt252 =
-    0x32df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6;
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 
 #[starknet::contract]
 mod Contract {
@@ -174,19 +173,15 @@ CAUTION: Make sure you fully understand how xref:api/access.adoc#AccessControl[A
 using it on your system, or copy-pasting the examples from this guide.
 
 While clear and explicit, this isn't anything we wouldn't have been able to achieve with
-xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines is in scenarios where granular
+xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines the most is in scenarios where granular
 permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:
 
 [,javascript]
 ----
-// sn_keccak('MINTER_ROLE')
-const MINTER_ROLE: felt252 =
-    0x32df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6;
-// sn_keccak('BURNER_ROLE')
-const BURNER_ROLE: felt252 =
-    0x11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a848;
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
+const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
 #[starknet::contract]
 mod Contract {
@@ -225,7 +220,7 @@ mod Contract {
         AccessControl::InternalImpl::_grant_role(
             ref access_state,
             BURNER_ROLE,
-            minter
+            burner
         );
     }
 
@@ -260,13 +255,16 @@ security practice. Note that each account may still have more than one role, if 
 
 === Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an `internal` function that is useful when programmatically assigning
+The ERC20 token example above uses xref:api/access.adoc#AccessControl-_grant_role[`_grant_role`],
+an `internal` function that is useful when programmatically assigning
 roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, *accounts with a role cannot grant it or revoke it from other accounts*: all having a role does is making
-the `assert_only_role` check pass. To grant and revoke roles dynamically, you will need help from the role's _admin_.
+the xref:api/access.adoc#AccessControl-assert_only_role[`assert_only_role`] check pass. To grant and revoke roles dynamically, you will need help from the role's _admin_.
 
-Every role has an associated admin role, which grants permission to call the `grant_role` and `revoke_role` functions.
+Every role has an associated admin role, which grants permission to call the 
+xref:api/access.adoc#AccessControl-grant_role[`grant_role`] and 
+xref:api/access.adoc#AccessControl-revoke_role[`revoke_role`] functions.
 A role can be granted or revoked by using these if the calling account has the corresponding admin role.
 Multiple roles may have the same admin role to make management easier.
 A role's admin can even be the same role itself, which would cause accounts with that role to be able
@@ -275,18 +273,15 @@ to also grant and revoke it.
 This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also
 provides an easy way to manage simpler applications. `AccessControl` includes a special role with the role identifier
 of `0`, called `DEFAULT_ADMIN_ROLE`, which acts as the *default admin role for all roles*.
-An account with this role will be able to manage any other role, unless `_set_role_admin` is used to select a new admin role.
+An account with this role will be able to manage any other role, unless 
+xref:api/access.adoc#AccessControl-_set_role_admin[`_set_role_admin`] is used to select a new admin role.
 
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 
 [,javascript]
 ----
-// sn_keccak('MINTER_ROLE')
-const MINTER_ROLE: felt252 =
-    0x32df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6;
-// sn_keccak('BURNER_ROLE')
-const BURNER_ROLE: felt252 =
-    0x11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a848;
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
+const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
 #[starknet::contract]
 mod Contract {
@@ -385,11 +380,11 @@ Cairo field elements (`felt252`) store a maximum of 252 bits.
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 
-* Use the {sn_keccak} instead.
+* Use {sn_keccak} instead.
 * Use Cairo friendly hashing algorithms like Poseidon, which are implemented in the
 https://github.com/starkware-libs/cairo/blob/main/corelib/src/poseidon.cairo[Cairo corelib].
 
-TIP: The `selector!` macro can be used for computing the {sn_keccak} in Cairo.
+TIP: The `selector!` macro can be used to compute {sn_keccak} in Cairo.
 
 === Interface
 
@@ -415,7 +410,6 @@ trait IAccessControl {
 }
 ----
 
-AccessControl also lets you:
-
-- `renounce_role` from the calling account. The method expects an account as input as an extra security measure, to
-ensure you are not renuncing a role from an unintended account.
+`AccessControl` also lets you `renounce_role` from the calling account.
+The method expects an account as input as an extra security measure, to ensure you are
+not renuncing a role from an unintended account.

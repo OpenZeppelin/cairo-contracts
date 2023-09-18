@@ -86,7 +86,7 @@ mod MyToken {
             ERC20::ERC20Impl::name(@unsafe_state)
         }
 
-        ...
+        (...)
     }
 }
 ----
@@ -131,7 +131,7 @@ impl MyTokenImpl of IERC20<ContractState> {
         3 
     }
 
-    ...
+    (...)
 }
 
 ----

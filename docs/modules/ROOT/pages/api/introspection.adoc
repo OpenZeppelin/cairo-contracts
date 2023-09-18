@@ -16,7 +16,7 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 use openzeppelin::introspection::interface::ISRC5;
 ```
 
-Interface of the SRC5 Introspection Standard as defined in the {snip5}.
+Interface of the SRC5 Introspection Standard as defined in {snip5}.
 
 [.contract-index]
 .Functions

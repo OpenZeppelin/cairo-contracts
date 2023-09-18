@@ -22,13 +22,20 @@ mod Pausable {
         Paused: Paused,
         Unpaused: Unpaused,
     }
+
     #[derive(Drop, starknet::Event)]
     struct Paused {
         account: ContractAddress
     }
+
     #[derive(Drop, starknet::Event)]
     struct Unpaused {
         account: ContractAddress
+    }
+
+    mod Errors {
+        const PAUSED: felt252 = 'Pausable: paused';
+        const NOT_PAUSED: felt252 = 'Pausable: not paused';
     }
 
     #[external(v0)]
@@ -41,11 +48,11 @@ mod Pausable {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn assert_not_paused(self: @ContractState) {
-            assert(!self.paused.read(), 'Pausable: paused');
+            assert(!self.paused.read(), Errors::PAUSED);
         }
 
         fn assert_paused(self: @ContractState) {
-            assert(self.paused.read(), 'Pausable: not paused');
+            assert(self.paused.read(), Errors::NOT_PAUSED);
         }
 
         fn _pause(ref self: ContractState) {

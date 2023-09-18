@@ -50,7 +50,6 @@ trait ISRC5 {
 
 Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
-* It uses Cairo's `u256` instead of `felt252`.
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
 But some differences can still be found, such as:

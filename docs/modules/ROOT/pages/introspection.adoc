@@ -9,7 +9,7 @@ To smooth interoperability, often standards require smart contracts to implement
 In Ethereum, the {eip165} standard defines how contracts should declare
 their support for a given interface, and how other contracts may query this support.
 
-In Starknet this is defined by the {src5} standard for interface introspection.
+Starknet offers a similar mechanism for interface introspection defined by the {src5} standard.
 
 == SRC5
 

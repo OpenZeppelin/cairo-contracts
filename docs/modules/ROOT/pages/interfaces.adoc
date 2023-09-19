@@ -1,3 +1,5 @@
+:great-interface-migration: link:https://community.starknet.io/t/the-great-interface-migration/92107[Great Interface Migration]
+
 = Interfaces and Dispatchers
 
 This section describes the interfaces OpenZeppelin Contracts for Cairo offer, and explains the design choices behind them.
@@ -92,7 +94,7 @@ trait DualCaseERC20Trait {
 
 == Dual interfaces
 
-Following the https://community.starknet.io/t/the-great-interface-migration/92107[Great Interface Migration] plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.
+Following the {great-interface-migration} plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.
 
 In short, we offer two types of interfaces and utilities to handle them:
 
@@ -179,3 +181,5 @@ fn try_selector_with_fallback(
     }
 }
 ```
+
+Trying the `snake_case` interface first renders `camelCase` calls a bit more expensive since a failed `snake_case` call will always happen before. This is a design choice to incentivize casing adoption/transition as per the {great-interface-migration}.

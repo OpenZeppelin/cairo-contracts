@@ -64,7 +64,7 @@ trait IERC721 {
 
 `ISRC5`, from the {snip5} standard, allows for other contracts to query if the implementing contract supports a specific interface.
 This is especially important with NFT contracts because if an NFT is transferred to a contract that does not support the `IERC721` interface, the NFT is essentially lost forever.
-To mitigate this risk, the `ISRC5` interface allows for interface introspection which, in turn, supports safe Token Transfers.
+To mitigate this risk, the `ISRC5` interface allows for interface introspection which helps facilitate safe token transfers.
 
 TIP: `ISRC5` is very similar to Ethereum's {eip165}.
 It's imperative to understand the introspection mechanism to avoid making drastic errors.
@@ -94,7 +94,7 @@ trait IERC721Metadata {
 == ERC721 Compatibility
 
 :erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
-:src5-api: xref:introspection.adoc#src5[SRC-5]
+:src5-api: xref:introspection.adoc#src5[SRC5]
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP165]
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard by utilizing Cairo's short strings to simulate `name` and `symbol`.
@@ -116,12 +116,15 @@ If `data` is not used, simply pass an empty array.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
-The design for `SRC-5` is similar to OpenZeppelin's {erc165-storage}.
+The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded selector id according to Starknet selectors (as opposed to selector calculation in Solidity).
 
 == Usage
 
 :components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
+:name-api: xref:api/erc721.adoc#IERC721Metadata-name[name]
+:symbol-api: xref:api/erc721.adoc#IERC721Metadata-symbol[symbol]
+:token_uri-api: xref:api/erc721.adoc#IERC721Metadata-token_uri[token_uri]
 
 WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
 This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully.
@@ -200,19 +203,22 @@ With this access, the constructor first calls the initializer to set the NFT nam
 The constructor then calls `_mint` to create a one-of-one NFT. Finally, the constructor sets the token URI.
 
 Below the constructor, this contract includes two implementations: `IERC721` and `IERC721Metadata`.
-`IERC721Metadata` isn't technically required to create an ERC721 contract; however, most contracts include the metadata interface which exposes `name`, `symbol`, and `token_uri`.
+`IERC721Metadata` isn't technically required to create an ERC721 contract; however, most contracts include the metadata interface which exposes {name-api}, {symbol-api}, and {token_uri-api}.
 
 === Token Transfers
 
-:src-5: xref:introspection.adoc#src5[SRC-5]
+:src-5: xref:introspection.adoc#src5[SRC5]
+:transfer_from-api: xref:api/erc721.adoc#IERC721-transfer_from[transfer_from]
+:safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
+:isrc6: xref:accounts.adoc#isrc6_interface[ISRC6]
 
-This library includes `transfer_from` and `safe_transfer_from` to transfer NFTs.
+This library includes {transfer_from-api} and {safe_transfer_from-api} to transfer NFTs.
 If using `transfer_from`, *the caller is responsible to confirm that the recipient is capable of receiving NFTs or else they may be permanently lost.*
 The `safe_transfer_from` method mitigates this risk by querying the recipient contract's interface support.
 
 
 The safe mechanism first queries if the recipient contract supports the `IERC721Receiver` interface through introspection ({src-5}).
-If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the ISRC-6 interface, which is the standard account contract interface.
+If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the {isrc6} interface, which is the standard account contract interface.
 If either case is true, then the token transfer behaves as if `transfer_from` was called.
 Otherwise, the transfer will fail.
 
@@ -240,10 +246,12 @@ fn _check_on_erc721_received(
 === Receiving tokens
 
 :erc165-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/100[this discussion]
-:src-6: https://community.starknet.io/t/snip-starknet-standard-account/95665[SRC-6 in Starknet Shamans]
-:src-5: xref:introspection.adoc#src5[SRC-5]
+:src5: xref:introspection.adoc#src5[SRC5]
+:on_erc721_received-api: xref:api/erc721.adoc#IERC721Receiver-on_erc721_received[on_erc721_received]
+:computing-interface-id: xref:introspection.adoc#computing_the_interface_id[Computing the interface ID]
 
-In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement both the `IERC721Receiver` interface (as expressed in the EIP721 specification) and the `ISRC5` interface which supports introspection.
+In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface.
+The recipient contract must also implement the {src5} interface which, as described earlier, supports interface introspection.
 
 ==== IERC721Receiver
 
@@ -259,21 +267,11 @@ trait IERC721Receiver {
 }
 ----
 
-Implementing the `IERC721Receiver` interface exposes the `on_erc721_received` method.
+Implementing the `IERC721Receiver` interface exposes the {on_erc721_received-api} method.
 When safe methods such as `safe_transfer_from` and `_safe_mint` are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the IERC721Receiver interface ID.
 Otherwise, the transaction will fail.
 
-==== ISRC-5
-
-[,javascript]
-----
-trait ISRC5 {
-    fn supports_interface(interface_id: felt252) -> bool;
-}
-----
-
-The `ISRC5` interface allows the safe methods to query if the recipient supports the `IERC721Receiver` interface ID.
-See {introspection} for more information.
+TIP: For information on how to calculate interface IDs, see {computing-interface-id}.
 
 ==== Creating a token receiver contract
 
@@ -297,7 +295,7 @@ mod ERC721Receiver {
         SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_RECEIVER_ID);
     }
 
-    /// Implement the ISRC-5 interface so the sender contract can query
+    /// Implement the ISRC5 interface so the sender contract can query
     /// if the recipient supports the token receiver interface ID.
     #[external(v0)]
     impl ISRC5Impl of ISRC5<ContractState> {

@@ -91,11 +91,12 @@ trait IERC721Metadata {
 }
 ----
 
-Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
+== ERC721 Compatibility
 
-* It makes use of Cairo's short strings to simulate `name` and `symbol`.
+:erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
 
-But some differences can still be found, such as:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard by utilizing Cairo's short strings to simulate `name` and `symbol`.
+This implementation does, however, include a few notable differences such as:
 
 * `token_uri` returns a felt252 representation of the queried token's URI.
 The EIP721 standard, however, states that the return value should be of type string.

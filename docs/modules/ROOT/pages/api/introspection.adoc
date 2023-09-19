@@ -77,10 +77,10 @@ See xref:ISRC5-supports_interface[`ISRC5::supports_interface`].
 [[SRC5-register_interface]]
 ==== `[.contract-item-name]#++register_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Registers support for the given interface ID.
+Registers support for the given `interface_id`.
 
 [.contract-item]
 [[SRC5-deregister_interface]]
 ==== `[.contract-item-name]#++deregister_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
 
-Deregisters support for the given interface ID.
+Deregisters support for the given `interface_id`.

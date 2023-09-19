@@ -6,10 +6,10 @@
 
 To smooth interoperability, often standards require smart contracts to implement https://en.wikipedia.org/wiki/Type_introspection[introspection mechanisms].
 
-In Ethereum the {eip165} standard defines how contracts should declare
-they support a given interface, and how should other contracts query this support.
+In Ethereum, the {eip165} standard defines how contracts should declare
+their support for a given interface, and how other contracts may query this support.
 
-In Starknet this is defined by the {src5} standard for interface introspection.
+Starknet offers a similar mechanism for interface introspection defined by the {src5} standard.
 
 == SRC5
 
@@ -88,5 +88,5 @@ mod Contract {
 }
 ----
 
-TIP: If you are unsure whether the contract implements SRC5 or not, you can follow the process described in
+TIP: If you are unsure whether a contract implements SRC5 or not, you can follow the process described in
 https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md#how-to-detect-if-a-contract-implements-src-5[here].

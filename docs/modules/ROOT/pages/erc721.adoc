@@ -10,7 +10,24 @@ The `erc721.cairo` contract implements an approximation of {eip721} in Cairo for
 
 TIP: For detailed information on the usage and implementation check the {erc721-api} section.
 
-== IERC721 Interface
+== Interfaces
+
+:compatibility: xref:/erc721.adoc#erc721_compatibility[ERC721 Compatibility]
+:ierc721-interface: xref:/erc721.adoc#ierc721[IERC721]
+:ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
+:isrc5-interface: xref:/erc721.adoc#isrc5[ISRC5]
+
+Contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721 compliant contract.
+Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
+Contracts for Cairo's implementation includes all three interfaces.
+
+WARNING: The {ierc721-interface} and {ierc721metadata-interface} implementations are approximations of their Ethereum counterparts.
+These approximations include a few notable differences.
+See {compatibility} for more information.
+
+=== IERC721
+
+The `IERC721` interface provides basic functionality to track, transfer, and consign NFTs.
 
 [,javascript]
 ----
@@ -38,15 +55,41 @@ trait IERC721 {
         owner: ContractAddress, operator: ContractAddress
     ) -> bool;
 }
+----
 
+=== ISRC5
+
+:snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
+:eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
+
+`ISRC5`, from the {snip5} standard, allows for other contracts to query if the implementing contract supports a specific interface.
+This is especially important with NFT contracts because if an NFT is transferred to a contract that does not support the `IERC721` interface, the NFT is essentially lost forever.
+To mitigate this risk, the `ISRC5` interface allows for interface introspection which, in turn, supports safe Token Transfers.
+
+TIP: `ISRC5` is very similar to Ethereum's {eip165}.
+It's imperative to understand the introspection mechanism to avoid making drastic errors.
+See {introspection}.
+
+[,javascript]
+----
 trait ISRC5 {
     fn supports_interface(interface_id: felt252) -> bool;
 }
 ----
 
-=== ERC721 Compatibility
+=== IERC721Metadata
 
-:erc165-storage: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.6.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
+The `ERC721Metadata` extension allows a smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
+The vast majority of NFT contracts include this interface.
+
+[,javascript]
+----
+trait IERC721Metadata {
+    fn name() -> felt252;
+    fn symbol() -> felt252;
+    fn token_uri(token_id: u256) -> felt252;
+}
+----
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 

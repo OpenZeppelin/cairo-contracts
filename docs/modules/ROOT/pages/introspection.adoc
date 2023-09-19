@@ -75,7 +75,7 @@ mod Contract {
     struct Storage {}
 
     #[external(v0)]
-    fn foo(ref self: ContractState, target: ContractAddress) {
+    fn target_is_account(ref self: ContractState, target: ContractAddress) {
         let args = array![interface::ISRC6_ID];
         let selector = selector!("supports_interface");
 

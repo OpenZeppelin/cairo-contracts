@@ -94,6 +94,8 @@ trait IERC721Metadata {
 == ERC721 Compatibility
 
 :erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
+:src5-api: xref:introspection.adoc#src5[SRC-5]
+:eip165: https://eips.ethereum.org/EIPS/eip-165[EIP165]
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard by utilizing Cairo's short strings to simulate `name` and `symbol`.
 This implementation does, however, include a few notable differences such as:
@@ -104,7 +106,7 @@ If a token's URI is not set, the returned value is `0`.
 Note that URIs cannot exceed 31 characters at this time.
 See <<storing_erc721_uris,Storing ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
-The hardcoded values derive from Starknet's selector calculcations.
+The hardcoded values derive from Starknet's selector calculations.
 See the {introspection} docs.
 * `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721, because function overloading is currently not possible in Cairo.
 The difference between both functions consists of accepting `data` as an argument.
@@ -113,8 +115,8 @@ If `data` is not used, simply pass an empty array.
 * `safe_transfer_from` is specified such that the optional `data` argument should be of type bytes.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
-* `SRC5.register_interface` allows contracts to set and communicate which interfaces they support.
-This is similar to OpenZeppelin's {erc165-storage}.
+* ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
+The design for `SRC-5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded selector id according to Starknet selectors (as opposed to selector calculation in Solidity).
 
 == Usage

@@ -72,7 +72,6 @@ mod MyAccount {
     use openzeppelin::account::account::PublicKeyTrait;
     use openzeppelin::account::interface;
     use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::src5::SRC5;
     use starknet::account::Call;
 
     // Storage members used by this contract are defined in each imported

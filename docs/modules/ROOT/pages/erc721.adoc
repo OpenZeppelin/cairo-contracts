@@ -6,11 +6,11 @@
 :introspection: xref:/introspection.adoc[Introspection]
 
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.
-The `erc721.cairo` contract implements an approximation of {eip721} in Cairo for StarkNet.
+The `erc721.cairo` contract implements an approximation of {eip721} in Cairo for Starknet.
 
 TIP: For detailed information on the usage and implementation check the {erc721-api} section.
 
-== IERC721
+== IERC721 Interface
 
 [,javascript]
 ----
@@ -48,7 +48,7 @@ trait ISRC5 {
 
 :erc165-storage: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v0.6.1/contracts/utils/introspection/ERC165Storage.sol[ERC165Storage]
 
-Although StarkNet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard in the following ways:
 
 * It makes use of Cairo's short strings to simulate `name` and `symbol`.
 
@@ -62,9 +62,9 @@ See <<storing_erc721_uris,Storing ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Starknet's selector calculcations.
 See the {introspection} docs.
-* `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721.
+* `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721, because function overloading is currently not possible in Cairo.
 The difference between both functions consists of accepting `data` as an argument.
-Because function overloading is currently not possible in Cairo, `safe_transfer_from` by default accepts the `data` argument.
+`safe_transfer_from` by default accepts the `data` argument.
 If `data` is not used, simply pass an empty array.
 * `safe_transfer_from` is specified such that the optional `data` argument should be of type bytes.
 In Solidity, this means a dynamically-sized array.
@@ -107,9 +107,9 @@ mod MyNFT {
         let token_uri = 'NFT_URI';
 
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
-        // Initialize ERC721
+        // Initialize the ERC721 storage
         ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        // Mint NFT
+        // Mint the NFT to recipient
         ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
         // Set the token's URI
         ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
@@ -149,7 +149,7 @@ mod MyNFT {
 ----
 
 In order for the `MyNFT` contract to extend the ERC721 contract, it utilizes the `unsafe_new_contract_state`.
-The unsafe contract state allows access to ERC721's implementations.
+The unsafe contract state allows access to ERC721's storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
 The constructor then calls `_mint` to create a one-of-one NFT. Finally, the constructor sets the token URI.
 
@@ -165,7 +165,7 @@ If using `transfer_from`, *the caller is responsible to confirm that the recipie
 The `safe_transfer_from` method mitigates this risk by querying the recipient contract's interface support.
 
 
-The safe mechanism first queries if the recipient contract supports the IERC721Receiver interface through introspection ({src-5}).
+The safe mechanism first queries if the recipient contract supports the `IERC721Receiver` interface through introspection ({src-5}).
 If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the ISRC-6 interface, which is the standard account contract interface.
 If either case is true, then the token transfer behaves as if `transfer_from` was called.
 Otherwise, the transfer will fail.
@@ -252,7 +252,7 @@ mod ERC721Receiver {
     }
 
     /// Implement the ISRC-5 interface so the sender contract can query
-    /// if the recipient supports the token receiver interface ID
+    /// if the recipient supports the token receiver interface ID.
     #[external(v0)]
     impl ISRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
@@ -261,7 +261,7 @@ mod ERC721Receiver {
         }
     }
 
-    /// Implement the token receiver interface
+    /// Implement the token receiver interface.
     #[external(v0)]
     impl ERC721ReceiverImpl of interface::IERC721Receiver<ContractState> {
         fn on_erc721_received(
@@ -289,7 +289,7 @@ Once Cairo offers full string support, this will be revisited.
 
 == Presets
 
-ERC721 presets have been created to allow for quick deployments as-is whic are a great option for testing and prototyping.
+ERC721 presets have been created to allow for quick deployments as-is which are a great option for testing and prototyping.
 
 == Extensions
 

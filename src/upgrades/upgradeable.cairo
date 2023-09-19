@@ -1,8 +1,6 @@
 #[starknet::contract]
 mod Upgradeable {
     use starknet::ClassHash;
-    use starknet::SyscallResult;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}

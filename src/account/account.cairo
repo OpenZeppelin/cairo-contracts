@@ -46,7 +46,7 @@ mod Account {
 
     #[storage]
     struct Storage {
-        public_key: felt252
+        Account_public_key: felt252
     }
 
     #[event]
@@ -150,12 +150,12 @@ mod Account {
     #[external(v0)]
     impl PublicKeyImpl of super::PublicKeyTrait<ContractState> {
         fn get_public_key(self: @ContractState) -> felt252 {
-            self.public_key.read()
+            self.Account_public_key.read()
         }
 
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
-            self.emit(OwnerRemoved { removed_owner_guid: self.public_key.read() });
+            self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
             self._set_public_key(new_public_key);
         }
     }
@@ -163,7 +163,7 @@ mod Account {
     #[external(v0)]
     impl PublicKeyCamelImpl of super::PublicKeyCamelTrait<ContractState> {
         fn getPublicKey(self: @ContractState) -> felt252 {
-            self.public_key.read()
+            self.Account_public_key.read()
         }
 
         fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
@@ -202,7 +202,7 @@ mod Account {
         }
 
         fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
-            self.public_key.write(new_public_key);
+            self.Account_public_key.write(new_public_key);
             self.emit(OwnerAdded { new_owner_guid: new_public_key });
         }
 
@@ -213,7 +213,7 @@ mod Account {
 
             if valid_length {
                 check_ecdsa_signature(
-                    hash, self.public_key.read(), *signature.at(0_u32), *signature.at(1_u32)
+                    hash, self.Account_public_key.read(), *signature.at(0_u32), *signature.at(1_u32)
                 )
             } else {
                 false

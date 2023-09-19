@@ -90,6 +90,7 @@ Here’s what that looks like:
 mod MyNFT {
     use starknet::ContractAddress;
     use openzeppelin::token::erc721::ERC721;
+    use openzeppelin::token::erc721::interface;
     use openzeppelin::introspection::interface::ISRC5;
 
     #[storage]
@@ -125,7 +126,7 @@ mod MyNFT {
 
     /// Implement the standard IERC721 interface.
     #[external(v0)]
-    impl MyTokenImpl of IERC721<ContractState> {
+    impl MyTokenImpl of interface::IERC721<ContractState> {
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             let unsafe_state = ERC721::unsafe_new_contract_state();
             ERC721::ERC721Impl::balance_of(@unsafe_state, account) 
@@ -136,7 +137,7 @@ mod MyNFT {
 
     /// Implement the IERC721Metadata interface.
     #[external(v0)]
-    impl MyTokenMetadataImpl of IERC721Metadata<ContractState> {
+    impl MyTokenMetadataImpl of interface::IERC721Metadata<ContractState> {
         fn name(self: @ContractState) -> felt252 {
             let unsafe_state = ERC721::unsafe_new_contract_state();
             ERC721::ERC721Impl::name(@unsafe_state) 

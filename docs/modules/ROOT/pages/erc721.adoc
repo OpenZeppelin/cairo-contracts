@@ -330,26 +330,3 @@ Each field element equates to 252-bits (or 31.5 bytes) which means that a token'
 
 NOTE: Native string support in Cairo is currently in progress and tracked {string-roadmap}.
 Once Cairo offers full string support, this will be revisited.
-
-== Presets
-
-ERC721 presets have been created to allow for quick deployments as-is which are a great option for testing and prototyping.
-
-== Extensions
-
-ERC721 includes the optional <<erc721metadata,ERC721Metadata>> extension as well as other forthcoming extensions.
-
-=== ERC721Metadata
-
-[,javascript]
-----
-trait IERC721Metadata {
-    fn name() -> felt252;
-    fn symbol() -> felt252;
-    fn token_uri(token_id: u256) -> felt252;
-}
-----
-
-The `ERC721Metadata` extension allows a smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
-
-Contracts for Cairo follows the Solidity Contracts approach of integrating the metadata methods `name`, `symbol`, and `token_uri` (`tokenURI` in Solidity) into all ERC721 implementations.

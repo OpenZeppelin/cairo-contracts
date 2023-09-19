@@ -68,7 +68,6 @@ Use the `supports_interface` function to query a contract's support for a given 
 #[starknet::contract]
 mod Contract {
     use openzeppelin::account::interface;
-    use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;
 
     #[storage]

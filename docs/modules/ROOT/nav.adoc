@@ -1,7 +1,8 @@
 * xref:index.adoc[Overview]
-// * xref:wizard.adoc[Wizard]
-// * xref:extensibility.adoc[Extensibility]
-// * xref:proxies.adoc[Proxies and Upgrades]
+//* xref:wizard.adoc[Wizard]
+//* xref:extensibility.adoc[Extensibility]
+//* xref:proxies.adoc[Proxies and Upgrades]
+* xref:interfaces.adoc[Interfaces and Dispatchers]
 
 * xref:accounts.adoc[Accounts]
 ** xref:/guides/deployment.adoc[Counterfactual deployments]

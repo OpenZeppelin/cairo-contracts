@@ -122,6 +122,7 @@ The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 == Usage
 
 :components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
+:mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
 
 WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
 This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully.
@@ -197,7 +198,7 @@ mod MyNFT {
 In order for the `MyNFT` contract to extend the ERC721 contract, it utilizes the `unsafe_new_contract_state`.
 The unsafe contract state allows access to ERC721's storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
-The constructor then calls `_mint` to create a one-of-one NFT. Finally, the constructor sets the token URI.
+The constructor then calls {mint-api} to create a one-of-one NFT. Finally, the constructor sets the token URI.
 
 Below the constructor, this contract includes two implementations: `IERC721` and `IERC721Metadata`.
 `IERC721Metadata` isn't technically required to create an ERC721 contract; however, most contracts include the metadata interface.
@@ -246,6 +247,9 @@ fn _check_on_erc721_received(
 :src5: xref:introspection.adoc#src5[SRC5]
 :on_erc721_received-api: xref:api/erc721.adoc#IERC721Receiver-on_erc721_received[on_erc721_received]
 :computing-interface-id: xref:introspection.adoc#computing_the_interface_id[Computing the interface ID]
+:safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
+:safe_mint-api: xref:api/erc721.adoc#ERC721-_safe_mint[_safe_mint]
+
 
 In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface.
 The recipient contract must also implement the {src5} interface which, as described earlier, supports interface introspection.
@@ -265,7 +269,7 @@ trait IERC721Receiver {
 ----
 
 Implementing the `IERC721Receiver` interface exposes the {on_erc721_received-api} method.
-When safe methods such as `safe_transfer_from` and `_safe_mint` are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the IERC721Receiver interface ID.
+When safe methods such as {safe_transfer_from-api} and {safe_mint-api} are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the IERC721Receiver interface ID.
 Otherwise, the transaction will fail.
 
 TIP: For information on how to calculate interface IDs, see {computing-interface-id}.

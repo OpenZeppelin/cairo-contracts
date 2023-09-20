@@ -324,12 +324,14 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 
 ==== Functions
 
+:src5: xref:introspection.adoc#src5[SRC5]
+
 [.contract-item]
 [[ERC721-constructor]]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#constructor#
 
 Initializes the state of the ERC721 contract by setting the token name and symbol.
-The constructor also registers the IERC721 and IERC721_METADATA interface ids according to SRC-5.
+The constructor also registers the IERC721 and IERC721_METADATA interface ids according to {src5}.
 
 [.contract-item]
 [[ERC721-tokenURI]]

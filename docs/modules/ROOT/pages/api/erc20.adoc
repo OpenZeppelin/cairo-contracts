@@ -162,7 +162,13 @@ use openzeppelin::token::erc20::ERC20;
 Implementation of the <<IERC20,IERC20>> interface.
 
 [.contract-index]
-.External Functions
+.Constructor
+--
+* xref:#ERC20-constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
+--
+
+[.contract-index]
+.External functions
 --
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
@@ -191,9 +197,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 --
 
 [.contract-index]
-.Internal Functions
+.Internal functions
 --
-* xref:#ERC20-constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
 
 [.contract-subindex-inherited]
 .InternalImpl
@@ -216,8 +221,18 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
 --
 
-[#ERC20-Functions]
-==== Functions
+[#ERC20-Constructor]
+==== Constructor
+
+[.contract-item]
+[[ERC20-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+
+Sets both the token name and symbol and mints `initial_supply` to `recipient`.
+Note that the token name and symbol are immutable once set through the constructor.
+
+[#ERC20-External-functions]
+==== External functions
 
 [.contract-item]
 [[ERC20-name]]
@@ -340,12 +355,8 @@ See <<ERC20-decrease_allowance,decrease_allowance>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
-[.contract-item]
-[[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
-
-Sets both the token name and symbol and mints `initial_supply` to `recipient`.
-Note that the token name and symbol are immutable once set through the constructor.
+[#ERC20-Internal-functions]
+==== Internal functions
 
 [.contract-item]
 [[ERC20-initializer]]

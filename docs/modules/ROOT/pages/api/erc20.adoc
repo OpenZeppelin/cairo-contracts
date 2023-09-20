@@ -203,7 +203,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-subindex-inherited]
 .InternalImpl
 
-* xref:#ERC20-initializer[`++initializer(self, name_, symbol_)++`]
+* xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]
 * xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
 * xref:#ERC20-_mint[`++_mint(self, recipient, amount)++`]
@@ -360,7 +360,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[ERC20-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name_: felt252, symbol_: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#internal#
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside of the contract's constructor.

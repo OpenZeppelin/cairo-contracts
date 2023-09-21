@@ -63,7 +63,7 @@ trait IERC721 {
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
 
 `ISRC5`, from the {snip5} standard, allows for other contracts to query if the implementing contract supports a specific interface.
-This is especially important with NFT contracts because if an NFT is transferred to a contract that does not support the `IERC721` interface, the NFT may be lost forever.
+This is especially important with NFT contracts because if an NFT is transferred to a contract that does not support the `IERC721Receiver` interface, the NFT may be lost forever.
 To mitigate this risk, the `ISRC5` interface allows for interface introspection which helps facilitate safe token transfers.
 
 TIP: `ISRC5` is very similar to Ethereum's {eip165}.

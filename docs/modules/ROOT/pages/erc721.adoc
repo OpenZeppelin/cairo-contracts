@@ -156,10 +156,8 @@ mod MyNFT {
         let mut unsafe_state = ERC721::unsafe_new_contract_state();
         // Initialize the ERC721 storage
         ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        // Mint the NFT to recipient
-        ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
-        // Set the token's URI
-        ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+        // Mint the NFT to recipient and set the token's URI
+        _mint_with_uri(recipient, token_id, token_uri);
     }
 
     /// Implement the ISRC5 interface.
@@ -192,16 +190,24 @@ mod MyNFT {
 
         (...)
     }
+
+    #[internal]
+    fn _mint_with_uri(
+        recipient: ContractAddress,
+        token_id: u256,
+        token_uri: felt252
+    ) {
+        let mut unsafe_state = ERC721::unsafe_new_contract_state();
+        ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
+        ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+    }
 }
 ----
 
 In order for the `MyNFT` contract to extend the ERC721 contract, it utilizes the `unsafe_new_contract_state`.
 The unsafe contract state allows access to ERC721's storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
-The constructor then calls {mint-api} to create a one-of-one NFT. Finally, the constructor sets the token URI.
-
-Below the constructor, this contract includes two implementations: `IERC721` and `IERC721Metadata`.
-`IERC721Metadata` isn't technically required to create an ERC721 contract; however, most contracts include the metadata interface.
+Next, the constructor calls the custom internal function `_mint_with_uri` that mints a one-of-one NFT and sets the URI for the minted token ID.
 
 === Token Transfers
 

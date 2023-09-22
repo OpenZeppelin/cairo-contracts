@@ -43,6 +43,9 @@ Interface of the IERC20 standard as defined in {eip20}.
 * xref:#IERC20-Approval[`++Approval(owner, spender, value)++`]
 --
 
+[#IERC20-Functions]
+==== Functions
+
 [.contract-item]
 [[IERC20-name]]
 ==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
@@ -134,6 +137,9 @@ Emits an <<ERC20-Approval,Approval>> event.
 Requirements:
 
 - `spender` cannot be the zero address.
+
+[#IERC20-Events]
+==== Events
 
 [.contract-item]
 [[IERC20-Transfer]]

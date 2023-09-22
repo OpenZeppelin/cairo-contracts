@@ -68,6 +68,8 @@ Use the `supports_interface` function to query a contract's support for a given 
 #[starknet::contract]
 mod Contract {
     use openzeppelin::account::interface;
+    use openzeppelin::introspection::interface::ISRC5DispatcherTrait;
+    use openzeppelin::introspection::interface::ISRC5Dispatcher;
     use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;
 
@@ -76,14 +78,8 @@ mod Contract {
 
     #[external(v0)]
     fn target_is_account(ref self: ContractState, target: ContractAddress) {
-        let args = array![interface::ISRC6_ID];
-        let selector = selector!("supports_interface");
-
-        let mut is_account_raw = starknet::call_contract_syscall(target, selector, args.span())
-            .unwrap();
-        let is_account = Serde::<bool>::deserialize(ref is_account_raw).unwrap();
-
-        (...)
+        let dispatcher = ISRC5Dispatcher { contract_address: target };
+        dispatcher.supports_interface(interface::ISRC6_ID)
     }
 }
 ----

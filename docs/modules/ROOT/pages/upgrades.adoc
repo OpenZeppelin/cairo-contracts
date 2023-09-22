@@ -92,16 +92,9 @@ trait IUpgradeable {
 
 == Proxies and Starknet
 
-A proxy contract is a contract that delegates function calls to another contract.
-This type of pattern decouples state and logic.
-Proxy contracts store the state and redirect function calls to an implementation contract that handles the logic,
-usually catching these calls with a fallback mechanism.
-This allows for different patterns such as upgrades, where implementation contracts can change but the proxy contract (and thus the state) does not;
-as well as deploying multiple proxy instances pointing to the same implementation.
-This can be useful to deploy many contracts with identical logic but unique initialization data.
+Proxies allow for different patterns such as upgrades as well as deploying multiple clones of the same contract. But Starknet achieves these two things in different ways.
 
-In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the class hash of the declared implementation.
-This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application.
+In the case of contract upgrades, it is achieved by simply changing the contract's class hash. In the case of clones, that's already how contracts and classes work.
 
 In Starknet, implementing a proxy pattern has an important limitation: there is no fallback mechanism to be used
 for redirecting every potential function call to the implementation contract. This means a generic proxy contract

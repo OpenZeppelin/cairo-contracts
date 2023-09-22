@@ -11,7 +11,6 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 [[ISRC5]]
 === `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::introspection::interface::ISRC5;
 ```
@@ -40,7 +39,6 @@ on how to compute this ID.
 [[SRC5]]
 === `++SRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/introspection/src5.cairo[{github-icon},role=heading-link]
 
-[.hljs-theme-light.nopadding]
 ```javascript
 use openzeppelin::introspection::src5::SRC5;
 ```
@@ -66,23 +64,26 @@ SRC5 contract implementation extending xref:ISRC5[`ISRC5`].
 * xref:#SRC5-deregister_interface[`++deregister_interface(self, interface_id)++`]
 --
 
-[#SRC5-Functions]
-==== Functions
-
-[.contract-item]
-[[SRC5-register_interface]]
-==== `[.contract-item-name]#++register_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
-
-Registers support for the given interface ID.
-
-[.contract-item]
-[[SRC5-deregister_interface]]
-==== `[.contract-item-name]#++deregister_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
-
-Deregisters support for the given interface ID.
+[#SRC5-External-Functions]
+==== External Functions
 
 [.contract-item]
 [[SRC5-supports_interface]]
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
 See xref:ISRC5-supports_interface[`ISRC5::supports_interface`].
+
+[#SRC5-Internal-Functions]
+==== Internal Functions
+
+[.contract-item]
+[[SRC5-register_interface]]
+==== `[.contract-item-name]#++register_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
+
+Registers support for the given `interface_id`.
+
+[.contract-item]
+[[SRC5-deregister_interface]]
+==== `[.contract-item-name]#++deregister_interface++#++(ref self: ContractState, interface_id: felt252)++` [.item-kind]#internal#
+
+Deregisters support for the given `interface_id`.

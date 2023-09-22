@@ -2,7 +2,7 @@
 :AccessControl: xref:AccessControl[AccessControl]
 :Ownable: xref:Ownable[Ownable]
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
-:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :_set_role_admin: xref:#AccessControl-_set_role_admin[_set_role_admin]
 
 = Access Control
@@ -33,12 +33,6 @@ use openzeppelin::access::ownable::Ownable;
 This module includes the `assert_only_owner` internal to restrict a function to be used only by the owner.
 
 [.contract-index]
-.Utilities
---
-* xref:Ownable-assert_only_owner[`++InternalImpl::assert_only_owner(self)++`]
---
-
-[.contract-index]
 .External Functions
 --
 [.contract-subindex-inherited]
@@ -57,6 +51,7 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 
 * xref:Ownable-initializer[`++initializer(self, owner)++`]
 * xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
+* xref:Ownable-assert_only_owner[`++assert_only_owner(self)++`]
 --
 
 [.contract-index]
@@ -65,17 +60,8 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 * xref:Ownable-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
 --
 
-[#Ownable-Utilities]
-==== Utilities
-
-[.contract-item]
-[[Ownable-assert_only_owner]]
-==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Panics if called by any account other than the owner.
-
-[#Ownable-Functions]
-==== Functions
+[#Ownable-External-Functions]
+==== External Functions
 
 [.contract-item]
 [[Ownable-owner]]
@@ -102,6 +88,9 @@ Can only be called by the current owner.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
+[#Ownable-Internal-Functions]
+==== Internal Functions
+
 [.contract-item]
 [[Ownable-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
@@ -118,6 +107,12 @@ Transfers ownership of the contract to a new account (`new_owner`).
 Internal function without access restriction.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-assert_only_owner]]
+==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Panics if called by any account other than the owner.
 
 [#Ownable-Events]
 ==== Events
@@ -145,7 +140,7 @@ use openzeppelin::access::accesscontrol::interface::IAccessControl;
 External interface of AccessControl.
 
 [.contract-index]
-.{inner-src5} ID
+.{inner-src5}
 --
 0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751
 --
@@ -278,8 +273,7 @@ Roles are referred to by their `felt252` identifier:
 
 ```javascript
 // sn_keccak('MY_ROLE')
-const MY_ROLE: felt252 =
-    0x3c877e40edb41710f0baf588c878ee15a04499b06ae8c98cf488875d91a7213;
+const MY_ROLE: felt252 = selector!('MY_ROLE');
 ```
 
 Roles can be used to represent a set of permissions. To restrict access to a
@@ -314,12 +308,6 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index]
-.Utilities
---
-* xref:#AccessControl-assert_only_role[`++InternalImpl::assert_only_role(self, role)++`]
---
-
-[.contract-index]
 .External Functions
 --
 [.contract-subindex-inherited]
@@ -346,6 +334,7 @@ accounts that have been granted it.
 * xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
 * xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
 * xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
+* xref:#AccessControl-assert_only_role[`++assert_only_role(self, role)++`]
 --
 
 [.contract-index]
@@ -358,17 +347,8 @@ accounts that have been granted it.
 * xref:#AccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
 --
 
-[#AccessControl-Utilities]
-==== Utilities
-
-[.contract-item]
-[[AccessControl-assert_only_role]]
-==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
-
-Panics if called by any account without the given `role`.
-
-[#AccessControl-Functions]
-==== Functions
+[#AccessControl-External-Functions]
+==== External Functions
 
 [.contract-item]
 [[AccessControl-has_role]]
@@ -439,6 +419,9 @@ May emit a {RoleRevoked} event.
 
 Returns whether a contract implements a given interface or not.
 
+[#AccessControl-Internal-Functions]
+==== Internal Functions
+
 [.contract-item]
 [[AccessControl-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
@@ -472,6 +455,12 @@ Revokes `role` from `account`.
 Internal function without access restriction.
 
 May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-assert_only_role]]
+==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
+
+Panics if called by any account without the given `role`.
 
 [#AccessControl-Events]
 ==== Events

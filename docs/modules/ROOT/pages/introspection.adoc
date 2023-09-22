@@ -74,7 +74,7 @@ mod Contract {
     struct Storage {}
 
     #[external(v0)]
-    fn target_is_account(ref self: ContractState, target: ContractAddress) {
+    fn query_is_account(self: @ContractState, target: ContractAddress) -> bool {
         let args = array![interface::ISRC6_ID];
         let selector = selector!("supports_interface");
 

@@ -19,8 +19,8 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 
 /// Pop the earliest unpopped logged event for the contract as the requested type
 /// and checks there's no more data left on the event, preventing unaccounted params.
-/// This function also removes the hashed event name key (the first key)
-/// to support indexed event members.
+/// This function also removes the hashed event-name key to support indexed event
+/// members.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress
 ) -> Option<T> {

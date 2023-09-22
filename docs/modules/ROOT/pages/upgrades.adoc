@@ -14,7 +14,7 @@ Multiple patterns have been developed for making a contract upgradeable includin
 
 Starknet has native upgradeability through a syscall that updates the contract source code, removing the need for proxies.
 
-== Replacing Contract Classes
+== Replacing contract classes
 
 To better comprehend how upgradeability works in Starknet, it's important to understand the difference between a contract and its contract class.
 

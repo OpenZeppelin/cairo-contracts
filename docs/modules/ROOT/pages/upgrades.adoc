@@ -82,8 +82,6 @@ mod UpgradeableContract {
 
 === Interface
 
-Implementing this interface to support upgradeability, supports interoperability by for example allowing DAOs
-and plugins to connect to contracts and upgrade them.
 
 [,javascript]
 ----

@@ -32,7 +32,7 @@ Interface of an upgradeable contract.
 [[IUpgradeable-upgrade]]
 ==== `[.contract-item-name]#++upgrade++#++(new_class_hash: ClassHash)++` [.item-kind]#external#
 
-Upgrades the contract by updating the contract {class_hash}.
+Upgrades the contract code by updating its {class_hash}.
 
 NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
 

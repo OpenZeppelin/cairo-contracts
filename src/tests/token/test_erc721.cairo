@@ -18,8 +18,8 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721::{
-    ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataCamelOnlyImpl, ERC721MetadataImpl,
-    InternalImpl, SRC5CamelImpl, SRC5Impl,
+    ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataCamelOnlyImpl, ERC721MetadataImpl, InternalImpl,
+    SRC5CamelImpl, SRC5Impl,
 };
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
@@ -1401,28 +1401,31 @@ fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ERC721::Event>(ZERO()).unwrap();
-    assert(event == ERC721::Event::ApprovalForAll(ERC721::ApprovalForAll {
-        owner: owner,
-        operator: operator,
-        approved: approved
-    }), 'Invalid `ApprovalForAll` event');
+    assert(
+        event == ERC721::Event::ApprovalForAll(
+            ERC721::ApprovalForAll { owner: owner, operator: operator, approved: approved }
+        ),
+        'Invalid `ApprovalForAll` event'
+    );
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<ERC721::Event>(ZERO()).unwrap();
-    assert(event == ERC721::Event::Approval(ERC721::Approval {
-        owner: owner,
-        approved: approved,
-        token_id: token_id
-    }), 'Invalid `Approval` event');
+    assert(
+        event == ERC721::Event::Approval(
+            ERC721::Approval { owner: owner, approved: approved, token_id: token_id }
+        ),
+        'Invalid `Approval` event'
+    );
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<ERC721::Event>(ZERO()).unwrap();
-    assert(event == ERC721::Event::Transfer(ERC721::Transfer {
-        from: from,
-        to: to,
-        token_id: token_id
-    }), 'Invalid `Transfer` event');
+    assert(
+        event == ERC721::Event::Transfer(
+            ERC721::Transfer { from: from, to: to, token_id: token_id }
+        ),
+        'Invalid `Transfer` event'
+    );
 }

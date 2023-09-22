@@ -597,11 +597,12 @@ fn test__burn_from_zero() {
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
     let event = utils::pop_log::<ERC20::Event>(ZERO()).unwrap();
-    assert(event == ERC20::Event::Approval(ERC20::Approval {
-        owner: owner,
-        spender: spender,
-        value: value
-    }), 'Invalid `Approval` event');
+    assert(
+        event == ERC20::Event::Approval(
+            ERC20::Approval { owner: owner, spender: spender, value: value }
+        ),
+        'Invalid `Approval` event'
+    );
 }
 
 fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
@@ -611,11 +612,10 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
     let event = utils::pop_log::<ERC20::Event>(ZERO()).unwrap();
-    assert(event == ERC20::Event::Transfer(ERC20::Transfer {
-        from: from,
-        to: to,
-        value: value
-    }), 'Invalid `Transfer` event');
+    assert(
+        event == ERC20::Event::Transfer(ERC20::Transfer { from: from, to: to, value: value }),
+        'Invalid `Transfer` event'
+    );
 }
 
 fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {

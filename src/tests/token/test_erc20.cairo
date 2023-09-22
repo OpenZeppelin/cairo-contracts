@@ -5,11 +5,9 @@ use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20::Approval;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
-use openzeppelin::token::erc20::ERC20::Transfer;
 use openzeppelin::token::erc20::ERC20;
 use option::OptionTrait;
 use starknet::ContractAddress;
@@ -598,10 +596,12 @@ fn test__burn_from_zero() {
 //
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.spender == spender, 'Invalid `spender`');
-    assert(event.value == value, 'Invalid `value`');
+    let event = utils::pop_log::<ERC20::Event>(ZERO()).unwrap();
+    assert(event == ERC20::Event::Approval(ERC20::Approval {
+        owner: owner,
+        spender: spender,
+        value: value
+    }), 'Invalid `Approval` event');
 }
 
 fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
@@ -610,10 +610,12 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.value == value, 'Invalid `value`');
+    let event = utils::pop_log::<ERC20::Event>(ZERO()).unwrap();
+    assert(event == ERC20::Event::Transfer(ERC20::Transfer {
+        from: from,
+        to: to,
+        value: value
+    }), 'Invalid `Transfer` event');
 }
 
 fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {

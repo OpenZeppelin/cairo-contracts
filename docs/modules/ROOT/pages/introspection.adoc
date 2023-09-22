@@ -77,7 +77,7 @@ mod Contract {
     struct Storage {}
 
     #[external(v0)]
-    fn target_is_account(ref self: ContractState, target: ContractAddress) {
+    fn query_is_account(self: @ContractState, target: ContractAddress) -> bool {
         let dispatcher = ISRC5Dispatcher { contract_address: target };
         dispatcher.supports_interface(interface::ISRC6_ID)
     }

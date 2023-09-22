@@ -1,8 +1,9 @@
-:contract_class: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-classes/[Contract Class]
+:contract_classes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-classes/[Contract Classes]
 :class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
 :replace_class_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#replace_class[replace_class]
 :upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/upgrades/upgradeable.cairo[Upgradeable]
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
+:library_calls: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#library_call[library calls]
 
 = Upgradeability
 
@@ -18,7 +19,7 @@ Starknet has native upgradeability through a syscall that updates the contract s
 
 To better comprehend how upgradeability works in Starknet, it's important to understand the difference between a contract and its contract class.
 
-Contract classes represent the source code of a program. All contracts are associated to a class, and many contracts can be instances of the same one. Classes are usually represented by a hash also known as "class hash", and before a contract of a certain class can be deployed the hash needs to be declared.
+{contract_classes} represent the source code of a program. All contracts are associated to a class, and many contracts can be instances of the same one. Classes are usually represented by a hash also known as "{class_hash}", and before a contract of a certain class can be deployed the hash needs to be declared.
 
 === `replace_class_syscall`
 
@@ -36,7 +37,7 @@ fn _upgrade(new_class_hash: ClassHash) {
 }
 ----
 
-NOTE: If a contract is deployed without this mechanism, the source code is effectively immutable.
+NOTE: If a contract is deployed without this mechanism, its class hash can still be replaced through {library_calls}.
 
 == `Upgradeable` module
 
@@ -108,7 +109,7 @@ This can be useful to deploy many contracts with identical logic but unique init
 In the case of contract upgrades, it is achieved by simply changing the proxy's reference to the class hash of the declared implementation.
 This allows developers to add features, update logic, and fix bugs without touching the state or the contract address to interact with the application.
 
-In Starknet, implementing a proxy pattern has an important limitation: there is no fallback mechanism to be used
-for redirecting every potential function call to the implementation contract. This means a generic proxy contract
+Implementing a proxy pattern in Starknet has an important limitation: there is no fallback mechanism to be used
+for redirecting every potential function call to the implementation. This means that a generic proxy contract
 can't be implemented. Instead, a proxy contract must be implemented with each specific function that is going to be redirected.
 This can still be useful for example with upgrading the logic of some functions.

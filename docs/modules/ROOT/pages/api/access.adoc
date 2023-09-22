@@ -30,8 +30,7 @@ use openzeppelin::access::ownable::Ownable;
 `Ownable` provides a basic access control mechanism where an account
  (an owner) can be granted exclusive access to specific functions.
 
-This module provides an internal utility named `assert_only_owner`, which can be applied to your functions
-to restrict their use to the owner.
+This module includes the `assert_only_owner` internal to restrict a function to be used only by the owner.
 
 [.contract-index]
 .Utilities

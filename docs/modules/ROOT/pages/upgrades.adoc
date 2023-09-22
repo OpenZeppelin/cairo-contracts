@@ -6,7 +6,7 @@
 
 = Upgradeability
 
-Smart contracts are immutable by design, preventing any update after the contract is deployed.
+Smart contracts are immutable by design, by default preventing any update after the contract is deployed.
 This supports decentralization and trustlessness, but in certain cases can be an drawback for example
 by removing the ability of fixing bugs or vulnerabilities.
 
@@ -55,6 +55,7 @@ avoid unauthorized upgrades. The {ownable} module is used for this example.
 mod UpgradeableContract {
     use openzeppelin::access::ownable::Ownable;
     use openzeppelin::upgrades::Upgradeable;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
@@ -68,14 +69,16 @@ mod UpgradeableContract {
     }
 
     #[external(v0)]
-    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-        // This function can only be called by the owner
-        let ownable_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::assert_only_owner(@ownable_state);
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            // This function can only be called by the owner
+            let ownable_state = Ownable::unsafe_new_contract_state();
+            Ownable::InternalImpl::assert_only_owner(@ownable_state);
 
-        // Replace the class hash upgrading the contract
-        let mut upgradeable_state = Upgradeable::unsafe_new_contract_state();
-        Upgradeable::InternalImpl::upgrade(ref upgradeable_state, new_class_hash);
+            // Replace the class hash upgrading the contract
+            let mut upgradeable_state = Upgradeable::unsafe_new_contract_state();
+            Upgradeable::InternalImpl::upgrade(ref upgradeable_state, new_class_hash);
+        }
     }
 
     (...)

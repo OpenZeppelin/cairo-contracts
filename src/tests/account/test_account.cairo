@@ -106,7 +106,7 @@ fn test_constructor() {
     let mut state = STATE();
     Account::constructor(ref state, PUBLIC_KEY);
 
-    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 
@@ -452,10 +452,10 @@ fn test_public_key_setter_and_getter() {
     // Set key
     PublicKeyImpl::set_public_key(ref state, NEW_PUBKEY);
 
-    let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.removed_owner_guid == 0, 'Invalid old owner key');
 
-    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
     utils::assert_no_events_left(ACCOUNT_ADDRESS());
 
@@ -493,10 +493,10 @@ fn test_public_key_setter_and_getter_camel() {
     // Set key
     PublicKeyCamelImpl::setPublicKey(ref state, NEW_PUBKEY);
 
-    let event = testing::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.removed_owner_guid == 0, 'Invalid old owner key');
 
-    let event = testing::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
     utils::assert_no_events_left(ACCOUNT_ADDRESS());
 
@@ -526,7 +526,7 @@ fn test_initializer() {
     let mut state = STATE();
     Account::InternalImpl::initializer(ref state, PUBLIC_KEY);
 
-    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 
@@ -582,7 +582,7 @@ fn test__set_public_key() {
     let mut state = STATE();
     Account::InternalImpl::_set_public_key(ref state, PUBLIC_KEY);
 
-    let event = testing::pop_log::<OwnerAdded>(ZERO()).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBLIC_KEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 

@@ -32,14 +32,14 @@ mod ERC721 {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
         ApprovalForAll: ApprovalForAll
     }
 
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     struct Transfer {
         #[key]
         from: ContractAddress,
@@ -49,7 +49,7 @@ mod ERC721 {
         token_id: u256
     }
 
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     struct Approval {
         #[key]
         owner: ContractAddress,
@@ -59,7 +59,7 @@ mod ERC721 {
         token_id: u256
     }
 
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         #[key]
         owner: ContractAddress,

@@ -20,13 +20,13 @@ mod ERC20 {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     struct Transfer {
         #[key]
         from: ContractAddress,
@@ -35,7 +35,7 @@ mod ERC20 {
         value: u256
     }
 
-    #[derive(Drop, starknet::Event, PartialEq)]
+    #[derive(Drop, starknet::Event)]
     struct Approval {
         #[key]
         owner: ContractAddress,

@@ -176,8 +176,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .External functions
 --
-* xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
-* xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 
 [.contract-subindex-inherited]
 .IERC20
@@ -191,6 +189,12 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-transfer[`++transfer(self, recipient, amount)++`]
 * xref:#ERC20-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20-approve[`++approve(self, spender, amount)++`]
+
+[.contract-subindex-inherited]
+.Non-standard
+
+* xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
+* xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 
 [.contract-subindex-inherited]
 .ERC20Camel

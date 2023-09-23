@@ -41,8 +41,13 @@ trait IERC20CamelOnly<TState> {
     ) -> bool;
 }
 
+//
+// ERC20 ABI
+//
+
 #[starknet::interface]
 trait ERC20ABI<TState> {
+    // IERC20
     fn name(self: @TState) -> felt252;
     fn symbol(self: @TState) -> felt252;
     fn decimals(self: @TState) -> u8;
@@ -54,25 +59,19 @@ trait ERC20ABI<TState> {
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+
+    // Non-Standard
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(
         ref self: TState, spender: ContractAddress, subtracted_value: u256
     ) -> bool;
-}
 
-#[starknet::interface]
-trait ERC20CamelABI<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn decimals(self: @TState) -> u8;
+    // ERC20 Camel
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
-    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transferFrom(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
-    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
     fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
     fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
 }

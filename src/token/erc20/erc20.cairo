@@ -172,9 +172,9 @@ mod ERC20 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
-            self.ERC20_name.write(name_);
-            self.ERC20_symbol.write(symbol_);
+        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+            self.ERC20_name.write(name);
+            self.ERC20_symbol.write(symbol);
         }
 
         fn _increase_allowance(

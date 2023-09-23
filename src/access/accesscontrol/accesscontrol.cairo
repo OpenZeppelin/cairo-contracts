@@ -82,7 +82,7 @@ mod AccessControl {
     #[external(v0)]
     impl AccessControlImpl of interface::IAccessControl<ContractState> {
         fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-            self.AccessControl_role_members.read((role, account))
+            self.AccessControl_role_member.read((role, account))
         }
 
         fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
@@ -151,7 +151,7 @@ mod AccessControl {
         fn _grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
             if !AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
-                self.AccessControl_role_members.write((role, account), true);
+                self.AccessControl_role_member.write((role, account), true);
                 self.emit(RoleGranted { role, account, sender: caller });
             }
         }
@@ -159,7 +159,7 @@ mod AccessControl {
         fn _revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
             if AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
-                self.AccessControl_role_members.write((role, account), false);
+                self.AccessControl_role_member.write((role, account), false);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }
         }

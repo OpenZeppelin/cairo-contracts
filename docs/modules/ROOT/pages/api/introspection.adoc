@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = Introspection
 
@@ -16,6 +17,12 @@ use openzeppelin::introspection::interface::ISRC5;
 ```
 
 Interface of the SRC5 Introspection Standard as defined in {snip5}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x3f918d17e5ee77373b56385708f855659a07f75997f365cf87748628532a055
+--
 
 [.contract-index]
 .Functions

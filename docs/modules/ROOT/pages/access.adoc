@@ -68,7 +68,7 @@ mod MyContract {
 
 === Interface
 
-This is the full interface a contract must implement to be compliant with the `Ownable` implementation:
+This is the full interface of the `Ownable` implementation:
 
 [,javascript]
 ----
@@ -388,7 +388,7 @@ TIP: The `selector!` macro can be used to compute {sn_keccak} in Cairo.
 
 === Interface
 
-This is the full interface a contract must implement to be compliant with the `AccessControl` implementation:
+This is the full interface of the `AccessControl` implementation:
 
 [,javascript]
 ----

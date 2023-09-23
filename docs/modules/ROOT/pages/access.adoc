@@ -68,7 +68,7 @@ mod Contract {
 
 === Interface
 
-This is the full interface a contract must implement to be compliant with the `Ownable` implementation:
+This is the full interface of the `Ownable` implementation:
 
 [,javascript]
 ----

@@ -47,7 +47,7 @@ use openzeppelin::upgrades::upgradeable::Upgradeable;
 Upgradeable contract module.
 
 [.contract-index]
-.Functions
+.Internal Functions
 --
 [.contract-subindex-inherited]
 .InternalImpl
@@ -61,8 +61,8 @@ Upgradeable contract module.
 * xref:#Upgradeable-Upgraded[`++Upgraded(class_hash)++`]
 --
 
-[#Upgradeable-Functions]
-==== Functions
+[#Upgradeable-Internal-Functions]
+==== Internal Functions
 
 [.contract-item]
 [[Upgradeable-_upgrade]]

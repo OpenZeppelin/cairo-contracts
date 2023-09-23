@@ -5,7 +5,7 @@
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
 :library_calls: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#library_call[library calls]
 
-= Upgradeability
+= Upgrades
 
 Smart contracts are immutable by design, by default preventing any update after the contract is deployed.
 This supports decentralization and trustlessness, but in certain cases can be an drawback for example

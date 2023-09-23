@@ -2,7 +2,8 @@
 //* xref:wizard.adoc[Wizard]
 //* xref:extensibility.adoc[Extensibility]
 * xref:interfaces.adoc[Interfaces and Dispatchers]
-* xref:upgrades.adoc[Upgradeability]
+* xref:upgrades.adoc[Upgrades]
+** xref:/api/upgrades.adoc[API Reference]
 
 * xref:accounts.adoc[Accounts]
 ** xref:/guides/deployment.adoc[Counterfactual deployments]

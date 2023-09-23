@@ -98,7 +98,7 @@ trait IUpgradeable {
 
 Proxies allow for different patterns such as upgrades as well as deploying multiple clones of the same contract. But Starknet achieves these two things in different ways.
 
-In the case of contract upgrades, it is achieved by simply changing the contract's class hash. In the case of clones, that's already how contracts and classes work.
+In the case of contract upgrades, it is achieved by simply changing the contract's class hash. As of clones, contracts already are like clones of the class they implement.
 
 Implementing a proxy pattern in Starknet has an important limitation: there is no fallback mechanism to be used
 for redirecting every potential function call to the implementation. This means that a generic proxy contract

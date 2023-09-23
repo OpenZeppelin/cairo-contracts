@@ -76,7 +76,7 @@ mod UpgradeableContract {
 
             // Replace the class hash upgrading the contract
             let mut upgradeable_state = Upgradeable::unsafe_new_contract_state();
-            Upgradeable::InternalImpl::upgrade(ref upgradeable_state, new_class_hash);
+            Upgradeable::InternalImpl::_upgrade(ref upgradeable_state, new_class_hash);
         }
     }
 

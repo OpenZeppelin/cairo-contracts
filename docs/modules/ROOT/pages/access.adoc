@@ -28,7 +28,7 @@ xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 use openzeppelin::access::ownable::Ownable;
 
 #[starknet::contract]
-mod Contract {
+mod MyContract {
     use starknet::ContractAddress;
     use super::Ownable;
 
@@ -50,7 +50,7 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 [,javascript]
 ----
 #[starknet::contract]
-mod Contract {
+mod MyContract {
     use openzeppelin::access::ownable::Ownable;
 
     (...)
@@ -123,7 +123,7 @@ and sets a 'minter' role:
 const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 
 #[starknet::contract]
-mod Contract {
+mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
     use openzeppelin::access::accesscontrol::AccessControl;
     use openzeppelin::token::erc20::ERC20;
@@ -184,7 +184,7 @@ const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
 #[starknet::contract]
-mod Contract {
+mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
     use openzeppelin::access::accesscontrol::AccessControl;
     use openzeppelin::token::erc20::ERC20;
@@ -284,7 +284,7 @@ const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
 #[starknet::contract]
-mod Contract {
+mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
     use openzeppelin::access::accesscontrol::AccessControl;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;

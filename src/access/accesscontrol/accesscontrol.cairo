@@ -13,7 +13,7 @@ mod AccessControl {
     #[storage]
     struct Storage {
         AccessControl_role_admin: LegacyMap<felt252, felt252>,
-        AccessControl_role_members: LegacyMap<(felt252, ContractAddress), bool>,
+        AccessControl_role_member: LegacyMap<(felt252, ContractAddress), bool>,
     }
 
     #[event]

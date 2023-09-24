@@ -212,18 +212,3 @@ This contract expects a `decimals` argument in the constructor and uses an inter
 Note that the `_decimals` state variable must be stored in the local contract's storage because this variable does not exist in the Contracts for Cairo library.
 It's important to include the correct logic in the exposed `decimals` method and to NOT use the Contracts for Cairo `decimals` implementation in this specific case.
 The library's `decimals` implementation does not read from storage and will return `18`.
-
-== Presets
-
-=== Basic ERC20 [[basic-erc20]]
-
-:erc20-basic: https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc20/erc20.cairo[ERC20]
-
-The {erc20-basic} preset offers a quick and easy setup for deploying a basic ERC20 token.
-This preset mints an inital supply and it does not expose a minting function.
-
-More presets coming soon!
-
-== Extensions
-
-Coming soon!

@@ -11,9 +11,16 @@ TIP: For detailed information on the usage and implementation check the {erc20-a
 
 == Interface
 
+:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual Interfaces]
+:erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
+
+The following interface represents the full interface of the Contracts for Cairo `ERC20ABI` module.
+The interface includes the `IERC20` standard interface as well as the non-standard functions e.g. `increase_allowance`.
+To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20ABI` also includes the previously defined functions written in camelCase.
+
 [,javascript]
 ----
-trait ERC20 {
+trait ERC20ABI {
     // IERC20
     fn name() -> felt252;
     fn symbol() -> felt252;
@@ -27,7 +34,7 @@ trait ERC20 {
     ) -> bool;
     fn approve(spender: ContractAddress, amount: u256) -> bool;
 
-    // Non-standard
+    // Non-Standard
     fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
 
@@ -110,7 +117,7 @@ The unsafe contract state allows access to ERC20's implementations.
 With this access, the constructor first calls the initializer to set the token name and symbol.
 The constructor then calls `_mint` to create a fixed supply of tokens.
 
-TIP: For a more complete guide to ERC20 token mechanisms, see {erc20-supply}.
+TIP: For a more complete guide on ERC20 token mechanisms, see {erc20-supply}.
 
 In the external implementation, notice that `MyTokenImpl` is an implementation of `IERC20`.
 This ensures that the external implementation will include all of the methods defined in the interface.

@@ -215,9 +215,9 @@ mod ERC20 {
     impl InternalImpl of InternalTrait {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
-            self._name.write(name_);
-            self._symbol.write(symbol_);
+        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+            self._name.write(name);
+            self._symbol.write(symbol);
         }
 
         /// Internal method for the external [increase_allowance](increase_allowance).

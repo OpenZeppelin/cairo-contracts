@@ -50,8 +50,8 @@ trait AccountABI<TState> {
     fn get_public_key(self: @TState) -> felt252;
 
     // Account Camel
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
-    fn getPublicKey(self: @TState) -> felt252;
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn getPublicKey(self: @TState) -> felt252;
 }

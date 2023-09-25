@@ -6,7 +6,7 @@
 :introspection: xref:/introspection.adoc[Introspection]
 
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.
-The `erc721.cairo` contract implements an approximation of {eip721} in Cairo for Starknet.
+The `token::erc721::ERC721` contract implements an approximation of {eip721} in Cairo for Starknet.
 
 TIP: For detailed information on the usage and implementation check the {erc721-api} section.
 
@@ -21,7 +21,7 @@ Contracts must implement both the {ierc721-interface} and {isrc5-interface} inte
 Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
 Contracts for Cairo's implementation includes all three interfaces.
 
-WARNING: The {ierc721-interface} and {ierc721metadata-interface} implementations are approximations of their Ethereum counterparts.
+WARNING: The {ierc721-interface} and {ierc721metadata-interface} interfaces are approximations of their Ethereum counterparts.
 These approximations include a few notable differences.
 See {compatibility} for more information.
 
@@ -112,7 +112,7 @@ See the {introspection} docs.
 The difference between both functions consists of accepting `data` as an argument.
 `safe_transfer_from` by default accepts the `data` argument.
 If `data` is not used, simply pass an empty array.
-* `safe_transfer_from` is specified such that the optional `data` argument should be of type bytes.
+* `safe_transfer_from` is implemented such that the optional `data` argument mimics `bytes`.
 In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
@@ -204,8 +204,8 @@ mod MyNFT {
 }
 ----
 
-In order for the `MyNFT` contract to extend the ERC721 contract, it utilizes the `unsafe_new_contract_state`.
-The unsafe contract state allows access to ERC721's storage.
+In order for the `MyNFT` contract to extend the `ERC721` contract, it utilizes the `unsafe_new_contract_state`.
+The unsafe contract state allows access to `ERC721`'s storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
 Next, the constructor calls the custom internal function `_mint_with_uri` that mints a one-of-one NFT and sets the URI for the minted token ID.
 
@@ -332,7 +332,7 @@ mod ERC721Receiver {
 
 :string-roadmap: https://github.com/orgs/starkware-libs/projects/1/views/1?pane=issue&itemId=28823165[here]
 
-Token URIs in Cairo are stored as single field elements.
+Token URIs in Cairo are stored as single field elements (`felt252`).
 Each field element equates to 252-bits (or 31.5 bytes) which means that a token's URI can be no longer than 31 characters.
 
 NOTE: Native string support in Cairo is currently in progress and tracked {string-roadmap}.

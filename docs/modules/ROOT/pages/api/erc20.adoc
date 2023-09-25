@@ -248,55 +248,55 @@ Note that the token name and symbol are immutable once set through the construct
 [[ERC20-name]]
 ==== `[.contract-item-name]#++name++#++(@self: ContractState) → felt252++` [.item-kind]#external#
 
-See <<IERC20-name,IERC20-name>>.
+See <<IERC20-name,IERC20::name>>.
 
 [.contract-item]
 [[ERC20-symbol]]
 ==== `[.contract-item-name]#++symbol++#++(@self: ContractState) → felt252++` [.item-kind]#external#
 
-See <<IERC20-symbol,IERC20-symbol>>.
+See <<IERC20-symbol,IERC20::symbol>>.
 
 [.contract-item]
 [[ERC20-decimals]]
 ==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
 
-See <<IERC20-decimals,IERC20-decimals>>.
+See <<IERC20-decimals,IERC20::decimals>>.
 
 [.contract-item]
 [[ERC20-total_supply]]
 ==== `[.contract-item-name]#++total_supply++#++(@self: ContractState) → u256++` [.item-kind]#external#
 
-See <<IERC20-total_supply,IERC20-total_supply>>.
+See <<IERC20-total_supply,IERC20::total_supply>>.
 
 [.contract-item]
 [[ERC20-balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(@self: ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
-See <<IERC20-balance_of,IERC20-balance_of>>.
+See <<IERC20-balance_of,IERC20::balance_of>>.
 
 [.contract-item]
 [[ERC20-allowance]]
 ==== `[.contract-item-name]#++allowance++#++(@self: ContractState, owner: ContractAddress, spender: ContractAddress) → u256++` [.item-kind]#external#
 
-See <<IERC20-allowance,IERC20-allowance>>.
+See <<IERC20-allowance,IERC20::allowance>>.
 
 [.contract-item]
 [[ERC20-transfer]]
 ==== `[.contract-item-name]#++transfer++#++(ref self: ContractState, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<IERC20-transfer,IERC20-transfer>>.
+See <<IERC20-transfer,IERC20::transfer>>.
 
 [.contract-item]
 [[ERC20-transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<IERC20-transfer_from,IERC20-transfer_from>>.
+See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
 [.contract-item]
 [[ERC20-approve]]
 ==== `[.contract-item-name]#++approve++#++(ref self: ContractState, spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
-See <<IERC20-approve,IERC20-approve>>.
+See <<IERC20-approve,IERC20::approve>>.
 
 [.contract-item]
 [[ERC20-increase_allowance]]
@@ -329,7 +329,7 @@ Requirements:
 [[ERC20-totalSupply]]
 ==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#external#
 
-See <<IERC20-total_supply,IERC20-total_supply>>.
+See <<IERC20-total_supply,IERC20::total_supply>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
@@ -337,7 +337,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 [[ERC20-balanceOf]]
 ==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
-See <<IERC20-balance_of,IERC20-balance_of>>.
+See <<IERC20-balance_of,IERC20::balance_of>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
@@ -345,7 +345,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 [[ERC20-transferFrom]]
 ==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress) → bool++` [.item-kind]#external#
 
-See <<IERC20-transfer_from,IERC20-transfer_from>>.
+See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
@@ -420,7 +420,7 @@ Requirements:
 ==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
-This internal function is equivalent to <<IERC20-approve,approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
+This internal function is equivalent to <<IERC20-approve,IERC20::approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
 
 Emits an <<ERC20-Approval,Approval>> event.
 
@@ -435,7 +435,7 @@ Requirements:
 
 Moves amount of tokens from `from` to `to`.
 
-This internal function is equivalent to <<IERC20-transfer,transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
+This internal function is equivalent to <<IERC20-transfer,IERC20::transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 
@@ -461,10 +461,10 @@ Possibly emits an <<ERC20-Approval,Approval>> event.
 [[ERC20-Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<IERC20-Transfer,IERC20-Transfer>>.
+See <<IERC20-Transfer,Transfer>>.
 
 [.contract-item]
 [[ERC20-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<IERC20-Approval,IERC20-Approval>>.
+See <<IERC20-Approval,Approval>>.

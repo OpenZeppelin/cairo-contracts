@@ -67,6 +67,12 @@ use openzeppelin::account::Account;
 Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 [.contract-index]
+.Constructor
+--
+* xref:#Account-constructor[`++constructor(self, _public_key)++`]
+--
+
+[.contract-index]
 .Utilities
 --
 * xref:#Account-assert_only_self[`++InternalImpl::assert_only_self(self)++`]
@@ -75,8 +81,6 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [.contract-index]
 .External Functions
 --
-* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
-
 [.contract-subindex-inherited]
 .SRC6Impl
 
@@ -95,8 +99,9 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
 [.contract-subindex-inherited]
-.PublicKeyImpl
+.Non-Standard
 
+* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
 --
@@ -104,8 +109,6 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [.contract-index]
 .Internal Functions
 --
-* xref:#Account-constructor[`++constructor(self, _public_key)++`]
-
 [.contract-subindex-inherited]
 .InternalImpl
 
@@ -122,17 +125,8 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
-[#Account-Utilities]
-==== Utilities
-
-[.contract-item]
-[[Account-assert_only_self]]
-==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Validates that the caller is the account itself. Otherwise it reverts.
-
-[#Account-Functions]
-==== Functions
+[#Account-Constructor]
+==== Constructor
 
 [.contract-item]
 [[Account-constructor]]
@@ -142,14 +136,17 @@ Initializes the account with the given public key, and registers the ISRC6 inter
 
 Emits an {OwnerAdded} event.
 
+[#Account-Utilities]
+==== Utilities
+
 [.contract-item]
-[[Account-__validate_deploy__]]
-==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
+[[Account-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
-See xref:/guides/deployment.adoc[Counterfactual Deployments].
+Validates that the caller is the account itself. Otherwise it reverts.
 
-Returns the short string `'VALID'` if valid, otherwise it reverts.
+[#Account-External-Functions]
+==== External Functions
 
 [.contract-item]
 [[Account-__execute__]]
@@ -184,6 +181,15 @@ Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Net
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
+[[Account-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
+
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+See xref:/guides/deployment.adoc[Counterfactual Deployments].
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
@@ -196,6 +202,9 @@ Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 ==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 Returns the current public key of the account.
+
+[#Account-Internal-Functions]
+==== Internal Functions
 
 [.contract-item]
 [[Account-initializer]]

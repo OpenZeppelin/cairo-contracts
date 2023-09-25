@@ -119,6 +119,20 @@ mod ERC20 {
     }
 
     #[external(v0)]
+    fn increase_allowance(
+        ref self: ContractState, spender: ContractAddress, added_value: u256
+    ) -> bool {
+        self._increase_allowance(spender, added_value)
+    }
+
+    #[external(v0)]
+    fn decrease_allowance(
+        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool {
+        self._decrease_allowance(spender, subtracted_value)
+    }
+
+    #[external(v0)]
     impl ERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
         fn totalSupply(self: @ContractState) -> u256 {
             ERC20Impl::total_supply(self)
@@ -139,24 +153,10 @@ mod ERC20 {
     }
 
     #[external(v0)]
-    fn increase_allowance(
-        ref self: ContractState, spender: ContractAddress, added_value: u256
-    ) -> bool {
-        self._increase_allowance(spender, added_value)
-    }
-
-    #[external(v0)]
     fn increaseAllowance(
         ref self: ContractState, spender: ContractAddress, addedValue: u256
     ) -> bool {
         increase_allowance(ref self, spender, addedValue)
-    }
-
-    #[external(v0)]
-    fn decrease_allowance(
-        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool {
-        self._decrease_allowance(spender, subtracted_value)
     }
 
     #[external(v0)]

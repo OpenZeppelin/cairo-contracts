@@ -90,18 +90,72 @@ mod ERC721 {
     //
 
     #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+    impl ERC721Impl of interface::IERC721<ContractState> {
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
+            self._balances.read(account)
+        }
+
+        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+            self._owner_of(token_id)
+        }
+
+        fn safe_transfer_from(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) {
+            assert(
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
+            );
+            self._safe_transfer(from, to, token_id, data);
+        }
+
+        fn transfer_from(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
+        ) {
+            assert(
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
+            );
+            self._transfer(from, to, token_id);
+        }
+
+        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
+            let owner = self._owner_of(token_id);
+
+            let caller = get_caller_address();
+            assert(
+                owner == caller || ERC721Impl::is_approved_for_all(@self, owner, caller),
+                Errors::UNAUTHORIZED
+            );
+            self._approve(to, token_id);
+        }
+
+        fn set_approval_for_all(
+            ref self: ContractState, operator: ContractAddress, approved: bool
+        ) {
+            self._set_approval_for_all(get_caller_address(), operator, approved)
+        }
+
+        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
+            self._token_approvals.read(token_id)
+        }
+
+        fn is_approved_for_all(
+            self: @ContractState, owner: ContractAddress, operator: ContractAddress
+        ) -> bool {
+            self._operator_approvals.read((owner, operator))
         }
     }
 
     #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+    impl SRC5Impl of ISRC5<ContractState> {
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
             let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
         }
     }
 
@@ -122,76 +176,6 @@ mod ERC721 {
     }
 
     #[external(v0)]
-    impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
-        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
-            assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
-            self._token_uri.read(tokenId)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721Impl of interface::IERC721<ContractState> {
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
-            self._balances.read(account)
-        }
-
-        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            self._owner_of(token_id)
-        }
-
-        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self._token_approvals.read(token_id)
-        }
-
-        fn is_approved_for_all(
-            self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
-            self._operator_approvals.read((owner, operator))
-        }
-
-        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            let owner = self._owner_of(token_id);
-
-            let caller = get_caller_address();
-            assert(
-                owner == caller || ERC721Impl::is_approved_for_all(@self, owner, caller),
-                Errors::UNAUTHORIZED
-            );
-            self._approve(to, token_id);
-        }
-
-        fn set_approval_for_all(
-            ref self: ContractState, operator: ContractAddress, approved: bool
-        ) {
-            self._set_approval_for_all(get_caller_address(), operator, approved)
-        }
-
-        fn transfer_from(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-        ) {
-            assert(
-                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
-            );
-            self._transfer(from, to, token_id);
-        }
-
-        fn safe_transfer_from(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            data: Span<felt252>
-        ) {
-            assert(
-                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
-            );
-            self._safe_transfer(from, to, token_id, data);
-        }
-    }
-
-    #[external(v0)]
     impl ERC721CamelOnlyImpl of interface::IERC721CamelOnly<ContractState> {
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
             ERC721Impl::balance_of(self, account)
@@ -199,6 +183,26 @@ mod ERC721 {
 
         fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
             ERC721Impl::owner_of(self, tokenId)
+        }
+
+        fn safeTransferFrom(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) {
+            ERC721Impl::safe_transfer_from(ref self, from, to, tokenId, data)
+        }
+
+        fn transferFrom(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
+        ) {
+            ERC721Impl::transfer_from(ref self, from, to, tokenId)
+        }
+
+        fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
+            ERC721Impl::set_approval_for_all(ref self, operator, approved)
         }
 
         fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
@@ -210,25 +214,21 @@ mod ERC721 {
         ) -> bool {
             ERC721Impl::is_approved_for_all(self, owner, operator)
         }
+    }
 
-        fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
-            ERC721Impl::set_approval_for_all(ref self, operator, approved)
+    #[external(v0)]
+    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
+            src5::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
         }
+    }
 
-        fn transferFrom(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
-        ) {
-            ERC721Impl::transfer_from(ref self, from, to, tokenId)
-        }
-
-        fn safeTransferFrom(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            tokenId: u256,
-            data: Span<felt252>
-        ) {
-            ERC721Impl::safe_transfer_from(ref self, from, to, tokenId, data)
+    #[external(v0)]
+    impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
+            assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
+            self._token_uri.read(tokenId)
         }
     }
 

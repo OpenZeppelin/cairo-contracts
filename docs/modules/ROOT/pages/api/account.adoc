@@ -60,6 +60,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 :OwnerAdded: xref:Account-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:Account-OwnerRemoved[OwnerRemoved]
+:dual-interfaces: xref:interfaces.adoc#dual_interfaces[Dual Interfaces]
 
 ```javascript
 use openzeppelin::account::Account;
@@ -104,6 +105,14 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
+
+[.contract-subindex-inherited]
+.Account Camel
+
+* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+* xref:#Account-getPublicKey[`++getPublicKey(self)++`]
+* xref:#Account-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+* xref:#Account-supportsInterface[`++supportsInterface(self, interfaceId)++`]
 --
 
 [.contract-index]
@@ -202,6 +211,38 @@ Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 ==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 Returns the current public key of the account.
+
+[.contract-item]
+[[Account-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
+
+See xref:Account-set_public_key[Account::set_public_key].
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed in {dual-interfaces}.
+
+[.contract-item]
+[[Account-getPublicKey]]
+==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+
+See xref:Account-get_public_key[Account::get_public_key].
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed in {dual-interfaces}.
+
+[.contract-item]
+[[Account-isValidSignature]]
+==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed in {dual-interfaces}.
+
+[.contract-item]
+[[Account-supportsInterface]]
+==== `[.contract-item-name]#++supportsInterface++#++(self: @ContractState, interfaceId: felt252) → bool++` [.item-kind]#external#
+
+See xref:Account-supports_interface[Account::supports_interface].
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed in {dual-interfaces}.
 
 [#Account-Internal-Functions]
 ==== Internal Functions

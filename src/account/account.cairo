@@ -116,11 +116,10 @@ mod Account {
     }
 
     #[external(v0)]
-    impl SRC6CamelOnlyImpl of interface::ISRC6CamelOnly<ContractState> {
-        fn isValidSignature(
-            self: @ContractState, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            SRC6Impl::is_valid_signature(self, hash, signature)
+    impl SRC5Impl of ISRC5<ContractState> {
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
         }
     }
 
@@ -132,19 +131,13 @@ mod Account {
     }
 
     #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
-        }
+    fn __validate_deploy__(
+        self: @ContractState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        _public_key: felt252
+    ) -> felt252 {
+        self.validate_transaction()
     }
 
     #[external(v0)]
@@ -161,6 +154,23 @@ mod Account {
     }
 
     #[external(v0)]
+    impl SRC6CamelOnlyImpl of interface::ISRC6CamelOnly<ContractState> {
+        fn isValidSignature(
+            self: @ContractState, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6Impl::is_valid_signature(self, hash, signature)
+        }
+    }
+
+    #[external(v0)]
+    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+        }
+    }
+
+    #[external(v0)]
     impl PublicKeyCamelImpl of super::PublicKeyCamelTrait<ContractState> {
         fn getPublicKey(self: @ContractState) -> felt252 {
             self.public_key.read()
@@ -169,16 +179,6 @@ mod Account {
         fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
             PublicKeyImpl::set_public_key(ref self, newPublicKey);
         }
-    }
-
-    #[external(v0)]
-    fn __validate_deploy__(
-        self: @ContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
-    ) -> felt252 {
-        self.validate_transaction()
     }
 
     //

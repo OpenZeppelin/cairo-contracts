@@ -18,13 +18,13 @@ mod ERC721 {
 
     #[storage]
     struct Storage {
-        _name: felt252,
-        _symbol: felt252,
-        _owners: LegacyMap<u256, ContractAddress>,
-        _balances: LegacyMap<ContractAddress, u256>,
-        _token_approvals: LegacyMap<u256, ContractAddress>,
-        _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        _token_uri: LegacyMap<u256, felt252>,
+        ERC721_name: felt252,
+        ERC721_symbol: felt252,
+        ERC721_owners: LegacyMap<u256, ContractAddress>,
+        ERC721_balances: LegacyMap<ContractAddress, u256>,
+        ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
+        ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        ERC721_token_uri: LegacyMap<u256, felt252>,
     }
 
     #[event]
@@ -102,16 +102,16 @@ mod ERC721 {
     #[external(v0)]
     impl ERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
         fn name(self: @ContractState) -> felt252 {
-            self._name.read()
+            self.ERC721_name.read()
         }
 
         fn symbol(self: @ContractState) -> felt252 {
-            self._symbol.read()
+            self.ERC721_symbol.read()
         }
 
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self._token_uri.read(token_id)
+            self.ERC721_token_uri.read(token_id)
         }
     }
 
@@ -119,7 +119,7 @@ mod ERC721 {
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
         fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
-            self._token_uri.read(tokenId)
+            self.ERC721_token_uri.read(tokenId)
         }
     }
 
@@ -127,7 +127,7 @@ mod ERC721 {
     impl ERC721Impl of interface::IERC721<ContractState> {
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
             assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
-            self._balances.read(account)
+            self.ERC721_balances.read(account)
         }
 
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
@@ -136,13 +136,13 @@ mod ERC721 {
 
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self._token_approvals.read(token_id)
+            self.ERC721_token_approvals.read(token_id)
         }
 
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
-            self._operator_approvals.read((owner, operator))
+            self.ERC721_operator_approvals.read((owner, operator))
         }
 
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
@@ -232,9 +232,9 @@ mod ERC721 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
-            self._name.write(name_);
-            self._symbol.write(symbol_);
+        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+            self.ERC721_name.write(name);
+            self.ERC721_symbol.write(symbol);
 
             let mut unsafe_state = src5_state();
             src5::SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_ID);
@@ -244,7 +244,7 @@ mod ERC721 {
         }
 
         fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            let owner = self._owners.read(token_id);
+            let owner = self.ERC721_owners.read(token_id);
             match owner.is_zero() {
                 bool::False(()) => owner,
                 bool::True(()) => panic_with_felt252(Errors::INVALID_TOKEN_ID)
@@ -252,7 +252,7 @@ mod ERC721 {
         }
 
         fn _exists(self: @ContractState, token_id: u256) -> bool {
-            !self._owners.read(token_id).is_zero()
+            !self.ERC721_owners.read(token_id).is_zero()
         }
 
         fn _is_approved_or_owner(
@@ -269,7 +269,7 @@ mod ERC721 {
             let owner = self._owner_of(token_id);
             assert(owner != to, Errors::APPROVAL_TO_OWNER);
 
-            self._token_approvals.write(token_id, to);
+            self.ERC721_token_approvals.write(token_id, to);
             self.emit(Approval { owner, approved: to, token_id });
         }
 
@@ -280,7 +280,7 @@ mod ERC721 {
             approved: bool
         ) {
             assert(owner != operator, Errors::SELF_APPROVAL);
-            self._operator_approvals.write((owner, operator), approved);
+            self.ERC721_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
@@ -288,8 +288,8 @@ mod ERC721 {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             assert(!self._exists(token_id), Errors::ALREADY_MINTED);
 
-            self._balances.write(to, self._balances.read(to) + 1);
-            self._owners.write(token_id, to);
+            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            self.ERC721_owners.write(token_id, to);
 
             self.emit(Transfer { from: Zeroable::zero(), to, token_id });
         }
@@ -302,11 +302,11 @@ mod ERC721 {
             assert(from == owner, Errors::WRONG_SENDER);
 
             // Implicit clear approvals, no need to emit an event
-            self._token_approvals.write(token_id, Zeroable::zero());
+            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
 
-            self._balances.write(from, self._balances.read(from) - 1);
-            self._balances.write(to, self._balances.read(to) + 1);
-            self._owners.write(token_id, to);
+            self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
+            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            self.ERC721_owners.write(token_id, to);
 
             self.emit(Transfer { from, to, token_id });
         }
@@ -315,10 +315,10 @@ mod ERC721 {
             let owner = self._owner_of(token_id);
 
             // Implicit clear approvals, no need to emit an event
-            self._token_approvals.write(token_id, Zeroable::zero());
+            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
 
-            self._balances.write(owner, self._balances.read(owner) - 1);
-            self._owners.write(token_id, Zeroable::zero());
+            self.ERC721_balances.write(owner, self.ERC721_balances.read(owner) - 1);
+            self.ERC721_owners.write(token_id, Zeroable::zero());
 
             self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id });
         }
@@ -348,7 +348,7 @@ mod ERC721 {
 
         fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self._token_uri.write(token_id, token_uri)
+            self.ERC721_token_uri.write(token_id, token_uri)
         }
     }
 

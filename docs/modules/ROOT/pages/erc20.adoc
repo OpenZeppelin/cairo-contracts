@@ -66,7 +66,7 @@ Although Starknet is not EVM compatible, this implementation aims to be as close
 
 But some differences can still be found, such as:
 
-* Function selectors are written in snake_case as opposed to camelCase in Solidity.
+* The standard function selectors are written in snake_case as opposed to camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
 * Function selectors are calculated differently between {cairo-selectors} and {solidity-selectors}.
 

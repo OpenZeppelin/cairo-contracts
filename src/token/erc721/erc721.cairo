@@ -288,9 +288,9 @@ mod ERC721 {
     impl InternalImpl of InternalTrait {
         /// Initializes the contract by setting the token name and symbol.
         /// This should be used inside the contract's constructor.
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
-            self._name.write(name_);
-            self._symbol.write(symbol_);
+        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+            self._name.write(name);
+            self._symbol.write(symbol);
 
             let mut unsafe_state = src5::SRC5::unsafe_new_contract_state();
             src5::SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_ID);

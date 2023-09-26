@@ -125,7 +125,7 @@ The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 :mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
 
 WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
-This is currently unsafe, because storage members could clash among used contracts if not reviewed carefully.
+Although this is useful to use them as modules, it's considered unsafe because storage members could clash among used contracts if not reviewed carefully.
 Extensibility will be revisited after {components} are introduced.
 
 Using Contracts for Cairo, constructing an ERC721 contract requires setting up the constructor and exposing the ERC721 interface.

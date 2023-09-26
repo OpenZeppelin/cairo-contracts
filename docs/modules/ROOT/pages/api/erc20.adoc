@@ -227,8 +227,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .Events
 --
-* xref:#ERC20-Transfer[`++Transfer(from: ContractAddress, to: ContractAddress, value: u256)++`]
-* xref:#ERC20-Approval[`++Approval(owner: ContractAddress, spender: ContratAddress, value: u256)++`]
+* xref:#ERC20-Transfer[`++Transfer(from, to, value)++`]
+* xref:#ERC20-Approval[`++Approval(owner, spender, value)++`]
 --
 
 [#ERC20-Constructor]

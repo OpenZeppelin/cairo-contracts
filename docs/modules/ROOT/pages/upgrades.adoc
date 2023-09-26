@@ -43,7 +43,7 @@ OpenZeppelin Contracts for Cairo provides {upgradeable} to add upgradeability su
 Upgrades are often very sensitive operations, and some form of access control is usually required to
 avoid unauthorized upgrades. The {ownable} module is used in this example.
 
-NOTE: We will be using the module for implementing the {i_upgradeable} interface described in the API Reference section.
+NOTE: We will be using the following module to implement the {i_upgradeable} interface described in the API Reference section.
 
 [,javascript]
 ----

@@ -91,7 +91,7 @@ trait IERC721Metadata {
 }
 ----
 
-== ERC721 Compatibility
+=== ERC721 compatibility
 
 :erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
 :src5-api: xref:introspection.adoc#src5[SRC5]

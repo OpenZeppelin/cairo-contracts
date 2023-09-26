@@ -220,7 +220,6 @@ This library includes {transfer_from-api} and {safe_transfer_from-api} to transf
 If using `transfer_from`, *the caller is responsible to confirm that the recipient is capable of receiving NFTs or else they may be permanently lost.*
 The `safe_transfer_from` method mitigates this risk by querying the recipient contract's interface support.
 
-
 The safe mechanism first queries if the recipient contract supports the `IERC721Receiver` interface through introspection ({src-5}).
 If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the {isrc6} interface, which is the standard account contract interface.
 If either case is true, then the token transfer behaves as if `transfer_from` was called.
@@ -233,16 +232,13 @@ To better visualize the process, see the snippet below.
 fn _check_on_erc721_received(
     from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
 ) -> bool {
-    // Check if `to` has declared support for IERC721Receiver
-    if (DualCaseSRC5 { contract_address: to }
-        .supports_interface(interface::IERC721_RECEIVER_ID)) {
-        DualCaseERC721Receiver { contract_address: to }
-            .on_erc721_received(
-                get_caller_address(), from, token_id, data
-            ) == interface::IERC721_RECEIVER_ID
+    if {
+        // `to` supports ISRC5 &&
+        // `to` has registered support for IERC721Receiver
+        // return true;
     } else {
-        // Check if `to` is an account contract
-        DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
+        // `to` is an account contract
+        // return true;
     }
 }
 ----

@@ -1,5 +1,5 @@
-use ERC721::_owners::InternalContractMemberStateTrait as OwnersTrait;
-use ERC721::_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
+use ERC721::ERC721_owners::InternalContractMemberStateTrait as OwnersTrait;
+use ERC721::ERC721_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
 use array::ArrayTrait;
 use integer::u256;
@@ -191,17 +191,17 @@ fn test__exists() {
     let token_id = TOKEN_ID;
 
     assert(!InternalImpl::_exists(@state, token_id), 'Token should not exist');
-    assert(state._owners.read(token_id) == zero, 'Invalid owner');
+    assert(state.ERC721_owners.read(token_id) == zero, 'Invalid owner');
 
     InternalImpl::_mint(ref state, RECIPIENT(), token_id);
 
     assert(InternalImpl::_exists(@state, token_id), 'Token should exist');
-    assert(state._owners.read(token_id) == RECIPIENT(), 'Invalid owner');
+    assert(state.ERC721_owners.read(token_id) == RECIPIENT(), 'Invalid owner');
 
     InternalImpl::_burn(ref state, token_id);
 
     assert(!InternalImpl::_exists(@state, token_id), 'Token should not exist');
-    assert(state._owners.read(token_id) == zero, 'Invalid owner');
+    assert(state.ERC721_owners.read(token_id) == zero, 'Invalid owner');
 }
 
 //
@@ -1329,9 +1329,9 @@ fn test__burn() {
     InternalImpl::_burn(ref state, TOKEN_ID);
     assert_event_transfer(OWNER(), ZERO(), TOKEN_ID);
 
-    assert(state._owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
+    assert(state.ERC721_owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
     assert(ERC721Impl::balance_of(@state, OWNER()) == 0, 'Balance of owner after');
-    assert(state._token_approvals.read(TOKEN_ID) == ZERO(), 'Approval after');
+    assert(state.ERC721_token_approvals.read(TOKEN_ID) == ZERO(), 'Approval after');
 }
 
 #[test]

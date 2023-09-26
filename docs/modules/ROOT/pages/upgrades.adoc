@@ -7,11 +7,7 @@
 
 = Upgrades
 
-Smart contracts are immutable by design, by default preventing any update after the contract is deployed.
-This supports decentralization and trustlessness, but in certain cases can be an drawback for example
-by removing the ability to fix bugs or vulnerabilities.
-
-Multiple patterns have been developed for making a contract upgradeable including the widely adopted proxy pattern.
+In different blockchains, multiple patterns have been developed for making a contract upgradeable including the widely adopted proxy patterns.
 
 Starknet has native upgradeability through a syscall that updates the contract source code, removing the need for proxies.
 

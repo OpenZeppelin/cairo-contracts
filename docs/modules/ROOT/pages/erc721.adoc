@@ -249,43 +249,20 @@ mod MyNFT {
 ----
 
 In order for the `MyNFT` contract to extend the `ERC721` contract, it utilizes the `unsafe_new_contract_state`.
-The unsafe contract state allows access to `ERC721`'s storage.
+The unsafe contract state allows access to ``ERC721``'s storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
 Next, the constructor calls the custom internal function `_mint_with_uri` that mints a one-of-one NFT and sets the URI for the minted token ID.
 
 === Token transfers
 
-:src-5: xref:introspection.adoc#src5[SRC5]
 :transfer_from-api: xref:api/erc721.adoc#IERC721-transfer_from[transfer_from]
 :safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
-:isrc6: xref:accounts.adoc#isrc6_interface[ISRC6]
 
 This library includes {transfer_from-api} and {safe_transfer_from-api} to transfer NFTs.
 If using `transfer_from`, *the caller is responsible to confirm that the recipient is capable of receiving NFTs or else they may be permanently lost.*
 The `safe_transfer_from` method mitigates this risk by querying the recipient contract's interface support.
 
-The safe mechanism first queries if the recipient contract supports the `IERC721Receiver` interface through introspection ({src-5}).
-If the recipient contract does _not_ support the receiver interface, then the safe mechanism checks if the recipient contract supports the {isrc6} interface, which is the standard account contract interface.
-If either case is true, then the token transfer behaves as if `transfer_from` was called.
-Otherwise, the transfer will fail.
-
-To better visualize the process, see the snippet below.
-
-[,javascript]
-----
-fn _check_on_erc721_received(
-    from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
-) -> bool {
-    if {
-        // `to` supports ISRC5 &&
-        // `to` has registered support for IERC721Receiver
-        // return true;
-    } else {
-        // `to` is an account contract
-        // return true;
-    }
-}
-----
+WARNING: Usage of `safe_transfer_from` prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
 
 === Receiving tokens
 

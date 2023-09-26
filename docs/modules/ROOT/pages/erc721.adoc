@@ -17,13 +17,57 @@ TIP: For detailed information on the usage and implementation check the {erc721-
 :ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
 :isrc5-interface: xref:/erc721.adoc#isrc5[ISRC5]
 
-Contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721 compliant contract.
+ERC721 contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721-compliant contract.
 Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
-Contracts for Cairo's implementation includes all three interfaces.
+The following implementation includes all three interfaces and represents the full interface of the Contracts for Cairo `ERC721ABI` module.
 
 WARNING: The {ierc721-interface} and {ierc721metadata-interface} interfaces are approximations of their Ethereum counterparts.
 These approximations include a few notable differences.
 See {compatibility} for more information.
+
+[,javascript]
+----
+trait IERC721ABI {
+    // IERC721
+    fn balance_of(account: ContractAddress) -> u256;
+    fn owner_of(token_id: u256) -> ContractAddress;
+    fn safe_transfer_from(
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
+    );
+    fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256);
+    fn approve(to: ContractAddress, token_id: u256);
+    fn set_approval_for_all(operator: ContractAddress, approved: bool);
+    fn get_approved(token_id: u256) -> ContractAddress;
+    fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool;
+
+    // ISRC5
+    fn supports_interface(interface_id: felt252) -> bool;
+
+    // IERC721Metadata
+    fn name() -> felt252;
+    fn symbol() -> felt252;
+    fn token_uri(token_id: u256) -> felt252;
+
+    // ERC721 Camel
+    fn balanceOf(account: ContractAddress) -> u256;
+    fn ownerOf(tokenId: u256) -> ContractAddress;
+    fn safeTransferFrom(
+        from: ContractAddress,
+        to: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
+    );
+    fn transferFrom(from: ContractAddress, to: ContractAddress, tokenId: u256);
+    fn setApprovalForAll(operator: ContractAddress, approved: bool);
+    fn getApproved(tokenId: u256) -> ContractAddress;
+    fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
+    fn supportsInterface(interfaceId: felt252) -> bool;
+    fn tokenURI(tokenId: u256) -> felt252;
+}
+----
 
 === IERC721
 

@@ -253,7 +253,7 @@ The unsafe contract state allows access to `ERC721`'s storage.
 With this access, the constructor first calls the initializer to set the NFT name and symbol.
 Next, the constructor calls the custom internal function `_mint_with_uri` that mints a one-of-one NFT and sets the URI for the minted token ID.
 
-=== Token Transfers
+=== Token transfers
 
 :src-5: xref:introspection.adoc#src5[SRC5]
 :transfer_from-api: xref:api/erc721.adoc#IERC721-transfer_from[transfer_from]

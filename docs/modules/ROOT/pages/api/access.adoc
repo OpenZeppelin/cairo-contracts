@@ -272,7 +272,6 @@ Contract module that allows children to implement role-based access control mech
 Roles are referred to by their `felt252` identifier:
 
 ```javascript
-// sn_keccak('MY_ROLE')
 const MY_ROLE: felt252 = selector!('MY_ROLE');
 ```
 

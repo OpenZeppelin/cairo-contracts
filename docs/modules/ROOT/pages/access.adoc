@@ -119,7 +119,6 @@ and sets a 'minter' role:
 
 [,javascript]
 ----
-// sn_keccak('MINTER_ROLE')
 const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 
 #[starknet::contract]

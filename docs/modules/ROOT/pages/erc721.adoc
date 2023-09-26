@@ -19,7 +19,7 @@ TIP: For detailed information on the usage and implementation check the {erc721-
 
 ERC721 contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721-compliant contract.
 Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
-The following implementation includes all three interfaces and represents the full interface of the Contracts for Cairo `ERC721ABI` module.
+The following preset contract includes all three interfaces and represents the full interface of the `ERC721ABI` module.
 
 WARNING: The {ierc721-interface} and {ierc721metadata-interface} interfaces are approximations of their Ethereum counterparts.
 These approximations include a few notable differences.

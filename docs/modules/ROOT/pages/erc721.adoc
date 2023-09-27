@@ -78,16 +78,16 @@ The `IERC721` interface provides basic functionality to track, transfer, and con
 trait IERC721 {
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;
-    fn transfer_from(
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256
-    );
     fn safe_transfer_from(
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
         data: Span<felt252>
+    );
+    fn transfer_from(
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256
     );
     fn approve(to: ContractAddress, token_id: u256);
     fn set_approval_for_all(

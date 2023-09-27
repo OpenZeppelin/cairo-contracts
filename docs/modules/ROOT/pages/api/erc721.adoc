@@ -26,8 +26,8 @@ Interface of the IERC721 standard as defined in {eip721}.
 --
 * xref:#IERC721-balance_of[`++balance_of(account)++`]
 * xref:#IERC721-owner_of[`++owner_of(token_id)++`]
-* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
 * xref:#IERC721-approve[`++approve(to, token_id)++`]
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
@@ -66,24 +66,6 @@ Requirements:
 - `token_id` exists.
 
 [.contract-item]
-[[IERC721-transfer_from]]
-==== `[.contract-item-name]#++transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
-
-Transfer ownership of `token_id` from `from` to `to`.
-    
-Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721 transfers or else they may be permanently lost.
-Usage of <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
-    
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-Requirements:
-
-- Caller either approved or the `token_id` owner.
-- `to` is not the zero address.
-- `from` is not the zero address.
-- `token_id` exists.
-
-[.contract-item]
 [[IERC721-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
 
@@ -101,6 +83,24 @@ Requirements:
 - `from` is not the zero address.
 - `token_id` exists.
 - `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+
+[.contract-item]
+[[IERC721-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+Transfer ownership of `token_id` from `from` to `to`.
+    
+Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721 transfers or else they may be permanently lost.
+Usage of <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
+    
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+- Caller either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
 
 [.contract-item]
 [[IERC721-approve]]
@@ -187,8 +187,8 @@ See {eip721}.
 
 * xref:#IERC721-balance_of[`++balance_of(account)++`]
 * xref:#IERC721-owner_of[`++owner_of(token_id)++`]
-* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
 * xref:#IERC721-approve[`++approve(to, token_id)++`]
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
@@ -252,35 +252,16 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 .External Functions
 --
 [.contract-subindex-inherited]
-.IERC721Metadata
-
-* xref:#IERC721Metadata-name[`++name(self)++`]
-* xref:#IERC721Metadata-symbol[`++symbol(self)++`]
-* xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
-
-[.contract-subindex-inherited]
 .IERC721
 
 * xref:#IERC721-balance_of[`++balance_of(self, account)++`]
 * xref:#IERC721-owner_of[`++owner_of(self, token_id)++`]
-* xref:#IERC721-transfer_from[`++transfer_from(self, from, to, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(self, from, to, token_id, data)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(self, from, to, token_id)++`]
 * xref:#IERC721-approve[`++approve(self, to, token_id)++`]
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(self, operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
-
-[.contract-subindex-inherited]
-.ER721Camel
-
-* xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
-* xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
-* xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
-* xref:#ERC721-transferFrom[`++transferFrom(self, from, to, tokenId)++`]
-* xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
-* xref:#ERC721-setApprovalForAll[`++setApprovalForAll(self, operator, approved)++`]
-* xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
-* xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
 
 [.contract-subindex-inherited]
 .ISRC5
@@ -288,9 +269,24 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(self, interface_id)++`]
 
 [.contract-subindex-inherited]
-.SRC5Camel
+.IERC721Metadata
 
+* xref:#IERC721Metadata-name[`++name(self)++`]
+* xref:#IERC721Metadata-symbol[`++symbol(self)++`]
+* xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
+
+[.contract-subindex-inherited]
+.ER721Camel
+
+* xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
+* xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
+* xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
+* xref:#ERC721-transferFrom[`++transferFrom(self, from, to, tokenId)++`]
+* xref:#ERC721-setApprovalForAll[`++setApprovalForAll(self, operator, approved)++`]
+* xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
+* xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supportsInterface(self, interfaceId)++`]
+* xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
 --
 
 [.contract-index]
@@ -339,24 +335,6 @@ The constructor also registers the IERC721 and IERC721_METADATA interface ids ac
 ==== External functions
 
 [.contract-item]
-[[ERC721-name]]
-==== `[.contract-item-name]#++name++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
-
-See <<IERC721Metadata-name,IERC721Metadata::name>>.
-
-[.contract-item]
-[[ERC721-symbol]]
-==== `[.contract-item-name]#++symbol++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
-
-See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
-
-[.contract-item]
-[[ERC721-token_uri]]
-==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> felt252++` [.item-kind]#external#
-
-See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
-
-[.contract-item]
 [[ERC721-balance_of]]
 ==== `[.contract-item-name]#++balance_of++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
@@ -369,16 +347,16 @@ See <<IERC721-balance_of,IERC721::balance_of>>.
 See <<IERC721-owner_of,IERC721::owner_of>>.
 
 [.contract-item]
-[[ERC721-transfer_from]]
-==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
-
-See <<IERC721-transfer_from,IERC721::transfer_from>>.
-
-[.contract-item]
 [[ERC721-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
 
 See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+[.contract-item]
+[[ERC721-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+See <<IERC721-transfer_from,IERC721::transfer_from>>.
 
 [.contract-item]
 [[ERC721-approve]]
@@ -405,12 +383,22 @@ See <<IERC721-get_approved,IERC721::get_approved>>.
 See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
 
 [.contract-item]
-[[ERC721-tokenURI]]
-==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> felt252++` [.item-kind]#external#
+[[ERC721-name]]
+==== `[.contract-item-name]#++name++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-name,IERC721Metadata::name>>.
+
+[.contract-item]
+[[ERC721-symbol]]
+==== `[.contract-item-name]#++symbol++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
+
+[.contract-item]
+[[ERC721-token_uri]]
+==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> felt252++` [.item-kind]#external#
 
 See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
-
-Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
 [.contract-item]
 [[ERC721-balanceOf]]
@@ -465,6 +453,14 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 ==== `[.contract-item-name]#++isApprovedForAll++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
 
 See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC721-tokenURI]]
+==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 

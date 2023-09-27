@@ -11,7 +11,6 @@ use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
 use openzeppelin::tests::utils;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;

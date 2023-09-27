@@ -7,7 +7,6 @@ use option::OptionTrait;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::testing;
-use traits::TryInto;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     let (address, _) = starknet::deploy_syscall(

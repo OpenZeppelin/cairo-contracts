@@ -1,6 +1,4 @@
 use integer::BoundedInt;
-use integer::u256;
-use integer::u256_from_felt252;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
@@ -12,12 +10,9 @@ use openzeppelin::token::erc20::ERC20::InternalImpl;
 use openzeppelin::token::erc20::ERC20::Transfer;
 use openzeppelin::token::erc20::ERC20;
 use openzeppelin::utils::serde::SerializedAppend;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use traits::Into;
-use zeroable::Zeroable;
 
 //
 // Setup

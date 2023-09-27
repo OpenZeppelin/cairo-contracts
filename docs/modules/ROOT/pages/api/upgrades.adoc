@@ -49,7 +49,6 @@ Upgradeable contract module.
 [.contract-index]
 .Internal Functions
 --
-[.contract-subindex-inherited]
 .InternalImpl
 
 * xref:#Upgradeable-_upgrade[`++_upgrade(self, new_class_hash)++`]

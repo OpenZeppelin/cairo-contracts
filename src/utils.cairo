@@ -6,10 +6,6 @@ mod selectors;
 mod serde;
 mod unwrap_and_cast;
 
-use array::ArrayTrait;
-use array::SpanTrait;
-use box::BoxTrait;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;

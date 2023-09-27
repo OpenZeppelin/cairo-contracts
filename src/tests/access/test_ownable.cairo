@@ -2,15 +2,13 @@ use openzeppelin::access::ownable::Ownable::InternalImpl;
 use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
 use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
-use openzeppelin::access::ownable::Ownable::_owner::InternalContractMemberStateTrait;
+use openzeppelin::access::ownable::Ownable::Ownable_owner::InternalContractMemberStateTrait;
 use openzeppelin::access::ownable::Ownable;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
-use option::OptionTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use zeroable::Zeroable;
 
 //
 // Setup
@@ -35,12 +33,12 @@ fn setup() -> Ownable::ContractState {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = STATE();
-    assert(state._owner.read().is_zero(), 'Should be zero');
+    assert(state.Ownable_owner.read().is_zero(), 'Should be zero');
     InternalImpl::initializer(ref state, OWNER());
 
     assert_event_ownership_transferred(ZERO(), OWNER());
 
-    assert(state._owner.read() == OWNER(), 'Owner should be set');
+    assert(state.Ownable_owner.read() == OWNER(), 'Owner should be set');
 }
 
 //
@@ -84,7 +82,7 @@ fn test__transfer_ownership() {
 
     assert_event_ownership_transferred(OWNER(), OTHER());
 
-    assert(state._owner.read() == OTHER(), 'Owner should be OTHER');
+    assert(state.Ownable_owner.read() == OTHER(), 'Owner should be OTHER');
 }
 
 //

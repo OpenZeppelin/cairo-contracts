@@ -1,9 +1,7 @@
-const SUCCESS: felt252 = 123123;
-const FAILURE: felt252 = 456456;
+use openzeppelin::tests::utils::constants::{FAILURE, SUCCESS};
 
 #[starknet::contract]
 mod ERC721Receiver {
-    use array::SpanTrait;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (account/interface.cairo)
 
-use array::ArrayTrait;
-use array::SpanTrait;
 use starknet::ContractAddress;
 use starknet::account::Call;
 

@@ -13,6 +13,8 @@ const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 const URI: felt252 = 'URI';
 const TOKEN_ID: u256 = 21;
 const PUBKEY: felt252 = 'PUBKEY';
+const SUCCESS: felt252 = 123123;
+const FAILURE: felt252 = 456456;
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
@@ -60,4 +62,14 @@ fn RECIPIENT() -> ContractAddress {
 
 fn OPERATOR() -> ContractAddress {
     contract_address_const::<'OPERATOR'>()
+}
+
+fn DATA(success: bool) -> Span<felt252> {
+    let mut data = array![];
+    if success {
+        data.append(SUCCESS);
+    } else {
+        data.append(FAILURE);
+    }
+    data.span()
 }

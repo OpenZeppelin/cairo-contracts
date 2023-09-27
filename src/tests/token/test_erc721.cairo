@@ -9,11 +9,9 @@ use openzeppelin::introspection;
 use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
-use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
-use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
+    DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721::{
@@ -25,16 +23,6 @@ use openzeppelin::token::erc721;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
 use starknet::testing;
-
-fn DATA(success: bool) -> Span<felt252> {
-    let mut data = array![];
-    if success {
-        data.append(SUCCESS);
-    } else {
-        data.append(FAILURE);
-    }
-    data.span()
-}
 
 //
 // Setup

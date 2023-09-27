@@ -420,7 +420,8 @@ Requirements:
 ==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
-This internal function is equivalent to <<ERC20-approve,ERC20::approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
+
+This internal function does not include permissions and can be useful for instances like setting automatic allowances on behalf of other addresses.
 
 Emits an <<ERC20-Approval,Approval>> event.
 
@@ -433,9 +434,9 @@ Requirements:
 [[ERC20-_transfer]]
 ==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Moves amount of tokens from `from` to `to`.
+Moves `amount` of tokens from `from` to `to`.
 
-This internal function is equivalent to <<ERC20-transfer,ERC20::transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
+This internal function does not include permissions and can be useful for instances like implementing automatic token fees, slashing mechanisms, etc.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 
@@ -449,8 +450,9 @@ Requirements:
 [[ERC20-_spend_allowance]]
 ==== `[.contract-item-name]#++_spend_allowance++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Internal method that updates `owner` allowance for `spender` based on spent `amount`.
-Does not update the allowance value in case of infinite allowance.
+Updates ``owner``'s allowance for `spender` based on spent `amount`.
+
+This internal function does not update the allowance value in the case of infinite allowance.
 
 Possibly emits an <<ERC20-Approval,Approval>> event.
 

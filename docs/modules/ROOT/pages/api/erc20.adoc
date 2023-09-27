@@ -103,11 +103,6 @@ Returns `true` on success, reverts otherwise.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 
-Requirements:
-
-- `recipient` cannot be the zero address.
-- The caller must have a balance of at least `amount`.
-
 [.contract-item]
 [[IERC20-transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
@@ -118,13 +113,6 @@ Returns `true` on success, reverts otherwise.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 
-Requirements:
-
-- `sender` cannot be the zero address.
-- `recipient` cannot be the zero address.
-- `sender` must have a balance of at least `amount`.
-- The caller must have allowance for ``sender``'s tokens of at least `amount`.
-
 [.contract-item]
 [[IERC20-approve]]
 ==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
@@ -133,10 +121,6 @@ Sets `amount` as the allowance of `spender` over the caller's tokens.
 Returns `true` on success, reverts otherwise.
 
 Emits an <<ERC20-Approval,Approval>> event.
-
-Requirements:
-
-- `spender` cannot be the zero address.
 
 [#IERC20-Events]
 ==== Events
@@ -286,17 +270,33 @@ See <<IERC20-allowance,IERC20::allowance>>.
 
 See <<IERC20-transfer,IERC20::transfer>>.
 
+Requirements:
+
+- `recipient` cannot be the zero address.
+- The caller must have a balance of at least `amount`.
+
 [.contract-item]
 [[ERC20-transfer_from]]
 ==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
+Requirements:
+
+- `sender` cannot be the zero address.
+- `recipient` cannot be the zero address.
+- `sender` must have a balance of at least `amount`.
+- The caller must have allowance for ``sender``'s tokens of at least `amount`.
+
 [.contract-item]
 [[ERC20-approve]]
 ==== `[.contract-item-name]#++approve++#++(ref self: ContractState, spender: ContractAddress, amount: u256) → bool++` [.item-kind]#external#
 
 See <<IERC20-approve,IERC20::approve>>.
+
+Requirements:
+
+- `spender` cannot be the zero address.
 
 [.contract-item]
 [[ERC20-increase_allowance]]

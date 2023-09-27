@@ -1,7 +1,6 @@
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnable;
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnableTrait;
 use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcherTrait;
 use openzeppelin::access::ownable::interface::IOwnableDispatcher;
 use openzeppelin::access::ownable::interface::IOwnableDispatcherTrait;
 use openzeppelin::tests::mocks::dual_ownable_mocks::CamelOwnableMock;
@@ -12,7 +11,6 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
 
 //
@@ -20,14 +18,14 @@ use starknet::testing::set_contract_address;
 //
 
 fn setup_snake() -> (DualCaseOwnable, IOwnableDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     calldata.append_serde(OWNER());
     let target = utils::deploy(SnakeOwnableMock::TEST_CLASS_HASH, calldata);
     (DualCaseOwnable { contract_address: target }, IOwnableDispatcher { contract_address: target })
 }
 
 fn setup_camel() -> (DualCaseOwnable, IOwnableCamelOnlyDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let mut calldata = array![];
     calldata.append_serde(OWNER());
     let target = utils::deploy(CamelOwnableMock::TEST_CLASS_HASH, calldata);
     (
@@ -37,14 +35,14 @@ fn setup_camel() -> (DualCaseOwnable, IOwnableCamelOnlyDispatcher) {
 }
 
 fn setup_non_ownable() -> DualCaseOwnable {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseOwnable { contract_address: target }
 }
 
 fn setup_ownable_panic() -> (DualCaseOwnable, DualCaseOwnable) {
-    let snake_target = utils::deploy(SnakeOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
-    let camel_target = utils::deploy(CamelOwnablePanicMock::TEST_CLASS_HASH, ArrayTrait::new());
+    let snake_target = utils::deploy(SnakeOwnablePanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelOwnablePanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseOwnable { contract_address: snake_target },
         DualCaseOwnable { contract_address: camel_target }
@@ -117,7 +115,6 @@ fn test_dual_renounce_ownership() {
     dispatcher.renounce_ownership();
     assert(target.owner().is_zero(), 'Should be zero');
 }
-
 
 #[test]
 #[available_gas(2000000)]

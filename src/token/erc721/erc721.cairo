@@ -352,7 +352,6 @@ mod ERC721 {
         }
     }
 
-    #[internal]
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {

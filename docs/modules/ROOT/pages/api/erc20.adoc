@@ -412,7 +412,7 @@ Requirements:
 
 Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
 
-This internal function does not include permissions and can be useful for instances like setting automatic allowances on behalf of other addresses.
+This internal function does not include permissions but can be useful for instances like setting automatic allowances on behalf of other addresses.
 
 Emits an <<ERC20-Approval,Approval>> event.
 
@@ -427,7 +427,7 @@ Requirements:
 
 Moves `amount` of tokens from `from` to `to`.
 
-This internal function does not include permissions and can be useful for instances like implementing automatic token fees, slashing mechanisms, etc.
+This internal function does not include permissions but can be useful for instances like implementing automatic token fees, slashing mechanisms, etc.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 

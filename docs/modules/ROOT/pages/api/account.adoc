@@ -84,24 +84,20 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 --
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
-[.contract-subindex-inherited]
 .SRC6Impl
 
 * xref:#Account-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#Account-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#Account-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
-[.contract-subindex-inherited]
 .SRC5Impl
 
 * xref:#Account-supports_interface[`++supports_interface(self, interface_id)++`]
 
-[.contract-subindex-inherited]
 .DeclarerImpl
 
 * xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
-[.contract-subindex-inherited]
 .PublicKeyImpl
 
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
@@ -111,7 +107,6 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [.contract-index]
 .Internal Functions
 --
-[.contract-subindex-inherited]
 .InternalImpl
 
 * xref:#Account-initializer[`++initializer(self, _public_key)++`]

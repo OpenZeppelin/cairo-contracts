@@ -2,27 +2,24 @@
 
 :fungible-tokens: https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungible tokens]
 :eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
-:erc20-api: xref:/api/erc20.adoc[API Reference]
+:version: https://github.com/OpenZeppelin/cairo-contracts/releases/tag/v0.7.0[Contracts v0.7.0]
+:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing Decimals]
 
 The ERC20 token standard is a specification for {fungible-tokens}, a type of token where all the units are exactly equal to each other.
 The `token::erc20::ERC20` contract implements an approximation of {eip20} in Cairo for Starknet.
 
-TIP: For detailed information on the usage and implementation check the {erc20-api} section.
+WARNING: Prior to {version}, ERC20 contracts store and read `decimals` from storage; however, this implementation returns a static `18`.
+If upgrading an older ERC20 contract that has a decimals value other than `18`, the upgraded contract *must* use a custom `decimals` implementation.
+See the {custom-decimals} guide.
 
 == Interface
 
 :dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual Interfaces]
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
-:version: https://github.com/OpenZeppelin/cairo-contracts/releases/tag/v0.7.0[Contracts v0.7.0]
-:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing Decimals]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` preset.
 The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
 To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20` also includes the previously defined functions written in camelCase.
-
-WARNING: Prior to {version}, ERC20 contracts store and read `decimals` from storage; however, this implementation returns a static `18`.
-If upgrading an older ERC20 contract that has a decimals value other than `18`, the upgraded contract *must* use a custom `decimals` implementation.
-See the {custom-decimals} guide.
 
 [,javascript]
 ----

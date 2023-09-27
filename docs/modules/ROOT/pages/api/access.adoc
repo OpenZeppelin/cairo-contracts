@@ -32,7 +32,6 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 [.contract-index]
 .External Functions
 --
-[.contract-subindex-inherited]
 .OwnableImpl
 
 * xref:Ownable-owner[`++owner(self)++`]
@@ -43,7 +42,6 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 [.contract-index]
 .Internal Functions
 --
-[.contract-subindex-inherited]
 .InternalImpl
 
 * xref:Ownable-initializer[`++initializer(self, owner)++`]
@@ -306,7 +304,6 @@ accounts that have been granted it.
 [.contract-index]
 .External Functions
 --
-[.contract-subindex-inherited]
 .AccessControlImpl
 
 * xref:#AccessControl-has_role[`++has_role(self, role, account)++`]
@@ -315,7 +312,6 @@ accounts that have been granted it.
 * xref:#AccessControl-revoke_role[`++revoke_role(self, role, account)++`]
 * xref:#AccessControl-renounce_role[`++renounce_role(self, role, account)++`]
 
-[.contract-subindex-inherited]
 .SRC5Impl
 * xref:#AccessControl-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
 --
@@ -323,7 +319,6 @@ accounts that have been granted it.
 [.contract-index]
 .Internal Functions
 --
-[.contract-subindex-inherited]
 .InternalImpl
 
 * xref:#AccessControl-initializer[`++initializer(self)++`]
@@ -336,7 +331,6 @@ accounts that have been granted it.
 [.contract-index]
 .Events
 --
-[.contract-subindex-inherited]
 .IAccessControl
 * xref:#AccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
 * xref:#AccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]

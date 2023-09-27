@@ -582,7 +582,7 @@ Safely transfers `token_id` token from `from` to `to`, checking first that contr
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
 
-This internal function does not include permissions but can be useful for instances like implementing alternative mechanism to perform signature-based token transfers.
+This internal function does not include permissions but can be useful for instances like implementing alternative mechanisms to perform signature-based token transfers.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 

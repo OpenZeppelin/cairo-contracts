@@ -420,7 +420,7 @@ Requirements:
 ==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
-This internal function is equivalent to <<IERC20-approve,IERC20::approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
+This internal function is equivalent to <<ERC20-approve,ERC20::approve>>, and can be used to e.g. set automatic allowances on behalf of other addresses.
 
 Emits an <<ERC20-Approval,Approval>> event.
 
@@ -435,7 +435,7 @@ Requirements:
 
 Moves amount of tokens from `from` to `to`.
 
-This internal function is equivalent to <<IERC20-transfer,IERC20::transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
+This internal function is equivalent to <<ERC20-transfer,ERC20::transfer>>, and can be used to e.g. implement automatic token fees, slashing mechanisms, etc.
 
 Emits a <<ERC20-Transfer,Transfer>> event.
 

@@ -10,7 +10,7 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/account/interface.cairo#L12[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/account.cairo#L27[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:Account-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:Account-OwnerRemoved[OwnerRemoved]

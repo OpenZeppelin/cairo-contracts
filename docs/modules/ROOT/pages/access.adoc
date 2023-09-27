@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/access/ownable/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -119,7 +119,6 @@ and sets a 'minter' role:
 
 [,javascript]
 ----
-// sn_keccak('MINTER_ROLE')
 const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 
 #[starknet::contract]

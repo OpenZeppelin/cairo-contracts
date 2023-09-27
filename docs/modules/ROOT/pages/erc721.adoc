@@ -273,7 +273,6 @@ WARNING: Usage of `safe_transfer_from` prevents loss, though the caller must und
 :safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
 :safe_mint-api: xref:api/erc721.adoc#ERC721-_safe_mint[_safe_mint]
 
-
 In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface.
 The recipient contract must also implement the {src5} interface which, as described earlier, supports interface introspection.
 

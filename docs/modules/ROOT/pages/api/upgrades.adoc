@@ -52,7 +52,7 @@ Upgradeable contract module.
 [.contract-subindex-inherited]
 .InternalImpl
 
-* xref:#Upgradeable-_upgrade[`++_upgrade(ref self: ContractState, new_class_hash: ClassHash)++`]
+* xref:#Upgradeable-_upgrade[`++_upgrade(self, new_class_hash)++`]
 --
 
 [.contract-index]

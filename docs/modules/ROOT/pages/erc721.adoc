@@ -161,7 +161,7 @@ In Solidity, this means a dynamically-sized array.
 To be as close as possible to the standard, it accepts a dynamic array of felts.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
-* `IERC721Receiver` compliant contracts return a hardcoded selector id according to Starknet selectors (as opposed to selector calculation in Solidity).
+* `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).
 
 == Usage
 
@@ -279,6 +279,8 @@ The recipient contract must also implement the {src5} interface which, as descri
 
 ==== IERC721Receiver
 
+:receiver-id: xref:/api/erc721.adoc#IERC721Receiver[IERC721Receiver interface ID]
+
 [,javascript]
 ----
 trait IERC721Receiver {
@@ -292,7 +294,7 @@ trait IERC721Receiver {
 ----
 
 Implementing the `IERC721Receiver` interface exposes the {on_erc721_received-api} method.
-When safe methods such as {safe_transfer_from-api} and {safe_mint-api} are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the IERC721Receiver interface ID.
+When safe methods such as {safe_transfer_from-api} and {safe_mint-api} are called, they invoke the recipient contract's `on_erc721_received` method which *must* return the {receiver-id}.
 Otherwise, the transaction will fail.
 
 TIP: For information on how to calculate interface IDs, see {computing-interface-id}.

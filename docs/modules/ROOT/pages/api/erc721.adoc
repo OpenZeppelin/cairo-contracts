@@ -578,11 +578,11 @@ Requirements:
 [[ERC721-_safe_transfer]]
 ==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Internal function that safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+Safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
 
-This function is equivalent to <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>, and can be used to e.g. implement alternative mechanisms to perform signature-based token transfers.
+This internal function does not include permissions but can be useful for instances like implementing alternative mechanism to perform signature-based token transfers.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
 

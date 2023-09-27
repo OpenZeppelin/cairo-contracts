@@ -160,10 +160,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .External functions
 --
-
-[.contract-subindex-inherited]
 .IERC20
-
 * xref:#ERC20-name[`++name(self)++`]
 * xref:#ERC20-symbol[`++symbol(self)++`]
 * xref:#ERC20-decimals[`++decimals(self)++`]
@@ -174,15 +171,11 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20-approve[`++approve(self, spender, amount)++`]
 
-[.contract-subindex-inherited]
 .Non-standard
-
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 
-[.contract-subindex-inherited]
 .ERC20Camel
-
 * xref:#ERC20-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
@@ -194,9 +187,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 .Internal functions
 --
 
-[.contract-subindex-inherited]
 .InternalImpl
-
 * xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]
 * xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]

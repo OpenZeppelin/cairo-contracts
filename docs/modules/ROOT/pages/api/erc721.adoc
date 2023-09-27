@@ -33,9 +33,7 @@ Interface of the IERC721 standard as defined in {eip721}.
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
 
-[.contract-subindex-inherited]
 .ISRC5
-
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
@@ -182,9 +180,7 @@ See {eip721}.
 * xref:#IERC721Metadata-owner_of[`++symbol()++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(token_id)++`]
 
-[.contract-subindex-inherited]
 .IERC721
-
 * xref:#IERC721-balance_of[`++balance_of(account)++`]
 * xref:#IERC721-owner_of[`++owner_of(token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
@@ -194,16 +190,13 @@ See {eip721}.
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
 
-[.contract-subindex-inherited]
 .ISRC5
-
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
 [.contract-index]
 .Events
 --
-[.contract-subindex-inherited]
 .IERC721
 
 * xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
@@ -251,9 +244,7 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 [.contract-index]
 .External Functions
 --
-[.contract-subindex-inherited]
 .IERC721
-
 * xref:#IERC721-balance_of[`++balance_of(self, account)++`]
 * xref:#IERC721-owner_of[`++owner_of(self, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(self, from, to, token_id, data)++`]
@@ -263,21 +254,15 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
 
-[.contract-subindex-inherited]
 .ISRC5
-
 * xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(self, interface_id)++`]
 
-[.contract-subindex-inherited]
 .IERC721Metadata
-
 * xref:#IERC721Metadata-name[`++name(self)++`]
 * xref:#IERC721Metadata-symbol[`++symbol(self)++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
 
-[.contract-subindex-inherited]
 .ER721Camel
-
 * xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
 * xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
@@ -292,10 +277,7 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 [.contract-index]
 .Internal Functions
 --
-
-[.contract-subindex-inherited]
 .InternalImpl
-
 * xref:#ERC721-initializer[`++initializer(self, name_, symbol_)++`]
 * xref:#ERC721-_owner_of[`++_owner_of(self, token_id)++`]
 * xref:#ERC721-_exists[`++_exists(self, token_id)++`]
@@ -313,9 +295,7 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 [.contract-index]
 .Events
 --
-[.contract-subindex-inherited]
 .IERC721
-
 * xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
 * xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
@@ -649,7 +629,6 @@ use openzeppelin::token::erc721::interface::IERC721Receiver;
 
 [.contract-item]
 [[IERC721Receiver-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>)++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
-

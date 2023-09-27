@@ -38,7 +38,9 @@ fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
 /// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 /// `expected_keys` must include all indexed event keys for `event` in the order
 /// that they're defined. 
-fn assert_indexed_keys<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(event: T, expected_keys: Span<felt252>) {
+fn assert_indexed_keys<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
+    event: T, expected_keys: Span<felt252>
+) {
     let mut keys = array![];
     let mut data = array![];
 

@@ -43,7 +43,7 @@ fn assert_indexed_keys<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     let mut keys = array![];
     let mut data = array![];
 
-    starknet::event::Event::append_keys_and_data(@event, ref keys, ref data);
+    event.append_keys_and_data(ref keys, ref data);
     assert(expected_keys == keys.span(), 'Invalid keys');
 }
 

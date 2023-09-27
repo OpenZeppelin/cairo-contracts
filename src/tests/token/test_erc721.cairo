@@ -23,6 +23,7 @@ use openzeppelin::token::erc721::ERC721::{
 };
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
+use openzeppelin::utils::serde::SerializedAppend;
 use option::OptionTrait;
 use starknet::contract_address_const;
 use starknet::ContractAddress;
@@ -1405,6 +1406,12 @@ fn assert_event_approval_for_all(
     assert(event.operator == operator, 'Invalid `operator`');
     assert(event.approved == approved, 'Invalid `approved`');
     utils::assert_no_events_left(ZERO());
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(owner);
+    indexed_keys.append_serde(operator);
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
@@ -1413,6 +1420,13 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
     assert(event.approved == approved, 'Invalid `approved`');
     assert(event.token_id == token_id, 'Invalid `token_id`');
     utils::assert_no_events_left(ZERO());
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(owner);
+    indexed_keys.append_serde(approved);
+    indexed_keys.append_serde(token_id);
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
@@ -1421,4 +1435,11 @@ fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u
     assert(event.to == to, 'Invalid `to`');
     assert(event.token_id == token_id, 'Invalid `token_id`');
     utils::assert_no_events_left(ZERO());
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(from);
+    indexed_keys.append_serde(to);
+    indexed_keys.append_serde(token_id);
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }

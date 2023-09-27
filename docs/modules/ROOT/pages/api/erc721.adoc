@@ -68,28 +68,14 @@ Returns the number of NFTs owned by `account`.
 
 Returns the owner address of `token_id`.
 
-Requirements:
-
-- `token_id` exists.
-
 [.contract-item]
 [[IERC721-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
 
-Safely transfer ownership of `token_id` from `from` to `to`, checking first
-that `to` is aware of the ERC721 protocol to prevent tokens being locked
-forever. For information regarding how contracts communicate their
-awareness of the ERC721 protocol, see {receiving-tokens}.
+Safely transfer ownership of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC721 protocol to prevent tokens being locked forever.
+For information regarding how contracts communicate their awareness of the ERC721 protocol, see {receiving-tokens}.
     
 Emits a <<IERC721-Transfer,Transfer>> event.
-
-Requirements:
-
-- Caller is either approved or the `token_id` owner.
-- `to` is not the zero address.
-- `from` is not the zero address.
-- `token_id` exists.
-- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[IERC721-transfer_from]]
@@ -102,13 +88,6 @@ Usage of <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> prevents los
     
 Emits a <<IERC721-Transfer,Transfer>> event.
 
-Requirements:
-
-- Caller either approved or the `token_id` owner.
-- `to` is not the zero address.
-- `from` is not the zero address.
-- `token_id` exists.
-
 [.contract-item]
 [[IERC721-approve]]
 ==== `[.contract-item-name]#++approve++#++(to: ContractAddress, token_id: u256)++` [.item-kind]#external#
@@ -116,12 +95,6 @@ Requirements:
 Change or reaffirm the approved address for an NFT.
 
 Emits an <<IERC721-Approval,Approval>> event.
-
-Requirements:
-
-- The caller is either an approved operator or the `token_id` owner.
-- `to` cannot be the token owner or the zero address.
-- `token_id` exists.
 
 [.contract-item]
 [[IERC721-set_approval_for_all]]
@@ -131,19 +104,11 @@ Enable or disable approval for `operator` to manage all of the caller's assets.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-Requirements:
-
-- `operator` cannot be the caller.
-
 [.contract-item]
 [[IERC721-get_approved]]
 ==== `[.contract-item-name]#++get_approved++#++(token_id: u256) -> u256++` [.item-kind]#external#
 
 Returns the address approved for `token_id`.
-
-Requirements:
-
-- `token_id` exists.
 
 [.contract-item]
 [[IERC721-is_approved_for_all]]
@@ -341,11 +306,23 @@ See <<IERC721-balance_of,IERC721::balance_of>>.
 
 See <<IERC721-owner_of,IERC721::owner_of>>.
 
+Requirements:
+
+- `token_id` exists.
+
 [.contract-item]
 [[ERC721-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
 
 See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+Requirements:
+
+- Caller is either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
+- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
 [[ERC721-transfer_from]]
@@ -353,11 +330,24 @@ See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
 
 See <<IERC721-transfer_from,IERC721::transfer_from>>.
 
+Requirements:
+
+- Caller either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
+
 [.contract-item]
 [[ERC721-approve]]
 ==== `[.contract-item-name]#++approve++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
 
 See <<IERC721-approve,IERC721::approve>>.
+
+Requirements:
+
+- The caller is either an approved operator or the `token_id` owner.
+- `to` cannot be the token owner or the zero address.
+- `token_id` exists.
 
 [.contract-item]
 [[ERC721-set_approval_for_all]]
@@ -365,11 +355,19 @@ See <<IERC721-approve,IERC721::approve>>.
 
 See <<IERC721-set_approval_for_all,IERC721::set_approval_for_all>>.
 
+Requirements:
+
+- `operator` cannot be the caller.
+
 [.contract-item]
 [[ERC721-get_approved]]
 ==== `[.contract-item-name]#++get_approved++#++(self: @ContractState, token_id: u256) -> u256++` [.item-kind]#external#
 
 See <<IERC721-get_approved,IERC721::get_approved>>.
+
+Requirements:
+
+- `token_id` exists.
 
 [.contract-item]
 [[ERC721-is_approved_for_all]]

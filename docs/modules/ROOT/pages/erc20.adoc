@@ -16,11 +16,11 @@ TIP: For detailed information on the usage and implementation check the {erc20-a
 :version: https://github.com/OpenZeppelin/cairo-contracts/releases/tag/v0.7.0[Contracts v0.7.0]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing Decimals]
 
-The following interface represents the full interface of the Contracts for Cairo `ERC20ABI` module.
-The interface includes the `IERC20` standard interface as well as the non-standard functions e.g. `increase_allowance`.
-To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20ABI` also includes the previously defined functions written in camelCase.
+The following interface represents the full ABI of the Contracts for Cairo `ERC20` preset.
+The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
+To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20` also includes the previously defined functions written in camelCase.
 
-WARNING: Prior to {version}, ERC20 iterations store and read `decimals` from storage; however, this library's implementation returns a static `18`.
+WARNING: Prior to {version}, ERC20 contracts store and read `decimals` from storage; however, this implementation returns a static `18`.
 If upgrading an older ERC20 contract that has a decimals value other than `18`, the upgraded contract *must* use a custom `decimals` implementation.
 See the {custom-decimals} guide.
 

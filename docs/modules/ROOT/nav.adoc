@@ -8,7 +8,8 @@
 ** xref:/guides/deployment.adoc[Counterfactual deployments]
 ** xref:/api/account.adoc[API Reference]
 
-// * xref:access.adoc[Access Control]
+* xref:access.adoc[Access Control]
+** xref:/api/access.adoc[API Reference]
 
 // * Tokens
 // ** xref:erc20.adoc[ERC20]

@@ -2,9 +2,7 @@
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP721]
 :receiving-tokens: xref:/erc721.adoc#receiving_tokens[Receiving Tokens]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
-:inner-ierc721: xref:api/erc721.adoc#IERC721[SRC5 ID]
-:inner-ierc721metadata: xref:api/erc721.adoc#IERC721Metadata[SRC5 ID]
-:inner-ierc721receiver: xref:api/erc721.adoc#IERC721Receiver[SRC5 ID]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = ERC721
 
@@ -25,7 +23,7 @@ use openzeppelin::token::erc721::interface::IERC721;
 Interface of the IERC721 standard as defined in {eip721}.
 
 [.contract-index]
-.{inner-ierc721}
+.{inner-src5}
 --
 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943
 --
@@ -148,7 +146,7 @@ use openzeppelin::token::erc721::interface::IERC721Metadata;
 See {eip721}.
 
 [.contract-index]
-.{inner-ierc721metadata}
+.{inner-src5}
 --
 0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd
 --
@@ -633,7 +631,7 @@ use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```
 
 [.contract-index]
-.{inner-ierc721receiver}
+.{inner-src5}
 --
 0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
 --

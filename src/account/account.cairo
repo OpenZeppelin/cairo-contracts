@@ -218,9 +218,7 @@ mod Account {
                     let _res = _execute_single_call(call);
                     res.append(_res);
                 },
-                Option::None(_) => {
-                    break ();
-                },
+                Option::None(_) => { break (); },
             };
         };
         res

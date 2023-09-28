@@ -4,8 +4,8 @@ use array::ArrayTrait;
 use array::SpanTrait;
 use core::result::ResultTrait;
 use option::OptionTrait;
-use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
+use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::testing;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {

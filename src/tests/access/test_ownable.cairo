@@ -1,8 +1,8 @@
 use openzeppelin::access::ownable::Ownable::InternalImpl;
 use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
 use openzeppelin::access::ownable::Ownable::OwnableImpl;
-use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::Ownable::Ownable_owner::InternalContractMemberStateTrait;
+use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::Ownable;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;

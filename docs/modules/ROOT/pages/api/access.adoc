@@ -93,7 +93,7 @@ thereby removing any functionality that is only available to the owner.
 [[Ownable-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
 
-Initializes the contract setting `owner` as the initial owner.
+Initializes the contract and sets `owner` as the initial owner.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 

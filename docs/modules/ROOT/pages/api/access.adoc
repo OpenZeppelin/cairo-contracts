@@ -77,7 +77,7 @@ Can only be called by the current owner.
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
-[[Ownable-renounce_ownership--]]
+[[Ownable-renounce_ownership]]
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Leaves the contract without owner. It will not be possible to call

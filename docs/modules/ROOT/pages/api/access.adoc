@@ -48,8 +48,8 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 .InternalImpl
 
 * xref:Ownable-initializer[`++initializer(self, owner)++`]
-* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 * xref:Ownable-assert_only_owner[`++assert_only_owner(self)++`]
+* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 --
 
 [.contract-index]

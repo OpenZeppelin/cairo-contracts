@@ -98,6 +98,12 @@ Initializes the contract and sets `owner` as the initial owner.
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
+[[Ownable-assert_only_owner]]
+==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Panics if called by any account other than the owner.
+
+[.contract-item]
 [[Ownable-_transfer_ownership]]
 ==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
 
@@ -105,12 +111,6 @@ Transfers ownership of the contract to a new account (`new_owner`).
 Internal function without access restriction.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
-
-[.contract-item]
-[[Ownable-assert_only_owner]]
-==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Panics if called by any account other than the owner.
 
 [#Ownable-Events]
 ==== Events
@@ -419,7 +419,7 @@ Returns whether a contract implements a given interface or not.
 [[AccessControl-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Initializes the contract by registering the IAccessControl interface ID.
+Initializes the contract by registering the xref:#IAccessControl[IAccessControl] interface ID.
 
 [.contract-item]
 [[AccessControl-_set_role_admin]]

@@ -143,6 +143,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 use openzeppelin::token::erc721::interface::IERC721Metadata;
 ```
 
+ERC721 extension that allows your smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
 See {eip721}.
 
 [.contract-index]
@@ -282,13 +283,15 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 ==== Constructor
 
 :src5: xref:introspection.adoc#src5[SRC5]
+:ierc721: xref:/api/erc721.adoc#IERC721[IERC721]
+:ierc721metadata: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
 
 [.contract-item]
 [[ERC721-constructor]]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#constructor#
 
 Initializes the state of the ERC721 contract by setting the token name and symbol.
-The constructor also registers the IERC721 and IERC721_METADATA interface ids according to {src5}.
+The constructor also registers the {ierc721} and {ierc721metadata} interface ids according to {src5}.
 
 ==== External functions
 

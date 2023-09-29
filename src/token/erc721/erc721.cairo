@@ -259,18 +259,34 @@ mod ERC721 {
             }
         }
 
-        fn _exists(self: @ContractState, token_id: u256) -> bool {
-            !self.ERC721_owners.read(token_id).is_zero()
+        fn _safe_transfer(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) {
+            self._transfer(from, to, token_id);
+            assert(
+                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
+            );
         }
 
-        fn _is_approved_or_owner(
-            self: @ContractState, spender: ContractAddress, token_id: u256
-        ) -> bool {
+        fn _transfer(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
+        ) {
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             let owner = self._owner_of(token_id);
-            let is_approved_for_all = ERC721Impl::is_approved_for_all(self, owner, spender);
-            owner == spender
-                || is_approved_for_all
-                || spender == ERC721Impl::get_approved(self, token_id)
+            assert(from == owner, Errors::WRONG_SENDER);
+
+            // Implicit clear approvals, no need to emit an event
+            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
+
+            self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
+            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            self.ERC721_owners.write(token_id, to);
+
+            self.emit(Transfer { from, to, token_id });
         }
 
         fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
@@ -292,6 +308,20 @@ mod ERC721 {
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
+        fn _is_approved_or_owner(
+            self: @ContractState, spender: ContractAddress, token_id: u256
+        ) -> bool {
+            let owner = self._owner_of(token_id);
+            let is_approved_for_all = ERC721Impl::is_approved_for_all(self, owner, spender);
+            owner == spender
+                || is_approved_for_all
+                || spender == ERC721Impl::get_approved(self, token_id)
+        }
+
+        fn _exists(self: @ContractState, token_id: u256) -> bool {
+            !self.ERC721_owners.read(token_id).is_zero()
+        }
+
         fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             assert(!self._exists(token_id), Errors::ALREADY_MINTED);
@@ -300,23 +330,6 @@ mod ERC721 {
             self.ERC721_owners.write(token_id, to);
 
             self.emit(Transfer { from: Zeroable::zero(), to, token_id });
-        }
-
-        fn _transfer(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-        ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-            let owner = self._owner_of(token_id);
-            assert(from == owner, Errors::WRONG_SENDER);
-
-            // Implicit clear approvals, no need to emit an event
-            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
-
-            self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
-            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
-            self.ERC721_owners.write(token_id, to);
-
-            self.emit(Transfer { from, to, token_id });
         }
 
         fn _burn(ref self: ContractState, token_id: u256) {
@@ -338,19 +351,6 @@ mod ERC721 {
             assert(
                 _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
                 Errors::SAFE_MINT_FAILED
-            );
-        }
-
-        fn _safe_transfer(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            data: Span<felt252>
-        ) {
-            self._transfer(from, to, token_id);
-            assert(
-                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
             );
         }
 

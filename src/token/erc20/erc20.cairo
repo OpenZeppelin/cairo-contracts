@@ -122,6 +122,20 @@ mod ERC20 {
     }
 
     #[external(v0)]
+    fn increase_allowance(
+        ref self: ContractState, spender: ContractAddress, added_value: u256
+    ) -> bool {
+        self._increase_allowance(spender, added_value)
+    }
+
+    #[external(v0)]
+    fn decrease_allowance(
+        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool {
+        self._decrease_allowance(spender, subtracted_value)
+    }
+
+    #[external(v0)]
     impl ERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
         fn totalSupply(self: @ContractState) -> u256 {
             ERC20Impl::total_supply(self)
@@ -142,24 +156,10 @@ mod ERC20 {
     }
 
     #[external(v0)]
-    fn increase_allowance(
-        ref self: ContractState, spender: ContractAddress, added_value: u256
-    ) -> bool {
-        self._increase_allowance(spender, added_value)
-    }
-
-    #[external(v0)]
     fn increaseAllowance(
         ref self: ContractState, spender: ContractAddress, addedValue: u256
     ) -> bool {
         increase_allowance(ref self, spender, addedValue)
-    }
-
-    #[external(v0)]
-    fn decrease_allowance(
-        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool {
-        self._decrease_allowance(spender, subtracted_value)
     }
 
     #[external(v0)]
@@ -178,6 +178,42 @@ mod ERC20 {
         fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
+        }
+
+        fn _transfer(
+            ref self: ContractState,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
+            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
+            self.ERC20_balances.write(sender, self.ERC20_balances.read(sender) - amount);
+            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
+            self.emit(Transfer { from: sender, to: recipient, value: amount });
+        }
+
+        fn _approve(
+            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+        ) {
+            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
+            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
+            self.ERC20_allowances.write((owner, spender), amount);
+            self.emit(Approval { owner, spender, value: amount });
+        }
+
+        fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
+            self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
+            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
+            self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
+        }
+
+        fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
+            self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
+            self.ERC20_balances.write(account, self.ERC20_balances.read(account) - amount);
+            self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
         }
 
         fn _increase_allowance(
@@ -202,42 +238,6 @@ mod ERC20 {
                     self.ERC20_allowances.read((caller, spender)) - subtracted_value
                 );
             true
-        }
-
-        fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
-            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
-            self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
-        }
-
-        fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
-            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
-            self.ERC20_balances.write(account, self.ERC20_balances.read(account) - amount);
-            self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
-        }
-
-        fn _approve(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        ) {
-            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
-            self.ERC20_allowances.write((owner, spender), amount);
-            self.emit(Approval { owner, spender, value: amount });
-        }
-
-        fn _transfer(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.ERC20_balances.write(sender, self.ERC20_balances.read(sender) - amount);
-            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
-            self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
         fn _spend_allowance(

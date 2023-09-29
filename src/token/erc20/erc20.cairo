@@ -145,6 +145,24 @@ mod ERC20 {
         }
     }
 
+    /// Increases the allowance granted from the caller to `spender` by `added_value`.
+    /// Emits an [Approval](Approval) event indicating the updated allowance.
+    #[external(v0)]
+    fn increase_allowance(
+        ref self: ContractState, spender: ContractAddress, added_value: u256
+    ) -> bool {
+        self._increase_allowance(spender, added_value)
+    }
+
+    /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
+    /// Emits an [Approval](Approval) event indicating the updated allowance.
+    #[external(v0)]
+    fn decrease_allowance(
+        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool {
+        self._decrease_allowance(spender, subtracted_value)
+    }
+
     #[external(v0)]
     impl ERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
         /// Camel case support.
@@ -171,15 +189,6 @@ mod ERC20 {
         }
     }
 
-    /// Increases the allowance granted from the caller to `spender` by `added_value`.
-    /// Emits an [Approval](Approval) event indicating the updated allowance.
-    #[external(v0)]
-    fn increase_allowance(
-        ref self: ContractState, spender: ContractAddress, added_value: u256
-    ) -> bool {
-        self._increase_allowance(spender, added_value)
-    }
-
     /// Camel case support.
     /// See [increase_allowance](increase_allowance).
     #[external(v0)]
@@ -187,15 +196,6 @@ mod ERC20 {
         ref self: ContractState, spender: ContractAddress, addedValue: u256
     ) -> bool {
         increase_allowance(ref self, spender, addedValue)
-    }
-
-    /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
-    /// Emits an [Approval](Approval) event indicating the updated allowance.
-    #[external(v0)]
-    fn decrease_allowance(
-        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool {
-        self._decrease_allowance(spender, subtracted_value)
     }
 
     /// Camel case support.

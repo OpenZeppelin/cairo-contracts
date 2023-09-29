@@ -220,6 +220,51 @@ mod ERC20 {
             self._symbol.write(symbol);
         }
 
+        /// Internal method that moves an `amount` of tokens from `from` to `to`.
+        /// Emits a [Transfer](Transfer) event.
+        fn _transfer(
+            ref self: ContractState,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
+            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
+            self._balances.write(sender, self._balances.read(sender) - amount);
+            self._balances.write(recipient, self._balances.read(recipient) + amount);
+            self.emit(Transfer { from: sender, to: recipient, value: amount });
+        }
+
+        /// Internal method that sets `amount` as the allowance of `spender` over the
+        /// `owner`s tokens.
+        /// Emits an [Approval](Approval) event.
+        fn _approve(
+            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+        ) {
+            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
+            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
+            self._allowances.write((owner, spender), amount);
+            self.emit(Approval { owner, spender, value: amount });
+        }
+
+        /// Creates a `value` amount of tokens and assigns them to `account`.
+        /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
+        fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
+            self._total_supply.write(self._total_supply.read() + amount);
+            self._balances.write(recipient, self._balances.read(recipient) + amount);
+            self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
+        }
+
+        /// Destroys a `value` amount of tokens from `account`.
+        /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
+        fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
+            self._total_supply.write(self._total_supply.read() - amount);
+            self._balances.write(account, self._balances.read(account) - amount);
+            self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
+        }
+
         /// Internal method for the external [increase_allowance](increase_allowance).
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn _increase_allowance(
@@ -241,51 +286,6 @@ mod ERC20 {
                     caller, spender, self._allowances.read((caller, spender)) - subtracted_value
                 );
             true
-        }
-
-        /// Creates a `value` amount of tokens and assigns them to `account`.
-        /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
-        fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self._total_supply.write(self._total_supply.read() + amount);
-            self._balances.write(recipient, self._balances.read(recipient) + amount);
-            self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
-        }
-
-        /// Destroys a `value` amount of tokens from `account`.
-        /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
-        fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
-            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self._total_supply.write(self._total_supply.read() - amount);
-            self._balances.write(account, self._balances.read(account) - amount);
-            self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
-        }
-
-        /// Internal method that sets `amount` as the allowance of `spender` over the
-        /// `owner`s tokens.
-        /// Emits an [Approval](Approval) event.
-        fn _approve(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        ) {
-            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
-            self._allowances.write((owner, spender), amount);
-            self.emit(Approval { owner, spender, value: amount });
-        }
-
-        /// Internal method that moves an `amount` of tokens from `from` to `to`.
-        /// Emits a [Transfer](Transfer) event.
-        fn _transfer(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self._balances.write(sender, self._balances.read(sender) - amount);
-            self._balances.write(recipient, self._balances.read(recipient) + amount);
-            self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.

@@ -189,12 +189,12 @@ Implementation of the <<IERC20,IERC20>> interface.
 
 .InternalImpl
 * xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]
-* xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
-* xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
+* xref:#ERC20-_transfer[`++_transfer(self, sender, recipient, amount)++`]
+* xref:#ERC20-_approve[`++_approve(self, owner, spender, amount)++`]
 * xref:#ERC20-_mint[`++_mint(self, recipient, amount)++`]
 * xref:#ERC20-_burn[`++_burn(self, account, amount)++`]
-* xref:#ERC20-_approve[`++_approve(self, owner, spender, amount)++`]
-* xref:#ERC20-_transfer[`++_transfer(self, sender, recipient, amount)++`]
+* xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
+* xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
 * xref:#ERC20-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
 
 --
@@ -367,20 +367,35 @@ Initializes the contract by setting the token name and symbol.
 This should be used inside of the contract's constructor.
 
 [.contract-item]
-[[ERC20-_increase_allowance]]
-==== `[.contract-item-name]#++_increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256)++` [.item-kind]#internal#
+[[ERC20-_transfer]]
+==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Increases the allowance granted from the caller to `spender` by `added_value`
+Moves `amount` of tokens from `from` to `to`.
 
-Emits an <<ERC20-Approval,Approval>> event.
+This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic token fees, slashing mechanisms, etc.
+
+Emits a <<ERC20-Transfer,Transfer>> event.
+
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `from` must have a balance of at least `amount`.
 
 [.contract-item]
-[[ERC20-_decrease_allowance]]
-==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256)++` [.item-kind]#internal#
+[[ERC20-_approve]]
+==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Decreases the allowance granted from the caller to `spender` by `subtracted_value`
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
+
+This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic allowances on behalf of other addresses.
 
 Emits an <<ERC20-Approval,Approval>> event.
+
+Requirements:
+
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
 
 [.contract-item]
 [[ERC20-_mint]]
@@ -407,35 +422,20 @@ Requirements:
 - `account` cannot be the zero address.
 
 [.contract-item]
-[[ERC20-_approve]]
-==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
+[[ERC20-_increase_allowance]]
+==== `[.contract-item-name]#++_increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256)++` [.item-kind]#internal#
 
-Sets `amount` as the allowance of `spender` over ``owner``'s tokens.
-
-This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic allowances on behalf of other addresses.
+Increases the allowance granted from the caller to `spender` by `added_value`
 
 Emits an <<ERC20-Approval,Approval>> event.
 
-Requirements:
-
-- `owner` cannot be the zero address.
-- `spender` cannot be the zero address.
-
 [.contract-item]
-[[ERC20-_transfer]]
-==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
+[[ERC20-_decrease_allowance]]
+==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256)++` [.item-kind]#internal#
 
-Moves `amount` of tokens from `from` to `to`.
+Decreases the allowance granted from the caller to `spender` by `subtracted_value`
 
-This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic token fees, slashing mechanisms, etc.
-
-Emits a <<ERC20-Transfer,Transfer>> event.
-
-Requirements:
-
-- `from` cannot be the zero address.
-- `to` cannot be the zero address.
-- `from` must have a balance of at least `amount`.
+Emits an <<ERC20-Approval,Approval>> event.
 
 [.contract-item]
 [[ERC20-_spend_allowance]]

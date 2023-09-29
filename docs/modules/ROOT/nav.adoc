@@ -1,14 +1,16 @@
 * xref:index.adoc[Overview]
 //* xref:wizard.adoc[Wizard]
 //* xref:extensibility.adoc[Extensibility]
-//* xref:proxies.adoc[Proxies and Upgrades]
 * xref:interfaces.adoc[Interfaces and Dispatchers]
+* xref:upgrades.adoc[Upgrades]
+** xref:/api/upgrades.adoc[API Reference]
 
 * xref:accounts.adoc[Accounts]
 ** xref:/guides/deployment.adoc[Counterfactual deployments]
 ** xref:/api/account.adoc[API Reference]
 
-// * xref:access.adoc[Access Control]
+* xref:access.adoc[Access Control]
+** xref:/api/access.adoc[API Reference]
 
 * Tokens
 ** xref:erc20.adoc[ERC20]
@@ -18,7 +20,10 @@
 // ** xref:erc1155.adoc[ERC1155]
 
 // * xref:security.adoc[Security]
-// * xref:introspection.adoc[Introspection]
+
+* xref:introspection.adoc[Introspection]
+** xref:/api/introspection.adoc[API Reference]
+
 // * xref:udc.adoc[Universal Deployer Contract]
 // * xref:utilities.adoc[Utilities]
 

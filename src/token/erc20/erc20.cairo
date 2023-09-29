@@ -14,15 +14,14 @@ mod ERC20 {
     use openzeppelin::token::erc20::interface::IERC20CamelOnly;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {
-        _name: felt252,
-        _symbol: felt252,
-        _total_supply: u256,
-        _balances: LegacyMap<ContractAddress, u256>,
-        _allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+        ERC20_name: felt252,
+        ERC20_symbol: felt252,
+        ERC20_total_supply: u256,
+        ERC20_balances: LegacyMap<ContractAddress, u256>,
+        ERC20_allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]
@@ -35,7 +34,9 @@ mod ERC20 {
     /// Emitted when tokens are moved from address `from` to address `to`.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
+        #[key]
         to: ContractAddress,
         value: u256
     }
@@ -44,7 +45,9 @@ mod ERC20 {
     /// to [approve](approve). `value` is the new allowance.
     #[derive(Drop, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
+        #[key]
         spender: ContractAddress,
         value: u256
     }
@@ -80,12 +83,12 @@ mod ERC20 {
     impl ERC20Impl of IERC20<ContractState> {
         /// Returns the name of the token.
         fn name(self: @ContractState) -> felt252 {
-            self._name.read()
+            self.ERC20_name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
         fn symbol(self: @ContractState) -> felt252 {
-            self._symbol.read()
+            self.ERC20_symbol.read()
         }
 
         /// Returns the number of decimals used to get its user representation.
@@ -95,12 +98,12 @@ mod ERC20 {
 
         /// Returns the value of tokens in existence.
         fn total_supply(self: @ContractState) -> u256 {
-            self._total_supply.read()
+            self.ERC20_total_supply.read()
         }
 
         /// Returns the amount of tokens owned by `account`.
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            self._balances.read(account)
+            self.ERC20_balances.read(account)
         }
 
         /// Returns the remaining number of tokens that `spender` is
@@ -111,7 +114,7 @@ mod ERC20 {
         fn allowance(
             self: @ContractState, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
-            self._allowances.read((owner, spender))
+            self.ERC20_allowances.read((owner, spender))
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
@@ -216,8 +219,8 @@ mod ERC20 {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
         fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
-            self._name.write(name);
-            self._symbol.write(symbol);
+            self.ERC20_name.write(name);
+            self.ERC20_symbol.write(symbol);
         }
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
@@ -230,8 +233,8 @@ mod ERC20 {
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self._balances.write(sender, self._balances.read(sender) - amount);
-            self._balances.write(recipient, self._balances.read(recipient) + amount);
+            self.ERC20_balances.write(sender, self.ERC20_balances.read(sender) - amount);
+            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
             self.emit(Transfer { from: sender, to: recipient, value: amount });
         }
 
@@ -294,7 +297,7 @@ mod ERC20 {
         fn _spend_allowance(
             ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {
-            let current_allowance = self._allowances.read((owner, spender));
+            let current_allowance = self.ERC20_allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {
                 self._approve(owner, spender, current_allowance - amount);
             }

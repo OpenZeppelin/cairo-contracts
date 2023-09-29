@@ -1,672 +1,414 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/access/ownable/library.cairo[Ownable]
-
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/ownable/ownable.cairo[Ownable]
+:sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
 = Access
 
-CAUTION: Expect these modules to evolve.
-
-Access control--that is, "who is allowed to do this thing"--is incredibly important in the world of smart contracts.
+Access control--that is, "who is allowed to do this thing"—is incredibly important in the world of smart contracts.
 The access control of your contract may govern who can mint tokens, vote on proposals, freeze transfers, and many other things.
-It is therefore critical to understand how you implement it, lest someone else https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/[steals your whole system].
+It is therefore critical to understand how you implement it, lest someone else
+https://blog.openzeppelin.com/on-the-parity-wallet-multisig-hack-405a8c12e8f7/[steals your whole system].
 
-== Table of Contents
+== Ownership and `Ownable`
 
-* <<ownable,Ownable>>
- ** <<quickstart,Quickstart>>
- ** <<ownable_library_api,Ownable library API>>
- ** <<ownable_events,Ownable events>>
-* <<accesscontrol,AccessControl>>
- ** <<usage,Usage>>
- ** <<granting_and_revoking_roles,Granting and revoking roles>>
- ** <<creating_role_identifiers,Creating role identifiers>>
- ** <<accesscontrol_library_api,AccessControl library API>>
- ** <<accesscontrol_events,AccessControl events>>
-
-== Ownable
-
-The most common and basic form of access control is the concept of ownership: there's an account that is the `owner` of a contract and can do administrative tasks on it.
+The most common and basic form of access control is the concept of ownership: there's an account that is the `owner`
+of a contract and can do administrative tasks on it.
 This approach is perfectly reasonable for contracts that have a single administrative user.
 
 OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing ownership in your contracts.
 
-=== Quickstart
+=== Usage
 
-Integrating {ownable-cairo} into a contract first requires assigning an owner.
-The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's <<initializer,initializer>> like this:
+Integrating this module into a contract first requires assigning an owner.
+The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
+xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.access.ownable.library import Ownable
+use openzeppelin::access::ownable::Ownable;
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) {
-    Ownable.initializer(owner);
-    return ();
+#[starknet::contract]
+mod MyContract {
+    use starknet::ContractAddress;
+    use super::Ownable;
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(self: @ContractState, owner: ContractAddress) {
+        let mut unsafe_state = Ownable::unsafe_new_contract_state();
+        Ownable::InternalImpl::initializer(ref unsafe_state, owner);
+    }
+
+    (...)
 }
 ----
 
 To restrict a function's access to the owner only, add in the `assert_only_owner` method:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.access.ownable.library import Ownable
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::access::ownable::Ownable;
 
-func protected_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Ownable.assert_only_owner();
-    return ();
+    (...)
+
+    #[external(v0)]
+    fn foo(ref self: ContractState) {
+        // This function can only be called by the owner
+        let unsafe_state = Ownable::unsafe_new_contract_state();
+        Ownable::InternalImpl::assert_only_owner(@unsafe_state);
+
+        (...)
+    }
 }
 ----
 
-=== Ownable library API
+=== Interface
 
-[,cairo]
+This is the full interface of the `Ownable` implementation:
+
+[,javascript]
 ----
-func initializer(owner: felt) {
-}
+trait IOwnable {
+    /// Returns the current owner.
+    fn owner() -> ContractAddress;
 
-func assert_only_owner() {
-}
+    /// Transfers the ownership from the current owner to a new owner.
+    fn transfer_ownership(new_owner: ContractAddress);
 
-func owner() -> (owner: felt) {
-}
-
-func transfer_ownership(new_owner: felt) {
-}
-
-func renounce_ownership() {
-}
-
-func _transfer_ownership(new_owner: felt) {
+    /// Renounces the ownership of the contract.
+    fn renounce_ownership();
 }
 ----
 
-==== `initializer`
+Ownable also lets you:
 
-Initializes Ownable access control and should be called in the implementing contract's constructor.
-Assigns `owner` as the initial owner address of the contract.
+- `transfer_ownership` from the owner account to a new one, and
+- `renounce_ownership` for the owner to relinquish this administrative privilege, a common pattern
+after an initial stage with centralized administration is over.
 
-This must be called only once.
+WARNING: Removing the owner altogether will mean that administrative tasks that are protected by `assert_only_owner`
+will no longer be callable!
 
-Parameters:
+== Role-Based `AccessControl`
 
-[,cairo]
-----
-owner: felt
-----
-
-Returns: None.
-
-==== `assert_only_owner`
-
-Reverts if called by any account other than the owner.
-In case of renounced ownership, any call from the default zero address will also be reverted.
-
-Parameters: None.
-
-Returns: None.
-
-==== `owner`
-
-Returns the address of the current owner.
-
-Parameters: None.
-
-Returns:
-
-[,cairo]
-----
-owner: felt
-----
-
-==== `transfer_ownership`
-
-Transfers ownership of the contract to a new account (`new_owner`).
-Can only be called by the current owner.
-
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
-
-Parameters:
-
-[,cairo]
-----
-new_owner: felt
-----
-
-Returns: None.
-
-==== `renounce_ownership`
-
-Leaves the contract without owner.
-It will not be possible to call functions with `assert_only_owner` anymore.
-Can only be called by the current owner.
-
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
-
-Parameters: None.
-
-Returns: None.
-
-[#transfer-ownership-internal]
-==== `_transfer_ownership`
-
-Transfers ownership of the contract to a new account (`new_owner`). {extensibility-pattern}[`internal`] function without access restriction.
-
-Emits a <<ownershiptransferred,`OwnershipTransferred`>> event.
-
-Parameters:
-
-[,cairo]
-----
-new_owner: felt
-----
-
-Returns: None.
-
-=== Ownable events
-
-[,cairo]
-----
-func OwnershipTransferred(previousOwner: felt, newOwner: felt) {
-}
-----
-
-==== OwnershipTransferred
-
-Emitted when ownership of a contract is transferred from `previousOwner` to `newOwner`.
-
-Parameters:
-
-[,cairo]
-----
-previousOwner: felt
-newOwner: felt
-----
-
-== AccessControl
-
-While the simplicity of ownership can be useful for simple systems or quick prototyping, different levels of authorization are often needed.
-You may want for an account to have permission to ban users from a system, but not create new tokens.
-https://en.wikipedia.org/wiki/Role-based_access_control[Role-Based Access Control (RBAC)] offers flexibility in this regard.
+While the simplicity of ownership can be useful for simple systems or quick prototyping, different levels of
+authorization are often needed. You may want for an account to have permission to ban users from a system, but not
+create new tokens. https://en.wikipedia.org/wiki/Role-based_access_control[Role-Based Access Control (RBAC)] offers
+flexibility in this regard.
 
 In essence, we will be defining multiple roles, each allowed to perform different sets of actions.
-An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for instead of simply using <<assert_only_owner,assert_only_owner>>.
-This check can be enforced through <<assert_only_role,assert_only_role>>.
+An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for
+instead of simply using xref:/api/access.adoc#Ownable-assert_only_owner[`assert_only_owner`]. This check can be enforced through xref:/api/access.adoc#AccessControl-assert_only_role[`assert_only_role`].
 Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
-Most software uses access control systems that are role-based: some users are regular users, some may be supervisors or managers, and a few will often have administrative privileges.
+Most software uses access control systems that are role-based: some users are regular users, some may be supervisors
+or managers, and a few will often have administrative privileges.
 
 === Usage
 
-For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and check if an account has that role (see <<creating_role_identifiers,Creating role identifiers>> for information on creating identifiers).
+For each role that you want to define, you will create a new _role identifier_ that is used to grant, revoke, and
+check if an account has that role. See xref:#creating_role_identifiers[Creating role identifiers] for information
+on creating identifiers.
 
-Here's a simple example of implementing `AccessControl` on a portion of an link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20.cairo[ERC20 token contract] which defines and sets the 'minter' role:
+Here's a simple example of implementing `AccessControl` on a portion of an ERC20 token contract which defines
+and sets a 'minter' role:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.token.erc20.library import ERC20
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
 
-from openzeppelin.access.accesscontrol.library import AccessControl
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
+    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::token::erc20::ERC20;
+    use starknet::ContractAddress;
+    use super::MINTER_ROLE;
 
+    #[storage]
+    struct Storage {}
 
-const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        initial_supply: u256,
+        recipient: ContractAddress,
+        minter: ContractAddress
+    ) {
+        // ERC20 related initialization
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    name: felt, symbol: felt, decimals: felt, minter: felt
-) {
-    ERC20.initializer(name, symbol, decimals);
-    AccessControl.initializer();
-    AccessControl._grant_role(MINTER_ROLE, minter);
-    return ();
-}
+        // AccessControl related initialization
+        let mut access_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::InternalImpl::initializer(ref access_state);
+        AccessControl::InternalImpl::_grant_role(
+            ref access_state,
+            MINTER_ROLE,
+            minter
+        );
+    }
 
-@external
-func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    to: felt, amount: Uint256
-) {
-    AccessControl.assert_only_role(MINTER_ROLE);
-    ERC20._mint(to, amount);
-    return ();
+    // This function can only be called by a minter
+    #[external(v0)]
+    fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+        let access_state = AccessControl::unsafe_new_contract_state();
+        assert_only_role(@access_state, MINTER_ROLE);
+
+        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+    }
 }
 ----
 
-CAUTION: Make sure you fully understand how <<accesscontrol,AccessControl>> works before using it on your system, or copy-pasting the examples from this guide.
+CAUTION: Make sure you fully understand how xref:api/access.adoc#AccessControl[AccessControl] works before
+using it on your system, or copy-pasting the examples from this guide.
 
-While clear and explicit, this isn't anything we wouldn't have been able to achieve with <<ownable,Ownable>>.
-Indeed, where `AccessControl` shines is in scenarios where granular permissions are required, which can be implemented by defining _multiple_ roles.
+While clear and explicit, this isn't anything we wouldn't have been able to achieve with
+xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines the most is in scenarios where granular
+permissions are required, which can be implemented by defining _multiple_ roles.
 
-Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens, and by using `assert_only_role`:
+Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.token.erc20.library import ERC20
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
+const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
-from openzeppelin.access.accesscontrol.library import AccessControl
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
+    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::token::erc20::ERC20;
+    use starknet::ContractAddress;
+    use super::{MINTER_ROLE, BURNER_ROLE};
+
+    #[storage]
+    struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        initial_supply: u256,
+        recipient: ContractAddress,
+        minter: ContractAddress,
+        burner: ContractAddress
+    ) {
+        // ERC20 related initialization
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
+
+        // AccessControl related initialization
+        let mut access_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::InternalImpl::initializer(ref access_state);
+        AccessControl::InternalImpl::_grant_role(
+            ref access_state,
+            MINTER_ROLE,
+            minter
+        );
+        AccessControl::InternalImpl::_grant_role(
+            ref access_state,
+            BURNER_ROLE,
+            burner
+        );
+    }
 
 
-const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
-const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
+    // This function can only be called by a minter
+    #[external(v0)]
+    fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+        let access_state = AccessControl::unsafe_new_contract_state();
+        assert_only_role(@access_state, MINTER_ROLE);
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    name: felt, symbol: felt, decimals: felt, minter: felt, burner: felt
-) {
-    ERC20.initializer(name, symbol, decimals);
-    AccessControl.initializer();
-    AccessControl._grant_role(MINTER_ROLE, minter);
-    AccessControl._grant_role(BURNER_ROLE, burner);
-    return ();
-}
+        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+    }
 
-@external
-func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    to: felt, amount: Uint256
-) {
-    AccessControl.assert_only_role(MINTER_ROLE);
-    ERC20._mint(to, amount);
-    return ();
-}
+    // This function can only be called by a burner
+    #[external(v0)]
+    fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+        let access_state = AccessControl::unsafe_new_contract_state();
+        assert_only_role(@access_state, BURNER_ROLE);
 
-@external
-func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_: felt, amount: Uint256
-) {
-    AccessControl.assert_only_role(BURNER_ROLE);
-    ERC20._burn(from_, amount);
-    return ();
+        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+    }
 }
 ----
 
 So clean!
-By splitting concerns this way, more granular levels of permission may be implemented than were possible with the simpler ownership approach to access control.
-Limiting what each component of a system is able to do is known as the https://en.wikipedia.org/wiki/Principle_of_least_privilege[principle of least privilege], and is a good security practice.
-Note that each account may still have more than one role, if so desired.
+By splitting concerns this way, more granular levels of permission may be implemented than were possible with the
+simpler ownership approach to access control. Limiting what each component of a system is able to do is known
+as the https://en.wikipedia.org/wiki/Principle_of_least_privilege[principle of least privilege], and is a good
+security practice. Note that each account may still have more than one role, if so desired.
 
 === Granting and revoking roles
 
-The ERC20 token example above uses `_grant_role`, an {extensibility-pattern}[`internal`] function that is useful when programmatically assigning roles (such as during construction).
-But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses xref:api/access.adoc#AccessControl-_grant_role[`_grant_role`],
+an `internal` function that is useful when programmatically assigning
+roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
-By default, *accounts with a role cannot grant it or revoke it from other accounts*: all having a role does is making the `assert_only_role` check pass.
-To grant and revoke roles dynamically, you will need help from the role's _admin_.
+By default, *accounts with a role cannot grant it or revoke it from other accounts*: all having a role does is making
+the xref:api/access.adoc#AccessControl-assert_only_role[`assert_only_role`] check pass. To grant and revoke roles dynamically, you will need help from the role's _admin_.
 
-Every role has an associated admin role, which grants permission to call the `grant_role` and `revoke_role` functions.
+Every role has an associated admin role, which grants permission to call the 
+xref:api/access.adoc#AccessControl-grant_role[`grant_role`] and 
+xref:api/access.adoc#AccessControl-revoke_role[`revoke_role`] functions.
 A role can be granted or revoked by using these if the calling account has the corresponding admin role.
 Multiple roles may have the same admin role to make management easier.
-A role's admin can even be the same role itself, which would cause accounts with that role to be able to also grant and revoke it.
+A role's admin can even be the same role itself, which would cause accounts with that role to be able
+to also grant and revoke it.
 
-This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications.
-`AccessControl` includes a special role with the role identifier of `0`, called `DEFAULT_ADMIN_ROLE`, which acts as the *default admin role for all roles*.
-An account with this role will be able to manage any other role, unless `_set_role_admin` is used to select a new admin role.
+This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also
+provides an easy way to manage simpler applications. `AccessControl` includes a special role with the role identifier
+of `0`, called `DEFAULT_ADMIN_ROLE`, which acts as the *default admin role for all roles*.
+An account with this role will be able to manage any other role, unless 
+xref:api/access.adoc#AccessControl-_set_role_admin[`_set_role_admin`] is used to select a new admin role.
 
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.token.erc20.library import ERC20
+const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
+const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
 
-from openzeppelin.access.accesscontrol.library import AccessControl
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
+    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin::token::erc20::ERC20;
+    use starknet::ContractAddress;
+    use super::{MINTER_ROLE, BURNER_ROLE};
 
-from openzeppelin.utils.constants import DEFAULT_ADMIN_ROLE
+    #[storage]
+    struct Storage {}
 
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        initial_supply: u256,
+        recipient: ContractAddress,
+        admin: ContractAddress
+    ) {
+        // ERC20 related initialization
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
+        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
 
-const MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
-const BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
+        // AccessControl related initialization
+        let mut access_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::InternalImpl::initializer(ref access_state);
+        AccessControl::InternalImpl::_grant_role(
+            ref access_state,
+            DEFAULT_ADMIN_ROLE,
+            admin
+        );
+    }
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    name: felt, symbol: felt, decimals: felt, admin: felt,
-) {
-    ERC20.initializer(name, symbol, decimals);
-    AccessControl.initializer();
+    // This function can only be called by a minter
+    #[external(v0)]
+    fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+        let access_state = AccessControl::unsafe_new_contract_state();
+        assert_only_role(@access_state, MINTER_ROLE);
 
-    AccessControl._grant_role(DEFAULT_ADMIN_ROLE, admin);
-    return ();
-}
+        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+    }
 
-@external
-func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    to: felt, amount: Uint256
-) {
-    AccessControl.assert_only_role(MINTER_ROLE);
-    ERC20._mint(to, amount);
-    return ();
-}
+    // This function can only be called by a burner
+    #[external(v0)]
+    fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+        let access_state = AccessControl::unsafe_new_contract_state();
+        assert_only_role(@access_state, BURNER_ROLE);
 
-@external
-func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_: felt, amount: Uint256
-) {
-    AccessControl.assert_only_role(BURNER_ROLE);
-    ERC20._burn(from_, amount);
-    return ();
+        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+    }
+
+    // These function can only be called by the roles' admin
+    #[external(v0)]
+    fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::AccessControlImpl::grant_role(ref unsafe_state, role, account);
+    }
+    #[external(v0)]
+    fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
+        AccessControl::AccessControlImpl::revoke_role(ref unsafe_state, role, account);
+    }
 }
 ----
 
 Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles.
-However, because those roles' admin role is the default admin role, and that role was granted to the 'admin', that same account can call `grant_role` to give minting or burning permission, and `revoke_role` to remove it.
+However, because those roles' admin role is the default admin role, and that role was granted to the 'admin', that
+same account can call `grant_role` to give minting or burning permission, and `revoke_role` to remove it.
 
-Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary over time.
-It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC], where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
-
-The following example uses the link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/tests/mocks/AccessControl.cairo[AccessControl mock contract] which exposes the role management functions.
-To grant and revoke roles in Python, for example:
-
-[,python]
-----
-MINTER_ROLE = 0x4f96f87f6963bb246f2c30526628466840c642dc5c50d5a67777c6cc0e44ab5
-BURNER_ROLE = 0x7823a2d975ffa03bed39c38809ec681dc0ae931ebe0048c321d4a8440aed509
-
-# grants MINTER_ROLE and BURNER_ROLE to account1 and account2 respectively
-await signer.send_transactions(
-    admin, [
-        (accesscontrol.contract_address, 'grantRole', [MINTER_ROLE, account1.contract_address]),
-        (accesscontrol.contract_address, 'grantRole', [BURNER_ROLE, account2.contract_address])
-    ]
-)
-
-# revokes MINTER_ROLE from account1
-await signer.send_transaction(
-    admin,
-    accesscontrol.contract_address,
-    'revokeRole',
-    [MINTER_ROLE, account1.contract_address]
-)
-----
+Dynamic role allocation is often a desirable property, for example in systems where trust in a participant may vary
+over time. It can also be used to support use cases such as https://en.wikipedia.org/wiki/Know_your_customer[KYC],
+where the list of role-bearers may not be known up-front, or may be prohibitively expensive to include in a single transaction.
 
 === Creating role identifiers
 
-In the Solidity implementation of AccessControl, contracts generally refer to the https://docs.soliditylang.org/en/latest/units-and-global-variables.html?highlight=keccak256#mathematical-and-cryptographic-functions[keccak256 hash] of a role as the role identifier.
+In the Solidity implementation of AccessControl, contracts generally refer to the
+https://docs.soliditylang.org/en/latest/units-and-global-variables.html?highlight=keccak256#mathematical-and-cryptographic-functions[keccak256 hash]
+of a role as the role identifier.
+
 For example:
 
-[,solidity]
+[,javascript]
 ----
 bytes32 public constant SOME_ROLE = keccak256("SOME_ROLE")
 ----
 
 These identifiers take up 32 bytes (256 bits).
 
-Cairo field elements store a maximum of 252 bits.
-Even further, a declared _constant_ field element in a StarkNet contract stores even less (see https://github.com/starkware-libs/cairo-lang/blob/release-v0.6.1/src/starkware/cairo/lang/cairo_constants.py#L1[cairo_constants]).
+Cairo field elements (`felt252`) store a maximum of 252 bits.
 With this discrepancy, this library maintains an agnostic stance on how contracts should create identifiers.
 Some ideas to consider:
 
-* Use the first or last 251 bits of keccak256 hash digests.
-* Use Cairo's https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/hash.cairo[hash2].
+* Use {sn_keccak} instead.
+* Use Cairo friendly hashing algorithms like Poseidon, which are implemented in the
+https://github.com/starkware-libs/cairo/blob/main/corelib/src/poseidon.cairo[Cairo corelib].
 
-=== AccessControl library API
+TIP: The `selector!` macro can be used to compute {sn_keccak} in Cairo.
 
-[,cairo]
+=== Interface
+
+This is the full interface of the `AccessControl` implementation:
+
+[,javascript]
 ----
-func initializer() {
-}
+trait IAccessControl {
+    /// Returns whether the account has the role or not.
+    fn has_role(role: felt252, account: ContractAddress) -> bool;
 
-func assert_only_role(role: felt) {
-}
+    /// Returns the adming role that controls `role`.
+    fn get_role_admin(role: felt252) -> felt252;
 
-func has_role(role: felt, user: felt) -> (has_role: felt) {
-}
+    /// Grants `role` to `account`.
+    fn grant_role(role: felt252, account: ContractAddress);
 
-func get_role_admin(role: felt) -> (admin: felt) {
-}
+    /// Revokes `role` from `account`.
+    fn revoke_role(role: felt252, account: ContractAddress);
 
-func grant_role(role: felt, user: felt) {
-}
-
-func revoke_role(role: felt, user: felt) {
-}
-
-func renounce_role(role: felt, user: felt) {
-}
-
-func _grant_role(role: felt, user: felt) {
-}
-
-func _revoke_role(role: felt, user: felt) {
-}
-
-func _set_role_admin(role: felt, admin_role: felt) {
+    /// Revokes `role` from self.
+    fn renounce_role(role: felt252, account: ContractAddress);
 }
 ----
 
-[#initializer-accesscontrol]
-==== `initializer`
-
-Initializes AccessControl and should be called in the implementing contract's constructor.
-
-This must only be called once.
-
-Parameters: None.
-
-Returns: None.
-
-==== `assert_only_role`
-
-Checks that an account has a specific role.
-Reverts with a message including the required role.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-----
-
-Returns: None.
-
-==== has_role
-
-Returns `TRUE` if `user` has been granted `role`, `FALSE` otherwise.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns:
-
-[,cairo]
-----
-has_role: felt
-----
-
-==== `get_role_admin`
-
-Returns the admin role that controls `role`.
-See <<grant_role,grant_role>> and <<revoke_role,revoke_role>>.
-
-To change a role's admin, use <<set_role_admin,`_set_role_admin`>>.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-----
-
-Returns:
-
-[,cairo]
-----
-admin: felt
-----
-
-==== `grant_role`
-
-Grants `role` to `user`.
-
-If `user` had not been already granted `role`, emits a <<rolegranted,RoleGranted>> event.
-
-Requirements:
-
-* The caller must have ``role``'s admin role.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns: None.
-
-==== `revoke_role`
-
-Revokes `role` from `user`.
-
-If `user` had been granted `role`, emits a <<rolerevoked,RoleRevoked>> event.
-
-Requirements:
-
-* The caller must have ``role``'s admin role.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns: None.
-
-==== `renounce_role`
-
-Revokes `role` from the calling `user`.
-
-Roles are often managed via <<grant_role,grant_role>> and <<revoke_role,revoke_role>>: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced).
-
-If the calling `user` had been revoked `role`, emits a <<rolerevoked,RoleRevoked>> event.
-
-Requirements:
-
-* The caller must be `user`.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns: None.
-
-[#grantrole-internal]
-==== `_grant_role`
-
-Grants `role` to `user`.
-
-{extensibility-pattern}[`internal`] function without access restriction.
-
-Emits a <<rolegranted,RoleGranted>> event.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns: None.
-
-[#revokerole-internal]
-==== `_revoke_role`
-
-Revokes `role` from `user`.
-
-{extensibility-pattern}[`internal`] function without access restriction.
-
-Emits a <<rolerevoked,RoleRevoked>> event.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-user: felt
-----
-
-Returns: None.
-
-[#setroleadmin]
-==== `_set_role_admin`
-
-{extensibility-pattern}[`internal`] function that sets `admin_role` as ``role``'s admin role.
-
-Emits a <<roleadminchanged,RoleAdminChanged>> event.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-admin_role: felt
-----
-
-Returns: None.
-
-=== AccessControl events
-
-[,cairo]
-----
-func RoleGranted(role: felt, account: felt, sender: felt) {
-}
-
-func RoleRevoked(role: felt, account: felt, sender: felt) {
-}
-
-func RoleAdminChanged(role: felt, previousAdminRole: felt, newAdminRole: felt) {
-}
-----
-
-==== `RoleGranted`
-
-Emitted when `account` is granted `role`.
-
-`sender` is the account that originated the contract call, an admin role bearer.
-
-Parameters:
-
-[,cairo]
-----
-role: felt
-account: felt
-sender: felt
-----
-
-==== `RoleRevoked`
-
-Emitted when account is revoked role.
-
-`sender` is the account that originated the contract call:
-
-* If using <<revoke_role,revoke_role>>, it is the admin role bearer.
-* If using <<renounce_role,renounce_role>>, it is the role bearer (i.e.
-`account`).
-
-[,cairo]
-----
-role: felt
-account: felt
-sender: felt
-----
-
-==== `RoleAdminChanged`
-
-Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`.
-
-`DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite `RoleAdminChanged` not being emitted signaling this.
-
-[,cairo]
-----
-role: felt
-previousAdminRole: felt
-newAdminRole: felt
-----
+`AccessControl` also lets you `renounce_role` from the calling account.
+The method expects an account as input as an extra security measure, to ensure you are
+not renouncing a role from an unintended account.

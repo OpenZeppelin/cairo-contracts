@@ -17,7 +17,10 @@
 // ** xref:erc1155.adoc[ERC1155]
 
 // * xref:security.adoc[Security]
-// * xref:introspection.adoc[Introspection]
+
+* xref:introspection.adoc[Introspection]
+** xref:/api/introspection.adoc[API Reference]
+
 // * xref:udc.adoc[Universal Deployer Contract]
 // * xref:utilities.adoc[Utilities]
 

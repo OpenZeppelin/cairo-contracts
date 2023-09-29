@@ -2,7 +2,6 @@
 // The functions are NOT PROTECTED.
 // DO NOT USE IN PRODUCTION.
 
-use array::ArrayTrait;
 use starknet::ClassHash;
 
 #[starknet::interface]

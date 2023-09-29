@@ -7,7 +7,7 @@ mod SRC5 {
 
     #[storage]
     struct Storage {
-        supported_interfaces: LegacyMap<felt252, bool>
+        SRC5_supported_interfaces: LegacyMap<felt252, bool>
     }
 
     mod Errors {
@@ -20,7 +20,7 @@ mod SRC5 {
             if interface_id == interface::ISRC5_ID {
                 return true;
             }
-            self.supported_interfaces.read(interface_id)
+            self.SRC5_supported_interfaces.read(interface_id)
         }
     }
 
@@ -34,12 +34,17 @@ mod SRC5 {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn register_interface(ref self: ContractState, interface_id: felt252) {
-            self.supported_interfaces.write(interface_id, true);
+            self.SRC5_supported_interfaces.write(interface_id, true);
         }
 
         fn deregister_interface(ref self: ContractState, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
-            self.supported_interfaces.write(interface_id, false);
+            self.SRC5_supported_interfaces.write(interface_id, false);
         }
     }
+}
+
+#[inline(always)]
+fn unsafe_state() -> SRC5::ContractState {
+    SRC5::unsafe_new_contract_state()
 }

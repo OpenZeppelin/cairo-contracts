@@ -7,7 +7,7 @@ mod ReentrancyGuard {
 
     #[storage]
     struct Storage {
-        entered: bool
+        ReentrancyGuard_entered: bool
     }
 
     mod Errors {
@@ -17,12 +17,12 @@ mod ReentrancyGuard {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn start(ref self: ContractState) {
-            assert(!self.entered.read(), Errors::REENTRANT_CALL);
-            self.entered.write(true);
+            assert(!self.ReentrancyGuard_entered.read(), Errors::REENTRANT_CALL);
+            self.ReentrancyGuard_entered.write(true);
         }
 
         fn end(ref self: ContractState) {
-            self.entered.write(false);
+            self.ReentrancyGuard_entered.write(false);
         }
     }
 }

@@ -42,7 +42,7 @@ trait AccountABI<TState> {
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 
-    // Non-Standard
+    // Non-standard
     fn __validate_deploy__(
         self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252;

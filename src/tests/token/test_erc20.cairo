@@ -1,6 +1,4 @@
 use integer::BoundedInt;
-use integer::u256;
-use integer::u256_from_felt252;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
@@ -11,12 +9,10 @@ use openzeppelin::token::erc20::ERC20::ERC20Impl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
 use openzeppelin::token::erc20::ERC20::Transfer;
 use openzeppelin::token::erc20::ERC20;
-use option::OptionTrait;
+use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use traits::Into;
-use zeroable::Zeroable;
 
 //
 // Setup
@@ -602,6 +598,12 @@ fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value
     assert(event.owner == owner, 'Invalid `owner`');
     assert(event.spender == spender, 'Invalid `spender`');
     assert(event.value == value, 'Invalid `value`');
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(owner);
+    indexed_keys.append_serde(spender);
+    utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
 fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
@@ -614,6 +616,12 @@ fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256
     assert(event.from == from, 'Invalid `from`');
     assert(event.to == to, 'Invalid `to`');
     assert(event.value == value, 'Invalid `value`');
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(from);
+    indexed_keys.append_serde(to);
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {

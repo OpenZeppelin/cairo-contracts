@@ -7,13 +7,14 @@ mod AccessControl {
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::unsafe_state as src5_state;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
     #[storage]
     struct Storage {
-        role_admin: LegacyMap<felt252, felt252>,
-        role_members: LegacyMap<(felt252, ContractAddress), bool>,
+        AccessControl_role_admin: LegacyMap<felt252, felt252>,
+        AccessControl_role_member: LegacyMap<(felt252, ContractAddress), bool>,
     }
 
     #[event]
@@ -66,27 +67,25 @@ mod AccessControl {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
     #[external(v0)]
     impl AccessControlImpl of interface::IAccessControl<ContractState> {
         fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-            self.role_members.read((role, account))
+            self.AccessControl_role_member.read((role, account))
         }
 
         fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
-            self.role_admin.read(role)
+            self.AccessControl_role_admin.read(role)
         }
 
         fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
@@ -138,7 +137,7 @@ mod AccessControl {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState) {
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IACCESSCONTROL_ID);
         }
 
@@ -151,7 +150,7 @@ mod AccessControl {
         fn _grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
             if !AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
-                self.role_members.write((role, account), true);
+                self.AccessControl_role_member.write((role, account), true);
                 self.emit(RoleGranted { role, account, sender: caller });
             }
         }
@@ -159,14 +158,14 @@ mod AccessControl {
         fn _revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
             if AccessControlImpl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
-                self.role_members.write((role, account), false);
+                self.AccessControl_role_member.write((role, account), false);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }
         }
 
         fn _set_role_admin(ref self: ContractState, role: felt252, admin_role: felt252) {
             let previous_admin_role: felt252 = AccessControlImpl::get_role_admin(@self, role);
-            self.role_admin.write(role, admin_role);
+            self.AccessControl_role_admin.write(role, admin_role);
             self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
     }

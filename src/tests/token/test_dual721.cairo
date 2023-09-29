@@ -1,12 +1,12 @@
-use array::ArrayTrait;
 use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
 use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
-use openzeppelin::tests::mocks::erc721_receiver::FAILURE;
-use openzeppelin::tests::mocks::erc721_receiver::SUCCESS;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::mocks::snake721_mock::SnakeERC721Mock;
+use openzeppelin::tests::utils::constants::{
+    DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::dual721::DualCaseERC721;
 use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
@@ -17,40 +17,8 @@ use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
 use openzeppelin::token::erc721::interface::IERC721_ID;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;
-
-//
-// Constants
-//
-
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-const URI: felt252 = 333;
-const TOKEN_ID: u256 = 7;
-
-fn OWNER() -> ContractAddress {
-    contract_address_const::<10>()
-}
-fn RECIPIENT() -> ContractAddress {
-    contract_address_const::<20>()
-}
-fn SPENDER() -> ContractAddress {
-    contract_address_const::<30>()
-}
-fn OPERATOR() -> ContractAddress {
-    contract_address_const::<40>()
-}
-fn DATA(success: bool) -> Span<felt252> {
-    let mut data = array![];
-    if success {
-        data.append_serde(SUCCESS);
-    } else {
-        data.append_serde(FAILURE);
-    }
-    data.span()
-}
 
 //
 // Setup

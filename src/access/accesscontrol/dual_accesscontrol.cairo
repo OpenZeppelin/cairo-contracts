@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/dual_accesscontrol.cairo)
 
-use array::ArrayTrait;
-
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;

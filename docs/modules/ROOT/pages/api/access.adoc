@@ -45,8 +45,8 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 .InternalImpl
 
 * xref:Ownable-initializer[`++initializer(self, owner)++`]
-* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 * xref:Ownable-assert_only_owner[`++assert_only_owner(self)++`]
+* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 --
 
 [.contract-index]
@@ -74,7 +74,7 @@ Can only be called by the current owner.
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
-[[Ownable-renounce_ownership--]]
+[[Ownable-renounce_ownership]]
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Leaves the contract without owner. It will not be possible to call
@@ -90,9 +90,15 @@ thereby removing any functionality that is only available to the owner.
 [[Ownable-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
 
-Initializes the contract setting `owner` as the initial owner.
+Initializes the contract and sets `owner` as the initial owner.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-assert_only_owner]]
+==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Panics if called by any account other than the owner.
 
 [.contract-item]
 [[Ownable-_transfer_ownership]]
@@ -102,12 +108,6 @@ Transfers ownership of the contract to a new account (`new_owner`).
 Internal function without access restriction.
 
 Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
-
-[.contract-item]
-[[Ownable-assert_only_owner]]
-==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Panics if called by any account other than the owner.
 
 [#Ownable-Events]
 ==== Events
@@ -416,7 +416,7 @@ See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interfa
 [[AccessControl-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Initializes the contract by registering the IAccessControl interface ID.
+Initializes the contract by registering the xref:#IAccessControl[IAccessControl] interface ID.
 
 [.contract-item]
 [[AccessControl-_set_role_admin]]

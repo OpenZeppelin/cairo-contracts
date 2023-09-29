@@ -10,7 +10,6 @@ use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoClassHash;
-use starknet::testing;
 
 const VALUE: felt252 = 123;
 

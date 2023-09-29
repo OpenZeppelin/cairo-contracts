@@ -186,11 +186,6 @@ mod Account {
             starknet::VALIDATED
         }
 
-        fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
-            self.Account_public_key.write(new_public_key);
-            self.emit(OwnerAdded { new_owner_guid: new_public_key });
-        }
-
         fn _is_valid_signature(
             self: @ContractState, hash: felt252, signature: Span<felt252>
         ) -> bool {
@@ -203,6 +198,11 @@ mod Account {
             } else {
                 false
             }
+        }
+
+        fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
+            self.Account_public_key.write(new_public_key);
+            self.emit(OwnerAdded { new_owner_guid: new_public_key });
         }
     }
 

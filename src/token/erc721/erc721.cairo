@@ -42,16 +42,22 @@ mod ERC721 {
     /// Emitted when `token_id` token is transferred from `from` to `to`.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
+        #[key]
         to: ContractAddress,
+        #[key]
         token_id: u256
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
     #[derive(Drop, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
+        #[key]
         approved: ContractAddress,
+        #[key]
         token_id: u256
     }
 
@@ -59,7 +65,9 @@ mod ERC721 {
     /// all of its assets.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
+        #[key]
         owner: ContractAddress,
+        #[key]
         operator: ContractAddress,
         approved: bool
     }

@@ -5,9 +5,8 @@
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
     use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::src5::SRC5::InternalTrait;
+    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5;
-    
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -68,7 +67,6 @@ mod AccessControl {
     impl AccessControl<
         TContractState,
         +HasComponent<TContractState>,
-        +ISRC5<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IAccessControl<ComponentState<TContractState>> {
@@ -111,7 +109,6 @@ mod AccessControl {
     impl AccessControlCamel<
         TContractState,
         +HasComponent<TContractState>,
-        +ISRC5<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IAccessControlCamel<ComponentState<TContractState>> {
@@ -147,13 +144,14 @@ mod AccessControl {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +ISRC5<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<ComponentState<TContractState>> {
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::HasComponent::<TContractState>::get_component(@contract);
+            let mut src5_component = SRC5::HasComponent::<
+                TContractState
+            >::get_component_mut(ref contract);
             src5_component.register_interface(interface::IACCESSCONTROL_ID);
         }
 

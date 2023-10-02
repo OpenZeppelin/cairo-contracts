@@ -6,11 +6,11 @@ use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatche
 use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
 use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
-use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
+use openzeppelin::tests::mocks::accesscontrol_mocks::{
+    CamelAccessControlMock, SnakeAccessControlMock, CamelAccessControlPanicMock,
+    SnakeAccessControlPanicMock
+};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;

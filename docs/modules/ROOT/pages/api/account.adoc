@@ -98,6 +98,10 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
+.PublicKeyImpl
+
+* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
+* xref:#Account-get_public_key[`++get_public_key(self)++`]
 --
 
 [.contract-index]

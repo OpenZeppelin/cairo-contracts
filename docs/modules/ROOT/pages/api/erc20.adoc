@@ -454,10 +454,10 @@ Possibly emits an <<ERC20-Approval,Approval>> event.
 [[ERC20-Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<IERC20-Transfer,Transfer>>.
+See <<IERC20-Transfer,IERC20::Transfer>>.
 
 [.contract-item]
 [[ERC20-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
-See <<IERC20-Approval,Approval>>.
+See <<IERC20-Approval,IERC20::Approval>>.

@@ -1,0 +1,85 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
+
+= Upgrades
+
+Reference of interfaces and utilities related to upgradeability.
+
+== Core
+
+[.contract]
+[[IUpgradeable]]
+=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/upgrades/interface.cairo#L3[{github-icon},role=heading-link]
+
+:Upgraded: xref:Upgradeable-Upgraded[Upgraded]
+
+```javascript
+use openzeppelin::upgrades::interface::IUpgradeable;
+```
+
+Interface of an upgradeable contract.
+
+[.contract-index]
+.Functions
+--
+* xref:#IUpgradeable-upgrade[`++upgrade(new_class_hash)++`]
+--
+
+[#IUpgradeable-Functions]
+==== Functions
+
+[.contract-item]
+[[IUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract code by updating its {class_hash}.
+
+NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
+
+[.contract]
+[[Upgradeable]]
+=== `++Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::upgrades::upgradeable::Upgradeable;
+```
+
+Upgradeable contract module.
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+
+* xref:#Upgradeable-_upgrade[`++_upgrade(self, new_class_hash)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#Upgradeable-Upgraded[`++Upgraded(class_hash)++`]
+--
+
+[#Upgradeable-Internal-Functions]
+==== Internal Functions
+
+[.contract-item]
+[[Upgradeable-_upgrade]]
+==== `[.contract-item-name]#++_upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#internal#
+
+Upgrades the contract by updating the contract {class_hash}.
+
+Requirements:
+
+- `new_class_hash` must be different from zero.
+
+Emits an {Upgraded} event.
+
+[#Upgradeable-Events]
+==== Events
+
+[.contract-item]
+[[Upgradeable-Upgraded]]
+==== `[.contract-item-name]#++Upgraded++#++(class_hash: ClassHash)++` [.item-kind]#event#
+
+Emitted when the {class_hash} is upgraded.

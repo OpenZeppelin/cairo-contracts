@@ -51,7 +51,7 @@ trait IERC721ABI {
     fn symbol() -> felt252;
     fn token_uri(token_id: u256) -> felt252;
 
-    // ERC721 Camel
+    // Camel case compatibility
     fn balanceOf(account: ContractAddress) -> u256;
     fn ownerOf(tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(

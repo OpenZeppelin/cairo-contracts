@@ -1,7 +1,7 @@
 :test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/tests/signers.py
 :snip-5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
 :snip-6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md
-:counterfactual: xref:/guides/deployment.adoc[Counterfactual Deployments]
+:counterfactual: xref:/guides/deployment.adoc[counterfactual deployments]
 
 = Accounts
 

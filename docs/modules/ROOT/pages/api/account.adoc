@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = Account
 
@@ -9,13 +10,19 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/account/interface.cairo#L12[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
 ```
 
 Interface of the SRC6 Standard Account as defined in the {snip6}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd
+--
 
 [.contract-index]
 .Functions
@@ -56,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/account/account.cairo#L27[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:Account-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:Account-OwnerRemoved[OwnerRemoved]
@@ -67,9 +74,9 @@ use openzeppelin::account::Account;
 Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 [.contract-index]
-.Utilities
+.Constructor
 --
-* xref:#Account-assert_only_self[`++InternalImpl::assert_only_self(self)++`]
+* xref:#Account-constructor[`++constructor(self, _public_key)++`]
 --
 
 [.contract-index]
@@ -77,24 +84,20 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 --
 * xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
-[.contract-subindex-inherited]
 .SRC6Impl
 
 * xref:#Account-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#Account-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#Account-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
-[.contract-subindex-inherited]
 .SRC5Impl
 
 * xref:#Account-supports_interface[`++supports_interface(self, interface_id)++`]
 
-[.contract-subindex-inherited]
 .DeclarerImpl
 
 * xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
-[.contract-subindex-inherited]
 .PublicKeyImpl
 
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
@@ -104,15 +107,13 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 [.contract-index]
 .Internal Functions
 --
-* xref:#Account-constructor[`++constructor(self, _public_key)++`]
-
-[.contract-subindex-inherited]
 .InternalImpl
 
 * xref:#Account-initializer[`++initializer(self, _public_key)++`]
 * xref:#Account-validate_transaction[`++validate_transaction(self)++`]
 * xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
 * xref:#Account-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
+* xref:#Account-assert_only_self[`++assert_only_self(self)++`]
 --
 
 [.contract-index]
@@ -122,17 +123,8 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
-[#Account-Utilities]
-==== Utilities
-
-[.contract-item]
-[[Account-assert_only_self]]
-==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Validates that the caller is the account itself. Otherwise it reverts.
-
-[#Account-Functions]
-==== Functions
+[#Account-Constructor]
+==== Constructor
 
 [.contract-item]
 [[Account-constructor]]
@@ -141,6 +133,9 @@ Validates that the caller is the account itself. Otherwise it reverts.
 Initializes the account with the given public key, and registers the ISRC6 interface ID.
 
 Emits an {OwnerAdded} event.
+
+[#Account-External-Functions]
+==== External Functions
 
 [.contract-item]
 [[Account-__validate_deploy__]]
@@ -173,7 +168,7 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 [[Account-supports_interface]]
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
-Returns whether a contract implements a given interface or not.
+See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
 
 [.contract-item]
 [[Account-__validate_declare__]]
@@ -196,6 +191,9 @@ Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 ==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 Returns the current public key of the account.
+
+[#Account-Internal-Functions]
+==== Internal Functions
 
 [.contract-item]
 [[Account-initializer]]
@@ -229,6 +227,12 @@ CAUTION: The usage of this method outside the `set_public_key` function is disco
 ==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
 
 Validates the provided `signature` for the `hash`, using the account current public key.
+
+[.contract-item]
+[[Account-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
 
 [#Account-Events]
 ==== Events

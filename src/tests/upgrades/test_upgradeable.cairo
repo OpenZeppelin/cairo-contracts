@@ -10,7 +10,6 @@ use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::Felt252TryIntoClassHash;
-use starknet::testing;
 
 const VALUE: felt252 = 123;
 
@@ -46,7 +45,7 @@ fn test_upgraded_event() {
     let v1 = deploy_v1();
     v1.upgrade(V2_CLASS_HASH());
 
-    let event = testing::pop_log::<Upgraded>(v1.contract_address).unwrap();
+    let event = utils::pop_log::<Upgraded>(v1.contract_address).unwrap();
     assert(event.class_hash == V2_CLASS_HASH(), 'Invalid class hash');
 }
 

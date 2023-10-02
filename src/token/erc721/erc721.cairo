@@ -44,21 +44,29 @@ mod ERC721 {
 
     #[derive(Drop, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
+        #[key]
         to: ContractAddress,
+        #[key]
         token_id: u256
     }
 
     #[derive(Drop, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
+        #[key]
         approved: ContractAddress,
+        #[key]
         token_id: u256
     }
 
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
+        #[key]
         owner: ContractAddress,
+        #[key]
         operator: ContractAddress,
         approved: bool
     }

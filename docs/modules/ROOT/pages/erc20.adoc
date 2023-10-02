@@ -52,7 +52,6 @@ trait ERC20ABI {
 }
 ----
 
-
 === ERC20 compatibility
 
 :cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]

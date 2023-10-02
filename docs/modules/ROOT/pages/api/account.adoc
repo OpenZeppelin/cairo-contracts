@@ -109,8 +109,8 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-initializer[`++initializer(self, _public_key)++`]
 * xref:#Account-validate_transaction[`++validate_transaction(self)++`]
-* xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
 * xref:#Account-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
+* xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
 * xref:#Account-assert_only_self[`++assert_only_self(self)++`]
 --
 
@@ -211,6 +211,12 @@ https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/info.cair
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
+[[Account-_is_valid_signature]]
+==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
+
+Validates the provided `signature` for the `hash`, using the account current public key.
+
+[.contract-item]
 [[Account-_set_public_key]]
 ==== `[.contract-item-name]#++_set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#internal#
 
@@ -219,12 +225,6 @@ Set the public key without validating the caller.
 Emits an {OwnerAdded} event.
 
 CAUTION: The usage of this method outside the `set_public_key` function is discouraged.
-
-[.contract-item]
-[[Account-_is_valid_signature]]
-==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
-
-Validates the provided `signature` for the `hash`, using the account current public key.
 
 [.contract-item]
 [[Account-assert_only_self]]

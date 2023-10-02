@@ -50,6 +50,7 @@ trait AccountABI<TState> {
     fn get_public_key(self: @TState) -> felt252;
 
     // Camel case compatibility
+    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);

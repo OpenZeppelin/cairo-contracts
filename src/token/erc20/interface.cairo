@@ -60,13 +60,14 @@ trait ERC20ABI<TState> {
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 
-    // Non-standard
+    /// Non-standard
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(
         ref self: TState, spender: ContractAddress, subtracted_value: u256
     ) -> bool;
 
     // Camel case compatibility
+    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(

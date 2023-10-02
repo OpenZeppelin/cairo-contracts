@@ -121,6 +121,7 @@ trait ERC721ABI<TState> {
     fn token_uri(self: @TState, token_id: u256) -> felt252;
 
     // Camel case compatibility
+    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(

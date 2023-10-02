@@ -14,7 +14,7 @@ See the {custom-decimals} guide.
 
 == Interface
 
-:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual Interfaces]
+:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` preset.
@@ -37,11 +37,11 @@ trait ERC20ABI {
     ) -> bool;
     fn approve(spender: ContractAddress, amount: u256) -> bool;
 
-    // Non-Standard
+    // Non-standard
     fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
 
-    // ERC20 Camel
+    // Camel case compatibility
     fn totalSupply() -> u256;
     fn balanceOf(account: ContractAddress) -> u256;
     fn transferFrom(
@@ -56,7 +56,7 @@ trait ERC20ABI {
 
 :cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]
 :solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
-:dual-interface: xref:/interfaces.adoc#dual_interfaces[Dual interface]
+:dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard.
 Some notable differences, however, can still be found, such as:

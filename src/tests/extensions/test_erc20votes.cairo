@@ -19,8 +19,8 @@ use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
 
-use ERC20Votes::_delegate_checkpoints::InternalContractMemberStateTrait as DelegateCheckpointsTrait;
-use ERC20Votes::_total_checkpoints::InternalContractMemberStateTrait as TotalCheckpointsTrait;
+use ERC20Votes::ERC20Votes_delegate_checkpoints::InternalContractMemberStateTrait as DelegateCheckpointsTrait;
+use ERC20Votes::ERC20Votes_total_checkpoints::InternalContractMemberStateTrait as TotalCheckpointsTrait;
 
 //
 // Setup
@@ -59,7 +59,7 @@ fn deploy_account() -> ContractAddress {
 #[should_panic(expected: ('Unordered insertion',))]
 fn test__delegate_checkpoints_unordered_insertion() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
+    let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     testing::set_block_timestamp('ts10');
     trace.push('ts2', 0x222);
@@ -71,7 +71,7 @@ fn test__delegate_checkpoints_unordered_insertion() {
 #[should_panic(expected: ('Unordered insertion',))]
 fn test__total_checkpoints_unordered_insertion() {
     let mut state = setup();
-    let mut trace = state._total_checkpoints.read();
+    let mut trace = state.ERC20Votes_total_checkpoints.read();
 
     testing::set_block_timestamp('ts10');
     trace.push('ts2', 0x222);
@@ -97,7 +97,7 @@ fn test_get_votes() {
 #[available_gas(20000000)]
 fn test_get_past_votes() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
+    let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     // Future timestamp.
     testing::set_block_timestamp('ts10');
@@ -133,7 +133,7 @@ fn test_get_past_votes_future_lookup() {
 #[available_gas(20000000)]
 fn test_get_past_total_supply() {
     let mut state = setup();
-    let mut trace = state._total_checkpoints.read();
+    let mut trace = state.ERC20Votes_total_checkpoints.read();
 
     // Future timestamp.
     testing::set_block_timestamp('ts10');
@@ -321,7 +321,7 @@ fn test_delegate_by_sig_invalid_signature() {
 #[available_gas(20000000)]
 fn test_num_checkpoints() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
+    let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
@@ -340,7 +340,7 @@ fn test_num_checkpoints() {
 #[available_gas(20000000)]
 fn test_checkpoints() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
+    let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
@@ -357,7 +357,7 @@ fn test_checkpoints() {
 #[should_panic(expected: ('Array overflow',))]
 fn test__checkpoints_array_overflow() {
     let mut state = setup();
-    let mut trace = state._delegate_checkpoints.read(OWNER());
+    let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     InternalImpl::checkpoints(@state, OWNER(), 1);
 }

@@ -30,9 +30,9 @@ mod ERC20Votes {
 
     #[storage]
     struct Storage {
-        _delegatee: LegacyMap<ContractAddress, ContractAddress>,
-        _delegate_checkpoints: LegacyMap<ContractAddress, Trace>,
-        _total_checkpoints: Trace
+        ERC20Votes_delegatee: LegacyMap<ContractAddress, ContractAddress>,
+        ERC20Votes_delegate_checkpoints: LegacyMap<ContractAddress, Trace>,
+        ERC20Votes_total_checkpoints: Trace
     }
 
     #[event]
@@ -65,25 +65,25 @@ mod ERC20Votes {
     #[external(v0)]
     impl VotesImpl of IVotes<ContractState> {
         fn get_votes(self: @ContractState, account: ContractAddress) -> u256 {
-            self._delegate_checkpoints.read(account).latest()
+            self.ERC20Votes_delegate_checkpoints.read(account).latest()
         }
 
         fn get_past_votes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 
-            self._delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
+            self.ERC20Votes_delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
         }
 
         fn get_past_total_supply(self: @ContractState, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
 
-            self._total_checkpoints.read().upper_lookup_recent(timepoint)
+            self.ERC20Votes_total_checkpoints.read().upper_lookup_recent(timepoint)
         }
 
         fn delegates(self: @ContractState, account: ContractAddress) -> ContractAddress {
-            self._delegatee.read(account)
+            self.ERC20Votes_delegatee.read(account)
         }
 
         fn delegate(ref self: ContractState, delegatee: ContractAddress) {
@@ -145,7 +145,7 @@ mod ERC20Votes {
     impl InternalImpl of InternalTrait {
         /// Returns the current total supply of votes.
         fn get_total_supply(self: @ContractState) -> u256 {
-            self._total_checkpoints.read().latest()
+            self.ERC20Votes_total_checkpoints.read().latest()
         }
 
         /// Delegates all of `account`'s voting units to `delegatee`.
@@ -153,7 +153,7 @@ mod ERC20Votes {
             ref self: ContractState, account: ContractAddress, delegatee: ContractAddress
         ) {
             let from_delegate = VotesImpl::delegates(@self, account);
-            self._delegatee.write(account, delegatee);
+            self.ERC20Votes_delegatee.write(account, delegatee);
 
             self
                 .emit(
@@ -170,13 +170,13 @@ mod ERC20Votes {
             let block_timestamp = starknet::get_block_timestamp();
             if (from != to && amount > 0) {
                 if (from != zero_address) {
-                    let mut trace = self._delegate_checkpoints.read(from);
+                    let mut trace = self.ERC20Votes_delegate_checkpoints.read(from);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() - amount);
                     self.emit(DelegateVotesChanged { delegate: from, previous_votes, new_votes });
                 }
                 if (to != zero_address) {
-                    let mut trace = self._delegate_checkpoints.read(to);
+                    let mut trace = self.ERC20Votes_delegate_checkpoints.read(to);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() + amount);
                     self.emit(DelegateVotesChanged { delegate: to, previous_votes, new_votes });
@@ -192,11 +192,11 @@ mod ERC20Votes {
             let zero_address = contract_address_const::<0>();
             let block_timestamp = starknet::get_block_timestamp();
             if (from == zero_address) {
-                let mut trace = self._total_checkpoints.read();
+                let mut trace = self.ERC20Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() + amount);
             }
             if (to == zero_address) {
-                let mut trace = self._total_checkpoints.read();
+                let mut trace = self.ERC20Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() - amount);
             }
             self
@@ -207,12 +207,12 @@ mod ERC20Votes {
 
         /// Get number of checkpoints for `account`.
         fn num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
-            self._delegate_checkpoints.read(account).length()
+            self.ERC20Votes_delegate_checkpoints.read(account).length()
         }
 
         /// Get the `pos`-th checkpoint for `account`.
         fn checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
-            self._delegate_checkpoints.read(account).at(pos)
+            self.ERC20Votes_delegate_checkpoints.read(account).at(pos)
         }
 
         fn get_voting_units(self: @ContractState, account: ContractAddress) -> u256 {

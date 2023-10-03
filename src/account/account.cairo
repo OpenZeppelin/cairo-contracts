@@ -103,8 +103,7 @@ mod Account {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
@@ -150,8 +149,7 @@ mod Account {
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
@@ -173,7 +171,7 @@ mod Account {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, _public_key: felt252) {
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
             self._set_public_key(_public_key);
         }

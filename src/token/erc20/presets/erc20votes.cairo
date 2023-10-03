@@ -9,6 +9,7 @@ mod ERC20VotesPreset {
     use openzeppelin::token::erc20::extensions::ERC20Votes;
     use openzeppelin::token::erc20::interface::{IERC20, IERC20Camel};
     use openzeppelin::utils::cryptography::eip712_draft::EIP712;
+    use openzeppelin::utils::nonces::Nonces;
     use openzeppelin::utils::structs::checkpoints::Checkpoint;
     use starknet::ContractAddress;
     use starknet::contract_address_const;
@@ -178,6 +179,13 @@ mod ERC20VotesPreset {
                 ref unsafe_state, delegator, delegatee, nonce, expiry, signature
             );
         }
+    }
+
+    /// Returns the next unused nonce for an address.
+    #[external(v0)]
+    fn nonces(self: @ContractState, owner: ContractAddress) -> felt252 {
+        let unsafe_state = Nonces::unsafe_new_contract_state();
+        Nonces::nonces(@unsafe_state, owner)
     }
 
     /// Get number of checkpoints for `account`.

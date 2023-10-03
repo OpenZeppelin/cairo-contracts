@@ -107,7 +107,7 @@ mod CamelERC721PanicMock {
     }
 
     #[external(v0)]
-    fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
+    fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
         panic_with_felt252('Some error');
         3
     }

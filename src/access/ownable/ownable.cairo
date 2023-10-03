@@ -6,11 +6,10 @@ mod Ownable {
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {
-        _owner: ContractAddress
+        Ownable_owner: ContractAddress
     }
 
     #[event]
@@ -25,6 +24,12 @@ mod Ownable {
         new_owner: ContractAddress,
     }
 
+    mod Errors {
+        const NOT_OWNER: felt252 = 'Caller is not the owner';
+        const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
+        const ZERO_ADDRESS_OWNER: felt252 = 'New owner is the zero address';
+    }
+
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, owner: ContractAddress) {
@@ -32,15 +37,15 @@ mod Ownable {
         }
 
         fn assert_only_owner(self: @ContractState) {
-            let owner: ContractAddress = self._owner.read();
+            let owner: ContractAddress = self.Ownable_owner.read();
             let caller: ContractAddress = get_caller_address();
-            assert(!caller.is_zero(), 'Caller is the zero address');
-            assert(caller == owner, 'Caller is not the owner');
+            assert(!caller.is_zero(), Errors::ZERO_ADDRESS_CALLER);
+            assert(caller == owner, Errors::NOT_OWNER);
         }
 
         fn _transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-            let previous_owner: ContractAddress = self._owner.read();
-            self._owner.write(new_owner);
+            let previous_owner: ContractAddress = self.Ownable_owner.read();
+            self.Ownable_owner.write(new_owner);
             self
                 .emit(
                     OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
@@ -51,11 +56,11 @@ mod Ownable {
     #[external(v0)]
     impl OwnableImpl of interface::IOwnable<ContractState> {
         fn owner(self: @ContractState) -> ContractAddress {
-            self._owner.read()
+            self.Ownable_owner.read()
         }
 
         fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-            assert(!new_owner.is_zero(), 'New owner is the zero address');
+            assert(!new_owner.is_zero(), Errors::ZERO_ADDRESS_OWNER);
             self.assert_only_owner();
             self._transfer_ownership(new_owner);
         }

@@ -1,10 +1,5 @@
-use array::ArrayTrait;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5;
 use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-use openzeppelin::introspection::interface::ISRC5CamelDispatcher;
-use openzeppelin::introspection::interface::ISRC5CamelDispatcherTrait;
-use openzeppelin::introspection::interface::ISRC5Dispatcher;
-use openzeppelin::introspection::interface::ISRC5DispatcherTrait;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::mocks::src5_mocks::CamelSRC5Mock;

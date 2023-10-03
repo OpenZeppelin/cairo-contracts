@@ -1,34 +1,30 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 
-use starknet::ContractAddress;
-
 #[starknet::contract]
 mod ERC721 {
-    use array::SpanTrait;
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
+    use openzeppelin::introspection::src5::unsafe_state as src5_state;
     use openzeppelin::introspection::src5;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
     use openzeppelin::token::erc721::interface;
-    use option::OptionTrait;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {
-        _name: felt252,
-        _symbol: felt252,
-        _owners: LegacyMap<u256, ContractAddress>,
-        _balances: LegacyMap<ContractAddress, u256>,
-        _token_approvals: LegacyMap<u256, ContractAddress>,
-        _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        _token_uri: LegacyMap<u256, felt252>,
+        ERC721_name: felt252,
+        ERC721_symbol: felt252,
+        ERC721_owners: LegacyMap<u256, ContractAddress>,
+        ERC721_balances: LegacyMap<ContractAddress, u256>,
+        ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
+        ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        ERC721_token_uri: LegacyMap<u256, felt252>,
     }
 
     #[event]
@@ -41,23 +37,44 @@ mod ERC721 {
 
     #[derive(Drop, starknet::Event)]
     struct Transfer {
+        #[key]
         from: ContractAddress,
+        #[key]
         to: ContractAddress,
+        #[key]
         token_id: u256
     }
 
     #[derive(Drop, starknet::Event)]
     struct Approval {
+        #[key]
         owner: ContractAddress,
+        #[key]
         approved: ContractAddress,
+        #[key]
         token_id: u256
     }
 
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
+        #[key]
         owner: ContractAddress,
+        #[key]
         operator: ContractAddress,
         approved: bool
+    }
+
+    mod Errors {
+        const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
+        const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
+        const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
+        const APPROVAL_TO_OWNER: felt252 = 'ERC721: approval to owner';
+        const SELF_APPROVAL: felt252 = 'ERC721: self approval';
+        const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
+        const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
+        const WRONG_SENDER: felt252 = 'ERC721: wrong sender';
+        const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
+        const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
     }
 
     #[constructor]
@@ -79,48 +96,46 @@ mod ERC721 {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            src5::SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = src5::SRC5::unsafe_new_contract_state();
-            src5::SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            src5::SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
     #[external(v0)]
     impl ERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
         fn name(self: @ContractState) -> felt252 {
-            self._name.read()
+            self.ERC721_name.read()
         }
 
         fn symbol(self: @ContractState) -> felt252 {
-            self._symbol.read()
+            self.ERC721_symbol.read()
         }
 
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
-            self._token_uri.read(token_id)
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
+            self.ERC721_token_uri.read(token_id)
         }
     }
 
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
-        fn tokenUri(self: @ContractState, tokenId: u256) -> felt252 {
-            assert(self._exists(tokenId), 'ERC721: invalid token ID');
-            self._token_uri.read(tokenId)
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
+            assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
+            self.ERC721_token_uri.read(tokenId)
         }
     }
 
     #[external(v0)]
     impl ERC721Impl of interface::IERC721<ContractState> {
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            assert(!account.is_zero(), 'ERC721: invalid account');
-            self._balances.read(account)
+            assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
+            self.ERC721_balances.read(account)
         }
 
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
@@ -128,14 +143,14 @@ mod ERC721 {
         }
 
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
-            self._token_approvals.read(token_id)
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
+            self.ERC721_token_approvals.read(token_id)
         }
 
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
-            self._operator_approvals.read((owner, operator))
+            self.ERC721_operator_approvals.read((owner, operator))
         }
 
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
@@ -144,7 +159,7 @@ mod ERC721 {
             let caller = get_caller_address();
             assert(
                 owner == caller || ERC721Impl::is_approved_for_all(@self, owner, caller),
-                'ERC721: unauthorized caller'
+                Errors::UNAUTHORIZED
             );
             self._approve(to, token_id);
         }
@@ -159,8 +174,7 @@ mod ERC721 {
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
             assert(
-                self._is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
             );
             self._transfer(from, to, token_id);
         }
@@ -173,8 +187,7 @@ mod ERC721 {
             data: Span<felt252>
         ) {
             assert(
-                self._is_approved_or_owner(get_caller_address(), token_id),
-                'ERC721: unauthorized caller'
+                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
             );
             self._safe_transfer(from, to, token_id, data);
         }
@@ -227,11 +240,11 @@ mod ERC721 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name_: felt252, symbol_: felt252) {
-            self._name.write(name_);
-            self._symbol.write(symbol_);
+        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+            self.ERC721_name.write(name);
+            self.ERC721_symbol.write(symbol);
 
-            let mut unsafe_state = src5::SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             src5::SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_ID);
             src5::SRC5::InternalImpl::register_interface(
                 ref unsafe_state, interface::IERC721_METADATA_ID
@@ -239,15 +252,15 @@ mod ERC721 {
         }
 
         fn _owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            let owner = self._owners.read(token_id);
+            let owner = self.ERC721_owners.read(token_id);
             match owner.is_zero() {
                 bool::False(()) => owner,
-                bool::True(()) => panic_with_felt252('ERC721: invalid token ID')
+                bool::True(()) => panic_with_felt252(Errors::INVALID_TOKEN_ID)
             }
         }
 
         fn _exists(self: @ContractState, token_id: u256) -> bool {
-            !self._owners.read(token_id).is_zero()
+            !self.ERC721_owners.read(token_id).is_zero()
         }
 
         fn _is_approved_or_owner(
@@ -262,9 +275,9 @@ mod ERC721 {
 
         fn _approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
-            assert(owner != to, 'ERC721: approval to owner');
+            assert(owner != to, Errors::APPROVAL_TO_OWNER);
 
-            self._token_approvals.write(token_id, to);
+            self.ERC721_token_approvals.write(token_id, to);
             self.emit(Approval { owner, approved: to, token_id });
         }
 
@@ -274,17 +287,17 @@ mod ERC721 {
             operator: ContractAddress,
             approved: bool
         ) {
-            assert(owner != operator, 'ERC721: self approval');
-            self._operator_approvals.write((owner, operator), approved);
+            assert(owner != operator, Errors::SELF_APPROVAL);
+            self.ERC721_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
         fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            assert(!to.is_zero(), 'ERC721: invalid receiver');
-            assert(!self._exists(token_id), 'ERC721: token already minted');
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
+            assert(!self._exists(token_id), Errors::ALREADY_MINTED);
 
-            self._balances.write(to, self._balances.read(to) + 1);
-            self._owners.write(token_id, to);
+            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            self.ERC721_owners.write(token_id, to);
 
             self.emit(Transfer { from: Zeroable::zero(), to, token_id });
         }
@@ -292,16 +305,16 @@ mod ERC721 {
         fn _transfer(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
-            assert(!to.is_zero(), 'ERC721: invalid receiver');
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             let owner = self._owner_of(token_id);
-            assert(from == owner, 'ERC721: wrong sender');
+            assert(from == owner, Errors::WRONG_SENDER);
 
             // Implicit clear approvals, no need to emit an event
-            self._token_approvals.write(token_id, Zeroable::zero());
+            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
 
-            self._balances.write(from, self._balances.read(from) - 1);
-            self._balances.write(to, self._balances.read(to) + 1);
-            self._owners.write(token_id, to);
+            self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
+            self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            self.ERC721_owners.write(token_id, to);
 
             self.emit(Transfer { from, to, token_id });
         }
@@ -310,10 +323,10 @@ mod ERC721 {
             let owner = self._owner_of(token_id);
 
             // Implicit clear approvals, no need to emit an event
-            self._token_approvals.write(token_id, Zeroable::zero());
+            self.ERC721_token_approvals.write(token_id, Zeroable::zero());
 
-            self._balances.write(owner, self._balances.read(owner) - 1);
-            self._owners.write(token_id, Zeroable::zero());
+            self.ERC721_balances.write(owner, self.ERC721_balances.read(owner) - 1);
+            self.ERC721_owners.write(token_id, Zeroable::zero());
 
             self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id });
         }
@@ -324,7 +337,7 @@ mod ERC721 {
             self._mint(to, token_id);
             assert(
                 _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
-                'ERC721: safe mint failed'
+                Errors::SAFE_MINT_FAILED
             );
         }
 
@@ -337,13 +350,13 @@ mod ERC721 {
         ) {
             self._transfer(from, to, token_id);
             assert(
-                _check_on_erc721_received(from, to, token_id, data), 'ERC721: safe transfer failed'
+                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
             );
         }
 
         fn _set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            assert(self._exists(token_id), 'ERC721: invalid token ID');
-            self._token_uri.write(token_id, token_uri)
+            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
+            self.ERC721_token_uri.write(token_id, token_uri)
         }
     }
 

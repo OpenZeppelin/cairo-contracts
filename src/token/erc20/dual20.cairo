@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/dual20.cairo)
 
-use array::ArrayTrait;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -11,44 +10,44 @@ use starknet::SyscallResultTrait;
 use starknet::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualERC20 {
+struct DualCaseERC20 {
     contract_address: ContractAddress
 }
 
-trait DualERC20Trait {
-    fn name(self: @DualERC20) -> felt252;
-    fn symbol(self: @DualERC20) -> felt252;
-    fn decimals(self: @DualERC20) -> u8;
-    fn total_supply(self: @DualERC20) -> u256;
-    fn balance_of(self: @DualERC20, account: ContractAddress) -> u256;
-    fn allowance(self: @DualERC20, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(self: @DualERC20, recipient: ContractAddress, amount: u256) -> bool;
+trait DualCaseERC20Trait {
+    fn name(self: @DualCaseERC20) -> felt252;
+    fn symbol(self: @DualCaseERC20) -> felt252;
+    fn decimals(self: @DualCaseERC20) -> u8;
+    fn total_supply(self: @DualCaseERC20) -> u256;
+    fn balance_of(self: @DualCaseERC20, account: ContractAddress) -> u256;
+    fn allowance(self: @DualCaseERC20, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(self: @DualCaseERC20, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        self: @DualERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        self: @DualCaseERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
-    fn approve(self: @DualERC20, spender: ContractAddress, amount: u256) -> bool;
+    fn approve(self: @DualCaseERC20, spender: ContractAddress, amount: u256) -> bool;
 }
 
-impl DualERC20Impl of DualERC20Trait {
-    fn name(self: @DualERC20) -> felt252 {
+impl DualCaseERC20Impl of DualCaseERC20Trait {
+    fn name(self: @DualCaseERC20) -> felt252 {
         let args = array![];
         call_contract_syscall(*self.contract_address, selectors::name, args.span())
             .unwrap_and_cast()
     }
 
-    fn symbol(self: @DualERC20) -> felt252 {
+    fn symbol(self: @DualCaseERC20) -> felt252 {
         let args = array![];
         call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
             .unwrap_and_cast()
     }
 
-    fn decimals(self: @DualERC20) -> u8 {
+    fn decimals(self: @DualCaseERC20) -> u8 {
         let args = array![];
         call_contract_syscall(*self.contract_address, selectors::decimals, args.span())
             .unwrap_and_cast()
     }
 
-    fn total_supply(self: @DualERC20) -> u256 {
+    fn total_supply(self: @DualCaseERC20) -> u256 {
         let mut args = array![];
         try_selector_with_fallback(
             *self.contract_address, selectors::total_supply, selectors::totalSupply, args.span()
@@ -56,7 +55,7 @@ impl DualERC20Impl of DualERC20Trait {
             .unwrap_and_cast()
     }
 
-    fn balance_of(self: @DualERC20, account: ContractAddress) -> u256 {
+    fn balance_of(self: @DualCaseERC20, account: ContractAddress) -> u256 {
         let mut args = array![];
         args.append_serde(account);
 
@@ -66,7 +65,7 @@ impl DualERC20Impl of DualERC20Trait {
             .unwrap_and_cast()
     }
 
-    fn allowance(self: @DualERC20, owner: ContractAddress, spender: ContractAddress) -> u256 {
+    fn allowance(self: @DualCaseERC20, owner: ContractAddress, spender: ContractAddress) -> u256 {
         let mut args = array![];
         args.append_serde(owner);
         args.append_serde(spender);
@@ -75,7 +74,7 @@ impl DualERC20Impl of DualERC20Trait {
             .unwrap_and_cast()
     }
 
-    fn transfer(self: @DualERC20, recipient: ContractAddress, amount: u256) -> bool {
+    fn transfer(self: @DualCaseERC20, recipient: ContractAddress, amount: u256) -> bool {
         let mut args = array![];
         args.append_serde(recipient);
         args.append_serde(amount);
@@ -85,7 +84,7 @@ impl DualERC20Impl of DualERC20Trait {
     }
 
     fn transfer_from(
-        self: @DualERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        self: @DualCaseERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool {
         let mut args = array![];
         args.append_serde(sender);
@@ -98,7 +97,7 @@ impl DualERC20Impl of DualERC20Trait {
             .unwrap_and_cast()
     }
 
-    fn approve(self: @DualERC20, spender: ContractAddress, amount: u256) -> bool {
+    fn approve(self: @DualCaseERC20, spender: ContractAddress, amount: u256) -> bool {
         let mut args = array![];
         args.append_serde(spender);
         args.append_serde(amount);

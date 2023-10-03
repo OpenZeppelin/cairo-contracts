@@ -1,0 +1,474 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:AccessControl: xref:AccessControl[AccessControl]
+:Ownable: xref:Ownable[Ownable]
+:src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+:_set_role_admin: xref:#AccessControl-_set_role_admin[_set_role_admin]
+
+= Access Control
+
+This directory provides ways to restrict who can access the functions of a contract or when they can do it.
+
+- {Ownable} is a simple mechanism with a single "owner" role that can be assigned to a single account.
+This mechanism can be useful in simple scenarios, but fine grained access needs are likely to outgrow it.
+- {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and
+assigned each to multiple accounts.
+
+== Authorization
+
+[.contract]
+[[Ownable]]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::access::ownable::Ownable;
+```
+
+`Ownable` provides a basic access control mechanism where an account
+ (an owner) can be granted exclusive access to specific functions.
+
+This module includes the `assert_only_owner` internal to restrict a function to be used only by the owner.
+
+[.contract-index]
+.External Functions
+--
+.OwnableImpl
+
+* xref:Ownable-owner[`++owner(self)++`]
+* xref:Ownable-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
+* xref:Ownable-renounce_ownership[`++renounce_ownership(self)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+
+* xref:Ownable-initializer[`++initializer(self, owner)++`]
+* xref:Ownable-assert_only_owner[`++assert_only_owner(self)++`]
+* xref:Ownable-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:Ownable-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
+--
+
+[#Ownable-External-Functions]
+==== External Functions
+
+[.contract-item]
+[[Ownable-owner]]
+==== `[.contract-item-name]#++owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the current owner.
+
+[.contract-item]
+[[Ownable-transfer_ownership]]
+==== `[.contract-item-name]#++transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#external#
+
+Transfers ownership of the contract to a new account (`new_owner`).
+Can only be called by the current owner.
+
+Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-renounce_ownership]]
+==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
+
+Leaves the contract without owner. It will not be possible to call
+`assert_only_owner` functions anymore. Can only be called by the current owner.
+
+NOTE: Renouncing ownership will leave the contract without an owner,
+thereby removing any functionality that is only available to the owner.
+
+[#Ownable-Internal-Functions]
+==== Internal Functions
+
+[.contract-item]
+[[Ownable-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
+
+Initializes the contract and sets `owner` as the initial owner.
+
+Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[Ownable-assert_only_owner]]
+==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Panics if called by any account other than the owner.
+
+[.contract-item]
+[[Ownable-_transfer_ownership]]
+==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
+
+Transfers ownership of the contract to a new account (`new_owner`).
+Internal function without access restriction.
+
+Emits an xref:Ownable-OwnershipTransferred[OwnershipTransferred] event.
+
+[#Ownable-Events]
+==== Events
+
+[.contract-item]
+[[Ownable-OwnershipTransferred]]
+==== `[.contract-item-name]#++OwnershipTransferred++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
+
+Emitted when the ownership is transferred.
+
+[.contract]
+[[IAccessControl]]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/05429e4fd34a250ce7a01450190c53275e5c1c0b/src/access/accesscontrol/interface.cairo#L10[{github-icon},role=heading-link]
+
+:grant_role: xref:#IAccessControl-grant_role[grant_role]
+:revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
+:RoleGranted: xref:#IAccessControl-RoleGranted[RoleGranted]
+:RoleRevoked: xref:#IAccessControl-RoleRevoked[RoleRevoked]
+:RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
+
+```javascript
+use openzeppelin::access::accesscontrol::interface::IAccessControl;
+```
+
+External interface of AccessControl.
+
+[.contract-index]
+.{inner-src5}
+--
+0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751
+--
+
+[.contract-index]
+.Functions
+--
+* xref:IAccessControl-has_role[`++has_role(role, account)++`]
+* xref:IAccessControl-get_role_admin[`++get_role_admin(role)++`]
+* xref:IAccessControl-grant_role[`++grant_role(role, account)++`]
+* xref:IAccessControl-revoke_role[`++revoke_role(role, account)++`]
+* xref:IAccessControl-renounce_role[`++renounce_role(role, account)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:IAccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
+* xref:IAccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]
+* xref:IAccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+
+--
+
+[#IAccessControl-Functions]
+==== Functions
+
+[.contract-item]
+[[IAccessControl-has_role]]
+==== `[.contract-item-name]#++has_role++#++(role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns `true` if `account` has been granted `role`.
+
+[.contract-item]
+[[IAccessControl-get_role_admin]]
+==== `[.contract-item-name]#++get_role_admin++#++(role: felt252) → felt252++` [.item-kind]#external#
+
+Returns the admin role that controls `role`. See {grant_role} and
+{revoke_role}.
+
+To change a role's admin, use {_set_role_admin}.
+
+[.contract-item]
+[[IAccessControl-grant_role]]
+==== `[.contract-item-name]#++grant_role++#++(role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Grants `role` to `account`.
+
+If `account` had not been already granted `role`, emits a {RoleGranted}
+event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+[.contract-item]
+[[IAccessControl-revoke_role]]
+==== `[.contract-item-name]#++revoke_role++#++(role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from `account`.
+
+If `account` had been granted `role`, emits a {RoleRevoked} event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+[.contract-item]
+[[IAccessControl-renounce_role]]
+==== `[.contract-item-name]#++renounce_role++#++(role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from the calling account.
+
+Roles are often managed via {grant_role} and {revoke_role}. This function's
+purpose is to provide a mechanism for accounts to lose their privileges
+if they are compromised (such as when a trusted device is misplaced).
+
+If the calling account had been granted `role`, emits a {RoleRevoked}
+event.
+
+Requirements:
+
+- the caller must be `account`.
+
+[#IAccessControl-Events]
+==== Events
+
+[.contract-item]
+[[IAccessControl-RoleAdminChanged]]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(role: felt252, previous_admin_role: ContractAddress, new_admin_role: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `new_admin_role` is set as ``role``'s admin role, replacing `previous_admin_role`
+
+`DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+{RoleAdminChanged} not being emitted signaling this.
+
+[.contract-item]
+[[IAccessControl-RoleGranted]]
+==== `[.contract-item-name]#++RoleGranted++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `account` is granted `role`.
+
+`sender` is the account that originated the contract call, an admin role
+bearer.
+
+[.contract-item]
+[[IAccessControl-RoleRevoked]]
+==== `[.contract-item-name]#++RoleRevoked++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `account` is revoked `role`.
+
+`sender` is the account that originated the contract call:
+
+- if using `revoke_role`, it is the admin role bearer.
+- if using `renounce_role`, it is the role bearer (i.e. `account`).
+
+[.contract]
+[[AccessControl]]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+
+:assert_only_role: xref:#AccessControl-assert_only_role
+:grant_role: xref:#AccessControl-grant_role[grant_role]
+:revoke_role: xref:#AccessControl-revoke_role[revoke_role]
+
+```javascript
+use openzeppelin::access::accesscontrol::AccessControl;
+```
+
+Contract module that allows children to implement role-based access control mechanisms.
+Roles are referred to by their `felt252` identifier:
+
+```javascript
+const MY_ROLE: felt252 = selector!('MY_ROLE');
+```
+
+Roles can be used to represent a set of permissions. To restrict access to a
+function call, use {assert_only_role}[`assert_only_role`]:
+
+```javascript
+use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
+use openzeppelin::access::accesscontrol::AccessControl;
+use openzeppelin::token::erc20::ERC20;
+
+#[external(v0)]
+fn foo(ref self: ContractState, account: ContractAddress, amount: u256) {
+    let access_state = AccessControl::unsafe_new_contract_state();
+    assert_only_role(@access_state, BURNER_ROLE);
+
+    let mut erc20_state = ERC20::unsafe_new_contract_state();
+    ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+}
+```
+
+Roles can be granted and revoked dynamically via the {grant_role} and
+{revoke_role} functions. Each role has an associated admin role, and only
+accounts that have a role's admin role can call {grant_role} and {revoke_role}.
+
+By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
+that only accounts with this role will be able to grant or revoke other
+roles. More complex role relationships can be created by using
+{_set_role_admin}.
+
+WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
+grant and revoke this role. Extra precautions should be taken to secure
+accounts that have been granted it.
+
+[.contract-index]
+.External Functions
+--
+.AccessControlImpl
+
+* xref:#AccessControl-has_role[`++has_role(self, role, account)++`]
+* xref:#AccessControl-get_role_admin[`++get_role_admin(self, role)++`]
+* xref:#AccessControl-grant_role[`++grant_role(self, role, account)++`]
+* xref:#AccessControl-revoke_role[`++revoke_role(self, role, account)++`]
+* xref:#AccessControl-renounce_role[`++renounce_role(self, role, account)++`]
+
+.SRC5Impl
+* xref:#AccessControl-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+
+* xref:#AccessControl-initializer[`++initializer(self)++`]
+* xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
+* xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
+* xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
+* xref:#AccessControl-assert_only_role[`++assert_only_role(self, role)++`]
+--
+
+[.contract-index]
+.Events
+--
+.IAccessControl
+* xref:#AccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
+* xref:#AccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]
+* xref:#AccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+--
+
+[#AccessControl-External-Functions]
+==== External Functions
+
+[.contract-item]
+[[AccessControl-has_role]]
+==== `[.contract-item-name]#++has_role++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns `true` if `account` has been granted `role`.
+
+[.contract-item]
+[[AccessControl-get_role_admin]]
+==== `[.contract-item-name]#++get_role_admin++#++(self: @ContractState, role: felt252) → felt252++` [.item-kind]#external#
+
+Returns the admin role that controls `role`. See {grant_role} and
+{revoke_role}.
+
+To change a role's admin, use {_set_role_admin}.
+
+[.contract-item]
+[[AccessControl-grant_role]]
+==== `[.contract-item-name]#++grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Grants `role` to `account`.
+
+If `account` had not been already granted `role`, emits a {RoleGranted}
+event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControl-revoke_role]]
+==== `[.contract-item-name]#++revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from `account`.
+
+If `account` had been granted `role`, emits a {RoleRevoked} event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-renounce_role]]
+==== `[.contract-item-name]#++renounce_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from the calling account.
+
+Roles are often managed via {grant_role} and {revoke_role}. This function's
+purpose is to provide a mechanism for accounts to lose their privileges
+if they are compromised (such as when a trusted device is misplaced).
+
+If the calling account had been revoked `role`, emits a {RoleRevoked}
+event.
+
+Requirements:
+
+- the caller must be `account`.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-supports_interface]]
+==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
+
+See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
+
+[#AccessControl-Internal-Functions]
+==== Internal Functions
+
+[.contract-item]
+[[AccessControl-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Initializes the contract by registering the xref:#IAccessControl[IAccessControl] interface ID.
+
+[.contract-item]
+[[AccessControl-_set_role_admin]]
+==== `[.contract-item-name]#++_set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
+
+Sets `admin_role` as ``role``'s admin role.
+
+Emits a {RoleAdminChanged} event.
+
+[.contract-item]
+[[AccessControl-_grant_role]]
+==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
+
+Grants `role` to `account`.
+
+Internal function without access restriction.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControl-_revoke_role]]
+==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
+
+Revokes `role` from `account`.
+
+Internal function without access restriction.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControl-assert_only_role]]
+==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
+
+Panics if called by any account without the given `role`.
+
+[#AccessControl-Events]
+==== Events
+
+[.contract-item]
+[[AccessControl-RoleAdminChanged]]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(role: felt252, previous_admin_role: ContractAddress, new_admin_role: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleAdminChanged[IAccessControl::RoleAdminChanged].
+
+[.contract-item]
+[[AccessControl-RoleGranted]]
+==== `[.contract-item-name]#++RoleGranted++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleGranted[IAccessControl::RoleGranted].
+
+[.contract-item]
+[[AccessControl-RoleRevoked]]
+==== `[.contract-item-name]#++RoleRevoked++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+See xref:IAccessControl-RoleRevoked[IAccessControl::RoleRevoked].

@@ -1,19 +1,30 @@
 * xref:index.adoc[Overview]
-* xref:wizard.adoc[Wizard]
-* xref:extensibility.adoc[Extensibility]
-* xref:proxies.adoc[Proxies and Upgrades]
+//* xref:wizard.adoc[Wizard]
+//* xref:extensibility.adoc[Extensibility]
+* xref:interfaces.adoc[Interfaces and Dispatchers]
+* xref:upgrades.adoc[Upgrades]
+** xref:/api/upgrades.adoc[API Reference]
 
 * xref:accounts.adoc[Accounts]
+** xref:/guides/deployment.adoc[Counterfactual deployments]
+** xref:/api/account.adoc[API Reference]
+
 * xref:access.adoc[Access Control]
+** xref:/api/access.adoc[API Reference]
 
 * Tokens
 ** xref:erc20.adoc[ERC20]
-** xref:erc721.adoc[ERC721]
-** xref:erc1155.adoc[ERC1155]
+*** xref:/guides/erc20-supply.adoc[Creating Supply]
+*** xref:/api/erc20.adoc[API Reference]
+// ** xref:erc721.adoc[ERC721]
+// ** xref:erc1155.adoc[ERC1155]
 
-* xref:security.adoc[Security]
+// * xref:security.adoc[Security]
+
 * xref:introspection.adoc[Introspection]
-* xref:udc.adoc[Universal Deployer Contract]
-* xref:utilities.adoc[Utilities]
+** xref:/api/introspection.adoc[API Reference]
+
+// * xref:udc.adoc[Universal Deployer Contract]
+// * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]

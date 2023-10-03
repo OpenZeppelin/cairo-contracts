@@ -7,7 +7,6 @@ use option::OptionTrait;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::testing;
-use traits::TryInto;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     let (address, _) = starknet::deploy_syscall(
@@ -19,14 +18,33 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 
 /// Pop the earliest unpopped logged event for the contract as the requested type
 /// and checks there's no more data left on the event, preventing unaccounted params.
-/// Indexed event members are currently not supported, so they are ignored.
+/// This function also removes the first key from the event. This is because indexed
+/// params are set as event keys, but the first event key is always set as the 
+/// event ID.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress
 ) -> Option<T> {
     let (mut keys, mut data) = testing::pop_log_raw(address)?;
+
+    // Remove the event ID from the keys
+    keys.pop_front();
+
     let ret = starknet::Event::deserialize(ref keys, ref data);
     assert(data.is_empty(), 'Event has extra data');
     ret
+}
+
+/// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
+/// `expected_keys` must include all indexed event keys for `event` in the order
+/// that they're defined.
+fn assert_indexed_keys<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
+    event: T, expected_keys: Span<felt252>
+) {
+    let mut keys = array![];
+    let mut data = array![];
+
+    event.append_keys_and_data(ref keys, ref data);
+    assert(expected_keys == keys.span(), 'Invalid keys');
 }
 
 fn assert_no_events_left(address: ContractAddress) {

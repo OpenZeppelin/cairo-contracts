@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (account/account.cairo)
 
-use array::ArrayTrait;
-use array::SpanTrait;
-use option::OptionTrait;
-use serde::Serde;
-use starknet::ContractAddress;
-use starknet::account::Call;
-
-const TRANSACTION_VERSION: felt252 = 1;
-
-// 2**128 + TRANSACTION_VERSION
-const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
-
 trait PublicKeyTrait<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
@@ -25,28 +13,25 @@ trait PublicKeyCamelTrait<TState> {
 
 #[starknet::contract]
 mod Account {
-    use array::ArrayTrait;
-    use array::SpanTrait;
-    use box::BoxTrait;
     use ecdsa::check_ecdsa_signature;
 
     use openzeppelin::account::interface;
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
     use openzeppelin::introspection::src5::SRC5;
-    use option::OptionTrait;
+    use openzeppelin::introspection::src5::unsafe_state as src5_state;
+    use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
 
-    use super::Call;
-    use super::QUERY_VERSION;
-    use super::TRANSACTION_VERSION;
-    use zeroable::Zeroable;
+    const TRANSACTION_VERSION: felt252 = 1;
+    // 2**128 + TRANSACTION_VERSION
+    const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
     #[storage]
     struct Storage {
-        public_key: felt252
+        Account_public_key: felt252
     }
 
     #[event]
@@ -66,6 +51,13 @@ mod Account {
         removed_owner_guid: felt252
     }
 
+    mod Errors {
+        const INVALID_CALLER: felt252 = 'Account: invalid caller';
+        const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
+        const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
+        const UNAUTHORIZED: felt252 = 'Account: unauthorized';
+    }
+
     #[constructor]
     fn constructor(ref self: ContractState, _public_key: felt252) {
         self.initializer(_public_key);
@@ -81,13 +73,13 @@ mod Account {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = get_caller_address();
-            assert(sender.is_zero(), 'Account: invalid caller');
+            assert(sender.is_zero(), Errors::INVALID_CALLER);
 
             // Check tx version
             let tx_info = get_tx_info().unbox();
             let version = tx_info.version;
             if version != TRANSACTION_VERSION {
-                assert(version == QUERY_VERSION, 'Account: invalid tx version');
+                assert(version == QUERY_VERSION, Errors::INVALID_TX_VERSION);
             }
 
             _execute_calls(calls)
@@ -127,28 +119,26 @@ mod Account {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
         }
     }
 
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5CamelImpl::supportsInterface(@unsafe_state, interfaceId)
+            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
     }
 
     #[external(v0)]
     impl PublicKeyImpl of super::PublicKeyTrait<ContractState> {
         fn get_public_key(self: @ContractState) -> felt252 {
-            self.public_key.read()
+            self.Account_public_key.read()
         }
 
         fn set_public_key(ref self: ContractState, new_public_key: felt252) {
             assert_only_self();
-            self.emit(OwnerRemoved { removed_owner_guid: self.public_key.read() });
+            self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
             self._set_public_key(new_public_key);
         }
     }
@@ -156,7 +146,7 @@ mod Account {
     #[external(v0)]
     impl PublicKeyCamelImpl of super::PublicKeyCamelTrait<ContractState> {
         fn getPublicKey(self: @ContractState) -> felt252 {
-            self.public_key.read()
+            self.Account_public_key.read()
         }
 
         fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
@@ -181,7 +171,7 @@ mod Account {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, _public_key: felt252) {
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
+            let mut unsafe_state = src5_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
             self._set_public_key(_public_key);
         }
@@ -190,12 +180,12 @@ mod Account {
             let tx_info = get_tx_info().unbox();
             let tx_hash = tx_info.transaction_hash;
             let signature = tx_info.signature;
-            assert(self._is_valid_signature(tx_hash, signature), 'Account: invalid signature');
+            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
             starknet::VALIDATED
         }
 
         fn _set_public_key(ref self: ContractState, new_public_key: felt252) {
-            self.public_key.write(new_public_key);
+            self.Account_public_key.write(new_public_key);
             self.emit(OwnerAdded { new_owner_guid: new_public_key });
         }
 
@@ -206,7 +196,7 @@ mod Account {
 
             if valid_length {
                 check_ecdsa_signature(
-                    hash, self.public_key.read(), *signature.at(0_u32), *signature.at(1_u32)
+                    hash, self.Account_public_key.read(), *signature.at(0_u32), *signature.at(1_u32)
                 )
             } else {
                 false
@@ -218,10 +208,10 @@ mod Account {
     fn assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
-        assert(self == caller, 'Account: unauthorized');
+        assert(self == caller, Errors::UNAUTHORIZED);
     }
 
-    #[internal]
+    #[private]
     fn _execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
         let mut res = ArrayTrait::new();
         loop {
@@ -238,7 +228,7 @@ mod Account {
         res
     }
 
-    #[internal]
+    #[private]
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()

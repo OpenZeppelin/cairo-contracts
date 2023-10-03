@@ -1,6 +1,6 @@
 use integer::BoundedInt;
+use openzeppelin::account::Account::TRANSACTION_VERSION;
 use openzeppelin::account::Account;
-use openzeppelin::account::TRANSACTION_VERSION;
 use openzeppelin::tests::utils::constants::{
     SUPPLY, ZERO, OWNER, PUBLIC_KEY, RECIPIENT, DAPP_NAME, DAPP_VERSION
 };

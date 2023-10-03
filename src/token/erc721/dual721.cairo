@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/dual721.cairo)
 
-use array::ArrayTrait;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -56,7 +55,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         args.append_serde(token_id);
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::token_uri, selectors::tokenUri, args.span()
+            *self.contract_address, selectors::token_uri, selectors::tokenURI, args.span()
         )
             .unwrap_and_cast()
     }

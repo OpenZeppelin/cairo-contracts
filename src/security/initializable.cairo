@@ -5,18 +5,22 @@
 mod Initializable {
     #[storage]
     struct Storage {
-        initialized: bool
+        Initializable_initialized: bool
+    }
+
+    mod Errors {
+        const INITIALIZED: felt252 = 'Initializable: is initialized';
     }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn is_initialized(self: @ContractState) -> bool {
-            self.initialized.read()
+            self.Initializable_initialized.read()
         }
 
         fn initialize(ref self: ContractState) {
-            assert(!self.is_initialized(), 'Initializable: is initialized');
-            self.initialized.write(true);
+            assert(!self.is_initialized(), Errors::INITIALIZED);
+            self.Initializable_initialized.write(true);
         }
     }
 }

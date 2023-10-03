@@ -13,7 +13,7 @@ mod Pausable {
 
     #[storage]
     struct Storage {
-        paused: bool
+        Pausable_paused: bool
     }
 
     #[event]
@@ -31,32 +31,37 @@ mod Pausable {
         account: ContractAddress
     }
 
+    mod Errors {
+        const PAUSED: felt252 = 'Pausable: paused';
+        const NOT_PAUSED: felt252 = 'Pausable: not paused';
+    }
+
     #[external(v0)]
     impl PausableImpl of super::IPausable<ContractState> {
         fn is_paused(self: @ContractState) -> bool {
-            self.paused.read()
+            self.Pausable_paused.read()
         }
     }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn assert_not_paused(self: @ContractState) {
-            assert(!self.paused.read(), 'Pausable: paused');
+            assert(!self.Pausable_paused.read(), Errors::PAUSED);
         }
 
         fn assert_paused(self: @ContractState) {
-            assert(self.paused.read(), 'Pausable: not paused');
+            assert(self.Pausable_paused.read(), Errors::NOT_PAUSED);
         }
 
         fn _pause(ref self: ContractState) {
             self.assert_not_paused();
-            self.paused.write(true);
+            self.Pausable_paused.write(true);
             self.emit(Paused { account: get_caller_address() });
         }
 
         fn _unpause(ref self: ContractState) {
             self.assert_paused();
-            self.paused.write(false);
+            self.Pausable_paused.write(false);
             self.emit(Unpaused { account: get_caller_address() });
         }
     }

@@ -1,4 +1,6 @@
+use starknet::ClassHash;
 use starknet::ContractAddress;
+use starknet::class_hash_const;
 use starknet::contract_address_const;
 
 const NAME: felt252 = 'NAME';
@@ -15,13 +17,11 @@ const DAPP_NAME: felt252 = 'OZ-DAPP';
 const DAPP_VERSION: felt252 = '2.0.0';
 // Public key of the private key equal 0x1234
 const PUBLIC_KEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
+const SUCCESS: felt252 = 123123;
+const FAILURE: felt252 = 456456;
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
-}
-
-fn OTHER_ADMIN() -> ContractAddress {
-    contract_address_const::<'OTHER_ADMIN'>()
 }
 
 fn AUTHORIZED() -> ContractAddress {
@@ -30,6 +30,10 @@ fn AUTHORIZED() -> ContractAddress {
 
 fn ZERO() -> ContractAddress {
     contract_address_const::<0>()
+}
+
+fn CLASS_HASH_ZERO() -> ClassHash {
+    class_hash_const::<0>()
 }
 
 fn CALLER() -> ContractAddress {
@@ -44,18 +48,32 @@ fn NEW_OWNER() -> ContractAddress {
     contract_address_const::<'NEW_OWNER'>()
 }
 
+fn OTHER() -> ContractAddress {
+    contract_address_const::<'OTHER'>()
+}
+
+fn OTHER_ADMIN() -> ContractAddress {
+    contract_address_const::<'OTHER_ADMIN'>()
+}
+
 fn SPENDER() -> ContractAddress {
-    contract_address_const::<2>()
+    contract_address_const::<'SPENDER'>()
 }
 
 fn RECIPIENT() -> ContractAddress {
     contract_address_const::<'RECIPIENT'>()
 }
 
-fn OTHER() -> ContractAddress {
-    contract_address_const::<'OTHER'>()
-}
-
 fn OPERATOR() -> ContractAddress {
     contract_address_const::<'OPERATOR'>()
+}
+
+fn DATA(success: bool) -> Span<felt252> {
+    let mut data = array![];
+    if success {
+        data.append(SUCCESS);
+    } else {
+        data.append(FAILURE);
+    }
+    data.span()
 }

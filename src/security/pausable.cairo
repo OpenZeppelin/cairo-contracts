@@ -4,7 +4,7 @@
 /// # Pausable Component
 ///
 /// The Pausable component allows the using contract to implement an
-/// emergency stop mechanism. Only functions that invoke `assert_paused`
+/// emergency stop mechanism. Only functions that call `assert_paused`
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::interface]
 trait IPausable<TState> {
@@ -65,19 +65,17 @@ mod Pausable {
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<ComponentState<TContractState>> {
-        /// Makes the invoking function callable only when the contract
-        /// is not paused.
+        /// Makes a function callable when the contract is not paused.
         fn assert_not_paused(self: @ComponentState<TContractState>) {
             assert(!self.Pausable_paused.read(), Errors::PAUSED);
         }
 
-        /// Makes the invoking function callable only when the contract
-        /// is paused.
+        /// Makes a function callable when the contract is paused.
         fn assert_paused(self: @ComponentState<TContractState>) {
             assert(self.Pausable_paused.read(), Errors::NOT_PAUSED);
         }
 
-        /// Triggers stopped state. The contract must not already be paused.
+        /// Triggers a stopped state. The contract must not already be paused.
         /// Emits a [Paused](Paused) event.
         fn _pause(ref self: ComponentState<TContractState>) {
             self.assert_not_paused();

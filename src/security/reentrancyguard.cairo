@@ -1,6 +1,10 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
-
+/// SPDX-License-Identifier: MIT
+/// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
+///
+/// # ReentrancyGuard Component
+///
+/// The ReentrancyGuard component helps prevent nested (reentrant) calls
+/// to a function.
 #[starknet::component]
 mod ReentrancyGuard {
     use starknet::get_caller_address;
@@ -22,11 +26,13 @@ mod ReentrancyGuard {
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<ComponentState<TContractState>> {
+        /// Prevents a contract from calling itself, directly or indirectly.
         fn start(ref self: ComponentState<TContractState>) {
             assert(!self.ReentrancyGuard_entered.read(), Errors::REENTRANT_CALL);
             self.ReentrancyGuard_entered.write(true);
         }
 
+        /// Removes the reentrant guard and allows a contract to call itself.
         fn end(ref self: ComponentState<TContractState>) {
             self.ReentrancyGuard_entered.write(false);
         }

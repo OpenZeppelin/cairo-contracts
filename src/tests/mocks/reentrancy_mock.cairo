@@ -17,14 +17,13 @@ trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 mod ReentrancyMock {
+    use openzeppelin::security::reentrancyguard::ReentrancyGuard as reentrancy_guard_comp;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
-
-    use openzeppelin::security::reentrancyguard::ReentrancyGuard as reentrancy_guard_comp;
 
     component!(path: reentrancy_guard_comp, storage: reentrancy_guard, event: ReentrancyGuardEvent);
     impl InternalImpl = reentrancy_guard_comp::InternalImpl<ContractState>;

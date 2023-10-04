@@ -21,8 +21,8 @@ use openzeppelin::token::erc721::ERC721::{
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::contract_address_const;
 use starknet::ContractAddress;
+use starknet::contract_address_const;
 use starknet::testing;
 
 //

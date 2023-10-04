@@ -204,14 +204,12 @@ mod Account {
         }
     }
 
-    #[internal]
     fn assert_only_self() {
         let caller = get_caller_address();
         let self = get_contract_address();
         assert(self == caller, Errors::UNAUTHORIZED);
     }
 
-    #[private]
     fn _execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
         let mut res = ArrayTrait::new();
         loop {
@@ -220,15 +218,12 @@ mod Account {
                     let _res = _execute_single_call(call);
                     res.append(_res);
                 },
-                Option::None(_) => {
-                    break ();
-                },
+                Option::None(_) => { break (); },
             };
         };
         res
     }
 
-    #[private]
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()

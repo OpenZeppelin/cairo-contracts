@@ -37,9 +37,10 @@ mod SRC5 {
         }
     }
 
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
         fn register_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             self.SRC5_supported_interfaces.write(interface_id, true);
         }
@@ -48,10 +49,5 @@ mod SRC5 {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
             self.SRC5_supported_interfaces.write(interface_id, false);
         }
-    }
-
-    trait InternalTrait<TContractState> {
-        fn register_interface(ref self: TContractState, interface_id: felt252);
-        fn deregister_interface(ref self: TContractState, interface_id: felt252);
     }
 }

@@ -76,7 +76,7 @@ mod Ownable {
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
-        /// Sets the contract's initial owner. This function should called at construction time.
+        /// Sets the contract's initial owner. This function should be called at construction time.
         fn initializer(ref self: ComponentState<TContractState>, owner: ContractAddress) {
             self._transfer_ownership(owner);
         }

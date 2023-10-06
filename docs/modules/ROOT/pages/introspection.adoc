@@ -35,24 +35,37 @@ extended function selectors. There are tools such as {src5-rs} that can help wit
 
 === Registering interfaces
 
-For a contract to declare its support for a given interface, the contract should import the SRC5 module and
-register its support. It's recommended to register interface support upon contract deployment through a constructor
-either directly or indirectly (as an initializer) like this:
+For a contract to declare its support for a given interface, we recommend using the the SRC5 component to do it upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyContract {
     use openzeppelin::account::interface;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
+
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl InternalImpl = src5_component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        src5: src5_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        SRC5Event: src5_component::Event
+    }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
-        let mut unsafe_state = SRC5::unsafe_new_contract_state();
-        SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
+        // Register the contract's support for the ISRC6 interface
+        self.src5.register_interface(interface::ISRC6_ID);
     }
 
     (...)
@@ -70,7 +83,6 @@ mod MyContract {
     use openzeppelin::account::interface;
     use openzeppelin::introspection::interface::ISRC5DispatcherTrait;
     use openzeppelin::introspection::interface::ISRC5Dispatcher;
-    use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;
 
     #[storage]

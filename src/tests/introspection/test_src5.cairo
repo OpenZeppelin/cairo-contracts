@@ -1,4 +1,4 @@
-use openzeppelin::introspection::interface::{ISRC5_ID, ISRC5, ISRC5Camel};
+use openzeppelin::introspection::interface::{ISRC5_ID, ISRC5};
 use openzeppelin::introspection::src5::SRC5::InternalTrait;
 use openzeppelin::tests::mocks::src5_mocks::DualCaseSRC5Mock;
 

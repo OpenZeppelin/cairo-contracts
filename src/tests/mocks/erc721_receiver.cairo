@@ -36,18 +36,6 @@ mod ERC721Receiver {
         self.src5.register_interface(IERC721_RECEIVER_ID);
     }
 
-    impl ISRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            self.src5.supports_interface(interface_id)
-        }
-    }
-
-    impl ISRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            self.src5.supportsInterface(interfaceId)
-        }
-    }
-
     impl ERC721ReceiverImpl of IERC721Receiver<ContractState> {
         fn on_erc721_received(
             self: @ContractState,

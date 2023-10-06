@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (introspection/src5.cairo)
-
+///
+/// # SRC5 Component
+///
+/// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
 mod SRC5 {
     use openzeppelin::introspection::interface;
@@ -18,6 +21,7 @@ mod SRC5 {
     impl SRC5<
         TContractState, +HasComponent<TContractState>
     > of interface::ISRC5<ComponentState<TContractState>> {
+        /// Returns whether the contract implements the given interface.
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
@@ -37,21 +41,19 @@ mod SRC5 {
         }
     }
 
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
+        /// Registers the given interface as supported by the contract.
         fn register_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             self.SRC5_supported_interfaces.write(interface_id, true);
         }
 
+        /// Deregisters the given interface as supported by the contract.
         fn deregister_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
             self.SRC5_supported_interfaces.write(interface_id, false);
         }
-    }
-
-    trait InternalTrait<TContractState> {
-        fn register_interface(ref self: TContractState, interface_id: felt252);
-        fn deregister_interface(ref self: TContractState, interface_id: felt252);
     }
 }

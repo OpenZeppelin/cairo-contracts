@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (introspection/src5.cairo)
-///
-/// # SRC5 Component
-///
-/// The SRC5 component allows contracts to expose the interfaces they implement.
+//!
+//! # SRC5 Component
+//!
+//! The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
 mod SRC5 {
     use openzeppelin::introspection::interface;

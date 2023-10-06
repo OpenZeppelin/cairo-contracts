@@ -18,11 +18,6 @@ mod ReentrancyGuard {
         const REENTRANT_CALL: felt252 = 'ReentrancyGuard: reentrant call';
     }
 
-    trait InternalTrait<TContractState> {
-        fn start(ref self: TContractState);
-        fn end(ref self: TContractState);
-    }
-
     #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>

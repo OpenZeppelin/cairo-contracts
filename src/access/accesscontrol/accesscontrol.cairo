@@ -141,12 +141,13 @@ mod AccessControl {
         }
     }
 
+    #[generate_trait]
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
             let mut src5_component = SRC5::HasComponent::<
@@ -188,13 +189,5 @@ mod AccessControl {
             self.AccessControl_role_admin.write(role, admin_role);
             self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
-    }
-
-    trait InternalTrait<TContractState> {
-        fn initializer(ref self: TContractState);
-        fn assert_only_role(self: @TContractState, role: felt252);
-        fn _grant_role(ref self: TContractState, role: felt252, account: ContractAddress);
-        fn _revoke_role(ref self: TContractState, role: felt252, account: ContractAddress);
-        fn _set_role_admin(ref self: TContractState, role: felt252, admin_role: felt252);
     }
 }

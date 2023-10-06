@@ -63,10 +63,12 @@ mod Ownable {
     impl OwnableCamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
+        /// camelCase support for `transfer_ownership`.
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
             self.transfer_ownership(newOwner);
         }
 
+        /// camelCase support for `renounce_ownership`.
         fn renounceOwnership(ref self: ComponentState<TContractState>) {
             self.renounce_ownership();
         }

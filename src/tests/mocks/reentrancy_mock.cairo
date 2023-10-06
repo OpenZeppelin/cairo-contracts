@@ -28,6 +28,7 @@ mod ReentrancyMock {
     component!(
         path: reentrancy_guard_component, storage: reentrancy_guard, event: ReentrancyGuardEvent
     );
+
     impl InternalImpl = reentrancy_guard_component::InternalImpl<ContractState>;
 
     #[storage]

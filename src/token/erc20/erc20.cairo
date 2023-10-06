@@ -7,11 +7,12 @@
 //! The library is agnostic regarding how tokens are created; however,
 //! the preset implementation sets the initial supply in the constructor.
 //! A derived contract can use [_mint](_mint) to create a different supply mechanism.
-#[starknet::contract]
+#[starknet::component]
 mod ERC20 {
     use integer::BoundedInt;
     use openzeppelin::token::erc20::interface::IERC20;
     use openzeppelin::token::erc20::interface::IERC20CamelOnly;
+    use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -61,48 +62,36 @@ mod ERC20 {
         const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
     }
 
-    /// Initializes the state of the ERC20 contract. This includes setting the
-    /// initial supply of tokens as well as the recipient of the initial supply.
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
-        initial_supply: u256,
-        recipient: ContractAddress
-    ) {
-        self.initializer(name, symbol);
-        self._mint(recipient, initial_supply);
-    }
-
     //
     // External
     //
 
-    #[external(v0)]
-    impl ERC20Impl of IERC20<ContractState> {
+    #[embeddable_as(ERC20Impl)]
+    impl ERC20<
+        TContractState, +HasComponent<TContractState>
+    > of IERC20<ComponentState<TContractState>> {
         /// Returns the name of the token.
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> felt252 {
             self.ERC20_name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
             self.ERC20_symbol.read()
         }
 
         /// Returns the number of decimals used to get its user representation.
-        fn decimals(self: @ContractState) -> u8 {
+        fn decimals(self: @ComponentState<TContractState>) -> u8 {
             18
         }
 
         /// Returns the value of tokens in existence.
-        fn total_supply(self: @ContractState) -> u256 {
+        fn total_supply(self: @ComponentState<TContractState>) -> u256 {
             self.ERC20_total_supply.read()
         }
 
         /// Returns the amount of tokens owned by `account`.
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+        fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             self.ERC20_balances.read(account)
         }
 
@@ -112,14 +101,14 @@ mod ERC20 {
         /// This value changes when [approve](approve) or [transfer_from](transfer_from)
         /// are called.
         fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
             self.ERC20_allowances.read((owner, spender))
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
         /// Emits a [Transfer](Transfer) event.
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        fn transfer(ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256) -> bool {
             let sender = get_caller_address();
             self._transfer(sender, recipient, amount);
             true
@@ -129,7 +118,7 @@ mod ERC20 {
         /// `amount` is then deducted from the caller's allowance.
         /// Emits a [Transfer](Transfer) event.
         fn transfer_from(
-            ref self: ContractState,
+            ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
             amount: u256
@@ -141,84 +130,117 @@ mod ERC20 {
         }
 
         /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
-        fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+        fn approve(ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);
             true
         }
     }
 
-    /// Increases the allowance granted from the caller to `spender` by `added_value`.
-    /// Emits an [Approval](Approval) event indicating the updated allowance.
-    #[external(v0)]
-    fn increase_allowance(
-        ref self: ContractState, spender: ContractAddress, added_value: u256
-    ) -> bool {
-        self._increase_allowance(spender, added_value)
+    #[embeddable_as(ERC20NonStandardImpl)]
+    impl ERC20NonStandard<
+        TContractState, +HasComponent<TContractState>
+    > of interface::ERC20NonStandard<ComponentState<TContractState>> {
+        /// Increases the allowance granted from the caller to `spender` by `added_value`.
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        fn increase_allowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
+        ) -> bool {
+            self._increase_allowance(spender, added_value)
+        }
+
+        /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        fn decrease_allowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, subtracted_value: u256
+        ) -> bool {
+            self._decrease_allowance(spender, subtracted_value)
+        }
     }
 
-    /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
-    /// Emits an [Approval](Approval) event indicating the updated allowance.
-    #[external(v0)]
-    fn decrease_allowance(
-        ref self: ContractState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool {
-        self._decrease_allowance(spender, subtracted_value)
-    }
-
-    #[external(v0)]
-    impl ERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
+    #[embeddable_as(ERC20CamelOnlyImpl)]
+    impl ERC20CamelOnly<
+        TContractState, +HasComponent<TContractState>
+    > of IERC20CamelOnly<ComponentState<TContractState>> {
         /// Camel case support.
         /// See [total_supply](total-supply).
-        fn totalSupply(self: @ContractState) -> u256 {
-            ERC20Impl::total_supply(self)
+        fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
+            self.total_supply()
         }
 
         /// Camel case support.
         /// See [balance_of](balance_of).
-        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
-            ERC20Impl::balance_of(self, account)
+        fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
+            self.balance_of(account)
         }
 
         /// Camel case support.
         /// See [transfer_from](transfer_from).
         fn transferFrom(
-            ref self: ContractState,
+            ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            ERC20Impl::transfer_from(ref self, sender, recipient, amount)
+            self.transfer_from(sender, recipient, amount)
         }
     }
 
-    /// Camel case support.
-    /// See [increase_allowance](increase_allowance).
-    #[external(v0)]
-    fn increaseAllowance(
-        ref self: ContractState, spender: ContractAddress, addedValue: u256
-    ) -> bool {
-        increase_allowance(ref self, spender, addedValue)
-    }
+    #[embeddable_as(ERC20CamelNonStandardImpl)]
+    impl ERC20CamelNonStandard<
+        TContractState, +HasComponent<TContractState>
+    > of interface::ERC20CamelNonStandard<ComponentState<TContractState>> {
+        /// Increases the allowance granted from the caller to `spender` by `added_value`.
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        fn increaseAllowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
+        ) -> bool {
+            self._increase_allowance(spender, addedValue)
+        }
 
-    /// Camel case support.
-    /// See [decrease_allowance](decrease_allowance).
-    #[external(v0)]
-    fn decreaseAllowance(
-        ref self: ContractState, spender: ContractAddress, subtractedValue: u256
-    ) -> bool {
-        decrease_allowance(ref self, spender, subtractedValue)
+        /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
+        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        fn decreaseAllowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, subtractedValue: u256
+        ) -> bool {
+            self._decrease_allowance(spender, subtractedValue)
+        }
     }
 
     //
     // Internal
     //
 
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
+    trait InternalTrait<TContractState> {
+        fn initializer(ref self: TContractState, name: felt252, symbol: felt252);
+        fn _transfer(
+            ref self: TContractState,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        );
+        fn _approve(
+            ref self: TContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+        );
+        fn _mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
+        fn _burn(ref self: TContractState, account: ContractAddress, amount: u256);
+        fn _increase_allowance(
+            ref self: TContractState, spender: ContractAddress, added_value: u256
+        ) -> bool;
+        fn _decrease_allowance(
+            ref self: TContractState, spender: ContractAddress, subtracted_value: u256
+        ) -> bool;
+        fn _spend_allowance(
+            ref self: TContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+        );
+    }
+
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>
+    > of InternalTrait<ComponentState<TContractState>> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
         }
@@ -226,7 +248,7 @@ mod ERC20 {
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
         /// Emits a [Transfer](Transfer) event.
         fn _transfer(
-            ref self: ContractState,
+            ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
             amount: u256
@@ -242,7 +264,7 @@ mod ERC20 {
         /// `owner`s tokens.
         /// Emits an [Approval](Approval) event.
         fn _approve(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {
             assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
             assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
@@ -252,7 +274,7 @@ mod ERC20 {
 
         /// Creates a `value` amount of tokens and assigns them to `account`.
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
-        fn _mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+        fn _mint(ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
             self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
             self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
@@ -261,7 +283,7 @@ mod ERC20 {
 
         /// Destroys a `value` amount of tokens from `account`.
         /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
-        fn _burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+        fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
             self.ERC20_balances.write(account, self.ERC20_balances.read(account) - amount);
@@ -271,7 +293,7 @@ mod ERC20 {
         /// Internal method for the external [increase_allowance](increase_allowance).
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn _increase_allowance(
-            ref self: ContractState, spender: ContractAddress, added_value: u256
+            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
         ) -> bool {
             let caller = get_caller_address();
             self
@@ -284,7 +306,7 @@ mod ERC20 {
         /// Internal method for the external [decrease_allowance](decrease_allowance).
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn _decrease_allowance(
-            ref self: ContractState, spender: ContractAddress, subtracted_value: u256
+            ref self: ComponentState<TContractState>, spender: ContractAddress, subtracted_value: u256
         ) -> bool {
             let caller = get_caller_address();
             self
@@ -300,7 +322,7 @@ mod ERC20 {
         /// Does not update the allowance value in case of infinite allowance.
         /// Possibly emits an [Approval](Approval) event.
         fn _spend_allowance(
-            ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress, amount: u256
         ) {
             let current_allowance = self.ERC20_allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {

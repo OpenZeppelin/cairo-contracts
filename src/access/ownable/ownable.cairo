@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (access/ownable/ownable.cairo)
-
+//
+// # Ownable Component
+//
+// The Ownable component provides basic authorization control functions from a single owner.
 #[starknet::component]
 mod Ownable {
     use openzeppelin::access::ownable::interface;
@@ -34,10 +37,12 @@ mod Ownable {
     impl Ownable<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnable<ComponentState<TContractState>> {
+        /// Returns the address of the current owner.
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Ownable_owner.read()
         }
 
+        /// Transfers ownership of the contract to a new address.
         fn transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
@@ -46,6 +51,8 @@ mod Ownable {
             self._transfer_ownership(new_owner);
         }
 
+        /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
+        /// functions anymore. Can only be called by the current owner.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
             self.assert_only_owner();
             self._transfer_ownership(Zeroable::zero());
@@ -65,13 +72,17 @@ mod Ownable {
         }
     }
 
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
+        /// Sets the contract's initial owner. This function should called at construction time.
         fn initializer(ref self: ComponentState<TContractState>, owner: ContractAddress) {
             self._transfer_ownership(owner);
         }
 
+        /// Panics if called by any account other than the owner. Use this
+        /// to restrict access to certain functions to the owner.
         fn assert_only_owner(self: @ComponentState<TContractState>) {
             let owner: ContractAddress = self.Ownable_owner.read();
             let caller: ContractAddress = get_caller_address();
@@ -79,6 +90,8 @@ mod Ownable {
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
+        /// Internal function that transfers ownership of the contract to a new address.
+        /// It doesn't assert the caller.
         fn _transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
@@ -89,11 +102,5 @@ mod Ownable {
                     OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
                 );
         }
-    }
-
-    trait InternalTrait<TContractState> {
-        fn initializer(ref self: TContractState, owner: ContractAddress);
-        fn assert_only_owner(self: @TContractState);
-        fn _transfer_ownership(ref self: TContractState, new_owner: ContractAddress);
     }
 }

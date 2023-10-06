@@ -1,10 +1,7 @@
-use openzeppelin::access::ownable::Ownable;
-
 #[starknet::contract]
 mod DualCaseOwnableMock {
     use openzeppelin::access::ownable::Ownable as ownable_component;
     use starknet::ContractAddress;
-    use super::Ownable;
 
     component!(path: ownable_component, storage: ownable, event: OwnableEvent);
 
@@ -37,7 +34,6 @@ mod DualCaseOwnableMock {
 mod SnakeOwnableMock {
     use openzeppelin::access::ownable::Ownable as ownable_component;
     use starknet::ContractAddress;
-    use super::Ownable;
 
     component!(path: ownable_component, storage: ownable, event: OwnableEvent);
 
@@ -67,7 +63,6 @@ mod SnakeOwnableMock {
 mod CamelOwnableMock {
     use openzeppelin::access::ownable::Ownable as ownable_component;
     use starknet::ContractAddress;
-    use super::Ownable;
 
     component!(path: ownable_component, storage: ownable, event: OwnableEvent);
 

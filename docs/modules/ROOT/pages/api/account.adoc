@@ -102,7 +102,7 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
 
-.camelcase-support
+.camelCase-support
 
 * xref:#Account-isValidSignature[`++isValidSignature(self, hash, signature)++`]
 * xref:#Account-supportsInterface[`++supportsInterface(self, interfaceId)++`]

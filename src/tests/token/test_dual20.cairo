@@ -1,8 +1,8 @@
-use openzeppelin::tests::mocks::camel20_mock::CamelERC20Mock;
-use openzeppelin::tests::mocks::erc20_panic::CamelERC20Panic;
-use openzeppelin::tests::mocks::erc20_panic::SnakeERC20Panic;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::snake20_mock::SnakeERC20Mock;
+use openzeppelin::tests::mocks::erc20_mocks::CamelERC20Mock;
+use openzeppelin::tests::mocks::erc20_mocks::CamelERC20Panic;
+use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Panic;
+use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
 use openzeppelin::tests::utils::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };

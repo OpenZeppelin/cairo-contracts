@@ -1,5 +1,8 @@
 name: contracts-cairo
 title: Contracts for Cairo
-version: 0.6.1
+version: 0.7.0
 nav:
   - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    page-sidebar-collapse-default: true

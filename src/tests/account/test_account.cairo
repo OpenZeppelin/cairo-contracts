@@ -10,7 +10,7 @@ use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils::constants::ZERO;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20;
+use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20;
 use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
@@ -87,7 +87,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
-    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
+    let address = utils::deploy(DualCaseERC20::TEST_CLASS_HASH, calldata);
     IERC20Dispatcher { contract_address: address }
 }
 

@@ -21,7 +21,9 @@ trait IERC20<TState> {
 #[starknet::interface]
 trait ERC20NonStandard<TState> {
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
-    fn decrease_allowance(ref self: TState, spender: ContractAddress, subtracted_value: u256) -> bool;
+    fn decrease_allowance(
+        ref self: TState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool;
 }
 
 #[starknet::interface]

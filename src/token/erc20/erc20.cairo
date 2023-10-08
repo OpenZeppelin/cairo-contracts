@@ -108,7 +108,9 @@ mod ERC20 {
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
         /// Emits a [Transfer](Transfer) event.
-        fn transfer(ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256) -> bool {
+        fn transfer(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) -> bool {
             let sender = get_caller_address();
             self._transfer(sender, recipient, amount);
             true
@@ -130,7 +132,9 @@ mod ERC20 {
         }
 
         /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
-        fn approve(ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256) -> bool {
+        fn approve(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+        ) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);
             true
@@ -152,7 +156,9 @@ mod ERC20 {
         /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn decrease_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, subtracted_value: u256
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtracted_value: u256
         ) -> bool {
             self._decrease_allowance(spender, subtracted_value)
         }
@@ -201,7 +207,9 @@ mod ERC20 {
         /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn decreaseAllowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, subtractedValue: u256
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtractedValue: u256
         ) -> bool {
             self._decrease_allowance(spender, subtractedValue)
         }
@@ -264,7 +272,10 @@ mod ERC20 {
         /// `owner`s tokens.
         /// Emits an [Approval](Approval) event.
         fn _approve(
-            ref self: ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            amount: u256
         ) {
             assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
             assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
@@ -274,7 +285,9 @@ mod ERC20 {
 
         /// Creates a `value` amount of tokens and assigns them to `account`.
         /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
-        fn _mint(ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256) {
+        fn _mint(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
             self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
             self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
@@ -306,7 +319,9 @@ mod ERC20 {
         /// Internal method for the external [decrease_allowance](decrease_allowance).
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn _decrease_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, subtracted_value: u256
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtracted_value: u256
         ) -> bool {
             let caller = get_caller_address();
             self
@@ -322,7 +337,10 @@ mod ERC20 {
         /// Does not update the allowance value in case of infinite allowance.
         /// Possibly emits an [Approval](Approval) event.
         fn _spend_allowance(
-            ref self: ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            amount: u256
         ) {
             let current_allowance = self.ERC20_allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {

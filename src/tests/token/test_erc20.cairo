@@ -1,13 +1,14 @@
 use integer::BoundedInt;
+use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20::Approval;
+use openzeppelin::token::erc20::ERC20::ERC20CamelNonStandardImpl;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
 use openzeppelin::token::erc20::ERC20::ERC20NonStandardImpl;
-use openzeppelin::token::erc20::ERC20::ERC20CamelNonStandardImpl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
 use openzeppelin::token::erc20::ERC20::Transfer;
 use openzeppelin::token::erc20::ERC20;
@@ -15,7 +16,6 @@ use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20;
 
 //
 // Setup
@@ -122,9 +122,7 @@ fn test_approve() {
     assert(state.erc20.approve(SPENDER(), VALUE), 'Should return true');
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE);
-    assert(
-        state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
-    );
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly');
 }
 
 #[test]
@@ -152,9 +150,7 @@ fn test__approve() {
     state.erc20._approve(OWNER(), SPENDER(), VALUE);
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE);
-    assert(
-        state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly'
-    );
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly');
 }
 
 #[test]
@@ -313,18 +309,13 @@ fn test_transferFrom() {
     utils::drop_event(ZERO());
 
     testing::set_caller_address(SPENDER());
-    assert(
-        state.erc20.transferFrom(OWNER(), RECIPIENT(), VALUE),
-        'Should return true'
-    );
+    assert(state.erc20.transferFrom(OWNER(), RECIPIENT(), VALUE), 'Should return true');
 
     assert_event_approval(OWNER(), SPENDER(), 0);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(state.erc20.balanceOf(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(
-        state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount'
-    );
+    assert(state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
     assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(state.erc20.totalSupply() == SUPPLY, 'Total supply should not change');
 }
@@ -526,8 +517,7 @@ fn test__spend_allowance_not_unlimited() {
 
     assert_only_event_approval(OWNER(), SPENDER(), SUPPLY - VALUE);
     assert(
-        state.erc20.allowance(OWNER(), SPENDER()) == SUPPLY - VALUE,
-        'Should eq supply - amount'
+        state.erc20.allowance(OWNER(), SPENDER()) == SUPPLY - VALUE, 'Should eq supply - amount'
     );
 }
 

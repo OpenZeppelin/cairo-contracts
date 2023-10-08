@@ -12,7 +12,8 @@ mod DualCaseERC20 {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = erc20_comp::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelNonStandardImpl = erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
+    impl ERC20CamelNonStandardImpl =
+        erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
     impl InternalImpl = erc20_comp::InternalImpl<ContractState>;
 
     #[storage]
@@ -90,7 +91,8 @@ mod CamelERC20Mock {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = erc20_comp::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelNonStandardImpl = erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
+    impl ERC20CamelNonStandardImpl =
+        erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
     impl InternalImpl = erc20_comp::InternalImpl<ContractState>;
 
     #[storage]

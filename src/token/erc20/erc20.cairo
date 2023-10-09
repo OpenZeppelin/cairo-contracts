@@ -219,33 +219,10 @@ mod ERC20 {
     // Internal
     //
 
-    trait InternalTrait<TContractState> {
-        fn initializer(ref self: TContractState, name: felt252, symbol: felt252);
-        fn _transfer(
-            ref self: TContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        );
-        fn _approve(
-            ref self: TContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        );
-        fn _mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
-        fn _burn(ref self: TContractState, account: ContractAddress, amount: u256);
-        fn _increase_allowance(
-            ref self: TContractState, spender: ContractAddress, added_value: u256
-        ) -> bool;
-        fn _decrease_allowance(
-            ref self: TContractState, spender: ContractAddress, subtracted_value: u256
-        ) -> bool;
-        fn _spend_allowance(
-            ref self: TContractState, owner: ContractAddress, spender: ContractAddress, amount: u256
-        );
-    }
-
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {

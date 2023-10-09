@@ -11,6 +11,12 @@ trait PublicKeyCamelTrait<TState> {
     fn getPublicKey(self: @TState) -> felt252;
 }
 
+trait DeployerTrait<TState> {
+    fn __validate_deploy__(
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+    ) -> felt252;
+}
+
 #[starknet::contract]
 mod Account {
     use ecdsa::check_ecdsa_signature;
@@ -115,13 +121,15 @@ mod Account {
     }
 
     #[external(v0)]
-    fn __validate_deploy__(
-        self: @ContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
-    ) -> felt252 {
-        self.validate_transaction()
+    impl DeployerImpl of super::DeployerTrait<ContractState> {
+        fn __validate_deploy__(
+            self: @ContractState,
+            class_hash: felt252,
+            contract_address_salt: felt252,
+            _public_key: felt252
+        ) -> felt252 {
+            self.validate_transaction()
+        }
     }
 
     #[external(v0)]

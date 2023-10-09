@@ -97,17 +97,27 @@ Account contract implementation extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
-.Non-standard
-* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
-* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
-* xref:#Account-get_public_key[`++get_public_key(self)++`]
+.DeployerImpl
 
-.camelCase-support
+* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
+
+.PublicKeyImpl
+
+* xref:#Account-get_public_key[`++get_public_key(self)++`]
+* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
+
+.SRC6CamelOnlyImpl
 
 * xref:#Account-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+
+.SRC5CamelImpl
+
 * xref:#Account-supportsInterface[`++supportsInterface(self, interfaceId)++`]
-* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+
+.PublicKeyCamelImpl
+
 * xref:#Account-getPublicKey[`++getPublicKey(self)++`]
+* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
 --
 
 [.contract-index]
@@ -185,18 +195,18 @@ See xref:/guides/deployment.adoc[Counterfactual deployments].
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
+[[Account-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+
+Returns the current public key of the account.
+
+[.contract-item]
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
 Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
-
-[.contract-item]
-[[Account-get_public_key]]
-==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
-
-Returns the current public key of the account.
 
 [.contract-item]
 [[Account-isValidSignature]]
@@ -215,18 +225,18 @@ See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interfa
 Supports the Cairo v0 convention of writing external methods in camelCase as mentioned in {dual-interfaces}.
 
 [.contract-item]
-[[Account-setPublicKey]]
-==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
-
-See xref:Account-set_public_key[Account::set_public_key].
-
-Supports the Cairo v0 convention of writing external methods in camelCase as mentioned in {dual-interfaces}.
-
-[.contract-item]
 [[Account-getPublicKey]]
 ==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 See xref:Account-get_public_key[Account::get_public_key].
+
+Supports the Cairo v0 convention of writing external methods in camelCase as mentioned in {dual-interfaces}.
+
+[.contract-item]
+[[Account-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
+
+See xref:Account-set_public_key[Account::set_public_key].
 
 Supports the Cairo v0 convention of writing external methods in camelCase as mentioned in {dual-interfaces}.
 

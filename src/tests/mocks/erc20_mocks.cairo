@@ -1,31 +1,32 @@
 #[starknet::contract]
 mod DualCaseERC20 {
-    use openzeppelin::token::erc20::ERC20 as erc20_comp;
+    use openzeppelin::token::erc20::ERC20 as erc20_component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_comp, storage: erc20, event: ERC20Event);
+    component!(path: erc20_component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_comp::ERC20Impl<ContractState>;
+    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20NonStandardImpl = erc20_comp::ERC20NonStandardImpl<ContractState>;
+    impl ERC20NonStandardImpl =
+        erc20_component::ERC20NonStandardImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = erc20_comp::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelNonStandardImpl =
-        erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
-    impl InternalImpl = erc20_comp::InternalImpl<ContractState>;
+        erc20_component::ERC20CamelNonStandardImpl<ContractState>;
+    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_comp::Storage
+        erc20: erc20_component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ERC20Event: erc20_comp::Event
+        ERC20Event: erc20_component::Event
     }
 
     #[constructor]
@@ -43,27 +44,28 @@ mod DualCaseERC20 {
 
 #[starknet::contract]
 mod SnakeERC20Mock {
-    use openzeppelin::token::erc20::ERC20 as erc20_comp;
+    use openzeppelin::token::erc20::ERC20 as erc20_component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_comp, storage: erc20, event: ERC20Event);
+    component!(path: erc20_component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_comp::ERC20Impl<ContractState>;
+    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20NonStandardImpl = erc20_comp::ERC20NonStandardImpl<ContractState>;
-    impl InternalImpl = erc20_comp::InternalImpl<ContractState>;
+    impl ERC20NonStandardImpl =
+        erc20_component::ERC20NonStandardImpl<ContractState>;
+    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_comp::Storage
+        erc20: erc20_component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ERC20Event: erc20_comp::Event
+        ERC20Event: erc20_component::Event
     }
 
     #[constructor]
@@ -81,30 +83,30 @@ mod SnakeERC20Mock {
 
 #[starknet::contract]
 mod CamelERC20Mock {
-    use openzeppelin::token::erc20::ERC20 as erc20_comp;
+    use openzeppelin::token::erc20::ERC20 as erc20_component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_comp, storage: erc20, event: ERC20Event);
+    component!(path: erc20_component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_comp::ERC20Impl<ContractState>;
+    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = erc20_comp::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelNonStandardImpl =
-        erc20_comp::ERC20CamelNonStandardImpl<ContractState>;
-    impl InternalImpl = erc20_comp::InternalImpl<ContractState>;
+        erc20_component::ERC20CamelNonStandardImpl<ContractState>;
+    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_comp::Storage
+        erc20: erc20_component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ERC20Event: erc20_comp::Event
+        ERC20Event: erc20_component::Event
     }
 
     #[constructor]

@@ -3,6 +3,7 @@ mod InitializableMock {
     use openzeppelin::security::initializable::Initializable as initializable_component;
 
     component!(path: initializable_component, storage: initializable, event: InitializableEvent);
+
     impl InternalImpl = initializable_component::InternalImpl<ContractState>;
 
     #[storage]

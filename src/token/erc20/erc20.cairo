@@ -1,12 +1,12 @@
-//! SPDX-License-Identifier: MIT
-//! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
-//!
-//! # ERC20 Contract and Implementation
-//!
-//! This ERC20 contract includes both a library and a basic preset implementation.
-//! The library is agnostic regarding how tokens are created; however,
-//! the preset implementation sets the initial supply in the constructor.
-//! A derived contract can use [_mint](_mint) to create a different supply mechanism.
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
+
+/// # ERC20 Contract and Implementation
+///
+/// This ERC20 contract includes both a library and a basic preset implementation.
+/// The library is agnostic regarding how tokens are created; however,
+/// the preset implementation sets the initial supply in the constructor.
+/// A derived contract can use [_mint](_mint) to create a different supply mechanism.
 #[starknet::contract]
 mod ERC20 {
     use integer::BoundedInt;

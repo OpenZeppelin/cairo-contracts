@@ -22,13 +22,13 @@ mod ReentrancyGuard {
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
-        /// Prevents a contract from calling itself, directly or indirectly.
+        /// Prevents a contract's function from calling itself or another protected function, directly or indirectly.
         fn start(ref self: ComponentState<TContractState>) {
             assert(!self.ReentrancyGuard_entered.read(), Errors::REENTRANT_CALL);
             self.ReentrancyGuard_entered.write(true);
         }
 
-        /// Removes the reentrant guard and allows a contract to call itself.
+        /// Removes the reentrant guard.
         fn end(ref self: ComponentState<TContractState>) {
             self.ReentrancyGuard_entered.write(false);
         }

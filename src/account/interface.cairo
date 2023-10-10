@@ -24,6 +24,13 @@ trait IDeclarer<TState> {
 }
 
 #[starknet::interface]
+trait IDeployable<TState> {
+    fn __validate_deploy__(
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+    ) -> felt252;
+}
+
+#[starknet::interface]
 trait AccountABI<TState> {
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;

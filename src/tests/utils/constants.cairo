@@ -13,6 +13,8 @@ const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 const URI: felt252 = 'URI';
 const TOKEN_ID: u256 = 21;
 const PUBKEY: felt252 = 'PUBKEY';
+const NEW_PUBKEY: felt252 = 'NEW_PUBKEY';
+const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
 

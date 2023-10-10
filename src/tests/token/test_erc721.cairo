@@ -1,12 +1,11 @@
 use ERC721::ERC721_owners::InternalContractMemberStateTrait as OwnersTrait;
 use ERC721::ERC721_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
-use integer::u256;
-use integer::u256_from_felt252;
+use integer::{u256, u256_from_felt252};
 use openzeppelin::account::Account;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
+use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
@@ -51,7 +50,7 @@ fn setup_camel_receiver() -> ContractAddress {
 
 fn setup_account() -> ContractAddress {
     let mut calldata = array![PUBKEY];
-    utils::deploy(Account::TEST_CLASS_HASH, calldata)
+    utils::deploy(DualCaseAccountMock::TEST_CLASS_HASH, calldata)
 }
 
 fn setup_camel_account() -> ContractAddress {

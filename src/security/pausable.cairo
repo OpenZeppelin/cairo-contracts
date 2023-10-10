@@ -55,16 +55,10 @@ mod Pausable {
         }
     }
 
-    trait InternalTrait<TContractState> {
-        fn assert_not_paused(self: @TContractState);
-        fn assert_paused(self: @TContractState);
-        fn _pause(ref self: TContractState);
-        fn _unpause(ref self: TContractState);
-    }
-
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
         /// Makes a function only callable when the contract is not paused.
         fn assert_not_paused(self: @ComponentState<TContractState>) {
             assert(!self.Pausable_paused.read(), Errors::PAUSED);

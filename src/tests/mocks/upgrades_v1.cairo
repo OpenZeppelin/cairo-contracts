@@ -20,11 +20,10 @@ trait UpgradesV1Trait<TState> {
 
 #[starknet::contract]
 mod UpgradesV1 {
-    use array::ArrayTrait;
-    use starknet::ClassHash;
-    use starknet::ContractAddress;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use openzeppelin::upgrades::upgradeable::Upgradeable;
+    use starknet::ClassHash;
+    use starknet::ContractAddress;
 
     #[storage]
     struct Storage {

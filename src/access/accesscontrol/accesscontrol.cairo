@@ -4,17 +4,24 @@
 #[starknet::contract]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::interface::ISRC5Camel;
-    use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::introspection::src5::unsafe_state as src5_state;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5CamelImpl = src5_component::SRC5CamelImpl<ContractState>;
+    impl SRC5InternalImpl = src5_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         AccessControl_role_admin: LegacyMap<felt252, felt252>,
         AccessControl_role_member: LegacyMap<(felt252, ContractAddress), bool>,
+        #[substorage(v0)]
+        src5: src5_component::Storage
     }
 
     #[event]
@@ -23,6 +30,7 @@ mod AccessControl {
         RoleGranted: RoleGranted,
         RoleRevoked: RoleRevoked,
         RoleAdminChanged: RoleAdminChanged,
+        SRC5Event: src5_component::Event
     }
 
     /// Emitted when `account` is granted `role`.
@@ -62,20 +70,6 @@ mod AccessControl {
     mod Errors {
         const INVALID_CALLER: felt252 = 'Can only renounce role for self';
         const MISSING_ROLE: felt252 = 'Caller is missing role';
-    }
-
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
-        }
     }
 
     #[external(v0)]
@@ -137,8 +131,7 @@ mod AccessControl {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState) {
-            let mut unsafe_state = src5_state();
-            SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IACCESSCONTROL_ID);
+            self.src5.register_interface(interface::IACCESSCONTROL_ID);
         }
 
         fn assert_only_role(self: @ContractState, role: felt252) {

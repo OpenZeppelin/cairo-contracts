@@ -37,16 +37,18 @@ trait ERC20ABI {
     ) -> bool;
     fn approve(spender: ContractAddress, amount: u256) -> bool;
 
-    // Non-standard
+    // ERC20SafeAllowance
     fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
 
-    // Camel case compatibility
+    // IERC20Camel
     fn totalSupply() -> u256;
     fn balanceOf(account: ContractAddress) -> u256;
     fn transferFrom(
         sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
+
+    // ERC20CamelSafeAllowance
     fn increaseAllowance(spender: ContractAddress, addedValue: u256) -> bool;
     fn decreaseAllowance(spender: ContractAddress, subtractedValue: u256) -> bool;
 }

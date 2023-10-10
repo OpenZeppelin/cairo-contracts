@@ -69,8 +69,8 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 * xref:#SRC5-deregister_interface[`++deregister_interface(self, interface_id)++`]
 --
 
-[#SRC5-Embeddable-Implementations-Functions]
-==== Embeddable Implementations Functions
+[#SRC5-Embeddable-Functions]
+==== Embeddable Functions
 
 [.contract-item]
 [[SRC5-supports_interface]]

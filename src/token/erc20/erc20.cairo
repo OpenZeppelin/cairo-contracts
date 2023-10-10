@@ -70,21 +70,6 @@ mod ERC20 {
     impl ERC20<
         TContractState, +HasComponent<TContractState>
     > of interface::IERC20<ComponentState<TContractState>> {
-        /// Returns the name of the token.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
-            self.ERC20_name.read()
-        }
-
-        /// Returns the ticker symbol of the token, usually a shorter version of the name.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
-            self.ERC20_symbol.read()
-        }
-
-        /// Returns the number of decimals used to get its user representation.
-        fn decimals(self: @ComponentState<TContractState>) -> u8 {
-            18
-        }
-
         /// Returns the value of tokens in existence.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
             self.ERC20_total_supply.read()
@@ -138,6 +123,26 @@ mod ERC20 {
             let caller = get_caller_address();
             self._approve(caller, spender, amount);
             true
+        }
+    }
+
+    #[embeddable_as(ERC20MetadataImpl)]
+    impl ERC20Metadata<
+        TContractState, +HasComponent<TContractState>
+    > of interface::IERC20Metadata<ComponentState<TContractState>> {
+        /// Returns the name of the token.
+        fn name(self: @ComponentState<TContractState>) -> felt252 {
+            self.ERC20_name.read()
+        }
+
+        /// Returns the ticker symbol of the token, usually a shorter version of the name.
+        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+            self.ERC20_symbol.read()
+        }
+
+        /// Returns the number of decimals used to get its user representation.
+        fn decimals(self: @ComponentState<TContractState>) -> u8 {
+            18
         }
     }
 

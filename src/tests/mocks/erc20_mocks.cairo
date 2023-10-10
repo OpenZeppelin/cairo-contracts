@@ -8,6 +8,8 @@ mod DualCaseERC20 {
     #[abi(embed_v0)]
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
+    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
     impl ERC20SafeAllowanceImpl =
         erc20_component::ERC20SafeAllowanceImpl<ContractState>;
     #[abi(embed_v0)]
@@ -52,6 +54,8 @@ mod SnakeERC20Mock {
     #[abi(embed_v0)]
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
+    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
     impl ERC20SafeAllowanceImpl =
         erc20_component::ERC20SafeAllowanceImpl<ContractState>;
     impl InternalImpl = erc20_component::InternalImpl<ContractState>;
@@ -90,6 +94,8 @@ mod CamelERC20Mock {
 
     #[abi(embed_v0)]
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]

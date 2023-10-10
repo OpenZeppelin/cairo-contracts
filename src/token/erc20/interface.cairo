@@ -5,9 +5,6 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 trait IERC20<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn decimals(self: @TState) -> u8;
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -16,6 +13,13 @@ trait IERC20<TState> {
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+}
+
+#[starknet::interface]
+trait IERC20Metadata<TState> {
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
+    fn decimals(self: @TState) -> u8;
 }
 
 #[starknet::interface]
@@ -59,9 +63,6 @@ trait ERC20CamelSafeAllowance<TState> {
 #[starknet::interface]
 trait ERC20ABI<TState> {
     // IERC20
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn decimals(self: @TState) -> u8;
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -70,6 +71,11 @@ trait ERC20ABI<TState> {
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+
+    // IERC20Metadata
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
+    fn decimals(self: @TState) -> u8;
 
     // ERC20SafeAllowance
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;

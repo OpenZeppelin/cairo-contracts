@@ -8,6 +8,7 @@ use openzeppelin::token::erc20::ERC20::Approval;
 use openzeppelin::token::erc20::ERC20::ERC20CamelSafeAllowanceImpl;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
+use openzeppelin::token::erc20::ERC20::ERC20MetadataImpl;
 use openzeppelin::token::erc20::ERC20::ERC20SafeAllowanceImpl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
 use openzeppelin::token::erc20::ERC20::Transfer;

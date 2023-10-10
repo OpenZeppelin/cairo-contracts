@@ -60,11 +60,11 @@ trait ERC20ABI {
 :solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
 :dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
 
-Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC20 standard.
+Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC20 standard.
 Some notable differences, however, can still be found, such as:
 
 * Cairo short strings are used to simulate `name` and `symbol` because Cairo does not yet include native string support.
-* The contract offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
+* The component offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
 * Function selectors are calculated differently between {cairo-selectors} and {solidity-selectors}.
 

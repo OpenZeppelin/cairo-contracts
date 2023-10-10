@@ -158,7 +158,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 --
 
 [.contract-index]
-.External functions
+.Embeddable functions
 --
 .ERC20Impl
 * xref:#ERC20-name[`++name(self)++`]
@@ -171,7 +171,7 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20-approve[`++approve(self, spender, amount)++`]
 
-.Non-standard
+.ERC20SafeAllowanceImpl
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 
@@ -179,6 +179,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
+
+.ERC20CamelSafeAllowance
 * xref:#ERC20-increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
 * xref:#ERC20-decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
 --
@@ -216,8 +218,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 Sets both the token name and symbol and mints `initial_supply` to `recipient`.
 Note that the token name and symbol are immutable once set through the constructor.
 
-[#ERC20-External-functions]
-==== External functions
+[#ERC20-Embeddable-functions]
+==== Embeddable functions
 
 [.contract-item]
 [[ERC20-name]]

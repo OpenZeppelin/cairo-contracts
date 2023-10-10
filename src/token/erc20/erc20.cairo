@@ -1,17 +1,17 @@
-//! SPDX-License-Identifier: MIT
-//! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
-//!
-//! # ERC20 Contract and Implementation
-//!
-//! This ERC20 contract includes both a library and a basic preset implementation.
-//! The library is agnostic regarding how tokens are created; however,
-//! the preset implementation sets the initial supply in the constructor.
-//! A derived contract can use [_mint](_mint) to create a different supply mechanism.
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/erc20.cairo)
+
+/// # ERC20 Component
+///
+/// The ERC20 component provides an implementation of the IERC20 interface as well as
+/// non-standard implementations that can be used to create an ERC20 contract. This
+/// component is agnostic regarding how tokens are created, which means that developers
+/// must create their own token distribution mechanism.
+/// See https://docs.openzeppelin.com/contracts-cairo/0.7.0/guides/erc20-supply[the documentation]
+/// for examples.
 #[starknet::component]
 mod ERC20 {
     use integer::BoundedInt;
-    use openzeppelin::token::erc20::interface::IERC20;
-    use openzeppelin::token::erc20::interface::IERC20CamelOnly;
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
@@ -69,7 +69,7 @@ mod ERC20 {
     #[embeddable_as(ERC20Impl)]
     impl ERC20<
         TContractState, +HasComponent<TContractState>
-    > of IERC20<ComponentState<TContractState>> {
+    > of interface::IERC20<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> felt252 {
             self.ERC20_name.read()
@@ -141,10 +141,10 @@ mod ERC20 {
         }
     }
 
-    #[embeddable_as(ERC20NonStandardImpl)]
-    impl ERC20NonStandard<
+    #[embeddable_as(ERC20SafeAllowanceImpl)]
+    impl ERC20SafeAllowance<
         TContractState, +HasComponent<TContractState>
-    > of interface::ERC20NonStandard<ComponentState<TContractState>> {
+    > of interface::ERC20SafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn increase_allowance(
@@ -167,7 +167,7 @@ mod ERC20 {
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
         TContractState, +HasComponent<TContractState>
-    > of IERC20CamelOnly<ComponentState<TContractState>> {
+    > of interface::IERC20CamelOnly<ComponentState<TContractState>> {
         /// Camel case support.
         /// See [total_supply](total-supply).
         fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
@@ -192,10 +192,10 @@ mod ERC20 {
         }
     }
 
-    #[embeddable_as(ERC20CamelNonStandardImpl)]
-    impl ERC20CamelNonStandard<
+    #[embeddable_as(ERC20CamelSafeAllowanceImpl)]
+    impl ERC20CamelSafeAllowance<
         TContractState, +HasComponent<TContractState>
-    > of interface::ERC20CamelNonStandard<ComponentState<TContractState>> {
+    > of interface::ERC20CamelSafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn increaseAllowance(

@@ -19,17 +19,11 @@ trait IERC20<TState> {
 }
 
 #[starknet::interface]
-trait ERC20NonStandard<TState> {
+trait ERC20SafeAllowance<TState> {
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(
         ref self: TState, spender: ContractAddress, subtracted_value: u256
     ) -> bool;
-}
-
-#[starknet::interface]
-trait ERC20CamelNonStandard<TState> {
-    fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
-    fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
 }
 
 #[starknet::interface]
@@ -54,6 +48,12 @@ trait IERC20CamelOnly<TState> {
     fn transferFrom(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
+}
+
+#[starknet::interface]
+trait ERC20CamelSafeAllowance<TState> {
+    fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
+    fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
 }
 
 #[starknet::interface]

@@ -40,17 +40,22 @@ trait AccountABI<TState> {
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 
-    // Non-standard
+    // DeployerTrait
     fn __validate_deploy__(
         self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
     ) -> felt252;
+
+    // PublicKeyTrait
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
 
-    // Camel case compatibility
-    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC5Camel
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+
+    // PublicKeyCamelTrait
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;
 }

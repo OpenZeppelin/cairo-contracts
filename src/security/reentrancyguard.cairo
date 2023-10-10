@@ -1,6 +1,6 @@
-/// SPDX-License-Identifier: MIT
-/// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
-///
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
+
 /// # ReentrancyGuard Component
 ///
 /// The ReentrancyGuard component helps prevent nested (reentrant) calls

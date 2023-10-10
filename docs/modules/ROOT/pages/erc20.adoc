@@ -115,15 +115,11 @@ mod MyToken {
 }
 ----
 
-In order for the `MyToken` contract to extend the ERC20 contract, it utilizes the `unsafe_new_contract_state`.
-The unsafe contract state allows access to ERC20's implementations.
-With this access, the constructor first calls the initializer to set the token name and symbol.
-The constructor then calls `_mint` to create a fixed supply of tokens.
+In order for the `MyToken` contract to integrate the ERC20 component, it instantiates both the `ERC20Impl` and `InternalImpl` implementations.
+The `ERC20Impl` instance embeds the implementation and exposes the IERC20 interface.
+Furthermore, the `InternalImpl` instance allows the contract's constructor to initialize the contract and create an initial supply of tokens.
 
 TIP: For a more complete guide on ERC20 token mechanisms, see {erc20-supply}.
-
-In the external implementation, notice that `MyTokenImpl` is an implementation of `IERC20`.
-This ensures that the external implementation will include all of the methods defined in the interface.
 
 === Customizing decimals
 

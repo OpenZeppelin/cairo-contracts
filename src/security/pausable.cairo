@@ -1,16 +1,16 @@
-/// SPDX-License-Identifier: MIT
-/// OpenZeppelin Contracts for Cairo v0.7.0 (security/pausable.cairo)
-///
-/// # Pausable Component
-///
-/// The Pausable component allows the using contract to implement an
-/// emergency stop mechanism. Only functions that call `assert_paused`
-/// or `assert_not_paused` will be affected by this mechanism.
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (security/pausable.cairo)
+
 #[starknet::interface]
 trait IPausable<TState> {
     fn is_paused(self: @TState) -> bool;
 }
 
+/// # Pausable Component
+///
+/// The Pausable component allows the using contract to implement an
+/// emergency stop mechanism. Only functions that call `assert_paused`
+/// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 mod Pausable {
     use starknet::ContractAddress;

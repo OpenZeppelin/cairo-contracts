@@ -14,12 +14,8 @@ trait PublicKeyCamelTrait<TState> {
 #[starknet::contract]
 mod Account {
     use ecdsa::check_ecdsa_signature;
-
     use openzeppelin::account::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::interface::ISRC5Camel;
-    use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::introspection::src5::unsafe_state as src5_state;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -29,9 +25,19 @@ mod Account {
     // 2**128 + TRANSACTION_VERSION
     const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5CamelImpl = src5_component::SRC5CamelImpl<ContractState>;
+    impl SRC5InternalImpl = src5_component::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
-        Account_public_key: felt252
+        Account_public_key: felt252,
+        #[substorage(v0)]
+        src5: src5_component::Storage
     }
 
     #[event]
@@ -39,6 +45,7 @@ mod Account {
     enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved,
+        SRC5Event: src5_component::Event
     }
 
     #[derive(Drop, starknet::Event)]
@@ -117,20 +124,6 @@ mod Account {
     }
 
     #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
-        }
-    }
-
-    #[external(v0)]
     impl PublicKeyImpl of super::PublicKeyTrait<ContractState> {
         fn get_public_key(self: @ContractState) -> felt252 {
             self.Account_public_key.read()
@@ -171,8 +164,7 @@ mod Account {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, _public_key: felt252) {
-            let mut unsafe_state = src5_state();
-            SRC5::InternalImpl::register_interface(ref unsafe_state, interface::ISRC6_ID);
+            self.src5.register_interface(interface::ISRC6_ID);
             self._set_public_key(_public_key);
         }
 

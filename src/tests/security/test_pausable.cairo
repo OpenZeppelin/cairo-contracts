@@ -6,6 +6,7 @@ use openzeppelin::tests::mocks::pausable_mock::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
+use starknet::contract_address_const;
 use starknet::testing;
 
 //

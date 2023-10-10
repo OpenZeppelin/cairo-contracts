@@ -17,14 +17,10 @@ mod Initializable {
         const INITIALIZED: felt252 = 'Initializable: is initialized';
     }
 
-    trait InternalTrait<TContractState> {
-        fn is_initialized(self: @TContractState) -> bool;
-        fn initialize(ref self: TContractState);
-    }
-
+    #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<ComponentState<TContractState>> {
+    > of InternalTrait<TContractState> {
         /// Returns true if the using contract executed `initialize`.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()

@@ -25,9 +25,6 @@ To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20
 ----
 trait ERC20ABI {
     // IERC20
-    fn name() -> felt252;
-    fn symbol() -> felt252;
-    fn decimals() -> u8;
     fn total_supply() -> u256;
     fn balance_of(account: ContractAddress) -> u256;
     fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -36,6 +33,11 @@ trait ERC20ABI {
         sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
     fn approve(spender: ContractAddress, amount: u256) -> bool;
+
+    // IERC20Metadata
+    fn name() -> felt252;
+    fn symbol() -> felt252;
+    fn decimals() -> u8;
 
     // ERC20SafeAllowance
     fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
@@ -86,6 +88,8 @@ mod MyToken {
 
     #[abi(embed_v0)]
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
     impl InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
@@ -115,9 +119,11 @@ mod MyToken {
 }
 ----
 
-In order for the `MyToken` contract to integrate the ERC20 component, it instantiates both the `ERC20Impl` and `InternalImpl` implementations.
-The `ERC20Impl` instance embeds the implementation and exposes the IERC20 interface.
-Furthermore, the `InternalImpl` instance allows the contract's constructor to initialize the contract and create an initial supply of tokens.
+In order for the `MyToken` contract to integrate the ERC20 component, it instantiates both the `ERC20Impl` and `ERC20MetadataImpl`.
+The `ERC20Impl` instances embeds the implementation and exposes the `IERC20` interface.
+While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
+The above example also includes the `InternalImpl` instance.
+This allows the contract's constructor to initialize the contract and create an initial supply of tokens.
 
 TIP: For a more complete guide on ERC20 token mechanisms, see {erc20-supply}.
 

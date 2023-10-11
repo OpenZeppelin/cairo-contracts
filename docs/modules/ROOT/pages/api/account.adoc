@@ -98,7 +98,11 @@ Account component extending xref:ISRC6[`ISRC6`].
 
 * xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
+--
 
+[.contract-index]
+.camelCase Support
+--
 .SRC6CamelOnlyImpl
 
 * xref:#Account-isValidSignature[`++isValidSignature(self, hash, signature)++`]

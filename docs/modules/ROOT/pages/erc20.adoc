@@ -91,7 +91,7 @@ mod MyToken {
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
-    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -123,7 +123,7 @@ mod MyToken {
 In order for the `MyToken` contract to integrate the ERC20 component, it instantiates both the `ERC20Impl` and `ERC20MetadataImpl`.
 The `ERC20Impl` instances embeds the implementation and exposes the `IERC20` interface.
 While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
-The above example also includes the `InternalImpl` instance.
+The above example also includes the `ERC20InternalImpl` instance.
 This allows the contract's constructor to initialize the contract and create an initial supply of tokens.
 
 TIP: For a more complete guide on ERC20 token mechanisms, see {erc20-supply}.
@@ -181,7 +181,7 @@ mod MyToken {
 
     #[abi(embed_v0)]
     impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
-    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[external(v0)]
     impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {

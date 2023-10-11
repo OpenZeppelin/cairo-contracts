@@ -65,6 +65,7 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6<ComponentState<TContractState>> {
+        /// Executes a list of calls from the account.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -83,10 +84,13 @@ mod Account {
             _execute_calls(calls)
         }
 
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `invoke` transactions.
         fn __validate__(self: @ComponentState<TContractState>, mut calls: Array<Call>) -> felt252 {
             self.validate_transaction()
         }
 
+        /// Verifies that the given signature is valid for the given hash.
         fn is_valid_signature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
@@ -105,6 +109,7 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
+        /// Adds camelCase support for `is_valid_signature`.
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
@@ -119,6 +124,8 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IDeclarer<ComponentState<TContractState>> {
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `declare` transactions.
         fn __validate_declare__(
             self: @ComponentState<TContractState>, class_hash: felt252
         ) -> felt252 {
@@ -133,10 +140,12 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of super::PublicKeyTrait<ComponentState<TContractState>> {
+        /// Returns the current public key of the account.
         fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
             self.Account_public_key.read()
         }
 
+        /// Sets the public key of the account to `new_public_key`.
         fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
             self.assert_only_self();
             self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
@@ -151,10 +160,12 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of super::PublicKeyCamelTrait<ComponentState<TContractState>> {
+        /// Adds camelCase support for `get_public_key`.
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
             self.Account_public_key.read()
         }
 
+        /// Adds camelCase support for `set_public_key`.
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
             self.set_public_key(newPublicKey);
         }
@@ -167,11 +178,13 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IDeployable<ComponentState<TContractState>> {
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `deploy_account` transactions.
         fn __validate_deploy__(
             self: @ComponentState<TContractState>,
             class_hash: felt252,
             contract_address_salt: felt252,
-            _public_key: felt252
+            public_key: felt252
         ) -> felt252 {
             self.validate_transaction()
         }
@@ -184,21 +197,26 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        fn initializer(ref self: ComponentState<TContractState>, _public_key: felt252) {
+        /// Initializes the account by setting the initial public key
+        /// and registering the ISRC6 interface Id.
+        fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
             let mut contract = self.get_contract_mut();
             let mut src5_component = SRC5::HasComponent::<
                 TContractState
             >::get_component_mut(ref contract);
             src5_component.register_interface(interface::ISRC6_ID);
-            self._set_public_key(_public_key);
+            self._set_public_key(public_key);
         }
 
+        /// Validates that the caller is the account itself. Otherwise it reverts.
         fn assert_only_self(self: @ComponentState<TContractState>) {
             let caller = get_caller_address();
             let self = get_contract_address();
             assert(self == caller, Errors::UNAUTHORIZED);
         }
 
+        /// Validates the signature for the current transaction.
+        /// Returns the short string `VALID` if valid, otherwise it reverts.
         fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
             let tx_info = get_tx_info().unbox();
             let tx_hash = tx_info.transaction_hash;
@@ -207,11 +225,15 @@ mod Account {
             starknet::VALIDATED
         }
 
+        /// Sets the public key without validating the caller.
+        /// The usage of this method outside the `set_public_key` function is discouraged.
         fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
             self.Account_public_key.write(new_public_key);
             self.emit(OwnerAdded { new_owner_guid: new_public_key });
         }
 
+        /// Returns whether the given signature is valid for the given hash
+        /// using the account's current public key.
         fn _is_valid_signature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
         ) -> bool {

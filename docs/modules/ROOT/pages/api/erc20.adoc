@@ -25,9 +25,6 @@ Interface of the IERC20 standard as defined in {eip20}.
 [.contract-index]
 .Functions
 --
-* xref:#IERC20-name[`++name()++`]
-* xref:#IERC20-symbol[`++symbol()++`]
-* xref:#IERC20-decimals[`++decimals()++`]
 * xref:#IERC20-total_supply[`++total_supply()++`]
 * xref:#IERC20-balance_of[`++balance_of()++`]
 * xref:#IERC20-allowance[`++allowance(owner, spender)++`]
@@ -45,34 +42,6 @@ Interface of the IERC20 standard as defined in {eip20}.
 
 [#IERC20-Functions]
 ==== Functions
-
-[.contract-item]
-[[IERC20-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
-
-Returns the name of the token.
-
-[.contract-item]
-[[IERC20-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
-
-Returns the ticker symbol of the token.
-
-[.contract-item]
-[[IERC20-decimals]]
-==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
-
-Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
-
-For example, if `decimals` equals `2`, a balance of `505` tokens should
-be displayed to a user as `5.05` (`505 / 10 ** 2`).
-
-Tokens usually opt for a value of `18`, imitating the relationship between
-Ether and Wei. This is the default value returned by this function, unless
-a custom implementation is used.
-
-NOTE: This information is only used for _display_ purposes: it in
-no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[IERC20-total_supply]]
@@ -161,15 +130,17 @@ Implementation of the <<IERC20,IERC20>> interface.
 .Embeddable functions
 --
 .ERC20Impl
-* xref:#ERC20-name[`++name(self)++`]
-* xref:#ERC20-symbol[`++symbol(self)++`]
-* xref:#ERC20-decimals[`++decimals(self)++`]
 * xref:#ERC20-total_supply[`++total_supply(self)++`]
 * xref:#ERC20-balance_of[`++balance_of(self, account)++`]
 * xref:#ERC20-allowance[`++allowance(self, owner, spender)++`]
 * xref:#ERC20-transfer[`++transfer(self, recipient, amount)++`]
 * xref:#ERC20-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20-approve[`++approve(self, spender, amount)++`]
+
+.ERC20MetadataImpl
+* xref:#ERC20-name[`++name(self)++`]
+* xref:#ERC20-symbol[`++symbol(self)++`]
+* xref:#ERC20-decimals[`++decimals(self)++`]
 
 .ERC20SafeAllowanceImpl
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
@@ -222,24 +193,6 @@ Note that the token name and symbol are immutable once set through the construct
 ==== Embeddable functions
 
 [.contract-item]
-[[ERC20-name]]
-==== `[.contract-item-name]#++name++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-See <<IERC20-name,IERC20::name>>.
-
-[.contract-item]
-[[ERC20-symbol]]
-==== `[.contract-item-name]#++symbol++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-See <<IERC20-symbol,IERC20::symbol>>.
-
-[.contract-item]
-[[ERC20-decimals]]
-==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
-
-See <<IERC20-decimals,IERC20::decimals>>.
-
-[.contract-item]
 [[ERC20-total_supply]]
 ==== `[.contract-item-name]#++total_supply++#++(@self: ContractState) → u256++` [.item-kind]#external#
 
@@ -290,6 +243,34 @@ See <<IERC20-approve,IERC20::approve>>.
 Requirements:
 
 - `spender` cannot be the zero address.
+
+[.contract-item]
+[[ERC20-name]]
+==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+
+Returns the name of the token.
+
+[.contract-item]
+[[ERC20-symbol]]
+==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+
+Returns the ticker symbol of the token.
+
+[.contract-item]
+[[ERC20-decimals]]
+==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+
+Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
+
+For example, if `decimals` equals `2`, a balance of `505` tokens should
+be displayed to a user as `5.05` (`505 / 10 ** 2`).
+
+Tokens usually opt for a value of `18`, imitating the relationship between
+Ether and Wei. This is the default value returned by this function, unless
+a custom implementation is used.
+
+NOTE: This information is only used for _display_ purposes: it in
+no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[ERC20-increase_allowance]]

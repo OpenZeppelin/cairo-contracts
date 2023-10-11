@@ -3,7 +3,12 @@
 
 /// # Ownable Component
 ///
-/// The Ownable component provides basic authorization-control functions from a single owner.
+/// The Ownable component provides a basic access control mechanism, where
+/// there is an account (an owner) that can be granted exclusive access to
+/// specific functions.
+///
+/// The initial owner can be set by using the `initializer` function in
+/// construction time. This can later be changed with `transfer_ownership`.
 #[starknet::component]
 mod Ownable {
     use openzeppelin::access::ownable::interface;
@@ -59,16 +64,15 @@ mod Ownable {
         }
     }
 
+    /// Adds camelCase support for `IOwnable`.
     #[embeddable_as(OwnableCamelOnlyImpl)]
     impl OwnableCamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
-        /// Adds camelCase support for `transfer_ownership`.
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
             self.transfer_ownership(newOwner);
         }
 
-        /// Adds camelCase support for `renounce_ownership`.
         fn renounceOwnership(ref self: ComponentState<TContractState>) {
             self.renounce_ownership();
         }
@@ -78,7 +82,9 @@ mod Ownable {
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
-        /// Sets the contract's initial owner. This function should be called at construction time.
+        /// Sets the contract's initial owner.
+        ///
+        /// This function should be called at construction time.
         fn initializer(ref self: ComponentState<TContractState>, owner: ContractAddress) {
             self._transfer_ownership(owner);
         }
@@ -92,8 +98,9 @@ mod Ownable {
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
-        /// Internal function that transfers ownership of the contract to a new address.
-        /// It doesn't assert the caller.
+        /// Transfers ownership of the contract to a new address.
+        ///
+        /// Internal function without access restriction.
         fn _transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {

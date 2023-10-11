@@ -1,9 +1,9 @@
-//! SPDX-License-Identifier: MIT
-//! OpenZeppelin Contracts for Cairo v0.7.0 (access/ownable/ownable.cairo)
-//!
-//! # Ownable Component
-//!
-//! The Ownable component provides basic authorization-control functions from a single owner.
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (access/ownable/ownable.cairo)
+
+/// # Ownable Component
+///
+/// The Ownable component provides basic authorization-control functions from a single owner.
 #[starknet::component]
 mod Ownable {
     use openzeppelin::access::ownable::interface;
@@ -63,12 +63,12 @@ mod Ownable {
     impl OwnableCamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
-        /// camelCase support for `transfer_ownership`.
+        /// Adds camelCase support for `transfer_ownership`.
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
             self.transfer_ownership(newOwner);
         }
 
-        /// camelCase support for `renounce_ownership`.
+        /// Adds camelCase support for `renounce_ownership`.
         fn renounceOwnership(ref self: ComponentState<TContractState>) {
             self.renounce_ownership();
         }

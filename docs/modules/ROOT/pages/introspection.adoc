@@ -35,7 +35,7 @@ extended function selectors. There are tools such as {src5-rs} that can help wit
 
 === Registering interfaces
 
-For a contract to declare its support for a given interface, we recommend using the the SRC5 component to do it upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
+For a contract to declare its support for a given interface, we recommend using the SRC5 component to register support upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
 
 [,javascript]
 ----

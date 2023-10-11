@@ -18,7 +18,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::access::ownable::Ownable;
@@ -27,17 +27,21 @@ use openzeppelin::access::ownable::Ownable;
 `Ownable` provides a basic access control mechanism where an account
  (an owner) can be granted exclusive access to specific functions.
 
-This module includes the `assert_only_owner` internal to restrict a function to be used only by the owner.
+This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
 [.contract-index]
-.Embeddable Implementations Functions
+.Embeddable Functions
 --
 .OwnableImpl
 
 * xref:Ownable-owner[`++owner(self)++`]
 * xref:Ownable-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:Ownable-renounce_ownership[`++renounce_ownership(self)++`]
+--
 
+[.contract-index]
+.camelCase Support
+--
 .OwnableCamelOnlyImpl
 
 * xref:Ownable-transferOwnership[`++transferOwnership(self, newOwner)++`]
@@ -60,8 +64,8 @@ This module includes the `assert_only_owner` internal to restrict a function to 
 * xref:Ownable-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
 --
 
-[#Ownable-Embeddable-Implementations-Functions]
-==== Embeddable Implementations Functions
+[#Ownable-Embeddable-Functions]
+==== Embeddable Functions
 
 [.contract-item]
 [[Ownable-owner]]
@@ -87,6 +91,9 @@ Leaves the contract without owner. It will not be possible to call
 
 NOTE: Renouncing ownership will leave the contract without an owner,
 thereby removing any functionality that is only available to the owner.
+
+[#Ownable-camelCase-Support]
+==== camelCase Support
 
 [.contract-item]
 [[Ownable-transferOwnership]]
@@ -270,7 +277,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControl-assert_only_role
 :grant_role: xref:#AccessControl-grant_role[grant_role]

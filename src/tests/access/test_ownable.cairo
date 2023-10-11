@@ -1,7 +1,7 @@
 use openzeppelin::access::ownable::Ownable::InternalTrait;
 use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
-use openzeppelin::tests::mocks::dual_ownable_mocks::DualCaseOwnableMock;
+use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;

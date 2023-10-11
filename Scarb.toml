@@ -11,7 +11,7 @@ license-file = "LICENSE"
 keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
 
 [dependencies]
-starknet = "2.3.0-rc0"
+starknet = "=2.3.0-rc0"
 
 [lib]
 

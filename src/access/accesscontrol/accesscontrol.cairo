@@ -4,7 +4,6 @@
 #[starknet::component]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5;
     use starknet::ContractAddress;

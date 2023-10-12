@@ -320,7 +320,8 @@ fn test_transferFrom() {
 
     assert(ERC20CamelOnlyImpl::balanceOf(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(
-        ERC20CamelOnlyImpl::balanceOf(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount'
+        ERC20CamelOnlyImpl::balanceOf(@state, OWNER()) == SUPPLY - VALUE,
+        'Should eq supply - amount'
     );
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(ERC20CamelOnlyImpl::totalSupply(@state) == SUPPLY, 'Total supply should not change');

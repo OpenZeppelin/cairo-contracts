@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (security/initializable.cairo)
 
-#[starknet::contract]
+/// # Initializable Component
+///
+/// The Initializable component provides a simple mechanism that executes
+/// logic once and only once. This can be useful for setting a contract's
+/// initial state in scenarios where a constructor cannot be used.
+#[starknet::component]
 mod Initializable {
     #[storage]
     struct Storage {
@@ -13,12 +18,16 @@ mod Initializable {
     }
 
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn is_initialized(self: @ContractState) -> bool {
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Returns true if the using contract executed `initialize`.
+        fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()
         }
 
-        fn initialize(ref self: ContractState) {
+        /// Ensures the calling function can only be called once.
+        fn initialize(ref self: ComponentState<TContractState>) {
             assert(!self.is_initialized(), Errors::INITIALIZED);
             self.Initializable_initialized.write(true);
         }

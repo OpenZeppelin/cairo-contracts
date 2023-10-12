@@ -4,7 +4,7 @@
 /// # AccessControl Component
 ///
 /// The AccessControl component allows contracts to implement role-based access control mechanisms.
-/// Roles are referred to by their `felt252` identifier:
+/// Roles are referred to by their `felt252` identifier.
 #[starknet::component]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
@@ -117,7 +117,7 @@ mod AccessControl {
 
         /// Revokes `role` from the calling account.
         ///
-        /// Roles are often managed via `grantRole` and `revokeRole`: this function's
+        /// Roles are often managed via `grant_role` and `revoke_role`: this function's
         /// purpose is to provide a mechanism for accounts to lose their privileges
         /// if they are compromised (such as when a trusted device is misplaced).
         ///
@@ -211,7 +211,7 @@ mod AccessControl {
             }
         }
 
-        /// Attempts to revoke `role` to `account`.
+        /// Attempts to revoke `role` from `account`.
         ///
         /// Internal function without access restriction.
         ///

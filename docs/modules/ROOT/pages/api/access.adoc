@@ -287,7 +287,7 @@ Emitted when `account` is revoked `role`.
 use openzeppelin::access::accesscontrol::AccessControl;
 ```
 
-Contract module that allows children to implement role-based access control mechanisms.
+Component that allows contracts to implement role-based access control mechanisms.
 Roles are referred to by their `felt252` identifier:
 
 ```javascript
@@ -298,17 +298,13 @@ Roles can be used to represent a set of permissions. To restrict access to a
 function call, use {assert_only_role}[`assert_only_role`]:
 
 ```javascript
-use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
-use openzeppelin::access::accesscontrol::AccessControl;
-use openzeppelin::token::erc20::ERC20;
+(...)
 
 #[external(v0)]
-fn foo(ref self: ContractState, account: ContractAddress, amount: u256) {
-    let access_state = AccessControl::unsafe_new_contract_state();
-    assert_only_role(@access_state, BURNER_ROLE);
+fn foo(ref self: ContractState) {
+    self.accesscontrol.assert_only_role(MY_ROLE);
 
-    let mut erc20_state = ERC20::unsafe_new_contract_state();
-    ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+    // Do something
 }
 ```
 
@@ -326,7 +322,7 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index]
-.External Functions
+.Embeddable Functions
 --
 .AccessControlImpl
 
@@ -341,15 +337,27 @@ accounts that have been granted it.
 --
 
 [.contract-index]
+.camelCase Support
+--
+.AccessControlCamelImpl
+
+* xref:#AccessControl-hasRole[`++hasRole(self, role, account)++`]
+* xref:#AccessControl-getRoleAdmin[`++getRoleAdmin(self, role)++`]
+* xref:#AccessControl-grantRole[`++grantRole(self, role, account)++`]
+* xref:#AccessControl-revokeRole[`++revokeRole(self, role, account)++`]
+* xref:#AccessControl-renounceRole[`++renounceRole(self, role, account)++`]
+--
+
+[.contract-index]
 .Internal Functions
 --
 .InternalImpl
 
 * xref:#AccessControl-initializer[`++initializer(self)++`]
+* xref:#AccessControl-assert_only_role[`++assert_only_role(self, role)++`]
 * xref:#AccessControl-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
 * xref:#AccessControl-_grant_role[`++_grant_role(self, role, account)++`]
 * xref:#AccessControl-_revoke_role[`++_revoke_role(self, role, account)++`]
-* xref:#AccessControl-assert_only_role[`++assert_only_role(self, role)++`]
 --
 
 [.contract-index]
@@ -361,8 +369,8 @@ accounts that have been granted it.
 * xref:#AccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
 --
 
-[#AccessControl-External-Functions]
-==== External Functions
+[#AccessControl-Embeddable-Functions]
+==== Embeddable Functions
 
 [.contract-item]
 [[AccessControl-has_role]]
@@ -433,6 +441,39 @@ May emit a {RoleRevoked} event.
 
 See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
 
+[#AccessControl-camelCase-Support]
+==== camelCase Support
+
+[.contract-item]
+[[AccessControl-hasRole]]
+==== `[.contract-item-name]#++hasRole++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+See xref:AccessControl-has_role[has_role].
+
+[.contract-item]
+[[AccessControl-getRoleAdmin]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(self: @ContractState, role: felt252) → felt252++` [.item-kind]#external#
+
+See xref:AccessControl-get_role_admin[get_role_admin].
+
+[.contract-item]
+[[AccessControl-grantRole]]
+==== `[.contract-item-name]#++grantRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControl-grant_role[grant_role].
+
+[.contract-item]
+[[AccessControl-revokeRole]]
+==== `[.contract-item-name]#++revokeRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControl-revoke_role[revoke_role].
+
+[.contract-item]
+[[AccessControl-renounceRole]]
+==== `[.contract-item-name]#++renounceRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControl-renounce_role[renounce_role].
+
 [#AccessControl-Internal-Functions]
 ==== Internal Functions
 
@@ -441,6 +482,12 @@ See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interfa
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
 
 Initializes the contract by registering the xref:#IAccessControl[IAccessControl] interface ID.
+
+[.contract-item]
+[[AccessControl-assert_only_role]]
+==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
+
+Panics if called by any account without the given `role`.
 
 [.contract-item]
 [[AccessControl-_set_role_admin]]
@@ -469,12 +516,6 @@ Revokes `role` from `account`.
 Internal function without access restriction.
 
 May emit a {RoleRevoked} event.
-
-[.contract-item]
-[[AccessControl-assert_only_role]]
-==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
-
-Panics if called by any account without the given `role`.
 
 [#AccessControl-Events]
 ==== Events

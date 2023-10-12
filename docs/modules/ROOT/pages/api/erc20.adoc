@@ -145,13 +145,17 @@ Implementation of the <<IERC20,IERC20>> interface.
 .ERC20SafeAllowanceImpl
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
+--
 
+[.contract-index]
+.camelCase support
+--
 .ERC20CamelOnlyImpl
 * xref:#ERC20-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
 
-.ERC20CamelSafeAllowance
+.ERC20CamelSafeAllowanceImpl
 * xref:#ERC20-increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
 * xref:#ERC20-decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
 --
@@ -159,7 +163,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 [.contract-index]
 .Internal functions
 --
-
 .InternalImpl
 * xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]
 * xref:#ERC20-_transfer[`++_transfer(self, sender, recipient, amount)++`]
@@ -169,7 +172,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
 * xref:#ERC20-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
-
 --
 
 [.contract-index]
@@ -298,6 +300,9 @@ Requirements:
 
 - `spender` cannot be the zero address.
 - `spender` must have allowance for the caller of at least `subtracted_value`.
+
+[#ERC20-camelCase-support]
+==== camelCase Support
 
 [.contract-item]
 [[ERC20-totalSupply]]

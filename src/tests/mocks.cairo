@@ -11,6 +11,7 @@ mod erc721_receiver;
 mod initializable_mock;
 mod non_implementing_mock;
 mod ownable_mocks;
+mod pausable_mock;
 mod reentrancy_attacker_mock;
 mod reentrancy_mock;
 mod snake20_mock;

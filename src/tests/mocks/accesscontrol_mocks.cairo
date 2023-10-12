@@ -22,9 +22,9 @@ mod DualCaseAccessControlMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        accesscontrol: accesscontrol_component::Storage,
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage
+        src5: src5_component::Storage
     }
 
     #[event]
@@ -61,9 +61,9 @@ mod SnakeAccessControlMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        accesscontrol: accesscontrol_component::Storage,
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage
+        src5: src5_component::Storage,
     }
 
     #[event]
@@ -101,9 +101,9 @@ mod CamelAccessControlMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        accesscontrol: accesscontrol_component::Storage,
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage
+        src5: src5_component::Storage
     }
 
     #[event]

@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
-
+///
 /// The AccessControl component allows contracts to implement role-based access control mechanisms.
 /// Roles are referred to by their `felt252` identifier:
 #[starknet::component]

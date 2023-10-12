@@ -149,7 +149,7 @@ mod ERC20 {
     #[embeddable_as(ERC20SafeAllowanceImpl)]
     impl ERC20SafeAllowance<
         TContractState, +HasComponent<TContractState>
-    > of interface::ERC20SafeAllowance<ComponentState<TContractState>> {
+    > of interface::IERC20SafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
         /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn increase_allowance(
@@ -169,24 +169,19 @@ mod ERC20 {
         }
     }
 
+    /// Adds camelCase support for `IERC20`.
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IERC20CamelOnly<ComponentState<TContractState>> {
-        /// Camel case support.
-        /// See [total_supply](total-supply).
         fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
             self.total_supply()
         }
 
-        /// Camel case support.
-        /// See [balance_of](balance_of).
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             self.balance_of(account)
         }
 
-        /// Camel case support.
-        /// See [transfer_from](transfer_from).
         fn transferFrom(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -197,20 +192,17 @@ mod ERC20 {
         }
     }
 
+    /// Adds camelCase support for `IERC20SafeAllowance`.
     #[embeddable_as(ERC20CamelSafeAllowanceImpl)]
     impl ERC20CamelSafeAllowance<
         TContractState, +HasComponent<TContractState>
-    > of interface::ERC20CamelSafeAllowance<ComponentState<TContractState>> {
-        /// Increases the allowance granted from the caller to `spender` by `added_value`.
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
+    > of interface::IERC20CamelSafeAllowance<ComponentState<TContractState>> {
         fn increaseAllowance(
             ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
         ) -> bool {
             self._increase_allowance(spender, addedValue)
         }
 
-        /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
         fn decreaseAllowance(
             ref self: ComponentState<TContractState>,
             spender: ContractAddress,

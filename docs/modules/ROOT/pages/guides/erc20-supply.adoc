@@ -93,7 +93,7 @@ mod MyToken {
     }
 
     #[constructor]
-    fn constructor(self: @ContractState) {
+    fn constructor(ref self: ContractState) {
         let name = 'MyToken';
         let symbol = 'MTK';
 
@@ -102,7 +102,7 @@ mod MyToken {
 
     #[external(v0)]
     fn mint(
-        self: @ContractState,
+        ref self: ContractState,
         recipient: ContractAddress,
         amount: u256
     ) {
@@ -159,10 +159,10 @@ mod MyToken {
     }
 
     #[constructor]
-    fn constructor(self: @ContractState, owner: ContractAddress) {
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
         // Set contract owner
         self.ownable.initializer(owner);
-    
+
         // Initialize ERC20
         let name = 'MyToken';
         let symbol = 'MTK';
@@ -171,7 +171,7 @@ mod MyToken {
 
     #[external(v0)]
     fn mint(
-        self: @ContractState,
+        ref self: ContractState,
         recipient: ContractAddress,
         amount: u256
     ) {

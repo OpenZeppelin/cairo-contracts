@@ -40,7 +40,7 @@ mod MyToken {
 
     #[constructor]
     fn constructor(
-        self: @ContractState,
+        ref self: ContractState,
         initial_supply: u256,
         recipient: ContractAddress
     ) {

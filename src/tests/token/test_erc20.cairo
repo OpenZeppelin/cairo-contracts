@@ -50,21 +50,6 @@ fn test_initializer() {
     assert(state.erc20.total_supply() == 0, 'Supply should eq 0');
 }
 
-//#[test]
-//#[available_gas(2000000)]
-//fn test_constructor() {
-//    let mut state = STATE();
-//    ERC20::constructor(NAME, SYMBOL, SUPPLY, OWNER());
-//
-//    assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
-//
-//    assert(state.erc20.balance_of(OWNER()) == SUPPLY, 'Should eq inital_supply');
-//    assert(state.erc20.total_supply() == SUPPLY, 'Should eq inital_supply');
-//    assert(state.erc20.name() == NAME, 'Name should be NAME');
-//    assert(state.erc20.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-//    assert(state.erc20.decimals() == DECIMALS, 'Decimals should be 18');
-//}
-//
 //
 // Getters
 //

@@ -51,7 +51,7 @@ trait IERC721ABI {
     fn symbol() -> felt252;
     fn token_uri(token_id: u256) -> felt252;
 
-    // Camel case compatibility
+    // IERC721CamelOnly
     fn balanceOf(account: ContractAddress) -> u256;
     fn ownerOf(tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
@@ -64,7 +64,11 @@ trait IERC721ABI {
     fn setApprovalForAll(operator: ContractAddress, approved: bool);
     fn getApproved(tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
+
+    // ISRC5Camel
     fn supportsInterface(interfaceId: felt252) -> bool;
+
+    // IERC721MetadataCamelOnly
     fn tokenURI(tokenId: u256) -> felt252;
 }
 ----

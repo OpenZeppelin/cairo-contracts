@@ -1,10 +1,5 @@
 mod constants;
 
-use array::ArrayTrait;
-use array::SpanTrait;
-use core::result::ResultTrait;
-use option::OptionTrait;
-use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
 use starknet::testing;
 

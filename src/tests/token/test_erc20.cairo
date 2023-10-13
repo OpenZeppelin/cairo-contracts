@@ -54,8 +54,8 @@ fn test_constructor() {
 
     assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
 
-    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY, 'Should eq inital_supply');
-    assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Should eq inital_supply');
+    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY, 'Should eq initial_supply');
+    assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Should eq initial_supply');
     assert(ERC20Impl::name(@state) == NAME, 'Name should be NAME');
     assert(ERC20Impl::symbol(@state) == SYMBOL, 'Symbol should be SYMBOL');
     assert(ERC20Impl::decimals(@state) == DECIMALS, 'Decimals should be 18');
@@ -247,7 +247,7 @@ fn test_transfer_from() {
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
+    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Total supply should not change');
 }
@@ -320,7 +320,8 @@ fn test_transferFrom() {
 
     assert(ERC20CamelOnlyImpl::balanceOf(@state, RECIPIENT()) == VALUE, 'Should eq amount');
     assert(
-        ERC20CamelOnlyImpl::balanceOf(@state, OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount'
+        ERC20CamelOnlyImpl::balanceOf(@state, OWNER()) == SUPPLY - VALUE,
+        'Should eq supply - amount'
     );
     assert(ERC20Impl::allowance(@state, OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(ERC20CamelOnlyImpl::totalSupply(@state) == SUPPLY, 'Total supply should not change');

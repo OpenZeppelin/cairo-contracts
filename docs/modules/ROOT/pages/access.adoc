@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-0.7.0/src/access/ownable/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -19,26 +19,42 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 
 === Usage
 
-Integrating this module into a contract first requires assigning an owner.
+Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
 xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 
 [,javascript]
 ----
-use openzeppelin::access::ownable::Ownable;
-
 #[starknet::contract]
 mod MyContract {
+    use openzeppelin::access::ownable::Ownable as ownable_component;
     use starknet::ContractAddress;
-    use super::Ownable;
+
+    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+
+    #[abi(embed_v0)]
+    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl OwnableCamelOnlyImpl =
+        ownable_component::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        ownable: ownable_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnableEvent: ownable_component::Event
+    }
 
     #[constructor]
-    fn constructor(self: @ContractState, owner: ContractAddress) {
-        let mut unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::initializer(ref unsafe_state, owner);
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        // Set the initial owner of the contract
+        self.ownable.initializer(owner);
     }
 
     (...)
@@ -51,15 +67,12 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::ownable::Ownable;
-
     (...)
 
     #[external(v0)]
-    fn foo(ref self: ContractState) {
+    fn only_owner_allowed(ref self: ContractState) {
         // This function can only be called by the owner
-        let unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::assert_only_owner(@unsafe_state);
+        self.ownable.assert_only_owner();
 
         (...)
     }

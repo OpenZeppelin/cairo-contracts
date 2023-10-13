@@ -10,15 +10,19 @@ mod ERC721 {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::interface::ISRC5Camel;
-    use openzeppelin::introspection::src5::unsafe_state as src5_state;
-    use openzeppelin::introspection::src5;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
     use openzeppelin::token::erc721::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5CamelImpl = src5_component::SRC5CamelImpl<ContractState>;
+    impl SRC5InternalImpl = src5_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -29,6 +33,8 @@ mod ERC721 {
         ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
         ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         ERC721_token_uri: LegacyMap<u256, felt252>,
+        #[substorage(v0)]
+        src5: src5_component::Storage
     }
 
     #[event]
@@ -36,7 +42,8 @@ mod ERC721 {
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
-        ApprovalForAll: ApprovalForAll
+        ApprovalForAll: ApprovalForAll,
+        SRC5Event: src5_component::Event
     }
 
     /// Emitted when `token_id` token is transferred from `from` to `to`.
@@ -102,24 +109,6 @@ mod ERC721 {
     //
     // External
     //
-
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        /// Checks if the contract supports a specific interface as defined by
-        /// `interface_id`.
-        /// See: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            src5::SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
-        }
-    }
-
-    /// Adds camelCase support for `ISRC5`.
-    #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            src5::SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
-        }
-    }
 
     #[external(v0)]
     impl ERC721MetadataImpl of interface::IERC721Metadata<ContractState> {
@@ -317,11 +306,8 @@ mod ERC721 {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
 
-            let mut unsafe_state = src5_state();
-            src5::SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_ID);
-            src5::SRC5::InternalImpl::register_interface(
-                ref unsafe_state, interface::IERC721_METADATA_ID
-            );
+            self.src5.register_interface(interface::IERC721_ID);
+            self.src5.register_interface(interface::IERC721_METADATA_ID);
         }
 
         /// Returns the owner address of `token_id`.

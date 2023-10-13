@@ -120,7 +120,7 @@ trait ERC721ABI<TState> {
     fn symbol(self: @TState) -> felt252;
     fn token_uri(self: @TState, token_id: u256) -> felt252;
 
-    // IERC721Camel
+    // IERC721CamelOnly
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(

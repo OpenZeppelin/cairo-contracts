@@ -1,10 +1,10 @@
-//! SPDX-License-Identifier: MIT
-//! OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
-//!
-//! # ERC721 Contract and Implementation
-//!
-//! This ERC721 contract includes both a library and a basic preset implementation
-//! which includes the IERC721Metadata implementation.
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
+
+/// # ERC721 Contract and Implementation
+///
+/// This ERC721 contract includes both a library and a basic preset implementation
+/// which includes the IERC721Metadata implementation.
 #[starknet::contract]
 mod ERC721 {
     use openzeppelin::account;
@@ -113,10 +113,9 @@ mod ERC721 {
         }
     }
 
+    /// Adds camelCase support for `ISRC5`.
     #[external(v0)]
     impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        /// Camel case support.
-        /// See [supports_interface](supports_interface).
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
             src5::SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
         }
@@ -142,10 +141,9 @@ mod ERC721 {
         }
     }
 
+    /// Adds camelCase support for `IERC721Metadata`.
     #[external(v0)]
     impl ERC721MetadataCamelOnlyImpl of interface::IERC721MetadataCamelOnly<ContractState> {
-        /// Camel case support.
-        /// See [token_uri](token_uri).
         fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.read(tokenId)
@@ -179,7 +177,7 @@ mod ERC721 {
         }
 
         /// Change or reaffirm the approved address for an NFT.
-        /// Emits an [Approval](Approval) event.
+        /// Emits an `Approval` event.
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -193,6 +191,7 @@ mod ERC721 {
 
         /// Enable or disable approval for `operator` to manage all of the
         /// caller's assets.
+        ///
         /// Emits an [Approval](Approval) event.
         fn set_approval_for_all(
             ref self: ContractState, operator: ContractAddress, approved: bool

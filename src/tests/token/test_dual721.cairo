@@ -1,19 +1,19 @@
+use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
 use openzeppelin::tests::mocks::erc721_mocks::{
     CamelERC721Mock, CamelERC721PanicMock, SnakeERC721PanicMock
 };
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
 use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::dual721::DualCaseERC721;
 use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
-use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcher;
-use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcherTrait;
 use openzeppelin::token::erc721::interface::ERC721ABIDispatcher;
 use openzeppelin::token::erc721::interface::ERC721ABIDispatcherTrait;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcher;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcherTrait;
 use openzeppelin::token::erc721::interface::IERC721Dispatcher;
 use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
 use openzeppelin::token::erc721::interface::IERC721_ID;

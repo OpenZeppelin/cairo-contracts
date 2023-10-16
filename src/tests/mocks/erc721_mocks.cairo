@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod DualCaseERC721Mock {
-    use openzeppelin::token::erc721::ERC721 as erc721_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::token::erc721::ERC721 as erc721_component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -15,10 +15,10 @@ mod DualCaseERC721Mock {
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = erc721_component::ERC721MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721CamelOnly =
-        erc721_component::ERC721CamelOnlyImpl<ContractState>;
+    impl ERC721CamelOnly = erc721_component::ERC721CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721MetadataCamelOnly = erc721_component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    impl ERC721MetadataCamelOnly =
+        erc721_component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl ERC721InternalImpl = erc721_component::InternalImpl<ContractState>;
 
     #[storage]
@@ -48,8 +48,8 @@ mod DualCaseERC721Mock {
 
 #[starknet::contract]
 mod SnakeERC721Mock {
-    use openzeppelin::token::erc721::ERC721 as erc721_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::token::erc721::ERC721 as erc721_component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -91,9 +91,9 @@ mod SnakeERC721Mock {
 
 #[starknet::contract]
 mod CamelERC721Mock {
-    use openzeppelin::token::erc721::ERC721::{ERC721Impl, ERC721MetadataImpl};
-    use openzeppelin::token::erc721::ERC721 as erc721_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::token::erc721::ERC721 as erc721_component;
+    use openzeppelin::token::erc721::ERC721::{ERC721Impl, ERC721MetadataImpl};
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -101,12 +101,12 @@ mod CamelERC721Mock {
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
-    impl ERC721CamelOnly =
-        erc721_component::ERC721CamelOnlyImpl<ContractState>;
+    impl ERC721CamelOnly = erc721_component::ERC721CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721MetadataCamelOnly = erc721_component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    impl ERC721MetadataCamelOnly =
+        erc721_component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl InternalImpl = erc721_component::InternalImpl<ContractState>;
 
     #[storage]

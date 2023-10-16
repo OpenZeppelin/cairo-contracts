@@ -1,12 +1,12 @@
 use integer::u256;
 use integer::u256_from_felt252;
 use openzeppelin::account::Account;
-use openzeppelin::introspection;
-use openzeppelin::introspection::src5;
 use openzeppelin::introspection::src5::SRC5::SRC5Impl;
-use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
+use openzeppelin::introspection::src5;
+use openzeppelin::introspection;
 use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
 use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
+use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
@@ -73,11 +73,10 @@ fn test_initialize() {
     assert(state.erc721.symbol() == SYMBOL, 'Symbol should be SYMBOL');
     assert(state.erc721.balance_of(OWNER()) == 0, 'Balance should be zero');
 
+    assert(state.src5.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
     assert(
-        state.src5.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID'
-    );
-    assert(
-        state.src5.supports_interface(erc721::interface::IERC721_METADATA_ID), 'Missing interface ID'
+        state.src5.supports_interface(erc721::interface::IERC721_METADATA_ID),
+        'Missing interface ID'
     );
     assert(
         state.src5.supports_interface(introspection::interface::ISRC5_ID), 'Missing interface ID'
@@ -183,9 +182,7 @@ fn test_approve_from_owner() {
     state.erc721.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(
-        state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
-    );
+    assert(state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -201,9 +198,7 @@ fn test_approve_from_operator() {
     state.erc721.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(
-        state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
-    );
+    assert(state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -241,9 +236,7 @@ fn test__approve() {
     state.erc721._approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(
-        state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly'
-    );
+    assert(state.erc721.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
 }
 
 #[test]
@@ -278,16 +271,14 @@ fn test_set_approval_for_all() {
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
     assert(
-        state.erc721.is_approved_for_all(OWNER(), OPERATOR()),
-        'Operator not approved correctly'
+        state.erc721.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
     );
 
     state.erc721.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
     assert(
-        !state.erc721.is_approved_for_all(OWNER(), OPERATOR()),
-        'Approval not revoked correctly'
+        !state.erc721.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly'
     );
 }
 
@@ -319,16 +310,14 @@ fn test__set_approval_for_all() {
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
     assert(
-        state.erc721.is_approved_for_all(OWNER(), OPERATOR()),
-        'Operator not approved correctly'
+        state.erc721.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
     );
 
     state.erc721._set_approval_for_all(OWNER(), OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
     assert(
-        !state.erc721.is_approved_for_all(OWNER(), OPERATOR()),
-        'Operator not approved correctly'
+        !state.erc721.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
     );
 }
 

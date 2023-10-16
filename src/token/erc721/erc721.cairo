@@ -111,8 +111,7 @@ mod ERC721 {
 
             let caller = get_caller_address();
             assert(
-                owner == caller || self.is_approved_for_all(owner, caller),
-                Errors::UNAUTHORIZED
+                owner == caller || self.is_approved_for_all(owner, caller), Errors::UNAUTHORIZED
             );
             self._approve(to, token_id);
         }
@@ -124,7 +123,10 @@ mod ERC721 {
         }
 
         fn transfer_from(
-            ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, token_id: u256
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256
         ) {
             assert(
                 self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
@@ -192,12 +194,17 @@ mod ERC721 {
             self.is_approved_for_all(owner, operator)
         }
 
-        fn setApprovalForAll(ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool) {
+        fn setApprovalForAll(
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+        ) {
             self.set_approval_for_all(operator, approved)
         }
 
         fn transferFrom(
-            ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, tokenId: u256
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            tokenId: u256
         ) {
             self.transfer_from(from, to, tokenId)
         }
@@ -266,9 +273,7 @@ mod ERC721 {
         ) -> bool {
             let owner = self._owner_of(token_id);
             let is_approved_for_all = self.is_approved_for_all(owner, spender);
-            owner == spender
-                || is_approved_for_all
-                || spender == self.get_approved(token_id)
+            owner == spender || is_approved_for_all || spender == self.get_approved(token_id)
         }
 
         fn _approve(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
@@ -301,7 +306,10 @@ mod ERC721 {
         }
 
         fn _transfer(
-            ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, token_id: u256
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             let owner = self._owner_of(token_id);
@@ -330,7 +338,10 @@ mod ERC721 {
         }
 
         fn _safe_mint(
-            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, data: Span<felt252>
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
         ) {
             self._mint(to, token_id);
             assert(
@@ -352,7 +363,9 @@ mod ERC721 {
             );
         }
 
-        fn _set_token_uri(ref self: ComponentState<TContractState>, token_id: u256, token_uri: felt252) {
+        fn _set_token_uri(
+            ref self: ComponentState<TContractState>, token_id: u256, token_uri: felt252
+        ) {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.write(token_id, token_uri)
         }

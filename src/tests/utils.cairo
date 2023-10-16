@@ -29,6 +29,25 @@ fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     ret
 }
 
+/// Similar to `pop_log` and should only be used for inspecting component events with
+/// indexed parameters. Component events with indexed params set the first key as the
+/// contract implementation ID and the second key as the event ID. This function
+/// removes both keys from the event.
+fn pop_log_comp_indexed<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
+    address: ContractAddress
+) -> Option<T> {
+    let (mut keys, mut data) = testing::pop_log_raw(address)?;
+
+    // Remove the contract impl ID from keys
+    keys.pop_front();
+    // Remove the event ID from keys
+    keys.pop_front();
+
+    let ret = starknet::Event::deserialize(ref keys, ref data);
+    assert(data.is_empty(), 'Event has extra data');
+    ret
+}
+
 /// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 /// `expected_keys` must include all indexed event keys for `event` in the order
 /// that they're defined. 

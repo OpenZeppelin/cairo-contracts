@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
 
+/// # ERC721 Component
+///
+/// This ERC721 component provides implementations for both the IERC721 interface
+/// and the IERC721Metadata interface.
 #[starknet::component]
 mod ERC721 {
     use openzeppelin::account;
@@ -33,6 +37,7 @@ mod ERC721 {
         ApprovalForAll: ApprovalForAll,
     }
 
+    /// Emitted when `token_id` token is transferred from `from` to `to`.
     #[derive(Drop, starknet::Event)]
     struct Transfer {
         #[key]
@@ -43,6 +48,7 @@ mod ERC721 {
         token_id: u256
     }
 
+    /// Emitted when `owner` enables `approved` to manage the `token_id` token.
     #[derive(Drop, starknet::Event)]
     struct Approval {
         #[key]
@@ -53,6 +59,8 @@ mod ERC721 {
         token_id: u256
     }
 
+    /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
+    /// all of its assets.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         #[key]
@@ -86,26 +94,47 @@ mod ERC721 {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721<ComponentState<TContractState>> {
+        /// Returns the number of NFTs owned by `account`.
         fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
             self.ERC721_balances.read(account)
         }
 
+        /// Returns the owner address of `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
             self._owner_of(token_id)
         }
 
+        /// Returns the address approved for `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn get_approved(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_approvals.read(token_id)
         }
 
+        /// Query if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
             self.ERC721_operator_approvals.read((owner, operator))
         }
 
+        /// Change or reaffirm the approved address for an NFT.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is either an approved operator or the `token_id` owner.
+        /// - `to` cannot be the token owner zero address.
+        /// - `token_id` exists.
+        ///
+        /// Emits an `Approval` event.
         fn approve(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -116,12 +145,30 @@ mod ERC721 {
             self._approve(to, token_id);
         }
 
+        /// Enable or disable approval for `operator` to manage all of the
+        /// caller's assets.
+        ///
+        /// Requirements:
+        ///
+        /// - `operator` cannot be the caller.
+        ///
+        /// Emits an `Approval` event.
         fn set_approval_for_all(
             ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
         ) {
             self._set_approval_for_all(get_caller_address(), operator, approved)
         }
 
+        /// Transfer ownership of `token_id` from `from` to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - Caller is either approved or the `token_id` owner.
+        /// - `to` is not the zero address.
+        /// - `from` is not the zero address.
+        /// - `token_id` exists.
+        ///
+        /// Emits a `Transfer` event.
         fn transfer_from(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -134,6 +181,17 @@ mod ERC721 {
             self._transfer(from, to, token_id);
         }
 
+        /// Safely transfer ownership of `token_id` from `from` to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - Caller is either approved or the `token_id` owner.
+        /// - `to` is not the zero address.
+        /// - `from` is not the zero address.
+        /// - `token_id` exists.
+        /// - `to` is either an account contract or supports the `IERC721Receiver` interface.
+        ///
+        /// Emits a `Transfer` event.
         fn safe_transfer_from(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -155,20 +213,26 @@ mod ERC721 {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
+        /// Returns the NFT name.
         fn name(self: @ComponentState<TContractState>) -> felt252 {
             self.ERC721_name.read()
         }
 
+        /// Returns the NFT symbol.
         fn symbol(self: @ComponentState<TContractState>) -> felt252 {
             self.ERC721_symbol.read()
         }
 
+        /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
+        ///
+        /// If the URI is not set for the `token_id`, the return value will be `0`.
         fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.read(token_id)
         }
     }
 
+    /// Adds camelCase support for `IERC721`.
     #[embeddable_as(ERC721CamelOnlyImpl)]
     impl ERC721CamelOnly<
         TContractState,
@@ -220,6 +284,7 @@ mod ERC721 {
         }
     }
 
+    /// Adds camelCase support for `IERC721Metadata`.
     #[embeddable_as(ERC721MetadataCamelOnlyImpl)]
     impl ERC721MetadataCamelOnly<
         TContractState,
@@ -244,6 +309,8 @@ mod ERC721 {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
+        /// Initializes the contract by setting the token name and symbol.
+        /// This should be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
@@ -256,6 +323,11 @@ mod ERC721 {
             src5_component.register_interface(interface::IERC721_METADATA_ID);
         }
 
+        /// Returns the owner address of `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn _owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
             let owner = self.ERC721_owners.read(token_id);
             match owner.is_zero() {
@@ -264,10 +336,16 @@ mod ERC721 {
             }
         }
 
+        /// Returns whether `token_id` exists.
         fn _exists(self: @ComponentState<TContractState>, token_id: u256) -> bool {
             !self.ERC721_owners.read(token_id).is_zero()
         }
 
+        /// Returns whether `spender` is allowed to manage `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn _is_approved_or_owner(
             self: @ComponentState<TContractState>, spender: ContractAddress, token_id: u256
         ) -> bool {
@@ -276,6 +354,16 @@ mod ERC721 {
             owner == spender || is_approved_for_all || spender == self.get_approved(token_id)
         }
 
+        /// Changes or reaffirms the approved address for an NFT.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
+        /// - `to` is not the current token owner.
+        ///
+        /// Emits an `Approval` event.
         fn _approve(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             let owner = self._owner_of(token_id);
             assert(owner != to, Errors::APPROVAL_TO_OWNER);
@@ -284,6 +372,14 @@ mod ERC721 {
             self.emit(Approval { owner, approved: to, token_id });
         }
 
+        /// Enables or disables approval for `operator` to manage
+        /// all of the `owner` assets.
+        ///
+        /// Requirements:
+        ///
+        /// - `operator` cannot be the caller.
+        ///
+        /// Emits an `Approval` event.
         fn _set_approval_for_all(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
@@ -295,6 +391,11 @@ mod ERC721 {
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
+        /// Mints `token_id` and transfers it to `to`.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// Emits a `Transfer` event.
         fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             assert(!self._exists(token_id), Errors::ALREADY_MINTED);
@@ -305,6 +406,17 @@ mod ERC721 {
             self.emit(Transfer { from: Zeroable::zero(), to, token_id });
         }
 
+        /// Transfers `token_id` from `from` to `to`.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is not the zero address.
+        /// - `from` is the token owner.
+        /// - `token_id` exists.
+        ///
+        /// Emits a `Transfer` event.
         fn _transfer(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -325,6 +437,16 @@ mod ERC721 {
             self.emit(Transfer { from, to, token_id });
         }
 
+        /// Destroys `token_id`. The approval is cleared when the token is burned.
+        ///
+        /// This internal function does not check if the sender is authorized
+        /// to operate on the token.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
+        ///
+        /// Emits a `Transfer` event.
         fn _burn(ref self: ComponentState<TContractState>, token_id: u256) {
             let owner = self._owner_of(token_id);
 
@@ -337,6 +459,17 @@ mod ERC721 {
             self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id });
         }
 
+        /// Safely mints `token_id` and transfers it to `to`.
+        ///
+        /// If `to` is not an account contract, `to` must support IERC721Receiver;
+        /// otherwise, the transaction will fail.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
+        /// - `to` is either an account contract or supports the `IERC721Receiver` interface.
+        ///
+        /// Emits a `Transfer` event.
         fn _safe_mint(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -350,6 +483,19 @@ mod ERC721 {
             );
         }
 
+        /// Safely transfers `token_id` token from `from` to `to`.
+        ///
+        /// If `to` is not an account contract, `to` must support IERC721Receiver;
+        /// otherwise, the transaction will fail.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` cannot be the zero address.
+        /// - `from` must be the token owner.
+        /// - `token_id` exists.
+        /// - `to` is either an account contract or supports the `IERC721Receiver` interface.
+        ///
+        /// Emits a `Transfer` event.
         fn _safe_transfer(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -363,6 +509,11 @@ mod ERC721 {
             );
         }
 
+        /// Sets the `token_uri` of `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn _set_token_uri(
             ref self: ComponentState<TContractState>, token_id: u256, token_uri: felt252
         ) {
@@ -371,6 +522,9 @@ mod ERC721 {
         }
     }
 
+    /// Checks if `to` either is an account contract or has registered support
+    /// for the `IERC721Receiver` interface through SRC-5. The transaction will
+    /// fail if both cases are false.
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {

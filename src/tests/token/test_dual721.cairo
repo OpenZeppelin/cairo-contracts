@@ -10,10 +10,10 @@ use openzeppelin::tests::utils::constants::{
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::dual721::DualCaseERC721;
 use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
-use openzeppelin::token::erc721::interface::ERC721ABIDispatcher;
-use openzeppelin::token::erc721::interface::ERC721ABIDispatcherTrait;
-use openzeppelin::token::erc721::interface::ERC721CamelABIDispatcher;
-use openzeppelin::token::erc721::interface::ERC721CamelABIDispatcherTrait;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcher;
+use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcherTrait;
+use openzeppelin::token::erc721::interface::IERC721Dispatcher;
+use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
 use openzeppelin::token::erc721::interface::IERC721_ID;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
@@ -24,7 +24,7 @@ use starknet::testing::set_contract_address;
 // Setup
 //
 
-fn setup_snake() -> (DualCaseERC721, ERC721ABIDispatcher) {
+fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
@@ -32,10 +32,10 @@ fn setup_snake() -> (DualCaseERC721, ERC721ABIDispatcher) {
     calldata.append_serde(URI);
     set_contract_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
-    (DualCaseERC721 { contract_address: target }, ERC721ABIDispatcher { contract_address: target })
+    (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualCaseERC721, ERC721CamelABIDispatcher) {
+fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
@@ -45,7 +45,7 @@ fn setup_camel() -> (DualCaseERC721, ERC721CamelABIDispatcher) {
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC721 { contract_address: target },
-        ERC721CamelABIDispatcher { contract_address: target }
+        IERC721CamelOnlyDispatcher { contract_address: target }
     )
 }
 

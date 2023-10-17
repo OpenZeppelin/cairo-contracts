@@ -8,12 +8,12 @@
 #[starknet::component]
 mod ERC721 {
     use openzeppelin::account;
-    use openzeppelin::introspection::dual_src5::DualCaseSRC5;
-    use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
+    use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
     use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
-    use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
+    use openzeppelin::token::erc721::dual721_receiver::{
+        DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
+    };
     use openzeppelin::token::erc721::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;

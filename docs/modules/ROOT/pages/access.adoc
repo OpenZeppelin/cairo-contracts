@@ -19,26 +19,42 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 
 === Usage
 
-Integrating this module into a contract first requires assigning an owner.
+Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
 xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 
 [,javascript]
 ----
-use openzeppelin::access::ownable::Ownable;
-
 #[starknet::contract]
 mod MyContract {
+    use openzeppelin::access::ownable::Ownable as ownable_component;
     use starknet::ContractAddress;
-    use super::Ownable;
+
+    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+
+    #[abi(embed_v0)]
+    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl OwnableCamelOnlyImpl =
+        ownable_component::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        ownable: ownable_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnableEvent: ownable_component::Event
+    }
 
     #[constructor]
-    fn constructor(self: @ContractState, owner: ContractAddress) {
-        let mut unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::initializer(ref unsafe_state, owner);
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        // Set the initial owner of the contract
+        self.ownable.initializer(owner);
     }
 
     (...)
@@ -51,15 +67,12 @@ To restrict a function's access to the owner only, add in the `assert_only_owner
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::ownable::Ownable;
-
     (...)
 
     #[external(v0)]
-    fn foo(ref self: ContractState) {
+    fn only_owner_allowed(ref self: ContractState) {
         // This function can only be called by the owner
-        let unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::assert_only_owner(@unsafe_state);
+        self.ownable.assert_only_owner();
 
         (...)
     }
@@ -119,18 +132,40 @@ and sets a 'minter' role:
 
 [,javascript]
 ----
-const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
+const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
-    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::MINTER_ROLE;
 
+    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        accesscontrol_component::AccessControlImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        accesscontrol: accesscontrol_component::Storage,
+        #[substorage(v0)]
+        src5: src5_component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        AccessControlEvent: accesscontrol_component::Event,
+        SRC5Event: src5_component::Event
+    }
 
     #[constructor]
     fn constructor(
@@ -147,22 +182,16 @@ mod MyContract {
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
 
         // AccessControl related initialization
-        let mut access_state = AccessControl::unsafe_new_contract_state();
-        AccessControl::InternalImpl::initializer(ref access_state);
-        AccessControl::InternalImpl::_grant_role(
-            ref access_state,
-            MINTER_ROLE,
-            minter
-        );
+        self.accesscontrol.initializer();
+        self.accesscontrol._grant_role(MINTER_ROLE, minter);
     }
 
-    // This function can only be called by a minter
+    /// This function can only be called by a minter.
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-        let access_state = AccessControl::unsafe_new_contract_state();
-        assert_only_role(@access_state, MINTER_ROLE);
+        self.accesscontrol.assert_only_role(MINTER_ROLE);
 
-        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
     }
 }
@@ -179,19 +208,41 @@ Let's augment our ERC20 token example by also defining a 'burner' role, which le
 
 [,javascript]
 ----
-const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
-const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
+const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
+const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
-    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
+    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        accesscontrol_component::AccessControlImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        accesscontrol: accesscontrol_component::Storage,
+        #[substorage(v0)]
+        src5: src5_component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        AccessControlEvent: accesscontrol_component::Event,
+        SRC5Event: src5_component::Event
+    }
 
     #[constructor]
     fn constructor(
@@ -209,38 +260,26 @@ mod MyContract {
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
 
         // AccessControl related initialization
-        let mut access_state = AccessControl::unsafe_new_contract_state();
-        AccessControl::InternalImpl::initializer(ref access_state);
-        AccessControl::InternalImpl::_grant_role(
-            ref access_state,
-            MINTER_ROLE,
-            minter
-        );
-        AccessControl::InternalImpl::_grant_role(
-            ref access_state,
-            BURNER_ROLE,
-            burner
-        );
+        self.accesscontrol.initializer();
+        self.accesscontrol._grant_role(MINTER_ROLE, minter);
+        self.accesscontrol._grant_role(BURNER_ROLE, burner);
     }
 
-
-    // This function can only be called by a minter
+    /// This function can only be called by a minter.
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-        let access_state = AccessControl::unsafe_new_contract_state();
-        assert_only_role(@access_state, MINTER_ROLE);
+        self.accesscontrol.assert_only_role(MINTER_ROLE);
 
-        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
     }
 
-    // This function can only be called by a burner
+    /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
-        let access_state = AccessControl::unsafe_new_contract_state();
-        assert_only_role(@access_state, BURNER_ROLE);
+        self.accesscontrol.assert_only_role(BURNER_ROLE);
 
-        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
     }
 }
@@ -279,20 +318,29 @@ Let's take a look at the ERC20 token example, this time taking advantage of the 
 
 [,javascript]
 ----
-const MINTER_ROLE: felt252 = selector!('MINTER_ROLE');
-const BURNER_ROLE: felt252 = selector!('BURNER_ROLE');
+const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
+const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl::InternalImpl::assert_only_role;
-    use openzeppelin::access::accesscontrol::AccessControl;
+    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
-    #[storage]
-    struct Storage {}
+    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        accesscontrol_component::AccessControlImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
+    (...)
 
     #[constructor]
     fn constructor(
@@ -309,48 +357,32 @@ mod MyContract {
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
 
         // AccessControl related initialization
-        let mut access_state = AccessControl::unsafe_new_contract_state();
-        AccessControl::InternalImpl::initializer(ref access_state);
-        AccessControl::InternalImpl::_grant_role(
-            ref access_state,
-            DEFAULT_ADMIN_ROLE,
-            admin
-        );
+        self.accesscontrol.initializer();
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, admin);
     }
 
-    // This function can only be called by a minter
+    /// This function can only be called by a minter.
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
-        let access_state = AccessControl::unsafe_new_contract_state();
-        assert_only_role(@access_state, MINTER_ROLE);
+        self.accesscontrol.assert_only_role(MINTER_ROLE);
 
-        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
     }
 
-    // This function can only be called by a burner
+    /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
-        let access_state = AccessControl::unsafe_new_contract_state();
-        assert_only_role(@access_state, BURNER_ROLE);
+        self.accesscontrol.assert_only_role(BURNER_ROLE);
 
-        let mut erc20_state = AccessControl::unsafe_new_contract_state();
+        let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
-    }
-
-    // These function can only be called by the roles' admin
-    #[external(v0)]
-    fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-        AccessControl::AccessControlImpl::grant_role(ref unsafe_state, role, account);
-    }
-    #[external(v0)]
-    fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        let mut unsafe_state = AccessControl::unsafe_new_contract_state();
-        AccessControl::AccessControlImpl::revoke_role(ref unsafe_state, role, account);
     }
 }
 ----
+
+TIP: The `grant_role` and `revoke_role` functions are automatically exposed as `external` functions
+from the `AccessControlImpl` by leveraging the `#[abi(embed_v0)]` annotation.
 
 Note that, unlike the previous examples, no accounts are granted the 'minter' or 'burner' roles.
 However, because those roles' admin role is the default admin role, and that role was granted to the 'admin', that

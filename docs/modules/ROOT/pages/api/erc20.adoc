@@ -117,14 +117,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 ```javascript
 use openzeppelin::token::erc20::ERC20;
 ```
-
-Implementation of the <<IERC20,IERC20>> interface.
-
-[.contract-index]
-.Constructor
---
-* xref:#ERC20-constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
---
+ERC20 component extending <<IERC20,IERC20>>.
 
 [.contract-index]
 .Embeddable functions
@@ -180,16 +173,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-Transfer[`++Transfer(from, to, value)++`]
 * xref:#ERC20-Approval[`++Approval(owner, spender, value)++`]
 --
-
-[#ERC20-Constructor]
-==== Constructor
-
-[.contract-item]
-[[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
-
-Sets both the token name and symbol and mints `initial_supply` to `recipient`.
-Note that the token name and symbol are immutable once set through the constructor.
 
 [#ERC20-Embeddable-functions]
 ==== Embeddable functions

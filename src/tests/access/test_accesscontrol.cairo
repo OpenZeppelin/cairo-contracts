@@ -1,31 +1,30 @@
-use openzeppelin::access::accesscontrol::AccessControl::AccessControlCamelImpl;
-use openzeppelin::access::accesscontrol::AccessControl::AccessControlImpl;
 use openzeppelin::access::accesscontrol::AccessControl::InternalImpl;
 use openzeppelin::access::accesscontrol::AccessControl::RoleAdminChanged;
 use openzeppelin::access::accesscontrol::AccessControl::RoleGranted;
 use openzeppelin::access::accesscontrol::AccessControl::RoleRevoked;
-use openzeppelin::access::accesscontrol::AccessControl;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin::access::accesscontrol::interface::{IAccessControl, IAccessControlCamel};
+use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
+use openzeppelin::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 use starknet::testing;
 
 //
 // Setup
 //
 
-fn STATE() -> AccessControl::ContractState {
-    AccessControl::contract_state_for_testing()
+fn STATE() -> DualCaseAccessControlMock::ContractState {
+    DualCaseAccessControlMock::contract_state_for_testing()
 }
 
-fn setup() -> AccessControl::ContractState {
+fn setup() -> DualCaseAccessControlMock::ContractState {
     let mut state = STATE();
-    InternalImpl::_grant_role(ref state, DEFAULT_ADMIN_ROLE, ADMIN());
+    state.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, ADMIN());
     utils::drop_event(ZERO());
     state
 }
@@ -38,11 +37,8 @@ fn setup() -> AccessControl::ContractState {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = STATE();
-    InternalImpl::initializer(ref state);
-    assert(
-        AccessControl::SRC5Impl::supports_interface(@state, IACCESSCONTROL_ID),
-        'Should support own interface'
-    );
+    state.accesscontrol.initializer();
+    assert(state.src5.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 //
 // supports_interface & supportsInterface
@@ -52,22 +48,16 @@ fn test_initializer() {
 #[available_gas(2000000)]
 fn test_supports_interface() {
     let mut state = STATE();
-    InternalImpl::initializer(ref state);
-    assert(
-        AccessControl::SRC5Impl::supports_interface(@state, IACCESSCONTROL_ID),
-        'Should support own interface'
-    );
+    state.accesscontrol.initializer();
+    assert(state.src5.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_supportsInterface() {
     let mut state = STATE();
-    InternalImpl::initializer(ref state);
-    assert(
-        AccessControl::SRC5CamelImpl::supportsInterface(@state, IACCESSCONTROL_ID),
-        'Should support own interface'
-    );
+    state.accesscontrol.initializer();
+    assert(state.src5.supportsInterface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 //
@@ -78,18 +68,18 @@ fn test_supportsInterface() {
 #[available_gas(2000000)]
 fn test_has_role() {
     let mut state = setup();
-    assert(!AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'should not have role');
-    InternalImpl::_grant_role(ref state, ROLE, AUTHORIZED());
-    assert(AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'should have role');
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'should not have role');
+    state.accesscontrol._grant_role(ROLE, AUTHORIZED());
+    assert(state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'should have role');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_hasRole() {
     let mut state = setup();
-    assert(!AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'should not have role');
-    InternalImpl::_grant_role(ref state, ROLE, AUTHORIZED());
-    assert(AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'should have role');
+    assert(!state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'should not have role');
+    state.accesscontrol._grant_role(ROLE, AUTHORIZED());
+    assert(state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'should have role');
 }
 
 
@@ -102,10 +92,10 @@ fn test_hasRole() {
 fn test_assert_only_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 
     testing::set_caller_address(AUTHORIZED());
-    InternalImpl::assert_only_role(@state, ROLE);
+    state.accesscontrol.assert_only_role(ROLE);
 }
 
 #[test]
@@ -114,7 +104,7 @@ fn test_assert_only_role() {
 fn test_assert_only_role_unauthorized() {
     let state = setup();
     testing::set_caller_address(OTHER());
-    InternalImpl::assert_only_role(@state, ROLE);
+    state.accesscontrol.assert_only_role(ROLE);
 }
 
 #[test]
@@ -122,10 +112,10 @@ fn test_assert_only_role_unauthorized() {
 #[should_panic(expected: ('Caller is missing role',))]
 fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
     let mut state = setup();
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 
     testing::set_caller_address(AUTHORIZED());
-    InternalImpl::assert_only_role(@state, OTHER_ROLE);
+    state.accesscontrol.assert_only_role(OTHER_ROLE);
 }
 
 //
@@ -137,10 +127,10 @@ fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
 fn test_grant_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 
     assert_event_role_granted(ROLE, AUTHORIZED(), ADMIN());
-    assert(AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be granted');
+    assert(state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should be granted');
 }
 
 #[test]
@@ -148,10 +138,10 @@ fn test_grant_role() {
 fn test_grantRole() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
 
     assert_event_role_granted(ROLE, AUTHORIZED(), ADMIN());
-    assert(AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be granted');
+    assert(state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should be granted');
 }
 
 #[test]
@@ -160,9 +150,9 @@ fn test_grant_role_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    assert(AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should still be granted');
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
+    assert(state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should still be granted');
 }
 
 #[test]
@@ -171,11 +161,9 @@ fn test_grantRole_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
-    assert(
-        AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should still be granted'
-    );
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
+    assert(state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should still be granted');
 }
 
 #[test]
@@ -184,7 +172,7 @@ fn test_grantRole_multiple_times_for_granted_role() {
 fn test_grant_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -193,7 +181,7 @@ fn test_grant_role_unauthorized() {
 fn test_grantRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
 }
 
 //
@@ -205,7 +193,7 @@ fn test_grantRole_unauthorized() {
 fn test_revoke_role_for_role_not_granted() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -213,7 +201,7 @@ fn test_revoke_role_for_role_not_granted() {
 fn test_revokeRole_for_role_not_granted() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revokeRole(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -222,13 +210,13 @@ fn test_revoke_role_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
     utils::drop_event(ZERO());
 
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
 
     assert_event_role_revoked(ROLE, AUTHORIZED(), ADMIN());
-    assert(!AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be revoked');
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
 #[test]
@@ -237,13 +225,13 @@ fn test_revokeRole_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
     utils::drop_event(ZERO());
 
-    AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revokeRole(ROLE, AUTHORIZED());
 
     assert_event_role_revoked(ROLE, AUTHORIZED(), ADMIN());
-    assert(!AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be revoked');
+    assert(!state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should be revoked');
 }
 
 #[test]
@@ -252,12 +240,10 @@ fn test_revoke_role_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
-    assert(
-        !AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should still be revoked'
-    );
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should still be revoked');
 }
 
 #[test]
@@ -266,12 +252,10 @@ fn test_revokeRole_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
-    AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
-    AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
-    assert(
-        !AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should still be revoked'
-    );
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
+    state.accesscontrol.revokeRole(ROLE, AUTHORIZED());
+    state.accesscontrol.revokeRole(ROLE, AUTHORIZED());
+    assert(!state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should still be revoked');
 }
 
 #[test]
@@ -280,7 +264,7 @@ fn test_revokeRole_multiple_times_for_granted_role() {
 fn test_revoke_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -289,7 +273,7 @@ fn test_revoke_role_unauthorized() {
 fn test_revokeRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    AccessControlCamelImpl::revokeRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revokeRole(ROLE, AUTHORIZED());
 }
 
 //
@@ -301,7 +285,7 @@ fn test_revokeRole_unauthorized() {
 fn test_renounce_role_for_role_not_granted() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
-    AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounce_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -309,7 +293,7 @@ fn test_renounce_role_for_role_not_granted() {
 fn test_renounceRole_for_role_not_granted() {
     let mut state = setup();
     testing::set_caller_address(AUTHORIZED());
-    AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounceRole(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -318,14 +302,14 @@ fn test_renounce_role_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
     utils::drop_event(ZERO());
 
     testing::set_caller_address(AUTHORIZED());
-    AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounce_role(ROLE, AUTHORIZED());
 
     assert_event_role_revoked(ROLE, AUTHORIZED(), AUTHORIZED());
-    assert(!AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should be renounced');
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should be renounced');
 }
 
 #[test]
@@ -334,16 +318,14 @@ fn test_renounceRole_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
 
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
     utils::drop_event(ZERO());
 
     testing::set_caller_address(AUTHORIZED());
-    AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounceRole(ROLE, AUTHORIZED());
 
     assert_event_role_revoked(ROLE, AUTHORIZED(), AUTHORIZED());
-    assert(
-        !AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()), 'Role should be renounced'
-    );
+    assert(!state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should be renounced');
 }
 
 #[test]
@@ -351,14 +333,12 @@ fn test_renounceRole_for_granted_role() {
 fn test_renounce_role_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 
     testing::set_caller_address(AUTHORIZED());
-    AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
-    AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
-    assert(
-        !AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'Role should still be renounced'
-    );
+    state.accesscontrol.renounce_role(ROLE, AUTHORIZED());
+    state.accesscontrol.renounce_role(ROLE, AUTHORIZED());
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'Role should still be renounced');
 }
 
 #[test]
@@ -366,15 +346,12 @@ fn test_renounce_role_multiple_times_for_granted_role() {
 fn test_renounceRole_multiple_times_for_granted_role() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
 
     testing::set_caller_address(AUTHORIZED());
-    AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
-    AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
-    assert(
-        !AccessControlCamelImpl::hasRole(@state, ROLE, AUTHORIZED()),
-        'Role should still be renounced'
-    );
+    state.accesscontrol.renounceRole(ROLE, AUTHORIZED());
+    state.accesscontrol.renounceRole(ROLE, AUTHORIZED());
+    assert(!state.accesscontrol.hasRole(ROLE, AUTHORIZED()), 'Role should still be renounced');
 }
 
 #[test]
@@ -383,10 +360,10 @@ fn test_renounceRole_multiple_times_for_granted_role() {
 fn test_renounce_role_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 
     testing::set_caller_address(ZERO());
-    AccessControlImpl::renounce_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounce_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -395,10 +372,10 @@ fn test_renounce_role_unauthorized() {
 fn test_renounceRole_unauthorized() {
     let mut state = setup();
     testing::set_caller_address(ADMIN());
-    AccessControlCamelImpl::grantRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grantRole(ROLE, AUTHORIZED());
 
     // Admin is unauthorized caller
-    AccessControlCamelImpl::renounceRole(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.renounceRole(ROLE, AUTHORIZED());
 }
 
 //
@@ -410,15 +387,14 @@ fn test_renounceRole_unauthorized() {
 fn test__set_role_admin() {
     let mut state = setup();
     assert(
-        AccessControlImpl::get_role_admin(@state, ROLE) == DEFAULT_ADMIN_ROLE,
+        state.accesscontrol.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE,
         'ROLE admin default should be 0'
     );
-    InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
+    state.accesscontrol._set_role_admin(ROLE, OTHER_ROLE);
 
     assert_event_role_admin_changed(ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);
     assert(
-        AccessControlImpl::get_role_admin(@state, ROLE) == OTHER_ROLE,
-        'ROLE admin should be OTHER_ROLE'
+        state.accesscontrol.get_role_admin(ROLE) == OTHER_ROLE, 'ROLE admin should be OTHER_ROLE'
     );
 }
 
@@ -426,31 +402,29 @@ fn test__set_role_admin() {
 #[available_gas(2000000)]
 fn test_new_admin_can_grant_roles() {
     let mut state = setup();
-    InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
+    state.accesscontrol._set_role_admin(ROLE, OTHER_ROLE);
 
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, OTHER_ROLE, OTHER_ADMIN());
+    state.accesscontrol.grant_role(OTHER_ROLE, OTHER_ADMIN());
 
     testing::set_caller_address(OTHER_ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    assert(AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'AUTHORIZED should have ROLE');
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
+    assert(state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'AUTHORIZED should have ROLE');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_new_admin_can_revoke_roles() {
     let mut state = setup();
-    InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
+    state.accesscontrol._set_role_admin(ROLE, OTHER_ROLE);
 
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, OTHER_ROLE, OTHER_ADMIN());
+    state.accesscontrol.grant_role(OTHER_ROLE, OTHER_ADMIN());
 
     testing::set_caller_address(OTHER_ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
-    assert(
-        !AccessControlImpl::has_role(@state, ROLE, AUTHORIZED()), 'AUTHORIZED should not have ROLE'
-    );
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
+    assert(!state.accesscontrol.has_role(ROLE, AUTHORIZED()), 'AUTHORIZED should not have ROLE');
 }
 
 #[test]
@@ -458,9 +432,9 @@ fn test_new_admin_can_revoke_roles() {
 #[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_grant_roles() {
     let mut state = setup();
-    InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
+    state.accesscontrol._set_role_admin(ROLE, OTHER_ROLE);
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::grant_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.grant_role(ROLE, AUTHORIZED());
 }
 
 #[test]
@@ -468,9 +442,9 @@ fn test_previous_admin_cannot_grant_roles() {
 #[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_revoke_roles() {
     let mut state = setup();
-    InternalImpl::_set_role_admin(ref state, ROLE, OTHER_ROLE);
+    state.accesscontrol._set_role_admin(ROLE, OTHER_ROLE);
     testing::set_caller_address(ADMIN());
-    AccessControlImpl::revoke_role(ref state, ROLE, AUTHORIZED());
+    state.accesscontrol.revoke_role(ROLE, AUTHORIZED());
 }
 
 //
@@ -482,7 +456,7 @@ fn test_previous_admin_cannot_revoke_roles() {
 fn test_other_role_admin_is_the_default_admin_role() {
     let state = setup();
     assert(
-        AccessControlImpl::get_role_admin(@state, OTHER_ROLE) == DEFAULT_ADMIN_ROLE,
+        state.accesscontrol.get_role_admin(OTHER_ROLE) == DEFAULT_ADMIN_ROLE,
         'Should be DEFAULT_ADMIN_ROLE'
     );
 }
@@ -492,7 +466,7 @@ fn test_other_role_admin_is_the_default_admin_role() {
 fn test_default_admin_role_is_its_own_admin() {
     let state = setup();
     assert(
-        AccessControlImpl::get_role_admin(@state, DEFAULT_ADMIN_ROLE) == DEFAULT_ADMIN_ROLE,
+        state.accesscontrol.get_role_admin(DEFAULT_ADMIN_ROLE) == DEFAULT_ADMIN_ROLE,
         'Should be DEFAULT_ADMIN_ROLE'
     );
 }

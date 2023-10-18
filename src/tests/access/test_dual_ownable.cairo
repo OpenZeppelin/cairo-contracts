@@ -4,10 +4,9 @@ use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcher;
 use openzeppelin::access::ownable::interface::IOwnableDispatcher;
 use openzeppelin::access::ownable::interface::IOwnableDispatcherTrait;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::ownable_mocks::CamelOwnableMock;
-use openzeppelin::tests::mocks::ownable_mocks::CamelOwnablePanicMock;
-use openzeppelin::tests::mocks::ownable_mocks::SnakeOwnableMock;
-use openzeppelin::tests::mocks::ownable_mocks::SnakeOwnablePanicMock;
+use openzeppelin::tests::mocks::ownable_mocks::{
+    CamelOwnableMock, CamelOwnablePanicMock, SnakeOwnableMock, SnakeOwnablePanicMock
+};
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;

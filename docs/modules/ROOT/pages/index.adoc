@@ -61,82 +61,53 @@ WARNING: Make sure the tag matches the target release.
 
 == Basic usage
 
-This is how it looks to build an account contract using the xref:accounts.adoc[account module].
+This is how it looks to build an account contract using the xref:accounts.adoc[account] component.
 Copy the code into `src/lib.cairo`.
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyAccount {
-    use openzeppelin::account::Account;
-    use openzeppelin::account::account::PublicKeyTrait;
-    use openzeppelin::account::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use starknet::account::Call;
+    use openzeppelin::account::Account as account_component;
+    use openzeppelin::introspection::src5::SRC5 as src5_component;
 
-    // Storage members used by this contract are defined in each imported
-    // module whose `unsafe_state` is used. This design will be improved
-    // with the addition of components in the future.
+    component!(path: account_component, storage: account, event: AccountEvent);
+    component!(path: src5_component, storage: src5, event: SRC5Event);
+
+    /// Account
+    #[abi(embed_v0)]
+    impl SRC6Impl = account_component::SRC6Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC6CamelOnlyImpl = account_component::SRC6CamelOnlyImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl DeclarerImpl = account_component::DeclarerImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl DeployableImpl = account_component::DeployableImpl<ContractState>;
+    impl AccountInternalImpl = account_component::InternalImpl<ContractState>;
+
+    /// SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        account: account_component::Storage,
+        #[substorage(v0)]
+        src5: src5_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        AccountEvent: account_component::Event,
+        SRC5Event: src5_component::Event
+    }
 
     #[constructor]
     fn constructor(ref self: ContractState, public_key: felt252) {
-        let mut unsafe_state = _unsafe_state();
-        Account::InternalImpl::initializer(ref unsafe_state, public_key);
-    }
-
-    #[external(v0)]
-    impl SRC6Impl of interface::ISRC6<ContractState> {
-        fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
-            Account::SRC6Impl::__execute__(@_unsafe_state(), calls)
-        }
-
-        fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
-            Account::SRC6Impl::__validate__(@_unsafe_state(), calls)
-        }
-
-        fn is_valid_signature(
-            self: @ContractState, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            Account::SRC6Impl::is_valid_signature(@_unsafe_state(), hash, signature)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            Account::SRC5Impl::supports_interface(@_unsafe_state(), interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl PublicKeyImpl of PublicKeyTrait<ContractState> {
-        fn get_public_key(self: @ContractState) -> felt252 {
-            Account::PublicKeyImpl::get_public_key(@_unsafe_state())
-        }
-
-        fn set_public_key(ref self: ContractState, new_public_key: felt252) {
-            let mut unsafe_state = _unsafe_state();
-            Account::PublicKeyImpl::set_public_key(ref unsafe_state, new_public_key);
-        }
-    }
-
-    #[external(v0)]
-    fn __validate_deploy__(
-        self: @ContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
-    ) -> felt252 {
-        Account::__validate_deploy__(
-            @_unsafe_state(), class_hash, contract_address_salt, _public_key
-        )
-    }
-
-    #[inline(always)]
-    fn _unsafe_state() -> Account::ContractState {
-        Account::unsafe_new_contract_state()
+        self.account.initializer(public_key);
     }
 }
 ----

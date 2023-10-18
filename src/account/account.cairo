@@ -13,7 +13,7 @@ trait PublicKeyCamelTrait<TState> {
 
 /// # Account Component
 ///
-/// The Account component enables contracts for acting as accounts.
+/// The Account component enables contracts to behave as accounts.
 #[starknet::component]
 mod Account {
     use ecdsa::check_ecdsa_signature;

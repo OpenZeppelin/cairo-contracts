@@ -102,6 +102,7 @@ mod Account {
         }
     }
 
+    /// Adds camelCase support for `ISRC6`.
     #[embeddable_as(SRC6CamelOnlyImpl)]
     impl SRC6CamelOnly<
         TContractState,
@@ -109,7 +110,6 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
-        /// Adds camelCase support for `is_valid_signature`.
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
@@ -153,6 +153,7 @@ mod Account {
         }
     }
 
+    /// Adds camelCase support for `PublicKeyTrait`.
     #[embeddable_as(PublicKeyCamelImpl)]
     impl PublicKeyCamel<
         TContractState,
@@ -160,12 +161,10 @@ mod Account {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of super::PublicKeyCamelTrait<ComponentState<TContractState>> {
-        /// Adds camelCase support for `get_public_key`.
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
             self.Account_public_key.read()
         }
 
-        /// Adds camelCase support for `set_public_key`.
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
             self.set_public_key(newPublicKey);
         }

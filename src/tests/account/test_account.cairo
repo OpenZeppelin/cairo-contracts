@@ -87,7 +87,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 }
 
 //
-// supports_interface & supportsInterface
+// supports_interface
 //
 
 #[test]

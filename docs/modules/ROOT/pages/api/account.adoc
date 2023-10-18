@@ -96,8 +96,8 @@ Account component extending xref:ISRC6[`ISRC6`].
 
 .PublicKeyImpl
 
-* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 * xref:#Account-get_public_key[`++get_public_key(self)++`]
+* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
 --
 
 [.contract-index]
@@ -109,8 +109,8 @@ Account component extending xref:ISRC6[`ISRC6`].
 
 .PublicKeyCamelImpl
 
-* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
 * xref:#Account-getPublicKey[`++getPublicKey(self)++`]
+* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
 --
 
 [.contract-index]
@@ -137,7 +137,7 @@ Account component extending xref:ISRC6[`ISRC6`].
 
 [.contract-item]
 [[Account-__execute__]]
-==== `[.contract-item-name]#++__execute__++#++(ref self: ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
 
 See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
 
@@ -177,18 +177,18 @@ See xref:/guides/deployment.adoc[Counterfactual Deployments].
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
+[[Account-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+
+Returns the current public key of the account.
+
+[.contract-item]
 [[Account-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
 Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
-
-[.contract-item]
-[[Account-get_public_key]]
-==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
-
-Returns the current public key of the account.
 
 [#Account-camelCase-Support]
 ==== camelCase Support
@@ -200,16 +200,16 @@ Returns the current public key of the account.
 See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
 [.contract-item]
-[[Account-setPublicKey]]
-==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
-
-See xref:Account-set_public_key[set_public_key].
-
-[.contract-item]
 [[Account-getPublicKey]]
 ==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 See xref:Account-get_public_key[get_public_key].
+
+[.contract-item]
+[[Account-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
+
+See xref:Account-set_public_key[set_public_key].
 
 [#Account-Internal-Functions]
 ==== Internal Functions

@@ -1,9 +1,9 @@
-use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1Dispatcher;
-use openzeppelin::tests::mocks::upgrades_v1::IUpgradesV1DispatcherTrait;
-use openzeppelin::tests::mocks::upgrades_v1::UpgradesV1;
-use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2Dispatcher;
-use openzeppelin::tests::mocks::upgrades_v2::IUpgradesV2DispatcherTrait;
-use openzeppelin::tests::mocks::upgrades_v2::UpgradesV2;
+use openzeppelin::tests::mocks::upgrades_mocks::{
+    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait, UpgradesV1
+};
+use openzeppelin::tests::mocks::upgrades_mocks::{
+    IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait, UpgradesV2
+};
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
 use openzeppelin::tests::utils;
 use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;

@@ -200,7 +200,9 @@ mod MyToken {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        decimals: u8
+        decimals: u8,
+        initial_supply: u256
+        recipient: ContractAddress,
     ) {
         // Call the internal function that writes decimals to storage
         self._set_decimals(decimals);

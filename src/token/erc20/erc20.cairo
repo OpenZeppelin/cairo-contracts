@@ -43,7 +43,7 @@ mod ERC20 {
     }
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
-    /// to [approve](approve). `value` is the new allowance.
+    /// to `approve`. `value` is the new allowance.
     #[derive(Drop, starknet::Event)]
     struct Approval {
         #[key]
@@ -81,7 +81,7 @@ mod ERC20 {
         }
 
         /// Returns the remaining number of tokens that `spender` is
-        /// allowed to spend on behalf of `owner` through [transfer_from](transfer_from).
+        /// allowed to spend on behalf of `owner` through `transfer_from`.
         /// This is zero by default.
         /// This value changes when `approve` or `transfer_from`
         /// are called.
@@ -92,7 +92,7 @@ mod ERC20 {
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
-        /// Emits a [Transfer](Transfer) event.
+        /// Emits a `Transfer` event.
         fn transfer(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) -> bool {
@@ -103,7 +103,7 @@ mod ERC20 {
 
         /// Moves `amount` tokens from `from` to `to` using the allowance mechanism.
         /// `amount` is then deducted from the caller's allowance.
-        /// Emits a [Transfer](Transfer) event.
+        /// Emits a `Transfer` event.
         fn transfer_from(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -151,7 +151,7 @@ mod ERC20 {
         TContractState, +HasComponent<TContractState>
     > of interface::IERC20SafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        /// Emits an `Approval` event indicating the updated allowance.
         fn increase_allowance(
             ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
         ) -> bool {
@@ -159,7 +159,7 @@ mod ERC20 {
         }
 
         /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        /// Emits an `Approval` event indicating the updated allowance.
         fn decrease_allowance(
             ref self: ComponentState<TContractState>,
             spender: ContractAddress,
@@ -228,7 +228,7 @@ mod ERC20 {
         }
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
-        /// Emits a [Transfer](Transfer) event.
+        /// Emits a `Transfer` event.
         fn _transfer(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -244,7 +244,7 @@ mod ERC20 {
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
         /// `owner`s tokens.
-        /// Emits an [Approval](Approval) event.
+        /// Emits an `Approval` event.
         fn _approve(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
@@ -258,7 +258,7 @@ mod ERC20 {
         }
 
         /// Creates a `value` amount of tokens and assigns them to `account`.
-        /// Emits a [Transfer](Transfer) event with `from` set to the zero address.
+        /// Emits a `Transfer` event with `from` set to the zero address.
         fn _mint(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) {
@@ -269,7 +269,7 @@ mod ERC20 {
         }
 
         /// Destroys a `value` amount of tokens from `account`.
-        /// Emits a [Transfer](Transfer) event with `to` set to the zero address.
+        /// Emits a `Transfer` event with `to` set to the zero address.
         fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
@@ -277,8 +277,8 @@ mod ERC20 {
             self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
         }
 
-        /// Internal method for the external [increase_allowance](increase_allowance).
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        /// Internal method for the external `increase_allowance`.
+        /// Emits an `Approval` event indicating the updated allowance.
         fn _increase_allowance(
             ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
         ) -> bool {
@@ -290,8 +290,8 @@ mod ERC20 {
             true
         }
 
-        /// Internal method for the external [decrease_allowance](decrease_allowance).
-        /// Emits an [Approval](Approval) event indicating the updated allowance.
+        /// Internal method for the external `decrease_allowance`.
+        /// Emits an `Approval` event indicating the updated allowance.
         fn _decrease_allowance(
             ref self: ComponentState<TContractState>,
             spender: ContractAddress,
@@ -309,7 +309,7 @@ mod ERC20 {
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
-        /// Possibly emits an [Approval](Approval) event.
+        /// Possibly emits an `Approval` event.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,

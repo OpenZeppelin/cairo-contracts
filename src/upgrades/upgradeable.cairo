@@ -6,7 +6,6 @@
 /// The Upgradeable component provides a mechanism to make a contract upgradeable.
 #[starknet::component]
 mod Upgradeable {
-    use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
 
     #[storage]
@@ -26,16 +25,6 @@ mod Upgradeable {
 
     mod Errors {
         const INVALID_CLASS: felt252 = 'Class hash cannot be zero';
-    }
-
-    #[embeddable_as(UpgradeableImpl)]
-    impl Upgradeable<
-        TContractState, +HasComponent<TContractState>
-    > of IUpgradeable<ComponentState<TContractState>> {
-        /// Upgrades the contract to a new class.
-        fn upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {
-            self._upgrade(new_class_hash);
-        }
     }
 
     #[generate_trait]

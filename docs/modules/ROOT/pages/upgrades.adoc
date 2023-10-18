@@ -34,7 +34,7 @@ fn _upgrade(new_class_hash: ClassHash) {
 
 NOTE: If a contract is deployed without this mechanism, its class hash can still be replaced through {library_calls}.
 
-== `Upgradeable` module
+== `Upgradeable` component
 
 OpenZeppelin Contracts for Cairo provides {upgradeable} to add upgradeability support to your contracts.
 
@@ -49,35 +49,53 @@ NOTE: We will be using the following module to implement the {i_upgradeable} int
 ----
 #[starknet::contract]
 mod UpgradeableContract {
-    use openzeppelin::access::ownable::Ownable;
-    use openzeppelin::upgrades::Upgradeable;
+    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::upgrades::Upgradeable as upgradeable_component;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
+    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
+
+    /// Ownable
+    #[abi(embed_v0)]
+    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
+
+    /// Upgradeable
+    impl UpgradeableInternalImpl = upgradeable_component::InternalImpl<ContractState>;
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        ownable: ownable_component::Storage,
+        #[substorage(v0)]
+        upgradeable: upgradeable_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnableEvent: ownable_component::Event,
+        UpgradeableEvent: upgradeable_component::Event
+    }
 
     #[constructor]
-    fn constructor(self: @ContractState, owner: ContractAddress) {
-        let mut unsafe_state = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::initializer(ref unsafe_state, owner);
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        self.ownable.initializer(owner);
     }
 
     #[external(v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             // This function can only be called by the owner
-            let ownable_state = Ownable::unsafe_new_contract_state();
-            Ownable::InternalImpl::assert_only_owner(@ownable_state);
+            self.ownable.assert_only_owner();
 
             // Replace the class hash upgrading the contract
-            let mut upgradeable_state = Upgradeable::unsafe_new_contract_state();
-            Upgradeable::InternalImpl::_upgrade(ref upgradeable_state, new_class_hash);
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
-
-    (...)
 }
 ----
 

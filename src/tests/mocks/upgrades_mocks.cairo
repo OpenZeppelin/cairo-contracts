@@ -26,8 +26,7 @@ mod UpgradesV1 {
 
     component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
 
-    #[abi(embed_v0)]
-    impl UpgradeableImpl = upgradeable_component::UpgradeableImpl<ContractState>;
+    impl InternalImpl = upgradeable_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -40,6 +39,11 @@ mod UpgradesV1 {
     #[derive(Drop, starknet::Event)]
     enum Event {
         UpgradeableEvent: upgradeable_component::Event
+    }
+
+    #[external(v0)]
+    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+        self.upgradeable._upgrade(new_class_hash);
     }
 
     #[external(v0)]
@@ -80,8 +84,7 @@ mod UpgradesV2 {
 
     component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
 
-    #[abi(embed_v0)]
-    impl UpgradeableImpl = upgradeable_component::UpgradeableImpl<ContractState>;
+    impl InternalImpl = upgradeable_component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -95,6 +98,11 @@ mod UpgradesV2 {
     #[derive(Drop, starknet::Event)]
     enum Event {
         UpgradeableEvent: upgradeable_component::Event
+    }
+
+    #[external(v0)]
+    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+        self.upgradeable._upgrade(new_class_hash);
     }
 
     #[external(v0)]

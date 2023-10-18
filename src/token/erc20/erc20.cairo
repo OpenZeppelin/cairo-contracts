@@ -83,7 +83,7 @@ mod ERC20 {
         /// Returns the remaining number of tokens that `spender` is
         /// allowed to spend on behalf of `owner` through [transfer_from](transfer_from).
         /// This is zero by default.
-        /// This value changes when [approve](approve) or [transfer_from](transfer_from)
+        /// This value changes when `approve` or `transfer_from`
         /// are called.
         fn allowance(
             self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress

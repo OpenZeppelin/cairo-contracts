@@ -141,7 +141,7 @@ In the actual contract, however, the supply would still be the integer `1234`.
 In other words, *the decimals field in no way changes the actual arithmetic* because all operations are still performed on integers.
 
 Most contracts use `18` decimals and this was even proposed to be compulsory (see the {eip-discussion}).
-The Contracts for Cairo `ERC20MetadataImpl` implementation includes the `decimals` function that returns `18` by default to save on gas fees.
+The Contracts for Cairo `ERC20` component includes the `decimals` function that returns `18` by default to save on gas fees.
 For those who want an ERC20 token with a configurable number of decimals, the following guide shows two ways to achieve this.
 
 NOTE: Both approaches require creating a custom implementation of the `IERC20Metadata` interface.
@@ -217,11 +217,17 @@ mod MyToken {
 
     #[external(v0)]
     impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
+        fn name(self: @ContractState) -> felt252 {
+            self.erc20.name()
+        }
+
+        fn symbol(self: @ContractState) -> felt252 {
+            self.erc20.symbol()
+        }
+
         fn decimals(self: @ContractState) -> u8 {
             self.MyToken_decimals.read()
         }
-
-        (...)
     }
 
     #[generate_trait]

@@ -128,10 +128,10 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 - [Scarb](https://docs.swmansion.com/scarb)
 
 ## Development
+
 > **Note**: You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
 
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software, make sure to check out the [contribution](CONTRIBUTING.md) guide in advance.
-
 
 ### Set up the project
 

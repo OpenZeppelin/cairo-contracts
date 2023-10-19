@@ -32,6 +32,7 @@ mod DualCaseERC721Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ERC721Event: erc721_component::Event,
         SRC5Event: src5_component::Event
     }

@@ -141,9 +141,7 @@ impl CheckpointImpl of CheckpointTrait {
     /// Return the index of the last (most recent) checkpoint with key lower or equal than the search key,
     /// or `high` if there is none. `low` and `high` define a section where to do the search, with
     /// inclusive `low` and exclusive `high`.
-    fn _upper_binary_lookup(
-        self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32
-    ) -> u32 {
+    fn _upper_binary_lookup(self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32) -> u32 {
         let mut _low = low;
         let mut _high = high;
         loop {

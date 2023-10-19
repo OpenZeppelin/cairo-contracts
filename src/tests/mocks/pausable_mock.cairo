@@ -1,6 +1,6 @@
 #[starknet::contract]
 mod PausableMock {
-    use openzeppelin::security::pausable::Pausable as pausable_component;
+    use openzeppelin::security::Pausable as pausable_component;
 
     component!(path: pausable_component, storage: pausable, event: PausableEvent);
 

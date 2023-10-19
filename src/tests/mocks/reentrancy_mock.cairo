@@ -17,7 +17,7 @@ trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 mod ReentrancyMock {
-    use openzeppelin::security::reentrancyguard::ReentrancyGuard as reentrancy_guard_component;
+    use openzeppelin::security::ReentrancyGuard as reentrancy_guard_component;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
     use starknet::ContractAddress;

@@ -66,7 +66,7 @@ For example (using the xref:api/access.adoc#Ownable[Ownable] component for acces
 #[starknet::contract]
 mod MyPausableContract {
     use openzeppelin::access::ownable::Ownable as ownable_component;
-    use openzeppelin::security::pausable::Pausable as pausable_component;
+    use openzeppelin::security::Pausable as pausable_component;
     use starknet::ContractAddress;
 
     component!(path: ownable_component, storage: ownable, event: OwnableEvent);

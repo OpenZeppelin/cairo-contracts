@@ -1355,7 +1355,7 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log_comp_indexed::<ApprovalForAll>(ZERO()).unwrap();
+    let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
     assert(event.owner == owner, 'Invalid `owner`');
     assert(event.operator == operator, 'Invalid `operator`');
     assert(event.approved == approved, 'Invalid `approved`');
@@ -1369,7 +1369,7 @@ fn assert_event_approval_for_all(
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
-    let event = utils::pop_log_comp_indexed::<Approval>(ZERO()).unwrap();
+    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
     assert(event.owner == owner, 'Invalid `owner`');
     assert(event.approved == approved, 'Invalid `approved`');
     assert(event.token_id == token_id, 'Invalid `token_id`');
@@ -1384,7 +1384,7 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let event = utils::pop_log_comp_indexed::<Transfer>(ZERO()).unwrap();
+    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
     assert(event.from == from, 'Invalid `from`');
     assert(event.to == to, 'Invalid `to`');
     assert(event.token_id == token_id, 'Invalid `token_id`');

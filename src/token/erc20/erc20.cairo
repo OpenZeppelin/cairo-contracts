@@ -146,10 +146,10 @@ mod ERC20 {
         }
     }
 
-    #[embeddable_as(ERC20SafeAllowanceImpl)]
-    impl ERC20SafeAllowance<
+    #[embeddable_as(SafeAllowanceImpl)]
+    impl SafeAllowance<
         TContractState, +HasComponent<TContractState>
-    > of interface::IERC20SafeAllowance<ComponentState<TContractState>> {
+    > of interface::ISafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
         /// Emits an `Approval` event indicating the updated allowance.
         fn increase_allowance(
@@ -192,11 +192,11 @@ mod ERC20 {
         }
     }
 
-    /// Adds camelCase support for `IERC20SafeAllowance`.
-    #[embeddable_as(ERC20CamelSafeAllowanceImpl)]
-    impl ERC20CamelSafeAllowance<
+    /// Adds camelCase support for `ISafeAllowance`.
+    #[embeddable_as(SafeAllowanceCamelImpl)]
+    impl SafeAllowanceCamel<
         TContractState, +HasComponent<TContractState>
-    > of interface::IERC20CamelSafeAllowance<ComponentState<TContractState>> {
+    > of interface::ISafeAllowanceCamel<ComponentState<TContractState>> {
         fn increaseAllowance(
             ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
         ) -> bool {

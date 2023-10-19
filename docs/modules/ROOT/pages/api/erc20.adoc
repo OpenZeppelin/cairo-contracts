@@ -185,7 +185,7 @@ ERC20 component extending <<IERC20,IERC20>>.
 * xref:#ERC20-symbol[`++symbol(self)++`]
 * xref:#ERC20-decimals[`++decimals(self)++`]
 
-.ERC20SafeAllowanceImpl
+.SafeAllowanceImpl
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 --
@@ -198,7 +198,7 @@ ERC20 component extending <<IERC20,IERC20>>.
 * xref:#ERC20-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
 
-.ERC20CamelSafeAllowanceImpl
+.SafeAllowanceCamelImpl
 * xref:#ERC20-increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
 * xref:#ERC20-decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
 --

@@ -23,7 +23,7 @@ trait IERC20Metadata<TState> {
 }
 
 #[starknet::interface]
-trait IERC20SafeAllowance<TState> {
+trait ISafeAllowance<TState> {
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(
         ref self: TState, spender: ContractAddress, subtracted_value: u256
@@ -55,7 +55,7 @@ trait IERC20CamelOnly<TState> {
 }
 
 #[starknet::interface]
-trait IERC20CamelSafeAllowance<TState> {
+trait ISafeAllowanceCamel<TState> {
     fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
     fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
 }

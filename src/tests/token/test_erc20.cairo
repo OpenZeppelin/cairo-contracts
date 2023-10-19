@@ -5,11 +5,11 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20::Approval;
+use openzeppelin::token::erc20::ERC20::SafeAllowanceImpl;
+use openzeppelin::token::erc20::ERC20::SafeAllowanceCamelImpl;
 use openzeppelin::token::erc20::ERC20::ERC20CamelOnlyImpl;
-use openzeppelin::token::erc20::ERC20::ERC20CamelSafeAllowanceImpl;
 use openzeppelin::token::erc20::ERC20::ERC20Impl;
 use openzeppelin::token::erc20::ERC20::ERC20MetadataImpl;
-use openzeppelin::token::erc20::ERC20::ERC20SafeAllowanceImpl;
 use openzeppelin::token::erc20::ERC20::InternalImpl;
 use openzeppelin::token::erc20::ERC20::Transfer;
 use openzeppelin::token::erc20::ERC20;

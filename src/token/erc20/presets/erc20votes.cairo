@@ -50,9 +50,9 @@ mod ERC20VotesPreset {
 
         let mut erc20_state = ERC20::unsafe_new_contract_state();
         ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
-        ERC20::InternalImpl::_mint::<ERC20VotesHooksImpl>(
-            ref erc20_state, recipient, initial_supply
-        );
+        ERC20::InternalImpl::_mint::<
+            ERC20VotesHooksImpl
+        >(ref erc20_state, recipient, initial_supply);
     }
 
     //
@@ -96,9 +96,9 @@ mod ERC20VotesPreset {
         fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
             let mut unsafe_state = ERC20::unsafe_new_contract_state();
             let sender = starknet::get_caller_address();
-            ERC20::InternalImpl::_transfer::<ERC20VotesHooksImpl>(
-                ref unsafe_state, sender, recipient, amount
-            );
+            ERC20::InternalImpl::_transfer::<
+                ERC20VotesHooksImpl
+            >(ref unsafe_state, sender, recipient, amount);
             true
         }
 
@@ -111,9 +111,9 @@ mod ERC20VotesPreset {
             let mut unsafe_state = ERC20::unsafe_new_contract_state();
             let caller = starknet::get_caller_address();
             ERC20::InternalImpl::_spend_allowance(ref unsafe_state, sender, caller, amount);
-            ERC20::InternalImpl::_transfer::<ERC20VotesHooksImpl>(
-                ref unsafe_state, sender, recipient, amount
-            );
+            ERC20::InternalImpl::_transfer::<
+                ERC20VotesHooksImpl
+            >(ref unsafe_state, sender, recipient, amount);
             true
         }
 

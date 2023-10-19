@@ -3,8 +3,8 @@
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
-use super::storage_array::StorageArrayTrait;
 use super::storage_array::StorageArray;
+use super::storage_array::StorageArrayTrait;
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block number. See {Votes} as an example.

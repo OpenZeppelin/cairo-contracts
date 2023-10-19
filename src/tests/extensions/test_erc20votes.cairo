@@ -1,3 +1,5 @@
+use ERC20Votes::ERC20Votes_delegate_checkpoints::InternalContractMemberStateTrait as DelegateCheckpointsTrait;
+use ERC20Votes::ERC20Votes_total_checkpoints::InternalContractMemberStateTrait as TotalCheckpointsTrait;
 use integer::BoundedInt;
 use openzeppelin::account::Account::TRANSACTION_VERSION;
 use openzeppelin::account::Account;
@@ -6,21 +8,18 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20;
-use openzeppelin::token::erc20::extensions::ERC20Votes;
 use openzeppelin::token::erc20::extensions::ERC20Votes::Checkpoint;
 use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::DelegateVotesChanged;
 use openzeppelin::token::erc20::extensions::ERC20Votes::InternalImpl;
 use openzeppelin::token::erc20::extensions::ERC20Votes::VotesImpl;
+use openzeppelin::token::erc20::extensions::ERC20Votes;
 use openzeppelin::token::erc20::extensions::erc20votes::{Delegation, IOffchainMessageHash};
 use openzeppelin::utils::cryptography::eip712_draft::EIP712;
 use openzeppelin::utils::structs::checkpoints::{Trace, TraceTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing;
-
-use ERC20Votes::ERC20Votes_delegate_checkpoints::InternalContractMemberStateTrait as DelegateCheckpointsTrait;
-use ERC20Votes::ERC20Votes_total_checkpoints::InternalContractMemberStateTrait as TotalCheckpointsTrait;
 
 //
 // Setup

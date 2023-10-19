@@ -1,15 +1,15 @@
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-use openzeppelin::tests::mocks::snake_accesscontrol_mock::SnakeAccessControlMock;
-use openzeppelin::tests::mocks::camel_accesscontrol_mock::CamelAccessControlMock;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::SnakeAccessControlPanicMock;
-use openzeppelin::tests::mocks::accesscontrol_panic_mock::CamelAccessControlPanicMock;
+use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
+use openzeppelin::tests::mocks::accesscontrol_mocks::{
+    CamelAccessControlMock, SnakeAccessControlMock, CamelAccessControlPanicMock,
+    SnakeAccessControlPanicMock
+};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;

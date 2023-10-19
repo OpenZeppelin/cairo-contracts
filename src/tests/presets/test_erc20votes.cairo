@@ -10,9 +10,9 @@ use openzeppelin::tests::utils::constants::{
     DAPP_NAME, DAPP_VERSION, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::presets::ERC20VotesPreset;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::ERC20Impl;
 use openzeppelin::token::erc20::presets::ERC20VotesPreset::VotesImpl;
+use openzeppelin::token::erc20::presets::ERC20VotesPreset;
 use openzeppelin::utils::structs::checkpoints::Checkpoint;
 use starknet::ContractAddress;
 use starknet::contract_address_const;

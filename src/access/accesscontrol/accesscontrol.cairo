@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/accesscontrol.cairo)
 
-#[starknet::contract]
+/// # AccessControl Component
+///
+/// The AccessControl component allows contracts to implement role-based access control mechanisms.
+/// Roles are referred to by their `felt252` identifier.
+#[starknet::component]
 mod AccessControl {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::interface::ISRC5Camel;
+    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::introspection::src5::unsafe_state as src5_state;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -64,107 +66,173 @@ mod AccessControl {
         const MISSING_ROLE: felt252 = 'Caller is missing role';
     }
 
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            SRC5::SRC5Impl::supports_interface(@src5_state(), interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            SRC5::SRC5CamelImpl::supportsInterface(@src5_state(), interfaceId)
-        }
-    }
-
-    #[external(v0)]
-    impl AccessControlImpl of interface::IAccessControl<ContractState> {
-        fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
+    #[embeddable_as(AccessControlImpl)]
+    impl AccessControl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IAccessControl<ComponentState<TContractState>> {
+        /// Returns whether `account` has been granted `role`.
+        fn has_role(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) -> bool {
             self.AccessControl_role_member.read((role, account))
         }
 
-        fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
+        /// Returns the admin role that controls `role`.
+        fn get_role_admin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
             self.AccessControl_role_admin.read(role)
         }
 
-        fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-            let admin = AccessControlImpl::get_role_admin(@self, role);
+        /// Grants `role` to `account`.
+        ///
+        /// If `account` had not been already granted `role`, emits a `RoleGranted` event.
+        ///
+        /// Requirements:
+        ///
+        /// - the caller must have `role`'s admin role.
+        fn grant_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            let admin = self.get_role_admin(role);
             self.assert_only_role(admin);
             self._grant_role(role, account);
         }
 
-        fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-            let admin = AccessControlImpl::get_role_admin(@self, role);
+        /// Revokes `role` from `account`.
+        ///
+        /// If `account` had been granted `role`, emits a `RoleRevoked` event.
+        ///
+        /// Requirements:
+        ///
+        /// - the caller must have `role`'s admin role.
+        fn revoke_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            let admin = self.get_role_admin(role);
             self.assert_only_role(admin);
             self._revoke_role(role, account);
         }
 
-        fn renounce_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+        /// Revokes `role` from the calling account.
+        ///
+        /// Roles are often managed via `grant_role` and `revoke_role`: this function's
+        /// purpose is to provide a mechanism for accounts to lose their privileges
+        /// if they are compromised (such as when a trusted device is misplaced).
+        ///
+        /// If the calling account had been revoked `role`, emits a `RoleRevoked`
+        /// event.
+        ///
+        /// Requirements:
+        ///
+        /// - the caller must be `account`.
+        fn renounce_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let caller: ContractAddress = get_caller_address();
             assert(caller == account, Errors::INVALID_CALLER);
             self._revoke_role(role, account);
         }
     }
 
-    #[external(v0)]
-    impl AccessControlCamelImpl of interface::IAccessControlCamel<ContractState> {
-        fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-            AccessControlImpl::has_role(self, role, account)
+    /// Adds camelCase support for `IAccessControl`.
+    #[embeddable_as(AccessControlCamelImpl)]
+    impl AccessControlCamel<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IAccessControlCamel<ComponentState<TContractState>> {
+        fn hasRole(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) -> bool {
+            self.has_role(role, account)
         }
 
-        fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
-            AccessControlImpl::get_role_admin(self, role)
+        fn getRoleAdmin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
+            self.get_role_admin(role)
         }
 
-        fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            AccessControlImpl::grant_role(ref self, role, account);
+        fn grantRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            self.grant_role(role, account);
         }
 
-        fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            AccessControlImpl::revoke_role(ref self, role, account);
+        fn revokeRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            self.revoke_role(role, account);
         }
 
-        fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-            AccessControlImpl::renounce_role(ref self, role, account);
+        fn renounceRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            self.renounce_role(role, account);
         }
     }
 
-    //
-    // Internal
-    //
-
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState) {
-            let mut unsafe_state = src5_state();
-            SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IACCESSCONTROL_ID);
+    impl InternalImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Initializes the contract by registering the IAccessControl interface Id.
+        fn initializer(ref self: ComponentState<TContractState>) {
+            let mut contract = self.get_contract_mut();
+            let mut src5_component = SRC5::HasComponent::<
+                TContractState
+            >::get_component_mut(ref contract);
+            src5_component.register_interface(interface::IACCESSCONTROL_ID);
         }
 
-        fn assert_only_role(self: @ContractState, role: felt252) {
+        /// Validates that the caller has the given role. Otherwise it panics.
+        fn assert_only_role(self: @ComponentState<TContractState>, role: felt252) {
             let caller: ContractAddress = get_caller_address();
-            let authorized: bool = AccessControlImpl::has_role(self, role, caller);
+            let authorized: bool = self.has_role(role, caller);
             assert(authorized, Errors::MISSING_ROLE);
         }
 
-        fn _grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-            if !AccessControlImpl::has_role(@self, role, account) {
+        /// Attempts to grant `role` to `account`.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// May emit a `RoleGranted` event.
+        fn _grant_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            if !self.has_role(role, account) {
                 let caller: ContractAddress = get_caller_address();
                 self.AccessControl_role_member.write((role, account), true);
                 self.emit(RoleGranted { role, account, sender: caller });
             }
         }
 
-        fn _revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-            if AccessControlImpl::has_role(@self, role, account) {
+        /// Attempts to revoke `role` from `account`.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// May emit a `RoleRevoked` event.
+        fn _revoke_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
+            if self.has_role(role, account) {
                 let caller: ContractAddress = get_caller_address();
                 self.AccessControl_role_member.write((role, account), false);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }
         }
 
-        fn _set_role_admin(ref self: ContractState, role: felt252, admin_role: felt252) {
-            let previous_admin_role: felt252 = AccessControlImpl::get_role_admin(@self, role);
+        /// Sets `admin_role` as `role`'s admin role.
+        ///
+        /// Emits a `RoleAdminChanged` event.
+        fn _set_role_admin(
+            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
+        ) {
+            let previous_admin_role: felt252 = self.get_role_admin(role);
             self.AccessControl_role_admin.write(role, admin_role);
             self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }

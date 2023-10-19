@@ -6,7 +6,12 @@ trait IPausable<TState> {
     fn is_paused(self: @TState) -> bool;
 }
 
-#[starknet::contract]
+/// # Pausable Component
+///
+/// The Pausable component allows the using contract to implement an
+/// emergency stop mechanism. Only functions that call `assert_paused`
+/// or `assert_not_paused` will be affected by this mechanism.
+#[starknet::component]
 mod Pausable {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
@@ -22,10 +27,14 @@ mod Pausable {
         Paused: Paused,
         Unpaused: Unpaused,
     }
+
+    /// Emitted when the pause is triggered by `account`.
     #[derive(Drop, starknet::Event)]
     struct Paused {
         account: ContractAddress
     }
+
+    /// Emitted when the pause is lifted by `account`.
     #[derive(Drop, starknet::Event)]
     struct Unpaused {
         account: ContractAddress
@@ -36,30 +45,41 @@ mod Pausable {
         const NOT_PAUSED: felt252 = 'Pausable: not paused';
     }
 
-    #[external(v0)]
-    impl PausableImpl of super::IPausable<ContractState> {
-        fn is_paused(self: @ContractState) -> bool {
+    #[embeddable_as(PausableImpl)]
+    impl Pausable<
+        TContractState, +HasComponent<TContractState>
+    > of super::IPausable<ComponentState<TContractState>> {
+        /// Returns true if the contract is paused, and false otherwise.
+        fn is_paused(self: @ComponentState<TContractState>) -> bool {
             self.Pausable_paused.read()
         }
     }
 
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn assert_not_paused(self: @ContractState) {
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Makes a function only callable when the contract is not paused.
+        fn assert_not_paused(self: @ComponentState<TContractState>) {
             assert(!self.Pausable_paused.read(), Errors::PAUSED);
         }
 
-        fn assert_paused(self: @ContractState) {
+        /// Makes a function only callable when the contract is paused.
+        fn assert_paused(self: @ComponentState<TContractState>) {
             assert(self.Pausable_paused.read(), Errors::NOT_PAUSED);
         }
 
-        fn _pause(ref self: ContractState) {
+        /// Triggers a stopped state.
+        /// The contract must not already be paused.
+        fn _pause(ref self: ComponentState<TContractState>) {
             self.assert_not_paused();
             self.Pausable_paused.write(true);
             self.emit(Paused { account: get_caller_address() });
         }
 
-        fn _unpause(ref self: ContractState) {
+        /// Lifts the pause on the contract.
+        /// The contract must already be paused.
+        fn _unpause(ref self: ComponentState<TContractState>) {
             self.assert_paused();
             self.Pausable_paused.write(false);
             self.emit(Unpaused { account: get_caller_address() });

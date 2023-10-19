@@ -28,6 +28,7 @@ mod DualCaseERC20 {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ERC20Event: erc20_component::Event
     }
 

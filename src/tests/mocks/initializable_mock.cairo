@@ -1,6 +1,6 @@
 #[starknet::contract]
 mod InitializableMock {
-    use openzeppelin::security::initializable::Initializable as initializable_component;
+    use openzeppelin::security::Initializable as initializable_component;
 
     component!(path: initializable_component, storage: initializable, event: InitializableEvent);
 

@@ -6,22 +6,42 @@ CAUTION: Expect this module to evolve.
 
 == Initializable
 
-The Initializable library provides a simple mechanism that mimics the functionality of a constructor.
-More specifically, it enables logic to be performed once and only once which is useful to setup a contract's initial state when a constructor cannot be used.
+The xref:api/security.adoc#Initializable[Initializable] component provides a simple mechanism that mimics
+the functionality of a constructor.
+More specifically, it enables logic to be performed once and only once which is useful to setup a contract's initial state when a constructor cannot be used, for example, when there are circular dependencies at construction time.
 
-The recommended pattern with Initializable is to include a check that the Initializable state is `False` and invoke `initialize` in the target function like this:
+You can use the component in your contracts like this:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.security.initializable.library import Initializable
+#[starknet::contract]
+mod MyInitializableContract {
+    use openzeppelin::security::Initializable as initializable_component;
 
-@external
-func foo{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
-    let (initialized) = Initializable.initialized();
-    assert initialized = FALSE;
+    component!(path: initializable_component, storage: initializable, event: InitializableEvent);
 
-    Initializable.initialize();
-    return ();
+    impl InternalImpl = initializable_component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: initializable_component::Storage,
+        param: felt252
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        InitializableEvent: initializable_component::Event
+    }
+
+    fn initializer(ref self: ContractState, some_param: felt252) {
+        // Makes the method callable only once
+        self.initializable.initialize();
+
+        // Initialization logic
+        self.param.write(some_param);
+    }
 }
 ----
 
@@ -29,85 +49,141 @@ CAUTION: This Initializable pattern should only be used on one function.
 
 == Pausable
 
-The Pausable library allows contracts to implement an emergency stop mechanism.
+:assert_not_paused: xref:api/security.adoc#Pausable-assert_not_paused[assert_not_paused]
+:assert_paused: xref:api/security.adoc#Pausable-assert_paused[assert_paused]
+
+The xref:api/security.adoc#Pausable[Pausable] component allows contracts to implement an emergency stop mechanism.
 This can be useful for scenarios such as preventing trades until the end of an evaluation period or having an emergency switch to freeze all transactions in the event of a large bug.
 
-To use the Pausable library, the contract should include `pause` and `unpause` functions (which should be protected).
-For methods that should be available only when not paused, insert `assert_not_paused`.
-For methods that should be available only when paused, insert `assert_paused`.
-For example:
+To become pausable, the contract should include `pause` and `unpause` functions (which should be protected).
+For methods that should be available only when paused or not, insert calls to `{assert_paused}` and `{assert_not_paused}`
+respectively.
 
-[,cairo]
+For example (using the xref:api/access.adoc#Ownable[Ownable] component for access control):
+
+[,javascript]
 ----
-from openzeppelin.security.pausable.library import Pausable
+#[starknet::contract]
+mod MyPausableContract {
+    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::security::pausable::Pausable as pausable_component;
+    use starknet::ContractAddress;
 
-@external
-func whenNotPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Pausable.assert_not_paused();
+    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: pausable_component, storage: pausable, event: PausableEvent);
 
-    // function body
+    // Ownable
+    #[abi(embed_v0)]
+    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
 
-    return ();
-}
+    // Pausable
+    #[abi(embed_v0)]
+    impl PausableImpl = pausable_component::PausableImpl<ContractState>;
+    impl PausableInternalImpl = pausable_component::InternalImpl<ContractState>;
 
-@external
-func whenPaused{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Pausable.assert_paused();
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        ownable: ownable_component::Storage,
+        #[substorage(v0)]
+        pausable: pausable_component::Storage
+    }
 
-    // function body
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        OwnableEvent: ownable_component::Event,
+        PausableEvent: pausable_component::Event
+    }
 
-    return ();
+    #[constructor]
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        self.ownable.initializer(owner);
+    }
+
+    #[generate_trait]
+    #[external(v0)]
+    impl External of ExternalTrait {
+        fn pause(ref self: ContractState) {
+            self.ownable.assert_only_owner();
+            self.pausable.pause();
+        }
+
+        fn unpause(ref self: ContractState) {
+            self.ownable.assert_only_owner();
+            self.pausable.unpause();
+        }
+
+        fn when_not_paused(ref self: ContractState) {
+            self.pausable.assert_not_paused();
+            // Do something
+        }
+
+        fn when_paused(ref self: ContractState) {
+            self.pausable.assert_paused();
+            // Do something
+        }
+    }
 }
 ----
-
-NOTE: `pause` and `unpause` already include these assertions.
-In other words, `pause` cannot be invoked when already paused and vice versa.
-
-For a list of full implementations utilizing the Pausable library, see:
-
-* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc20/presets/ERC20Pausable.cairo[ERC20Pausable]
-* https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/token/erc721/presets/ERC721MintablePausable.cairo[ERC721MintablePausable]
 
 == Reentrancy Guard
 
+:start: xref:api/security.adoc#ReentrancyGuard-start[start]
+:end: xref:api/security.adoc#ReentrancyGuard-end[end]
+
 A https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4[reentrancy attack] occurs when the caller is able to obtain more resources than allowed by recursively calling a target's function.
 
-Since Cairo does not support modifiers like Solidity, the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/security/reentrancyguard/library.cairo[`reentrancy guard`] library exposes two methods `start` and `end` to protect functions against reentrancy attacks.
-The protected function must call `ReentrancyGuard.start` before the first function statement, and `ReentrancyGuard.end` before the return statement, as shown below:
+Since Cairo does not support modifiers like Solidity, the xref:api/security.adoc#ReentrancyGuard[ReentrancyGuard]
+component exposes two methods `{start}` and `{end}` to protect functions against reentrancy attacks.
+The protected function must call `start` before the first function statement, and `end` before the return statement, as shown below:
 
-[,cairo]
+[,javascript]
 ----
-from openzeppelin.security.reentrancyguard.library import ReentrancyGuard
+#[starknet::contract]
+mod MyReentrancyContract {
+    use openzeppelin::security::ReentrancyGuard as reentrancy_guard_component;
 
-func test_function{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
-   ReentrancyGuard.start();
+    component!(
+        path: reentrancy_guard_component, storage: reentrancy_guard, event: ReentrancyGuardEvent
+    );
 
-   // function body
+    impl InternalImpl = reentrancy_guard_component::InternalImpl<ContractState>;
 
-   ReentrancyGuard.end();
-   return ();
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        reentrancy_guard: reentrancy_guard_component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        ReentrancyGuardEvent: reentrancy_guard_component::Event
+    }
+
+    #[generate_trait]
+    #[external(v0)]
+    impl External of ExternalTrait {
+        fn protected_function(ref self: ContractState) {
+            self.reentrancy_guard.start();
+
+            // Do something
+
+            self.reentrancy_guard.end();
+        }
+
+        fn another_protected_function(ref self: ContractState) {
+            self.reentrancy_guard.start();
+
+            // Do something
+
+            self.reentrancy_guard.end();
+        }
+    }
 }
 ----
 
-== SafeMath
-
-=== SafeUint256
-
-The SafeUint256 namespace in the https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/src/openzeppelin/security/safemath/library.cairo[SafeMath library] offers arithmetic for unsigned 256-bit integers (uint256) by leveraging Cairo's Uint256 library and integrating overflow checks.
-Some of Cairo's Uint256 functions do not revert upon overflows.
-For instance, `uint256_add` will return a bit carry when the sum exceeds 256 bits.
-This library includes an additional assertion ensuring values do not overflow.
-
-Using SafeUint256 methods is rather straightforward.
-Simply import SafeUint256 and insert the arithmetic method like this:
-
-[,cairo]
-----
-from openzeppelin.security.safemath.library import SafeUint256
-
-func add_two_uints{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    a: Uint256, b: Uint256) -> (c: Uint256) {
-    let (c: Uint256) = SafeUint256.add(a, b);
-    return (c);
-}
-----
+NOTE: The guard prevents the execution flow from ocurring inside `protected_function` to call `another_protected_function`,
+and vice versa.

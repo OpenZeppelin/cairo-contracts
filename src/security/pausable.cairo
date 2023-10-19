@@ -70,7 +70,7 @@ mod Pausable {
 
         /// Triggers a stopped state.
         /// The contract must not already be paused.
-        fn _pause(ref self: ComponentState<TContractState>) {
+        fn pause(ref self: ComponentState<TContractState>) {
             self.assert_not_paused();
             self.Pausable_paused.write(true);
             self.emit(Paused { account: get_caller_address() });
@@ -78,7 +78,7 @@ mod Pausable {
 
         /// Lifts the pause on the contract.
         /// The contract must already be paused.
-        fn _unpause(ref self: ComponentState<TContractState>) {
+        fn unpause(ref self: ComponentState<TContractState>) {
             self.assert_paused();
             self.Pausable_paused.write(false);
             self.emit(Unpaused { account: get_caller_address() });

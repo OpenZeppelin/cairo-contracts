@@ -42,7 +42,6 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
     }
     #[inline(always)]
     fn size() -> u8 {
-        // TODO: Check with size make sense in this context.
         // 0 was selected because the read method doesn't actually read from storage.
         0_u8
     }
@@ -59,27 +58,27 @@ trait StorageArrayTrait<T> {
     fn len(self: @StorageArray<T>) -> u32;
 }
 
-impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T> {
+impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T> {
     fn read_at(self: @StorageArray<T>, index: usize) -> T {
-        // Get the storage address of the element.
+        // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(*self.base).into();
         let element_address = poseidon_hash_span(
             array![storage_address_felt + index.into()].span()
         );
 
-        // Read the element from storage.
+        // Read the element from storage
         TStore::read(*self.address_domain, storage_base_address_from_felt252(element_address))
             .unwrap_syscall()
     }
 
     fn write_at(ref self: StorageArray<T>, index: usize, value: T) {
-        // Get the storage address of the element.
+        // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
         let element_address = poseidon_hash_span(
             array![storage_address_felt + index.into()].span()
         );
 
-        // Write the element to storage.
+        // Write the element to storage
         TStore::write(
             self.address_domain, storage_base_address_from_felt252(element_address), value
         )
@@ -89,17 +88,10 @@ impl StorageArrayImpl<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of StorageA
     fn append(ref self: StorageArray<T>, value: T) {
         let len = self.len();
 
-        // Get the storage address of the element.
-        let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
-        let element_address = poseidon_hash_span(array![storage_address_felt + len.into()].span());
+        // Write the element to storage
+        self.write_at(len, value);
 
-        // Write the element to storage.
-        TStore::write(
-            self.address_domain, storage_base_address_from_felt252(element_address), value
-        )
-            .unwrap_syscall();
-
-        // Update the len.
+        // Update the len
         let new_len: felt252 = (len + 1).into();
         storage_write_syscall(self.address_domain, storage_address_from_base(self.base), new_len)
             .unwrap_syscall();

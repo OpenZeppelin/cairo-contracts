@@ -30,12 +30,12 @@ impl TraceImpl of TraceTrait {
 
     /// Returns the value in the last (most recent) checkpoint with key lower or equal
     /// than the search key, or zero if there is none.
-    fn upper_lookup(self: Trace, key: u64) -> u256 {
-        let mut checkpoints = self.checkpoints;
+    fn upper_lookup(self: @Trace, key: u64) -> u256 {
+        let checkpoints = self.checkpoints;
         let len = checkpoints.len();
         let pos = checkpoints._upper_binary_lookup(key, 0, len);
 
-        if pos == len {
+        if pos == 0 {
             0
         } else {
             checkpoints.read_at(pos - 1).value
@@ -47,8 +47,8 @@ impl TraceImpl of TraceTrait {
     ///
     /// NOTE: This is a variant of {upper_lookup} that is optimised to
     /// find "recent" checkpoint (checkpoints with high keys).
-    fn upper_lookup_recent(self: Trace, key: u64) -> u256 {
-        let mut checkpoints = self.checkpoints;
+    fn upper_lookup_recent(self: @Trace, key: u64) -> u256 {
+        let checkpoints = self.checkpoints;
         let len = checkpoints.len();
 
         let mut low = 0;
@@ -73,8 +73,8 @@ impl TraceImpl of TraceTrait {
     }
 
     /// Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
-    fn latest(self: Trace) -> u256 {
-        let mut checkpoints = self.checkpoints;
+    fn latest(self: @Trace) -> u256 {
+        let checkpoints = self.checkpoints;
         let pos = checkpoints.len();
 
         if pos == 0 {
@@ -86,8 +86,8 @@ impl TraceImpl of TraceTrait {
 
     /// Returns whether there is a checkpoint in the structure (i.e. it is not empty),
     /// and if so the key and value in the most recent checkpoint.
-    fn latest_checkpoint(self: Trace) -> (bool, u64, u256) {
-        let mut checkpoints = self.checkpoints;
+    fn latest_checkpoint(self: @Trace) -> (bool, u64, u256) {
+        let checkpoints = self.checkpoints;
         let pos = checkpoints.len();
 
         if (pos == 0) {
@@ -104,7 +104,7 @@ impl TraceImpl of TraceTrait {
     }
 
     /// Returns the checkpoint at given position.
-    fn at(self: Trace, pos: u32) -> Checkpoint {
+    fn at(self: @Trace, pos: u32) -> Checkpoint {
         assert(pos < self.length(), 'Array overflow');
         self.checkpoints.read_at(pos)
     }
@@ -142,7 +142,7 @@ impl CheckpointImpl of CheckpointTrait {
     /// or `high` if there is none. `low` and `high` define a section where to do the search, with
     /// inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(
-        ref self: StorageArray<Checkpoint>, key: u64, low: u32, high: u32
+        self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32
     ) -> u32 {
         let mut _low = low;
         let mut _high = high;

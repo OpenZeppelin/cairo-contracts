@@ -16,8 +16,7 @@ use starknet::ContractAddress;
 /// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::contract]
 mod ERC20Votes {
-    use openzeppelin::account::dual_account::DualCaseAccount;
-    use openzeppelin::account::dual_account::DualCaseAccountABI;
+    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::utils::cryptography::eip712_draft::EIP712;

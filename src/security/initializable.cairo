@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (security/initializable.cairo)
 
+trait ExternalTrait<TState> {
+    fn is_initialized(self: @TState) -> bool;
+}
+
 /// # Initializable Component
 ///
 /// The Initializable component provides a simple mechanism that executes
@@ -17,15 +21,20 @@ mod Initializable {
         const INITIALIZED: felt252 = 'Initializable: is initialized';
     }
 
-    #[generate_trait]
-    impl InternalImpl<
+    #[embeddable_as(InitializableImpl)]
+    impl Initializable<
         TContractState, +HasComponent<TContractState>
-    > of InternalTrait<TContractState> {
+    > of super::ExternalTrait<ComponentState<TContractState>> {
         /// Returns true if the using contract executed `initialize`.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()
         }
+    }
 
+    #[generate_trait]
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>
+    > of InternalTrait<TContractState> {
         /// Ensures the calling function can only be called once.
         fn initialize(ref self: ComponentState<TContractState>) {
             assert(!self.is_initialized(), Errors::INITIALIZED);

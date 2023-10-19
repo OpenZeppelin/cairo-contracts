@@ -4,14 +4,6 @@ The following documentation provides context, reasoning, and examples of methods
 
 CAUTION: Expect this module to evolve.
 
-== Table of Contents
-
-* <<initializable,Initializable>>
-* <<pausable,Pausable>>
-* <<reentrancy_guard,Reentrancy Guard>>
-* <<safemath,SafeMath>>
- ** <<safeuint256,SafeUint256>>
-
 == Initializable
 
 The Initializable library provides a simple mechanism that mimics the functionality of a constructor.

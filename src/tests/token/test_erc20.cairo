@@ -232,7 +232,7 @@ fn test_transfer_from() {
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(state.erc20.total_supply() == SUPPLY, 'Total supply should not change');
 }
@@ -301,7 +301,7 @@ fn test_transferFrom() {
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(state.erc20.balanceOf(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq suppy - amount');
+    assert(state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
     assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
     assert(state.erc20.totalSupply() == SUPPLY, 'Total supply should not change');
 }

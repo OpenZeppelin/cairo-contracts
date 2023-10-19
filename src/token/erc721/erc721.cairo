@@ -3,7 +3,7 @@
 
 /// # ERC721 Component
 ///
-/// This ERC721 component provides implementations for both the IERC721 interface
+/// The ERC721 component provides implementations for both the IERC721 interface
 /// and the IERC721Metadata interface.
 #[starknet::component]
 mod ERC721 {

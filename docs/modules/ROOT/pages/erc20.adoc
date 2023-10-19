@@ -19,7 +19,7 @@ See the {custom-decimals} guide.
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
 The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
-To support older deployments of ERC20, as mentioned in {dual-interfaces}, `ERC20` also includes the previously defined functions written in camelCase.
+To support older ERC20 token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes the previously defined functions written in camelCase.
 
 [,javascript]
 ----
@@ -62,7 +62,7 @@ trait ERC20ABI {
 :solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
 :dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
 
-Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC20 standard.
+Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC20 token standard.
 Some notable differences, however, can still be found, such as:
 
 * Cairo short strings are used to simulate `name` and `symbol` because Cairo does not yet include native string support.
@@ -74,7 +74,7 @@ Some notable differences, however, can still be found, such as:
 
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
-Using Contracts for Cairo, constructing an ERC20 contract requires setting up the constructor and instantiating the ERC20 implementation.
+Using Contracts for Cairo, constructing an ERC20 contract requires setting up the constructor and instantiating the token implementation.
 Here's what that looks like:
 
 [,javascript]
@@ -120,8 +120,8 @@ mod MyToken {
 }
 ----
 
-In order for the `MyToken` contract to integrate the ERC20 component, it instantiates both the `ERC20Impl` and `ERC20MetadataImpl`.
-The `ERC20Impl` instances embeds the implementation and exposes the `IERC20` interface.
+In order for the `MyToken` contract to integrate the `ERC20` component, it instantiates both the `ERC20Impl` and `ERC20MetadataImpl`.
+The `ERC20Impl` instance embeds the implementation and exposes the `IERC20` interface.
 While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
 The above example also includes the `ERC20InternalImpl` instance.
 This allows the contract's constructor to initialize the contract and create an initial supply of tokens.
@@ -134,7 +134,7 @@ TIP: For a more complete guide on ERC20 token mechanisms, see {erc20-supply}.
 :eip-discussion: https://github.com/ethereum/EIPs/issues/724[EIP discussion]
 
 Cairo, like Solidity, does not support {floating-point}.
-To get around this limitation, ERC20 offers a `decimals` field which communicates to outside interfaces (wallets, exchanges, etc.) how the token should be displayed.
+To get around this limitation, ERC20 token contracts may offer a `decimals` field which communicates to outside interfaces (wallets, exchanges, etc.) how the token should be displayed.
 For instance, suppose a token had a `decimals` value of `3` and the total token supply was `1234`.
 An outside interface would display the token supply as `1.234`.
 In the actual contract, however, the supply would still be the integer `1234`.

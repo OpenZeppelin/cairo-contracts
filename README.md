@@ -97,7 +97,7 @@ mod MyToken {
 
 ### Unsupported
 
-`DualCase` dispatchers rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 
@@ -128,6 +128,10 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 - [Scarb](https://docs.swmansion.com/scarb)
 
 ## Development
+
+> **Note**: You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
+
+OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software, make sure to check out the [contribution](CONTRIBUTING.md) guide in advance.
 
 ### Set up the project
 
@@ -160,10 +164,6 @@ scarb test
 > This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
-
-## Contribute
-
-OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution](CONTRIBUTING.md) guide!
 
 ## License
 

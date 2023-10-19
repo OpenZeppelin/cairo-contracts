@@ -16,6 +16,8 @@ use starknet::ContractAddress;
 /// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::contract]
 mod ERC20Votes {
+    use openzeppelin::account::dual_account::DualCaseAccount;
+    use openzeppelin::account::dual_account::DualCaseAccountABI;
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20;
     use openzeppelin::utils::cryptography::eip712_draft::EIP712;
@@ -114,17 +116,8 @@ mod ERC20Votes {
 
             let hash = delegation.get_message_hash(name, version, delegator);
 
-            let mut calldata = array![];
-            calldata.append_serde(hash);
-            calldata.append_serde(signature);
-
-            let mut is_valid_signature_raw = starknet::call_contract_syscall(
-                delegator, selectors::is_valid_signature, calldata.span()
-            )
-                .unwrap();
-
-            let is_valid_signature_felt = Serde::<felt252>::deserialize(ref is_valid_signature_raw)
-                .unwrap();
+            let is_valid_signature_felt = DualCaseAccount { contract_address: delegator }
+                .is_valid_signature(hash, signature);
 
             // Check either 'VALID' or True for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED

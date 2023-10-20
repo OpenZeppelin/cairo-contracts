@@ -191,7 +191,7 @@ Prevents a contract's function from calling itself or another protected function
 
 Requirements:
 
-- the contract must not be currently in a guarded call.
+- the contract must not be currently in a guarded state.
 
 [.contract-item]
 [[ReentrancyGuard-end]]

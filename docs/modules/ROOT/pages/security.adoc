@@ -1,6 +1,6 @@
 = Security
 
-The following documentation provides context, reasoning, and examples of methods and constants found in `openzeppelin/security/`.
+The following documentation provides context, reasoning, and examples of modules found in `openzeppelin/security/`.
 
 CAUTION: Expect this module to evolve.
 
@@ -8,7 +8,7 @@ CAUTION: Expect this module to evolve.
 
 The xref:api/security.adoc#Initializable[Initializable] component provides a simple mechanism that mimics
 the functionality of a constructor.
-More specifically, it enables logic to be performed once and only once which is useful to setup a contract's initial state when a constructor cannot be used, for example, when there are circular dependencies at construction time.
+More specifically, it enables logic to be performed once and only once which is useful to set up a contract's initial state when a constructor cannot be used, for example, when there are circular dependencies at construction time.
 
 You can use the component in your contracts like this:
 
@@ -107,12 +107,12 @@ mod MyPausableContract {
     impl External of ExternalTrait {
         fn pause(ref self: ContractState) {
             self.ownable.assert_only_owner();
-            self.pausable.pause();
+            self.pausable._pause();
         }
 
         fn unpause(ref self: ContractState) {
             self.ownable.assert_only_owner();
-            self.pausable.unpause();
+            self.pausable._unpause();
         }
 
         fn when_not_paused(ref self: ContractState) {
@@ -185,5 +185,5 @@ mod MyReentrancyContract {
 }
 ----
 
-NOTE: The guard prevents the execution flow from ocurring inside `protected_function` to call `another_protected_function`,
+NOTE: The guard prevents the execution flow occurring inside `protected_function` to call `another_protected_function`,
 and vice versa.

@@ -1,4 +1,5 @@
-use openzeppelin::security::Pausable::{InternalImpl, PausableImpl, Paused, Unpaused};
+use openzeppelin::security::Pausable::{InternalImpl, PausableImpl};
+use openzeppelin::security::Pausable::{Paused, Unpaused};
 use openzeppelin::tests::mocks::pausable_mock::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
@@ -24,10 +25,10 @@ fn test_is_paused() {
     let mut state = STATE();
     assert(!state.pausable.is_paused(), 'Should not be paused');
 
-    state.pausable.pause();
+    state.pausable._pause();
     assert(state.pausable.is_paused(), 'Should be paused');
 
-    state.pausable.unpause();
+    state.pausable._unpause();
     assert(!state.pausable.is_paused(), 'Should not be paused');
 }
 
@@ -39,7 +40,7 @@ fn test_is_paused() {
 #[available_gas(2000000)]
 fn test_assert_paused_when_paused() {
     let mut state = STATE();
-    state.pausable.pause();
+    state.pausable._pause();
     state.pausable.assert_paused();
 }
 
@@ -60,7 +61,7 @@ fn test_assert_paused_when_not_paused() {
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_assert_not_paused_when_paused() {
     let mut state = STATE();
-    state.pausable.pause();
+    state.pausable._pause();
     state.pausable.assert_not_paused();
 }
 
@@ -81,7 +82,7 @@ fn test_pause_when_unpaused() {
     let mut state = STATE();
     testing::set_caller_address(CALLER());
 
-    state.pausable.pause();
+    state.pausable._pause();
 
     assert_event_paused(CALLER());
     assert(state.pausable.is_paused(), 'Should be paused');
@@ -92,8 +93,8 @@ fn test_pause_when_unpaused() {
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_pause_when_paused() {
     let mut state = STATE();
-    state.pausable.pause();
-    state.pausable.pause();
+    state.pausable._pause();
+    state.pausable._pause();
 }
 
 //
@@ -106,10 +107,10 @@ fn test_unpause_when_paused() {
     let mut state = STATE();
     testing::set_caller_address(CALLER());
 
-    state.pausable.pause();
+    state.pausable._pause();
     utils::drop_event(ZERO());
 
-    state.pausable.unpause();
+    state.pausable._unpause();
 
     assert_event_unpaused(CALLER());
     assert(!state.pausable.is_paused(), 'Should not be paused');
@@ -121,7 +122,7 @@ fn test_unpause_when_paused() {
 fn test_unpause_when_unpaused() {
     let mut state = STATE();
     assert(!state.pausable.is_paused(), 'Should be paused');
-    state.pausable.unpause();
+    state.pausable._unpause();
 }
 
 //

@@ -118,7 +118,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 use openzeppelin::token::erc20::interface::IERC20Metadata;
 ```
 
-IERC20Metadata interface as defined in {eip20}.
+Interface for the optional metadata functions in {eip20}.
 
 [.contract-index]
 .Functions

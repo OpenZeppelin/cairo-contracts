@@ -19,7 +19,7 @@ See the {custom-decimals} guide.
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
 The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
-To support older ERC20 token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes the previously defined functions written in camelCase.
+To support older ERC20 token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
 
 [,javascript]
 ----
@@ -240,5 +240,5 @@ mod MyToken {
 ----
 
 This contract expects a `decimals` argument in the constructor and uses an internal function to write the decimals to storage.
-Note that the `MyToken_decimals` state variable must be stored in the local contract's storage because this variable does not exist in the Contracts for Cairo library.
+Note that the `MyToken_decimals` state variable must be defined in the contract's storage because this variable does not exist in the component offered by OpenZeppelin Contracts for Cairo.
 It's important to include a custom ERC20 metadata implementation and NOT use the Contracts for Cairo `ERC20MetadataImpl` in this specific case since the `decimals` method will always return `18`.

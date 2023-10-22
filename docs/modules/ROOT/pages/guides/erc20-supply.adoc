@@ -124,50 +124,10 @@ For the sake of good practices, let's implement a simple permissioning mechanism
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
-    use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    // Integrate Ownable
 
-    // Ownable
-    #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
-
-    // ERC20
-    #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
-    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        ownable: ownable_component::Storage,
-        #[substorage(v0)]
-        erc20: erc20_component::Storage
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        ERC20Event: erc20_component::Event,
-        OwnableEvent: ownable_component::Event
-    }
-
-    #[constructor]
-    fn constructor(ref self: ContractState, owner: ContractAddress) {
-        // Set contract owner
-        self.ownable.initializer(owner);
-
-        // Initialize ERC20
-        let name = 'MyToken';
-        let symbol = 'MTK';
-        self.erc20.initializer(name, symbol);
-    }
+    (...)
 
     #[external(v0)]
     fn mint(
@@ -184,7 +144,6 @@ mod MyToken {
 }
 ----
 
-In the constructor, we pass the owner address to set the owner of the `MyToken` contract.
 The `mint` function includes `assert_only_owner` which will ensure that only the contract owner can call this function.
 Now, we have a protected ERC20 minting mechanism to create a dynamic token supply.
 

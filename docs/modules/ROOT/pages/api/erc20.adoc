@@ -2,6 +2,7 @@
 :eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
+:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
 
 = ERC20
 
@@ -149,15 +150,13 @@ Returns the ticker symbol of the token.
 
 Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
 
-For example, if `decimals` equals `2`, a balance of `505` tokens should
-be displayed to a user as `5.05` (`505 / 10 ** 2`).
+For example, if `decimals` equals `2`, a balance of `505` tokens should be displayed to a user as `5.05` (`505 / 10 ** 2`).
 
-Tokens usually opt for a value of `18`, imitating the relationship between
-Ether and Wei. This is the default value returned by this function, unless
-a custom implementation is used.
+Tokens usually opt for a value of `18`, imitating the relationship between Ether and Wei.
+This is the default value returned by this function.
+To create a custom decimals implementation, see {custom-decimals}.
 
-NOTE: This information is only used for _display_ purposes: it in
-no way affects any of the arithmetic of the contract.
+NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract.
 
 [.contract]
 [[ERC20]]

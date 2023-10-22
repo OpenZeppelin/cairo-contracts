@@ -92,14 +92,15 @@ mod CamelERC20Mock {
     component!(path: erc20_component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
-    #[abi(embed_v0)]
     impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl SafeAllowanceCamelImpl =
         erc20_component::SafeAllowanceCamelImpl<ContractState>;
+    // `ERC20Impl` is not embedded because it would defeat the purpose of the
+    // mock. The `ERC20Impl` case-agnostic methods are manually exposed.
+    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
     impl InternalImpl = erc20_component::InternalImpl<ContractState>;
 
     #[storage]
@@ -124,6 +125,21 @@ mod CamelERC20Mock {
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);
+    }
+
+    #[external(v0)]
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
+        self.erc20.allowance(owner, spender)
+    }
+
+    #[external(v0)]
+    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        self.erc20.transfer(recipient, amount)
+    }
+
+    #[external(v0)]
+    fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+        self.erc20.approve(spender, amount)
     }
 }
 
@@ -223,4 +239,3 @@ mod CamelERC20Panic {
         panic_with_felt252('Some error');
     }
 }
-

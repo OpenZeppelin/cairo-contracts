@@ -2,7 +2,7 @@
 
 The following documentation provides context, reasoning, and examples of modules found in `openzeppelin/security/`.
 
-CAUTION: Expect this module to evolve.
+CAUTION: Expect these modules to evolve.
 
 == Initializable
 

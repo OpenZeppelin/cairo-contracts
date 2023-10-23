@@ -121,8 +121,7 @@ mod MyToken {
 }
 ----
 
-In order for the `MyToken` contract to integrate the `ERC20` component, it instantiates both the `ERC20Impl` and `ERC20MetadataImpl`.
-The `ERC20Impl` instance embeds the implementation and exposes the `IERC20` interface.
+`MyToken` instantiates both the `ERC20Impl` and `ERC20MetadataImpl` with the embed directive to embed the implementations into the contract.
 While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
 The above example also includes the `ERC20InternalImpl` instance.
 This allows the contract's constructor to initialize the contract and create an initial supply of tokens.

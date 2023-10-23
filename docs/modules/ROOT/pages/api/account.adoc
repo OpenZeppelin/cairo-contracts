@@ -71,7 +71,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 ```javascript
 use openzeppelin::account::Account;
 ```
-Account component extending xref:ISRC6[`ISRC6`].
+Account component implementing xref:ISRC6[`ISRC6`].
 
 [.contract-index]
 .Embeddable Functions

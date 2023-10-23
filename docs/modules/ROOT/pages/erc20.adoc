@@ -188,7 +188,7 @@ mod MyToken {
         #[substorage(v0)]
         erc20: erc20_component::Storage,
         // The decimals value is stored locally
-        MyToken_decimals: u8
+        decimals: u8
     }
 
     #[event]
@@ -201,7 +201,7 @@ mod MyToken {
     fn constructor(
         ref self: ContractState,
         decimals: u8,
-        initial_supply: u256
+        initial_supply: u256,
         recipient: ContractAddress,
     ) {
         // Call the internal function that writes decimals to storage
@@ -226,19 +226,19 @@ mod MyToken {
         }
 
         fn decimals(self: @ContractState) -> u8 {
-            self.MyToken_decimals.read()
+            self.decimals.read()
         }
     }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn _set_decimals(ref self: ContractState, decimals: u8) {
-            self.MyToken_decimals.write(decimals);
+            self.decimals.write(decimals);
         }
     }
 }
 ----
 
 This contract expects a `decimals` argument in the constructor and uses an internal function to write the decimals to storage.
-Note that the `MyToken_decimals` state variable must be defined in the contract's storage because this variable does not exist in the component offered by OpenZeppelin Contracts for Cairo.
+Note that the `decimals` state variable must be defined in the contract's storage because this variable does not exist in the component offered by OpenZeppelin Contracts for Cairo.
 It's important to include a custom ERC20 metadata implementation and NOT use the Contracts for Cairo `ERC20MetadataImpl` in this specific case since the `decimals` method will always return `18`.

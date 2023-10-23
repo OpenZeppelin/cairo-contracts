@@ -82,6 +82,7 @@ mod SnakeAccountMock {
 mod CamelAccountMock {
     use openzeppelin::account::Account as account_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use starknet::account::Call;
 
     component!(path: account_component, storage: account, event: AccountEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
@@ -92,6 +93,7 @@ mod CamelAccountMock {
     impl PublicKeyCamelImpl = account_component::PublicKeyCamelImpl<ContractState>;
     #[abi(embed_v0)]
     impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC6Impl = account_component::SRC6Impl<ContractState>;
     impl AccountInternalImpl = account_component::InternalImpl<ContractState>;
 
 
@@ -113,6 +115,18 @@ mod CamelAccountMock {
     #[constructor]
     fn constructor(ref self: ContractState, publicKey: felt252) {
         self.account.initializer(publicKey);
+    }
+
+    #[external(v0)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
+            self.account.__execute__(calls)
+        }
+
+        fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
+            self.account.__validate__(calls)
+        }
     }
 }
 

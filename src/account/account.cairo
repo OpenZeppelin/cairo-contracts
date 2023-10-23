@@ -102,21 +102,6 @@ mod Account {
         }
     }
 
-    /// Adds camelCase support for `ISRC6`.
-    #[embeddable_as(SRC6CamelOnlyImpl)]
-    impl SRC6CamelOnly<
-        TContractState,
-        +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
-        fn isValidSignature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            self.is_valid_signature(hash, signature)
-        }
-    }
-
     #[embeddable_as(DeclarerImpl)]
     impl Declarer<
         TContractState,
@@ -128,6 +113,25 @@ mod Account {
         /// This function is used by the protocol to verify `declare` transactions.
         fn __validate_declare__(
             self: @ComponentState<TContractState>, class_hash: felt252
+        ) -> felt252 {
+            self.validate_transaction()
+        }
+    }
+
+    #[embeddable_as(DeployableImpl)]
+    impl Deployable<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IDeployable<ComponentState<TContractState>> {
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `deploy_account` transactions.
+        fn __validate_deploy__(
+            self: @ComponentState<TContractState>,
+            class_hash: felt252,
+            contract_address_salt: felt252,
+            public_key: felt252
         ) -> felt252 {
             self.validate_transaction()
         }
@@ -153,6 +157,21 @@ mod Account {
         }
     }
 
+    /// Adds camelCase support for `ISRC6`.
+    #[embeddable_as(SRC6CamelOnlyImpl)]
+    impl SRC6CamelOnly<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
+        fn isValidSignature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            self.is_valid_signature(hash, signature)
+        }
+    }
+
     /// Adds camelCase support for `PublicKeyTrait`.
     #[embeddable_as(PublicKeyCamelImpl)]
     impl PublicKeyCamel<
@@ -167,25 +186,6 @@ mod Account {
 
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
             self.set_public_key(newPublicKey);
-        }
-    }
-
-    #[embeddable_as(DeployableImpl)]
-    impl Deployable<
-        TContractState,
-        +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of interface::IDeployable<ComponentState<TContractState>> {
-        /// Verifies the validity of the signature for the current transaction.
-        /// This function is used by the protocol to verify `deploy_account` transactions.
-        fn __validate_deploy__(
-            self: @ComponentState<TContractState>,
-            class_hash: felt252,
-            contract_address_salt: felt252,
-            public_key: felt252
-        ) -> felt252 {
-            self.validate_transaction()
         }
     }
 

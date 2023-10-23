@@ -19,7 +19,7 @@ See the {custom-decimals} guide.
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
 The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
-To support older ERC20 token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
+To support older token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
 
 [,javascript]
 ----
@@ -121,7 +121,7 @@ mod MyToken {
 }
 ----
 
-`MyToken` instantiates both the `ERC20Impl` and `ERC20MetadataImpl` with the embed directive to embed the implementations into the contract.
+`MyToken` instantiates both the `ERC20Impl` and `ERC20MetadataImpl` with the embed directive which integrates the implementations into the contract.
 While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
 The above example also includes the `ERC20InternalImpl` instance.
 This allows the contract's constructor to initialize the contract and create an initial supply of tokens.

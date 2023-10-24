@@ -77,7 +77,9 @@ mod UpgradeableContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event,
+        #[flat]
         UpgradeableEvent: upgradeable_component::Event
     }
 

@@ -41,6 +41,7 @@ mod ReentrancyMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ReentrancyGuardEvent: reentrancy_guard_component::Event
     }
 

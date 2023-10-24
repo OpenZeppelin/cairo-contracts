@@ -17,6 +17,7 @@ mod PausableMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         PausableEvent: pausable_component::Event
     }
 }

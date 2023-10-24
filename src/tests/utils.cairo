@@ -12,10 +12,13 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 }
 
 /// Pop the earliest unpopped logged event for the contract as the requested type
-/// and checks there's no more data left on the event, preventing unaccounted params.
+/// and checks there's no more keys or data left on the event, preventing unaccounted params.
 /// This function also removes the first key from the event. This is because indexed
-/// params are set as event keys, but the first event key is always set as the 
+/// params are set as event keys, but the first event key is always set as the
 /// event ID.
+///
+/// This method doesn't currently work for components events that are not flattened,
+/// becuase and extra key is added, pushing the event ID key to the second position.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress
 ) -> Option<T> {
@@ -26,12 +29,13 @@ fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
     assert(data.is_empty(), 'Event has extra data');
+    assert(keys.is_empty(), 'Event has extra keys');
     ret
 }
 
 /// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 /// `expected_keys` must include all indexed event keys for `event` in the order
-/// that they're defined. 
+/// that they're defined.
 fn assert_indexed_keys<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     event: T, expected_keys: Span<felt252>
 ) {

@@ -44,7 +44,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 use openzeppelin::upgrades::upgradeable::Upgradeable;
 ```
 
-Upgradeable contract module.
+Upgradeable component.
 
 [.contract-index]
 .Internal Functions

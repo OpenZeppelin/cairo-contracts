@@ -179,6 +179,7 @@ mod MyContract {
     enum Event {
         #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event,
         #[flat]
         ERC20Event: erc20_component::Event
@@ -269,6 +270,7 @@ mod MyContract {
     enum Event {
         #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event,
         #[flat]
         ERC20Event: erc20_component::Event

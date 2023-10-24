@@ -48,6 +48,7 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event
     }
 
@@ -176,8 +177,10 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
         SRC5Event: src5_component::Event,
+        #[flat]
         ERC20Event: erc20_component::Event
     }
 
@@ -264,8 +267,10 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
         SRC5Event: src5_component::Event,
+        #[flat]
         ERC20Event: erc20_component::Event
     }
 

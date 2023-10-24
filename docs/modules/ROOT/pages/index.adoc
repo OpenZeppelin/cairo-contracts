@@ -103,7 +103,9 @@ mod MyAccount {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccountEvent: account_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

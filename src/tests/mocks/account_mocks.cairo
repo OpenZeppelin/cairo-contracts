@@ -30,7 +30,9 @@ mod DualCaseAccountMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccountEvent: account_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -68,7 +70,9 @@ mod SnakeAccountMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccountEvent: account_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -108,7 +112,9 @@ mod CamelAccountMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccountEvent: account_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

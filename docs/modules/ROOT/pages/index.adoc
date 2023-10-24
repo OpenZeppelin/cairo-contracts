@@ -8,6 +8,8 @@
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
+NOTE: You can track our roadmap and future milestones in our https://github.com/orgs/OpenZeppelin/projects/29/[Github Project].
+
 == Installation
 
 The library is available as a {scarb} package. Follow {installation} for installing Cairo and Scarb on your machine

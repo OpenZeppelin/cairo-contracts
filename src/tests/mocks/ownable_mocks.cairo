@@ -21,6 +21,7 @@ mod DualCaseOwnableMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event
     }
 
@@ -50,6 +51,7 @@ mod SnakeOwnableMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event
     }
 
@@ -80,6 +82,7 @@ mod CamelOwnableMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event
     }
 

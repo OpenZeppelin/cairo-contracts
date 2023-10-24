@@ -21,6 +21,7 @@ mod DualCaseSRC5Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 }
@@ -43,6 +44,7 @@ mod SnakeSRC5Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 }
@@ -65,6 +67,7 @@ mod CamelSRC5Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 }

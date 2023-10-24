@@ -6,7 +6,7 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::upgrades::upgradeable::Upgradeable::Upgraded;
+use openzeppelin::upgrades::Upgradeable::Upgraded;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 
@@ -46,6 +46,8 @@ fn test_upgraded_event() {
 
     let event = utils::pop_log::<Upgraded>(v1.contract_address).unwrap();
     assert(event.class_hash == V2_CLASS_HASH(), 'Invalid class hash');
+
+    utils::assert_no_events_left(v1.contract_address);
 }
 
 #[test]

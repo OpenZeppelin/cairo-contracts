@@ -38,6 +38,7 @@ mod UpgradesV1 {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         UpgradeableEvent: upgradeable_component::Event
     }
 
@@ -97,6 +98,7 @@ mod UpgradesV2 {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         UpgradeableEvent: upgradeable_component::Event
     }
 

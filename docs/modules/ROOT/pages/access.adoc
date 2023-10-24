@@ -151,8 +151,10 @@ mod MyContract {
     impl AccessControlImpl =
         accesscontrol_component::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
     impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
+    // SRC5
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -237,8 +239,10 @@ mod MyContract {
     impl AccessControlImpl =
         accesscontrol_component::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
     impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
+    // SRC5
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -355,8 +359,10 @@ mod MyContract {
     impl AccessControlImpl =
         accesscontrol_component::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
     impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+
+    // SRC5
+    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]

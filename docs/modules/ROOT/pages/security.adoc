@@ -32,6 +32,7 @@ mod MyInitializableContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         InitializableEvent: initializable_component::Event
     }
 
@@ -93,7 +94,9 @@ mod MyPausableContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event,
+        #[flat]
         PausableEvent: pausable_component::Event
     }
 
@@ -160,6 +163,7 @@ mod MyReentrancyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ReentrancyGuardEvent: reentrancy_guard_component::Event
     }
 

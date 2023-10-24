@@ -15,6 +15,7 @@ mod InitializableMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         InitializableEvent: initializable_component::Event
     }
 }

@@ -68,6 +68,7 @@ mod SnakeERC20Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ERC20Event: erc20_component::Event
     }
 
@@ -112,6 +113,7 @@ mod CamelERC20Mock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         ERC20Event: erc20_component::Event
     }
 

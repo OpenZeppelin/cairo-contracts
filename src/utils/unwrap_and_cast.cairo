@@ -3,7 +3,6 @@
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use starknet::ContractAddress;
-use starknet::Felt252TryIntoContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
 

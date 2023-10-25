@@ -30,7 +30,9 @@ mod DualCaseAccessControlMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -69,7 +71,9 @@ mod SnakeAccessControlMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -109,7 +113,9 @@ mod CamelAccessControlMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

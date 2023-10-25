@@ -1,6 +1,5 @@
 use openzeppelin::account::dual_account::{DualCaseAccountABI, DualCaseAccount};
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin::account::{AccountCamelABIDispatcherTrait, AccountCamelABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::account::test_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::account_mocks::{
@@ -24,12 +23,12 @@ fn setup_snake() -> (DualCaseAccount, AccountABIDispatcher) {
     )
 }
 
-fn setup_camel() -> (DualCaseAccount, AccountCamelABIDispatcher) {
+fn setup_camel() -> (DualCaseAccount, AccountABIDispatcher) {
     let mut calldata = array![PUBKEY];
     let target = utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccount { contract_address: target },
-        AccountCamelABIDispatcher { contract_address: target }
+        AccountABIDispatcher { contract_address: target }
     )
 }
 
@@ -242,4 +241,3 @@ fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.supports_interface(ISRC5_ID);
 }
-

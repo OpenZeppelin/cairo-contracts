@@ -1,4 +1,4 @@
-use openzeppelin::account::Account::{InternalTrait, OwnerAdded, OwnerRemoved};
+use openzeppelin::account::Account::{InternalTrait, OwnerAdded, OwnerRemoved, SRC6CamelOnlyImpl};
 use openzeppelin::account::Account::{PublicKeyCamelImpl, PublicKeyImpl};
 use openzeppelin::account::Account::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::Account;
@@ -48,10 +48,10 @@ fn ACCOUNT_ADDRESS() -> ContractAddress {
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 1234,
-        public_key: 883045738439352841478194533192765345509759306772397516907181243450667673002,
-        transaction_hash: 2717105892474786771566982177444710571376803476229898722748888396642649184538,
-        r: 3068558690657879390136740086327753007413919701043650133111397282816679110801,
-        s: 3355728545224320878895493649495491771252432631648740019139167265522817576501
+        public_key: 0x1f3c942d7f492a37608cde0d77b884a5aa9e11d2919225968557370ddb5a5aa,
+        transaction_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
+        r: 0x6c8be1fb0fb5c730fbd7abaecbed9d980376ff2e660dfcd157e158d2b026891,
+        s: 0x76b4669998eb933f44a59eace12b41328ab975ceafddf92602b21eb23e22e35
     }
 }
 
@@ -137,10 +137,10 @@ fn test_isValidSignature() {
 
     state.account.set_public_key(data.public_key);
 
-    let is_valid = Account::SRC6CamelOnlyImpl::isValidSignature(@state, hash, good_signature);
+    let is_valid = state.account.isValidSignature(hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = Account::SRC6CamelOnlyImpl::isValidSignature(@state, hash, bad_signature);
+    let is_valid = state.account.isValidSignature(hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 

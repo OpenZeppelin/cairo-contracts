@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/reentrancyguard.cairo)
 
 /// # ReentrancyGuard Component
 ///

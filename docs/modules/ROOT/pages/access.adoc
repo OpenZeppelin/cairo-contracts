@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -48,6 +48,7 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         OwnableEvent: ownable_component::Event
     }
 
@@ -163,7 +164,9 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -240,7 +243,9 @@ mod MyContract {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         AccessControlEvent: accesscontrol_component::Event,
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

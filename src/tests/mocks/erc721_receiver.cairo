@@ -28,6 +28,7 @@ mod ERC721Receiver {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

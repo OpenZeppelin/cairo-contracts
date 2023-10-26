@@ -24,6 +24,7 @@ mod SnakeERC721ReceiverMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 
@@ -67,6 +68,7 @@ mod CamelERC721ReceiverMock {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
+        #[flat]
         SRC5Event: src5_component::Event
     }
 

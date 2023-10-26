@@ -1,5 +1,5 @@
 //! SPDX-License-Identifier: MIT
-//! OpenZeppelin Contracts for Cairo v0.8.0-rc.0 (token/erc20/erc20.cairo)
+//! OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc20/erc20.cairo)
 //!
 //! # ERC20 Contract and Implementation
 //!

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0-rc.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/pausable.cairo)
 
 #[starknet::interface]
 trait IPausable<TState> {

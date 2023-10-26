@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.7.0 (account/account.cairo)
 
-trait PublicKeyTrait<TState> {
+#[starknet::interface]
+trait IPublicKey<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
 }
 
-trait PublicKeyCamelTrait<TState> {
+#[starknet::interface]
+trait IPublicKeyCamel<TState> {
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;
 }
@@ -124,7 +126,7 @@ mod Account {
     }
 
     #[external(v0)]
-    impl PublicKeyImpl of super::PublicKeyTrait<ContractState> {
+    impl PublicKeyImpl of super::IPublicKey<ContractState> {
         fn get_public_key(self: @ContractState) -> felt252 {
             self.Account_public_key.read()
         }
@@ -137,7 +139,7 @@ mod Account {
     }
 
     #[external(v0)]
-    impl PublicKeyCamelImpl of super::PublicKeyCamelTrait<ContractState> {
+    impl PublicKeyCamelImpl of super::IPublicKeyCamel<ContractState> {
         fn getPublicKey(self: @ContractState) -> felt252 {
             self.Account_public_key.read()
         }

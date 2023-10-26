@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-rc.0 (account/account.cairo)
 
 trait PublicKeyTrait<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (utils/unwrap_and_cast.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-rc.0 (utils/unwrap_and_cast.cairo)
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use starknet::ContractAddress;

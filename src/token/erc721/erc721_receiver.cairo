@@ -45,7 +45,7 @@ mod ERC721Receiver {
             tokenId: u256,
             data: Span<felt252>
         ) -> felt252 {
-            self.on_erc721_received(operator, from, tokenId, data)
+            IERC721_RECEIVER_ID
         }
     }
 

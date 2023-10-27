@@ -2,8 +2,8 @@
 mod ERC721Receiver {
     use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::token::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel};
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
+    use openzeppelin::token::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel};
     use starknet::ContractAddress;
 
     #[storage]

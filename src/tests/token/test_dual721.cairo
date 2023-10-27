@@ -2,7 +2,7 @@ use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
 use openzeppelin::tests::mocks::erc721_mocks::{
     CamelERC721Mock, CamelERC721PanicMock, SnakeERC721PanicMock
 };
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
+use openzeppelin::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
@@ -65,7 +65,7 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, array![])
+    utils::deploy(DualCaseERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 //

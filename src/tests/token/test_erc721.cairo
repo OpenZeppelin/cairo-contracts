@@ -5,9 +5,8 @@ use openzeppelin::introspection::src5::SRC5::SRC5Impl;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
-use openzeppelin::tests::mocks::dual721_receiver_mocks::CamelERC721ReceiverMock;
+use openzeppelin::tests::mocks::erc721_receiver_mocks::{CamelERC721ReceiverMock, SnakeERC721ReceiverMock};
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
@@ -42,7 +41,7 @@ fn setup() -> DualCaseERC721Mock::ContractState {
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, array![])
+    utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 fn setup_camel_receiver() -> ContractAddress {

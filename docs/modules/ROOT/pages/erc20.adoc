@@ -121,7 +121,7 @@ mod MyToken {
 }
 ----
 
-`MyToken` instantiates both the `ERC20Impl` and `ERC20MetadataImpl` with the embed directive which integrates the implementations into the contract.
+`MyToken` integrates both the `ERC20Impl` and `ERC20MetadataImpl` with the embed directive which marks the implementations as external in the contract.
 While the `ERC20MetadataImpl` is optional, it's generally recommended to include it because the vast majority of ERC20 tokens provide the metadata methods.
 The above example also includes the `ERC20InternalImpl` instance.
 This allows the contract's constructor to initialize the contract and create an initial supply of tokens.
@@ -141,7 +141,7 @@ In the actual contract, however, the supply would still be the integer `1234`.
 In other words, *the decimals field in no way changes the actual arithmetic* because all operations are still performed on integers.
 
 Most contracts use `18` decimals and this was even proposed to be compulsory (see the {eip-discussion}).
-The Contracts for Cairo `ERC20` component includes the `decimals` function that returns `18` by default to save on gas fees.
+The Contracts for Cairo `ERC20` component includes a `decimals` function that returns `18` by default to save on gas fees.
 For those who want an ERC20 token with a configurable number of decimals, the following guide shows two ways to achieve this.
 
 NOTE: Both approaches require creating a custom implementation of the `IERC20Metadata` interface.

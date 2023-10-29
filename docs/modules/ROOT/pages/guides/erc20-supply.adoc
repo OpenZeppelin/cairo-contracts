@@ -127,9 +127,9 @@ For the sake of good practices, let's implement a simple permissioning mechanism
 #[starknet::contract]
 mod MyToken {
 
-    // Integrate Ownable
-
     (...)
+
+    // Integrate Ownable
 
     #[external(v0)]
     fn mint(

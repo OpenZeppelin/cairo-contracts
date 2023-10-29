@@ -146,6 +146,7 @@ mod MyToken {
 }
 ----
 
+In the constructor, we pass the owner address to set the owner of the `MyToken` contract.
 The `mint` function includes `assert_only_owner` which will ensure that only the contract owner can call this function.
 Now, we have a protected ERC20 minting mechanism to create a dynamic token supply.
 

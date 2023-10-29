@@ -82,7 +82,6 @@ Here's what that looks like:
 #[starknet::contract]
 mod MyToken {
     use openzeppelin::token::erc20::ERC20 as erc20_component;
-    use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
 
     component!(path: erc20_component, storage: erc20, event: ERC20Event);
@@ -103,7 +102,7 @@ mod MyToken {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: erc20_comp::Event
+        ERC20Event: erc20_component::Event
     }
 
     #[constructor]
@@ -174,7 +173,6 @@ For more complex scenarios, such as a factory deploying multiple tokens with dif
 #[starknet::contract]
 mod MyToken {
     use openzeppelin::token::erc20::ERC20 as erc20_component;
-    use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
 
     component!(path: erc20_component, storage: erc20, event: ERC20Event);

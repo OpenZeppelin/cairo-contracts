@@ -1,10 +1,11 @@
 use openzeppelin::account::Account::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::Account::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::presets::Account;
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin::presets::Account;
 use openzeppelin::tests::account::test_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, TRANSACTION_VERSION, QUERY_VERSION
+    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
 use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO, RECIPIENT};
 use openzeppelin::tests::utils;
@@ -133,6 +134,15 @@ fn is_valid_sig_dispatcher() -> (AccountABIDispatcher, felt252, Array<felt252>) 
 
 #[test]
 #[available_gas(2000000)]
+fn test_is_valid_signature() {
+    let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
+
+    let is_valid = dispatcher.is_valid_signature(hash, signature);
+    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+}
+
+#[test]
+#[available_gas(2000000)]
 fn test_is_valid_signature_bad_sig() {
     let (dispatcher, hash, _) = is_valid_sig_dispatcher();
 
@@ -140,18 +150,6 @@ fn test_is_valid_signature_bad_sig() {
 
     let is_valid = dispatcher.is_valid_signature(hash, bad_signature.clone());
     assert(is_valid == 0, 'Should reject invalid signature');
-
-    let is_valid = dispatcher.isValidSignature(hash, bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_is_valid_signature() {
-    let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
-
-    let is_valid = dispatcher.is_valid_signature(hash, signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 }
 
 #[test]
@@ -163,6 +161,17 @@ fn test_isValidSignature() {
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 }
 
+#[test]
+#[available_gas(2000000)]
+fn test_isValidSignature_bad_sig() {
+    let (dispatcher, hash, _) = is_valid_sig_dispatcher();
+
+    let bad_signature = array![0x987, 0x564];
+
+    let is_valid = dispatcher.isValidSignature(hash, bad_signature);
+    assert(is_valid == 0, 'Should reject invalid signature');
+}
+
 //
 // supports_interface
 //
@@ -172,6 +181,7 @@ fn test_isValidSignature() {
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
     assert(dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
+    assert(dispatcher.supports_interface(ISRC6_ID), 'Should implement ISRC5');
     assert(!dispatcher.supports_interface(0x123), 'Should not implement 0x123');
 }
 

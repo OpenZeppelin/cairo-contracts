@@ -2,13 +2,13 @@
 // OpenZeppelin Contracts for Cairo v0.7.0 (account/account.cairo)
 
 trait PublicKeyTrait<TState> {
-    fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
 }
 
 trait PublicKeyCamelTrait<TState> {
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
 }
 
 /// # Account Component

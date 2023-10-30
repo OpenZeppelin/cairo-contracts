@@ -53,8 +53,8 @@ trait AccountABI<TState> {
     ) -> felt252;
 
     // PublicKeyTrait
-    fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
@@ -63,6 +63,6 @@ trait AccountABI<TState> {
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 
     // PublicKeyCamelTrait
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
 }

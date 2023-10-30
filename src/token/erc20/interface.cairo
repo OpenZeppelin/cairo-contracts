@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc20/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -33,6 +33,7 @@ trait IERC20Camel<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 
+#[starknet::interface]
 trait IERC20CamelOnly<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;

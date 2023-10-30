@@ -17,8 +17,8 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 /// params are set as event keys, but the first event key is always set as the
 /// event ID.
 ///
-/// This method doesn't currently work for components events that are not flattened,
-/// becuase and extra key is added, pushing the event ID key to the second position.
+/// This method doesn't currently work for components events that are not flattened
+/// because an extra key is added, pushing the event ID key to the second position.
 fn pop_log<T, impl TDrop: Drop<T>, impl TEvent: starknet::Event<T>>(
     address: ContractAddress
 ) -> Option<T> {

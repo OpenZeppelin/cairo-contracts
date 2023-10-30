@@ -73,6 +73,8 @@ use openzeppelin::account::Account;
 ```
 Account component implementing xref:ISRC6[`ISRC6`].
 
+NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for this component to be implemented.
+
 [.contract-index]
 .Embeddable Functions
 --
@@ -81,10 +83,6 @@ Account component implementing xref:ISRC6[`ISRC6`].
 * xref:#Account-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#Account-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#Account-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
-
-.SRC5Impl
-
-* xref:#Account-supports_interface[`++supports_interface(self, interface_id)++`]
 
 .DeclarerImpl
 
@@ -118,7 +116,7 @@ Account component implementing xref:ISRC6[`ISRC6`].
 --
 .InternalImpl
 
-* xref:#Account-initializer[`++initializer(self, _public_key)++`]
+* xref:#Account-initializer[`++initializer(self, public_key)++`]
 * xref:#Account-assert_only_self[`++assert_only_self(self)++`]
 * xref:#Account-validate_transaction[`++validate_transaction(self)++`]
 * xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
@@ -154,12 +152,6 @@ See xref:ISRC6-\\__validate__[ISRC6::\\__validate__].
 See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
 [.contract-item]
-[[Account-supports_interface]]
-==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
-
-See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
-
-[.contract-item]
 [[Account-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
@@ -169,7 +161,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[Account-__validate_deploy__]]
-==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252) → felt252++` [.item-kind]#external#
 
 Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
@@ -216,7 +208,7 @@ See xref:Account-set_public_key[set_public_key].
 
 [.contract-item]
 [[Account-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, _public_key: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: felt252)++` [.item-kind]#internal#
 
 Initializes the account with the given public key, and registers the ISRC6 interface ID.
 

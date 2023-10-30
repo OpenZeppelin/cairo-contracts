@@ -47,12 +47,12 @@ trait AccountABI<TState> {
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 
-    // DeployerTrait
+    // IDeployable
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252;
 
-    // PublicKeyTrait
+    // IPublicKey
     fn get_public_key(self: @TState) -> felt252;
     fn set_public_key(ref self: TState, new_public_key: felt252);
 
@@ -62,7 +62,7 @@ trait AccountABI<TState> {
     // ISRC5Camel
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 
-    // PublicKeyCamelTrait
+    // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
 }

@@ -293,8 +293,7 @@ mod ERC721 {
         +Drop<TContractState>
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
-            assert(self._exists(tokenId), Errors::INVALID_TOKEN_ID);
-            self.ERC721_token_uri.read(tokenId)
+            self.token_uri(tokenId)
         }
     }
 

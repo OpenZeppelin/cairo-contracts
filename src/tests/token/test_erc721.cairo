@@ -1,4 +1,3 @@
-use integer::u256;
 use integer::u256_from_felt252;
 use openzeppelin::account::Account;
 use openzeppelin::introspection::src5::SRC5::SRC5Impl;
@@ -14,10 +13,9 @@ use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721::{
-    Approval, ApprovalForAll, ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataCamelOnlyImpl,
-    ERC721MetadataImpl, InternalImpl, Transfer,
-};
+use openzeppelin::token::erc721::ERC721::{Approval, ApprovalForAll, Transfer};
+use openzeppelin::token::erc721::ERC721::{ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl};
+use openzeppelin::token::erc721::ERC721::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721;
 use openzeppelin::token::erc721;
 use openzeppelin::utils::serde::SerializedAppend;

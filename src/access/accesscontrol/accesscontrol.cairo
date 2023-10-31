@@ -6,10 +6,10 @@
 /// The AccessControl component allows contracts to implement role-based access control mechanisms.
 /// Roles are referred to by their `felt252` identifier.
 #[starknet::component]
-mod AccessControl {
+mod AccessControlComponent {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -70,7 +70,7 @@ mod AccessControl {
     impl AccessControl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IAccessControl<ComponentState<TContractState>> {
         /// Returns whether `account` has been granted `role`.
@@ -141,7 +141,7 @@ mod AccessControl {
     impl AccessControlCamel<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IAccessControlCamel<ComponentState<TContractState>> {
         fn hasRole(
@@ -177,15 +177,13 @@ mod AccessControl {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the IAccessControl interface Id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::HasComponent::<
-                TContractState
-            >::get_component_mut(ref contract);
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IACCESSCONTROL_ID);
         }
 

@@ -1,7 +1,7 @@
-use openzeppelin::access::accesscontrol::AccessControl::InternalImpl;
-use openzeppelin::access::accesscontrol::AccessControl::RoleAdminChanged;
-use openzeppelin::access::accesscontrol::AccessControl::RoleGranted;
-use openzeppelin::access::accesscontrol::AccessControl::RoleRevoked;
+use openzeppelin::access::accesscontrol::AccessControlComponent::InternalImpl;
+use openzeppelin::access::accesscontrol::AccessControlComponent::RoleAdminChanged;
+use openzeppelin::access::accesscontrol::AccessControlComponent::RoleGranted;
+use openzeppelin::access::accesscontrol::AccessControlComponent::RoleRevoked;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::{IAccessControl, IAccessControlCamel};

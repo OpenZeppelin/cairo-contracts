@@ -5,11 +5,11 @@
 ///
 /// The Account component enables contracts to behave as accounts.
 #[starknet::component]
-mod Account {
+mod AccountComponent {
     use ecdsa::check_ecdsa_signature;
     use openzeppelin::account::interface;
-    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -52,7 +52,7 @@ mod Account {
     impl SRC6<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6<ComponentState<TContractState>> {
         /// Executes a list of calls from the account.
@@ -96,7 +96,7 @@ mod Account {
     impl Declarer<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IDeclarer<ComponentState<TContractState>> {
         /// Verifies the validity of the signature for the current transaction.
@@ -112,7 +112,7 @@ mod Account {
     impl Deployable<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IDeployable<ComponentState<TContractState>> {
         /// Verifies the validity of the signature for the current transaction.
@@ -131,7 +131,7 @@ mod Account {
     impl PublicKey<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IPublicKey<ComponentState<TContractState>> {
         /// Returns the current public key of the account.
@@ -152,7 +152,7 @@ mod Account {
     impl SRC6CamelOnly<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6CamelOnly<ComponentState<TContractState>> {
         fn isValidSignature(
@@ -167,7 +167,7 @@ mod Account {
     impl PublicKeyCamel<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IPublicKeyCamel<ComponentState<TContractState>> {
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
@@ -183,16 +183,14 @@ mod Account {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the account by setting the initial public key
         /// and registering the ISRC6 interface Id.
         fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
             let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::HasComponent::<
-                TContractState
-            >::get_component_mut(ref contract);
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
             self._set_public_key(public_key);
         }

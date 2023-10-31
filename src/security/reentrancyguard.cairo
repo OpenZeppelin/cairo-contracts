@@ -6,7 +6,7 @@
 /// The ReentrancyGuard component helps prevent nested (reentrant) calls
 /// to a function.
 #[starknet::component]
-mod ReentrancyGuard {
+mod ReentrancyGuardComponent {
     use starknet::get_caller_address;
 
     #[storage]

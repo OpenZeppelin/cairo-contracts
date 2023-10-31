@@ -6,7 +6,7 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::upgrades::Upgradeable::Upgraded;
+use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 

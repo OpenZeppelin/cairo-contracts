@@ -1,23 +1,23 @@
 #[starknet::contract]
 mod PausableMock {
-    use openzeppelin::security::pausable::Pausable as pausable_component;
+    use openzeppelin::security::pausable::PausableComponent;
 
-    component!(path: pausable_component, storage: pausable, event: PausableEvent);
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
 
     #[abi(embed_v0)]
-    impl PausableImpl = pausable_component::PausableImpl<ContractState>;
-    impl InternalImpl = pausable_component::InternalImpl<ContractState>;
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl InternalImpl = PausableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        pausable: pausable_component::Storage
+        pausable: PausableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        PausableEvent: pausable_component::Event
+        PausableEvent: PausableComponent::Event
     }
 }

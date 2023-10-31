@@ -1,8 +1,8 @@
-use openzeppelin::account::Account::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::Account::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::Account::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::Account::{TRANSACTION_VERSION, QUERY_VERSION};
-use openzeppelin::account::Account;
+use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
+use openzeppelin::account::AccountComponent;
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};

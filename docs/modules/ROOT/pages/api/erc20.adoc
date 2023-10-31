@@ -164,7 +164,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.hljs-theme-dark]
 ```javascript
-use openzeppelin::token::erc20::ERC20;
+use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 

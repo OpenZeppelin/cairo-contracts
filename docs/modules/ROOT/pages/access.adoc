@@ -139,13 +139,13 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::MINTER_ROLE;
 
     component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // AccessControl
     #[abi(embed_v0)]
@@ -159,10 +159,10 @@ mod MyContract {
 
     // ERC20
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
-    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -171,7 +171,7 @@ mod MyContract {
         #[substorage(v0)]
         src5: src5_component::Storage,
         #[substorage(v0)]
-        erc20: erc20_component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -182,7 +182,7 @@ mod MyContract {
         #[flat]
         SRC5Event: src5_component::Event,
         #[flat]
-        ERC20Event: erc20_component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -230,13 +230,13 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
     component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // AccessControl
     #[abi(embed_v0)]
@@ -250,10 +250,10 @@ mod MyContract {
 
     // ERC20
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
-    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -262,7 +262,7 @@ mod MyContract {
         #[substorage(v0)]
         src5: src5_component::Storage,
         #[substorage(v0)]
-        erc20: erc20_component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -273,7 +273,7 @@ mod MyContract {
         #[flat]
         SRC5Event: src5_component::Event,
         #[flat]
-        ERC20Event: erc20_component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -353,13 +353,13 @@ mod MyContract {
     use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
     component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // AccessControl
     #[abi(embed_v0)]
@@ -373,10 +373,10 @@ mod MyContract {
 
     // ERC20
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
-    impl ERC20InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     (...)
 

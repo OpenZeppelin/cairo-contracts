@@ -5,4 +5,4 @@ mod erc721_receiver;
 mod interface;
 
 use erc721::ERC721Component;
-use erc721_receiver::ERC721Receiver;
+use erc721_receiver::ERC721ReceiverComponent;

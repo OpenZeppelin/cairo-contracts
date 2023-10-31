@@ -3,17 +3,17 @@ use openzeppelin::tests::utils::constants::SUCCESS;
 #[starknet::contract]
 mod DualCaseERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc721::ERC721Receiver as erc721_receiver_component;
+    use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(
-        path: erc721_receiver_component, storage: erc721_receiver, event: ERC721ReceiverEvent
+        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
     );
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
-    impl ERC721ReceiverImpl = erc721_receiver_component::ERC721ReceiverImpl<ContractState>;
-    impl ERC721ReceiverInternalImpl = erc721_receiver_component::InternalImpl<ContractState>;
+    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
+    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -22,7 +22,7 @@ mod DualCaseERC721ReceiverMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc721_receiver: erc721_receiver_component::Storage,
+        erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
         src5: src5_component::Storage
     }
@@ -31,7 +31,7 @@ mod DualCaseERC721ReceiverMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC721ReceiverEvent: erc721_receiver_component::Event,
+        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
         SRC5Event: src5_component::Event
     }
@@ -71,17 +71,17 @@ mod DualCaseERC721ReceiverMock {
 #[starknet::contract]
 mod SnakeERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc721::ERC721Receiver as erc721_receiver_component;
+    use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(
-        path: erc721_receiver_component, storage: erc721_receiver, event: ERC721ReceiverEvent
+        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
     );
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
-    impl ERC721ReceiverImpl = erc721_receiver_component::ERC721ReceiverImpl<ContractState>;
-    impl ERC721ReceiverInternalImpl = erc721_receiver_component::InternalImpl<ContractState>;
+    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
+    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -90,7 +90,7 @@ mod SnakeERC721ReceiverMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc721_receiver: erc721_receiver_component::Storage,
+        erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
         src5: src5_component::Storage
     }
@@ -99,7 +99,7 @@ mod SnakeERC721ReceiverMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC721ReceiverEvent: erc721_receiver_component::Event,
+        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
         SRC5Event: src5_component::Event
     }
@@ -128,18 +128,18 @@ mod SnakeERC721ReceiverMock {
 #[starknet::contract]
 mod CamelERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc721::ERC721Receiver as erc721_receiver_component;
+    use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(
-        path: erc721_receiver_component, storage: erc721_receiver, event: ERC721ReceiverEvent
+        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
     );
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverCamelImpl =
-        erc721_receiver_component::ERC721ReceiverCamelImpl<ContractState>;
-    impl ERC721ReceiverInternalImpl = erc721_receiver_component::InternalImpl<ContractState>;
+        ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
+    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -148,7 +148,7 @@ mod CamelERC721ReceiverMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc721_receiver: erc721_receiver_component::Storage,
+        erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
         src5: src5_component::Storage
     }
@@ -157,7 +157,7 @@ mod CamelERC721ReceiverMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC721ReceiverEvent: erc721_receiver_component::Event,
+        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
         SRC5Event: src5_component::Event
     }

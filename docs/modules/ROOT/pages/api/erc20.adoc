@@ -169,7 +169,7 @@ use openzeppelin::token::erc20::ERC20;
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
 [.contract-index]
-.Embeddable functions
+.Embeddable implementations
 --
 .ERC20Impl
 * xref:#ERC20-total_supply[`++total_supply(self)++`]
@@ -190,7 +190,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 --
 
 [.contract-index]
-.camelCase support
+.Embeddable implementations (camelCase)
 --
 .ERC20CamelOnlyImpl
 * xref:#ERC20-totalSupply[`++totalSupply(self)++`]
@@ -203,7 +203,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 --
 
 [.contract-index]
-.Internal functions
+.Internal implementations
 --
 .InternalImpl
 * xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]

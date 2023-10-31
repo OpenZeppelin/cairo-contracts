@@ -76,7 +76,7 @@ Account component implementing xref:ISRC6[`ISRC6`].
 NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for this component to be implemented.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .SRC6Impl
 
@@ -99,7 +99,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for t
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable camelCase Support
 --
 .SRC6CamelOnlyImpl
 
@@ -112,7 +112,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for t
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

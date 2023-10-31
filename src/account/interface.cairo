@@ -30,6 +30,18 @@ trait IDeployable<TState> {
     ) -> felt252;
 }
 
+#[starknet::interface]
+trait IPublicKey<TState> {
+    fn get_public_key(self: @TState) -> felt252;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
+}
+
+#[starknet::interface]
+trait IPublicKeyCamel<TState> {
+    fn getPublicKey(self: @TState) -> felt252;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+}
+
 //
 // Account ABI
 //

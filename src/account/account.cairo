@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (account/account.cairo)
 
-#[starknet::interface]
-trait IPublicKey<TState> {
-    fn get_public_key(self: @TState) -> felt252;
-    fn set_public_key(ref self: TState, new_public_key: felt252);
-}
-
-#[starknet::interface]
-trait IPublicKeyCamel<TState> {
-    fn getPublicKey(self: @TState) -> felt252;
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
-}
-
 /// # Account Component
 ///
 /// The Account component enables contracts to behave as accounts.
@@ -145,7 +133,7 @@ mod Account {
         +HasComponent<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of super::IPublicKey<ComponentState<TContractState>> {
+    > of interface::IPublicKey<ComponentState<TContractState>> {
         /// Returns the current public key of the account.
         fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
             self.Account_public_key.read()
@@ -181,7 +169,7 @@ mod Account {
         +HasComponent<TContractState>,
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of super::IPublicKeyCamel<ComponentState<TContractState>> {
+    > of interface::IPublicKeyCamel<ComponentState<TContractState>> {
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
             self.Account_public_key.read()
         }

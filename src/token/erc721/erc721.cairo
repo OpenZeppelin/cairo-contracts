@@ -6,7 +6,7 @@
 /// The ERC721 component provides implementations for both the IERC721 interface
 /// and the IERC721Metadata interface.
 #[starknet::component]
-mod ERC721 {
+mod ERC721Component {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
     use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;

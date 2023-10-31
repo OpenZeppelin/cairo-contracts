@@ -13,10 +13,10 @@ use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721::{Approval, ApprovalForAll, Transfer};
-use openzeppelin::token::erc721::ERC721::{ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl};
-use openzeppelin::token::erc721::ERC721::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
-use openzeppelin::token::erc721::ERC721;
+use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl};
+use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
+use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;

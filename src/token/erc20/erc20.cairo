@@ -10,7 +10,7 @@
 /// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.8.0-beta.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
-mod ERC20 {
+mod ERC20Component {
     use integer::BoundedInt;
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;

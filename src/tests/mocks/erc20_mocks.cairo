@@ -1,34 +1,34 @@
 #[starknet::contract]
 mod DualCaseERC20 {
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SafeAllowanceImpl = erc20_component::SafeAllowanceImpl<ContractState>;
+    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl SafeAllowanceCamelImpl =
-        erc20_component::SafeAllowanceCamelImpl<ContractState>;
-    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
+        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: erc20_component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -46,30 +46,30 @@ mod DualCaseERC20 {
 
 #[starknet::contract]
 mod SnakeERC20Mock {
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SafeAllowanceImpl = erc20_component::SafeAllowanceImpl<ContractState>;
-    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: erc20_component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -87,34 +87,34 @@ mod SnakeERC20Mock {
 
 #[starknet::contract]
 mod CamelERC20Mock {
-    use openzeppelin::token::erc20::ERC20 as erc20_component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
 
-    component!(path: erc20_component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl = erc20_component::ERC20MetadataImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = erc20_component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl SafeAllowanceCamelImpl =
-        erc20_component::SafeAllowanceCamelImpl<ContractState>;
+        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
     // `ERC20Impl` is not embedded because it would defeat the purpose of the
     // mock. The `ERC20Impl` case-agnostic methods are manually exposed.
-    impl ERC20Impl = erc20_component::ERC20Impl<ContractState>;
-    impl InternalImpl = erc20_component::InternalImpl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: erc20_component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: erc20_component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]

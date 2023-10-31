@@ -96,8 +96,8 @@ mod SnakeERC721Mock {
 #[starknet::contract]
 mod CamelERC721Mock {
     use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl};
+    use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

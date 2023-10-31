@@ -6,9 +6,7 @@ mod DualCaseERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(
-        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
-    );
+    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
@@ -74,9 +72,7 @@ mod SnakeERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(
-        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
-    );
+    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
@@ -131,14 +127,11 @@ mod CamelERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(
-        path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent
-    );
+    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
     component!(path: src5_component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
-    impl ERC721ReceiverCamelImpl =
-        ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
+    impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     // SRC5

@@ -14,7 +14,9 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
-use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl};
+use openzeppelin::token::erc721::ERC721Component::{
+    ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
+};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721;

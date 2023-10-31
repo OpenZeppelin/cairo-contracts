@@ -30,7 +30,7 @@ use openzeppelin::access::ownable::OwnableComponent;
 This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .OwnableImpl
 
@@ -40,7 +40,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .OwnableCamelOnlyImpl
 
@@ -49,7 +49,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 
@@ -322,7 +322,7 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .AccessControlImpl
 

@@ -47,7 +47,7 @@ use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
 Upgradeable component.
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

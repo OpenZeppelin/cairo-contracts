@@ -61,7 +61,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

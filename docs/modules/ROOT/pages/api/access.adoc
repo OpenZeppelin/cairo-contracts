@@ -21,7 +21,7 @@ assigned each to multiple accounts.
 === `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::access::ownable::Ownable;
+use openzeppelin::access::ownable::OwnableComponent;
 ```
 
 `Ownable` provides a basic access control mechanism where an account
@@ -284,7 +284,7 @@ Emitted when `account` is revoked `role`.
 :revoke_role: xref:#AccessControl-revoke_role[revoke_role]
 
 ```javascript
-use openzeppelin::access::accesscontrol::AccessControl;
+use openzeppelin::access::accesscontrol::AccessControlComponent;
 ```
 
 Component that allows contracts to implement role-based access control mechanisms.

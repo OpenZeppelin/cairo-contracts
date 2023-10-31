@@ -41,7 +41,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 === `++Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::upgrades::upgradeable::Upgradeable;
+use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
 ```
 
 Upgradeable component.

@@ -69,7 +69,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 :OwnerRemoved: xref:Account-OwnerRemoved[OwnerRemoved]
 
 ```javascript
-use openzeppelin::account::Account;
+use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`].
 
@@ -99,7 +99,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for t
 --
 
 [.contract-index]
-.Embeddable camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .SRC6CamelOnlyImpl
 

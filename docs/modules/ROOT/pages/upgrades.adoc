@@ -49,38 +49,38 @@ NOTE: We will be using the following module to implement the {i_upgradeable} int
 ----
 #[starknet::contract]
 mod UpgradeableContract {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
-    use openzeppelin::upgrades::Upgradeable as upgradeable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
-    component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     /// Ownable
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     /// Upgradeable
-    impl UpgradeableInternalImpl = upgradeable_component::InternalImpl<ContractState>;
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage,
+        ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        upgradeable: upgradeable_component::Storage
+        upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event,
+        OwnableEvent: OwnableComponent::Event,
         #[flat]
-        UpgradeableEvent: upgradeable_component::Event
+        UpgradeableEvent: UpgradeableComponent::Event
     }
 
     #[constructor]

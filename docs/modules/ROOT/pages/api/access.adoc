@@ -337,7 +337,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .AccessControlCamelImpl
 
@@ -349,7 +349,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

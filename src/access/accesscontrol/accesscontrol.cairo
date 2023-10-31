@@ -183,7 +183,7 @@ mod AccessControlComponent {
         /// Initializes the contract by registering the IAccessControl interface Id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
-            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            let mut src5_component = SRC5::get_component_mut(ref contract);
             src5_component.register_interface(interface::IACCESSCONTROL_ID);
         }
 

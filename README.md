@@ -60,7 +60,7 @@ Finished release target(s) in 6 seconds
 
 Open `src/lib.cairo` and write your contract.
 
-For example, this how to extend the ERC20 standard contract:
+For example, this is how to write an ERC20-compliant contract:
 
 ```cairo
 #[starknet::contract]

@@ -20,18 +20,18 @@ trait UpgradesV1Trait<TState> {
 
 #[starknet::contract]
 mod UpgradesV1 {
-    use openzeppelin::upgrades::Upgradeable as upgradeable_component;
+    use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
-    component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    impl InternalImpl = upgradeable_component::InternalImpl<ContractState>;
+    impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        upgradeable: upgradeable_component::Storage,
+        upgradeable: UpgradeableComponent::Storage,
         value: felt252
     }
 
@@ -39,7 +39,7 @@ mod UpgradesV1 {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        UpgradeableEvent: upgradeable_component::Event
+        UpgradeableEvent: UpgradeableComponent::Event
     }
 
     #[external(v0)]
@@ -79,18 +79,18 @@ trait UpgradesV2Trait<TState> {
 
 #[starknet::contract]
 mod UpgradesV2 {
-    use openzeppelin::upgrades::Upgradeable as upgradeable_component;
+    use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
-    component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    impl InternalImpl = upgradeable_component::InternalImpl<ContractState>;
+    impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        upgradeable: upgradeable_component::Storage,
+        upgradeable: UpgradeableComponent::Storage,
         value: felt252,
         value2: felt252
     }
@@ -99,7 +99,7 @@ mod UpgradesV2 {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        UpgradeableEvent: upgradeable_component::Event
+        UpgradeableEvent: UpgradeableComponent::Event
     }
 
     #[external(v0)]

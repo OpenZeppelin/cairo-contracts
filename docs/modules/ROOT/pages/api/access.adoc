@@ -21,7 +21,7 @@ assigned each to multiple accounts.
 === `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::access::ownable::Ownable;
+use openzeppelin::access::ownable::OwnableComponent;
 ```
 
 `Ownable` provides a basic access control mechanism where an account
@@ -30,7 +30,7 @@ use openzeppelin::access::ownable::Ownable;
 This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .OwnableImpl
 
@@ -40,7 +40,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .OwnableCamelOnlyImpl
 
@@ -49,7 +49,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 
@@ -284,7 +284,7 @@ Emitted when `account` is revoked `role`.
 :revoke_role: xref:#AccessControl-revoke_role[revoke_role]
 
 ```javascript
-use openzeppelin::access::accesscontrol::AccessControl;
+use openzeppelin::access::accesscontrol::AccessControlComponent;
 ```
 
 Component that allows contracts to implement role-based access control mechanisms.
@@ -322,7 +322,7 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .AccessControlImpl
 
@@ -337,7 +337,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .AccessControlCamelImpl
 
@@ -349,7 +349,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

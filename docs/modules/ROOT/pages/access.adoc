@@ -27,29 +27,29 @@ xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     #[abi(embed_v0)]
     impl OwnableCamelOnlyImpl =
-        ownable_component::OwnableCamelOnlyImpl<ContractState>;
-    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
+        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]
@@ -137,37 +137,37 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::MINTER_ROLE;
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: accesscontrol_component::Event,
+        AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -216,37 +216,37 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: accesscontrol_component::Event,
+        AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -328,22 +328,22 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc20::ERC20;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     (...)
 

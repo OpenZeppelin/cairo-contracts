@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc721/erc721_receiver.cairo)
+
+/// # ERC721Receiver Component
+///
+/// The ERC721Receiver component provides implementations for the IERC721Receiver
+/// interface. Integrating this component allows contracts to support ERC721
+/// safe transfers.
 #[starknet::component]
 mod ERC721ReceiverComponent {
     use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
@@ -20,6 +28,9 @@ mod ERC721ReceiverComponent {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of IERC721Receiver<ComponentState<TContractState>> {
+        /// Called whenever the implementing contract receives `token_id` through
+        /// a safe transfer. This function must return `IERC721_RECEIVER_ID`
+        /// to confirm the token transfer.
         fn on_erc721_received(
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
@@ -31,6 +42,7 @@ mod ERC721ReceiverComponent {
         }
     }
 
+    /// Adds camelCase support for `IERC721Receiver`.
     #[embeddable_as(ERC721ReceiverCamelImpl)]
     impl ERC721ReceiverCamel<
         TContractState,
@@ -56,6 +68,8 @@ mod ERC721ReceiverComponent {
         +SRC5::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
+        /// Initializes the contract by registering the IERC721Receiver interface ID.
+        /// This should be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
             let mut src5_component = SRC5::HasComponent::<

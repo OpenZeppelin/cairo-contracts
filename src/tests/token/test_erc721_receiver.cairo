@@ -5,7 +5,6 @@ use openzeppelin::tests::utils::constants::{OWNER, OPERATOR, TOKEN_ID};
 use openzeppelin::token::erc721::ERC721ReceiverComponent::{
     ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
 };
-use openzeppelin::token::erc721::ERC721ReceiverComponent;
 use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
 
 fn STATE() -> DualCaseERC721ReceiverMock::ContractState {

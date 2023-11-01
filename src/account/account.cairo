@@ -189,8 +189,7 @@ mod AccountComponent {
         /// Initializes the account by setting the initial public key
         /// and registering the ISRC6 interface Id.
         fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
-            let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::get_component_mut(ref contract);
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
             self._set_public_key(public_key);
         }

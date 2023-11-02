@@ -6,7 +6,7 @@ CAUTION: Expect these modules to evolve.
 
 == Initializable
 
-The xref:api/security.adoc#Initializable[Initializable] component provides a simple mechanism that mimics
+The xref:api/security.adoc#InitializableComponent[Initializable] component provides a simple mechanism that mimics
 the functionality of a constructor.
 More specifically, it enables logic to be performed once and only once which is useful to set up a contract's initial state when a constructor cannot be used, for example, when there are circular dependencies at construction time.
 
@@ -16,16 +16,16 @@ You can use the component in your contracts like this:
 ----
 #[starknet::contract]
 mod MyInitializableContract {
-    use openzeppelin::security::Initializable as initializable_component;
+    use openzeppelin::security::InitializableComponent;
 
-    component!(path: initializable_component, storage: initializable, event: InitializableEvent);
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
-    impl InternalImpl = initializable_component::InternalImpl<ContractState>;
+    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        initializable: initializable_component::Storage,
+        initializable: InitializableComponent::Storage,
         param: felt252
     }
 
@@ -33,7 +33,7 @@ mod MyInitializableContract {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        InitializableEvent: initializable_component::Event
+        InitializableEvent: InitializableComponent::Event
     }
 
     fn initializer(ref self: ContractState, some_param: felt252) {
@@ -46,58 +46,58 @@ mod MyInitializableContract {
 }
 ----
 
-CAUTION: This Initializable pattern should only be used on one function.
+CAUTION: This Initializable pattern should only be used in one function.
 
 == Pausable
 
-:assert_not_paused: xref:api/security.adoc#Pausable-assert_not_paused[assert_not_paused]
-:assert_paused: xref:api/security.adoc#Pausable-assert_paused[assert_paused]
+:assert_not_paused: xref:api/security.adoc#PausableComponent-assert_not_paused[assert_not_paused]
+:assert_paused: xref:api/security.adoc#PausableComponent-assert_paused[assert_paused]
 
-The xref:api/security.adoc#Pausable[Pausable] component allows contracts to implement an emergency stop mechanism.
+The xref:api/security.adoc#PausableComponent[Pausable] component allows contracts to implement an emergency stop mechanism.
 This can be useful for scenarios such as preventing trades until the end of an evaluation period or having an emergency switch to freeze all transactions in the event of a large bug.
 
 To become pausable, the contract should include `pause` and `unpause` functions (which should be protected).
 For methods that should be available only when paused or not, insert calls to `{assert_paused}` and `{assert_not_paused}`
 respectively.
 
-For example (using the xref:api/access.adoc#Ownable[Ownable] component for access control):
+For example (using the xref:api/access.adoc#OwnableComponent[Ownable] component for access control):
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyPausableContract {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
-    use openzeppelin::security::Pausable as pausable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::security::PausableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
-    component!(path: pausable_component, storage: pausable, event: PausableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
 
     // Ownable
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Pausable
     #[abi(embed_v0)]
-    impl PausableImpl = pausable_component::PausableImpl<ContractState>;
-    impl PausableInternalImpl = pausable_component::InternalImpl<ContractState>;
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl PausableInternalImpl = PausableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage,
+        ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        pausable: pausable_component::Storage
+        pausable: PausableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event,
+        OwnableEvent: OwnableComponent::Event,
         #[flat]
-        PausableEvent: pausable_component::Event
+        PausableEvent: PausableComponent::Event
     }
 
     #[constructor]
@@ -133,12 +133,12 @@ mod MyPausableContract {
 
 == Reentrancy Guard
 
-:start: xref:api/security.adoc#ReentrancyGuard-start[start]
-:end: xref:api/security.adoc#ReentrancyGuard-end[end]
+:start: xref:api/security.adoc#ReentrancyGuardComponent-start[start]
+:end: xref:api/security.adoc#ReentrancyGuardComponent-end[end]
 
 A https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4[reentrancy attack] occurs when the caller is able to obtain more resources than allowed by recursively calling a target's function.
 
-Since Cairo does not support modifiers like Solidity, the xref:api/security.adoc#ReentrancyGuard[ReentrancyGuard]
+Since Cairo does not support modifiers like Solidity, the xref:api/security.adoc#ReentrancyGuardComponent[ReentrancyGuard]
 component exposes two methods `{start}` and `{end}` to protect functions against reentrancy attacks.
 The protected function must call `start` before the first function statement, and `end` before the return statement, as shown below:
 
@@ -146,25 +146,25 @@ The protected function must call `start` before the first function statement, an
 ----
 #[starknet::contract]
 mod MyReentrancyContract {
-    use openzeppelin::security::ReentrancyGuard as reentrancy_guard_component;
+    use openzeppelin::security::ReentrancyGuardComponent;
 
     component!(
-        path: reentrancy_guard_component, storage: reentrancy_guard, event: ReentrancyGuardEvent
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
     );
 
-    impl InternalImpl = reentrancy_guard_component::InternalImpl<ContractState>;
+    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        reentrancy_guard: reentrancy_guard_component::Storage
+        reentrancy_guard: ReentrancyGuardComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ReentrancyGuardEvent: reentrancy_guard_component::Event
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
     #[generate_trait]

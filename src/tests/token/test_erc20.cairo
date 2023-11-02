@@ -8,10 +8,8 @@ use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
-use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 use starknet::testing;
 
 //

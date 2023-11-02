@@ -174,7 +174,7 @@ mod OwnableComponent {
         /// Transfers the ownership to the pending owner.
         ///
         /// Internal function without access restriction.
-        fn _accept_ownership(ref self: ComponentState<TContractState>)  {
+        fn _accept_ownership(ref self: ComponentState<TContractState>) {
             let pending_owner: ContractAddress = self.Ownable_pending_owner.read();
             self.Ownable_pending_owner.write(Zeroable::zero());
             self._transfer_ownership(pending_owner);
@@ -183,14 +183,14 @@ mod OwnableComponent {
         /// Sets a new pending owner of the contract.
         ///
         /// Internal function without access restriction.
-        fn _propose_owner(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
-        ) {
+        fn _propose_owner(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {
             let previous_owner: ContractAddress = self.Ownable_owner.read();
             self.Ownable_pending_owner.write(new_owner);
             self
                 .emit(
-                    OwnershipTransferStarted { previous_owner: previous_owner, new_owner: new_owner }
+                    OwnershipTransferStarted {
+                        previous_owner: previous_owner, new_owner: new_owner
+                    }
                 );
         }
 

@@ -1,6 +1,5 @@
 :ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
-:extensibility-pattern: xref:extensibility.adoc#the_pattern
 
 = Access
 
@@ -21,7 +20,7 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 
 Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
-xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
+xref:/api/access.adoc#AccessControlComponent-initializer[`initializer`] like this:
 
 [,javascript]
 ----
@@ -116,7 +115,7 @@ flexibility in this regard.
 
 In essence, we will be defining multiple roles, each allowed to perform different sets of actions.
 An account may have, for example, 'moderator', 'minter' or 'admin' roles, which you will then check for
-instead of simply using xref:/api/access.adoc#Ownable-assert_only_owner[`assert_only_owner`]. This check can be enforced through xref:/api/access.adoc#AccessControl-assert_only_role[`assert_only_role`].
+instead of simply using xref:/api/access.adoc#OwnableComponent-assert_only_owner[`assert_only_owner`]. This check can be enforced through xref:/api/access.adoc#AccessControlComponent-assert_only_role[`assert_only_role`].
 Separately, you will be able to define rules for how accounts can be granted a role, have it revoked, and more.
 
 Most software uses access control systems that are role-based: some users are regular users, some may be supervisors
@@ -212,11 +211,11 @@ mod MyContract {
 }
 ----
 
-CAUTION: Make sure you fully understand how xref:api/access.adoc#AccessControl[AccessControl] works before
+CAUTION: Make sure you fully understand how xref:api/access.adoc#AccessControlComponent[AccessControl] works before
 using it on your system, or copy-pasting the examples from this guide.
 
 While clear and explicit, this isn't anything we wouldn't have been able to achieve with
-xref:api/access.adoc#Ownable[Ownable]. Where `AccessControl` shines the most is in scenarios where granular
+xref:api/access.adoc#OwnableComponent[Ownable]. Where `AccessControl` shines the most is in scenarios where granular
 permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:
@@ -320,16 +319,16 @@ security practice. Note that each account may still have more than one role, if 
 
 === Granting and revoking roles
 
-The ERC20 token example above uses xref:api/access.adoc#AccessControl-_grant_role[`_grant_role`],
+The ERC20 token example above uses xref:api/access.adoc#AccessControlComponent-_grant_role[`_grant_role`],
 an `internal` function that is useful when programmatically assigning
 roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, *accounts with a role cannot grant it or revoke it from other accounts*: all having a role does is making
-the xref:api/access.adoc#AccessControl-assert_only_role[`assert_only_role`] check pass. To grant and revoke roles dynamically, you will need help from the role's _admin_.
+the xref:api/access.adoc#AccessControlComponent-assert_only_role[`assert_only_role`] check pass. To grant and revoke roles dynamically, you will need help from the role's _admin_.
 
 Every role has an associated admin role, which grants permission to call the 
-xref:api/access.adoc#AccessControl-grant_role[`grant_role`] and 
-xref:api/access.adoc#AccessControl-revoke_role[`revoke_role`] functions.
+xref:api/access.adoc#AccessControlComponent-grant_role[`grant_role`] and 
+xref:api/access.adoc#AccessControlComponent-revoke_role[`revoke_role`] functions.
 A role can be granted or revoked by using these if the calling account has the corresponding admin role.
 Multiple roles may have the same admin role to make management easier.
 A role's admin can even be the same role itself, which would cause accounts with that role to be able
@@ -339,7 +338,7 @@ This mechanism can be used to create complex permissioning structures resembling
 provides an easy way to manage simpler applications. `AccessControl` includes a special role with the role identifier
 of `0`, called `DEFAULT_ADMIN_ROLE`, which acts as the *default admin role for all roles*.
 An account with this role will be able to manage any other role, unless 
-xref:api/access.adoc#AccessControl-_set_role_admin[`_set_role_admin`] is used to select a new admin role.
+xref:api/access.adoc#AccessControlComponent-_set_role_admin[`_set_role_admin`] is used to select a new admin role.
 
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 

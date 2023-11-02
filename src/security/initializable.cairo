@@ -7,7 +7,7 @@
 /// logic once and only once. This can be useful for setting a contract's
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
-mod Initializable {
+mod InitializableComponent {
     #[storage]
     struct Storage {
         Initializable_initialized: bool

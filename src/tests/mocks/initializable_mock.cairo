@@ -1,21 +1,21 @@
 #[starknet::contract]
 mod InitializableMock {
-    use openzeppelin::security::initializable::Initializable as initializable_component;
+    use openzeppelin::security::initializable::InitializableComponent;
 
-    component!(path: initializable_component, storage: initializable, event: InitializableEvent);
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
-    impl InternalImpl = initializable_component::InternalImpl<ContractState>;
+    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        initializable: initializable_component::Storage
+        initializable: InitializableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        InitializableEvent: initializable_component::Event
+        InitializableEvent: InitializableComponent::Event
     }
 }

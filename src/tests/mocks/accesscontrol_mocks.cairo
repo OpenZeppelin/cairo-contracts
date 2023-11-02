@@ -1,39 +1,39 @@
 #[starknet::contract]
 mod DualCaseAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
     impl AccessControlCamelImpl =
-        accesscontrol_component::AccessControlCamelImpl<ContractState>;
+        AccessControlComponent::AccessControlCamelImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: accesscontrol_component::Event,
+        AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -45,36 +45,36 @@ mod DualCaseAccessControlMock {
 
 #[starknet::contract]
 mod SnakeAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: accesscontrol_component::Event,
+        AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -86,37 +86,37 @@ mod SnakeAccessControlMock {
 
 #[starknet::contract]
 mod CamelAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlCamelImpl =
-        accesscontrol_component::AccessControlCamelImpl<ContractState>;
+        AccessControlComponent::AccessControlCamelImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: accesscontrol_component::Event,
+        AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]

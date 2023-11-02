@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc721/erc721.cairo)
 
 #[starknet::contract]
 mod ERC721 {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5;
     use openzeppelin::introspection::dual_src5::DualCaseSRC5Trait;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721Receiver;
     use openzeppelin::token::erc721::dual721_receiver::DualCaseERC721ReceiverTrait;
     use openzeppelin::token::erc721::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5CamelImpl = src5_component::SRC5CamelImpl<ContractState>;
-    impl SRC5InternalImpl = src5_component::InternalImpl<ContractState>;
+    impl SRC5CamelImpl = SRC5Component::SRC5CamelImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -30,7 +30,7 @@ mod ERC721 {
         ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         ERC721_token_uri: LegacyMap<u256, felt252>,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
@@ -39,7 +39,7 @@ mod ERC721 {
         Transfer: Transfer,
         Approval: Approval,
         ApprovalForAll: ApprovalForAll,
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[derive(Drop, starknet::Event)]

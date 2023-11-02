@@ -1,7 +1,7 @@
 :contract_classes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-classes/[Contract Classes]
 :class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
 :replace_class_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#replace_class[replace_class]
-:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/upgrades/upgradeable.cairo[Upgradeable]
+:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/upgrades/upgradeable.cairo[Upgradeable]
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
 :i_upgradeable: xref:api/upgrades.adoc#IUpgradeable[IUpgradeable]
 :library_calls: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#library_call[library calls]
@@ -49,38 +49,38 @@ NOTE: We will be using the following module to implement the {i_upgradeable} int
 ----
 #[starknet::contract]
 mod UpgradeableContract {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
-    use openzeppelin::upgrades::Upgradeable as upgradeable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
-    component!(path: upgradeable_component, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     /// Ownable
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = ownable_component::InternalImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     /// Upgradeable
-    impl UpgradeableInternalImpl = upgradeable_component::InternalImpl<ContractState>;
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage,
+        ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        upgradeable: upgradeable_component::Storage
+        upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event,
+        OwnableEvent: OwnableComponent::Event,
         #[flat]
-        UpgradeableEvent: upgradeable_component::Event
+        UpgradeableEvent: UpgradeableComponent::Event
     }
 
     #[constructor]

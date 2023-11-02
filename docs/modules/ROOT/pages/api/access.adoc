@@ -18,10 +18,10 @@ assigned each to multiple accounts.
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::access::ownable::Ownable;
+use openzeppelin::access::ownable::OwnableComponent;
 ```
 
 `Ownable` provides a basic access control mechanism where an account
@@ -30,7 +30,7 @@ use openzeppelin::access::ownable::Ownable;
 This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .OwnableImpl
 
@@ -40,7 +40,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .OwnableCamelOnlyImpl
 
@@ -49,7 +49,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 
@@ -144,7 +144,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/05429e4fd34a250ce7a01450190c53275e5c1c0b/src/access/accesscontrol/interface.cairo#L10[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -277,14 +277,14 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControl-assert_only_role
 :grant_role: xref:#AccessControl-grant_role[grant_role]
 :revoke_role: xref:#AccessControl-revoke_role[revoke_role]
 
 ```javascript
-use openzeppelin::access::accesscontrol::AccessControl;
+use openzeppelin::access::accesscontrol::AccessControlComponent;
 ```
 
 Component that allows contracts to implement role-based access control mechanisms.
@@ -322,7 +322,7 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index]
-.Embeddable Functions
+.Embeddable Implementations
 --
 .AccessControlImpl
 
@@ -337,7 +337,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.camelCase Support
+.Embeddable Implementations (camelCase)
 --
 .AccessControlCamelImpl
 
@@ -349,7 +349,7 @@ accounts that have been granted it.
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

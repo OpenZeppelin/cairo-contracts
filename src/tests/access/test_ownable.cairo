@@ -1,5 +1,5 @@
-use openzeppelin::access::ownable::Ownable::InternalTrait;
-use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
+use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
+use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};

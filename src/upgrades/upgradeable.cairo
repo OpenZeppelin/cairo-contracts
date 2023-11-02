@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (upgrades/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
 /// The Upgradeable component provides a mechanism to make a contract upgradeable.
 #[starknet::component]
-mod Upgradeable {
+mod UpgradeableComponent {
     use starknet::ClassHash;
 
     #[storage]

@@ -43,7 +43,7 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.0-beta.0" }
 ```
 
 Build the project to download it:
@@ -60,16 +60,34 @@ Finished release target(s) in 6 seconds
 
 Open `src/lib.cairo` and write your contract.
 
-For example, this how to extend the ERC20 standard contract:
+For example, this is how to write an ERC20-compliant contract:
 
 ```cairo
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc20::ERC20;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
 
     #[constructor]
     fn constructor(
@@ -80,24 +98,15 @@ mod MyToken {
         let name = 'MyToken';
         let symbol = 'MTK';
 
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, initial_supply);
     }
-
-    #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
-        let unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::ERC20Impl::name(@unsafe_state)
-    }
-
-    ...
 }
 ```
 
 ### Unsupported
 
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.8.0-beta.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 
@@ -147,8 +156,8 @@ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 $ cd cairo-contracts
 $ scarb build
 
-Compiling lib(openzeppelin) openzeppelin v0.7.0 (~/cairo-contracts/Scarb.toml)
-Compiling starknet-contract(openzeppelin) openzeppelin v0.7.0 (~/cairo-contracts/Scarb.toml)
+Compiling lib(openzeppelin) openzeppelin v0.8.0-beta.0 (~/cairo-contracts/Scarb.toml)
+Compiling starknet-contract(openzeppelin) openzeppelin v0.8.0-beta.0 (~/cairo-contracts/Scarb.toml)
 Finished release target(s) in 16 seconds
 ```
 

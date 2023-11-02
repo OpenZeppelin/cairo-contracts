@@ -2,14 +2,13 @@ use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
-use openzeppelin::account::AccountComponent;
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
+use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20;
 use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -83,7 +82,7 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
-    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
+    let address = utils::deploy(DualCaseERC20::TEST_CLASS_HASH, calldata);
     IERC20Dispatcher { contract_address: address }
 }
 

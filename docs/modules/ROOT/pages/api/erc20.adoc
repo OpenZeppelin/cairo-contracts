@@ -2,6 +2,7 @@
 :eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
+:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
 
 = ERC20
 
@@ -25,9 +26,6 @@ Interface of the IERC20 standard as defined in {eip20}.
 [.contract-index]
 .Functions
 --
-* xref:#IERC20-name[`++name()++`]
-* xref:#IERC20-symbol[`++symbol()++`]
-* xref:#IERC20-decimals[`++decimals()++`]
 * xref:#IERC20-total_supply[`++total_supply()++`]
 * xref:#IERC20-balance_of[`++balance_of()++`]
 * xref:#IERC20-allowance[`++allowance(owner, spender)++`]
@@ -45,34 +43,6 @@ Interface of the IERC20 standard as defined in {eip20}.
 
 [#IERC20-Functions]
 ==== Functions
-
-[.contract-item]
-[[IERC20-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
-
-Returns the name of the token.
-
-[.contract-item]
-[[IERC20-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
-
-Returns the ticker symbol of the token.
-
-[.contract-item]
-[[IERC20-decimals]]
-==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
-
-Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
-
-For example, if `decimals` equals `2`, a balance of `505` tokens should
-be displayed to a user as `5.05` (`505 / 10 ** 2`).
-
-Tokens usually opt for a value of `18`, imitating the relationship between
-Ether and Wei. This is the default value returned by this function, unless
-a custom implementation is used.
-
-NOTE: This information is only used for _display_ purposes: it in
-no way affects any of the arithmetic of the contract.
 
 [.contract-item]
 [[IERC20-total_supply]]
@@ -141,29 +111,67 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 `value` is the new allowance.
 
 [.contract]
+[[IERC20Metadata]]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc20::interface::IERC20Metadata;
+```
+
+Interface for the optional metadata functions in {eip20}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC20Metadata-name[`++name()++`]
+* xref:#IERC20Metadata-symbol[`++symbol()++`]
+* xref:#IERC20Metadata-decimals[`++decimals()++`]
+--
+
+[#IERC20Metadata-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC20Metadata-name]]
+==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+
+Returns the name of the token.
+
+[.contract-item]
+[[IERC20Metadata-symbol]]
+==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+
+Returns the ticker symbol of the token.
+
+[.contract-item]
+[[IERC20Metadata-decimals]]
+==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+
+Returns the number of decimals the token uses - e.g. `8` means to divide the token amount by `100000000` to get its user-readable representation.
+
+For example, if `decimals` equals `2`, a balance of `505` tokens should be displayed to a user as `5.05` (`505 / 10 ** 2`).
+
+Tokens usually opt for a value of `18`, imitating the relationship between Ether and Wei.
+This is the default value returned by this function.
+To create a custom decimals implementation, see {custom-decimals}.
+
+NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract.
+
+[.contract]
 [[ERC20]]
 === `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
-use openzeppelin::token::erc20::ERC20;
+use openzeppelin::token::erc20::ERC20Component;
 ```
-
-Implementation of the <<IERC20,IERC20>> interface.
-
-[.contract-index]
-.Constructor
---
-* xref:#ERC20-constructor[`++constructor(self, name, symbol, initial_supply, recipient)++`]
---
+ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
 [.contract-index]
-.External functions
+.Embeddable implementations
 --
 .ERC20Impl
-* xref:#ERC20-name[`++name(self)++`]
-* xref:#ERC20-symbol[`++symbol(self)++`]
-* xref:#ERC20-decimals[`++decimals(self)++`]
 * xref:#ERC20-total_supply[`++total_supply(self)++`]
 * xref:#ERC20-balance_of[`++balance_of(self, account)++`]
 * xref:#ERC20-allowance[`++allowance(self, owner, spender)++`]
@@ -171,22 +179,32 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20-approve[`++approve(self, spender, amount)++`]
 
-.Non-standard
+.ERC20MetadataImpl
+* xref:#ERC20-name[`++name(self)++`]
+* xref:#ERC20-symbol[`++symbol(self)++`]
+* xref:#ERC20-decimals[`++decimals(self)++`]
+
+.SafeAllowanceImpl
 * xref:#ERC20-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
+--
 
+[.contract-index]
+.Embeddable implementations (camelCase)
+--
 .ERC20CamelOnlyImpl
 * xref:#ERC20-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
+
+.SafeAllowanceCamelImpl
 * xref:#ERC20-increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
 * xref:#ERC20-decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
 --
 
 [.contract-index]
-.Internal functions
+.Internal implementations
 --
-
 .InternalImpl
 * xref:#ERC20-initializer[`++initializer(self, name, symbol)++`]
 * xref:#ERC20-_transfer[`++_transfer(self, sender, recipient, amount)++`]
@@ -196,7 +214,6 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
 * xref:#ERC20-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
 * xref:#ERC20-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
-
 --
 
 [.contract-index]
@@ -206,36 +223,8 @@ Implementation of the <<IERC20,IERC20>> interface.
 * xref:#ERC20-Approval[`++Approval(owner, spender, value)++`]
 --
 
-[#ERC20-Constructor]
-==== Constructor
-
-[.contract-item]
-[[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
-
-Sets both the token name and symbol and mints `initial_supply` to `recipient`.
-Note that the token name and symbol are immutable once set through the constructor.
-
-[#ERC20-External-functions]
-==== External functions
-
-[.contract-item]
-[[ERC20-name]]
-==== `[.contract-item-name]#++name++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-See <<IERC20-name,IERC20::name>>.
-
-[.contract-item]
-[[ERC20-symbol]]
-==== `[.contract-item-name]#++symbol++#++(@self: ContractState) → felt252++` [.item-kind]#external#
-
-See <<IERC20-symbol,IERC20::symbol>>.
-
-[.contract-item]
-[[ERC20-decimals]]
-==== `[.contract-item-name]#++decimals++#++(@self: ContractState) → u8++` [.item-kind]#external#
-
-See <<IERC20-decimals,IERC20::decimals>>.
+[#ERC20-Embeddable-functions]
+==== Embeddable functions
 
 [.contract-item]
 [[ERC20-total_supply]]
@@ -290,6 +279,24 @@ Requirements:
 - `spender` cannot be the zero address.
 
 [.contract-item]
+[[ERC20-name]]
+==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+
+See <<IERC20Metadata-name,IERC20Metadata::name>>.
+
+[.contract-item]
+[[ERC20-symbol]]
+==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+
+See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
+
+[.contract-item]
+[[ERC20-decimals]]
+==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
+
+See <<IERC20Metadata-decimals,IERC20Metadata::decimals>>.
+
+[.contract-item]
 [[ERC20-increase_allowance]]
 ==== `[.contract-item-name]#++increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
 
@@ -315,6 +322,9 @@ Requirements:
 
 - `spender` cannot be the zero address.
 - `spender` must have allowance for the caller of at least `subtracted_value`.
+
+[#ERC20-camelCase-support]
+==== camelCase Support
 
 [.contract-item]
 [[ERC20-totalSupply]]

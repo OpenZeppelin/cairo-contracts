@@ -305,7 +305,7 @@ mod ERC721Component {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
@@ -314,10 +314,7 @@ mod ERC721Component {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
 
-            let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5Component::HasComponent::<
-                TContractState
-            >::get_component_mut(ref contract);
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC721_ID);
             src5_component.register_interface(interface::IERC721_METADATA_ID);
         }

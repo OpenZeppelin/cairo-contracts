@@ -65,16 +65,13 @@ mod ERC721ReceiverComponent {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the IERC721Receiver interface ID.
         /// This should be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>) {
-            let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5Component::HasComponent::<
-                TContractState
-            >::get_component_mut(ref contract);
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC721_RECEIVER_ID);
         }
     }

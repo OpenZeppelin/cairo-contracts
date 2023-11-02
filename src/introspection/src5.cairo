@@ -5,7 +5,7 @@
 ///
 /// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
-mod SRC5 {
+mod SRC5Component {
     use openzeppelin::introspection::interface;
 
     #[storage]

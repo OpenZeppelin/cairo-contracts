@@ -12,7 +12,7 @@ trait IPausable<TState> {
 /// emergency stop mechanism. Only functions that call `assert_paused`
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
-mod Pausable {
+mod PausableComponent {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

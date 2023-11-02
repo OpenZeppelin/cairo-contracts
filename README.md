@@ -60,16 +60,34 @@ Finished release target(s) in 6 seconds
 
 Open `src/lib.cairo` and write your contract.
 
-For example, this how to extend the ERC20 standard contract:
+For example, this is how to write an ERC20-compliant contract:
 
 ```cairo
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc20::ERC20;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
 
     #[constructor]
     fn constructor(
@@ -80,18 +98,9 @@ mod MyToken {
         let name = 'MyToken';
         let symbol = 'MTK';
 
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, initial_supply);
     }
-
-    #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
-        let unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::ERC20Impl::name(@unsafe_state)
-    }
-
-    ...
 }
 ```
 

@@ -10,7 +10,7 @@
 /// The initial owner can be set by using the `initializer` function in
 /// construction time. This can later be changed with `transfer_ownership`.
 #[starknet::component]
-mod Ownable {
+mod OwnableComponent {
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;

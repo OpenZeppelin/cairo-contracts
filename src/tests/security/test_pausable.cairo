@@ -1,7 +1,7 @@
-use openzeppelin::security::pausable::Pausable::InternalImpl;
-use openzeppelin::security::pausable::Pausable::PausableImpl;
-use openzeppelin::security::pausable::Pausable::Paused;
-use openzeppelin::security::pausable::Pausable::Unpaused;
+use openzeppelin::security::pausable::PausableComponent::InternalImpl;
+use openzeppelin::security::pausable::PausableComponent::PausableImpl;
+use openzeppelin::security::pausable::PausableComponent::Paused;
+use openzeppelin::security::pausable::PausableComponent::Unpaused;
 use openzeppelin::tests::mocks::pausable_mock::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;

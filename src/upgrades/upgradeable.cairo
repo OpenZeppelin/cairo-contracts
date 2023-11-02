@@ -5,7 +5,7 @@
 ///
 /// The Upgradeable component provides a mechanism to make a contract upgradeable.
 #[starknet::component]
-mod Upgradeable {
+mod UpgradeableComponent {
     use starknet::ClassHash;
 
     #[storage]

@@ -1,9 +1,9 @@
 use integer::u256_from_felt252;
-use openzeppelin::account::Account;
-use openzeppelin::introspection::src5::SRC5::SRC5Impl;
+use openzeppelin::account::AccountComponent;
+use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
+use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
@@ -52,7 +52,7 @@ fn setup_camel_receiver() -> ContractAddress {
 
 fn setup_account() -> ContractAddress {
     let mut calldata = array![PUBKEY];
-    utils::deploy(Account::TEST_CLASS_HASH, calldata)
+    utils::deploy(DualCaseAccountMock::TEST_CLASS_HASH, calldata)
 }
 
 fn setup_camel_account() -> ContractAddress {

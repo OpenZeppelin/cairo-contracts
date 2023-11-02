@@ -2,12 +2,12 @@ use openzeppelin::tests::utils::constants::SUCCESS;
 
 #[starknet::contract]
 mod DualCaseERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
@@ -15,14 +15,14 @@ mod DualCaseERC721ReceiverMock {
 
     // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
@@ -31,7 +31,7 @@ mod DualCaseERC721ReceiverMock {
         #[flat]
         ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -68,12 +68,12 @@ mod DualCaseERC721ReceiverMock {
 
 #[starknet::contract]
 mod SnakeERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
@@ -81,14 +81,14 @@ mod SnakeERC721ReceiverMock {
 
     // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
@@ -97,7 +97,7 @@ mod SnakeERC721ReceiverMock {
         #[flat]
         ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
@@ -123,12 +123,12 @@ mod SnakeERC721ReceiverMock {
 
 #[starknet::contract]
 mod CamelERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
@@ -136,14 +136,14 @@ mod CamelERC721ReceiverMock {
 
     // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
@@ -152,7 +152,7 @@ mod CamelERC721ReceiverMock {
         #[flat]
         ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]

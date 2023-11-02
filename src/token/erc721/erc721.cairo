@@ -9,8 +9,8 @@
 mod ERC721Component {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
-    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
     };
@@ -91,7 +91,7 @@ mod ERC721Component {
     impl ERC721<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721<ComponentState<TContractState>> {
         /// Returns the number of NFTs owned by `account`.
@@ -210,7 +210,7 @@ mod ERC721Component {
     impl ERC721Metadata<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
@@ -237,7 +237,7 @@ mod ERC721Component {
     impl ERC721CamelOnly<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721CamelOnly<ComponentState<TContractState>> {
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -289,7 +289,7 @@ mod ERC721Component {
     impl ERC721MetadataCamelOnly<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
@@ -305,7 +305,7 @@ mod ERC721Component {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
@@ -315,7 +315,7 @@ mod ERC721Component {
             self.ERC721_symbol.write(symbol);
 
             let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::HasComponent::<
+            let mut src5_component = SRC5Component::HasComponent::<
                 TContractState
             >::get_component_mut(ref contract);
             src5_component.register_interface(interface::IERC721_ID);

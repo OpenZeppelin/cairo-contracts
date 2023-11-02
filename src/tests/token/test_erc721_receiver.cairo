@@ -1,5 +1,5 @@
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::introspection::src5::SRC5::SRC5Impl;
+use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 use openzeppelin::tests::utils::constants::{OWNER, OPERATOR, TOKEN_ID};
 use openzeppelin::token::erc721::ERC721ReceiverComponent::{

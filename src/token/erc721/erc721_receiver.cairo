@@ -8,8 +8,8 @@
 /// safe transfers.
 #[starknet::component]
 mod ERC721ReceiverComponent {
-    use openzeppelin::introspection::src5::SRC5::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin::token::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel};
     use starknet::ContractAddress;
@@ -25,7 +25,7 @@ mod ERC721ReceiverComponent {
     impl ERC721Receiver<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of IERC721Receiver<ComponentState<TContractState>> {
         /// Called whenever the implementing contract receives `token_id` through
@@ -47,7 +47,7 @@ mod ERC721ReceiverComponent {
     impl ERC721ReceiverCamel<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of IERC721ReceiverCamel<ComponentState<TContractState>> {
         fn onERC721Received(
@@ -65,14 +65,14 @@ mod ERC721ReceiverComponent {
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the IERC721Receiver interface ID.
         /// This should be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut contract = self.get_contract_mut();
-            let mut src5_component = SRC5::HasComponent::<
+            let mut src5_component = SRC5Component::HasComponent::<
                 TContractState
             >::get_component_mut(ref contract);
             src5_component.register_interface(IERC721_RECEIVER_ID);

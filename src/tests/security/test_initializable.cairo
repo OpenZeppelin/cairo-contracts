@@ -1,4 +1,4 @@
-use openzeppelin::security::initializable::Initializable::InternalImpl;
+use openzeppelin::security::initializable::InitializableComponent::InternalImpl;
 use openzeppelin::tests::mocks::initializable_mock::InitializableMock;
 
 fn STATE() -> InitializableMock::ContractState {

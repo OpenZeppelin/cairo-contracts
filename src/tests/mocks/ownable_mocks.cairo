@@ -145,3 +145,36 @@ mod CamelOwnablePanicMock {
         panic_with_felt252('Some error');
     }
 }
+
+#[starknet::contract]
+mod DualCaseTwoStepOwnableMock {
+    use openzeppelin::access::ownable::OwnableComponent;
+    use starknet::ContractAddress;
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    #[abi(embed_v0)]
+    impl OwnableTwoStep = OwnableComponent::OwnableTwoStepImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl OwnableTwoStepCamelOnly =
+        OwnableComponent::OwnableTwoStepCamelOnlyImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        self.ownable.initializer(owner);
+    }
+}

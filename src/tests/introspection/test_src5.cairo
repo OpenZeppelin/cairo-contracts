@@ -1,5 +1,5 @@
 use openzeppelin::introspection::interface::{ISRC5_ID, ISRC5};
-use openzeppelin::introspection::src5::SRC5::InternalTrait;
+use openzeppelin::introspection::src5::SRC5Component::InternalTrait;
 use openzeppelin::tests::mocks::src5_mocks::DualCaseSRC5Mock;
 
 const OTHER_ID: felt252 = 0x12345678;

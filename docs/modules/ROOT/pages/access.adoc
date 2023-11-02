@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 :extensibility-pattern: xref:extensibility.adoc#the_pattern
 
@@ -27,28 +27,29 @@ xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     #[abi(embed_v0)]
     impl OwnableCamelOnlyImpl =
-        ownable_component::OwnableCamelOnlyImpl<ContractState>;
-    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
+        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        OwnableEvent: ownable_component::Event
+        #[flat]
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]
@@ -136,35 +137,52 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::MINTER_ROLE;
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        AccessControlEvent: accesscontrol_component::Event,
-        SRC5Event: src5_component::Event
+        #[flat]
+        AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -176,12 +194,11 @@ mod MyContract {
         recipient: ContractAddress,
         minter: ContractAddress
     ) {
-        // ERC20 related initialization
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
+        // ERC20-related initialization
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, initial_supply);
 
-        // AccessControl related initialization
+        // AccessControl-related initialization
         self.accesscontrol.initializer();
         self.accesscontrol._grant_role(MINTER_ROLE, minter);
     }
@@ -190,9 +207,7 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+        self.erc20._mint(recipient, amount);
     }
 }
 ----
@@ -213,35 +228,52 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        accesscontrol: accesscontrol_component::Storage,
+        accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        AccessControlEvent: accesscontrol_component::Event,
-        SRC5Event: src5_component::Event
+        #[flat]
+        AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
@@ -254,12 +286,11 @@ mod MyContract {
         minter: ContractAddress,
         burner: ContractAddress
     ) {
-        // ERC20 related initialization
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
+        // ERC20-related initialization
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, initial_supply);
 
-        // AccessControl related initialization
+        // AccessControl-related initialization
         self.accesscontrol.initializer();
         self.accesscontrol._grant_role(MINTER_ROLE, minter);
         self.accesscontrol._grant_role(BURNER_ROLE, burner);
@@ -269,18 +300,14 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+        self.erc20._mint(recipient, amount);
     }
 
     /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(BURNER_ROLE);
-
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+        self.erc20._burn(account, amount);
     }
 }
 ----
@@ -323,22 +350,33 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControl as accesscontrol_component;
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::token::erc20::ERC20;
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
-    component!(path: accesscontrol_component, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlImpl =
-        accesscontrol_component::AccessControlImpl<ContractState>;
+        AccessControlComponent::AccessControlImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = accesscontrol_component::InternalImpl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     (...)
 
@@ -351,12 +389,11 @@ mod MyContract {
         recipient: ContractAddress,
         admin: ContractAddress
     ) {
-        // ERC20 related initialization
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref erc20_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, initial_supply);
+        // ERC20-related initialization
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, initial_supply);
 
-        // AccessControl related initialization
+        // AccessControl-related initialization
         self.accesscontrol.initializer();
         self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, admin);
     }
@@ -365,18 +402,14 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_mint(ref erc20_state, recipient, amount);
+        self.erc20._mint(recipient, amount);
     }
 
     /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(BURNER_ROLE);
-
-        let mut erc20_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_burn(ref erc20_state, account, amount);
+        self.erc20._burn(account, amount);
     }
 }
 ----

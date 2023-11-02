@@ -36,7 +36,7 @@ called by the protocol when a `DeployAccount` transaction is sent to the network
 trait IDeployable {
     /// Must return 'VALID' when the validation is successful.
     fn __validate_deploy__(
-        class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252;
 }
 ----

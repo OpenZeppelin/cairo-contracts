@@ -10,7 +10,7 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::introspection::interface::ISRC5;
@@ -44,10 +44,10 @@ on how to compute this ID.
 
 [.contract]
 [[SRC5]]
-=== `++SRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/introspection/src5.cairo[{github-icon},role=heading-link]
+=== `++SRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/introspection/src5.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::introspection::src5::SRC5;
+use openzeppelin::introspection::src5::SRC5Component;
 ```
 
 SRC5 component extending xref:ISRC5[`ISRC5`].
@@ -61,7 +61,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 --
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 

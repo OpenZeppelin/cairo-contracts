@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (security/reentrancyguard.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/reentrancyguard.cairo)
 
 /// # ReentrancyGuard Component
 ///
 /// The ReentrancyGuard component helps prevent nested (reentrant) calls
 /// to a function.
 #[starknet::component]
-mod ReentrancyGuard {
+mod ReentrancyGuardComponent {
     use starknet::get_caller_address;
 
     #[storage]

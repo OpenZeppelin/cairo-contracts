@@ -17,7 +17,7 @@ trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 mod ReentrancyMock {
-    use openzeppelin::security::ReentrancyGuard as reentrancy_guard_component;
+    use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
     use starknet::ContractAddress;
@@ -26,22 +26,23 @@ mod ReentrancyMock {
     use super::IReentrancyGuardedDispatcherTrait;
 
     component!(
-        path: reentrancy_guard_component, storage: reentrancy_guard, event: ReentrancyGuardEvent
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
     );
 
-    impl InternalImpl = reentrancy_guard_component::InternalImpl<ContractState>;
+    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         counter: felt252,
         #[substorage(v0)]
-        reentrancy_guard: reentrancy_guard_component::Storage
+        reentrancy_guard: ReentrancyGuardComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ReentrancyGuardEvent: reentrancy_guard_component::Event
+        #[flat]
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
     #[external(v0)]

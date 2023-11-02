@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (utils.cairo)
 
 mod constants;
 mod selectors;
@@ -46,17 +46,5 @@ impl Felt252TryIntoBool of TryInto<felt252, bool> {
         } else {
             Option::None(())
         }
-    }
-}
-
-#[inline(always)]
-fn check_gas() {
-    match gas::withdraw_gas() {
-        Option::Some(_) => {},
-        Option::None(_) => {
-            let mut data = ArrayTrait::new();
-            data.append('Out of gas');
-            panic(data);
-        },
     }
 }

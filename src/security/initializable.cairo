@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (security/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/initializable.cairo)
 
 trait ExternalTrait<TState> {
     fn is_initialized(self: @TState) -> bool;
@@ -11,7 +11,7 @@ trait ExternalTrait<TState> {
 /// logic once and only once. This can be useful for setting a contract's
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
-mod Initializable {
+mod InitializableComponent {
     #[storage]
     struct Storage {
         Initializable_initialized: bool

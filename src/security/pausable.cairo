@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/pausable.cairo)
 
 trait ExternalTrait<TState> {
     fn is_paused(self: @TState) -> bool;
@@ -11,7 +11,7 @@ trait ExternalTrait<TState> {
 /// emergency stop mechanism. Only functions that call `assert_paused`
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
-mod Pausable {
+mod PausableComponent {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

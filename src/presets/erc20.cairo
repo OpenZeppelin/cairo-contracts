@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod ERC20FixedSupply {
+mod ERC20 {
     use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
 

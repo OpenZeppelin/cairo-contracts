@@ -1,2 +1,2 @@
 mod erc20;
-use erc20::ERC20FixedSupply;
+use erc20::ERC20;

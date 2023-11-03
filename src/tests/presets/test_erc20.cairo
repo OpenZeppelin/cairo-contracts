@@ -1,5 +1,5 @@
 use integer::BoundedInt;
-use openzeppelin::presets::ERC20FixedSupply;
+use openzeppelin::presets::ERC20;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
@@ -26,7 +26,7 @@ fn setup_dispatcher_with_event() -> ERC20ABIDispatcher {
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
 
-    let address = utils::deploy(ERC20FixedSupply::TEST_CLASS_HASH, calldata);
+    let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
     ERC20ABIDispatcher { contract_address: address }
 }
 

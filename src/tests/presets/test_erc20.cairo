@@ -36,26 +36,34 @@ fn setup_dispatcher() -> ERC20ABIDispatcher {
     dispatcher
 }
 
+//
+// constructor
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
-    assert(dispatcher.name() == NAME, 'Name should be NAME');
-    assert(dispatcher.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(dispatcher.decimals() == DECIMALS, 'Decimals should be 18');
-    assert(dispatcher.total_supply() == SUPPLY, 'Supply should eq SUPPLY');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Balance should eq SUPPLY');
+    assert(dispatcher.name() == NAME, 'Should be NAME');
+    assert(dispatcher.symbol() == SYMBOL, 'Should be SYMBOL');
+    assert(dispatcher.decimals() == DECIMALS, 'Should be DECIMALS');
+    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
+    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
     assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), SUPPLY);
 }
+
+//
+// Getters
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_total_supply() {
     let mut dispatcher = setup_dispatcher();
 
-    assert(dispatcher.total_supply() == SUPPLY, '');
-    assert(dispatcher.totalSupply() == SUPPLY, '');
+    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
+    assert(dispatcher.totalSupply() == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -63,8 +71,8 @@ fn test_total_supply() {
 fn test_balance_of() {
     let mut dispatcher = setup_dispatcher();
 
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, '');
-    assert(dispatcher.balanceOf(OWNER()) == SUPPLY, '');
+    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
+    assert(dispatcher.balanceOf(OWNER()) == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -74,19 +82,23 @@ fn test_allowance() {
 
     testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should eq VALUE');
+    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
 }
+
+//
+// approve
+//
 
 #[test]
 #[available_gas(2000000)]
 fn test_approve() {
     let mut dispatcher = setup_dispatcher();
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should eq ZERO');
+    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal ZERO');
 
     testing::set_contract_address(OWNER());
     assert(dispatcher.approve(SPENDER(), VALUE), 'Should return true');
 
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should eq VALUE');
+    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), VALUE);
 }
 
@@ -107,6 +119,10 @@ fn test_approve_to_zero() {
     dispatcher.approve(Zeroable::zero(), VALUE);
 }
 
+//
+// transfer
+//
+
 #[test]
 #[available_gas(2000000)]
 fn test_transfer() {
@@ -115,11 +131,15 @@ fn test_transfer() {
     testing::set_contract_address(OWNER());
     assert(dispatcher.transfer(RECIPIENT(), VALUE), 'Should return true');
 
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq SUPPLY - VALUE');
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should eq VALUE');
-    assert(dispatcher.total_supply() == SUPPLY, 'Should eq SUPPLY');
+    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 }
+
+//
+// transfer_from & transferFrom
+//
 
 #[test]
 #[available_gas(2000000)]
@@ -136,9 +156,9 @@ fn test_transfer_from() {
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
+    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
+    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal supply - amount');
+    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
     assert(dispatcher.total_supply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -206,9 +226,9 @@ fn test_transferFrom() {
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
+    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
+    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal supply - amount');
+    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
     assert(dispatcher.total_supply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -259,6 +279,10 @@ fn test_transferFrom_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
     dispatcher.transferFrom(Zeroable::zero(), RECIPIENT(), VALUE);
 }
+
+//
+// increase_allowance & increaseAllowance
+//
 
 #[test]
 #[available_gas(2000000)]

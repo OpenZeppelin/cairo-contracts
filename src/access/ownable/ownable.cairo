@@ -10,7 +10,9 @@
 /// The initial owner can be set by using the `initializer` function in
 /// construction time. This can later be changed with `transfer_ownership`.
 ///
-/// TODO: add a mention about two step transfer
+/// The component also offers functionality for a two step ownership
+/// transfer where the new owner first has to accept their ownership to
+/// finalize the transfer.
 #[starknet::component]
 mod OwnableComponent {
     use openzeppelin::access::ownable::interface;
@@ -171,7 +173,7 @@ mod OwnableComponent {
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
-        /// Transfers the ownership to the pending owner.
+        /// Transfers ownership to the pending owner.
         ///
         /// Internal function without access restriction.
         fn _accept_ownership(ref self: ComponentState<TContractState>) {
@@ -180,7 +182,7 @@ mod OwnableComponent {
             self._transfer_ownership(pending_owner);
         }
 
-        /// Sets a new pending owner of the contract.
+        /// Sets a new pending owner.
         ///
         /// Internal function without access restriction.
         fn _propose_owner(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {

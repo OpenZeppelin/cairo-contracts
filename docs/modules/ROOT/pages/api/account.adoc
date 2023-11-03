@@ -92,10 +92,6 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 * xref:#AccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
-.DeployableImpl
-
-* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
-
 .PublicKeyImpl
 
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]

@@ -247,7 +247,7 @@ It's important to include a custom ERC20 metadata implementation and NOT use the
 :erc20-preset: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/presets/erc20.cairo[ERC20 preset contract]
 
 OpenZeppelin Contracts for Cairo offers an {erc20-preset}.
-The contract provides basic functionality and uses a fixed-supply token mechanism. 
+The contract provides basic functionality and uses a fixed-supply mechanism for token distribution. 
 
 This contract is ready to deploy without having to write any additional Cairo code.
 It can be used as-is for quick prototyping and testing.

@@ -1,7 +1,5 @@
 use integer::BoundedInt;
 use openzeppelin::presets::ERC20FixedSupply;
-use openzeppelin::token::erc20::interface::ERC20ABI;
-use openzeppelin::token::erc20::interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
@@ -10,6 +8,8 @@ use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
+use openzeppelin::token::erc20::interface::ERC20ABI;
+use openzeppelin::token::erc20::interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -154,8 +154,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
     assert(
-        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(),
-        'Allowance should not change'
+        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
     );
 }
 
@@ -224,8 +223,7 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
     dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
     assert(
-        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(),
-        'Allowance should not change'
+        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
     );
 }
 

@@ -4,31 +4,30 @@ use openzeppelin::tests::utils::constants::{FAILURE, SUCCESS};
 mod ERC721Receiver {
     use openzeppelin::introspection::interface::ISRC5;
     use openzeppelin::introspection::interface::ISRC5Camel;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::interface::IERC721Receiver;
     use openzeppelin::token::erc721::interface::IERC721ReceiverCamel;
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
     use starknet::ContractAddress;
 
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5CamelImpl = src5_component::SRC5CamelImpl<ContractState>;
-    impl InternalImpl = src5_component::InternalImpl<ContractState>;
+    impl SRC5CamelImpl = SRC5Component::SRC5CamelImpl<ContractState>;
+    impl InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: src5_component::Storage,
+        src5: SRC5Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]

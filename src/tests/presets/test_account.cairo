@@ -1,5 +1,5 @@
-use openzeppelin::account::Account::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::Account::{TRANSACTION_VERSION, QUERY_VERSION};
+use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;

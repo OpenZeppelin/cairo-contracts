@@ -70,43 +70,43 @@ Copy the code into `src/lib.cairo`.
 ----
 #[starknet::contract]
 mod MyAccount {
-    use openzeppelin::account::Account as account_component;
-    use openzeppelin::introspection::src5::SRC5 as src5_component;
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
 
-    component!(path: account_component, storage: account, event: AccountEvent);
-    component!(path: src5_component, storage: src5, event: SRC5Event);
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     /// Account
     #[abi(embed_v0)]
-    impl SRC6Impl = account_component::SRC6Impl<ContractState>;
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = account_component::SRC6CamelOnlyImpl<ContractState>;
+    impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeclarerImpl = account_component::DeclarerImpl<ContractState>;
+    impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeployableImpl = account_component::DeployableImpl<ContractState>;
-    impl AccountInternalImpl = account_component::InternalImpl<ContractState>;
+    impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     /// SRC5
     #[abi(embed_v0)]
-    impl SRC5Impl = src5_component::SRC5Impl<ContractState>;
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        account: account_component::Storage,
+        account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: src5_component::Storage
+        src5: SRC5Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccountEvent: account_component::Event,
+        AccountEvent: AccountComponent::Event,
         #[flat]
-        SRC5Event: src5_component::Event
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]

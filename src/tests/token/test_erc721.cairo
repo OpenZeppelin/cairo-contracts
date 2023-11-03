@@ -2,7 +2,7 @@ use ERC721::ERC721_owners::InternalContractMemberStateTrait as OwnersTrait;
 use ERC721::ERC721_token_approvals::InternalContractMemberStateTrait as TokenApprovalsTrait;
 
 use integer::{u256, u256_from_felt252};
-use openzeppelin::account::Account;
+use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};

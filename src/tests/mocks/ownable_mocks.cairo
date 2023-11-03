@@ -1,28 +1,28 @@
 #[starknet::contract]
 mod DualCaseOwnableMock {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     #[abi(embed_v0)]
     impl OwnableCamelOnlyImpl =
-        ownable_component::OwnableCamelOnlyImpl<ContractState>;
-    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
+        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]
@@ -33,26 +33,26 @@ mod DualCaseOwnableMock {
 
 #[starknet::contract]
 mod SnakeOwnableMock {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableImpl = ownable_component::OwnableImpl<ContractState>;
-    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]
@@ -63,27 +63,27 @@ mod SnakeOwnableMock {
 
 #[starknet::contract]
 mod CamelOwnableMock {
-    use openzeppelin::access::ownable::Ownable as ownable_component;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
-    component!(path: ownable_component, storage: ownable, event: OwnableEvent);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
     impl OwnableCamelOnlyImpl =
-        ownable_component::OwnableCamelOnlyImpl<ContractState>;
-    impl InternalImpl = ownable_component::InternalImpl<ContractState>;
+        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: ownable_component::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: ownable_component::Event
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]

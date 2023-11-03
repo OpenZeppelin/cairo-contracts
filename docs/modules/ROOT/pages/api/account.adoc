@@ -73,18 +73,6 @@ use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`].
 
-<<<<<<< HEAD
-NOTE: Implementing xref:api/introspection.adoc#SRC5[SRC5] is a requirement for this component to be implemented.
-
-[.contract-index]
-.Embeddable Functions
---
-.SRC6Impl
-
-* xref:#Account-\\__execute__[`++__execute__(self, calls)++`]
-* xref:#Account-\\__validate__[`++__validate__(self, calls)++`]
-* xref:#Account-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
-=======
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
 [.contract-index]
@@ -95,7 +83,6 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#AccountComponent-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#AccountComponent-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#AccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 
 .DeclarerImpl
 
@@ -111,26 +98,8 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 .PublicKeyImpl
 
-<<<<<<< HEAD
-* xref:#Account-get_public_key[`++get_public_key(self)++`]
-* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
---
-
-[.contract-index]
-.camelCase Support
---
-.SRC6CamelOnlyImpl
-
-* xref:#Account-isValidSignature[`++isValidSignature(self, hash, signature)++`]
-
-.PublicKeyCamelImpl
-
-* xref:#Account-getPublicKey[`++getPublicKey(self)++`]
-* xref:#Account-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
-=======
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 --
 
 [.contract-index]
@@ -151,19 +120,11 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 --
 .InternalImpl
 
-<<<<<<< HEAD
-* xref:#Account-initializer[`++initializer(self, public_key)++`]
-* xref:#Account-assert_only_self[`++assert_only_self(self)++`]
-* xref:#Account-validate_transaction[`++validate_transaction(self)++`]
-* xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
-* xref:#Account-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
-=======
 * xref:#AccountComponent-initializer[`++initializer(self, public_key)++`]
 * xref:#AccountComponent-assert_only_self[`++assert_only_self(self)++`]
 * xref:#AccountComponent-validate_transaction[`++validate_transaction(self)++`]
 * xref:#AccountComponent-_set_public_key[`++_set_public_key(self, new_public_key)++`]
 * xref:#AccountComponent-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 --
 
 [.contract-index]
@@ -173,19 +134,11 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#AccountComponent-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
-<<<<<<< HEAD
-[#Account-Embeddable-Functions]
-==== Embeddable Functions
-
-[.contract-item]
-[[Account-__execute__]]
-=======
 [#AccountComponent-Embeddable-Functions]
 ==== Embeddable Functions
 
 [.contract-item]
 [[AccountComponent-__execute__]]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 ==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
 
 See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
@@ -203,11 +156,7 @@ See xref:ISRC6-\\__validate__[ISRC6::\\__validate__].
 See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
 [.contract-item]
-<<<<<<< HEAD
-[[Account-__validate_declare__]]
-=======
 [[AccountComponent-__validate_declare__]]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
 Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
@@ -215,11 +164,7 @@ Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Net
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
-<<<<<<< HEAD
-[[Account-__validate_deploy__]]
-=======
 [[AccountComponent-__validate_deploy__]]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252) → felt252++` [.item-kind]#external#
 
 Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
@@ -228,11 +173,7 @@ See xref:/guides/deployment.adoc[Counterfactual Deployments].
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
-<<<<<<< HEAD
-[[Account-get_public_key]]
-=======
 [[AccountComponent-get_public_key]]
->>>>>>> ad1ae70439f8a0791adedbdf3b7ac05b1ab60db6
 ==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
 
 Returns the current public key of the account.

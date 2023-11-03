@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (presets/erc20.cairo)
+
+/// # ERC20 Preset Contract
+///
+/// The ERC20 preset contract offers basic functionality and provides a
+/// fixed-supply mechanism for token distribution. The fixed supply is
+/// set in the constructor.
 #[starknet::contract]
 mod ERC20 {
     use openzeppelin::token::erc20::ERC20Component;
@@ -31,15 +39,17 @@ mod ERC20 {
         ERC20Event: ERC20Component::Event
     }
 
+    /// Sets the token `name` and `symbol`.
+    /// Mints `fixed_supply` tokens to `recipient`.
     #[constructor]
     fn constructor(
         ref self: ContractState,
         name: felt252,
         symbol: felt252,
-        initial_supply: u256,
+        fixed_supply: u256,
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20._mint(recipient, fixed_supply);
     }
 }

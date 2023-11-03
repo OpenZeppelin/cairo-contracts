@@ -137,6 +137,34 @@ fn test_transfer() {
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 }
 
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_not_enough_balance() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+
+    let balance_plus_one = SUPPLY + 1;
+    dispatcher.transfer(RECIPIENT(), balance_plus_one);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC20: transfer from 0', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_from_zero() {
+    let mut dispatcher = setup_dispatcher();
+    dispatcher.transfer(RECIPIENT(), VALUE);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC20: transfer to 0', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_to_zero() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer(ZERO(), VALUE);
+}
+
 //
 // transfer_from & transferFrom
 //

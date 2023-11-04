@@ -3,7 +3,6 @@ mod DualCaseERC721Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -40,10 +39,15 @@ mod DualCaseERC721Mock {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, name: felt252, symbol: felt252, token_id: u256, uri: felt252
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        recipient: ContractAddress,
+        token_id: u256,
+        uri: felt252
     ) {
         self.erc721.initializer(name, symbol);
-        self.erc721._mint(get_caller_address(), token_id);
+        self.erc721._mint(recipient, token_id);
         self.erc721._set_token_uri(token_id, uri);
     }
 }
@@ -53,7 +57,6 @@ mod SnakeERC721Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -85,10 +88,15 @@ mod SnakeERC721Mock {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, name: felt252, symbol: felt252, token_id: u256, uri: felt252
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        recipient: ContractAddress,
+        token_id: u256,
+        uri: felt252
     ) {
         self.erc721.initializer(name, symbol);
-        self.erc721._mint(get_caller_address(), token_id);
+        self.erc721._mint(recipient, token_id);
         self.erc721._set_token_uri(token_id, uri);
     }
 }
@@ -99,7 +107,6 @@ mod CamelERC721Mock {
     use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl};
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -132,10 +139,15 @@ mod CamelERC721Mock {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, name: felt252, symbol: felt252, token_id: u256, uri: felt252
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        recipient: ContractAddress,
+        token_id: u256,
+        uri: felt252
     ) {
         self.erc721.initializer(name, symbol);
-        self.erc721._mint(get_caller_address(), token_id);
+        self.erc721._mint(recipient, token_id);
         self.erc721._set_token_uri(token_id, uri);
     }
 

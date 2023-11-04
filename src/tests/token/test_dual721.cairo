@@ -25,6 +25,7 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
     set_contract_address(OWNER());
@@ -36,6 +37,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
     set_contract_address(OWNER());

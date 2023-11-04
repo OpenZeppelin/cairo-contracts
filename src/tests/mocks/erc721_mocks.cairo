@@ -233,7 +233,9 @@ mod SnakeERC721PanicMock {
             false
         }
 
-        fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
+        fn set_approval_for_all(
+            ref self: ContractState, operator: ContractAddress, approved: bool
+        ) {
             panic_with_felt252('Some error');
         }
 

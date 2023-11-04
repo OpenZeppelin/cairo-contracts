@@ -153,19 +153,20 @@ mod CamelERC721Mock {
 
     /// The following external methods are included because they are case-agnostic
     /// and this contract should not embed the snake_case impl.
+    #[generate_trait]
     #[external(v0)]
-    fn approve(ref self: ContractState, to: ContractAddress, tokenId: u256) {
-        self.erc721.approve(to, tokenId);
-    }
+    impl ExternalImpl of ExternalTrait {
+        fn approve(ref self: ContractState, to: ContractAddress, tokenId: u256) {
+            self.erc721.approve(to, tokenId);
+        }
 
-    #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
-        self.erc721.name()
-    }
+        fn name(self: @ContractState) -> felt252 {
+            self.erc721.name()
+        }
 
-    #[external(v0)]
-    fn symbol(self: @ContractState) -> felt252 {
-        self.erc721.symbol()
+        fn symbol(self: @ContractState) -> felt252 {
+            self.erc721.symbol()
+        }
     }
 }
 
@@ -183,82 +184,74 @@ mod SnakeERC721PanicMock {
     #[storage]
     struct Storage {}
 
+    #[generate_trait]
     #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
+    impl ExternalImpl of ExternalTrait {
+        fn name(self: @ContractState) -> felt252 {
+            panic_with_felt252('Some error');
+            3
+        }
 
-    #[external(v0)]
-    fn symbol(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
+        fn symbol(self: @ContractState) -> felt252 {
+            panic_with_felt252('Some error');
+            3
+        }
 
-    #[external(v0)]
-    fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-        panic_with_felt252('Some error');
-    }
+        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
+            panic_with_felt252('Some error');
+        }
 
-    #[external(v0)]
-    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
-        false
-    }
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            panic_with_felt252('Some error');
+            false
+        }
 
-    #[external(v0)]
-    fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
+        fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
+            panic_with_felt252('Some error');
+            3
+        }
 
-    #[external(v0)]
-    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-        panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
-    }
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            panic_with_felt252('Some error');
+            u256 { low: 3, high: 3 }
+        }
 
-    #[external(v0)]
-    fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-        panic_with_felt252('Some error');
-        Zeroable::zero()
-    }
+        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+            panic_with_felt252('Some error');
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-        panic_with_felt252('Some error');
-        Zeroable::zero()
-    }
+        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
+            panic_with_felt252('Some error');
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn is_approved_for_all(
-        self: @ContractState, owner: ContractAddress, operator: ContractAddress
-    ) -> bool {
-        panic_with_felt252('Some error');
-        false
-    }
+        fn is_approved_for_all(
+            self: @ContractState, owner: ContractAddress, operator: ContractAddress
+        ) -> bool {
+            panic_with_felt252('Some error');
+            false
+        }
 
-    #[external(v0)]
-    fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
-        panic_with_felt252('Some error');
-    }
+        fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
+            panic_with_felt252('Some error');
+        }
 
-    #[external(v0)]
-    fn transfer_from(
-        ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-    ) {
-        panic_with_felt252('Some error');
-    }
+        fn transfer_from(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
+        ) {
+            panic_with_felt252('Some error');
+        }
 
-    #[external(v0)]
-    fn safe_transfer_from(
-        ref self: ContractState,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) {
-        panic_with_felt252('Some error');
+        fn safe_transfer_from(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) {
+            panic_with_felt252('Some error');
+        }
     }
 }
 
@@ -270,64 +263,59 @@ mod CamelERC721PanicMock {
     #[storage]
     struct Storage {}
 
+    #[generate_trait]
     #[external(v0)]
-    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic_with_felt252('Some error');
-        false
-    }
+    impl ExternalImpl of ExternalTrait {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            panic_with_felt252('Some error');
+            false
+        }
 
-    #[external(v0)]
-    fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
-        panic_with_felt252('Some error');
-        3
-    }
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
+            panic_with_felt252('Some error');
+            3
+        }
 
-    #[external(v0)]
-    fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
-        panic_with_felt252('Some error');
-        u256 { low: 3, high: 3 }
-    }
+        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+            panic_with_felt252('Some error');
+            u256 { low: 3, high: 3 }
+        }
 
-    #[external(v0)]
-    fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
-        panic_with_felt252('Some error');
-        Zeroable::zero()
-    }
+        fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
+            panic_with_felt252('Some error');
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
-        panic_with_felt252('Some error');
-        Zeroable::zero()
-    }
+        fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
+            panic_with_felt252('Some error');
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn isApprovedForAll(
-        self: @ContractState, owner: ContractAddress, operator: ContractAddress
-    ) -> bool {
-        panic_with_felt252('Some error');
-        false
-    }
+        fn isApprovedForAll(
+            self: @ContractState, owner: ContractAddress, operator: ContractAddress
+        ) -> bool {
+            panic_with_felt252('Some error');
+            false
+        }
 
-    #[external(v0)]
-    fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
-        panic_with_felt252('Some error');
-    }
+        fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
+            panic_with_felt252('Some error');
+        }
 
-    #[external(v0)]
-    fn transferFrom(
-        ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
-    ) {
-        panic_with_felt252('Some error');
-    }
+        fn transferFrom(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
+        ) {
+            panic_with_felt252('Some error');
+        }
 
-    #[external(v0)]
-    fn safeTransferFrom(
-        ref self: ContractState,
-        from: ContractAddress,
-        to: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) {
-        panic_with_felt252('Some error');
+        fn safeTransferFrom(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) {
+            panic_with_felt252('Some error');
+        }
     }
 }

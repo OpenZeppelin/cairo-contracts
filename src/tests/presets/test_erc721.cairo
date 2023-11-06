@@ -1,4 +1,4 @@
-use integer::BoundedInt;
+//use integer::BoundedInt;
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::presets::ERC721::InternalImpl;
@@ -171,8 +171,6 @@ fn test_owner_of_non_minted() {
     let dispatcher = setup_dispatcher();
     dispatcher.owner_of(7);
 }
-
-////////////////////////////////
 
 #[test]
 #[available_gas(20000000)]
@@ -395,15 +393,13 @@ fn test_transferFrom_to_zero() {
 fn test_transfer_from_to_owner() {
     let dispatcher = setup_dispatcher();
 
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Ownership before');
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Balance of owner before');
+    assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 
     testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), OWNER(), TOKEN_1);
     assert_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Ownership after');
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Balance of owner after');
+    assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 }
 
 #[test]
@@ -411,15 +407,13 @@ fn test_transfer_from_to_owner() {
 fn test_transferFrom_to_owner() {
     let dispatcher = setup_dispatcher();
 
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Ownership before');
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Balance of owner before');
+    assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 
     testing::set_contract_address(OWNER());
     dispatcher.transferFrom(OWNER(), OWNER(), TOKEN_1);
     assert_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Ownership after');
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Balance of owner after');
+    assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 }
 
 #[test]
@@ -594,455 +588,451 @@ fn test_safeTransferFrom_to_account_camel() {
     assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
 
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_to_receiver() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_to_receiver() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_to_receiver_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_to_receiver_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_to_receiver_failure() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_to_receiver_failure() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_to_receiver_failure_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_to_receiver_failure_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_to_non_receiver() {
-//    let dispatcher = setup_dispatcher();
-//    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, recipient, token_id, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_to_non_receiver() {
-//    let dispatcher = setup_dispatcher();
-//    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, recipient, token_id, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_nonexistent() {
-//    let mut state = STATE();
-//    dispatcher.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_nonexistent() {
-//    let mut state = STATE();
-//    dispatcher.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_to_zero() {
-//    let dispatcher = setup_dispatcher();
-//    testing::set_contract_address(OWNER());
-//    dispatcher.safe_transfer_from(OWNER(), ZERO(), TOKEN_1, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_to_zero() {
-//    let dispatcher = setup_dispatcher();
-//    testing::set_contract_address(OWNER());
-//    dispatcher.safeTransferFrom(OWNER(), ZERO(), TOKEN_1, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_to_owner() {
-//    let mut state = STATE();
-//    let token_id = TOKEN_1;
-//    let owner = setup_receiver();
-//    dispatcher.initializer(NAME, SYMBOL);
-//    dispatcher._mint(owner, token_id);
-//    utils::drop_event(ZERO());
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner before');
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, owner, token_id, DATA(true));
-//    assert_event_transfer(owner, owner, token_id);
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership after');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner after');
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_to_owner() {
-//    let mut state = STATE();
-//    let token_id = TOKEN_1;
-//    let owner = setup_receiver();
-//    dispatcher.initializer(NAME, SYMBOL);
-//    dispatcher._mint(owner, token_id);
-//    utils::drop_event(ZERO());
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner before');
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, owner, token_id, DATA(true));
-//    assert_event_transfer(owner, owner, token_id);
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership after');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner after');
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_to_owner_camel() {
-//    let mut state = STATE();
-//    let token_id = TOKEN_1;
-//    let owner = setup_camel_receiver();
-//    dispatcher.initializer(NAME, SYMBOL);
-//    dispatcher._mint(owner, token_id);
-//    utils::drop_event(ZERO());
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner before');
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safe_transfer_from(owner, owner, token_id, DATA(true));
-//    assert_event_transfer(owner, owner, token_id);
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership after');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner after');
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_to_owner_camel() {
-//    let mut state = STATE();
-//    let token_id = TOKEN_1;
-//    let owner = setup_camel_receiver();
-//    dispatcher.initializer(NAME, SYMBOL);
-//    dispatcher._mint(owner, token_id);
-//    utils::drop_event(ZERO());
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner before');
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.safeTransferFrom(owner, owner, token_id, DATA(true));
-//    assert_event_transfer(owner, owner, token_id);
-//
-//    assert(dispatcher.owner_of(token_id) == owner, 'Ownership after');
-//    assert(dispatcher.balance_of(owner) == 1, 'Balance of owner after');
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_approved() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.approve(OPERATOR(), token_id);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_approved() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.approve(OPERATOR(), token_id);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_approved_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.approve(OPERATOR(), token_id);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_approved_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.approve(OPERATOR(), token_id);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_approved_for_all() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.set_approval_for_all(OPERATOR(), true);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_approved_for_all() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.set_approval_for_all(OPERATOR(), true);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safe_transfer_from_approved_for_all_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.set_approval_for_all(OPERATOR(), true);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//fn test_safeTransferFrom_approved_for_all_camel() {
-//    let dispatcher = setup_dispatcher();
-//    let receiver = setup_camel_receiver();
-//    let token_id = TOKEN_1;
-//    let owner = OWNER();
-//
-//    assert_state_before_transfer(owner, receiver, token_id);
-//
-//    testing::set_contract_address(owner);
-//    dispatcher.set_approval_for_all(OPERATOR(), true);
-//    utils::drop_event(ZERO());
-//
-//    testing::set_contract_address(OPERATOR());
-//    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-//    assert_event_transfer(owner, receiver, token_id);
-//
-//    assert_state_after_transfer(owner, receiver, token_id);
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
-//fn test_safe_transfer_from_unauthorized() {
-//    let dispatcher = setup_dispatcher();
-//    testing::set_contract_address(OTHER());
-//    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
-//}
-//
-//#[test]
-//#[available_gas(20000000)]
-//#[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
-//fn test_safeTransferFrom_unauthorized() {
-//    let dispatcher = setup_dispatcher();
-//    testing::set_contract_address(OTHER());
-//    dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
-//}
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_to_receiver() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_to_receiver() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_to_receiver_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_to_receiver_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_to_receiver_failure() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_to_receiver_failure() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_to_receiver_failure_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_to_receiver_failure_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_to_non_receiver() {
+    let dispatcher = setup_dispatcher();
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safe_transfer_from(owner, recipient, token_id, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_to_non_receiver() {
+    let dispatcher = setup_dispatcher();
+    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    testing::set_contract_address(owner);
+    dispatcher.safeTransferFrom(owner, recipient, token_id, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_nonexistent() {
+    let dispatcher = setup_dispatcher();
+    dispatcher.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_nonexistent() {
+    let dispatcher = setup_dispatcher();
+    dispatcher.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_to_zero() {
+    let dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.safe_transfer_from(OWNER(), ZERO(), TOKEN_1, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_to_zero() {
+    let dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.safeTransferFrom(OWNER(), ZERO(), TOKEN_1, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_to_owner() {
+    let dispatcher = setup_dispatcher();
+    let token_id = TOKEN_1;
+    let receiver = setup_receiver();
+
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_from(OWNER(), receiver, token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+
+    testing::set_contract_address(receiver);
+    dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_to_owner() {
+    let dispatcher = setup_dispatcher();
+    let token_id = TOKEN_1;
+    let receiver = setup_receiver();
+
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_from(OWNER(), receiver, token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+
+    testing::set_contract_address(receiver);
+    dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_to_owner_camel() {
+    let dispatcher = setup_dispatcher();
+    let token_id = TOKEN_1;
+    let receiver = setup_camel_receiver();
+
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_from(OWNER(), receiver, token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+
+    testing::set_contract_address(receiver);
+    dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_to_owner_camel() {
+    let dispatcher = setup_dispatcher();
+    let token_id = TOKEN_1;
+    let receiver = setup_camel_receiver();
+
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_from(OWNER(), receiver, token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+
+    testing::set_contract_address(receiver);
+    dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+
+    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_approved() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.approve(OPERATOR(), token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_approved() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.approve(OPERATOR(), token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_approved_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.approve(OPERATOR(), token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_approved_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.approve(OPERATOR(), token_id);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_approved_for_all() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.set_approval_for_all(OPERATOR(), true);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_approved_for_all() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.set_approval_for_all(OPERATOR(), true);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safe_transfer_from_approved_for_all_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.set_approval_for_all(OPERATOR(), true);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_safeTransferFrom_approved_for_all_camel() {
+    let dispatcher = setup_dispatcher();
+    let receiver = setup_camel_receiver();
+    let token_id = TOKEN_1;
+    let owner = OWNER();
+
+    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
+
+    testing::set_contract_address(owner);
+    dispatcher.set_approval_for_all(OPERATOR(), true);
+    utils::drop_event(dispatcher.contract_address);
+
+    testing::set_contract_address(OPERATOR());
+    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
+    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+
+    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
+fn test_safe_transfer_from_unauthorized() {
+    let dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
+}
+
+#[test]
+#[available_gas(20000000)]
+#[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
+fn test_safeTransferFrom_unauthorized() {
+    let dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
+}
 
 //
 // Helpers
@@ -1069,6 +1059,16 @@ fn assert_state_after_transfer(
     assert(dispatcher.balance_of(owner) == TOKENS_LEN - 1, 'Balance of owner after');
     assert(dispatcher.balance_of(recipient) == 1, 'Balance of recipient after');
     assert(dispatcher.get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+}
+
+fn assert_state_transfer_to_self(
+    dispatcher: ERC721ABIDispatcher,
+    target: ContractAddress,
+    token_id: u256,
+    token_balance: u256
+) {
+    assert(dispatcher.owner_of(token_id) == target, 'Ownership before');
+    assert(dispatcher.balance_of(target) == token_balance, 'Balance of owner before');   
 }
 
 fn assert_event_approval_for_all(

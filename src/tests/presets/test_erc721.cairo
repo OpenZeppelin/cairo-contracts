@@ -585,13 +585,13 @@ fn test_safeTransferFrom_to_account_camel() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    assert_state_before_transfer(owner, account, token_id);
+    assert_state_before_transfer(dispatcher, owner, account, token_id);
 
     testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_event_transfer(owner, account, token_id);
+    assert_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
-    assert_state_after_transfer(owner, account, token_id);
+    assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
 
 //#[test]

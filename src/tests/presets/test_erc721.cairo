@@ -1,21 +1,22 @@
 use integer::BoundedInt;
 use openzeppelin::account::AccountComponent;
-use openzeppelin::presets::ERC721;
-use openzeppelin::presets::ERC721::InternalImpl;
-use openzeppelin::tests::utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
-};
-use openzeppelin::tests::utils;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin::presets::ERC721::InternalImpl;
+use openzeppelin::presets::ERC721;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::utils::constants::{
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL, DECIMALS, SUPPLY,
+    VALUE
+};
+use openzeppelin::tests::utils;
+use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl};
-use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
 use openzeppelin::token::erc721::interface::ERC721ABI;
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
@@ -59,7 +60,9 @@ fn setup_dispatcher() -> ERC721ABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
     let mut events = TOKENS_LEN;
     loop {
-        if events == 0 { break(); }
+        if events == 0 {
+            break ();
+        }
         utils::drop_event(dispatcher.contract_address);
         events -= 1;
     };
@@ -103,7 +106,9 @@ fn test__mint_assets() {
     assert(TOKENS_LEN.into() == state.erc721.balance_of(OWNER()), 'Should equal IDs length');
 
     loop {
-        if ids_span.len() == 0 { break(); }
+        if ids_span.len() == 0 {
+            break ();
+        }
         let id = *ids_span.pop_front().unwrap();
         let uri = *uris_span.pop_front().unwrap();
         assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by RECIPIENT');
@@ -276,16 +281,12 @@ fn test_set_approval_for_all() {
     dispatcher.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), true);
 
-    assert(
-        dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
-    );
+    assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 
     dispatcher.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), false);
 
-    assert(
-        !dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly'
-    );
+    assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
 }
 
 #[test]
@@ -1042,11 +1043,11 @@ fn test_safeTransferFrom_to_account_camel() {
 //    testing::set_contract_address(OTHER());
 //    dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
 //}
+
 //
-////
-//// Helpers
-////
+// Helpers
 //
+
 fn assert_state_before_transfer(
     dispatcher: ERC721ABIDispatcher,
     owner: ContractAddress,
@@ -1071,10 +1072,7 @@ fn assert_state_after_transfer(
 }
 
 fn assert_event_approval_for_all(
-    contract: ContractAddress,
-    owner: ContractAddress,
-    operator: ContractAddress,
-    approved: bool
+    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
     assert(event.owner == owner, 'Invalid `owner`');
@@ -1090,10 +1088,7 @@ fn assert_event_approval_for_all(
 }
 
 fn assert_event_approval(
-    contract: ContractAddress,
-    owner: ContractAddress,
-    approved: ContractAddress,
-    token_id: u256
+    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Approval>(contract).unwrap();
     assert(event.owner == owner, 'Invalid `owner`');
@@ -1110,10 +1105,7 @@ fn assert_event_approval(
 }
 
 fn assert_event_transfer(
-    contract: ContractAddress,
-    from: ContractAddress,
-    to: ContractAddress,
-    token_id: u256
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Transfer>(contract).unwrap();
     assert(event.from == from, 'Invalid `from`');

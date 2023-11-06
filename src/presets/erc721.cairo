@@ -73,7 +73,9 @@ mod ERC721 {
             let mut uris_span = token_uris.span();
 
             loop {
-                if ids_span.len() == 0 { break (); }
+                if ids_span.len() == 0 {
+                    break ();
+                }
                 let id = *ids_span.pop_front().unwrap();
                 let uri = *uris_span.pop_front().unwrap();
 

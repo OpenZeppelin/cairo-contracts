@@ -1,4 +1,3 @@
-//use integer::BoundedInt;
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::presets::ERC721::InternalImpl;

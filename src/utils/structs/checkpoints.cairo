@@ -163,13 +163,14 @@ impl CheckpointImpl of CheckpointTrait {
 ///
 /// The packing is done as follows:
 /// - The first felt of the tuple contains `key` and `value.low`.
-/// - `key` is stored at the 64 most significant bits.
-/// - `value.low` is stored at the 128 less significant bits.
+/// - `key` is stored at range [4,67] bits (0-indexed), taking most significant bits first.
+/// - `value.low` is stored at the 128 less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
 impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;
-        let key = checkpoint.key.into() * 0x100000000000000000000000000000000000000000000000;
+        // shift-left by 184 bits
+        let key = checkpoint.key.into() * 0x1000000000000000000000000000000000000000000000;
         let key_and_low = key + checkpoint.value.low.into();
 
         (key_and_low, checkpoint.value.high.into())
@@ -179,7 +180,8 @@ impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt
         let (key_and_low, high) = value;
 
         let key_and_low: u256 = key_and_low.into();
-        let key: u256 = key_and_low / 0x100000000000000000000000000000000000000000000000;
+        // shift-right by 184 bits
+        let key: u256 = key_and_low / 0x1000000000000000000000000000000000000000000000;
         let low = key_and_low & 0xffffffffffffffffffffffffffffffff;
 
         Checkpoint {

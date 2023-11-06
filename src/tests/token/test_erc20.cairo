@@ -628,6 +628,24 @@ fn test__update() {
 }
 
 //
+// Hooks
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test__before_update_hook_available() {
+    let mut state = setup();
+    ERC20::ERC20HooksImpl::_before_update(ref state, OWNER(), RECIPIENT(), VALUE);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test__after_update_hook_available() {
+    let mut state = setup();
+    ERC20::ERC20HooksImpl::_after_update(ref state, OWNER(), RECIPIENT(), VALUE);
+}
+
+//
 // Helpers
 //
 

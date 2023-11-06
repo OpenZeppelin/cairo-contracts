@@ -22,6 +22,13 @@ mod ERC20VotesPreset {
     //
 
     impl ERC20VotesHooksImpl of ERC20::ERC20HooksTrait {
+        fn _before_update(
+            ref self: ERC20::ContractState,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {}
+
         fn _after_update(
             ref self: ERC20::ContractState,
             from: ContractAddress,

@@ -7,7 +7,7 @@ use super::storage_array::StorageArray;
 use super::storage_array::StorageArrayTrait;
 
 /// `Trace` struct, for checkpointing values as they change at different points in
-/// time, and later looking up past values by block number. See {Votes} as an example.
+/// time, and later looking up past values by block timestamp.
 #[derive(Copy, Drop, starknet::Store)]
 struct Trace {
     checkpoints: StorageArray<Checkpoint>

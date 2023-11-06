@@ -1062,13 +1062,10 @@ fn assert_state_after_transfer(
 }
 
 fn assert_state_transfer_to_self(
-    dispatcher: ERC721ABIDispatcher,
-    target: ContractAddress,
-    token_id: u256,
-    token_balance: u256
+    dispatcher: ERC721ABIDispatcher, target: ContractAddress, token_id: u256, token_balance: u256
 ) {
     assert(dispatcher.owner_of(token_id) == target, 'Ownership before');
-    assert(dispatcher.balance_of(target) == token_balance, 'Balance of owner before');   
+    assert(dispatcher.balance_of(target) == token_balance, 'Balance of owner before');
 }
 
 fn assert_event_approval_for_all(

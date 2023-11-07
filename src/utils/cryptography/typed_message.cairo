@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (utils/cryptography/typed_message.cairo)
+// OpenZeppelin Contracts for Cairo v0.7.1 (utils/cryptography/typed_message.cairo)
 
 // Utils for off-chain typed message generation.
 

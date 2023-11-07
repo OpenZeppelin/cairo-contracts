@@ -18,7 +18,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[Ownable]]
-=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++Ownable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.1/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::access::ownable::Ownable;
@@ -277,7 +277,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControl]]
-=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.1/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControl-assert_only_role
 :grant_role: xref:#AccessControl-grant_role[grant_role]

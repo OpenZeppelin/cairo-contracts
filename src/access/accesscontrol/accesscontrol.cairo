@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.7.1 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///

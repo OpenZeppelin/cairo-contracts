@@ -75,7 +75,7 @@ Account component implementing xref:ISRC6[`ISRC6`].
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
-[.contract-index]
+[.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
 .SRC6Impl
@@ -98,7 +98,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
 --
 
-[.contract-index]
+[.contract-index#AccountComponent-Embeddable-Impls-camelCase]
 .Embeddable Implementations (camelCase)
 --
 .SRC6CamelOnlyImpl
@@ -259,3 +259,47 @@ Emitted when a `public_key` is added.
 ==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
 
 Emitted when a `public_key` is removed.
+
+== Presets
+
+[.contract]
+[[Account]]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/presets/account.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::presets::Account;
+```
+
+Basic Account preset leveraging xref:#AccountComponent[AccountComponent].
+
+[.contract-index]
+.Constructor
+--
+* xref:#Account-constructor[`++constructor(self, public_key)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.AccountComponent
+
+* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+
+.SRC5Component
+
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[#Account-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[Account-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: felt252)++` [.item-kind]#constructor#
+
+Sets the account `public_key` and registers the interfaces the contract supports.

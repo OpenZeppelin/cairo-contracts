@@ -52,7 +52,7 @@ use openzeppelin::introspection::src5::SRC5Component;
 
 SRC5 component extending xref:ISRC5[`ISRC5`].
 
-[.contract-index]
+[.contract-index#SRC5Component-Embeddable-Impls]
 .Embeddable Implementations
 --
 .SRC5Impl

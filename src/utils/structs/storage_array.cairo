@@ -49,8 +49,8 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
 
 /// Trait for accessing a storage array.
 ///
-/// `read_at` and `write_at` don't check the len of the array, caution must be exercised.
-/// The current len of the array is stored at the base StorageBaseAddress as felt.
+/// `read_at` and `write_at` don't check the length of the array, caution must be exercised.
+/// The current length of the array is stored at the base StorageBaseAddress as felt.
 trait StorageArrayTrait<T> {
     fn read_at(self: @StorageArray<T>, index: usize) -> T;
     fn write_at(ref self: StorageArray<T>, index: usize, value: T) -> ();

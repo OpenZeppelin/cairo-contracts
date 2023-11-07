@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (utils/cryptography/eip712_draft.cairo)
+// OpenZeppelin Contracts for Cairo v0.7.1 (utils/cryptography/eip712_draft.cairo)
 
 #[starknet::contract]
 mod EIP712 {

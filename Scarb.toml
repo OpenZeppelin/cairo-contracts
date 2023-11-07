@@ -1,6 +1,6 @@
 [package]
 name = "openzeppelin"
-version = "0.7.0"
+version = "0.7.1"
 cairo-version = "2.3.0-rc0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"

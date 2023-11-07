@@ -67,6 +67,10 @@ mod ERC20 {
 
     #[generate_trait]
     impl ERC20HooksImpl of ERC20HooksTrait {
+        fn _before_update(
+            ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
+        ) {}
+
         fn _after_update(
             ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256
         ) {}
@@ -322,6 +326,8 @@ mod ERC20 {
         fn _update<impl Hooks: ERC20HooksTrait>(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
+            Hooks::_before_update(ref self, from, to, amount);
+
             let zero_address = Zeroable::zero();
             if (from == zero_address) {
                 self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);

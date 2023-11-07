@@ -25,7 +25,6 @@ mod ERC20Votes {
     use openzeppelin::utils::serde::SerializedAppend;
     use openzeppelin::utils::structs::checkpoints::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::contract_address_const;
     use super::Delegation;
     use super::IOffchainMessageHash;
 
@@ -158,7 +157,7 @@ mod ERC20Votes {
         fn move_delegate_votes(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
-            let zero_address = contract_address_const::<0>();
+            let zero_address = Zeroable::zero();
             let block_timestamp = starknet::get_block_timestamp();
             if (from != to && amount > 0) {
                 if (from != zero_address) {
@@ -181,7 +180,7 @@ mod ERC20Votes {
         fn transfer_voting_units(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
         ) {
-            let zero_address = contract_address_const::<0>();
+            let zero_address = Zeroable::zero();
             let block_timestamp = starknet::get_block_timestamp();
             if (from == zero_address) {
                 let mut trace = self.ERC20Votes_total_checkpoints.read();

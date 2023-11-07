@@ -7,7 +7,7 @@ use super::storage_array::StorageArray;
 use super::storage_array::StorageArrayTrait;
 
 /// `Trace` struct, for checkpointing values as they change at different points in
-/// time, and later looking up past values by block number. See {Votes} as an example.
+/// time, and later looking up past values by block timestamp.
 #[derive(Copy, Drop, starknet::Store)]
 struct Trace {
     checkpoints: StorageArray<Checkpoint>
@@ -159,17 +159,23 @@ impl CheckpointImpl of CheckpointTrait {
     }
 }
 
+const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
+
 /// Packs a Checkpoint into a (felt252, felt252).
 ///
 /// The packing is done as follows:
 /// - The first felt of the tuple contains `key` and `value.low`.
-/// - `key` is stored at the 64 most significant bits.
-/// - `value.low` is stored at the 128 less significant bits.
+/// - In this first felt, the first four bits are skipped to avoid representation errors due
+///   to `felt252` max value being a bit less than a 252 bits number max value
+///   (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
+/// - `key` is stored at range [4,67] bits (0-indexed), taking most significant usable bits.
+/// - `value.low` is stored at range [124, 251], taking the less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
 impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;
-        let key = checkpoint.key.into() * 0x100000000000000000000000000000000000000000000000;
+        // shift-left by 184 bits
+        let key = checkpoint.key.into() * _2_POW_184;
         let key_and_low = key + checkpoint.value.low.into();
 
         (key_and_low, checkpoint.value.high.into())
@@ -179,12 +185,56 @@ impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt
         let (key_and_low, high) = value;
 
         let key_and_low: u256 = key_and_low.into();
-        let key: u256 = key_and_low / 0x100000000000000000000000000000000000000000000000;
+        // shift-right by 184 bits
+        let key: u256 = key_and_low / _2_POW_184.into();
         let low = key_and_low & 0xffffffffffffffffffffffffffffffff;
 
         Checkpoint {
             key: key.try_into().unwrap(),
             value: u256 { low: low.try_into().unwrap(), high: high.try_into().unwrap() },
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use integer::BoundedInt;
+    use super::Checkpoint;
+    use super::CheckpointStorePacking;
+    use super::_2_POW_184;
+
+    const KEY_MASK: u256 = 0xffffffffffffffff;
+    const LOW_MASK: u256 = 0xffffffffffffffffffffffffffffffff;
+
+    #[test]
+    #[available_gas(2000000)]
+    fn test_pack_big_key_and_value() {
+        let key = BoundedInt::max();
+        let value = BoundedInt::max();
+        let checkpoint = Checkpoint { key, value };
+
+        let (key_and_low, high) = CheckpointStorePacking::pack(checkpoint);
+
+        let expected_key: u256 = (key_and_low.into() / _2_POW_184.into()) & KEY_MASK;
+        let expected_low: u256 = key_and_low.into() & LOW_MASK;
+
+        assert(key.into() == expected_key, 'Invalid key');
+        assert(value.low.into() == expected_low, 'Invalid low');
+    }
+
+    #[test]
+    #[available_gas(2000000)]
+    fn test_unpack_big_key_and_value() {
+        let key_and_low = BoundedInt::<u64>::max().into() * _2_POW_184
+            + BoundedInt::<u128>::max().into();
+        let high = BoundedInt::<u128>::max().into();
+
+        let checkpoint = CheckpointStorePacking::unpack((key_and_low, high));
+
+        let expected_key: u64 = BoundedInt::max();
+        let expected_value: u256 = BoundedInt::max();
+
+        assert(checkpoint.key == expected_key, 'Invalid key');
+        assert(checkpoint.value == expected_value, 'Invalid value');
     }
 }

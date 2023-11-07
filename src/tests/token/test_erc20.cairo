@@ -596,35 +596,67 @@ fn test__burn_from_zero() {
 
 #[test]
 #[available_gas(20000000)]
-fn test__update() {
+fn test__update_from_non_zero_to_non_zero() {
     let mut state = setup();
 
-    // From non-zero to non-zero
     InternalImpl::_update(ref state, OWNER(), RECIPIENT(), VALUE);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Invalid balance');
     assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Invalid balance');
+}
 
-    // From non-zero to zero
+#[test]
+#[available_gas(20000000)]
+fn test__update_from_non_zero_to_zero() {
+    let mut state = setup();
+
     InternalImpl::_update(ref state, OWNER(), ZERO(), VALUE);
     assert_only_event_transfer(OWNER(), ZERO(), VALUE);
 
-    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - 2 * VALUE, 'Invalid balance');
+    assert(ERC20Impl::balance_of(@state, OWNER()) == SUPPLY - VALUE, 'Invalid balance');
     assert(ERC20Impl::total_supply(@state) == SUPPLY - VALUE, 'Invalid supply');
+}
 
-    // From zero to non-zero
+#[test]
+#[available_gas(20000000)]
+fn test__update_from_zero_to_non_zero() {
+    let mut state = setup();
+
     InternalImpl::_update(ref state, ZERO(), RECIPIENT(), VALUE);
     assert_only_event_transfer(ZERO(), RECIPIENT(), VALUE);
 
-    assert(ERC20Impl::balance_of(@state, RECIPIENT()) == 2 * VALUE, 'Invalid balance');
-    assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Invalid supply');
+    assert(ERC20Impl::balance_of(@state, RECIPIENT()) == VALUE, 'Invalid balance');
+    assert(ERC20Impl::total_supply(@state) == SUPPLY + VALUE, 'Invalid supply');
+}
 
-    // From zero to zero
+#[test]
+#[available_gas(20000000)]
+fn test__update_from_zero_to_zero() {
+    let mut state = setup();
+
     InternalImpl::_update(ref state, ZERO(), ZERO(), VALUE);
     assert_only_event_transfer(ZERO(), ZERO(), VALUE);
 
     assert(ERC20Impl::total_supply(@state) == SUPPLY, 'Invalid supply');
+}
+
+//
+// Hooks
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test__before_update_hook_available() {
+    let mut state = setup();
+    ERC20::ERC20HooksImpl::_before_update(ref state, OWNER(), RECIPIENT(), VALUE);
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test__after_update_hook_available() {
+    let mut state = setup();
+    ERC20::ERC20HooksImpl::_after_update(ref state, OWNER(), RECIPIENT(), VALUE);
 }
 
 //

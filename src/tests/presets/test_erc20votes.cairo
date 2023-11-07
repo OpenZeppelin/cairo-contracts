@@ -429,7 +429,7 @@ fn test_num_checkpoints() {
     testing::set_block_timestamp('ts4');
     ERC20Impl::transfer(ref state, RECIPIENT(), amount);
 
-    // Delagate to self should increase the number of checkpoints
+    // Delagating to self should increase the number of checkpoints
     assert(ERC20VotesPreset::num_checkpoints(@state, OWNER()) == 4, 'Should eq 4');
 
     testing::set_block_timestamp('ts5');

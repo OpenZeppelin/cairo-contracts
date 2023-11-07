@@ -3,8 +3,7 @@
 
 use traits::Into;
 
-/// Returns the average of two numbers. The result is rounded towards
-/// zero.
+/// Returns the average of two numbers. The result is rounded down.
 fn average<
     T,
     impl TDrop: Drop<T>,

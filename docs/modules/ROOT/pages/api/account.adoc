@@ -10,7 +10,7 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;

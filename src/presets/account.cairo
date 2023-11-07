@@ -3,7 +3,7 @@
 
 /// # Account Preset
 ///
-/// Openzeppelin's account contract.
+/// OpenZeppelin's basic account which can declare or invoke other contracts.
 #[starknet::contract]
 mod Account {
     use openzeppelin::account::AccountComponent;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.1 (token/erc20/presets/erc20votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.1 (token/erc20/presets/erc20votes.cairo)
 
 /// ERC20 with the ERC20Votes extension.
 #[starknet::contract]

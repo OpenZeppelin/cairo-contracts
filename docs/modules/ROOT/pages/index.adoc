@@ -17,7 +17,7 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 0.7.1 (58cc88efb 2023-08-23)
+scarb 0.8.0-beta.1 (58cc88efb 2023-08-23)
 cairo: 2.2.0 (https://crates.io/crates/cairo-lang-compiler/2.2.0)
 sierra: 1.3.0
 ----
@@ -54,7 +54,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.1" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.0-beta.1" }
 ----
 
 WARNING: Make sure the tag matches the target release.

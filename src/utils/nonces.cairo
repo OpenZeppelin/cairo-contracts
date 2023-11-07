@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.1 (utils/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.1 (utils/nonces.cairo)
 
 #[starknet::contract]
 mod Nonces {

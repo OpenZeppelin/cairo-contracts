@@ -167,8 +167,8 @@ mod OwnableComponent {
         /// Panics if called by any account other than the owner. Use this
         /// to restrict access to certain functions to the owner.
         fn assert_only_owner(self: @ComponentState<TContractState>) {
-            let owner: ContractAddress = self.Ownable_owner.read();
-            let caller: ContractAddress = get_caller_address();
+            let owner = self.Ownable_owner.read();
+            let caller = get_caller_address();
             assert(!caller.is_zero(), Errors::ZERO_ADDRESS_CALLER);
             assert(caller == owner, Errors::NOT_OWNER);
         }

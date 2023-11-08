@@ -1,5 +1,6 @@
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::ERC721::InternalImpl;
 use openzeppelin::presets::ERC721;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
@@ -18,6 +19,7 @@ use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Im
 use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl};
 use openzeppelin::token::erc721::interface::ERC721ABI;
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
+use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -57,13 +59,13 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
 
 fn setup_dispatcher() -> ERC721ABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
-    let mut events = TOKENS_LEN;
+    let mut tokens_len = TOKENS_LEN;
     loop {
-        if events == 0 {
-            break ();
+        if tokens_len == 0 {
+            break;
         }
         utils::drop_event(dispatcher.contract_address);
-        events -= 1;
+        tokens_len -= 1;
     };
     dispatcher
 }
@@ -94,25 +96,22 @@ fn setup_camel_account() -> ContractAddress {
 #[available_gas(2000000000)]
 fn test__mint_assets() {
     let mut state = ERC721::contract_state_for_testing();
-
-    let token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    let token_uris = array![URI_1, URI_2, URI_3];
-    let mut ids_span = token_ids.span();
-    let mut uris_span = token_uris.span();
+    let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
+    let mut token_uris = array![URI_1, URI_2, URI_3].span();
 
     state._mint_assets(OWNER(), token_ids, token_uris);
 
-    assert(TOKENS_LEN.into() == state.erc721.balance_of(OWNER()), 'Should equal IDs length');
+    assert(state.erc721.balance_of(OWNER()) == TOKENS_LEN, 'Should equal IDs length');
 
     loop {
-        if ids_span.len() == 0 {
+        if token_ids.len() == 0 {
             break;
         }
 
-        let id = *ids_span.pop_front().unwrap();
-        let uri = *uris_span.pop_front().unwrap();
+        let id = *token_ids.pop_front().unwrap();
+        let uri = *token_uris.pop_front().unwrap();
         
-        assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by RECIPIENT');
+        assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by OWNER');
         assert(state.erc721.token_uri(id) == uri, 'Should equal correct URI');
     };
 }
@@ -123,8 +122,8 @@ fn test__mint_assets() {
 fn test__mint_assets_mismatched_arrays_1() {
     let mut state = ERC721::contract_state_for_testing();
 
-    let token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    let short_uris = array![URI_1, URI_2];
+    let token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
+    let short_uris = array![URI_1, URI_2].span();
     state._mint_assets(OWNER(), token_ids, short_uris);
 }
 
@@ -134,9 +133,57 @@ fn test__mint_assets_mismatched_arrays_1() {
 fn test__mint_assets_mismatched_arrays_2() {
     let mut state = ERC721::contract_state_for_testing();
 
-    let short_ids = array![TOKEN_1, TOKEN_2];
-    let token_uris = array![URI_1, URI_2, URI_3];
+    let short_ids = array![TOKEN_1, TOKEN_2].span();
+    let token_uris = array![URI_1, URI_2, URI_3].span();
     state._mint_assets(OWNER(), short_ids, token_uris);
+}
+
+//
+// constructor
+//
+
+#[test]
+#[available_gas(2000000000)]
+fn test_constructor() {
+    let dispatcher = setup_dispatcher_with_event();
+
+    // Check interface registration
+    let mut interface_ids = array![ISRC5_ID, IERC721_ID, IERC721_METADATA_ID];
+    loop {
+        let id = interface_ids.pop_front().unwrap();
+        if interface_ids.len() == 0 {
+            break;
+        }
+        assert(dispatcher.supports_interface(id), 'Should support interface');
+    };
+
+    // Check token balance and owner
+    let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
+    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Should equal TOKENS_LEN');
+    loop {
+        let token = tokens.pop_front().unwrap();
+        if tokens.len() == 0 {
+            break;
+        }
+        assert(dispatcher.owner_of(token) == OWNER(), 'Should be owned by OWNER');
+    };
+}
+
+#[test]
+#[available_gas(2000000000)]
+fn test_constructor_events() {
+    let dispatcher = setup_dispatcher_with_event();
+    let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
+
+    loop {
+        let token = tokens.pop_front().unwrap();
+        if tokens.len() == 0 {
+            // Includes event queue check
+            assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), token);
+            break;
+        }
+        assert_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), token);
+    };
 }
 
 //
@@ -328,7 +375,7 @@ fn test_transfer_from_owner() {
 
     testing::set_contract_address(owner);
     dispatcher.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -349,7 +396,7 @@ fn test_transferFrom_owner() {
     assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
 
     dispatcher.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -398,7 +445,7 @@ fn test_transfer_from_to_owner() {
 
     testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), OWNER(), TOKEN_1);
-    assert_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
+    assert_only_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 }
@@ -412,7 +459,7 @@ fn test_transferFrom_to_owner() {
 
     testing::set_contract_address(OWNER());
     dispatcher.transferFrom(OWNER(), OWNER(), TOKEN_1);
-    assert_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
+    assert_only_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
 }
@@ -432,7 +479,7 @@ fn test_transfer_from_approved() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -452,7 +499,7 @@ fn test_transferFrom_approved() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -473,7 +520,7 @@ fn test_transfer_from_approved_for_all() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -494,7 +541,7 @@ fn test_transferFrom_approved_for_all() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(dispatcher, owner, recipient, token_id);
 }
@@ -533,7 +580,7 @@ fn test_safe_transfer_from_to_account() {
 
     testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, account, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
     assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
@@ -550,7 +597,7 @@ fn test_safeTransferFrom_to_account() {
 
     testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, account, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
     assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
@@ -567,7 +614,7 @@ fn test_safe_transfer_from_to_account_camel() {
 
     testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, account, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
     assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
@@ -584,7 +631,7 @@ fn test_safeTransferFrom_to_account_camel() {
 
     testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, account, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
     assert_state_after_transfer(dispatcher, owner, account, token_id);
 }
@@ -601,7 +648,7 @@ fn test_safe_transfer_from_to_receiver() {
 
     testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -618,7 +665,7 @@ fn test_safeTransferFrom_to_receiver() {
 
     testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -635,7 +682,7 @@ fn test_safe_transfer_from_to_receiver_camel() {
 
     testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -652,7 +699,7 @@ fn test_safeTransferFrom_to_receiver_camel() {
 
     testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -784,7 +831,7 @@ fn test_safe_transfer_from_to_owner() {
 
     testing::set_contract_address(receiver);
     dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 }
@@ -804,7 +851,7 @@ fn test_safeTransferFrom_to_owner() {
 
     testing::set_contract_address(receiver);
     dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 }
@@ -824,7 +871,7 @@ fn test_safe_transfer_from_to_owner_camel() {
 
     testing::set_contract_address(receiver);
     dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 }
@@ -844,7 +891,7 @@ fn test_safeTransferFrom_to_owner_camel() {
 
     testing::set_contract_address(receiver);
     dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 }
@@ -865,7 +912,7 @@ fn test_safe_transfer_from_approved() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -886,7 +933,7 @@ fn test_safeTransferFrom_approved() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -907,7 +954,7 @@ fn test_safe_transfer_from_approved_camel() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -928,7 +975,7 @@ fn test_safeTransferFrom_approved_camel() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -949,7 +996,7 @@ fn test_safe_transfer_from_approved_for_all() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -970,7 +1017,7 @@ fn test_safeTransferFrom_approved_for_all() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -991,7 +1038,7 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -1012,7 +1059,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
     testing::set_contract_address(OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
+    assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(dispatcher, owner, receiver, token_id);
 }
@@ -1109,7 +1156,6 @@ fn assert_event_transfer(
     assert(event.from == from, 'Invalid `from`');
     assert(event.to == to, 'Invalid `to`');
     assert(event.token_id == token_id, 'Invalid `token_id`');
-    utils::assert_no_events_left(contract);
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -1117,5 +1163,10 @@ fn assert_event_transfer(
     indexed_keys.append_serde(to);
     indexed_keys.append_serde(token_id);
     utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_only_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256) {
+    assert_event_transfer(contract, from, to, value);
+    utils::assert_no_events_left(contract);
 }
 

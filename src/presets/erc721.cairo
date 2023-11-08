@@ -50,8 +50,8 @@ mod ERC721 {
         name: felt252,
         symbol: felt252,
         recipient: ContractAddress,
-        token_ids: Array<u256>,
-        token_uris: Array<felt252>
+        token_ids: Span<u256>,
+        token_uris: Span<felt252>
     ) {
         self.erc721.initializer(name, symbol);
         self._mint_assets(recipient, token_ids, token_uris);
@@ -74,7 +74,7 @@ mod ERC721 {
 
             loop {
                 if ids_span.len() == 0 {
-                    break ();
+                    break;
                 }
                 let id = *ids_span.pop_front().unwrap();
                 let uri = *uris_span.pop_front().unwrap();

@@ -106,10 +106,12 @@ fn test__mint_assets() {
 
     loop {
         if ids_span.len() == 0 {
-            break ();
+            break;
         }
+
         let id = *ids_span.pop_front().unwrap();
         let uri = *uris_span.pop_front().unwrap();
+        
         assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by RECIPIENT');
         assert(state.erc721.token_uri(id) == uri, 'Should equal correct URI');
     };

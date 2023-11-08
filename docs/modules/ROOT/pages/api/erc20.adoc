@@ -168,7 +168,7 @@ use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
-[.contract-index]
+[.contract-index#ERC20Component-Embeddable-Impls]
 .Embeddable implementations
 --
 .ERC20Impl
@@ -189,7 +189,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 --
 
-[.contract-index]
+[.contract-index#ERC20Component-Embeddable-Impls-camelCase]
 .Embeddable implementations (camelCase)
 --
 .ERC20CamelOnlyImpl
@@ -471,3 +471,43 @@ See <<IERC20-Transfer,IERC20::Transfer>>.
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
 See <<IERC20-Approval,IERC20::Approval>>.
+
+== Presets
+
+[.contract]
+[[ERC20]]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::presets::ERC20;
+```
+
+Basic ERC20 preset leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
+
+[.contract-index]
+.Constructor
+--
+* xref:#ERC20-constructor[`++constructor(self, name, symbol, fixed_supply, recipient)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.ERC20Component
+
+* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
+* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
+* xref:#ERC20Component-Embeddable-Impls[`++SafeAllowanceImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-camelCase[`++SafeAllowanceCamelImpl++`]
+--
+
+[#ERC20-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[ERC20-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+
+Sets the `name` and `symbol`.
+Mints `fixed_supply` tokens to `recipient`.

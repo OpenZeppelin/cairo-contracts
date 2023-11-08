@@ -1,6 +1,6 @@
 use openzeppelin::account::AccountComponent;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::presets::ERC721::InternalImpl;
 use openzeppelin::presets::ERC721;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
@@ -110,7 +110,7 @@ fn test__mint_assets() {
 
         let id = *token_ids.pop_front().unwrap();
         let uri = *token_uris.pop_front().unwrap();
-        
+
         assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by OWNER');
         assert(state.erc721.token_uri(id) == uri, 'Should equal correct URI');
     };
@@ -1165,7 +1165,9 @@ fn assert_event_transfer(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256) {
+fn assert_only_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
     assert_event_transfer(contract, from, to, value);
     utils::assert_no_events_left(contract);
 }

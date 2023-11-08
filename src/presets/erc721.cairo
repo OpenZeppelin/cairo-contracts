@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (presets/erc721.cairo)
+
+/// # ERC721 Preset Contract
+///
+/// The ERC721 preset contract offers a simple batch-mint style mechanism
+/// that can only be executed once upon contract construction.
 #[starknet::contract]
 mod ERC721 {
     use openzeppelin::introspection::src5::SRC5Component;
@@ -44,6 +51,9 @@ mod ERC721 {
         const UNEQUAL_ARRAYS: felt252 = 'Array lengths do not match';
     }
 
+    /// Sets the token `name` and `symbol`.
+    /// Mints the `token_ids` tokens to `recipient` and sets
+    /// each token's URI.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -60,6 +70,10 @@ mod ERC721 {
     /// Mints `token_ids` to `recipient`.
     /// Sets the token URI from `token_uris` to the corresponding
     /// token ID of `token_ids`.
+    ///
+    /// Requirements:
+    ///
+    /// - `token_ids` must be equal in length to `token_uris`.
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn _mint_assets(

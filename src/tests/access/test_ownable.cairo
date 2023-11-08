@@ -4,6 +4,7 @@ use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
+use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;
@@ -234,4 +235,9 @@ fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner
     assert(event.previous_owner == previous_owner, 'Invalid `previous_owner`');
     assert(event.new_owner == new_owner, 'Invalid `new_owner`');
     utils::assert_no_events_left(ZERO());
+
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(previous_owner);
+    indexed_keys.append_serde(new_owner);
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }

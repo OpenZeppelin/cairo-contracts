@@ -88,7 +88,7 @@ fn test_transfer_ownership() {
     assert(state.ownable.owner() == OWNER(), 'Owner should be OWNER');
     assert(state.ownable.pending_owner() == OTHER(), 'Pending owner should be OTHER');
 
-    // transferring to yet another owner while pending is set should work
+    // Transferring to yet another owner while pending is set should work
     state.ownable.transfer_ownership(NEW_OWNER());
 
     assert_event_ownership_transfer_started(OWNER(), NEW_OWNER());
@@ -133,7 +133,7 @@ fn test_transferOwnership() {
     assert(state.ownable.owner() == OWNER(), 'Owner should be OWNER');
     assert(state.ownable.pending_owner() == OTHER(), 'Pending owner should be OTHER');
 
-    // transferring to yet another owner while pending is set should work
+    // Transferring to yet another owner while pending is set should work
     state.ownable.transferOwnership(NEW_OWNER());
 
     assert_event_ownership_transfer_started(OWNER(), NEW_OWNER());
@@ -281,10 +281,6 @@ fn test_renounceOwnership_from_nonowner() {
     state.ownable.renounceOwnership();
 }
 
-//
-// full two step ownership transfer (happy path)
-//
-
 #[test]
 #[available_gas(2000000)]
 fn test_full_two_step_transfer() {
@@ -303,10 +299,6 @@ fn test_full_two_step_transfer() {
     assert(state.ownable.owner() == OTHER(), 'Owner should be OTHER');
     assert(state.ownable.pending_owner() == ZERO(), 'Pending owner should be ZERO');
 }
-
-//
-// test accept ownership after original owner renounced
-//
 
 #[test]
 #[available_gas(2000000)]

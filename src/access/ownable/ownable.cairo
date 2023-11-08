@@ -10,7 +10,7 @@
 /// The initial owner can be set by using the `initializer` function in
 /// construction time. This can later be changed with `transfer_ownership`.
 ///
-/// The component also offers functionality for a two step ownership
+/// The component also offers functionality for a two-step ownership
 /// transfer where the new owner first has to accept their ownership to
 /// finalize the transfer.
 #[starknet::component]
@@ -60,7 +60,6 @@ mod OwnableComponent {
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnable<ComponentState<TContractState>> {
         /// Returns the address of the current owner.
-        #[inline(always)]
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Ownable_owner.read()
         }
@@ -106,21 +105,21 @@ mod OwnableComponent {
             self.Ownable_owner.read()
         }
 
-        /// Return the address of the pending owner.
+        /// Returns the address of the pending owner.
         fn pending_owner(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Ownable_pending_owner.read()
         }
 
-        /// Finish the two step ownership transfer process by accepting the ownership.
+        /// Finishes the two-step ownership transfer process by accepting the ownership.
         /// Can only be called by the pending owner.
         fn accept_ownership(ref self: ComponentState<TContractState>) {
-            let caller: ContractAddress = get_caller_address();
-            let pending_owner: ContractAddress = self.Ownable_pending_owner.read();
+            let caller = get_caller_address();
+            let pending_owner = self.Ownable_pending_owner.read();
             assert(caller == pending_owner, Errors::NOT_PENDING_OWNER);
             self._accept_ownership();
         }
 
-        /// Start the two step ownership transfer process by setting the pending owner.
+        /// Starts the two-step ownership transfer process by setting the pending owner.
         fn transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
@@ -136,12 +135,13 @@ mod OwnableComponent {
         }
     }
 
+    /// Adds camelCase support for `IOwnableTwoStep`.
     #[embeddable_as(OwnableTwoStepCamelOnlyImpl)]
     impl OwnableTwoStepCamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableTwoStepCamelOnly<ComponentState<TContractState>> {
         fn acceptOwnership(ref self: ComponentState<TContractState>) {
-            OwnableTwoStep::accept_ownership(ref self);
+            self.accept_ownership();
         }
 
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
@@ -177,7 +177,7 @@ mod OwnableComponent {
         ///
         /// Internal function without access restriction.
         fn _accept_ownership(ref self: ComponentState<TContractState>) {
-            let pending_owner: ContractAddress = self.Ownable_pending_owner.read();
+            let pending_owner = self.Ownable_pending_owner.read();
             self.Ownable_pending_owner.write(Zeroable::zero());
             self._transfer_ownership(pending_owner);
         }
@@ -186,7 +186,7 @@ mod OwnableComponent {
         ///
         /// Internal function without access restriction.
         fn _propose_owner(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {
-            let previous_owner: ContractAddress = self.Ownable_owner.read();
+            let previous_owner = self.Ownable_owner.read();
             self.Ownable_pending_owner.write(new_owner);
             self
                 .emit(

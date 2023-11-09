@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :AccessControl: xref:AccessControlComponent[AccessControl]
 :Ownable: xref:OwnableComponent[Ownable]
-:OwnableTwoStep: xref:OwnableTwoStep[OwnableTwoStep]
+:OwnableTwoStep: xref:OwnableTwoStepComponent[OwnableTwoStep]
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :_set_role_admin: xref:#AccessControlComponent-_set_role_admin[_set_role_admin]
@@ -146,8 +146,8 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 Emitted when the ownership is transferred.
 
 [.contract]
-[[OwnableTwoStep]]
-=== `++OwnableTwoStep++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+[[OwnableTwoStepComponent]]
+=== `++OwnableTwoStepComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::access::ownable::OwnableComponent;
@@ -165,11 +165,11 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 .OwnableTwoStepImpl
 
-* xref:OwnableTwoStep-owner[`++owner(self)++`]
-* xref:OwnableTwoStep-pending_owner[`++pending_owner(self)++`]
-* xref:OwnableTwoStep-accept_ownership[`++accept_ownership(self)++`]
-* xref:OwnableTwoStep-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
-* xref:OwnableTwoStep-renounce_ownership[`++renounce_ownership(self)++`]
+* xref:OwnableTwoStepComponent-owner[`++owner(self)++`]
+* xref:OwnableTwoStepComponent-pending_owner[`++pending_owner(self)++`]
+* xref:OwnableTwoStepComponent-accept_ownership[`++accept_ownership(self)++`]
+* xref:OwnableTwoStepComponent-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
+* xref:OwnableTwoStepComponent-renounce_ownership[`++renounce_ownership(self)++`]
 --
 
 [.contract-index]
@@ -177,9 +177,9 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 .OwnableTwoStepCamelOnlyImpl
 
-* xref:OwnableTwoStep-acceptOwnership[`++acceptOwnership(self)++`]
-* xref:OwnableTwoStep-transferOwnership[`++transferOwnership(self, newOwner)++`]
-* xref:OwnableTwoStep-renounceOwnership[`++renounceOwnership(self)++`]
+* xref:OwnableTwoStepComponent-acceptOwnership[`++acceptOwnership(self)++`]
+* xref:OwnableTwoStepComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
+* xref:OwnableTwoStepComponent-renounceOwnership[`++renounceOwnership(self)++`]
 --
 
 [.contract-index]
@@ -187,56 +187,56 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 .InternalImpl
 
-* xref:OwnableTwoStep-initializer[`++initializer(self, owner)++`]
-* xref:OwnableTwoStep-assert_only_owner[`++assert_only_owner(self)++`]
-* xref:OwnableTwoStep-_accept_ownership[`++_accept_ownership(self)++`]
-* xref:OwnableTwoStep-_propose_owner[`++_propose_owner(self, new_owner)++`]
-* xref:OwnableTwoStep-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
+* xref:OwnableTwoStepComponent-initializer[`++initializer(self, owner)++`]
+* xref:OwnableTwoStepComponent-assert_only_owner[`++assert_only_owner(self)++`]
+* xref:OwnableTwoStepComponent-_accept_ownership[`++_accept_ownership(self)++`]
+* xref:OwnableTwoStepComponent-_propose_owner[`++_propose_owner(self, new_owner)++`]
+* xref:OwnableTwoStepComponent-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 --
 
 [.contract-index]
 .Events
 --
-* xref:OwnableTwoStep-OwnershipTransferStarted[`++OwnershipTransferStarted(previous_owner, new_owner)++`]
-* xref:OwnableTwoStep-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
+* xref:OwnableTwoStepComponent-OwnershipTransferStarted[`++OwnershipTransferStarted(previous_owner, new_owner)++`]
+* xref:OwnableTwoStepComponent-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
 --
 
-[#OwnableTwoStep-Embeddable-Functions]
+[#OwnableTwoStepComponent-Embeddable-Functions]
 ==== Embeddable Functions
 
 [.contract-item]
-[[OwnableTwoStep-owner]]
+[[OwnableTwoStepComponent-owner]]
 ==== `[.contract-item-name]#++owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
 
 Returns the address of the current owner.
 
 [.contract-item]
-[[OwnableTwoStep-pending_owner]]
+[[OwnableTwoStepComponent-pending_owner]]
 ==== `[.contract-item-name]#++pending_owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
 
 Returns the address of the pending owner.
 
 [.contract-item]
-[[OwnableTwoStep-accept_ownership]]
+[[OwnableTwoStepComponent-accept_ownership]]
 ==== `[.contract-item-name]#++accept_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Transfers ownership of the contract to the pending owner.
 Can only be called by the pending owner.
 Resets pending owner to zero address.
 
-Emits an xref:OwnableTwoStep-OwnershipTransferred[OwnershipTransferred] event.
+Emits an xref:OwnableTwoStepComponent-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
-[[OwnableTwoStep-transfer_ownership]]
+[[OwnableTwoStepComponent-transfer_ownership]]
 ==== `[.contract-item-name]#++transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#external#
 
 Sets pending owner to a new account (`new_owner`).
 Can only be called by the current owner.
 
-Emits an xref:OwnableTwoStep-OwnershipTransferStarted[OwnershipTransferStarted] event.
+Emits an xref:OwnableTwoStepComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
 
 [.contract-item]
-[[OwnableTwoStep-renounce_ownership]]
+[[OwnableTwoStepComponent-renounce_ownership]]
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Leaves the contract without owner. It will not be possible to call
@@ -245,32 +245,32 @@ Leaves the contract without owner. It will not be possible to call
 NOTE: Renouncing ownership will leave the contract without an owner,
 thereby removing any functionality that is only available to the owner.
 
-[#OwnableTwoStep-camelCase-Support]
+[#OwnableTwoStepComponent-camelCase-Support]
 ==== camelCase Support
 
 [.contract-item]
-[[OwnableTwoStep-acceptOwnership]]
+[[OwnableTwoStepComponent-acceptOwnership]]
 ==== `[.contract-item-name]#++acceptOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
-See xref:OwnableTwoStep-accept_ownership[transfer_ownership].
+See xref:OwnableTwoStepComponent-accept_ownership[transfer_ownership].
 
 [.contract-item]
-[[OwnableTwoStep-transferOwnership]]
+[[OwnableTwoStepComponent-transferOwnership]]
 ==== `[.contract-item-name]#++transferOwnership++#++(ref self: ContractState, newOwner: ContractAddress)++` [.item-kind]#external#
 
-See xref:OwnableTwoStep-transfer_ownership[transfer_ownership].
+See xref:OwnableTwoStepComponent-transfer_ownership[transfer_ownership].
 
 [.contract-item]
-[[OwnableTwoStep-renounceOwnership]]
+[[OwnableTwoStepComponent-renounceOwnership]]
 ==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
-See xref:OwnableTwoStep-renounce_ownership[renounce_ownership].
+See xref:OwnableTwoStepComponent-renounce_ownership[renounce_ownership].
 
 [#Ownable-Internal-Functions]
 ==== Internal Functions
 
 [.contract-item]
-[[OwnableTwoStep-initializer]]
+[[OwnableTwoStepComponent-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
 
 Initializes the contract and sets `owner` as the initial owner.
@@ -278,13 +278,13 @@ Initializes the contract and sets `owner` as the initial owner.
 Emits an xref:OwnableTwoStep-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
-[[OwnableTwoStep-assert_only_owner]]
+[[OwnableTwoStepComponent-assert_only_owner]]
 ==== `[.contract-item-name]#++assert_only_owner++#++(self: @ContractState)++` [.item-kind]#internal#
 
 Panics if called by any account other than the owner.
 
 [.contract-item]
-[[OwnableTwoStep-_accept_ownership]]
+[[OwnableTwoStepComponent-_accept_ownership]]
 ==== `[.contract-item-name]#++_accept_ownership++#++(ref self: ContractState)++` [.item-kind]#internal#
 
 Transfers ownership of the contract to the pending owner.
@@ -294,34 +294,34 @@ Internal function without access restriction.
 Emits an xref:OwnableTwoStep-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
-[[OwnableTwoStep-_propose_owner]]
+[[OwnableTwoStepComponent-_propose_owner]]
 ==== `[.contract-item-name]#++_propose_owner++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
 
 Sets pending owner to a new account (`new_owner`).
 Internal function without access restriction.
 
-Emits an xref:OwnableTwoStep-OwnershipTransferStarted[OwnershipTransferStarted] event.
+Emits an xref:OwnableTwoStepComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
 
 [.contract-item]
-[[OwnableTwoStep-_transfer_ownership]]
+[[OwnableTwoStepComponent-_transfer_ownership]]
 ==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
 
 Transfers ownership of the contract to a new account (`new_owner`).
 Internal function without access restriction.
 
-Emits an xref:OwnableTwoStep-OwnershipTransferred[OwnershipTransferred] event.
+Emits an xref:OwnableTwoStepComponent-OwnershipTransferred[OwnershipTransferred] event.
 
 [#OwnableTwoStep-Events]
 ==== Events
 
 [.contract-item]
-[[OwnableTwoStep-OwnershipTransferStarted]]
+[[OwnableTwoStepComponent-OwnershipTransferStarted]]
 ==== `[.contract-item-name]#++OwnershipTransferStarted++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
 
 Emitted when the pending owner is updated.
 
 [.contract-item]
-[[OwnableTwoStep-OwnershipTransferred]]
+[[OwnableTwoStepComponent-OwnershipTransferred]]
 ==== `[.contract-item-name]#++OwnershipTransferred++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
 
 Emitted when the ownership is transferred.

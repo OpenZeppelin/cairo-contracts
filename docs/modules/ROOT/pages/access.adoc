@@ -20,7 +20,7 @@ OpenZeppelin Contracts for Cairo provides {ownable-cairo} for implementing owner
 
 Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
-xref:/api/access.adoc#AccessControlComponent-initializer[`initializer`] like this:
+xref:/api/access.adoc#OwnableComponent-initializer[`initializer`] like this:
 
 [,javascript]
 ----
@@ -109,7 +109,7 @@ will no longer be callable!
 == `TwoStepOwnable`
 
 The `TwoStepOwnable` offers a more robust way of transferring ownership when compared to `Ownable`.
-The difference lies in the fact that the new owner has to first xref:/api/access.adoc#OwnableTwoStep-accept_ownership[accept]
+The difference lies in the fact that the new owner has to first xref:/api/access.adoc#OwnableTwoStepComponent-accept_ownership[accept]
 their ownership. Only after this call is made, the ownersihp is transferred. This mechanism helps to prevent
 unintended and irreversible owner transfers.
 
@@ -117,7 +117,7 @@ unintended and irreversible owner transfers.
 
 Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
-xref:/api/access.adoc#AccessControl-initializer[`initializer`] like this:
+xref:/api/access.adoc#OwnableTwoStepComponent-initializer[`initializer`] like this:
 
 [,javascript]
 ----

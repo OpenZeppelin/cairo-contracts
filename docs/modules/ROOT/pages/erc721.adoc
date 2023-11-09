@@ -2,13 +2,9 @@
 
 :token-types: https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[non-fungible tokens]
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP-721]
-:erc721-api: xref:/api/erc721.adoc[API Reference]
-:introspection: xref:/introspection.adoc[Introspection]
 
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.
-The `token::erc721::ERC721` contract implements an approximation of {eip721} in Cairo for Starknet.
-
-TIP: For detailed information on the usage and implementation check the {erc721-api} section.
+`token::erc721::ERC721Component` provides an approximation of {eip721} in Cairo for Starknet.
 
 == Interface
 
@@ -16,6 +12,10 @@ TIP: For detailed information on the usage and implementation check the {erc721-
 :ierc721-interface: xref:/erc721.adoc#ierc721[IERC721]
 :ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
 :isrc5-interface: xref:/erc721.adoc#isrc5[ISRC5]
+
+The following interface represents the full ABI of the Contracts for Cairo ERC721 component.
+The interface includes the IERC721 standard interface, the ISRC5 introspection interface, and the optional IERC721Metadata interface.
+To support older token deployments, as mentioned in Dual interfaces, the ERC721 component also includes implementations of the interface written in camelCase.
 
 ERC721 contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721-compliant contract.
 Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
@@ -107,6 +107,7 @@ trait IERC721 {
 
 === ISRC5
 
+:introspection: xref:/introspection.adoc[Introspection]
 :snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
 

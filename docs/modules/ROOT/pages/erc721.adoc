@@ -170,31 +170,58 @@ The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 
 == Usage
 
-:components: https://community.starknet.io/t/cairo-1-contract-syntax-is-evolving/94794#extensibility-and-components-11[Components]
 :mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
 
-WARNING: The following example uses a contract's `unsafe_new_contract_state` to access another contract's state.
-Although this is useful to use them as modules, it's considered unsafe because storage members could clash among used contracts if not reviewed carefully.
-Extensibility will be revisited after {components} are introduced.
-
-Using Contracts for Cairo, constructing an ERC721 contract requires setting up the constructor and exposing the ERC721 interface.
-Here’s what that looks like:
+Using Contracts for Cairo, constructing an ERC721 contract requires integrating the components and setting up the constructor.
+Here's an example of a basic contract:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyNFT {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc721::ERC721;
-    use openzeppelin::token::erc721::interface;
-    use openzeppelin::introspection::interface::ISRC5;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // ERC721
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataCamelOnly =
+        ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
 
     #[constructor]
     fn constructor(
-        self: @ContractState,
+        ref self: ContractState,
         recipient: ContractAddress
     ) {
         let name = 'MyNFT';
@@ -202,61 +229,26 @@ mod MyNFT {
         let token_id = 1;
         let token_uri = 'NFT_URI';
 
-        let mut unsafe_state = ERC721::unsafe_new_contract_state();
-        // Initialize the ERC721 storage
-        ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        // Mint the NFT to recipient and set the token's URI
-        _mint_with_uri(recipient, token_id, token_uri);
+        self.erc721.initializer(name, symbol);
+        self._mint_with_uri(recipient, token_id, token_uri);
     }
 
-    /// Implement the ISRC5 interface.
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn _mint_with_uri(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            token_id: u256,
+            token_uri: felt252
+        ) {
+            // Initialize the ERC721 storage
+            self.erc721._mint(recipient, token_id);
+            // Mint the NFT to recipient and set the token's URI
+            self.erc721._set_token_uri(token_id, token_uri);
         }
-    }
-
-    /// Implement the standard IERC721 interface.
-    #[external(v0)]
-    impl MyTokenImpl of interface::IERC721<ContractState> {
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::balance_of(@unsafe_state, account) 
-        }
-
-        (...)
-    }
-
-    /// Implement the IERC721Metadata interface.
-    #[external(v0)]
-    impl MyTokenMetadataImpl of interface::IERC721Metadata<ContractState> {
-        fn name(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::name(@unsafe_state) 
-        }
-
-        (...)
-    }
-
-    #[internal]
-    fn _mint_with_uri(
-        recipient: ContractAddress,
-        token_id: u256,
-        token_uri: felt252
-    ) {
-        let mut unsafe_state = ERC721::unsafe_new_contract_state();
-        ERC721::InternalImpl::_mint(ref unsafe_state, recipient, token_id);
-        ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
     }
 }
 ----
-
-In order for the `MyNFT` contract to extend the `ERC721` contract, it utilizes the `unsafe_new_contract_state`.
-The unsafe contract state allows access to ``ERC721``'s storage.
-With this access, the constructor first calls the initializer to set the NFT name and symbol.
-Next, the constructor calls the custom internal function `_mint_with_uri` that mints a one-of-one NFT and sets the URI for the minted token ID.
 
 === Token transfers
 
@@ -308,45 +300,45 @@ TIP: For information on how to calculate interface IDs, see {computing-interface
 [,javascript]
 ----
 #[starknet::contract]
-mod ERC721Receiver {
+mod MyTokenReceiver {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc721::ERC721;
-    use openzeppelin::token::erc721::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use openzeppelin::introspection::src5::SRC5;
+
+    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // ERC721Receiver
+    #[abi(embed_v0)]
+    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
+    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc721_receiver: ERC721ReceiverComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
-        // Register the token receiver interface
-        let mut unsafe_state = SRC5::unsafe_new_contract_state();
-        SRC5::InternalImpl::register_interface(ref unsafe_state, interface::IERC721_RECEIVER_ID);
-    }
-
-    /// Implement the ISRC5 interface so the sender contract can query
-    /// if the recipient supports the token receiver interface ID.
-    #[external(v0)]
-    impl ISRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
-        }
-    }
-
-    /// Implement the token receiver interface.
-    #[external(v0)]
-    impl ERC721ReceiverImpl of interface::IERC721Receiver<ContractState> {
-        fn on_erc721_received(
-            self: @ContractState,
-            operator: ContractAddress,
-            from: ContractAddress,
-            token_id: u256,
-            data: Span<felt252>
-        ) -> felt252 {
-            interface::IERC721_RECEIVER_ID
-        }
+        self.erc721_receiver.initializer();
     }
 }
 ----

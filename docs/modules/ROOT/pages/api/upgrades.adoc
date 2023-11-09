@@ -9,9 +9,9 @@ Reference of interfaces and utilities related to upgradeability.
 
 [.contract]
 [[IUpgradeable]]
-=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/upgrades/interface.cairo#L3[{github-icon},role=heading-link]
+=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/upgrades/interface.cairo#L3[{github-icon},role=heading-link]
 
-:Upgraded: xref:Upgradeable-Upgraded[Upgraded]
+:Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```javascript
 use openzeppelin::upgrades::interface::IUpgradeable;
@@ -37,34 +37,34 @@ Upgrades the contract code by updating its {class_hash}.
 NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
 
 [.contract]
-[[Upgradeable]]
-=== `++Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
+[[UpgradeableComponent]]
+=== `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::upgrades::upgradeable::Upgradeable;
+use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
 ```
 
-Upgradeable contract module.
+Upgradeable component.
 
 [.contract-index]
-.Internal Functions
+.Internal Implementations
 --
 .InternalImpl
 
-* xref:#Upgradeable-_upgrade[`++_upgrade(self, new_class_hash)++`]
+* xref:#UpgradeableComponent-_upgrade[`++_upgrade(self, new_class_hash)++`]
 --
 
 [.contract-index]
 .Events
 --
-* xref:#Upgradeable-Upgraded[`++Upgraded(class_hash)++`]
+* xref:#UpgradeableComponent-Upgraded[`++Upgraded(class_hash)++`]
 --
 
-[#Upgradeable-Internal-Functions]
+[#UpgradeableComponent-Internal-Functions]
 ==== Internal Functions
 
 [.contract-item]
-[[Upgradeable-_upgrade]]
+[[UpgradeableComponent-_upgrade]]
 ==== `[.contract-item-name]#++_upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#internal#
 
 Upgrades the contract by updating the contract {class_hash}.
@@ -75,11 +75,11 @@ Requirements:
 
 Emits an {Upgraded} event.
 
-[#Upgradeable-Events]
+[#UpgradeableComponent-Events]
 ==== Events
 
 [.contract-item]
-[[Upgradeable-Upgraded]]
+[[UpgradeableComponent-Upgraded]]
 ==== `[.contract-item-name]#++Upgraded++#++(class_hash: ClassHash)++` [.item-kind]#event#
 
 Emitted when the {class_hash} is upgraded.

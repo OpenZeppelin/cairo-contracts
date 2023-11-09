@@ -10,7 +10,7 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/account/interface.cairo#L12[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/interface.cairo#L12[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
@@ -62,116 +62,97 @@ Validates whether a signature is valid or not for the given message hash.
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
-[[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.7.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
+[[AccountComponent]]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
 
-:OwnerAdded: xref:Account-OwnerAdded[OwnerAdded]
-:OwnerRemoved: xref:Account-OwnerRemoved[OwnerRemoved]
+:OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
+:OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
 
 ```javascript
-use openzeppelin::account::Account;
+use openzeppelin::account::AccountComponent;
 ```
-Account contract implementation extending xref:ISRC6[`ISRC6`].
+Account component implementing xref:ISRC6[`ISRC6`].
+
+NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
 [.contract-index]
-.Constructor
+.Embeddable Implementations
 --
-* xref:#Account-constructor[`++constructor(self, _public_key)++`]
---
-
-[.contract-index]
-.External Functions
---
-* xref:#Account-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
-
 .SRC6Impl
 
-* xref:#Account-\\__execute__[`++__execute__(self, calls)++`]
-* xref:#Account-\\__validate__[`++__validate__(self, calls)++`]
-* xref:#Account-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
-
-.SRC5Impl
-
-* xref:#Account-supports_interface[`++supports_interface(self, interface_id)++`]
+* xref:#AccountComponent-\\__execute__[`++__execute__(self, calls)++`]
+* xref:#AccountComponent-\\__validate__[`++__validate__(self, calls)++`]
+* xref:#AccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
 .DeclarerImpl
 
-* xref:#Account-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
+* xref:#AccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
+
+.DeployableImpl
+
+* xref:#AccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
 .PublicKeyImpl
 
-* xref:#Account-set_public_key[`++set_public_key(self, new_public_key)++`]
-* xref:#Account-get_public_key[`++get_public_key(self)++`]
+* xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
+* xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
 --
 
 [.contract-index]
-.Internal Functions
+.Embeddable Implementations (camelCase)
+--
+.SRC6CamelOnlyImpl
+
+* xref:#AccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+
+.PublicKeyCamelImpl
+
+* xref:#AccountComponent-getPublicKey[`++getPublicKey(self)++`]
+* xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+--
+
+[.contract-index]
+.Internal Implementations
 --
 .InternalImpl
 
-* xref:#Account-initializer[`++initializer(self, _public_key)++`]
-* xref:#Account-validate_transaction[`++validate_transaction(self)++`]
-* xref:#Account-_set_public_key[`++_set_public_key(self, new_public_key)++`]
-* xref:#Account-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
-* xref:#Account-assert_only_self[`++assert_only_self(self)++`]
+* xref:#AccountComponent-initializer[`++initializer(self, public_key)++`]
+* xref:#AccountComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#AccountComponent-validate_transaction[`++validate_transaction(self)++`]
+* xref:#AccountComponent-_set_public_key[`++_set_public_key(self, new_public_key)++`]
+* xref:#AccountComponent-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
 --
 
 [.contract-index]
 .Events
 --
-* xref:#Account-OwnerAdded[`++OwnerAdded(new_owner_guid)++`]
-* xref:#Account-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
+* xref:#AccountComponent-OwnerAdded[`++OwnerAdded(new_owner_guid)++`]
+* xref:#AccountComponent-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
 --
 
-[#Account-Constructor]
-==== Constructor
+[#AccountComponent-Embeddable-Functions]
+==== Embeddable Functions
 
 [.contract-item]
-[[Account-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, _public_key: felt252)++` [.item-kind]#constructor#
-
-Initializes the account with the given public key, and registers the ISRC6 interface ID.
-
-Emits an {OwnerAdded} event.
-
-[#Account-External-Functions]
-==== External Functions
-
-[.contract-item]
-[[Account-__validate_deploy__]]
-==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252) → felt252++` [.item-kind]#external#
-
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
-See xref:/guides/deployment.adoc[Counterfactual Deployments].
-
-Returns the short string `'VALID'` if valid, otherwise it reverts.
-
-[.contract-item]
-[[Account-__execute__]]
-==== `[.contract-item-name]#++__execute__++#++(ref self: ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+[[AccountComponent-__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
 
 See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
 
 [.contract-item]
-[[Account-__validate__]]
+[[AccountComponent-__validate__]]
 ==== `[.contract-item-name]#++__validate__++#++(self: @ContractState, calls: Array<Call>) → felt252++` [.item-kind]#external#
 
 See xref:ISRC6-\\__validate__[ISRC6::\\__validate__].
 
 [.contract-item]
-[[Account-is_valid_signature]]
+[[AccountComponent-is_valid_signature]]
 ==== `[.contract-item-name]#++is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
 
 See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
 [.contract-item]
-[[Account-supports_interface]]
-==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
-
-See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
-
-[.contract-item]
-[[Account-__validate_declare__]]
+[[AccountComponent-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
 Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
@@ -179,33 +160,69 @@ Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Net
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
-[[Account-set_public_key]]
+[[AccountComponent-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252) → felt252++` [.item-kind]#external#
+
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+See xref:/guides/deployment.adoc[Counterfactual Deployments].
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[AccountComponent-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+
+Returns the current public key of the account.
+
+[.contract-item]
+[[AccountComponent-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
 Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
+[#AccountComponent-camelCase-Support]
+==== camelCase Support
+
 [.contract-item]
-[[Account-get_public_key]]
-==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+[[AccountComponent-isValidSignature]]
+==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
 
-Returns the current public key of the account.
+See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
-[#Account-Internal-Functions]
+[.contract-item]
+[[AccountComponent-getPublicKey]]
+==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → felt252` [.item-kind]#external#
+
+See xref:AccountComponent-get_public_key[get_public_key].
+
+[.contract-item]
+[[AccountComponent-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
+
+See xref:AccountComponent-set_public_key[set_public_key].
+
+[#AccountComponent-Internal-Functions]
 ==== Internal Functions
 
 [.contract-item]
-[[Account-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, _public_key: felt252)++` [.item-kind]#internal#
+[[AccountComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: felt252)++` [.item-kind]#internal#
 
 Initializes the account with the given public key, and registers the ISRC6 interface ID.
 
 Emits an {OwnerAdded} event.
 
 [.contract-item]
-[[Account-validate_transaction]]
-==== `[.contract-item-name]#++validate_transaction++#++(self: @ContractState)++ → felt252` [.item-kind]#internal#
+[[AccountComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ComponentState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
+
+[.contract-item]
+[[AccountComponent-validate_transaction]]
+==== `[.contract-item-name]#++validate_transaction++#++(self: @ComponentState)++ → felt252` [.item-kind]#internal#
 
 Validates a transaction signature from the
 https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/info.cairo#L61[global context].
@@ -213,8 +230,8 @@ https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/info.cair
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
-[[Account-_set_public_key]]
-==== `[.contract-item-name]#++_set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#internal#
+[[AccountComponent-_set_public_key]]
+==== `[.contract-item-name]#++_set_public_key++#++(ref self: ComponentState, new_public_key: felt252)++` [.item-kind]#internal#
 
 Set the public key without validating the caller.
 
@@ -223,28 +240,22 @@ Emits an {OwnerAdded} event.
 CAUTION: The usage of this method outside the `set_public_key` function is discouraged.
 
 [.contract-item]
-[[Account-_is_valid_signature]]
-==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
+[[AccountComponent-_is_valid_signature]]
+==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ComponentState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
 
-Validates the provided `signature` for the `hash`, using the account current public key.
+Validates the provided `signature` for the `hash`, using the account's current public key.
 
-[.contract-item]
-[[Account-assert_only_self]]
-==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
-
-Validates that the caller is the account itself. Otherwise it reverts.
-
-[#Account-Events]
+[#AccountComponent-Events]
 ==== Events
 
 [.contract-item]
-[[Account-OwnerAdded]]
+[[AccountComponent-OwnerAdded]]
 ==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
 
 Emitted when a `public_key` is added.
 
 [.contract-item]
-[[Account-OwnerRemoved]]
+[[AccountComponent-OwnerRemoved]]
 ==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
 
 Emitted when a `public_key` is removed.

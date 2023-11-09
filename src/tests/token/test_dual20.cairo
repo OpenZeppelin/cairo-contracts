@@ -1,18 +1,13 @@
-use openzeppelin::tests::mocks::camel20_mock::CamelERC20Mock;
-use openzeppelin::tests::mocks::erc20_panic::CamelERC20Panic;
-use openzeppelin::tests::mocks::erc20_panic::SnakeERC20Panic;
+use openzeppelin::tests::mocks::erc20_mocks::{CamelERC20Mock, SnakeERC20Mock};
+use openzeppelin::tests::mocks::erc20_mocks::{CamelERC20Panic, SnakeERC20Panic};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::snake20_mock::SnakeERC20Mock;
 use openzeppelin::tests::utils::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::dual20::DualCaseERC20;
-use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
-use openzeppelin::token::erc20::interface::IERC20CamelDispatcher;
-use openzeppelin::token::erc20::interface::IERC20CamelDispatcherTrait;
-use openzeppelin::token::erc20::interface::IERC20Dispatcher;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin::token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
+use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing::set_contract_address;
 

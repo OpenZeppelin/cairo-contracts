@@ -48,7 +48,7 @@ Returns whether the contract has been initialized.
 [[InitializableComponent-initialize]]
 ==== `[.contract-item-name]#++initialize++#++(ref self: ComponentState)++` [.item-kind]#internal#
 
-Ensures the calling function can only be called once.
+Initializes the contract. Can only be called once.
 
 Requirements:
 

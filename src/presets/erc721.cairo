@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (presets/erc721.cairo)
 
-/// # ERC721 Preset Contract
+/// # ERC721 Preset
 ///
 /// The ERC721 preset contract offers a simple batch-mint style mechanism
 /// that can only be executed once upon contract construction.
@@ -11,8 +11,12 @@ mod ERC721 {
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
 
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
@@ -26,25 +30,21 @@ mod ERC721 {
         ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        src5: SRC5Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        erc721: ERC721Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC721Event: ERC721Component::Event,
+        SRC5Event: SRC5Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        ERC721Event: ERC721Component::Event
     }
 
     mod Errors {

@@ -109,7 +109,9 @@ mod ERC721Component {
             self._owner_of(token_id)
         }
 
-        /// Safely transfer ownership of `token_id` from `from` to `to`.
+        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
+        ///
+        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
         /// Requirements:
         ///
@@ -133,7 +135,7 @@ mod ERC721Component {
             self._safe_transfer(from, to, token_id, data);
         }
 
-        /// Transfer ownership of `token_id` from `from` to `to`.
+        /// Transfers ownership of `token_id` from `from` to `to`.
         ///
         /// Requirements:
         ///
@@ -160,7 +162,7 @@ mod ERC721Component {
         /// Requirements:
         ///
         /// - The caller is either an approved operator or the `token_id` owner.
-        /// - `to` cannot be the token owner zero address.
+        /// - `to` cannot be the token owner.
         /// - `token_id` exists.
         ///
         /// Emits an `Approval` event.
@@ -309,7 +311,7 @@ mod ERC721Component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
-        /// This should be used inside the contract's constructor.
+        /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
@@ -435,7 +437,7 @@ mod ERC721Component {
 
         /// Destroys `token_id`. The approval is cleared when the token is burned.
         ///
-        /// This internal function does not check if the sender is authorized
+        /// This internal function does not check if the caller is authorized
         /// to operate on the token.
         ///
         /// Requirements:
@@ -455,14 +457,13 @@ mod ERC721Component {
             self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id });
         }
 
-        /// Safely mints `token_id` and transfers it to `to`.
+        /// Mints `token_id` if `to` is either an account or `IERC721Receiver`.
         ///
-        /// If `to` is not an account contract, `to` must support IERC721Receiver;
-        /// otherwise, the transaction will fail.
+        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
         /// Requirements:
         ///
-        /// - `token_id` exists.
+        /// - `token_id` does not exist.
         /// - `to` is either an account contract or supports the `IERC721Receiver` interface.
         ///
         /// Emits a `Transfer` event.
@@ -479,10 +480,9 @@ mod ERC721Component {
             );
         }
 
-        /// Safely transfers `token_id` token from `from` to `to`.
+        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
         ///
-        /// If `to` is not an account contract, `to` must support IERC721Receiver;
-        /// otherwise, the transaction will fail.
+        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
         /// Requirements:
         ///
@@ -519,7 +519,7 @@ mod ERC721Component {
     }
 
     /// Checks if `to` either is an account contract or has registered support
-    /// for the `IERC721Receiver` interface through SRC-5. The transaction will
+    /// for the `IERC721Receiver` interface through SRC5. The transaction will
     /// fail if both cases are false.
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>

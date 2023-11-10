@@ -21,7 +21,8 @@
 *** xref:/api/erc721.adoc[API Reference]
 // ** xref:erc1155.adoc[ERC1155]
 
-// * xref:security.adoc[Security]
+* xref:security.adoc[Security]
+** xref:/api/security.adoc[API Reference]
 
 * xref:introspection.adoc[Introspection]
 ** xref:/api/introspection.adoc[API Reference]

@@ -41,7 +41,7 @@ fn test_initializer() {
     assert(state.erc20.name() == NAME, 'Should be NAME');
     assert(state.erc20.symbol() == SYMBOL, 'Should be SYMBOL');
     assert(state.erc20.decimals() == DECIMALS, 'Should be DECIMALS');
-    assert(state.erc20.total_supply() == 0, 'Should equalual 0');
+    assert(state.erc20.total_supply() == 0, 'Should equal 0');
 }
 
 //

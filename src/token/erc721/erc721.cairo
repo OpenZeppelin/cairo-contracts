@@ -519,7 +519,7 @@ mod ERC721Component {
     }
 
     /// Checks if `to` either is an account contract or has registered support
-    /// for the `IERC721Receiver` interface through SRC-5. The transaction will
+    /// for the `IERC721Receiver` interface through SRC5. The transaction will
     /// fail if both cases are false.
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>

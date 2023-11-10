@@ -117,7 +117,7 @@ Panics if the contract is paused.
 [[PausableComponent-assert_paused]]
 ==== `[.contract-item-name]#++assert_paused++#++(self: @ComponentState)++` [.item-kind]#internal#
 
-Makes a function only callable when the contract is paused.
+Panics if the contract is not paused.
 
 [.contract-item]
 [[PausableComponent-_pause]]

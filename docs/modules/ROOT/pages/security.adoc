@@ -8,7 +8,7 @@ CAUTION: Expect these modules to evolve.
 
 The xref:api/security.adoc#InitializableComponent[Initializable] component provides a simple mechanism that mimics
 the functionality of a constructor.
-More specifically, it enables logic to be performed once and only once which is useful to set up a contract's initial state when a constructor cannot be used, for example, when there are circular dependencies at construction time.
+More specifically, it enables logic to be performed once and only once which is useful to set up a contract's initial state when a constructor cannot be used, for example when there are circular dependencies at construction time.
 
 You can use the component in your contracts like this:
 

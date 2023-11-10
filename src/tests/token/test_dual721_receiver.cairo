@@ -1,7 +1,5 @@
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
-    CamelERC721ReceiverMock, CamelERC721ReceiverPanicMock
-};
-use openzeppelin::tests::mocks::erc721_receiver_mocks::{
+    CamelERC721ReceiverMock, CamelERC721ReceiverPanicMock,
     SnakeERC721ReceiverMock, SnakeERC721ReceiverPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;

@@ -109,7 +109,7 @@ mod ERC721Component {
             self._owner_of(token_id)
         }
 
-        /// Safely transfer ownership of `token_id` from `from` to `to`.
+        /// Transfer ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
         ///
         /// Requirements:
         ///
@@ -160,7 +160,7 @@ mod ERC721Component {
         /// Requirements:
         ///
         /// - The caller is either an approved operator or the `token_id` owner.
-        /// - `to` cannot be the token owner zero address.
+        /// - `to` cannot be the token owner.
         /// - `token_id` exists.
         ///
         /// Emits an `Approval` event.
@@ -309,7 +309,7 @@ mod ERC721Component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
-        /// This should be used inside the contract's constructor.
+        /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
@@ -435,7 +435,7 @@ mod ERC721Component {
 
         /// Destroys `token_id`. The approval is cleared when the token is burned.
         ///
-        /// This internal function does not check if the sender is authorized
+        /// This internal function does not check if the caller is authorized
         /// to operate on the token.
         ///
         /// Requirements:

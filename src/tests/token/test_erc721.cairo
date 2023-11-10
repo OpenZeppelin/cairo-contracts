@@ -161,7 +161,7 @@ fn test__exists() {
 
     assert(state.erc721._exists(token_id), 'Token should exist');
     owner = state.erc721.ERC721_owners.read(token_id);
-    assert(owner == RECIPIENT(), '');
+    assert(owner == RECIPIENT(), 'Invalid owner');
 
     state.erc721._burn(token_id);
 

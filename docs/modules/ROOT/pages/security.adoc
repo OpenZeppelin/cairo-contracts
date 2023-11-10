@@ -189,5 +189,5 @@ mod MyReentrancyContract {
 }
 ----
 
-NOTE: The guard prevents the execution flow occurring inside `protected_function` to call `another_protected_function`,
-and vice versa.
+NOTE: The guard prevents the execution flow occurring inside `protected_function`
+to call itself or `another_protected_function`, and vice versa.

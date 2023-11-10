@@ -3,8 +3,8 @@
 
 /// # ERC721 Preset
 ///
-/// The ERC721 preset contract offers a simple batch-mint style mechanism
-/// that can only be executed once upon contract construction.
+/// The ERC721 contract offers a batch-mint mechanism that
+/// can only be executed once upon contract construction.
 #[starknet::contract]
 mod ERC721 {
     use openzeppelin::introspection::src5::SRC5Component;

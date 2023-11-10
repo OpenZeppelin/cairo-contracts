@@ -216,11 +216,6 @@ use openzeppelin::token::erc721::ERC721;
 Implementation of ERC721 which includes the IERC721Metadata extension as specified in https://eips.ethereum.org/EIPS/eip-721[EIP-721].
 
 [.contract-index]
-.Constructor
-
-* xref:#ERC721-constructor[`++constructor(self, name, symbol)++`]
-
-[.contract-index]
 .External functions
 --
 .IERC721Impl
@@ -287,19 +282,6 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
-
-==== Constructor
-
-:src5: xref:introspection.adoc#src5[SRC5]
-:ierc721: xref:/api/erc721.adoc#IERC721[IERC721]
-:ierc721metadata: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
-
-[.contract-item]
-[[ERC721-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#constructor#
-
-Initializes the state of the ERC721 contract by setting the token name and symbol.
-The constructor also registers the {ierc721} and {ierc721metadata} interface ids according to {src5}.
 
 ==== External functions
 

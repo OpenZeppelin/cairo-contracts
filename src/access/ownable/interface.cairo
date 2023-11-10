@@ -27,6 +27,7 @@ trait IOwnableTwoStep<TState> {
 
 #[starknet::interface]
 trait IOwnableTwoStepCamelOnly<TState> {
+    fn pendingOwner(self: @TState) -> ContractAddress;
     fn acceptOwnership(ref self: TState);
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);

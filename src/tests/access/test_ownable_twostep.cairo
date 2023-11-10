@@ -132,14 +132,14 @@ fn test_transferOwnership() {
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
     assert(state.ownable.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.ownable.pending_owner() == OTHER(), 'Pending owner should be OTHER');
+    assert(state.ownable.pendingOwner() == OTHER(), 'Pending owner should be OTHER');
 
     // Transferring to yet another owner while pending is set should work
     state.ownable.transferOwnership(NEW_OWNER());
 
     assert_event_ownership_transfer_started(OWNER(), NEW_OWNER());
     assert(state.ownable.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.ownable.pending_owner() == NEW_OWNER(), 'Pending should be NEW_OWNER');
+    assert(state.ownable.pendingOwner() == NEW_OWNER(), 'Pending should be NEW_OWNER');
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn test_acceptOwnership() {
 
     assert_event_ownership_transferred(OWNER(), OTHER());
     assert(state.ownable.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.ownable.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert(state.ownable.pendingOwner() == ZERO(), 'Pending owner should be ZERO');
 }
 
 #[test]

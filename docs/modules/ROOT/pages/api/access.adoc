@@ -177,6 +177,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 .OwnableTwoStepCamelOnlyImpl
 
+* xref:OwnableTwoStepComponent-pendingOwner[`++pendingOwner(self)++`]
 * xref:OwnableTwoStepComponent-acceptOwnership[`++acceptOwnership(self)++`]
 * xref:OwnableTwoStepComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
 * xref:OwnableTwoStepComponent-renounceOwnership[`++renounceOwnership(self)++`]
@@ -250,9 +251,15 @@ thereby removing any functionality that is only available to the owner.
 
 [.contract-item]
 [[OwnableTwoStepComponent-acceptOwnership]]
+==== `[.contract-item-name]#++pendingOwner++#++(self: @ContractState)++` [.item-kind]#external#
+
+See xref:OwnableTwoStepComponent-pending_owner[pending_owner].
+
+[.contract-item]
+[[OwnableTwoStepComponent-acceptOwnership]]
 ==== `[.contract-item-name]#++acceptOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
-See xref:OwnableTwoStepComponent-accept_ownership[transfer_ownership].
+See xref:OwnableTwoStepComponent-accept_ownership[accept_ownership].
 
 [.contract-item]
 [[OwnableTwoStepComponent-transferOwnership]]

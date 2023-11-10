@@ -140,6 +140,10 @@ mod OwnableComponent {
     impl OwnableTwoStepCamelOnly<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableTwoStepCamelOnly<ComponentState<TContractState>> {
+        fn pendingOwner(self: @ComponentState<TContractState>) -> ContractAddress {
+            OwnableTwoStep::pending_owner(self)
+        }
+
         fn acceptOwnership(ref self: ComponentState<TContractState>) {
             self.accept_ownership();
         }

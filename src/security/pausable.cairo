@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/pausable.cairo)
 
-#[starknet::interface]
-trait IPausable<TState> {
-    fn is_paused(self: @TState) -> bool;
-}
-
 /// # Pausable Component
 ///
 /// The Pausable component allows the using contract to implement an
@@ -13,6 +8,8 @@ trait IPausable<TState> {
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 mod PausableComponent {
+    use openzeppelin::security::interface::IPausable;
+
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -48,7 +45,7 @@ mod PausableComponent {
     #[embeddable_as(PausableImpl)]
     impl Pausable<
         TContractState, +HasComponent<TContractState>
-    > of super::IPausable<ComponentState<TContractState>> {
+    > of IPausable<ComponentState<TContractState>> {
         /// Returns true if the contract is paused, and false otherwise.
         fn is_paused(self: @ComponentState<TContractState>) -> bool {
             self.Pausable_paused.read()

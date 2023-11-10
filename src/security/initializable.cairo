@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (security/initializable.cairo)
 
-trait ExternalTrait<TState> {
-    fn is_initialized(self: @TState) -> bool;
-}
-
 /// # Initializable Component
 ///
 /// The Initializable component provides a simple mechanism that executes
@@ -12,6 +8,8 @@ trait ExternalTrait<TState> {
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
 mod InitializableComponent {
+    use openzeppelin::security::interface::IInitializable;
+
     #[storage]
     struct Storage {
         Initializable_initialized: bool
@@ -24,7 +22,7 @@ mod InitializableComponent {
     #[embeddable_as(InitializableImpl)]
     impl Initializable<
         TContractState, +HasComponent<TContractState>
-    > of super::ExternalTrait<ComponentState<TContractState>> {
+    > of IInitializable<ComponentState<TContractState>> {
         /// Returns true if the using contract executed `initialize`.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()

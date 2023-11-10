@@ -7,7 +7,6 @@ mod InitializableMock {
     #[abi(embed_v0)]
     impl InitializableImpl =
         InitializableComponent::InitializableImpl<ContractState>;
-    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {

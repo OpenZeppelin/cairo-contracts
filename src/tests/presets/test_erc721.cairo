@@ -1171,4 +1171,3 @@ fn assert_only_event_transfer(
     assert_event_transfer(contract, from, to, value);
     utils::assert_no_events_left(contract);
 }
-

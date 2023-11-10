@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (presets/erc20.cairo)
 
-/// # ERC20 Preset Contract
+/// # ERC20 Preset
 ///
-/// The ERC20 preset contract offers basic functionality and provides a
+/// The ERC20 contract offers basic functionality and provides a
 /// fixed-supply mechanism for token distribution. The fixed supply is
 /// set in the constructor.
 #[starknet::contract]

@@ -297,6 +297,10 @@ TIP: For information on how to calculate interface IDs, see {computing-interface
 
 ==== Creating a token receiver contract
 
+The Contracts for Cairo `IERC721ReceiverImpl` already returns the correct interface ID for safe token transfers.
+To integrate the `IERC721Receiver` interface into a contract, simply include the ABI embed directive to the implementation and add the `initializer` in the contract's constructor .
+Here's an example of a simple token receiver contract:
+
 [,javascript]
 ----
 #[starknet::contract]

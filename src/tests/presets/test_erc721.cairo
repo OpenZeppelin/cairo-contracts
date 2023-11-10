@@ -9,8 +9,7 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL, DECIMALS, SUPPLY,
-    VALUE
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;

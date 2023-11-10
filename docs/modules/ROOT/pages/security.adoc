@@ -1,6 +1,6 @@
 = Security
 
-The following documentation provides context, reasoning, and examples of modules found in `openzeppelin/security/`.
+The following documentation provides context, reasoning, and examples of modules found under `openzeppelin::security`.
 
 CAUTION: Expect these modules to evolve.
 

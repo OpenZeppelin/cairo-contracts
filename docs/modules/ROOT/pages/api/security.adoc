@@ -151,13 +151,13 @@ Emits an {Unpaused} event.
 [[PausableComponent-Paused]]
 ==== `[.contract-item-name]#++Paused++#++(account: ContractAddress)++` [.item-kind]#event#
 
-Emitted when the pause is triggered by `account`.
+Emitted when the contract is paused by `account`.
 
 [.contract-item]
 [[PausableComponent-Unpaused]]
 ==== `[.contract-item-name]#++Unpaused++#++(account: ContractAddress)++` [.item-kind]#event#
 
-Emitted when the pause is lifted by `account`.
+Emitted when the contract is unpaused by `account`.
 
 == ReentrancyGuard
 
@@ -169,7 +169,7 @@ Emitted when the pause is lifted by `account`.
 use openzeppelin::security::ReentrancyGuardComponent;
 ```
 
-Component to help prevent nested (reentrant) calls.
+Component to help prevent reentrant calls.
 
 [.contract-index]
 .Internal Implementations

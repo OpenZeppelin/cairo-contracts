@@ -157,7 +157,7 @@ Emitted when the contract is paused by `account`.
 [[PausableComponent-Unpaused]]
 ==== `[.contract-item-name]#++Unpaused++#++(account: ContractAddress)++` [.item-kind]#event#
 
-Emitted when the pause is lifted by `account`.
+Emitted when the contract is unpaused by `account`.
 
 == ReentrancyGuard
 

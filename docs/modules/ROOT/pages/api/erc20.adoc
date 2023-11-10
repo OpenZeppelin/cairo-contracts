@@ -482,7 +482,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 use openzeppelin::presets::ERC20;
 ```
 
-Basic ERC20 preset leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
+Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
 
 [.contract-index]
 .Constructor

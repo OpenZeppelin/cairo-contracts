@@ -151,7 +151,7 @@ Emits an {Unpaused} event.
 [[PausableComponent-Paused]]
 ==== `[.contract-item-name]#++Paused++#++(account: ContractAddress)++` [.item-kind]#event#
 
-Emitted when the pause is triggered by `account`.
+Emitted when the contract is paused by `account`.
 
 [.contract-item]
 [[PausableComponent-Unpaused]]

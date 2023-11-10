@@ -19,8 +19,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.3.0 (f306f9a91 2023-10-23)
-cairo: 2.3.0 (https://crates.io/crates/cairo-lang-compiler/2.3.0)
+scarb 2.3.1 (0c8def3aa 2023-10-31)
+cairo: 2.3.1 (https://crates.io/crates/cairo-lang-compiler/2.3.1)
 sierra: 1.3.0
 ----
 
@@ -63,55 +63,54 @@ WARNING: Make sure the tag matches the target release.
 
 == Basic usage
 
-This is how it looks to build an account contract using the xref:accounts.adoc[account] component.
+This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20] module.
 Copy the code into `src/lib.cairo`.
 
 [,javascript]
 ----
 #[starknet::contract]
-mod MyAccount {
-    use openzeppelin::account::AccountComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+mod MyERC20Token {
+    use openzeppelin::token::erc20::ERC20Component;
+    use starknet::ContractAddress;
 
-    component!(path: AccountComponent, storage: account, event: AccountEvent);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
-    /// Account
     #[abi(embed_v0)]
-    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
+    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
-    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
-
-    /// SRC5
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
+    impl SafeAllowanceCamelImpl =
+        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
-        #[substorage(v0)]
-        src5: SRC5Component::Storage
+        erc20: ERC20Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccountEvent: AccountComponent::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event
+        ERC20Event: ERC20Component::Event
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: felt252) {
-        self.account.initializer(public_key);
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        fixed_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, fixed_supply);
     }
 }
 ----

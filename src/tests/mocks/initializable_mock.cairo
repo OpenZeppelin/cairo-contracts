@@ -4,7 +4,9 @@ mod InitializableMock {
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
-    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl InitializableImpl =
+        InitializableComponent::InitializableImpl<ContractState>;
 
     #[storage]
     struct Storage {

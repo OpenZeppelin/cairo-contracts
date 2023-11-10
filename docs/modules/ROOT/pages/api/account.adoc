@@ -270,7 +270,7 @@ Emitted when a `public_key` is removed.
 use openzeppelin::presets::Account;
 ```
 
-Basic Account preset leveraging xref:#AccountComponent[AccountComponent].
+Basic account contract leveraging xref:#AccountComponent[AccountComponent].
 
 [.contract-index]
 .Constructor

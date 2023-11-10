@@ -169,7 +169,7 @@ Emitted when the pause is lifted by `account`.
 use openzeppelin::security::ReentrancyGuardComponent;
 ```
 
-Component to help prevent nested (reentrant) calls.
+Component to help prevent reentrant calls.
 
 [.contract-index]
 .Internal Implementations

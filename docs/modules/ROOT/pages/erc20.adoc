@@ -166,7 +166,7 @@ impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
 
 ==== The storage approach
 
-For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate. 
+For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate.
 
 [,javascript]
 ----

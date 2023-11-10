@@ -102,7 +102,7 @@ Component to implement an emergency stop mechanism.
 [[PausableComponent-is_paused]]
 ==== `[.contract-item-name]#++is_paused++#++(self: @ComponentState)++ → bool` [.item-kind]#external#
 
-Returns whether the contract is currently on pause.
+Returns whether the contract is currently paused.
 
 [#PausableComponent-Internal-Functions]
 ==== Internal Functions

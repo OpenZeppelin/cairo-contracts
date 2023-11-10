@@ -490,7 +490,7 @@ fn test_initializer() {
     assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 
-    assert(state.account.get_public_key() == PUBKEY, 'Should return public key');
+    assert(state.account.get_public_key() == PUBKEY, 'Should return PUBKEY');
 }
 
 #[test]

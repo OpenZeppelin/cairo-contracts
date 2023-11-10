@@ -181,7 +181,7 @@ fn test_isValidSignature_bad_sig() {
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
     assert(dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
-    assert(dispatcher.supports_interface(ISRC6_ID), 'Should implement ISRC5');
+    assert(dispatcher.supports_interface(ISRC6_ID), 'Should implement ISRC6');
     assert(!dispatcher.supports_interface(0x123), 'Should not implement 0x123');
 }
 

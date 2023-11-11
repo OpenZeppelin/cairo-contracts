@@ -154,26 +154,6 @@ Interface for the optional metadata functions in {eip721}.
 * xref:#IERC721Metadata-name[`++name()++`]
 * xref:#IERC721Metadata-owner_of[`++symbol()++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(token_id)++`]
-
-.IERC721
-* xref:#IERC721-balance_of[`++balance_of(account)++`]
-* xref:#IERC721-owner_of[`++owner_of(token_id)++`]
-* xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
-* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
-* xref:#IERC721-approve[`++approve(to, token_id)++`]
-* xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
-* xref:#IERC721-get_approved[`++get_approved(token_id)++`]
-* xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
---
-
-[.contract-index]
-.Events
---
-.IERC721
-
-* xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
-* xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
-* xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
 
 ==== Functions
@@ -232,7 +212,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 [.contract-index]
 .camelCase support
 --
-.ER721CamelImpl
+.ER721CamelOnlyImpl
 * xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
 * xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
@@ -537,7 +517,7 @@ Emits an <<IERC721-Transfer,Transfer>> event.
 
 Requirements:
 
-- `token_id` exists.
+- `token_id` does not already exist.
 - `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]

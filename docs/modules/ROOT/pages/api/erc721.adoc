@@ -39,9 +39,6 @@ Interface of the IERC721 standard as defined in {eip721}.
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
-
-.ISRC5
-* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
 [.contract-index]
@@ -143,8 +140,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 use openzeppelin::token::erc721::interface::IERC721Metadata;
 ```
 
-ERC721 extension that allows your smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
-See {eip721}.
+Interface for the optional metadata functions in {eip721}.
 
 [.contract-index]
 .{inner-src5}
@@ -168,9 +164,6 @@ See {eip721}.
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
-
-.ISRC5
-* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(interface_id)++`]
 --
 
 [.contract-index]
@@ -205,15 +198,17 @@ Returns the Uniform Resource Identifier (URI) as a short string for the `token_i
 If the URI is not set for `token_id`, the return value will be `0`.
 
 [.contract]
-[[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+[[ERC721Component]]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
-use openzeppelin::token::erc721::ERC721;
+use openzeppelin::token::erc721::ERC721Component;
 ```
 
-Implementation of ERC721 which includes the IERC721Metadata extension as specified in https://eips.ethereum.org/EIPS/eip-721[EIP-721].
+ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721Metadata>>.
+
+NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
 [.contract-index]
 .External functions
@@ -227,9 +222,6 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#IERC721-set_approval_for_all[`++set_approval_for_all(self, operator, approved)++`]
 * xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
-
-.ISRC5Impl
-* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supports_interface(self, interface_id)++`]
 
 .IERC721MetadataImpl
 * xref:#IERC721Metadata-name[`++name(self)++`]
@@ -248,9 +240,6 @@ Implementation of ERC721 which includes the IERC721Metadata extension as specifi
 * xref:#ERC721-setApprovalForAll[`++setApprovalForAll(self, operator, approved)++`]
 * xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
 * xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
-
-.SRC5CamelImpl
-* xref:/api/introspection.adoc#ISRC5-supports_interface[`++supportsInterface(self, interfaceId)++`]
 
 .ERC721MetadataCamelOnlyImpl
 * xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
@@ -608,6 +597,8 @@ See <<IERC721-Transfer,Transfer>>.
 ```javascript
 use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```
+
+Interface for any contract that wants to support safe token transfers from ERC721 asset contracts.
 
 [.contract-index]
 .{inner-src5}

@@ -152,7 +152,7 @@ Interface for the optional metadata functions in {eip721}.
 .Functions
 --
 * xref:#IERC721Metadata-name[`++name()++`]
-* xref:#IERC721Metadata-owner_of[`++symbol()++`]
+* xref:#IERC721Metadata-symbol[`++symbol()++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(token_id)++`]
 --
 

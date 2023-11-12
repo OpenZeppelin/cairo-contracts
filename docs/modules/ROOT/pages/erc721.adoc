@@ -43,9 +43,6 @@ trait IERC721ABI {
     fn get_approved(token_id: u256) -> ContractAddress;
     fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool;
 
-    // ISRC5
-    fn supports_interface(interface_id: felt252) -> bool;
-
     // IERC721Metadata
     fn name() -> felt252;
     fn symbol() -> felt252;
@@ -64,9 +61,6 @@ trait IERC721ABI {
     fn setApprovalForAll(operator: ContractAddress, approved: bool);
     fn getApproved(tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
-
-    // ISRC5Camel
-    fn supportsInterface(interfaceId: felt252) -> bool;
 
     // IERC721MetadataCamelOnly
     fn tokenURI(tokenId: u256) -> felt252;

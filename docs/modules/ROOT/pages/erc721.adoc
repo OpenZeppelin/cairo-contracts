@@ -11,19 +11,11 @@ The ERC721 token standard is a specification for {token-types}, or more colloqui
 :compatibility: xref:/erc721.adoc#erc721_compatibility[ERC721 Compatibility]
 :ierc721-interface: xref:/erc721.adoc#ierc721[IERC721]
 :ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
-:isrc5-interface: xref:/erc721.adoc#isrc5[ISRC5]
+:dual-interfaces: xref:interfaces.adoc##dual_interfaces[Dual interfaces]
 
-The following interface represents the full ABI of the Contracts for Cairo ERC721 component.
-The interface includes the IERC721 standard interface, the ISRC5 introspection interface, and the optional IERC721Metadata interface.
-To support older token deployments, as mentioned in Dual interfaces, the ERC721 component also includes implementations of the interface written in camelCase.
-
-ERC721 contracts must implement both the {ierc721-interface} and {isrc5-interface} interfaces in order to have an ERC721-compliant contract.
-Additionally, ERC721 contracts often include {ierc721metadata-interface} interface as well.
-The following preset contract includes all three interfaces and represents the full interface of the `ERC721ABI` module.
-
-WARNING: The {ierc721-interface} and {ierc721metadata-interface} interfaces are approximations of their Ethereum counterparts.
-These approximations include a few notable differences.
-See {compatibility} for more information.
+The following interface represents the full ABI of the Contracts for Cairo `ERC721Component`.
+The interface includes the <<IERC721,IERC721>> standard interface and the optional <<IERC721Metadata,IERC721Metadata>> interface.
+To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
 [,javascript]
 ----
@@ -64,73 +56,6 @@ trait IERC721ABI {
 
     // IERC721MetadataCamelOnly
     fn tokenURI(tokenId: u256) -> felt252;
-}
-----
-
-=== IERC721
-
-The `IERC721` interface provides basic functionality to track, transfer, and consign NFTs.
-
-[,javascript]
-----
-trait IERC721 {
-    fn balance_of(account: ContractAddress) -> u256;
-    fn owner_of(token_id: u256) -> ContractAddress;
-    fn safe_transfer_from(
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    );
-    fn transfer_from(
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256
-    );
-    fn approve(to: ContractAddress, token_id: u256);
-    fn set_approval_for_all(
-        operator: ContractAddress,
-        approved: bool
-    );
-    fn get_approved(token_id: u256) -> ContractAddress;
-    fn is_approved_for_all(
-        owner: ContractAddress, operator: ContractAddress
-    ) -> bool;
-}
-----
-
-=== ISRC5
-
-:introspection: xref:/introspection.adoc[Introspection]
-:snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
-:eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
-
-`ISRC5`, from the {snip5} standard, allows for other contracts to query if the implementing contract supports a specific interface.
-This is especially important with NFT contracts because if an NFT is transferred to a contract that does not support the `IERC721Receiver` interface, the NFT may be lost forever.
-To mitigate this risk, the `ISRC5` interface allows for interface introspection which helps facilitate safe token transfers.
-
-TIP: `ISRC5` is very similar to Ethereum's {eip165}.
-It's imperative to understand the introspection mechanism to avoid making drastic errors.
-See {introspection}.
-
-[,javascript]
-----
-trait ISRC5 {
-    fn supports_interface(interface_id: felt252) -> bool;
-}
-----
-
-=== IERC721Metadata
-
-The `ERC721Metadata` extension allows a smart contract to be interrogated for its name and for details about the assets which the NFTs represent.
-The vast majority of NFT contracts include this interface.
-
-[,javascript]
-----
-trait IERC721Metadata {
-    fn name() -> felt252;
-    fn symbol() -> felt252;
-    fn token_uri(token_id: u256) -> felt252;
 }
 ----
 

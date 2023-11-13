@@ -91,7 +91,7 @@ The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 
 :mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
 
-Using Contracts for Cairo, constructing an ERC721 contract requires integrating the components and setting up the constructor.
+Using Contracts for Cairo, constructing an ERC721 contract requires integrating both the ERC721 and SRC5 components and setting up the constructor.
 Here's an example of a basic contract:
 
 [,javascript]

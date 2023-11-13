@@ -368,16 +368,16 @@ See <<IERC721-balance_of,IERC721::balance_of>>.
 See <<IERC721-owner_of,IERC721::owner_of>>.
 
 [.contract-item]
-[[ERC721-transferFrom]]
-==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256)++` [.item-kind]#external#
-
-See <<IERC721-transfer_from,IERC721::transfer_from>>.
-
-[.contract-item]
 [[ERC721-safeTransferFrom]]
 ==== `[.contract-item-name]#++safeTransferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>)++` [.item-kind]#external#
 
 See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+[.contract-item]
+[[ERC721-transferFrom]]
+==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256)++` [.item-kind]#external#
+
+See <<IERC721-transfer_from,IERC721::transfer_from>>.
 
 [.contract-item]
 [[ERC721-setApprovalForAll]]

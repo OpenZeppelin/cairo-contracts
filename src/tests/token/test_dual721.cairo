@@ -1,20 +1,17 @@
-use openzeppelin::tests::mocks::camel721_mock::CamelERC721Mock;
-use openzeppelin::tests::mocks::erc721_panic_mock::CamelERC721PanicMock;
-use openzeppelin::tests::mocks::erc721_panic_mock::SnakeERC721PanicMock;
-use openzeppelin::tests::mocks::erc721_receiver::ERC721Receiver;
+use openzeppelin::tests::mocks::erc721_mocks::{CamelERC721Mock, SnakeERC721Mock};
+use openzeppelin::tests::mocks::erc721_mocks::{CamelERC721PanicMock, SnakeERC721PanicMock};
+use openzeppelin::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::snake721_mock::SnakeERC721Mock;
 use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::dual721::DualCaseERC721;
-use openzeppelin::token::erc721::dual721::DualCaseERC721Trait;
-use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcher;
-use openzeppelin::token::erc721::interface::IERC721CamelOnlyDispatcherTrait;
-use openzeppelin::token::erc721::interface::IERC721Dispatcher;
-use openzeppelin::token::erc721::interface::IERC721DispatcherTrait;
+use openzeppelin::token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
 use openzeppelin::token::erc721::interface::IERC721_ID;
+use openzeppelin::token::erc721::interface::{
+    IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
+};
+use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
@@ -28,6 +25,7 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
     set_contract_address(OWNER());
@@ -39,6 +37,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
+    calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(URI);
     set_contract_address(OWNER());
@@ -65,7 +64,7 @@ fn setup_erc721_panic() -> (DualCaseERC721, DualCaseERC721) {
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(ERC721Receiver::TEST_CLASS_HASH, array![])
+    utils::deploy(DualCaseERC721ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 //

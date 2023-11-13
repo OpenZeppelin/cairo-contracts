@@ -522,7 +522,7 @@ Requirements:
 [[ERC721-_safe_transfer]]
 ==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+Internal function that transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
 
@@ -541,7 +541,7 @@ Requirements:
 [[ERC721-_set_token_uri]]
 ==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: felt252)++` [.item-kind]#internal#
 
-Sets the `token_uri` of `token_id`.
+Internal function that sets the `token_uri` of `token_id`.
 
 Requirements:
 

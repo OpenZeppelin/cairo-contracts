@@ -67,7 +67,7 @@ Returns the owner address of `token_id`.
 [[IERC721-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
 
-Safely transfer ownership of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC721 protocol to prevent tokens being locked forever.
+Transfer ownership of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC721 protocol to prevent tokens being locked forever.
 For information regarding how contracts communicate their awareness of the ERC721 protocol, see {receiving-tokens}.
     
 Emits a <<IERC721-Transfer,Transfer>> event.
@@ -467,8 +467,6 @@ Requirements:
 [[ERC721-_mint]]
 ==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
-WARNING: Usage of this method is discouraged, use <<IERC721-_safe_mint,_safe_mint>> whenever possible.
-
 Internal function that mints `token_id` and transfers it to `to`.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
@@ -510,7 +508,7 @@ Requirements:
 [[ERC721-_safe_mint]]
 ==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Internal function that safely mints `token_id` and transfers it to `to`.
+Internal function that mints `token_id` and transfers it to `to`.
 If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
 
 Emits an <<IERC721-Transfer,Transfer>> event.
@@ -524,7 +522,7 @@ Requirements:
 [[ERC721-_safe_transfer]]
 ==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Safely transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+Transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
 

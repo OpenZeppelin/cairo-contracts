@@ -23,6 +23,7 @@
 ** xref:/api/security.adoc[API Reference]
 
 * xref:introspection.adoc[Introspection]
+** xref:/guides/src5-migration.adoc[SRC5 Migration]
 ** xref:/api/introspection.adoc[API Reference]
 
 // * xref:udc.adoc[Universal Deployer Contract]

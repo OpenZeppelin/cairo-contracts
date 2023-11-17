@@ -1,0 +1,69 @@
+= SRC5 Migration
+
+== Migrating to SRC5
+
+WARNING: Thoroughly test the process with the target contracts before performing the migration.
+
+This guide is for already-deployed, upgradeable contracts that support ERC165.
+Migrating to SRC5 requires integrating `SRC5Component` and `UpgradeableComponent`.
+The migration also requires re-registering interface support.
+The following template assumes that the upgradeable mechanism uses the `upgrade` selector:
+
+[,javascript]
+----
+#[starknet::contract]
+
+#[starknet::contract]
+mod MigratingContract {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use starknet::ClassHash;
+    use starknet::ContractAddress;
+
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5CamelOnlyImpl = SRC5Component::SRC5CamelImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+
+    // Upgradeable
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        UpgradeableEvent: UpgradeableComponent::Event
+    }
+
+    #[external(v0)]
+    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+        // Add permissions mechanism
+        self.upgradeable._upgrade(new_class_hash);
+    }
+
+    // The rest of the contract logic
+}
+
+----
+
+Please keep in mind that the SRC5 interface IDs are calculated differently than those in ERC165.
+Contracts that leverage introspection like ERC721 will also need to be upgraded in order to query the correct interface ID.
+
+Deployed contracts with upgradeability should also be carefully tested before migrating.
+Upgradeable contracts will likely include some form of a permissions mechanism for upgrading contracts.
+Take extreme care with ensuring admins are not inadvertantly stripped of their permissions.

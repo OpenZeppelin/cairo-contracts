@@ -71,7 +71,7 @@ mod MigratingContract {
 }
 ----
 
-The contract will also need to register the interface ID values in order to continue declaring support for those interfaces.
+The contract will also need to register the new SRC5 interface IDs in order to continue declaring support for those interfaces.
 We can create a migration initializer to handle this which needs to be called after the contract upgrade.
 
 TIP: OpenZeppelin's Contracts for Cairo already provides the interface IDs of common interfaces in the API section (like {isrc6}).
@@ -85,30 +85,13 @@ mod MigratingContract {
     (...)
 
     #[external(v0)]
-    fn initialize_src5_migration(ref self: ContractState, interface_ids: Span<felt252>) {
+    fn migration_initializer(ref self: ContractState, interface_ids: Span<felt252>) {
         // Add permissions mechanism
-        self.register_interfaces(interface_ids);
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn register_interfaces(ref self: ContractState, mut interface_ids: Span<felt252>) {
-            loop {
-                if interface_ids.len() == 0 {
-                    break;
-                }
-
-                let id = *interface_ids.pop_front().unwrap();
-                self.src5.register_interface(id);
-            }
-        }
+        self.src5.register_interfaces(interface_ids);
     }
 }
 ----
 
-Note that SRC5 interface IDs are calculated differently than those in ERC165.
-Because of this, contracts that leverage introspection (like ERC721) will also need to be upgraded in order to query the correct interface IDs.
-
-Deployed contracts with upgradeability should also be carefully tested before migrating.
+Note that deployed contracts with upgradeability should also be carefully tested before migrating.
 Upgradeable contracts will likely include some form of a permissions mechanism for upgrading contracts.
 Take extreme care with ensuring admins are not inadvertantly stripped of their permissions.

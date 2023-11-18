@@ -50,6 +50,18 @@ mod SRC5Component {
             self.SRC5_supported_interfaces.write(interface_id, true);
         }
 
+        // Registers the given interfaces as supported by the contract.
+        fn register_interfaces(ref self: ComponentState<TContractState>, mut interface_ids: Span<felt252>) {
+            loop {
+                if interface_ids.len() == 0 {
+                    break;
+                }
+
+                let id = *interface_ids.pop_front().unwrap();
+                self.register_interface(id);
+            }
+        }
+
         /// Deregisters the given interface as supported by the contract.
         fn deregister_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);

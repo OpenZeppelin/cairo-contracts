@@ -1,18 +1,29 @@
 = SRC5 Migration
 
+:eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
+:snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
+:dual-interface-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/640[Dual Introspection Detection]
+:shamans-proposal: https://community.starknet.io/t/starknet-standard-interface-detection/92664[Starknet Shamans proposal]
+
+In the smart contract ecosystem, having the ability to query if a contract supports a given interface is an extremely important feature.
+The initial introspection design in Cairo v0 followed Ethereum's {eip165}.
+Since the language evolved and acquired some stability, we're now migrating to the {snip5} standard for introspection.
+SNIP-5 allows interface ID calculations to use Cairo types and the Starknet keccak (`sn_keccak`) function.
+For more information on the decision, see the {shamans-proposal} or the {dual-interface-discussion} discussion.
+
 == Migrating to SRC5
 
-WARNING: Thoroughly test the process with the target contracts before performing the migration.
+:src5-component: xref:api/introspection#SRC5Component[SRC5Component]
+:upgradeable-component: xref:api/upgrades#UpgradeableComponent[UpgradeableComponent]
+:isrc6: xref:api/account.adoc#ISRC6[ISRC6]
+:src5-rs: https://github.com/ericnordelo/src5-rs[src5-rs]
 
 This guide is for already-deployed, upgradeable contracts that support ERC165.
-Migrating to SRC5 requires integrating `SRC5Component` and `UpgradeableComponent`.
-The migration also requires re-registering interface support.
+Migrating to SRC5 requires integrating {src5-component} and {upgradeable-component}.
 The following template assumes that the upgradeable mechanism uses the `upgrade` selector:
 
 [,javascript]
 ----
-#[starknet::contract]
-
 #[starknet::contract]
 mod MigratingContract {
     use openzeppelin::introspection::src5::SRC5Component;
@@ -58,11 +69,45 @@ mod MigratingContract {
 
     // The rest of the contract logic
 }
-
 ----
 
-Please keep in mind that the SRC5 interface IDs are calculated differently than those in ERC165.
-Contracts that leverage introspection like ERC721 will also need to be upgraded in order to query the correct interface ID.
+The contract will also need to register the interface ID values in order to continue declaring support for those interfaces.
+We can create a migration initializer to handle this which needs to be called after the contract upgrade.
+
+TIP: OpenZeppelin's Contracts for Cairo already provides the interface IDs of common interfaces in the API section (like {isrc6}).
+For interfaces not provided, tools such as {src5-rs} can help with interface ID calculation.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MigratingContract {
+
+    (...)
+
+    #[external(v0)]
+    fn initialize_src5_migration(ref self: ContractState, interface_ids: Span<felt252>) {
+        // Add permissions mechanism
+        self.register_interfaces(interface_ids);
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn register_interfaces(ref self: ContractState, mut interface_ids: Span<felt252>) {
+            loop {
+                if interface_ids.len() == 0 {
+                    break;
+                }
+
+                let id = *interface_ids.pop_front().unwrap();
+                self.src5.register_interface(id);
+            }
+        }
+    }
+}
+----
+
+Note that SRC5 interface IDs are calculated differently than those in ERC165.
+Because of this, contracts that leverage introspection (like ERC721) will also need to be upgraded in order to query the correct interface IDs.
 
 Deployed contracts with upgradeability should also be carefully tested before migrating.
 Upgradeable contracts will likely include some form of a permissions mechanism for upgrading contracts.

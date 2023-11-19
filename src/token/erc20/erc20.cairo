@@ -83,8 +83,7 @@ mod ERC20Component {
         /// Returns the remaining number of tokens that `spender` is
         /// allowed to spend on behalf of `owner` through `transfer_from`.
         /// This is zero by default.
-        /// This value changes when `approve` or `transfer_from`
-        /// are called.
+        /// This value changes when `approve` or `transfer_from` are called.
         fn allowance(
             self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
         ) -> u256 {
@@ -92,6 +91,12 @@ mod ERC20Component {
         }
 
         /// Moves `amount` tokens from the caller's token balance to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - `recipient` is not the zero address.
+        /// - The caller must have a balance of at least `amount`.
+        ///
         /// Emits a `Transfer` event.
         fn transfer(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
@@ -103,6 +108,14 @@ mod ERC20Component {
 
         /// Moves `amount` tokens from `from` to `to` using the allowance mechanism.
         /// `amount` is then deducted from the caller's allowance.
+        ///
+        /// Requirements:
+        ///
+        /// - `sender` is not the zero address.
+        /// - `sender` must have a balance of at least `amount`.
+        /// - `recipient` is not the zero address.
+        /// - The caller must have an allowance of `sender`'s tokens of at least `amount`.
+        ///
         /// Emits a `Transfer` event.
         fn transfer_from(
             ref self: ComponentState<TContractState>,
@@ -117,6 +130,10 @@ mod ERC20Component {
         }
 
         /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` is not the zero address.
         fn approve(
             ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
         ) -> bool {
@@ -151,6 +168,11 @@ mod ERC20Component {
         TContractState, +HasComponent<TContractState>
     > of interface::ISafeAllowance<ComponentState<TContractState>> {
         /// Increases the allowance granted from the caller to `spender` by `added_value`.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` is not the zero address.
+        ///
         /// Emits an `Approval` event indicating the updated allowance.
         fn increase_allowance(
             ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
@@ -159,6 +181,11 @@ mod ERC20Component {
         }
 
         /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` is not the zero address.
+        ///
         /// Emits an `Approval` event indicating the updated allowance.
         fn decrease_allowance(
             ref self: ComponentState<TContractState>,
@@ -228,6 +255,12 @@ mod ERC20Component {
         }
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - `sender` is not the zero address.
+        /// - `recipient` is not the zero address.
+        ///
         /// Emits a `Transfer` event.
         fn _transfer(
             ref self: ComponentState<TContractState>,
@@ -244,6 +277,12 @@ mod ERC20Component {
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
         /// `owner`s tokens.
+        ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
+        /// - `spender` is not the zero address.
+        ///
         /// Emits an `Approval` event.
         fn _approve(
             ref self: ComponentState<TContractState>,
@@ -258,6 +297,11 @@ mod ERC20Component {
         }
 
         /// Creates a `value` amount of tokens and assigns them to `account`.
+        ///
+        /// Requirements:
+        ///
+        /// - `recipient` is not the zero address.
+        ///
         /// Emits a `Transfer` event with `from` set to the zero address.
         fn _mint(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
@@ -269,6 +313,11 @@ mod ERC20Component {
         }
 
         /// Destroys a `value` amount of tokens from `account`.
+        ///
+        /// Requirements:
+        ///
+        /// - `account` is not the zero address.
+        ///
         /// Emits a `Transfer` event with `to` set to the zero address.
         fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);

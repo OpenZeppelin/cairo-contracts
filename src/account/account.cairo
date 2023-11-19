@@ -56,6 +56,11 @@ mod AccountComponent {
         +Drop<TContractState>
     > of interface::ISRC6<ComponentState<TContractState>> {
         /// Executes a list of calls from the account.
+        ///
+        /// Requirements:
+        ///
+        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions,
+        /// otherwise, the version must be `QUERY_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -140,6 +145,10 @@ mod AccountComponent {
         }
 
         /// Sets the public key of the account to `new_public_key`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
         fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
             self.assert_only_self();
             self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });

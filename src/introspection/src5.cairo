@@ -51,6 +51,10 @@ mod SRC5Component {
         }
 
         /// Deregisters the given interface as supported by the contract.
+        ///
+        /// Requirements:
+        ///
+        /// - `interface_id` is not `ISRC5_ID`
         fn deregister_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
             self.SRC5_supported_interfaces.write(interface_id, false);

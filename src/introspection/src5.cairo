@@ -51,7 +51,9 @@ mod SRC5Component {
         }
 
         // Registers the given interfaces as supported by the contract.
-        fn register_interfaces(ref self: ComponentState<TContractState>, mut interface_ids: Span<felt252>) {
+        fn register_interfaces(
+            ref self: ComponentState<TContractState>, mut interface_ids: Span<felt252>
+        ) {
             loop {
                 if interface_ids.len() == 0 {
                     break;

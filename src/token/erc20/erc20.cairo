@@ -95,7 +95,7 @@ mod ERC20Component {
         /// Requirements:
         ///
         /// - `recipient` is not the zero address.
-        /// - The caller must have a balance of at least `amount`.
+        /// - The caller has a balance of at least `amount`.
         ///
         /// Emits a `Transfer` event.
         fn transfer(
@@ -114,7 +114,7 @@ mod ERC20Component {
         /// - `sender` is not the zero address.
         /// - `sender` must have a balance of at least `amount`.
         /// - `recipient` is not the zero address.
-        /// - The caller must have an allowance of `sender`'s tokens of at least `amount`.
+        /// - The caller has an allowance of `sender`'s tokens of at least `amount`.
         ///
         /// Emits a `Transfer` event.
         fn transfer_from(
@@ -134,6 +134,8 @@ mod ERC20Component {
         /// Requirements:
         ///
         /// - `spender` is not the zero address.
+        ///
+        /// Emits an `Approval` event.
         fn approve(
             ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
         ) -> bool {

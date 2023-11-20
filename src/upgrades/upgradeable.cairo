@@ -35,7 +35,7 @@ mod UpgradeableComponent {
         ///
         /// Requirements:
         ///
-        /// - `new_class_hash` cannot be the zero address.
+        /// - `new_class_hash` is not the zero address.
         ///
         /// Emits an `Upgraded` event.
         fn _upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {

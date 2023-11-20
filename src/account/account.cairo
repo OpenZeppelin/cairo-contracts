@@ -149,6 +149,8 @@ mod AccountComponent {
         /// Requirements:
         ///
         /// - The caller must be the contract itself.
+        ///
+        /// Emits an `OwnerRemoved` event.
         fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
             self.assert_only_self();
             self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
@@ -222,6 +224,8 @@ mod AccountComponent {
 
         /// Sets the public key without validating the caller.
         /// The usage of this method outside the `set_public_key` function is discouraged.
+        ///
+        /// Emits an `OwnerAdded` event.
         fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
             self.Account_public_key.write(new_public_key);
             self.emit(OwnerAdded { new_owner_guid: new_public_key });

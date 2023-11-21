@@ -38,10 +38,10 @@ fn test_initializer() {
     let mut state = STATE();
     state.erc20.initializer(NAME, SYMBOL);
 
-    assert(state.erc20.name() == NAME, 'Name should be NAME');
-    assert(state.erc20.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(state.erc20.decimals() == DECIMALS, 'Decimals should be 18');
-    assert(state.erc20.total_supply() == 0, 'Supply should eq 0');
+    assert(state.erc20.name() == NAME, 'Should be NAME');
+    assert(state.erc20.symbol() == SYMBOL, 'Should be SYMBOL');
+    assert(state.erc20.decimals() == DECIMALS, 'Should be DECIMALS');
+    assert(state.erc20.total_supply() == 0, 'Should equal 0');
 }
 
 //
@@ -53,7 +53,7 @@ fn test_initializer() {
 fn test_total_supply() {
     let mut state = STATE();
     state.erc20._mint(OWNER(), SUPPLY);
-    assert(state.erc20.total_supply() == SUPPLY, 'Should eq SUPPLY');
+    assert(state.erc20.total_supply() == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn test_total_supply() {
 fn test_totalSupply() {
     let mut state = STATE();
     state.erc20._mint(OWNER(), SUPPLY);
-    assert(state.erc20.totalSupply() == SUPPLY, 'Should eq SUPPLY');
+    assert(state.erc20.totalSupply() == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn test_totalSupply() {
 fn test_balance_of() {
     let mut state = STATE();
     state.erc20._mint(OWNER(), SUPPLY);
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY, 'Should eq SUPPLY');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn test_balance_of() {
 fn test_balanceOf() {
     let mut state = STATE();
     state.erc20._mint(OWNER(), SUPPLY);
-    assert(state.erc20.balanceOf(OWNER()) == SUPPLY, 'Should eq SUPPLY');
+    assert(state.erc20.balanceOf(OWNER()) == SUPPLY, 'Should equal SUPPLY');
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn test_allowance() {
     testing::set_caller_address(OWNER());
     state.erc20.approve(SPENDER(), VALUE);
 
-    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Should eq VALUE');
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
 }
 
 //
@@ -119,7 +119,7 @@ fn test_approve_from_zero() {
 fn test_approve_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20.approve(Zeroable::zero(), VALUE);
+    state.erc20.approve(ZERO(), VALUE);
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn test__approve() {
 #[should_panic(expected: ('ERC20: approve from 0',))]
 fn test__approve_from_zero() {
     let mut state = setup();
-    state.erc20._approve(Zeroable::zero(), SPENDER(), VALUE);
+    state.erc20._approve(ZERO(), SPENDER(), VALUE);
 }
 
 #[test]
@@ -147,7 +147,7 @@ fn test__approve_from_zero() {
 fn test__approve_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20._approve(OWNER(), Zeroable::zero(), VALUE);
+    state.erc20._approve(OWNER(), ZERO(), VALUE);
 }
 
 //
@@ -162,9 +162,37 @@ fn test_transfer() {
     assert(state.erc20.transfer(RECIPIENT(), VALUE), 'Should return true');
 
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
-    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Balance should eq VALUE');
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - VALUE');
+    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
     assert(state.erc20.total_supply() == SUPPLY, 'Total supply should not change');
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('u256_sub Overflow',))]
+fn test_transfer_not_enough_balance() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+
+    let balance_plus_one = SUPPLY + 1;
+    state.erc20.transfer(RECIPIENT(), balance_plus_one);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC20: transfer from 0',))]
+fn test_transfer_from_zero() {
+    let mut state = setup();
+    state.erc20.transfer(RECIPIENT(), VALUE);
+}
+
+#[test]
+#[available_gas(2000000)]
+#[should_panic(expected: ('ERC20: transfer to 0',))]
+fn test_transfer_to_zero() {
+    let mut state = setup();
+    testing::set_caller_address(OWNER());
+    state.erc20.transfer(ZERO(), VALUE);
 }
 
 #[test]
@@ -175,8 +203,8 @@ fn test__transfer() {
     state.erc20._transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
-    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Balance should eq amount');
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
+    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
     assert(state.erc20.total_supply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -196,7 +224,7 @@ fn test__transfer_not_enough_balance() {
 #[should_panic(expected: ('ERC20: transfer from 0',))]
 fn test__transfer_from_zero() {
     let mut state = setup();
-    state.erc20._transfer(Zeroable::zero(), RECIPIENT(), VALUE);
+    state.erc20._transfer(ZERO(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -204,7 +232,7 @@ fn test__transfer_from_zero() {
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
-    state.erc20._transfer(OWNER(), Zeroable::zero(), VALUE);
+    state.erc20._transfer(OWNER(), ZERO(), VALUE);
 }
 
 //
@@ -225,9 +253,9 @@ fn test_transfer_from() {
     assert_event_approval(OWNER(), SPENDER(), 0);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
-    assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
+    assert(state.erc20.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
     assert(state.erc20.total_supply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -269,7 +297,7 @@ fn test_transfer_from_to_zero_address() {
     state.erc20.approve(SPENDER(), VALUE);
 
     testing::set_caller_address(SPENDER());
-    state.erc20.transfer_from(OWNER(), Zeroable::zero(), VALUE);
+    state.erc20.transfer_from(OWNER(), ZERO(), VALUE);
 }
 
 #[test]
@@ -277,7 +305,7 @@ fn test_transfer_from_to_zero_address() {
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
-    state.erc20.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);
+    state.erc20.transfer_from(ZERO(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -294,9 +322,9 @@ fn test_transferFrom() {
     assert_event_approval(OWNER(), SPENDER(), 0);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.erc20.balanceOf(RECIPIENT()) == VALUE, 'Should eq amount');
-    assert(state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
-    assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should eq 0');
+    assert(state.erc20.balanceOf(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert(state.erc20.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
     assert(state.erc20.totalSupply() == SUPPLY, 'Total supply should not change');
 }
 
@@ -338,7 +366,7 @@ fn test_transferFrom_to_zero_address() {
     state.erc20.approve(SPENDER(), VALUE);
 
     testing::set_caller_address(SPENDER());
-    state.erc20.transferFrom(OWNER(), Zeroable::zero(), VALUE);
+    state.erc20.transferFrom(OWNER(), ZERO(), VALUE);
 }
 
 #[test]
@@ -346,7 +374,7 @@ fn test_transferFrom_to_zero_address() {
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transferFrom_from_zero_address() {
     let mut state = setup();
-    state.erc20.transferFrom(Zeroable::zero(), RECIPIENT(), VALUE);
+    state.erc20.transferFrom(ZERO(), RECIPIENT(), VALUE);
 }
 
 //
@@ -364,7 +392,7 @@ fn test_increase_allowance() {
     assert(state.erc20.increase_allowance(SPENDER(), VALUE), 'Should return true');
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE * 2);
-    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should equal VALUE * 2');
 }
 
 #[test]
@@ -373,7 +401,7 @@ fn test_increase_allowance() {
 fn test_increase_allowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20.increase_allowance(Zeroable::zero(), VALUE);
+    state.erc20.increase_allowance(ZERO(), VALUE);
 }
 
 #[test]
@@ -395,7 +423,7 @@ fn test_increaseAllowance() {
     assert(state.erc20.increaseAllowance(SPENDER(), VALUE), 'Should return true');
 
     assert_only_event_approval(OWNER(), SPENDER(), 2 * VALUE);
-    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
+    assert(state.erc20.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should equal VALUE * 2');
 }
 
 #[test]
@@ -404,7 +432,7 @@ fn test_increaseAllowance() {
 fn test_increaseAllowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20.increaseAllowance(Zeroable::zero(), VALUE);
+    state.erc20.increaseAllowance(ZERO(), VALUE);
 }
 
 #[test]
@@ -439,7 +467,7 @@ fn test_decrease_allowance() {
 fn test_decrease_allowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20.decrease_allowance(Zeroable::zero(), VALUE);
+    state.erc20.decrease_allowance(ZERO(), VALUE);
 }
 
 #[test]
@@ -470,7 +498,7 @@ fn test_decreaseAllowance() {
 fn test_decreaseAllowance_to_zero_address() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    state.erc20.decreaseAllowance(Zeroable::zero(), VALUE);
+    state.erc20.decreaseAllowance(ZERO(), VALUE);
 }
 
 #[test]
@@ -497,7 +525,7 @@ fn test__spend_allowance_not_unlimited() {
 
     assert_only_event_approval(OWNER(), SPENDER(), SUPPLY - VALUE);
     assert(
-        state.erc20.allowance(OWNER(), SPENDER()) == SUPPLY - VALUE, 'Should eq supply - amount'
+        state.erc20.allowance(OWNER(), SPENDER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE'
     );
 }
 
@@ -527,8 +555,8 @@ fn test__mint() {
     state.erc20._mint(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), OWNER(), VALUE);
-    assert(state.erc20.balance_of(OWNER()) == VALUE, 'Should eq amount');
-    assert(state.erc20.total_supply() == VALUE, 'Should eq total supply');
+    assert(state.erc20.balance_of(OWNER()) == VALUE, 'Should equal VALUE');
+    assert(state.erc20.total_supply() == VALUE, 'Should equal VALUE');
 }
 
 #[test]
@@ -536,7 +564,7 @@ fn test__mint() {
 #[should_panic(expected: ('ERC20: mint to 0',))]
 fn test__mint_to_zero() {
     let mut state = STATE();
-    state.erc20._mint(Zeroable::zero(), VALUE);
+    state.erc20._mint(ZERO(), VALUE);
 }
 
 //
@@ -550,8 +578,8 @@ fn test__burn() {
     state.erc20._burn(OWNER(), VALUE);
 
     assert_only_event_transfer(OWNER(), ZERO(), VALUE);
-    assert(state.erc20.total_supply() == SUPPLY - VALUE, 'Should eq supply - amount');
-    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should eq supply - amount');
+    assert(state.erc20.total_supply() == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+    assert(state.erc20.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
 }
 
 #[test]
@@ -559,7 +587,7 @@ fn test__burn() {
 #[should_panic(expected: ('ERC20: burn from 0',))]
 fn test__burn_from_zero() {
     let mut state = setup();
-    state.erc20._burn(Zeroable::zero(), VALUE);
+    state.erc20._burn(ZERO(), VALUE);
 }
 
 //

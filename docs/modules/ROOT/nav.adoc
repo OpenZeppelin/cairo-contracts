@@ -1,6 +1,6 @@
 * xref:index.adoc[Overview]
 //* xref:wizard.adoc[Wizard]
-//* xref:extensibility.adoc[Extensibility]
+* xref:extensibility.adoc[Extensibility]
 * xref:interfaces.adoc[Interfaces and Dispatchers]
 * xref:upgrades.adoc[Upgrades]
 ** xref:/api/upgrades.adoc[API Reference]

@@ -58,14 +58,7 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
 
 fn setup_dispatcher() -> ERC721ABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
-    let mut tokens_len = TOKENS_LEN;
-    loop {
-        if tokens_len == 0 {
-            break;
-        }
-        utils::drop_event(dispatcher.contract_address);
-        tokens_len -= 1;
-    };
+    utils::drop_events(dispatcher.contract_address, TOKENS_LEN.try_into().unwrap());
     dispatcher
 }
 

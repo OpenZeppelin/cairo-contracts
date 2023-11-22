@@ -53,3 +53,14 @@ fn assert_no_events_left(address: ContractAddress) {
 fn drop_event(address: ContractAddress) {
     testing::pop_log_raw(address);
 }
+
+fn drop_events(address: ContractAddress, count: felt252) {
+    let mut _count = count;
+    loop {
+        if _count == 0 {
+            break;
+        }
+        drop_event(address);
+        _count -= 1;
+    }
+}

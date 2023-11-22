@@ -16,9 +16,64 @@ Another way to think of components is that they are abstract modules that must b
 
 == Integrating components
 
-
 Component integration requires the following steps:
 
-1. Declare the component with `component!`
-2. Add the component's storage and events to the contract's `Storage` and `Event` types.
-3. Bring the requisite implementations into scope
+1. Declare the component with `component!` macro.
+2. Add the requisite implementations and (if applicable) embed the external implementations.
+3. Add the component's storage and events to the contract's `Storage` and `Event` types.
+
+In order to integrate a component into a contract, 
+
+=== Setup
+
+Integrating components into a contract must include the following:
+
+1. Declare the component with the `component!` macro.
+2. Add the requisite implementations and (if applicable) add the embed macro for external implementations.
+3. Add the component's storage and events to the contract's `Storage` and `Event` types.
+
+Let's start with declaring the component with the `component!` macro:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    // Import the Contracts for Cairo component
+    use openzeppelin::access::ownable::OwnableComponent;
+    use starknet::ContractAddress;
+
+    // Declare the component
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+}
+----
+
+The `path` argument should be the imported component itself (in this case, `OwnableComponent`).
+Notice that the `storage` and `event` arguments are actually defined within the macro.
+In other words, the `ownable` and `OwnableEvent` names follow Contracts for Cairo convention, but they can be renamed.
+
+Next, we need to add the implementations from the component:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+
+    (...)
+
+    // Methods within these `impl`s are exposed
+    #[abi(embed_v0)]
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl OwnableCamelOnlyImpl =
+        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    
+    // Methods within this `impl` are accessible only by the contract
+    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
+}
+----
+
+The local `impl`s of the component's `impl`s allow the contract to access the methods within that implementation.
+
+
+=== Accessing component state
+

@@ -11,7 +11,7 @@ The ERC721 token standard is a specification for {token-types}, or more colloqui
 :compatibility: xref:/erc721.adoc#erc721_compatibility[ERC721 Compatibility]
 :ierc721-interface: xref:/erc721.adoc#ierc721[IERC721]
 :ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
-:dual-interfaces: xref:interfaces.adoc##dual_interfaces[Dual interfaces]
+:dual-interfaces: xref:interfaces.adoc#dual_interfaces[Dual interfaces]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC721Component`.
 The interface includes the <<IERC721,IERC721>> standard interface and the optional <<IERC721Metadata,IERC721Metadata>> interface.

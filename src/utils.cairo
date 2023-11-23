@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (utils.cairo)
 
-mod constants;
 mod selectors;
 mod serde;
 mod unwrap_and_cast;
@@ -23,28 +22,6 @@ fn try_selector_with_fallback(
             } else {
                 Result::Err(errors)
             }
-        }
-    }
-}
-
-impl BoolIntoFelt252 of Into<bool, felt252> {
-    fn into(self: bool) -> felt252 {
-        if self {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-}
-
-impl Felt252TryIntoBool of TryInto<felt252, bool> {
-    fn try_into(self: felt252) -> Option<bool> {
-        if self == 0 {
-            Option::Some(false)
-        } else if self == 1 {
-            Option::Some(true)
-        } else {
-            Option::None(())
         }
     }
 }

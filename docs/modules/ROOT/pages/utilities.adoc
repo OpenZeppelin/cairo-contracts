@@ -235,7 +235,7 @@ Requirements:
 
 - No extra data or keys are left on the raw event after deserialization.
 
-WARNING: This method doesn't currently work for components events that are not flattened
+WARNING: This method doesn't currently work for component events that are not flattened
 because an extra key is added, pushing the event ID key to the second position.
 
 [.contract-item]

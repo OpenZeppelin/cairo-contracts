@@ -12,13 +12,13 @@ use starknet::call_contract_syscall;
 use unwrap_and_cast::UnwrapAndCast;
 
 fn try_selector_with_fallback(
-    target: ContractAddress, snake_selector: felt252, camel_selector: felt252, args: Span<felt252>
+    target: ContractAddress, selector1: felt252, selector2: felt252, args: Span<felt252>
 ) -> SyscallResult<Span<felt252>> {
-    match call_contract_syscall(target, snake_selector, args) {
+    match call_contract_syscall(target, selector1, args) {
         Result::Ok(ret) => Result::Ok(ret),
         Result::Err(errors) => {
             if *errors.at(0) == 'ENTRYPOINT_NOT_FOUND' {
-                return call_contract_syscall(target, camel_selector, args);
+                return call_contract_syscall(target, selector2, args);
             } else {
                 Result::Err(errors)
             }

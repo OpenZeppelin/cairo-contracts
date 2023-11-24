@@ -197,7 +197,9 @@ Module containing utilities for testing the library.
 [[testutils-deploy]]
 ==== `[.contract-item-name]#++deploy++#++(contract_class_hash: felt252, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-Uses the `deploy_syscall` to deploy an instance of the contract given the class hash and the calldata.
+:deploy_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls/#deploy[deploy_syscall]
+
+Uses the `{deploy_syscall}` to deploy an instance of the contract given the class hash and the calldata.
 
 The `contract_address_salt` is always set to zero, and `deploy_from_zero` is set to false.
 

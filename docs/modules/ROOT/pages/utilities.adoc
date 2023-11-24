@@ -221,7 +221,7 @@ fn deploy_test_contract() -> ContractAddress {
 ==== `[.contract-item-name]#++pop_log++#++<T>(address: ContractAddress) → Option<T>++` [.item-kind]#function#
 
 Pops the earliest unpopped logged event for the contract as the requested type
-and checks there's no more keys or data left on the event, preventing unaccounted params.
+and checks that there's no more keys or data left on the event, preventing unaccounted params.
 
 This function also removes the first key from the event, to match the event structure key params without
 the event ID.

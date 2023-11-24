@@ -1,0 +1,186 @@
+= Using Components
+
+The following documentation provides reasoning and examples on how to use Contracts for Cairo components.
+
+== Components
+
+:shamans-post: https://community.starknet.io/t/cairo-components/101136#components-1[Starknet Shamans post]
+
+Starknet components are separate modules that contain storage, events, and implementations that can be integrated into a contract.
+Components themselves cannot be declared or deployed.
+Another way to think of components is that they are abstract modules that must be instantiated.
+
+TIP: For more information on the construction and design of Starknet components, see the {shamans-post}.
+
+=== Setting up
+
+:initializable-component: xref:/security.adoc#initializable[InitializableComponent]
+
+Integrating a component first requires that the contract declares the component with the `component!` macro:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    // Import the Contracts for Cairo component
+    use openzeppelin::security::InitializableComponent;
+
+    // Declare the component
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+}
+----
+
+The `path` argument should be the imported component itself (in this case, {initializable-component}).
+Notice that the `storage` and `event` arguments are representations set within the macro.
+In other words, the `initializable` and `InitializableEvent` names follow the Contracts for Cairo convention, but they can be renamed.
+
+=== Accessing component state
+
+Before a contract can access a component's state, the contract must integrate the implementations that will be used.
+For example:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::security::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    // Gives the contract access to the implementation methods
+    impl InitializableImpl =
+        InitializableComponent::InitializableImpl<ContractState>;
+    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
+}
+----
+
+Defining the ``impl``s give the contract access to the methods within those implementations from the component.
+For example, `initialize` is defined in the `InternalImpl`.
+It can, therefore, be called like this:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    (...)
+
+    fn initialize_contract(ref self: ContractState) {
+        self.initializable.initialize();
+    }
+}
+----
+
+TIP: Defining the `InternalImpl` in a contract also gives the contract indirect access to the component's `Storage`.
+
+=== Embedding implementations
+
+A contract can embed implementations into the ABI which will expose the methods of the implementation.
+To embed implementations, add the `#[abi(embed_v0)]` attribute above the `impl`:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    (...)
+
+    // This attribute exposes the methods of the `impl`
+    #[abi(embed_v0)]
+    impl InitializableImpl =
+        InitializableComponent::InitializableImpl<ContractState>;
+}
+----
+
+`InitializableImpl` defines the `is_initialized` method in the component.
+By adding the embed attribute, `is_initialized` becomes a contract entrypoint for `MyContract`.
+
+=== Component storage and events
+
+The component's storage and events must be added to the contract's `Storage` trait and `Event` enum respectively.
+If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::security::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    (...)
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        InitializableEvent: InitializableComponent::Event
+    }
+}
+----
+
+The `#[substorage(v0)]` attribute must be included for each component in the `Storage` trait.
+This allows the contract to have indirect access to the component's storage.
+
+The `#[flat]` attribute for events in the `Event` enum, however, is not required.
+Component events are not flattened in the component itself to offer greater flexibility regarding how events are handled.
+Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
+By flattening the component event, the first key will be the event ID.
+
+=== Component dependencies
+
+:access-component: xref:/api/access.adoc#AccessControlComponent[AccessControlComponent]
+:src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]
+
+Some components include dependencies of other components.
+Contracts that integrate components with dependencies must also include the component dependency.
+For instance, {access-component} depends on {src5-component}.
+Creating a contract with `AccessControlComponent` should look like this:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::access::accesscontrol::AccessControlComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // AccessControl
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        AccessControlComponent::AccessControlImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl AccessControlCamelImpl =
+        AccessControlComponent::AccessControlCamelImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        accesscontrol: AccessControlComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    (...)
+}
+----

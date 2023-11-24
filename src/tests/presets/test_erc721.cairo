@@ -46,6 +46,9 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
     let mut token_uris = array![URI_1, URI_2, URI_3];
 
+    // Set caller as `OWNER`
+    testing::set_contract_address(OWNER());
+
     calldata.append_serde(NAME);
     calldata.append_serde(SYMBOL);
     calldata.append_serde(OWNER());
@@ -229,8 +232,6 @@ fn test_get_approved() {
 
     assert(dispatcher.get_approved(token_id) == ZERO(), 'Should return non-approval');
 
-    testing::set_contract_address(OWNER());
-
     dispatcher.approve(spender, token_id);
     assert(dispatcher.get_approved(token_id) == spender, 'Should return approval');
 }
@@ -252,7 +253,6 @@ fn test_get_approved_nonexistent() {
 fn test_approve_from_owner() {
     let dispatcher = setup_dispatcher();
 
-    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), TOKEN_1);
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
 
@@ -264,7 +264,6 @@ fn test_approve_from_owner() {
 fn test_approve_from_operator() {
     let dispatcher = setup_dispatcher();
 
-    testing::set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -291,7 +290,6 @@ fn test_approve_from_unauthorized() {
 fn test_approve_to_owner() {
     let dispatcher = setup_dispatcher();
 
-    testing::set_contract_address(OWNER());
     dispatcher.approve(OWNER(), TOKEN_1);
 }
 
@@ -300,7 +298,6 @@ fn test_approve_to_owner() {
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_approve_nonexistent() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), NONEXISTENT);
 }
 
@@ -312,7 +309,6 @@ fn test_approve_nonexistent() {
 #[available_gas(20000000)]
 fn test_set_approval_for_all() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
 
     assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
 
@@ -332,7 +328,6 @@ fn test_set_approval_for_all() {
 #[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OWNER(), true);
 }
 
@@ -341,7 +336,6 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 #[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.set_approval_for_all(OWNER(), false);
 }
 
@@ -358,14 +352,12 @@ fn test_transfer_from_owner() {
     let recipient = RECIPIENT();
 
     // set approval to check reset
-    testing::set_contract_address(OWNER());
     dispatcher.approve(OTHER(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
     assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
 
-    testing::set_contract_address(owner);
     dispatcher.transfer_from(owner, recipient, token_id);
     assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
 
@@ -379,8 +371,8 @@ fn test_transferFrom_owner() {
     let token_id = TOKEN_1;
     let owner = OWNER();
     let recipient = RECIPIENT();
+
     // set approval to check reset
-    testing::set_contract_address(owner);
     dispatcher.approve(OTHER(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -414,7 +406,6 @@ fn test_transferFrom_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_to_zero() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), ZERO(), TOKEN_1);
 }
 
@@ -423,8 +414,6 @@ fn test_transfer_from_to_zero() {
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_to_zero() {
     let dispatcher = setup_dispatcher();
-
-    testing::set_contract_address(OWNER());
     dispatcher.transferFrom(OWNER(), ZERO(), TOKEN_1);
 }
 
@@ -434,8 +423,6 @@ fn test_transfer_from_to_owner() {
     let dispatcher = setup_dispatcher();
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
-
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), OWNER(), TOKEN_1);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
@@ -448,8 +435,6 @@ fn test_transferFrom_to_owner() {
     let dispatcher = setup_dispatcher();
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
-
-    testing::set_contract_address(OWNER());
     dispatcher.transferFrom(OWNER(), OWNER(), TOKEN_1);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), OWNER(), TOKEN_1);
 
@@ -465,7 +450,6 @@ fn test_transfer_from_approved() {
     let recipient = RECIPIENT();
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -485,7 +469,6 @@ fn test_transferFrom_approved() {
     let recipient = RECIPIENT();
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -506,7 +489,6 @@ fn test_transfer_from_approved_for_all() {
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -527,7 +509,6 @@ fn test_transferFrom_approved_for_all() {
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -570,7 +551,6 @@ fn test_safe_transfer_from_to_account() {
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, account, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
@@ -587,7 +567,6 @@ fn test_safeTransferFrom_to_account() {
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
@@ -604,7 +583,6 @@ fn test_safe_transfer_from_to_account_camel() {
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, account, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
@@ -621,7 +599,6 @@ fn test_safeTransferFrom_to_account_camel() {
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
 
@@ -638,7 +615,6 @@ fn test_safe_transfer_from_to_receiver() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -655,7 +631,6 @@ fn test_safeTransferFrom_to_receiver() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -672,7 +647,6 @@ fn test_safe_transfer_from_to_receiver_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -689,7 +663,6 @@ fn test_safeTransferFrom_to_receiver_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
     assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -705,7 +678,6 @@ fn test_safe_transfer_from_to_receiver_failure() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
 }
 
@@ -718,7 +690,6 @@ fn test_safeTransferFrom_to_receiver_failure() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
 }
 
@@ -731,7 +702,6 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
 }
 
@@ -744,7 +714,6 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
 }
 
@@ -757,7 +726,6 @@ fn test_safe_transfer_from_to_non_receiver() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safe_transfer_from(owner, recipient, token_id, DATA(true));
 }
 
@@ -770,7 +738,6 @@ fn test_safeTransferFrom_to_non_receiver() {
     let token_id = TOKEN_1;
     let owner = OWNER();
 
-    testing::set_contract_address(owner);
     dispatcher.safeTransferFrom(owner, recipient, token_id, DATA(true));
 }
 
@@ -795,7 +762,6 @@ fn test_safeTransferFrom_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_zero() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.safe_transfer_from(OWNER(), ZERO(), TOKEN_1, DATA(true));
 }
 
@@ -804,7 +770,6 @@ fn test_safe_transfer_from_to_zero() {
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_zero() {
     let dispatcher = setup_dispatcher();
-    testing::set_contract_address(OWNER());
     dispatcher.safeTransferFrom(OWNER(), ZERO(), TOKEN_1, DATA(true));
 }
 
@@ -815,7 +780,6 @@ fn test_safe_transfer_from_to_owner() {
     let token_id = TOKEN_1;
     let receiver = setup_receiver();
 
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), receiver, token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -835,7 +799,6 @@ fn test_safeTransferFrom_to_owner() {
     let token_id = TOKEN_1;
     let receiver = setup_receiver();
 
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), receiver, token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -855,7 +818,6 @@ fn test_safe_transfer_from_to_owner_camel() {
     let token_id = TOKEN_1;
     let receiver = setup_camel_receiver();
 
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), receiver, token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -875,7 +837,6 @@ fn test_safeTransferFrom_to_owner_camel() {
     let token_id = TOKEN_1;
     let receiver = setup_camel_receiver();
 
-    testing::set_contract_address(OWNER());
     dispatcher.transfer_from(OWNER(), receiver, token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -898,7 +859,6 @@ fn test_safe_transfer_from_approved() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -919,7 +879,6 @@ fn test_safeTransferFrom_approved() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -940,7 +899,6 @@ fn test_safe_transfer_from_approved_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -961,7 +919,6 @@ fn test_safeTransferFrom_approved_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.approve(OPERATOR(), token_id);
     utils::drop_event(dispatcher.contract_address);
 
@@ -982,7 +939,6 @@ fn test_safe_transfer_from_approved_for_all() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -1003,7 +959,6 @@ fn test_safeTransferFrom_approved_for_all() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -1024,7 +979,6 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 
@@ -1045,7 +999,6 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    testing::set_contract_address(owner);
     dispatcher.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(dispatcher.contract_address);
 

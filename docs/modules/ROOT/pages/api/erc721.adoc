@@ -576,7 +576,7 @@ See <<IERC721-Transfer,Transfer>>.
 use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```
 
-Interface for any contract that wants to support safe token transfers from ERC721 asset contracts.
+Interface for contracts that support receiving `safe_transfer_from` transfers.
 
 [.contract-index]
 .{inner-src5}

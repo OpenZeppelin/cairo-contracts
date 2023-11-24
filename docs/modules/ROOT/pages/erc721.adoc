@@ -1,6 +1,6 @@
 = ERC721
 
-:token-types: https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[non-fungible tokens]
+:token-types: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[non-fungible tokens]
 :eip721: https://eips.ethereum.org/EIPS/eip-721[EIP-721]
 
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.

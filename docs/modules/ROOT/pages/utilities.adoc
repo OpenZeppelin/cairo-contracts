@@ -142,7 +142,7 @@ Module containing utilities related to serialization and deserialization of Cair
 [[serde-SerializedAppend]]
 ==== `[.contract-item-name]#++SerializedAppend++#` [.item-kind]#trait#
 
-Importing this trait allows to append a serialized representation of a Cairo data structure already
+Importing this trait allows the ability to append a serialized representation of a Cairo data structure already
 implementing the `Serde` trait to a `felt252` buffer.
 
 Usage example:

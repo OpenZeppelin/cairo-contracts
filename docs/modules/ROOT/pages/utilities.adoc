@@ -142,7 +142,7 @@ Module containing utilities related to serialization and deserialization of Cair
 [[serde-SerializedAppend]]
 ==== `[.contract-item-name]#++SerializedAppend++#` [.item-kind]#trait#
 
-Importing this trait allows to append a serialized representation of a Cairo data structure already
+Importing this trait allows the ability to append a serialized representation of a Cairo data structure already
 implementing the `Serde` trait to a `felt252` buffer.
 
 Usage example:
@@ -223,7 +223,7 @@ fn deploy_test_contract() -> ContractAddress {
 ==== `[.contract-item-name]#++pop_log++#++<T>(address: ContractAddress) → Option<T>++` [.item-kind]#function#
 
 Pops the earliest unpopped logged event for the contract as the requested type
-and checks there's no more keys or data left on the event, preventing unaccounted params.
+and checks that there's no more keys or data left on the event, preventing unaccounted params.
 
 This function also removes the first key from the event, to match the event structure key params without
 the event ID.
@@ -237,7 +237,7 @@ Requirements:
 
 - No extra data or keys are left on the raw event after deserialization.
 
-WARNING: This method doesn't currently work for components events that are not flattened
+WARNING: This method doesn't currently work for component events that are not flattened
 because an extra key is added, pushing the event ID key to the second position.
 
 [.contract-item]

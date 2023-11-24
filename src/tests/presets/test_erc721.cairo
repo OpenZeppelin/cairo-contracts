@@ -240,7 +240,7 @@ fn test_get_approved() {
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_get_approved_nonexistent() {
     let dispatcher = setup_dispatcher();
-    dispatcher.get_approved(7);
+    dispatcher.get_approved(NONEXISTENT);
 }
 
 //
@@ -395,18 +395,18 @@ fn test_transferFrom_owner() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_nonexistent() {
     let dispatcher = setup_dispatcher();
-    dispatcher.transfer_from(ZERO(), RECIPIENT(), TOKEN_1);
+    dispatcher.transfer_from(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_nonexistent() {
     let dispatcher = setup_dispatcher();
-    dispatcher.transferFrom(ZERO(), RECIPIENT(), TOKEN_1);
+    dispatcher.transferFrom(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
@@ -776,18 +776,18 @@ fn test_safeTransferFrom_to_non_receiver() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_nonexistent() {
     let dispatcher = setup_dispatcher();
-    dispatcher.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC721: wrong sender', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_nonexistent() {
     let dispatcher = setup_dispatcher();
-    dispatcher.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_1, DATA(true));
+    dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]

@@ -37,8 +37,7 @@ As a contributor, you are expected to fork this repository, work on your own for
     git checkout -b fix/some-bug-short-description-#123
     ```
 
-3. Make your changes, add your files, and [update the documentation](#documentation). Make sure to update the [CHANGELOG](CHANGELOG.md) (_[learn how](https://keepachangelog.com/en/1.1.0/)_).
-
+3. Make your changes, add your files, and [update the documentation](#documentation). Make sure to update the [CHANGELOG](CHANGELOG.md) (*[learn how](https://keepachangelog.com/en/1.1.0/)*).
 
 4. Commit and push to your fork.
 

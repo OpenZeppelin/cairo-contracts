@@ -15,5 +15,6 @@ Fixes #??? <!-- Fill in with issue number -->
 <!-- Some of the items may not apply. -->
 
 - [ ] Tests
-- [ ] Tried the feature on a public network
 - [ ] Documentation
+- [ ] Added [CHANGELOG](CHANGELOG.md] item <!-- [check how](https://keepachangelog.com/en/1.1.0/)) -->
+- [ ] Tried the feature on a public network

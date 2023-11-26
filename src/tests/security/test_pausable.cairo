@@ -1,20 +1,18 @@
-use openzeppelin::security::pausable::Pausable::InternalImpl;
-use openzeppelin::security::pausable::Pausable::PausableImpl;
-use openzeppelin::security::pausable::Pausable::Paused;
-use openzeppelin::security::pausable::Pausable::Unpaused;
-use openzeppelin::security::pausable::Pausable;
+use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
+use openzeppelin::security::PausableComponent::{Paused, Unpaused};
+use openzeppelin::tests::mocks::pausable_mock::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
-use starknet::contract_address_const;
 use starknet::ContractAddress;
+use starknet::contract_address_const;
 use starknet::testing;
 
 //
 // Setup
 //
 
-fn STATE() -> Pausable::ContractState {
-    Pausable::contract_state_for_testing()
+fn STATE() -> PausableMock::ContractState {
+    PausableMock::contract_state_for_testing()
 }
 
 //
@@ -25,13 +23,13 @@ fn STATE() -> Pausable::ContractState {
 #[available_gas(2000000)]
 fn test_is_paused() {
     let mut state = STATE();
-    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
+    assert(!state.pausable.is_paused(), 'Should not be paused');
 
-    InternalImpl::_pause(ref state);
-    assert(PausableImpl::is_paused(@state), 'Should be paused');
+    state.pausable._pause();
+    assert(state.pausable.is_paused(), 'Should be paused');
 
-    InternalImpl::_unpause(ref state);
-    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
+    state.pausable._unpause();
+    assert(!state.pausable.is_paused(), 'Should not be paused');
 }
 
 //
@@ -42,8 +40,8 @@ fn test_is_paused() {
 #[available_gas(2000000)]
 fn test_assert_paused_when_paused() {
     let mut state = STATE();
-    InternalImpl::_pause(ref state);
-    InternalImpl::assert_paused(@state);
+    state.pausable._pause();
+    state.pausable.assert_paused();
 }
 
 #[test]
@@ -51,7 +49,7 @@ fn test_assert_paused_when_paused() {
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_assert_paused_when_not_paused() {
     let state = STATE();
-    InternalImpl::assert_paused(@state);
+    state.pausable.assert_paused();
 }
 
 //
@@ -63,15 +61,15 @@ fn test_assert_paused_when_not_paused() {
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_assert_not_paused_when_paused() {
     let mut state = STATE();
-    InternalImpl::_pause(ref state);
-    InternalImpl::assert_not_paused(@state);
+    state.pausable._pause();
+    state.pausable.assert_not_paused();
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_assert_not_paused_when_not_paused() {
     let state = STATE();
-    InternalImpl::assert_not_paused(@state);
+    state.pausable.assert_not_paused();
 }
 
 //
@@ -84,10 +82,10 @@ fn test_pause_when_unpaused() {
     let mut state = STATE();
     testing::set_caller_address(CALLER());
 
-    InternalImpl::_pause(ref state);
+    state.pausable._pause();
 
     assert_event_paused(CALLER());
-    assert(PausableImpl::is_paused(@state), 'Should be paused');
+    assert(state.pausable.is_paused(), 'Should be paused');
 }
 
 #[test]
@@ -95,8 +93,8 @@ fn test_pause_when_unpaused() {
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_pause_when_paused() {
     let mut state = STATE();
-    InternalImpl::_pause(ref state);
-    InternalImpl::_pause(ref state);
+    state.pausable._pause();
+    state.pausable._pause();
 }
 
 //
@@ -109,13 +107,13 @@ fn test_unpause_when_paused() {
     let mut state = STATE();
     testing::set_caller_address(CALLER());
 
-    InternalImpl::_pause(ref state);
+    state.pausable._pause();
     utils::drop_event(ZERO());
 
-    InternalImpl::_unpause(ref state);
+    state.pausable._unpause();
 
     assert_event_unpaused(CALLER());
-    assert(!PausableImpl::is_paused(@state), 'Should not be paused');
+    assert(!state.pausable.is_paused(), 'Should not be paused');
 }
 
 #[test]
@@ -123,8 +121,8 @@ fn test_unpause_when_paused() {
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_unpause_when_unpaused() {
     let mut state = STATE();
-    assert(!PausableImpl::is_paused(@state), 'Should be paused');
-    InternalImpl::_unpause(ref state);
+    assert(!state.pausable.is_paused(), 'Should be paused');
+    state.pausable._unpause();
 }
 
 //

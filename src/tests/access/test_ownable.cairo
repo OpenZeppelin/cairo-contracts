@@ -1,26 +1,24 @@
-use openzeppelin::access::ownable::Ownable::InternalImpl;
-use openzeppelin::access::ownable::Ownable::OwnableCamelOnlyImpl;
-use openzeppelin::access::ownable::Ownable::OwnableImpl;
-use openzeppelin::access::ownable::Ownable::OwnershipTransferred;
-use openzeppelin::access::ownable::Ownable::Ownable_owner::InternalContractMemberStateTrait;
-use openzeppelin::access::ownable::Ownable;
+use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
+use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
+use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
+use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
+use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;
 
 //
 // Setup
 //
 
-fn STATE() -> Ownable::ContractState {
-    Ownable::contract_state_for_testing()
+fn STATE() -> DualCaseOwnableMock::ContractState {
+    DualCaseOwnableMock::contract_state_for_testing()
 }
 
-fn setup() -> Ownable::ContractState {
+fn setup() -> DualCaseOwnableMock::ContractState {
     let mut state = STATE();
-    InternalImpl::initializer(ref state, OWNER());
+    state.ownable.initializer(OWNER());
     utils::drop_event(ZERO());
     state
 }
@@ -31,14 +29,14 @@ fn setup() -> Ownable::ContractState {
 
 #[test]
 #[available_gas(2000000)]
-fn test_initializer() {
+fn test_initializer_owner() {
     let mut state = STATE();
-    assert(state.Ownable_owner.read().is_zero(), 'Should be zero');
-    InternalImpl::initializer(ref state, OWNER());
+    assert(state.ownable.Ownable_owner.read().is_zero(), 'Should be zero');
+    state.ownable.initializer(OWNER());
 
     assert_event_ownership_transferred(ZERO(), OWNER());
 
-    assert(state.Ownable_owner.read() == OWNER(), 'Owner should be set');
+    assert(state.ownable.Ownable_owner.read() == OWNER(), 'Owner should be set');
 }
 
 //
@@ -50,7 +48,7 @@ fn test_initializer() {
 fn test_assert_only_owner() {
     let state = setup();
     testing::set_caller_address(OWNER());
-    InternalImpl::assert_only_owner(@state);
+    state.ownable.assert_only_owner();
 }
 
 #[test]
@@ -59,7 +57,7 @@ fn test_assert_only_owner() {
 fn test_assert_only_owner_when_not_owner() {
     let state = setup();
     testing::set_caller_address(OTHER());
-    InternalImpl::assert_only_owner(@state);
+    state.ownable.assert_only_owner();
 }
 
 #[test]
@@ -67,7 +65,7 @@ fn test_assert_only_owner_when_not_owner() {
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_assert_only_owner_when_caller_zero() {
     let state = setup();
-    InternalImpl::assert_only_owner(@state);
+    state.ownable.assert_only_owner();
 }
 
 //
@@ -78,11 +76,11 @@ fn test_assert_only_owner_when_caller_zero() {
 #[available_gas(2000000)]
 fn test__transfer_ownership() {
     let mut state = setup();
-    InternalImpl::_transfer_ownership(ref state, OTHER());
+    state.ownable._transfer_ownership(OTHER());
 
     assert_event_ownership_transferred(OWNER(), OTHER());
 
-    assert(state.Ownable_owner.read() == OTHER(), 'Owner should be OTHER');
+    assert(state.ownable.Ownable_owner.read() == OTHER(), 'Owner should be OTHER');
 }
 
 //
@@ -94,11 +92,11 @@ fn test__transfer_ownership() {
 fn test_transfer_ownership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableImpl::transfer_ownership(ref state, OTHER());
+    state.ownable.transfer_ownership(OTHER());
 
     assert_event_ownership_transferred(OWNER(), OTHER());
 
-    assert(OwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
+    assert(state.ownable.owner() == OTHER(), 'Should transfer ownership');
 }
 
 #[test]
@@ -107,7 +105,7 @@ fn test_transfer_ownership() {
 fn test_transfer_ownership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableImpl::transfer_ownership(ref state, ZERO());
+    state.ownable.transfer_ownership(ZERO());
 }
 
 #[test]
@@ -115,7 +113,7 @@ fn test_transfer_ownership_to_zero() {
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_transfer_ownership_from_zero() {
     let mut state = setup();
-    OwnableImpl::transfer_ownership(ref state, OTHER());
+    state.ownable.transfer_ownership(OTHER());
 }
 
 #[test]
@@ -124,7 +122,7 @@ fn test_transfer_ownership_from_zero() {
 fn test_transfer_ownership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableImpl::transfer_ownership(ref state, OTHER());
+    state.ownable.transfer_ownership(OTHER());
 }
 
 #[test]
@@ -132,11 +130,11 @@ fn test_transfer_ownership_from_nonowner() {
 fn test_transferOwnership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
+    state.ownable.transferOwnership(OTHER());
 
     assert_event_ownership_transferred(OWNER(), OTHER());
 
-    assert(OwnableImpl::owner(@state) == OTHER(), 'Should transfer ownership');
+    assert(state.ownable.owner() == OTHER(), 'Should transfer ownership');
 }
 
 #[test]
@@ -145,7 +143,7 @@ fn test_transferOwnership() {
 fn test_transferOwnership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamelOnlyImpl::transferOwnership(ref state, ZERO());
+    state.ownable.transferOwnership(ZERO());
 }
 
 #[test]
@@ -153,7 +151,7 @@ fn test_transferOwnership_to_zero() {
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_transferOwnership_from_zero() {
     let mut state = setup();
-    OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
+    state.ownable.transferOwnership(OTHER());
 }
 
 #[test]
@@ -162,7 +160,7 @@ fn test_transferOwnership_from_zero() {
 fn test_transferOwnership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableCamelOnlyImpl::transferOwnership(ref state, OTHER());
+    state.ownable.transferOwnership(OTHER());
 }
 
 //
@@ -174,11 +172,11 @@ fn test_transferOwnership_from_nonowner() {
 fn test_renounce_ownership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableImpl::renounce_ownership(ref state);
+    state.ownable.renounce_ownership();
 
     assert_event_ownership_transferred(OWNER(), ZERO());
 
-    assert(OwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
+    assert(state.ownable.owner() == ZERO(), 'Should renounce ownership');
 }
 
 #[test]
@@ -186,7 +184,7 @@ fn test_renounce_ownership() {
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounce_ownership_from_zero_address() {
     let mut state = setup();
-    OwnableImpl::renounce_ownership(ref state);
+    state.ownable.renounce_ownership();
 }
 
 #[test]
@@ -195,7 +193,7 @@ fn test_renounce_ownership_from_zero_address() {
 fn test_renounce_ownership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableImpl::renounce_ownership(ref state);
+    state.ownable.renounce_ownership();
 }
 
 #[test]
@@ -203,11 +201,11 @@ fn test_renounce_ownership_from_nonowner() {
 fn test_renounceOwnership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    OwnableCamelOnlyImpl::renounceOwnership(ref state);
+    state.ownable.renounceOwnership();
 
     assert_event_ownership_transferred(OWNER(), ZERO());
 
-    assert(OwnableImpl::owner(@state) == ZERO(), 'Should renounce ownership');
+    assert(state.ownable.owner() == ZERO(), 'Should renounce ownership');
 }
 
 #[test]
@@ -215,7 +213,7 @@ fn test_renounceOwnership() {
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounceOwnership_from_zero_address() {
     let mut state = setup();
-    OwnableCamelOnlyImpl::renounceOwnership(ref state);
+    state.ownable.renounceOwnership();
 }
 
 #[test]
@@ -224,7 +222,7 @@ fn test_renounceOwnership_from_zero_address() {
 fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
-    OwnableCamelOnlyImpl::renounceOwnership(ref state);
+    state.ownable.renounceOwnership();
 }
 
 //

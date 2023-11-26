@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (introspection/src5.cairo)
 
-#[starknet::contract]
-mod SRC5 {
+/// # SRC5 Component
+///
+/// The SRC5 component allows contracts to expose the interfaces they implement.
+#[starknet::component]
+mod SRC5Component {
     use openzeppelin::introspection::interface;
 
     #[storage]
@@ -14,9 +17,14 @@ mod SRC5 {
         const INVALID_ID: felt252 = 'SRC5: invalid id';
     }
 
-    #[external(v0)]
-    impl SRC5Impl of interface::ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+    #[embeddable_as(SRC5Impl)]
+    impl SRC5<
+        TContractState, +HasComponent<TContractState>
+    > of interface::ISRC5<ComponentState<TContractState>> {
+        /// Returns whether the contract implements the given interface.
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
             if interface_id == interface::ISRC5_ID {
                 return true;
             }
@@ -24,27 +32,28 @@ mod SRC5 {
         }
     }
 
-    #[external(v0)]
-    impl SRC5CamelImpl of interface::ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            SRC5Impl::supports_interface(self, interfaceId)
+    #[embeddable_as(SRC5CamelImpl)]
+    impl SRC5Camel<
+        TContractState, +HasComponent<TContractState>
+    > of interface::ISRC5Camel<ComponentState<TContractState>> {
+        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
+            self.supports_interface(interfaceId)
         }
     }
 
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn register_interface(ref self: ContractState, interface_id: felt252) {
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Registers the given interface as supported by the contract.
+        fn register_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             self.SRC5_supported_interfaces.write(interface_id, true);
         }
 
-        fn deregister_interface(ref self: ContractState, interface_id: felt252) {
+        /// Deregisters the given interface as supported by the contract.
+        fn deregister_interface(ref self: ComponentState<TContractState>, interface_id: felt252) {
             assert(interface_id != interface::ISRC5_ID, Errors::INVALID_ID);
             self.SRC5_supported_interfaces.write(interface_id, false);
         }
     }
-}
-
-#[inline(always)]
-fn unsafe_state() -> SRC5::ContractState {
-    SRC5::unsafe_new_contract_state()
 }

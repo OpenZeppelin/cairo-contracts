@@ -1,30 +1,21 @@
-use openzeppelin::account::AccountABIDispatcher;
-use openzeppelin::account::AccountABIDispatcherTrait;
-use openzeppelin::account::dual_account::DualCaseAccount;
-use openzeppelin::account::dual_account::DualCaseAccountABI;
+use openzeppelin::account::dual_account::{DualCaseAccountABI, DualCaseAccount};
+use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::account::test_account::SIGNED_TX_DATA;
-use openzeppelin::tests::mocks::account_panic_mock::CamelAccountPanicMock;
-use openzeppelin::tests::mocks::account_panic_mock::SnakeAccountPanicMock;
-use openzeppelin::tests::mocks::camel_account_mock::CamelAccountMock;
+use openzeppelin::tests::mocks::account_mocks::{
+    CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
+};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::snake_account_mock::SnakeAccountMock;
+use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY};
 use openzeppelin::tests::utils;
 use starknet::testing;
-
-//
-// Constants
-//
-
-const PUBLIC_KEY: felt252 = 0x333333;
-const NEW_PUBLIC_KEY: felt252 = 0x444444;
 
 //
 // Setup
 //
 
 fn setup_snake() -> (DualCaseAccount, AccountABIDispatcher) {
-    let mut calldata = array![PUBLIC_KEY];
+    let mut calldata = array![PUBKEY];
     let target = utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccount { contract_address: target },
@@ -33,7 +24,7 @@ fn setup_snake() -> (DualCaseAccount, AccountABIDispatcher) {
 }
 
 fn setup_camel() -> (DualCaseAccount, AccountABIDispatcher) {
-    let mut calldata = array![PUBLIC_KEY];
+    let mut calldata = array![PUBKEY];
     let target = utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseAccount { contract_address: target },
@@ -67,8 +58,8 @@ fn test_dual_set_public_key() {
 
     testing::set_contract_address(snake_dispatcher.contract_address);
 
-    snake_dispatcher.set_public_key(NEW_PUBLIC_KEY);
-    assert(target.get_public_key() == NEW_PUBLIC_KEY, 'Should return NEW_PUBLIC_KEY');
+    snake_dispatcher.set_public_key(NEW_PUBKEY);
+    assert(target.get_public_key() == NEW_PUBKEY, 'Should return NEW_PUBKEY');
 }
 
 #[test]
@@ -76,7 +67,7 @@ fn test_dual_set_public_key() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
-    dispatcher.set_public_key(NEW_PUBLIC_KEY);
+    dispatcher.set_public_key(NEW_PUBKEY);
 }
 
 #[test]
@@ -84,14 +75,14 @@ fn test_dual_no_set_public_key() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
-    dispatcher.set_public_key(NEW_PUBLIC_KEY);
+    dispatcher.set_public_key(NEW_PUBKEY);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_dual_get_public_key() {
     let (snake_dispatcher, _) = setup_snake();
-    assert(snake_dispatcher.get_public_key() == PUBLIC_KEY, 'Should return PUBLIC_KEY');
+    assert(snake_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
 }
 
 #[test]
@@ -182,8 +173,8 @@ fn test_dual_setPublicKey() {
 
     testing::set_contract_address(camel_dispatcher.contract_address);
 
-    camel_dispatcher.set_public_key(NEW_PUBLIC_KEY);
-    assert(target.getPublicKey() == NEW_PUBLIC_KEY, 'Should return NEW_PUBLIC_KEY');
+    camel_dispatcher.set_public_key(NEW_PUBKEY);
+    assert(target.getPublicKey() == NEW_PUBKEY, 'Should return NEW_PUBKEY');
 }
 
 #[test]
@@ -191,14 +182,14 @@ fn test_dual_setPublicKey() {
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
-    dispatcher.set_public_key(NEW_PUBLIC_KEY);
+    dispatcher.set_public_key(NEW_PUBKEY);
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
-    assert(camel_dispatcher.get_public_key() == PUBLIC_KEY, 'Should return PUBLIC_KEY');
+    assert(camel_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
 }
 
 #[test]

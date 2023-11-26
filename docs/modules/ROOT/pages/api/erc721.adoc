@@ -1,0 +1,599 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:eip721: https://eips.ethereum.org/EIPS/eip-721[EIP721]
+:receiving-tokens: xref:/erc721.adoc#receiving_tokens[Receiving Tokens]
+:casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+
+= ERC721
+
+Reference of interfaces, presets, and utilities related to ERC721 contracts.
+
+TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
+
+== Core
+
+[.contract]
+[[IERC721]]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc721::interface::IERC721;
+```
+Interface of the IERC721 standard as defined in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721-balance_of[`++balance_of(account)++`]
+* xref:#IERC721-owner_of[`++owner_of(token_id)++`]
+* xref:#IERC721-safe_transfer_from[`++safe_transfer_from(from, to, token_id, data)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(from, to, token_id)++`]
+* xref:#IERC721-approve[`++approve(to, token_id)++`]
+* xref:#IERC721-set_approval_for_all[`++set_approval_for_all(operator, approved)++`]
+* xref:#IERC721-get_approved[`++get_approved(token_id)++`]
+* xref:#IERC721-is_approved_for_all[`++is_approved_for_all(owner, operator)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
+* xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
+* xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721-balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(account: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the number of NFTs owned by `account`.
+
+[.contract-item]
+[[IERC721-owner_of]]
+==== `[.contract-item-name]#++owner_of++#++(token_id: u256) → ContractAddress++` [.item-kind]#external#
+
+Returns the owner address of `token_id`.
+
+[.contract-item]
+[[IERC721-safe_transfer_from]]
+==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
+
+Transfer ownership of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC721 protocol to prevent tokens being locked forever.
+For information regarding how contracts communicate their awareness of the ERC721 protocol, see {receiving-tokens}.
+    
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[IERC721-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+Transfer ownership of `token_id` from `from` to `to`.
+    
+Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721 transfers or else they may be permanently lost.
+Usage of <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
+    
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[IERC721-approve]]
+==== `[.contract-item-name]#++approve++#++(to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+Change or reaffirm the approved address for an NFT.
+
+Emits an <<IERC721-Approval,Approval>> event.
+
+[.contract-item]
+[[IERC721-set_approval_for_all]]
+==== `[.contract-item-name]#++set_approval_for_all++#++(operator: ContractAddress, approved: bool)++` [.item-kind]#external#
+
+Enable or disable approval for `operator` to manage all of the caller's assets.
+
+Emits an <<IERC721-Approval,Approval>> event.
+
+[.contract-item]
+[[IERC721-get_approved]]
+==== `[.contract-item-name]#++get_approved++#++(token_id: u256) -> u256++` [.item-kind]#external#
+
+Returns the address approved for `token_id`.
+
+[.contract-item]
+[[IERC721-is_approved_for_all]]
+==== `[.contract-item-name]#++is_approved_for_all++#++(owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
+
+Query if `operator` is an authorized operator for `owner`.
+
+==== Events
+
+[.contract-item]
+[[IERC721-Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, approved: ContractAddress, token_id: u256)++` [.item-kind]#event#
+
+Emitted when `owner` enables `approved` to manage the `token_id` token.
+
+[.contract-item]
+[[IERC721-ApprovalForAll]]
+==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#event#
+
+Emitted when `owner` enables `approved` to manage the `token_id` token.
+
+[.contract-item]
+[[IERC721-Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#event#
+
+Emitted when `token_id` token is transferred from `from` to `to`.
+
+[.contract]
+[[IERC721Metadata]]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc721::interface::IERC721Metadata;
+```
+
+Interface for the optional metadata functions in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Metadata-name[`++name()++`]
+* xref:#IERC721Metadata-symbol[`++symbol()++`]
+* xref:#IERC721Metadata-token_uri[`++token_uri(token_id)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Metadata-name]]
+==== `[.contract-item-name]#++name++#++() -> felt252++` [.item-kind]#external#
+
+Returns the NFT name.
+
+[.contract-item]
+[[IERC721Metadata-symbol]]
+==== `[.contract-item-name]#++symbol++#++() -> felt252++` [.item-kind]#external#
+
+Returns the NFT ticker symbol.
+
+[.contract-item]
+[[IERC721Metadata-token_uri]]
+==== `[.contract-item-name]#++token_uri++#++(token_id: u256) -> felt252++` [.item-kind]#external#
+
+Returns the Uniform Resource Identifier (URI) as a short string for the `token_id` token.
+If the URI is not set for `token_id`, the return value will be `0`.
+
+[.contract]
+[[ERC721Component]]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc721::ERC721Component;
+```
+
+ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721Metadata>>.
+
+NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+
+[.contract-index]
+.External functions
+--
+.IERC721Impl
+* xref:#IERC721-balance_of[`++balance_of(self, account)++`]
+* xref:#IERC721-owner_of[`++owner_of(self, token_id)++`]
+* xref:#IERC721-safe_transfer_from[`++safe_transfer_from(self, from, to, token_id, data)++`]
+* xref:#IERC721-transfer_from[`++transfer_from(self, from, to, token_id)++`]
+* xref:#IERC721-approve[`++approve(self, to, token_id)++`]
+* xref:#IERC721-set_approval_for_all[`++set_approval_for_all(self, operator, approved)++`]
+* xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
+* xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
+
+.IERC721MetadataImpl
+* xref:#IERC721Metadata-name[`++name(self)++`]
+* xref:#IERC721Metadata-symbol[`++symbol(self)++`]
+* xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
+--
+
+[.contract-index]
+.camelCase support
+--
+.ER721CamelOnlyImpl
+* xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
+* xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
+* xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
+* xref:#ERC721-transferFrom[`++transferFrom(self, from, to, tokenId)++`]
+* xref:#ERC721-setApprovalForAll[`++setApprovalForAll(self, operator, approved)++`]
+* xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
+* xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
+
+.ERC721MetadataCamelOnlyImpl
+* xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+* xref:#ERC721-initializer[`++initializer(self, name_, symbol_)++`]
+* xref:#ERC721-_owner_of[`++_owner_of(self, token_id)++`]
+* xref:#ERC721-_exists[`++_exists(self, token_id)++`]
+* xref:#ERC721-_is_approved_or_owner[`++_is_approved_or_owner(self, spender, token_id)++`]
+* xref:#ERC721-_approve[`++_approve(self, to, token_id)++`]
+* xref:#ERC721-_set_approval_for_all[`++_set_approval_for_all(self, owner, operator, approved)++`]
+* xref:#ERC721-_mint[`++_mint(self, to, token_id)++`]
+* xref:#ERC721-_transfer[`++_transfer(self, from, to, token_id)++`]
+* xref:#ERC721-_burn[`++_burn(self, token_id)++`]
+* xref:#ERC721-_safe_mint[`++_safe_mint(self, to, token_id, data)++`]
+* xref:#ERC721-_safe_transfer[`++_safe_transfer(self, from, to, token_id, data)++`]
+* xref:#ERC721-_set_token_uri[`++_set_token_uri(self, token_id, token_uri)++`]
+--
+
+[.contract-index]
+.Events
+--
+.IERC721
+* xref:#IERC721-Approval[`++Approval(owner, approved, token_id)++`]
+* xref:#IERC721-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
+* xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
+--
+
+==== Embeddable functions
+
+[.contract-item]
+[[ERC721-balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
+
+See <<IERC721-balance_of,IERC721::balance_of>>.
+
+[.contract-item]
+[[ERC721-owner_of]]
+==== `[.contract-item-name]#++owner_of++#++(self: @ContractState, token_id: u256) → ContractAddress++` [.item-kind]#external#
+
+See <<IERC721-owner_of,IERC721::owner_of>>.
+
+Requirements:
+
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-safe_transfer_from]]
+==== `[.contract-item-name]#++safe_transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#external#
+
+See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+Requirements:
+
+- Caller is either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
+- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+
+[.contract-item]
+[[ERC721-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+See <<IERC721-transfer_from,IERC721::transfer_from>>.
+
+Requirements:
+
+- Caller either approved or the `token_id` owner.
+- `to` is not the zero address.
+- `from` is not the zero address.
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-approve]]
+==== `[.contract-item-name]#++approve++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
+
+See <<IERC721-approve,IERC721::approve>>.
+
+Requirements:
+
+- The caller is either an approved operator or the `token_id` owner.
+- `to` cannot be the token owner or the zero address.
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-set_approval_for_all]]
+==== `[.contract-item-name]#++set_approval_for_all++#++(ref self: ContractState, operator: ContractAddress, approved: bool)++` [.item-kind]#external#
+
+See <<IERC721-set_approval_for_all,IERC721::set_approval_for_all>>.
+
+Requirements:
+
+- `operator` cannot be the caller.
+
+[.contract-item]
+[[ERC721-get_approved]]
+==== `[.contract-item-name]#++get_approved++#++(self: @ContractState, token_id: u256) -> u256++` [.item-kind]#external#
+
+See <<IERC721-get_approved,IERC721::get_approved>>.
+
+Requirements:
+
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-is_approved_for_all]]
+==== `[.contract-item-name]#++is_approved_for_all++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
+
+See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
+
+[.contract-item]
+[[ERC721-name]]
+==== `[.contract-item-name]#++name++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-name,IERC721Metadata::name>>.
+
+[.contract-item]
+[[ERC721-symbol]]
+==== `[.contract-item-name]#++symbol++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
+
+[.contract-item]
+[[ERC721-token_uri]]
+==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
+
+==== camelCase Support
+
+[.contract-item]
+[[ERC721-balanceOf]]
+==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) -> u256++` [.item-kind]#external#
+
+See <<IERC721-balance_of,IERC721::balance_of>>.
+
+[.contract-item]
+[[ERC721-ownerOf]]
+==== `[.contract-item-name]#++ownerOf++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
+
+See <<IERC721-owner_of,IERC721::owner_of>>.
+
+[.contract-item]
+[[ERC721-safeTransferFrom]]
+==== `[.contract-item-name]#++safeTransferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>)++` [.item-kind]#external#
+
+See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+[.contract-item]
+[[ERC721-transferFrom]]
+==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256)++` [.item-kind]#external#
+
+See <<IERC721-transfer_from,IERC721::transfer_from>>.
+
+[.contract-item]
+[[ERC721-setApprovalForAll]]
+==== `[.contract-item-name]#++setApprovalForAll++#++(ref self: ContractState, operator: ContractAddress, approved: bool)++` [.item-kind]#external#
+
+See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+
+[.contract-item]
+[[ERC721-getApproved]]
+==== `[.contract-item-name]#++getApproved++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
+
+See <<IERC721-get_approved,IERC721::get_approved>>.
+
+[.contract-item]
+[[ERC721-isApprovedForAll]]
+==== `[.contract-item-name]#++isApprovedForAll++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
+
+See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
+
+[.contract-item]
+[[ERC721-tokenURI]]
+==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> felt252++` [.item-kind]#external#
+
+See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
+
+==== Internal functions
+
+[.contract-item]
+[[ERC721-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name_: felt252, symbol_: felt252)++` [.item-kind]#internal#
+
+Initializes the contract by setting the token name and symbol.
+This should be used inside the contract's constructor.
+
+[.contract-item]
+[[ERC721-_owner_of]]
+==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
+
+Internal function that returns the owner address of `token_id`.
+This function will panic if the token does not exist.
+
+[.contract-item]
+[[ERC721-_exists]]
+==== `[.contract-item-name]#++_exists++#++(self: @ContractState, token_id: u256) -> bool++` [.item-kind]#internal#
+
+Internal function that returns whether `token_id` exists.
+
+Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop existing when they are burned (<<ERC721-_burn,_burn>>).
+
+[.contract-item]
+[[ERC721-_is_approved_or_owner]]
+==== `[.contract-item-name]#++_is_approved_or_owner++#++(ref self: ContractState, spender: ContractAddress, token_id: u256) -> bool++` [.item-kind]#internal#
+
+Internal function that returns whether `spender` is allowed to manage `token_id`.
+
+Requirements:
+
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-_approve]]
+==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Internal function that changes or reaffirms the approved address for an NFT.
+
+Emits an <<IERC721-Approval,Approval>> event.
+
+Requirements:
+
+- `token_id` exists.
+- `to` is not the current token owner.
+
+[.contract-item]
+[[ERC721-_set_approval_for_all]]
+==== `[.contract-item-name]#++_set_approval_for_all++#++(ref self: ContractState, owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#internal#
+
+Internal function that enables or disables approval for `operator` to manage all of the
+`owner` assets.
+
+Emits an <<IERC721-Approval,Approval>> event.
+
+Requirements:
+
+- `operator` cannot be the caller.
+
+[.contract-item]
+[[ERC721-_mint]]
+==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Internal function that mints `token_id` and transfers it to `to`.
+
+Emits an <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+- `to` is not the zero address.
+- `token_id` does not already exist.
+
+[.contract-item]
+[[ERC721-_transfer]]
+==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Internal function that transfers `token_id` from `from` to `to`.
+
+Emits an <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+- `to` is not the zero address.
+- `from` is the token owner.
+- `token_id` exists.
+
+[.contract-item]
+[[ERC721-_burn]]
+==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+
+Internal function that destroys `token_id`.
+The approval is cleared when the token is burned.
+This internal function does not check if the sender is authorized to operate on the token.
+
+Emits an <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+`token_id` exists.
+
+[.contract-item]
+[[ERC721-_safe_mint]]
+==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+
+Internal function that mints `token_id` and transfers it to `to`.
+If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
+
+Emits an <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+- `token_id` does not already exist.
+- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+
+[.contract-item]
+[[ERC721-_safe_transfer]]
+==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+
+Internal function that transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+
+`data` is additional data, it has no specified format and it is sent in call to `to`.
+
+This internal function does not include permissions but can be useful for instances like implementing alternative mechanisms to perform signature-based token transfers.
+
+Emits an <<IERC721-Transfer,Transfer>> event.
+
+Requirements:
+
+- `to` cannot be the zero address.
+- `from` must be the token owner.
+- `token_id` exists.
+- `to` either is an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+
+[.contract-item]
+[[ERC721-_set_token_uri]]
+==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: felt252)++` [.item-kind]#internal#
+
+Internal function that sets the `token_uri` of `token_id`.
+
+Requirements:
+
+- `token_id` exists.
+
+==== Events
+
+[.contract-item]
+[[IERC721-Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, approved: ContractAddress, token_id: u256)++` [.item-kind]#event#
+
+See <<IERC721-Approval,Approval>>.
+
+[.contract-item]
+[[IERC721-ApprovalForAll]]
+==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#event#
+
+See <<IERC721-ApprovalForAll,ApprovalForAll>>.
+
+[.contract-item]
+[[IERC721-Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#event#
+
+See <<IERC721-Transfer,Transfer>>.
+
+[.contract]
+[[IERC721Receiver]]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc721::interface::IERC721Receiver;
+```
+
+Interface for contracts that support receiving `safe_transfer_from` transfers.
+
+[.contract-index]
+.{inner-src5}
+--
+0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Receiver-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.

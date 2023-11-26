@@ -1,4 +1,4 @@
-mod upgradeable;
 mod interface;
+mod upgradeable;
 
-use upgradeable::Upgradeable;
+use upgradeable::UpgradeableComponent;

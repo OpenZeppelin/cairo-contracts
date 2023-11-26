@@ -7,6 +7,7 @@ trait IReentrancyGuarded<TState> {
 
 #[starknet::interface]
 trait IReentrancyMock<TState> {
+    fn count(ref self: TState);
     fn current_count(self: @TState) -> felt252;
     fn callback(ref self: TState);
     fn count_local_recursive(ref self: TState, n: felt252);
@@ -16,7 +17,7 @@ trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 mod ReentrancyMock {
-    use openzeppelin::security::reentrancyguard::ReentrancyGuard;
+    use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
     use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
     use starknet::ContractAddress;
@@ -24,50 +25,55 @@ mod ReentrancyMock {
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
 
+    component!(
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
+    );
+
+    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
-        counter: felt252
+        counter: felt252,
+        #[substorage(v0)]
+        reentrancy_guard: ReentrancyGuardComponent::Storage
     }
 
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn count(ref self: ContractState) {
-            self.counter.write(self.counter.read() + 1);
-        }
-
-        fn _count_local_recursive(ref self: ContractState, n: felt252) {
-            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
-
-            if n != 0 {
-                self.count();
-                self._count_local_recursive(n - 1);
-            }
-
-            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
-        }
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
     #[external(v0)]
     impl IReentrancyMockImpl of super::IReentrancyMock<ContractState> {
+        fn count(ref self: ContractState) {
+            self.counter.write(self.counter.read() + 1);
+        }
+
         fn current_count(self: @ContractState) -> felt252 {
             self.counter.read()
         }
 
         fn callback(ref self: ContractState) {
-            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
+            self.reentrancy_guard.start();
             self.count();
-            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
+            self.reentrancy_guard.end();
         }
 
         fn count_local_recursive(ref self: ContractState, n: felt252) {
-            self._count_local_recursive(n);
+            self.reentrancy_guard.start();
+
+            if n != 0 {
+                self.count();
+                self.count_local_recursive(n - 1);
+            }
+
+            self.reentrancy_guard.end();
         }
 
         fn count_external_recursive(ref self: ContractState, n: felt252) {
-            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
+            self.reentrancy_guard.start();
 
             if n != 0 {
                 self.count();
@@ -76,17 +82,16 @@ mod ReentrancyMock {
                     .count_external_recursive(n - 1)
             }
 
-            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
+            self.reentrancy_guard.end();
         }
 
         fn count_and_call(ref self: ContractState, attacker: ContractAddress) {
-            let mut unsafe_state = ReentrancyGuard::unsafe_new_contract_state();
-            ReentrancyGuard::InternalImpl::start(ref unsafe_state);
+            self.reentrancy_guard.start();
 
             self.count();
             IAttackerDispatcher { contract_address: attacker }.call_sender();
 
-            ReentrancyGuard::InternalImpl::end(ref unsafe_state);
+            self.reentrancy_guard.end();
         }
     }
 }

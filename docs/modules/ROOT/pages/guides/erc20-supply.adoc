@@ -15,30 +15,49 @@ We can achieve this by setting the token supply in the constructor which will ex
 ----
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc20::ERC20;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
 
     #[constructor]
     fn constructor(
-        self: @ContractState,
-        initial_supply: u256,
+        ref self: ContractState,
+        fixed_supply: u256,
         recipient: ContractAddress
     ) {
         let name = 'MyToken';
         let symbol = 'MTK';
 
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
-        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, initial_supply);
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, fixed_supply);
     }
 }
 ----
 
-In the constructor, we're first grabbing the ERC20 state and calling the ERC20 initializer to set the token name and symbol.
-Next, we're calling the internal `_mint` function which creates `initial_supply` of tokens and allocates them to `recipient`.
+In the constructor, we're first calling the ERC20 initializer to set the token name and symbol.
+Next, we're calling the internal `_mint` function which creates `fixed_supply` of tokens and allocates them to `recipient`.
 Since the internal `_mint` is not exposed in our contract, it will not be possible to create any more tokens.
 In other words, we've implemented a fixed token supply!
 
@@ -53,31 +72,49 @@ Let's make a few changes to the almighty `MyToken` contract and create a minting
 ----
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
-    use openzeppelin::token::erc20::ERC20;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
 
     #[constructor]
-    fn constructor(self: @ContractState) {
+    fn constructor(ref self: ContractState) {
         let name = 'MyToken';
         let symbol = 'MTK';
 
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_state, name, symbol);
+        self.erc20.initializer(name, symbol);
     }
 
     #[external(v0)]
     fn mint(
-        self: @ContractState,
+        ref self: ContractState,
         recipient: ContractAddress,
         amount: u256
     ) {
         // This function is NOT protected which means
         // ANYONE can mint tokens
-        let mut unsafe_state = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_mint(ref unsafe_state, recipient, amount);
+        self.erc20._mint(recipient, amount);
     }
 }
 ----
@@ -93,40 +130,22 @@ For the sake of good practices, let's implement a simple permissioning mechanism
 ----
 #[starknet::contract]
 mod MyToken {
-    use starknet::ContractAddress;
-    use openzeppelin::access::ownable::Ownable;
-    use openzeppelin::token::erc20::ERC20;
 
-    #[storage]
-    struct Storage {}
+    (...)
 
-    #[constructor]
-    fn constructor(self: @ContractState, owner: ContractAddress) {
-        // Set contract owner
-        let mut unsafe_ownable = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::initializer(ref unsafe_ownable, owner);
-    
-        // Initialize ERC20
-        let name = 'MyToken';
-        let symbol = 'MTK';
-
-        let mut unsafe_erc20 = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::initializer(ref unsafe_erc20, name, symbol);
-    }
+    // Integrate Ownable
 
     #[external(v0)]
     fn mint(
-        self: @ContractState,
+        ref self: ContractState,
         recipient: ContractAddress,
         amount: u256
     ) {
         // Set permissions with Ownable
-        let unsafe_ownable = Ownable::unsafe_new_contract_state();
-        Ownable::InternalImpl::assert_only_owner(@unsafe_ownable);
+        self.ownable.assert_only_owner();
 
         // Mint tokens if called by the contract owner
-        let mut unsafe_erc20 = ERC20::unsafe_new_contract_state();
-        ERC20::InternalImpl::_mint(ref unsafe_erc20, recipient, amount);
+        self.erc20._mint(recipient, amount);
     }
 }
 ----

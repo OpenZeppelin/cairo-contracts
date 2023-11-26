@@ -8,6 +8,8 @@
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
+NOTE: You can track our roadmap and future milestones in our https://github.com/orgs/OpenZeppelin/projects/29/[Github Project].
+
 == Installation
 
 The library is available as a {scarb} package. Follow {installation} for installing Cairo and Scarb on your machine
@@ -17,8 +19,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 0.7.0 (58cc88efb 2023-08-23)
-cairo: 2.2.0 (https://crates.io/crates/cairo-lang-compiler/2.2.0)
+scarb 2.3.1 (0c8def3aa 2023-10-31)
+cairo: 2.3.1 (https://crates.io/crates/cairo-lang-compiler/2.3.1)
 sierra: 1.3.0
 ----
 
@@ -54,89 +56,61 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.0-beta.0" }
 ----
 
 WARNING: Make sure the tag matches the target release.
 
 == Basic usage
 
-This is how it looks to build an account contract using the xref:accounts.adoc[account module].
+This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20] module.
 Copy the code into `src/lib.cairo`.
 
 [,javascript]
 ----
 #[starknet::contract]
-mod MyAccount {
-    use openzeppelin::account::Account;
-    use openzeppelin::account::account::PublicKeyTrait;
-    use openzeppelin::account::interface;
-    use openzeppelin::introspection::interface::ISRC5;
-    use starknet::account::Call;
+mod MyERC20Token {
+    use openzeppelin::token::erc20::ERC20Component;
+    use starknet::ContractAddress;
 
-    // Storage members used by this contract are defined in each imported
-    // module whose `unsafe_state` is used. This design will be improved
-    // with the addition of components in the future.
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SafeAllowanceCamelImpl =
+        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: felt252) {
-        let mut unsafe_state = _unsafe_state();
-        Account::InternalImpl::initializer(ref unsafe_state, public_key);
-    }
-
-    #[external(v0)]
-    impl SRC6Impl of interface::ISRC6<ContractState> {
-        fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
-            Account::SRC6Impl::__execute__(@_unsafe_state(), calls)
-        }
-
-        fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
-            Account::SRC6Impl::__validate__(@_unsafe_state(), calls)
-        }
-
-        fn is_valid_signature(
-            self: @ContractState, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            Account::SRC6Impl::is_valid_signature(@_unsafe_state(), hash, signature)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            Account::SRC5Impl::supports_interface(@_unsafe_state(), interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl PublicKeyImpl of PublicKeyTrait<ContractState> {
-        fn get_public_key(self: @ContractState) -> felt252 {
-            Account::PublicKeyImpl::get_public_key(@_unsafe_state())
-        }
-
-        fn set_public_key(ref self: ContractState, new_public_key: felt252) {
-            let mut unsafe_state = _unsafe_state();
-            Account::PublicKeyImpl::set_public_key(ref unsafe_state, new_public_key);
-        }
-    }
-
-    #[external(v0)]
-    fn __validate_deploy__(
-        self: @ContractState,
-        class_hash: felt252,
-        contract_address_salt: felt252,
-        _public_key: felt252
-    ) -> felt252 {
-        Account::__validate_deploy__(
-            @_unsafe_state(), class_hash, contract_address_salt, _public_key
-        )
-    }
-
-    #[inline(always)]
-    fn _unsafe_state() -> Account::ContractState {
-        Account::unsafe_new_contract_state()
+    fn constructor(
+        ref self: ContractState,
+        name: felt252,
+        symbol: felt252,
+        fixed_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, fixed_supply);
     }
 }
 ----

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (account/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -23,6 +23,25 @@ trait IDeclarer<TState> {
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 }
 
+#[starknet::interface]
+trait IDeployable<TState> {
+    fn __validate_deploy__(
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
+    ) -> felt252;
+}
+
+#[starknet::interface]
+trait IPublicKey<TState> {
+    fn get_public_key(self: @TState) -> felt252;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
+}
+
+#[starknet::interface]
+trait IPublicKeyCamel<TState> {
+    fn getPublicKey(self: @TState) -> felt252;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+}
+
 //
 // Account ABI
 //
@@ -40,14 +59,14 @@ trait AccountABI<TState> {
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 
-    // DeployerTrait
+    // IDeployable
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, _public_key: felt252
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252;
 
-    // PublicKeyTrait
-    fn set_public_key(ref self: TState, new_public_key: felt252);
+    // IPublicKey
     fn get_public_key(self: @TState) -> felt252;
+    fn set_public_key(ref self: TState, new_public_key: felt252);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
@@ -55,7 +74,7 @@ trait AccountABI<TState> {
     // ISRC5Camel
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 
-    // PublicKeyCamelTrait
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
+    fn setPublicKey(ref self: TState, newPublicKey: felt252);
 }

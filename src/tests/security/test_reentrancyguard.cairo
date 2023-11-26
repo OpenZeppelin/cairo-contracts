@@ -1,14 +1,14 @@
-use openzeppelin::security::reentrancyguard::ReentrancyGuard::InternalImpl;
-use openzeppelin::security::reentrancyguard::ReentrancyGuard::ReentrancyGuard_entered::InternalContractMemberStateTrait;
-use openzeppelin::security::reentrancyguard::ReentrancyGuard;
+use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
+use openzeppelin::security::ReentrancyGuardComponent;
 use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
 use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
 use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::utils;
+use starknet::storage::StorageMemberAccessTrait;
 
-fn STATE() -> ReentrancyGuard::ContractState {
-    ReentrancyGuard::contract_state_for_testing()
+fn STATE() -> ReentrancyMock::ContractState {
+    ReentrancyMock::contract_state_for_testing()
 }
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
@@ -26,9 +26,9 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 fn test_reentrancy_guard_start() {
     let mut state = STATE();
 
-    assert(!state.ReentrancyGuard_entered.read(), 'Should not be entered');
-    InternalImpl::start(ref state);
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+    assert(!state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should not be entered');
+    state.reentrancy_guard.start();
+    assert(state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should be entered');
 }
 
 #[test]
@@ -37,8 +37,8 @@ fn test_reentrancy_guard_start() {
 fn test_reentrancy_guard_start_when_started() {
     let mut state = STATE();
 
-    InternalImpl::start(ref state);
-    InternalImpl::start(ref state);
+    state.reentrancy_guard.start();
+    state.reentrancy_guard.start();
 }
 
 #[test]
@@ -46,10 +46,10 @@ fn test_reentrancy_guard_start_when_started() {
 fn test_reentrancy_guard_end() {
     let mut state = STATE();
 
-    InternalImpl::start(ref state);
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
-    InternalImpl::end(ref state);
-    assert(!state.ReentrancyGuard_entered.read(), 'Should no longer be entered');
+    state.reentrancy_guard.start();
+    assert(state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should be entered');
+    state.reentrancy_guard.end();
+    assert(!state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should no longer be entered');
 }
 
 //

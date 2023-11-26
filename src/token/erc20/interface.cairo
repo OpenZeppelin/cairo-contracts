@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc20/interface.cairo)
 
 use starknet::ContractAddress;
 
 #[starknet::interface]
 trait IERC20<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn decimals(self: @TState) -> u8;
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -19,10 +16,22 @@ trait IERC20<TState> {
 }
 
 #[starknet::interface]
-trait IERC20Camel<TState> {
+trait IERC20Metadata<TState> {
     fn name(self: @TState) -> felt252;
     fn symbol(self: @TState) -> felt252;
     fn decimals(self: @TState) -> u8;
+}
+
+#[starknet::interface]
+trait ISafeAllowance<TState> {
+    fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
+    fn decrease_allowance(
+        ref self: TState, spender: ContractAddress, subtracted_value: u256
+    ) -> bool;
+}
+
+#[starknet::interface]
+trait IERC20Camel<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -33,6 +42,7 @@ trait IERC20Camel<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 
+#[starknet::interface]
 trait IERC20CamelOnly<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
@@ -41,16 +51,15 @@ trait IERC20CamelOnly<TState> {
     ) -> bool;
 }
 
-//
-// ERC20 ABI
-//
+#[starknet::interface]
+trait ISafeAllowanceCamel<TState> {
+    fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
+    fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
+}
 
 #[starknet::interface]
 trait ERC20ABI<TState> {
     // IERC20
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn decimals(self: @TState) -> u8;
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -60,19 +69,25 @@ trait ERC20ABI<TState> {
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 
-    /// Non-standard
+    // IERC20Metadata
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
+    fn decimals(self: @TState) -> u8;
+
+    // IERC20SafeAllowance
     fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
     fn decrease_allowance(
         ref self: TState, spender: ContractAddress, subtracted_value: u256
     ) -> bool;
 
-    // Camel case compatibility
-    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
+    // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
+
+    // IERC20CamelSafeAllowance
     fn increaseAllowance(ref self: TState, spender: ContractAddress, addedValue: u256) -> bool;
     fn decreaseAllowance(ref self: TState, spender: ContractAddress, subtractedValue: u256) -> bool;
 }

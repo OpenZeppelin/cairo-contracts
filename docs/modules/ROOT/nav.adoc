@@ -16,10 +16,13 @@
 ** xref:erc20.adoc[ERC20]
 *** xref:/guides/erc20-supply.adoc[Creating Supply]
 *** xref:/api/erc20.adoc[API Reference]
-// ** xref:erc721.adoc[ERC721]
+
+** xref:erc721.adoc[ERC721]
+*** xref:/api/erc721.adoc[API Reference]
 // ** xref:erc1155.adoc[ERC1155]
 
-// * xref:security.adoc[Security]
+* xref:security.adoc[Security]
+** xref:/api/security.adoc[API Reference]
 
 * xref:introspection.adoc[Introspection]
 ** xref:/api/introspection.adoc[API Reference]

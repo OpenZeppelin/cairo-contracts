@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.7.0 (token/erc721/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (token/erc721/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -13,7 +13,6 @@ const IERC721_RECEIVER_ID: felt252 =
 trait IERC721<TState> {
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn owner_of(self: @TState, token_id: u256) -> ContractAddress;
-    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn safe_transfer_from(
         ref self: TState,
         from: ContractAddress,
@@ -21,6 +20,7 @@ trait IERC721<TState> {
         token_id: u256,
         data: Span<felt252>
     );
+    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
     fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
@@ -30,27 +30,6 @@ trait IERC721<TState> {
 }
 
 #[starknet::interface]
-trait IERC721CamelOnly<TState> {
-    fn balanceOf(self: @TState, account: ContractAddress) -> u256;
-    fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
-    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
-    fn safeTransferFrom(
-        ref self: TState,
-        from: ContractAddress,
-        to: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    );
-    fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
-    fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
-    fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
-}
-
-//
-// IERC721Metadata
-//
-
-#[starknet::interface]
 trait IERC721Metadata<TState> {
     fn name(self: @TState) -> felt252;
     fn symbol(self: @TState) -> felt252;
@@ -58,34 +37,25 @@ trait IERC721Metadata<TState> {
 }
 
 #[starknet::interface]
-trait IERC721MetadataCamelOnly<TState> {
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
-}
-
-//
-// ERC721Receiver
-//
-
-#[starknet::interface]
-trait IERC721Receiver<TState> {
-    fn on_erc721_received(
-        self: @TState,
-        operator: ContractAddress,
+trait IERC721CamelOnly<TState> {
+    fn balanceOf(self: @TState, account: ContractAddress) -> u256;
+    fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
+    fn safeTransferFrom(
+        ref self: TState,
         from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252;
-}
-
-#[starknet::interface]
-trait IERC721ReceiverCamel<TState> {
-    fn onERC721Received(
-        self: @TState,
-        operator: ContractAddress,
-        from: ContractAddress,
+        to: ContractAddress,
         tokenId: u256,
         data: Span<felt252>
-    ) -> felt252;
+    );
+    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
+    fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
+    fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
+    fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
+}
+
+#[starknet::interface]
+trait IERC721MetadataCamelOnly<TState> {
+    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
 }
 
 //
@@ -120,8 +90,7 @@ trait ERC721ABI<TState> {
     fn symbol(self: @TState) -> felt252;
     fn token_uri(self: @TState, token_id: u256) -> felt252;
 
-    // Camel case compatibility
-    // See https://docs.openzeppelin.com/contracts-cairo/0.7.0/interfaces#dual_interfaces
+    // IERC721CamelOnly
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
@@ -135,6 +104,36 @@ trait ERC721ABI<TState> {
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
     fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
+
+    // ISRC5Camel
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+
+    // IERC721MetadataCamelOnly
     fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+}
+
+//
+// ERC721Receiver
+//
+
+#[starknet::interface]
+trait IERC721Receiver<TState> {
+    fn on_erc721_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
+    ) -> felt252;
+}
+
+#[starknet::interface]
+trait IERC721ReceiverCamel<TState> {
+    fn onERC721Received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
+    ) -> felt252;
 }

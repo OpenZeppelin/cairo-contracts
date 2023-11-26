@@ -32,7 +32,7 @@ mod MyContract {
 
 The `path` argument should be the imported component itself (in this case, {initializable-component}).
 Notice that the `storage` and `event` arguments are representations set within the macro.
-In other words, the `initializable` and `InitializableEvent` names follow the Contracts for Cairo convention, but they can be renamed.
+In other words, the `initializable` and `InitializableEvent` names follow this library's convention, but they can be renamed.
 
 === Accessing component state
 

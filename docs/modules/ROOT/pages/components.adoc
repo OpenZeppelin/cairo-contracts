@@ -22,7 +22,7 @@ Integrating a component first requires that the contract declares the component 
 ----
 #[starknet::contract]
 mod MyContract {
-    // Import the Contracts for Cairo component
+    // Import the component
     use openzeppelin::security::InitializableComponent;
 
     // Declare the component
@@ -95,7 +95,7 @@ By adding the embed attribute, `is_initialized` becomes a contract entrypoint fo
 
 === Component storage and events
 
-The component's storage and events must be added to the contract's `Storage` trait and `Event` enum respectively.
+The component's storage and events must be added to the contract's `Storage` struct and `Event` enum respectively.
 If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
 
 [,javascript]

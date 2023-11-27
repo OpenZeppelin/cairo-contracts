@@ -1,34 +1,29 @@
 # Releasing
 
-Releasing checklist:
+(1) Checkout the branch to be released. This will usually be `main` except in the event of a hotfix. For hotfixes, checkout the release branch you want to fix.
 
-(1) Write a changelog.
-
-(2) Run version bump script with the new version as an argument and open a PR.
+(2) Create a new release branch.
 
 ```sh
-python scripts/update_version.py v0.5.1
+git checkout -b release-v0.8.0
 ```
 
-(3) Create and push a release branch.
+(3) Search and replace the current release version with the one to be released (e.g. `0.7.0` to `0.8.0`, or `0.8.0-beta.0` to `0.8.0-beta.1`).
 
-```txt
-git checkout -b release-v0.5.1
-git push release-v0.5.1
-```
+(4) Create the release entry in [the changelog](CHANGELOG.md) with the contents of the _Unreleased_ section, which should be left empty.
 
-(4) Checkout the branch to be released. This should be `main` except in the event of a hotfix. For hotfixes, checkout the latest release branch.
-
-(5) Create a tag for the release.
+(5) Push and open a PR targeting `main` to carefully review the release changes.
 
 ```sh
-git tag v0.5.1
+git push release-v0.8.0
 ```
 
-(6) Push the tag to the main repository, [triggering the CI and release process](https://github.com/OpenZeppelin/cairo-contracts/blob/b27101eb826fae73f49751fa384c2a0ff3377af2/.github/workflows/python-app.yml#L60).
+(6) Once merged, create a tag on the release branch and push it to the main repository.
 
 ```sh
-git push origin v0.5.1
+git tag v0.8.0
+git push origin v0.8.0
 ```
 
-(7) Finally, go to the repo's [releases page](https://github.com/OpenZeppelin/cairo-contracts/releases/) and [create a new one](https://github.com/OpenZeppelin/cairo-contracts/releases/new) with the new tag and the base branch as target (which should be `main` except in the event of a hotfix).
+(7) Finally, go to the repo's [releases page](https://github.com/OpenZeppelin/cairo-contracts/releases/) and [create a new one](https://github.com/OpenZeppelin/cairo-contracts/releases/new) with the new tag and the base branch as target (`main` except in the event of a hotfix).
+Make sure to write a detailed release description and a short changelog.

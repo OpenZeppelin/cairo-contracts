@@ -106,7 +106,7 @@ mod MyToken {
 
 ### Unsupported
 
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.8.0-beta.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.8.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 

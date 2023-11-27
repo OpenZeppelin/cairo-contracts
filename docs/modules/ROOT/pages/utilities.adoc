@@ -184,7 +184,6 @@ Module containing utilities for testing the library.
 * xref:#testutils-assert_indexed_keys[`++assert_indexed_keys<T>(event, expected_keys)++`]
 * xref:#testutils-assert_no_events_left[`++assert_no_events_left(address)++`]
 * xref:#testutils-drop_event[`++drop_event(address)++`]
-* xref:#testutils-drop_events[`++drop_events(address)++`]
 
 .Inner modules
 * xref:#testutils-constants[`++constants++`]

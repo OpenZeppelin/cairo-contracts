@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (access/accesscontrol/dual_accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (access/accesscontrol/dual_accesscontrol.cairo)
 
 use openzeppelin::utils::Felt252TryIntoBool;
 use openzeppelin::utils::UnwrapAndCast;

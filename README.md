@@ -43,7 +43,7 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.0-beta.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.0" }
 ```
 
 Build the project to download it:
@@ -156,8 +156,8 @@ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 $ cd cairo-contracts
 $ scarb build
 
-Compiling lib(openzeppelin) openzeppelin v0.8.0-beta.0 (~/cairo-contracts/Scarb.toml)
-Compiling starknet-contract(openzeppelin) openzeppelin v0.8.0-beta.0 (~/cairo-contracts/Scarb.toml)
+Compiling lib(openzeppelin) openzeppelin v0.8.0 (~/cairo-contracts/Scarb.toml)
+Compiling starknet-contract(openzeppelin) openzeppelin v0.8.0 (~/cairo-contracts/Scarb.toml)
 Finished release target(s) in 16 seconds
 ```
 

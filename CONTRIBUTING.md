@@ -88,7 +88,7 @@ If you want to run the documentation UI locally:
 
 Currently, Starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
 
-We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by the reviewer.
+We are looking into defining a better process for these integration tests, but in the meantime the PR author/contributor must test the feature in a live network and then share a link to a reviewable transaction. Ideally from a verified contract whose execution can be traced, for the reviewer to evaluate and possibly reproduce.
 
 ## All set
 

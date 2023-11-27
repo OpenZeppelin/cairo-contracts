@@ -15,5 +15,5 @@ Fixes #??? <!-- Fill in with issue number -->
 <!-- Some of the items may not apply. -->
 
 - [ ] Tests
-- [ ] Tried the feature on a public network
 - [ ] Documentation
+- [ ] Tried the feature on a public network <!-- Please share some tx link or proof to confirm proper behavior. -->

@@ -16,4 +16,5 @@ Fixes #??? <!-- Fill in with issue number -->
 
 - [ ] Tests
 - [ ] Documentation
+- [ ] Added entry to CHANGELOG.md <!-- [learn how](https://keepachangelog.com/en/1.1.0/) -->
 - [ ] Tried the feature on a public network <!-- Please share some tx link or proof to confirm proper behavior. -->

@@ -14,11 +14,6 @@ trait ISRC6<TState> {
 }
 
 #[starknet::interface]
-trait ISRC6CamelOnly<TState> {
-    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
-}
-
-#[starknet::interface]
 trait IDeclarer<TState> {
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 }
@@ -34,6 +29,11 @@ trait IDeployable<TState> {
 trait IPublicKey<TState> {
     fn get_public_key(self: @TState) -> felt252;
     fn set_public_key(ref self: TState, new_public_key: felt252);
+}
+
+#[starknet::interface]
+trait ISRC6CamelOnly<TState> {
+    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 }
 
 #[starknet::interface]

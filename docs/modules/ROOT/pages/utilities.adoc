@@ -21,7 +21,7 @@ Module containing core utilities of the library.
 .Members
 --
 .Functions
-* xref:#utils-try_selector_with_fallback[`++try_selector_with_fallback(target, selector1, selector2, args)++`]
+* xref:#utils-try_selector_with_fallback[`++try_selector_with_fallback(target, selector, fallback, args)++`]
 
 .Traits
 * xref:#utils-UnwrapAndCast[`++UnwrapAndCast++`]
@@ -36,9 +36,9 @@ Module containing core utilities of the library.
 
 [.contract-item]
 [[utils-try_selector_with_fallback]]
-==== `[.contract-item-name]#++try_selector_with_fallback++#++(target: ContractAddress, selector1: felt252, selector2: felt252, args: Span<felt252>) → SyscallResult<Span<felt252>>++` [.item-kind]#function#
+==== `[.contract-item-name]#++try_selector_with_fallback++#++(target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>) → SyscallResult<Span<felt252>>++` [.item-kind]#function#
 
-Tries to call a given selector on a given contract, and if it fails, tries to call a different selector.
+Tries to call a given selector on a given contract, and if it fails, tries to call a fallback selector.
 
 It was designed for falling back to the `camelCase` selector for backward compatiblity in the
 case of a failure of the `snake_case` selector.

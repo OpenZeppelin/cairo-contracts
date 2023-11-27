@@ -266,7 +266,7 @@ Asserts that there are no more events left in the queue for the given address.
 
 Removes an event from the queue for the given address.
 
-If the queue is empty this function won't do anything.
+If the queue is empty, this function won't do anything.
 
 [#testutils-Inner-Modules]
 ==== Inner modules

@@ -1,0 +1,24 @@
+:cairo-version: https://crates.io/crates/cairo-lang-compiler/2.3.1[cairo 2.3.1]
+
+= Presets
+
+List of "ready-to-deploy" presets available and their corresponding class hashes.
+
+:account: xref:/api/account.adoc#Account[Account.cairo]
+:erc20: xref:/api/erc20.adoc#ERC20[ERC20.cairo]
+:erc721: xref:/api/erc721.adoc#Account[ERC721.cairo]
+
+NOTE: Class hashes were computed using {cairo-version}.
+
+|===
+| Name | Class Hash
+
+| `{account}`
+| `0x016c6081eb34ad1e0c5513234ed0c025b3c7f305902d291bad534cd6474c85bc`
+
+| `{erc20}`
+| `0x01d7085cee580ba542cdb5709bda80ebfe8bdede664261a3e6af92994d9a1de7`
+
+| `{erc721}`
+| `0x20fe562d797a42dcb3399062ae9546cd06f63280`
+|===

@@ -1,4 +1,4 @@
-= SRC5 Migration
+= Migrating ERC165 to SRC5
 
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP-165]
 :snip5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SNIP-5]
@@ -6,8 +6,8 @@
 :shamans-proposal: https://community.starknet.io/t/starknet-standard-interface-detection/92664[Starknet Shamans proposal]
 
 In the smart contract ecosystem, having the ability to query if a contract supports a given interface is an extremely important feature.
-The initial introspection design in Cairo v0 followed Ethereum's {eip165}.
-Since the language evolved and acquired some stability, we're now migrating to the {snip5} standard for introspection.
+The initial introspection design for Contracts for Cairo before version v0.7.0 followed Ethereum's {eip165}.
+Since the Cairo language evolved introducing native types, we needed an introspection solution tailored to the Cairo ecosystem: the {snip5} standard.
 SNIP-5 allows interface ID calculations to use Cairo types and the Starknet keccak (`sn_keccak`) function.
 For more information on the decision, see the {shamans-proposal} or the {dual-interface-discussion} discussion.
 
@@ -19,8 +19,7 @@ For more information on the decision, see the {shamans-proposal} or the {dual-in
 :src5-rs: https://github.com/ericnordelo/src5-rs[src5-rs]
 
 This guide is for already-deployed, upgradeable contracts that support ERC165.
-Migrating to SRC5 requires integrating {src5-component} and {upgradeable-component}.
-The following template assumes that the upgradeable mechanism uses the `upgrade` selector:
+Migrating to SRC5 requires integrating the {src5-component}.
 
 [,javascript]
 ----
@@ -93,5 +92,5 @@ mod MigratingContract {
 ----
 
 Note that deployed contracts with upgradeability should also be carefully tested before migrating.
-Upgradeable contracts will likely include some form of a permissions mechanism for upgrading contracts.
+Upgradeable contracts will likely include some form of xref:access.adoc[access mechanism] for the upgrade function.
 Take extreme care with ensuring admins are not inadvertantly stripped of their permissions.

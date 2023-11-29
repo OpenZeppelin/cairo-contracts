@@ -2,11 +2,12 @@ use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
+use openzeppelin::account::AccountComponent;
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
-use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20;
+use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
@@ -26,16 +27,9 @@ struct SignedTransactionData {
     s: felt252
 }
 
-fn STATE() -> DualCaseAccountMock::ContractState {
-    DualCaseAccountMock::contract_state_for_testing()
-}
-
-fn setup() -> DualCaseAccountMock::ContractState {
-    let mut state = STATE();
-    state.account.initializer(PUBKEY);
-    utils::drop_event(ZERO());
-    state
-}
+//
+// Constants
+//
 
 fn CLASS_HASH() -> felt252 {
     DualCaseAccountMock::TEST_CLASS_HASH
@@ -53,6 +47,27 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
         r: 0x6c8be1fb0fb5c730fbd7abaecbed9d980376ff2e660dfcd157e158d2b026891,
         s: 0x76b4669998eb933f44a59eace12b41328ab975ceafddf92602b21eb23e22e35
     }
+}
+
+//
+// Setup
+//
+
+type ComponentState = AccountComponent::ComponentState<DualCaseAccountMock::ContractState>;
+
+fn MOCK_STATE() -> DualCaseAccountMock::ContractState {
+    DualCaseAccountMock::contract_state_for_testing()
+}
+
+fn COMPONENT_STATE() -> ComponentState {
+    AccountComponent::component_state_for_testing()
+}
+
+fn setup() -> ComponentState {
+    let mut state = COMPONENT_STATE();
+    state.initializer(PUBKEY);
+    utils::drop_event(ZERO());
+    state
 }
 
 fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
@@ -82,24 +97,8 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
-    let address = utils::deploy(DualCaseERC20::TEST_CLASS_HASH, calldata);
+    let address = utils::deploy(DualCaseERC20Mock::TEST_CLASS_HASH, calldata);
     IERC20Dispatcher { contract_address: address }
-}
-
-//
-// supports_interface
-//
-
-#[test]
-#[available_gas(2000000)]
-fn test_supports_interface() {
-    let state = setup();
-
-    let supports_default_interface = state.src5.supports_interface(ISRC5_ID);
-    assert(supports_default_interface, 'Should support base interface');
-
-    let supports_account_interface = state.src5.supports_interface(ISRC6_ID);
-    assert(supports_account_interface, 'Should support account id');
 }
 
 //
@@ -109,7 +108,7 @@ fn test_supports_interface() {
 #[test]
 #[available_gas(2000000)]
 fn test_is_valid_signature() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
@@ -118,29 +117,29 @@ fn test_is_valid_signature() {
 
     state.set_public_key(data.public_key);
 
-    let is_valid = state.account.is_valid_signature(hash, good_signature);
+    let is_valid = state.is_valid_signature(hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = state.account.is_valid_signature(hash, bad_signature);
+    let is_valid = state.is_valid_signature(hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_isValidSignature() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
     let mut good_signature = array![data.r, data.s];
     let mut bad_signature = array![0x987, 0x564];
 
-    state.account.set_public_key(data.public_key);
+    state.set_public_key(data.public_key);
 
-    let is_valid = state.account.isValidSignature(hash, good_signature);
+    let is_valid = state.isValidSignature(hash, good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = state.account.isValidSignature(hash, bad_signature);
+    let is_valid = state.isValidSignature(hash, bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
@@ -391,7 +390,7 @@ fn test_account_called_from_contract() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.account.__execute__(calls);
+    state.__execute__(calls);
 }
 
 //
@@ -401,16 +400,16 @@ fn test_account_called_from_contract() {
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
     // Check default
-    let public_key = state.account.get_public_key();
+    let public_key = state.get_public_key();
     assert(public_key == 0, 'Should be zero');
 
     // Set key
-    state.account.set_public_key(NEW_PUBKEY);
+    state.set_public_key(NEW_PUBKEY);
 
     let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
     assert(event.removed_owner_guid == 0, 'Invalid old owner key');
@@ -419,7 +418,7 @@ fn test_public_key_setter_and_getter() {
     assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
     utils::assert_no_events_left(ACCOUNT_ADDRESS());
 
-    let public_key = state.account.get_public_key();
+    let public_key = state.get_public_key();
     assert(public_key == NEW_PUBKEY, 'Should update key');
 }
 
@@ -427,12 +426,12 @@ fn test_public_key_setter_and_getter() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.account.set_public_key(NEW_PUBKEY);
+    state.set_public_key(NEW_PUBKEY);
 }
 
 //
@@ -442,7 +441,7 @@ fn test_public_key_setter_different_account() {
 #[test]
 #[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
@@ -468,7 +467,7 @@ fn test_public_key_setter_and_getter_camel() {
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
@@ -483,42 +482,49 @@ fn test_public_key_setter_different_account_camel() {
 #[test]
 #[available_gas(2000000)]
 fn test_initializer() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
+    let mock_state = MOCK_STATE();
 
-    state.account.initializer(PUBKEY);
+    state.initializer(PUBKEY);
     let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 
-    assert(state.account.get_public_key() == PUBKEY, 'Should return PUBKEY');
+    assert(state.get_public_key() == PUBKEY, 'Should return PUBKEY');
+
+    let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
+    assert(supports_default_interface, 'Should support base interface');
+
+    let supports_account_interface = mock_state.supports_interface(ISRC6_ID);
+    assert(supports_account_interface, 'Should support account id');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_assert_only_self_true() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
-    state.account.assert_only_self();
+    state.assert_only_self();
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_assert_only_self_false() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     let other = contract_address_const::<0x4567>();
     testing::set_caller_address(other);
-    state.account.assert_only_self();
+    state.assert_only_self();
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test__is_valid_signature() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
@@ -526,28 +532,28 @@ fn test__is_valid_signature() {
     let mut bad_signature = array![0x987, 0x564];
     let mut invalid_length_signature = array![0x987];
 
-    state.account.set_public_key(data.public_key);
+    state.set_public_key(data.public_key);
 
-    let is_valid = state.account._is_valid_signature(hash, good_signature.span());
+    let is_valid = state._is_valid_signature(hash, good_signature.span());
     assert(is_valid, 'Should accept valid signature');
 
-    let is_valid = state.account._is_valid_signature(hash, bad_signature.span());
+    let is_valid = state._is_valid_signature(hash, bad_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
 
-    let is_valid = state.account._is_valid_signature(hash, invalid_length_signature.span());
+    let is_valid = state._is_valid_signature(hash, invalid_length_signature.span());
     assert(!is_valid, 'Should reject invalid length');
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test__set_public_key() {
-    let mut state = STATE();
-    state.account._set_public_key(PUBKEY);
+    let mut state = COMPONENT_STATE();
+    state._set_public_key(PUBKEY);
 
     let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
     assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
     utils::assert_no_events_left(ZERO());
 
-    let public_key = state.account.get_public_key();
+    let public_key = state.get_public_key();
     assert(public_key == PUBKEY, 'Should update key');
 }

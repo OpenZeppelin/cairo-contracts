@@ -60,12 +60,6 @@ mod MigratingContract {
         UpgradeableEvent: UpgradeableComponent::Event
     }
 
-    #[external(v0)]
-    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-        // Add permissions mechanism
-        self.upgradeable._upgrade(new_class_hash);
-    }
-
     // The rest of the contract logic
 }
 ----

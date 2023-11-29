@@ -648,4 +648,4 @@ Basic ERC721 contract leveraging xref:#ERC721Component[ERC721Component].
 
 Sets the `name` and `symbol`.
 
-Mints `token_ids` with each corresponding uri from `token_uris` tokens to `recipient`.
+Mints `token_ids` tokens with each corresponding URI from `token_uris` to `recipient`.

@@ -30,4 +30,4 @@ NOTE: Class hashes were computed using {cairo-version}.
 To understand the compiled class hash term, check {cairo-and-sierra}.
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a compiled artifact. To obtain the artifact
-using {scarb}, set the `casm = true` option under `\[[target.starknet-contract]]` in the `Scarb.toml` file. 
+using {scarb}, set the `casm = true` option under `\[[target.starknet-contract]]` in the `Scarb.toml` file.

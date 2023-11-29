@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (utils.cairo)
 
 mod constants;
 mod selectors;

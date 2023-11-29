@@ -10,7 +10,7 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -264,7 +264,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/presets/account.cairo[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::Account;

@@ -34,9 +34,48 @@ The `path` argument should be the imported component itself (in this case, {init
 Notice that the `storage` and `event` arguments are representations set within the macro.
 In other words, the `initializable` and `InitializableEvent` names follow this library's convention, but they can be renamed.
 
-=== Accessing component state
+=== Component storage and events
 
-Before a contract can access a component's state, the contract must integrate the implementations that will be used.
+The component's storage and events must be added to the contract's `Storage` struct and `Event` enum respectively.
+If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::security::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        InitializableEvent: InitializableComponent::Event
+    }
+
+    (...)
+}
+----
+
+The `#[substorage(v0)]` attribute must be included for each component in the `Storage` trait.
+This allows the contract to have indirect access to the component's storage.
+
+The `#[flat]` attribute for events in the `Event` enum, however, is not required.
+Component events are not flattened in the component itself to offer greater flexibility regarding how events are handled.
+Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
+By flattening the component event, the first key will be the event ID.
+
+=== Component implementations
+
+Component implementations allow contracts to access the methods of the defined implementation.
+A contract should instantiate the component implementations that it will use.
 For example:
 
 [,javascript]
@@ -55,7 +94,7 @@ mod MyContract {
 ----
 
 Defining the ``impl``s give the contract access to the methods within those implementations from the component.
-For example, `initialize` is defined in the `InternalImpl`.
+for example, `initialize` is defined in the `InternalImpl`.
 It can, therefore, be called like this:
 
 [,javascript]
@@ -92,44 +131,6 @@ mod MyContract {
 
 `InitializableImpl` defines the `is_initialized` method in the component.
 By adding the embed attribute, `is_initialized` becomes a contract entrypoint for `MyContract`.
-
-=== Component storage and events
-
-The component's storage and events must be added to the contract's `Storage` struct and `Event` enum respectively.
-If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
-
-[,javascript]
-----
-#[starknet::contract]
-mod MyContract {
-    use openzeppelin::security::InitializableComponent;
-
-    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
-
-    (...)
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        initializable: InitializableComponent::Storage
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        InitializableEvent: InitializableComponent::Event
-    }
-}
-----
-
-The `#[substorage(v0)]` attribute must be included for each component in the `Storage` trait.
-This allows the contract to have indirect access to the component's storage.
-
-The `#[flat]` attribute for events in the `Event` enum, however, is not required.
-Component events are not flattened in the component itself to offer greater flexibility regarding how events are handled.
-Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
-By flattening the component event, the first key will be the event ID.
 
 === Component dependencies
 

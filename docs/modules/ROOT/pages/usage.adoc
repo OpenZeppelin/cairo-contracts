@@ -1,4 +1,4 @@
-= Using Components
+= Usage
 
 The following documentation provides reasoning and examples on how to use Contracts for Cairo components.
 
@@ -12,7 +12,7 @@ Another way to think of components is that they are abstract modules that must b
 
 TIP: For more information on the construction and design of Starknet components, see the {shamans-post}.
 
-=== Setting up
+== Setting up
 
 :initializable-component: xref:/security.adoc#initializable[InitializableComponent]
 

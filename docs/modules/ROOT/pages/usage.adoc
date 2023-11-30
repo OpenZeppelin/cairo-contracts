@@ -72,7 +72,7 @@ Component events are not flattened in the component itself to offer greater flex
 Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
 By flattening the component event, the first key will be the event ID.
 
-=== Component implementations
+== Component implementations
 
 Component implementations allow contracts to access the methods of the defined implementation.
 A contract should instantiate the component implementations that it will use.
@@ -95,19 +95,33 @@ mod MyContract {
 
 Defining the ``impl``s give the contract access to the methods within those implementations from the component.
 for example, `initialize` is defined in the `InternalImpl`.
-It can, therefore, be called like this:
+It can, therefore, be exposed like this:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyContract {
+    use openzeppelin::security::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage
+    }
+
     (...)
 
-    fn initialize_contract(ref self: ContractState) {
-        self.initializable.initialize();
+    #[external(v0)]
+    fn is_initialized(ref self: ContractState) -> bool {
+        self.initializable.is_initialized()
     }
 }
 ----
+
+While there's nothing wrong with manually exposing methods as above, this process can be tedious for implementations with many methods.
+Fortunately, embedding implementations makes it easy to expose entire implementations.
 
 TIP: Defining the `InternalImpl` in a contract also gives the contract indirect access to the component's `Storage`.
 
@@ -132,7 +146,11 @@ mod MyContract {
 `InitializableImpl` defines the `is_initialized` method in the component.
 By adding the embed attribute, `is_initialized` becomes a contract entrypoint for `MyContract`.
 
-=== Component dependencies
+=== Accessing component storage
+
+
+
+== Component dependencies
 
 :access-component: xref:/api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]

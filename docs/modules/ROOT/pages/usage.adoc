@@ -126,7 +126,7 @@ NOTE: Contracts can also (indirectly) access a component's storage. See {accessi
 === Embedding implementations
 
 While there's nothing wrong with manually exposing methods like in the previous example, this process can be tedious for implementations with many methods.
-Fortunately, a contract can embed implementations into the ABI which will expose the methods of the implementation.
+Fortunately, a contract can embed implementations into the ABI which will expose all of the methods of the implementation.
 To embed an implementation, add the `#[abi(embed_v0)]` attribute above the `impl`:
 
 [,javascript]
@@ -152,7 +152,7 @@ Always read the API documentation for each integrated component.
 
 Some components require some sort of setup upon construction.
 Usually, this would be a job for a constructor; however, components themselves cannot provide constructors.
-Components instead offer ``initializer``s within their `InterlImpl` which enables a contract to create a constructor and invoke the component's `initializer`.
+Components instead offer ``initializer``s within their `InternalImpl` which enables a contract to create a constructor and invoke the component's `initializer`.
 Let's look at how a contract would integrate `OwnableComponent`:
 
 [,javascript]
@@ -188,47 +188,7 @@ mod MyContract {
 }
 ----
 
-== Custom implementations
-
-:erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
-:decimals: xref:/api/erc20.adoc#IERC20Metadata-decimals[decimals]
-:ierc20metadata: xref:/api/erc20.adoc#IERC20Metadata[IERC20Metadata]
-:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
-
-There may be instances where a contract requires different behavior in a component implementation.
-In {erc20-component}, for example, the `ERC20MetadataImpl` provides a static {decimals} method which returns`18`.
-If a contract wanted to make the `decimals` method dynamic, the `impl` can no longer be embedded.
-Rather, the contract would have to create its own `impl` of the {ierc20metadata} interface and expose it in the contract.
-
-TIP: {custom-decimals} provides a guide for this exact scenario.
-
-== Accessing component storage
-
-WARNING: Writing to component storage can easily corrupt the state, bypass security checks, and undermine the component logic.
-*Exercise extreme caution*.
-
-Just as contracts can access methods within a component implementation, contracts can also access component storage.
-Storage members are accessible to the contract by instantiating the component's `InternalImpl` like this:
-
-[,javascript]
-----
-#[starknet::contract]
-mod MyContract {
-    (...)
-
-    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
-
-    fn write_to_comp_storage(self: @ContractState) -> bool {
-        self.initializable.Initializable_initialized.write(true);
-    }
-
-    fn read_from_comp_storage(self: @ContractState) -> bool {
-        self.initializable.Initializable_initialized.read()
-    }
-}
-----
-
-== Component dependencies
+=== Handling component dependencies
 
 :access-component: xref:/api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]
@@ -281,3 +241,57 @@ mod MyContract {
     (...)
 }
 ----
+
+== Customization
+
+:security: xref:/usage.adoc#security[Security]
+
+WARNING: Customizing implementations and accessing component storage can potentially corrupt the state, bypass security checks, and undermine the component logic.
+*Exercise extreme caution*. See {security}.
+
+=== Custom implementations
+
+:erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
+:decimals: xref:/api/erc20.adoc#IERC20Metadata-decimals[decimals]
+:ierc20metadata: xref:/api/erc20.adoc#IERC20Metadata[IERC20Metadata]
+:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
+
+There may be instances where a contract requires different behavior from a component implementation.
+The contract can create a custom implementation by importing the appropriate interface and defining the new logic.
+
+In {erc20-component}, for example, the `ERC20MetadataImpl` provides a static {decimals} method which returns`18`.
+If a contract wanted to change the return value of `decimals`, the `impl` can no longer be embedded.
+Rather, the contract would have to create its own `impl` of the {ierc20metadata} interface and expose it in the contract.
+
+TIP: {custom-decimals} provides a guide for this exact scenario.
+
+=== Accessing component storage
+
+Just as contracts can access methods within a component implementation, contracts can also access component storage.
+Storage members are accessible to the contract by instantiating the component's `InternalImpl` like this:
+
+[,javascript]
+----
+#[starknet::contract]
+mod MyContract {
+    (...)
+
+    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
+
+    fn write_to_comp_storage(ref self: ContractState) -> bool {
+        self.initializable.Initializable_initialized.write(true);
+    }
+
+    fn read_from_comp_storage(self: @ContractState) -> bool {
+        self.initializable.Initializable_initialized.read()
+    }
+}
+----
+
+== Security
+
+The maintainers of OpenZeppelin Contracts for Cairo are mainly concerned with the correctness and security of the code as published in the library.
+
+Customizing implementations and manipulating the component state may break some important assumptions and introduce vulnerabilities in otherwise secure code.
+While we try to ensure the components remain secure in the face of a wide range of potential customizations, this is done in a best-effort manner.
+Any and all customizations to the component logic should be carefully reviewed and checked against the source code of the component they are customizing so as to fully understand their impact and guarantee their security. 

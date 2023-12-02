@@ -103,11 +103,14 @@ fn test_transfer_ownership() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('New owner is the zero address',))]
 fn test_transfer_ownership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transfer_ownership(ZERO());
+
+    assert_event_ownership_transfer_started(OWNER(), ZERO());
+    assert(state.owner() == OWNER(), 'Owner should be OWNER');
+    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
 }
 
 #[test]
@@ -148,11 +151,14 @@ fn test_transferOwnership() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('New owner is the zero address',))]
 fn test_transferOwnership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transferOwnership(ZERO());
+
+    assert_event_ownership_transfer_started(OWNER(), ZERO());
+    assert(state.owner() == OWNER(), 'Owner should be OWNER');
+    assert(state.pendingOwner() == ZERO(), 'Pending owner should be ZERO');
 }
 
 #[test]

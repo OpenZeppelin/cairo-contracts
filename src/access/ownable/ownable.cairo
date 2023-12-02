@@ -123,7 +123,6 @@ mod OwnableComponent {
         fn transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
-            assert(!new_owner.is_zero(), Errors::ZERO_ADDRESS_OWNER);
             self.assert_only_owner();
             self._propose_owner(new_owner);
         }

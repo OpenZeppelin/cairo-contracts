@@ -34,7 +34,7 @@ The `path` argument should be the imported component itself (in this case, {init
 Notice that the `storage` and `event` arguments are representations set within the macro.
 In other words, the `initializable` and `InitializableEvent` names follow this library's convention, but they can be renamed.
 
-=== Component storage and events
+=== Storage and events
 
 The component's storage and events must be added to the contract's `Storage` struct and `Event` enum respectively.
 If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
@@ -72,7 +72,7 @@ Component events are not flattened in the component itself because it would remo
 Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
 By flattening the component event in the contract, the first key will be the event ID.
 
-=== Integrating implementations
+=== Implementations
 
 :accessing-storage: xref:/usage.adoc#accessing_component_storage[Accessing component storage]
 
@@ -123,8 +123,6 @@ Notice that the function must pass the state (`self`) and the component's storag
 
 NOTE: Contracts can also (indirectly) access a component's storage. See {accessing-storage}.
 
-=== Embedding implementations
-
 While there's nothing wrong with manually exposing methods like in the previous example, this process can be tedious for implementations with many methods.
 Fortunately, a contract can embed implementations into the ABI which will expose all of the methods of the implementation.
 To embed an implementation, add the `#[abi(embed_v0)]` attribute above the `impl`:
@@ -145,7 +143,9 @@ mod MyContract {
 `InitializableImpl` defines the `is_initialized` method in the component.
 By adding the embed attribute, `is_initialized` becomes a contract entrypoint for `MyContract`.
 
-=== Using component initializers
+=== Initializers
+
+:ownable-component: xref:/api/access.adoc#OwnableComponent[OwnableComponent]
 
 WARNING: Failing to use a component's `initializer` can result in irreparable contract deployments.
 Always read the API documentation for each integrated component.
@@ -153,7 +153,7 @@ Always read the API documentation for each integrated component.
 Some components require some sort of setup upon construction.
 Usually, this would be a job for a constructor; however, components themselves cannot provide constructors.
 Components instead offer ``initializer``s within their `InternalImpl` which enables a contract to create a constructor and invoke the component's `initializer`.
-Let's look at how a contract would integrate `OwnableComponent`:
+Let's look at how a contract would integrate {ownable-component}:
 
 [,javascript]
 ----
@@ -188,7 +188,7 @@ mod MyContract {
 }
 ----
 
-=== Handling component dependencies
+=== Dependencies
 
 :access-component: xref:/api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]

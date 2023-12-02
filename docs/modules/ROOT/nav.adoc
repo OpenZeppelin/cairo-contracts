@@ -2,10 +2,10 @@
 
 * Learn
 
-* xref:extensibility.adoc[Extensibility]
+** xref:extensibility.adoc[Extensibility]
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
 ** xref:/guides/deployment.adoc[Counterfactual deployments]
-* xref:udc.adoc[Universal Deployer Contract]
+** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
 
@@ -28,7 +28,7 @@
 
 *** xref:erc721.adoc[ERC721]
 **** xref:/api/erc721.adoc[API Reference]
-** xref:erc1155.adoc[ERC1155]
+*** xref:erc1155.adoc[ERC1155]
 
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]

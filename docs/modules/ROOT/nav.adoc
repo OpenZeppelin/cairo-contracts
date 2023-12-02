@@ -33,7 +33,7 @@
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
-* xref:utilities.adoc[Utilities]
+** xref:utilities.adoc[Utilities]
 
 * See also
 

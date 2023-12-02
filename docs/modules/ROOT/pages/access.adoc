@@ -110,7 +110,17 @@ will no longer be callable!
 
 The component also offers a more robust way of transferring ownership via the
 xref:/api/access.adoc#OwnableTwoStepImpl[OwnableTwoStepImpl] implementation. A two step transfer mechanism helps
-to prevent unintended and irreversible owner transfers.
+to prevent unintended and irreversible owner transfers. Simply replace the `OwnableImpl` and `OwnableCamelOnlyImpl`
+with their respective two step variants:
+
+[,javascript]
+----
+#[abi(embed_v0)]
+impl OwnableTwoStepImpl = OwnableComponent::OwnableTwoStepImpl<ContractState>;
+#[abi(embed_v0)]
+impl OwnableTwoStepCamelOnlyImpl =
+    OwnableComponent::OwnableTwoStepCamelOnlyImpl<ContractState>;
+----
 
 == Role-Based `AccessControl`
 

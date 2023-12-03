@@ -36,31 +36,6 @@ fn test_register_interface() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_register_interfaces() {
-    let mut state = STATE();
-    let ids = array![OTHER_ID, OTHER_ID_2];
-    state.src5.register_interfaces(ids.span());
-
-    let supports_id = state.src5.supports_interface(OTHER_ID);
-    assert(supports_id, 'Should support new interface');
-
-    let supports_id_2 = state.src5.supports_interface(OTHER_ID_2);
-    assert(supports_id_2, 'Should support new interface');
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_register_interfaces_one_id() {
-    let mut state = STATE();
-    let ids = array![OTHER_ID];
-    state.src5.register_interfaces(ids.span());
-
-    let supports_id = state.src5.supports_interface(OTHER_ID);
-    assert(supports_id, 'Should support new interface');
-}
-
-#[test]
-#[available_gas(2000000)]
 fn test_deregister_interface() {
     let mut state = STATE();
     state.src5.register_interface(OTHER_ID);

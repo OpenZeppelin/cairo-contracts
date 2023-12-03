@@ -59,8 +59,8 @@ mod AccountComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions,
-        /// otherwise, the version must be `QUERY_VERSION`.
+        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions.
+        /// For simulations, the version must be `QUERY_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {

@@ -187,6 +187,7 @@ mod ERC20Component {
         /// Requirements:
         ///
         /// - `spender` is not the zero address.
+        /// - `spender` must have at least an allowance of `subtracted_value`.
         ///
         /// Emits an `Approval` event indicating the updated allowance.
         fn decrease_allowance(
@@ -261,6 +262,7 @@ mod ERC20Component {
         /// Requirements:
         ///
         /// - `sender` is not the zero address.
+        /// - `sender` must have at least a balance of `amount`.
         /// - `recipient` is not the zero address.
         ///
         /// Emits a `Transfer` event.
@@ -314,11 +316,12 @@ mod ERC20Component {
             self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
         }
 
-        /// Destroys a `value` amount of tokens from `account`.
+        /// Destroys `amount` of tokens from `account`.
         ///
         /// Requirements:
         ///
         /// - `account` is not the zero address.
+        /// - `account` must have at least a balance of `amount`.
         ///
         /// Emits a `Transfer` event with `to` set to the zero address.
         fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
@@ -342,6 +345,11 @@ mod ERC20Component {
         }
 
         /// Internal method for the external `decrease_allowance`.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` must have at least an allowance of `subtracted_value` from caller.
+        ///
         /// Emits an `Approval` event indicating the updated allowance.
         fn _decrease_allowance(
             ref self: ComponentState<TContractState>,
@@ -360,6 +368,11 @@ mod ERC20Component {
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` must have at least an allowance of `amount` from `owner`.
+        ///
         /// Possibly emits an `Approval` event.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,

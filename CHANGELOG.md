@@ -9,4 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Class hashes documentation for each preset (#832)
+- Documentation for presets (#832)

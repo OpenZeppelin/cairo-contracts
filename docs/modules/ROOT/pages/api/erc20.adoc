@@ -484,12 +484,12 @@ use openzeppelin::presets::ERC20;
 
 Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
 
-:class-hashes: xref:presets.adoc[Compiled class hash]
+include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes}
+.{class-hashes-page}
 --
-0x01d7085cee580ba542cdb5709bda80ebfe8bdede664261a3e6af92994d9a1de7
+{erc20-class-hash}
 --
 
 [.contract-index]

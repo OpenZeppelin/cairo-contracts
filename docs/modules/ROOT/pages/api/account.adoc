@@ -272,12 +272,12 @@ use openzeppelin::presets::Account;
 
 Basic account contract leveraging xref:#AccountComponent[AccountComponent].
 
-:class-hashes: xref:presets.adoc[Compiled class hash]
+include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes}
+.{class-hashes-page}
 --
-0x016c6081eb34ad1e0c5513234ed0c025b3c7f305902d291bad534cd6474c85bc
+{account-class-hash}
 --
 
 [.contract-index]

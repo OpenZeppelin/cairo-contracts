@@ -69,7 +69,7 @@ Returns the owner address of `token_id`.
 
 Transfer ownership of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC721 protocol to prevent tokens being locked forever.
 For information regarding how contracts communicate their awareness of the ERC721 protocol, see {receiving-tokens}.
-    
+
 Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
@@ -77,10 +77,10 @@ Emits a <<IERC721-Transfer,Transfer>> event.
 ==== `[.contract-item-name]#++transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#external#
 
 Transfer ownership of `token_id` from `from` to `to`.
-    
+
 Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721 transfers or else they may be permanently lost.
 Usage of <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
-    
+
 Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
@@ -550,19 +550,19 @@ Requirements:
 ==== Events
 
 [.contract-item]
-[[IERC721-Approval]]
+[[ERC721-Approval]]
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, approved: ContractAddress, token_id: u256)++` [.item-kind]#event#
 
 See <<IERC721-Approval,Approval>>.
 
 [.contract-item]
-[[IERC721-ApprovalForAll]]
+[[ERC721-ApprovalForAll]]
 ==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#event#
 
 See <<IERC721-ApprovalForAll,ApprovalForAll>>.
 
 [.contract-item]
-[[IERC721-Transfer]]
+[[ERC721-Transfer]]
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#event#
 
 See <<IERC721-Transfer,Transfer>>.
@@ -602,7 +602,7 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0-beta.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC721;
@@ -610,12 +610,12 @@ use openzeppelin::presets::ERC721;
 
 Basic ERC721 contract leveraging xref:#ERC721Component[ERC721Component].
 
-:class-hashes: xref:presets.adoc[Compiled class hash]
+include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes}
+.{class-hashes-page}
 --
-0x04376782cbcd20a05f8e742e96150757383dab737ab3e791b8505ad856756907
+{erc721-class-hash}
 --
 
 [.contract-index]

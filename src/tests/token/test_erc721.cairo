@@ -32,7 +32,7 @@ use starknet::testing;
 
 type ComponentState = ERC721Component::ComponentState<DualCaseERC721Mock::ContractState>;
 
-fn MOCK_STATE() -> DualCaseERC721Mock::ContractState {
+fn CONTRACT_STATE() -> DualCaseERC721Mock::ContractState {
     DualCaseERC721Mock::contract_state_for_testing()
 }
 fn COMPONENT_STATE() -> ComponentState {
@@ -73,7 +73,7 @@ fn setup_camel_account() -> ContractAddress {
 #[available_gas(20000000)]
 fn test_initialize() {
     let mut state = COMPONENT_STATE();
-    let mock_state = MOCK_STATE();
+    let mock_state = CONTRACT_STATE();
 
     state.initializer(NAME, SYMBOL);
 

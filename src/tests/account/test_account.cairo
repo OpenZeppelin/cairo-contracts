@@ -55,7 +55,7 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 
 type ComponentState = AccountComponent::ComponentState<DualCaseAccountMock::ContractState>;
 
-fn MOCK_STATE() -> DualCaseAccountMock::ContractState {
+fn CONTRACT_STATE() -> DualCaseAccountMock::ContractState {
     DualCaseAccountMock::contract_state_for_testing()
 }
 
@@ -483,7 +483,7 @@ fn test_public_key_setter_different_account_camel() {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
-    let mock_state = MOCK_STATE();
+    let mock_state = CONTRACT_STATE();
 
     state.initializer(PUBKEY);
     let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();

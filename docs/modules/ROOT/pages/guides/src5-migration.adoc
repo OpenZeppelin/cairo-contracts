@@ -133,7 +133,9 @@ This utility function uses the {storage-write-syscall} to manually delete the pa
 
 ==== Reregistering IDs
 
-Since the new contract integrates `SRC5Component`, it can leverage SRC5's `register_interface` function to reregister supported interfaces.
+:register_interface: xref:/api/introspection.adoc#SRC5Component-register_interface[register_interface]
+
+Since the new contract integrates `SRC5Component`, it can leverage SRC5's {register_interface} function to reregister supported interfaces.
 
 === Migration initializer
 

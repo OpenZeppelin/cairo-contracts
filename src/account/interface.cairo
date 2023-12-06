@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0-beta.0 (account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (account/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -11,11 +11,6 @@ trait ISRC6<TState> {
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
-}
-
-#[starknet::interface]
-trait ISRC6CamelOnly<TState> {
-    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 }
 
 #[starknet::interface]
@@ -34,6 +29,11 @@ trait IDeployable<TState> {
 trait IPublicKey<TState> {
     fn get_public_key(self: @TState) -> felt252;
     fn set_public_key(ref self: TState, new_public_key: felt252);
+}
+
+#[starknet::interface]
+trait ISRC6CamelOnly<TState> {
+    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 }
 
 #[starknet::interface]

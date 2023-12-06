@@ -87,6 +87,7 @@ mod MigratingContract {
 
 :ierc721: xref:/api/erc721.adoc#IERC721[IERC721]
 :ierc721-metadata: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
+:deregister-function: xref:/utilities.adoc#utils-deregister_erc165_interface[deregister_erc165_interface]
 :storage-write-syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#storage_write[storage_write_syscall]
 
 To successfully migrate ERC165 to SRC5, the contract needs to both deregister support for ERC165 interface IDs and reregister support for those interfaces with SRC5.
@@ -123,10 +124,16 @@ mod MigratingContract {
 }
 ----
 
+==== Deregistering IDs
+
 A contract normally includes the storage variable in the `Storage` struct in order to access it.
 The new contract, however, will no longer be reading from ERC165's storage address because it's reading from SRC5's storage address.
-To avoid adding ERC165's storage variable to the new contract's storage, the contract can utilize `utils::deregister_erc165_interface`.
+To avoid adding ERC165's storage variable to the new contract's storage, the contract can utilize {deregister-function}.
 This utility function uses the {storage-write-syscall} to manually delete the passed `erc165_id` from the ERC165 storage address.
+
+==== Reregistering IDs
+
+Since the new contract integrates `SRC5Component`, it can leverage SRC5's `register_interface` function to reregister supported interfaces.
 
 === Migration initializer
 

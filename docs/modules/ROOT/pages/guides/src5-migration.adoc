@@ -11,26 +11,34 @@ Since the Cairo language evolved introducing native types, we needed an introspe
 SNIP-5 allows interface ID calculations to use Cairo types and the Starknet keccak (`sn_keccak`) function.
 For more information on the decision, see the {shamans-proposal} or the {dual-interface-discussion} discussion.
 
-== Migrating to SRC5
+== How to migrate
 
-:src5-component: xref:api/introspection#SRC5Component[SRC5Component]
-:upgradeable-component: xref:api/upgrades#UpgradeableComponent[UpgradeableComponent]
-:isrc6: xref:api/account.adoc#ISRC6[ISRC6]
-:src5-rs: https://github.com/ericnordelo/src5-rs[src5-rs]
+The migration process involves integrating SRC5, deregistering ERC165 interface IDs, reregistering SRC5 interface IDs, and exposing a migration initializer to call after the contract upgrade.
+The following guide will go through each step with examples.
 
-This guide is for already-deployed, upgradeable contracts that support ERC165.
-Migrating to SRC5 requires integrating the {src5-component}.
+=== Component integration
+
+:src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]
+:upgradeable-component: xref:/api/upgrades.adoc#UpgradeableComponent[UpgradeableComponent]
+:initializable-component: xref:/api/security.adoc#InitializableComponent[InitializableComponent]
+
+The first step is to integrate the necessary components into the new contract.
+The contract should include the new introspection mechanism, {src5-component}.
+It should also include the {upgradeable-component} and {initializable-component} which will be used in the migration initializer.
+Here's the setup:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MigratingContract {
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::security::initializable::InitializableComponent;
     use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     // SRC5
@@ -40,6 +48,9 @@ mod MigratingContract {
     impl SRC5CamelOnlyImpl = SRC5Component::SRC5CamelImpl<ContractState>;
     impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
+    // Initializable
+    impl InitializableInternalImpl = InitializableComponent::InternalImpl<ContractState>;
+
     // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
@@ -47,6 +58,8 @@ mod MigratingContract {
     struct Storage {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
     }
@@ -57,34 +70,89 @@ mod MigratingContract {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
+        InitializableEvent: InitializableComponent::Event,
+        #[flat]
         UpgradeableEvent: UpgradeableComponent::Event
     }
-
-    // The rest of the contract logic
 }
 ----
 
-The contract will also need to register the new SRC5 interface IDs in order to continue declaring support for those interfaces.
-We can create a migration initializer to handle this which needs to be called after the contract upgrade.
+=== Interface registration
 
-TIP: OpenZeppelin's Contracts for Cairo already provides the interface IDs of common interfaces in the API section (like {isrc6}).
-For interfaces not provided, tools such as {src5-rs} can help with interface ID calculation.
+:ierc721: xref:/api/erc721.adoc#IERC721[IERC721]
+:ierc721-metadata: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
+:storage-write-syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#storage_write[storage_write_syscall]
+
+To successfully migrate ERC165 to SRC5, the contract needs to both deregister support for ERC165 interface IDs and reregister support for those interface IDs with SRC5.
+
+For this example, let's say that this contract supports the {ierc721} and {ierc721-metadata} interfaces.
+The contract should implement an `InternalImpl` and add functions to deregister and reregister  support for those interfaces like this:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MigratingContract {
+    use openzeppelin::utils;
+    use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721Metadata_ID};
 
     (...)
 
-    #[external(v0)]
-    fn migration_initializer(ref self: ContractState, interface_ids: Span<felt252>) {
-        // Add permissions mechanism
-        self.src5.register_interfaces(interface_ids);
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        // Delete ERC165 interface support from storage
+        fn deregister_erc165_interfaces(ref self: ContractState) {
+            let ERC165_IERC721_ID = 0x80ac58cd;
+            let ERC165_IERC721_METADATA_ID = 0x5b5e139f;
+
+            utils::deregister_erc165_interface(ERC165_IERC721_ID);
+            utils::deregister_erc165_interface(ERC165_IERC721_METADATA_ID);
+        }
+
+        // Reregister SRC5 interfaces
+        fn register_src5_interfaces(ref self: ContractState) {
+            self.src5.register_interface(IERC721_ID);
+            self.src5.register_interface(IERC721Metadata_ID);
+        }
     }
 }
 ----
 
-Note that deployed contracts with upgradeability should also be carefully tested before migrating.
-Upgradeable contracts will likely include some form of xref:access.adoc[access mechanism] for the upgrade function.
-Take extreme care with ensuring admins are not inadvertantly stripped of their permissions.
+A contract normally includes the storage variable in the `Storage` struct in order to access it.
+The new contract, however, will no longer be reading from ERC165's storage address because it's reading from SRC5's storage address.
+To avoid adding ERC165's storage variable to the new contract's storage, the contract can utilize `utils::deregister_erc165_interface`.
+This utility function uses the {storage-write-syscall} to manually delete the passed `erc165_id` from the ERC165 storage address.
+
+=== Migration initializer
+
+:access-control: xref:/access.adoc[Access Control]
+
+Next, the contract should define and expose a migration initializer that will invoke the deregister and reregister functions.
+Since the initializer will be publicly callable, it should include some sort of {access-control} so that only permitted addresses can call the function.
+Finally, the initializer should include a reinitialization check to ensure that it cannot be called more than once.
+
+[,javascript]
+----
+#[starknet::contract]
+mod MigratingContract {
+    (...)
+
+    #[external(v0)]
+    fn migration_initializer(ref self: ContractState) {
+        // Add appropriate Access Control mechanism
+
+        // Invoke `initialize` so this function can only be called once
+        self.initializable.initialize();
+
+        // Deregister ERC165 IDs
+        self.deregister_erc165_interfaces();
+
+        // Reregister SRC5 IDs
+        self.register_src5_interfaces();
+    }
+}
+----
+
+=== Execute migration
+
+Once the new contract is prepared for migration and *rigorously tested*, all that's left is to migrate!
+Simply upgrade the contract and then call the `migration_initializer`.

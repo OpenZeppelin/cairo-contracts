@@ -35,9 +35,8 @@ fn try_selector_with_fallback(
 fn deregister_erc165_interface(erc165_id: felt252) {
     let address_domain = 0_u32;
     let base_address = selector!("ERC165_supported_interfaces");
-    let storage_address = storage_address_try_from_felt252(
-        pedersen(base_address, erc165_id)
-    ).unwrap();
+    let storage_address = storage_address_try_from_felt252(pedersen(base_address, erc165_id))
+        .unwrap();
 
     starknet::storage_write_syscall(address_domain, storage_address, 0);
 }

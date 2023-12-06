@@ -1,7 +1,7 @@
 mod accesscontrol_mocks;
 mod account_mocks;
-mod erc20_mocks;
 mod erc165_deregister_mock;
+mod erc20_mocks;
 mod erc721_mocks;
 mod erc721_receiver_mocks;
 mod initializable_mock;

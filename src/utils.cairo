@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0 (utils.cairo)
 
-mod constants;
 mod selectors;
 mod serde;
 mod unwrap_and_cast;
@@ -15,13 +14,13 @@ use starknet::storage_address_try_from_felt252;
 use unwrap_and_cast::UnwrapAndCast;
 
 fn try_selector_with_fallback(
-    target: ContractAddress, snake_selector: felt252, camel_selector: felt252, args: Span<felt252>
+    target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>
 ) -> SyscallResult<Span<felt252>> {
-    match call_contract_syscall(target, snake_selector, args) {
+    match call_contract_syscall(target, selector, args) {
         Result::Ok(ret) => Result::Ok(ret),
         Result::Err(errors) => {
             if *errors.at(0) == 'ENTRYPOINT_NOT_FOUND' {
-                return call_contract_syscall(target, camel_selector, args);
+                return call_contract_syscall(target, fallback, args);
             } else {
                 Result::Err(errors)
             }

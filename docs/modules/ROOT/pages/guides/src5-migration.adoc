@@ -13,8 +13,14 @@ For more information on the decision, see the {shamans-proposal} or the {dual-in
 
 == How to migrate
 
-The migration process involves integrating SRC5, deregistering ERC165 interface IDs, reregistering SRC5 interface IDs, and exposing a migration initializer to call after the contract upgrade.
-The following guide will go through each step with examples.
+Migrating from ERC165 to SRC5 involves four major steps:
+
+1. Integrate SRC5 into the contract.
+2. Create functions to deregister ERC165 IDs and reregister SRC5 IDs.
+3. Create a `migration_initializer` to call the registration functions.
+4. Upgrade the contract and call `migration_initializer`.
+
+The following guide will go through the steps with examples.
 
 === Component integration
 
@@ -83,7 +89,7 @@ mod MigratingContract {
 :ierc721-metadata: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
 :storage-write-syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#storage_write[storage_write_syscall]
 
-To successfully migrate ERC165 to SRC5, the contract needs to both deregister support for ERC165 interface IDs and reregister support for those interface IDs with SRC5.
+To successfully migrate ERC165 to SRC5, the contract needs to both deregister support for ERC165 interface IDs and reregister support for those interfaces with SRC5.
 
 For this example, let's say that this contract supports the {ierc721} and {ierc721-metadata} interfaces.
 The contract should implement an `InternalImpl` and add functions to deregister and reregister  support for those interfaces like this:

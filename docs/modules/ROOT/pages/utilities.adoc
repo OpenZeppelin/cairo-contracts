@@ -22,7 +22,6 @@ Module containing core utilities of the library.
 --
 .Functions
 * xref:#utils-try_selector_with_fallback[`++try_selector_with_fallback(target, selector, fallback, args)++`]
-* xref:#utils-deregister_erc165_interface[`++deregister_erc165_interface(erc165_id)++`]
 
 .Traits
 * xref:#utils-UnwrapAndCast[`++UnwrapAndCast++`]
@@ -58,14 +57,6 @@ error is returned.
 
 WARNING: The fallback mechanism won't work on live chains (mainnet or testnets) until
 they implement panic handling in their runtime.
-
-[.contract-item]
-[[utils-deregister_erc165_interface]]
-==== `[.contract-item-name]#++deregister_erc165_interface++#++(erc165_id: felt252)++` [.item-kind]#function#
-
-Deletes `erc165_id` value from the storage variable `ERC165_supported_interfaces` in the calling contract's storage.
-
-This function is designed to be used in a ERC165-to-SRC5 migration process.
 
 [#utils-Traits]
 ==== Traits

@@ -86,8 +86,7 @@ The contract should implement an `InternalImpl` and add a function to register t
 ----
 #[starknet::contract]
 mod MigratingContract {
-    use openzeppelin::utils;
-    use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721Metadata_ID};
+    use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 
     (...)
 
@@ -96,7 +95,7 @@ mod MigratingContract {
         // Register SRC5 interfaces
         fn register_src5_interfaces(ref self: ContractState) {
             self.src5.register_interface(IERC721_ID);
-            self.src5.register_interface(IERC721Metadata_ID);
+            self.src5.register_interface(IERC721_METADATA_ID);
         }
     }
 }
@@ -125,7 +124,7 @@ mod MigratingContract {
         // Invoke `initialize` so this function can only be called once
         self.initializable.initialize();
 
-        // Register SRC5 IDs
+        // Register SRC5 interfaces
         self.register_src5_interfaces();
     }
 }

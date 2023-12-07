@@ -107,7 +107,7 @@ mod MyPausableContract {
 
     #[generate_trait]
     #[external(v0)]
-    impl External of ExternalTrait {
+    impl ExternalImpl of ExternalTrait {
         fn pause(ref self: ContractState) {
             self.ownable.assert_only_owner();
             self.pausable._pause();
@@ -169,7 +169,7 @@ mod MyReentrancyContract {
 
     #[generate_trait]
     #[external(v0)]
-    impl External of ExternalTrait {
+    impl ExternalImpl of ExternalTrait {
         fn protected_function(ref self: ContractState) {
             self.reentrancy_guard.start();
 

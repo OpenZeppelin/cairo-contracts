@@ -67,7 +67,12 @@ mod PausableComponent {
         }
 
         /// Triggers a stopped state.
-        /// The contract must not already be paused.
+        ///
+        /// Requirements:
+        ///
+        /// - The contract is not paused.
+        ///
+        /// Emits a `Paused` event.
         fn _pause(ref self: ComponentState<TContractState>) {
             self.assert_not_paused();
             self.Pausable_paused.write(true);
@@ -75,7 +80,12 @@ mod PausableComponent {
         }
 
         /// Lifts the pause on the contract.
-        /// The contract must already be paused.
+        ///
+        /// Requirements:
+        ///
+        /// - The contract is paused.
+        ///
+        /// Emits an `Unpaused` event.
         fn _unpause(ref self: ComponentState<TContractState>) {
             self.assert_paused();
             self.Pausable_paused.write(false);

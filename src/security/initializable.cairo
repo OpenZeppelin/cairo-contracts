@@ -34,6 +34,10 @@ mod InitializableComponent {
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Ensures the calling function can only be called once.
+        ///
+        /// Requirements:
+        ///
+        /// - `initialize` was not previously called.
         fn initialize(ref self: ComponentState<TContractState>) {
             assert(!self.is_initialized(), Errors::INITIALIZED);
             self.Initializable_initialized.write(true);

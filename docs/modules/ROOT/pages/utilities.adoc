@@ -63,9 +63,9 @@ they implement panic handling in their runtime.
 [[utils-deregister_erc165_interface]]
 ==== `[.contract-item-name]#++deregister_erc165_interface++#++(erc165_id: felt252)++` [.item-kind]#function#
 
-Manually deletes `erc165_id` value from the storage variable `ERC165_supported_interfaces` in the calling contract's storage.
+Deletes `erc165_id` value from the storage variable `ERC165_supported_interfaces` in the calling contract's storage.
 
-This function should only be used by a migration initializer in the ERC165-to-SRC5 migration process.
+This function is designed to be used in a ERC165-to-SRC5 migration process.
 
 [#utils-Traits]
 ==== Traits

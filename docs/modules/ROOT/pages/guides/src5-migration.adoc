@@ -16,9 +16,9 @@ For more information on the decision, see the {shamans-proposal} or the {dual-in
 Migrating from ERC165 to SRC5 involves four major steps:
 
 1. Integrate SRC5 into the contract.
-2. Create functions to deregister ERC165 IDs and reregister SRC5 IDs.
-3. Create a `migration_initializer` to call the registration functions.
-4. Upgrade the contract and call `migration_initializer`.
+2. Create functions to deregister ERC165 IDs and register SRC5 IDs.
+3. Add a `migrate` function to apply introspection changes.
+4. Upgrade the contract and call `migrate`.
 
 The following guide will go through the steps with examples.
 
@@ -93,7 +93,7 @@ mod MigratingContract {
 To successfully migrate ERC165 to SRC5, the contract needs to both deregister support for ERC165 interface IDs and reregister support for those interfaces with SRC5.
 
 For this example, let's say that this contract supports the {ierc721} and {ierc721-metadata} interfaces.
-The contract should implement an `InternalImpl` and add functions to deregister and reregister  support for those interfaces like this:
+The contract should implement an `InternalImpl` and add functions to deregister and reregister those interfaces like this:
 
 [,javascript]
 ----
@@ -129,9 +129,9 @@ mod MigratingContract {
 A contract normally includes the storage variable in the `Storage` struct in order to access it.
 The new contract, however, will no longer be reading from ERC165's storage address because it's reading from SRC5's storage address.
 To avoid adding ERC165's storage variable to the new contract's storage, the contract can utilize {deregister-function}.
-This utility function uses the {storage-write-syscall} to manually delete the passed `erc165_id` from the ERC165 storage address.
+This utility function uses the {storage-write-syscall} to delete the registered interface from the ERC165 storage slot.
 
-==== Reregistering IDs
+==== Registering IDs
 
 :register_interface: xref:/api/introspection.adoc#SRC5Component-register_interface[register_interface]
 
@@ -141,7 +141,7 @@ Since the new contract integrates `SRC5Component`, it can leverage SRC5's {regis
 
 :access-control: xref:/access.adoc[Access Control]
 
-Next, the contract should define and expose a migration initializer that will invoke the deregister and reregister functions.
+Next, the contract should define and expose a migration function that will invoke the deregister and reregister functions.
 Since the initializer will be publicly callable, it should include some sort of {access-control} so that only permitted addresses can call the function.
 Finally, the initializer should include a reinitialization check to ensure that it cannot be called more than once.
 
@@ -153,7 +153,7 @@ mod MigratingContract {
 
     #[external(v0)]
     fn migration_initializer(ref self: ContractState) {
-        // Add appropriate Access Control mechanism
+        // WARNING: Missing Access Control mechanism. Make sure to add one.
 
         // Invoke `initialize` so this function can only be called once
         self.initializable.initialize();

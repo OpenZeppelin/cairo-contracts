@@ -66,7 +66,6 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 .InternalImpl
 
 * xref:#SRC5Component-register_interface[`++register_interface(self, interface_id)++`]
-* xref:#SRC5Component-register_interfaces[`++register_interfaces(self, interface_ids)++`]
 * xref:#SRC5Component-deregister_interface[`++deregister_interface(self, interface_id)++`]
 --
 
@@ -87,12 +86,6 @@ See xref:ISRC5-supports_interface[`ISRC5::supports_interface`].
 ==== `[.contract-item-name]#++register_interface++#++(ref self: ComponentState, interface_id: felt252)++` [.item-kind]#internal#
 
 Registers support for the given `interface_id`.
-
-[.contract-item]
-[[SRC5Component-register_interfaces]]
-==== `[.contract-item-name]#++register_interfaces++#++(ref self: ComponentState, interface_ids: Span<felt252>)++` [.item-kind]#internal#
-
-Registers support for the given `interface_ids`.
 
 [.contract-item]
 [[SRC5Component-deregister_interface]]

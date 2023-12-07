@@ -3,7 +3,6 @@ use openzeppelin::introspection::src5::SRC5Component::InternalTrait;
 use openzeppelin::tests::mocks::src5_mocks::DualCaseSRC5Mock;
 
 const OTHER_ID: felt252 = 0x12345678;
-const OTHER_ID_2: felt252 = 0x87654321;
 
 fn STATE() -> DualCaseSRC5Mock::ContractState {
     DualCaseSRC5Mock::contract_state_for_testing()

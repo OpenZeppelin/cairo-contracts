@@ -111,6 +111,9 @@ Next, the contract should define and expose a migration function that will invok
 Since the `migrate` function will be publicly callable, it should include some sort of {access-control} so that only permitted addresses can execute the migration.
 Finally, `migrate` should include a reinitialization check to ensure that it cannot be called more than once.
 
+WARNING: If the original contract implemented `Initializable` at any point and called the `initialize` method, the `InitializableComponent` will not be usable at this time.
+Instead, the contract can take inspiration from `InitializableComponent` and create its own initialization mechanism.
+
 [,javascript]
 ----
 #[starknet::contract]
@@ -121,7 +124,8 @@ mod MigratingContract {
     fn migrate(ref self: ContractState) {
         // WARNING: Missing Access Control mechanism. Make sure to add one
 
-        // Invoke `initialize` so this function can only be called once
+        // WARNING: If the contract ever implemented `Initializable` in the past,
+        // this will not work. Make sure to create a new initialization mechanism
         self.initializable.initialize();
 
         // Register SRC5 interfaces

@@ -14,4 +14,3 @@
 * xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]
-* https://wizard.openzeppelin.com/cairo[Wizard]

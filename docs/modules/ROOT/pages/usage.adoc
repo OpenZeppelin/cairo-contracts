@@ -252,18 +252,111 @@ WARNING: Customizing implementations and accessing component storage can potenti
 === Custom implementations
 
 :erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
-:decimals: xref:/api/erc20.adoc#IERC20Metadata-decimals[decimals]
-:ierc20metadata: xref:/api/erc20.adoc#IERC20Metadata[IERC20Metadata]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
 
-There may be instances where a contract requires different behavior from a component implementation.
-The contract can create a custom implementation by importing the appropriate interface and defining the new logic.
+There are instances where a contract requires different or amended behaviors from a component implementation.
+In these scenarios, a contract must create a custom implementation of the interface.
+Let's break down a pausable ERC20 contract to see what that looks like.
+Here's the setup:
 
-In {erc20-component}, for example, the `ERC20MetadataImpl` provides a static {decimals} method which returns`18`.
-If a contract wanted to change the return value of `decimals`, the `impl` can no longer be embedded.
-Rather, the contract would have to create its own `impl` of the {ierc20metadata} interface and expose it in the contract.
+[,javascript]
+----
+#[starknet::contract]
+mod ERC20Pausable {
+    use openzeppelin::security::pausable::PausableComponent;
+    use openzeppelin::token::erc20::ERC20Component;
+    // Import the ERC20 interfaces to create custom implementations
+    use openzeppelin::token::erc20::interface::{IERC20, IERC20CamelOnly};
+    use starknet::ContractAddress;
 
-TIP: {custom-decimals} provides a guide for this exact scenario.
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl PausableInternalImpl = PausableComponent::InternalImpl<ContractState>;
+
+    // `ERC20MetadataImpl` can keep the embed directive because the implementation
+    // will not change
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    // Do not add the embed directive to these implementations because
+    // these will be customized
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    (...)
+}
+----
+
+The first thing to notice is that the contract imports the interfaces of the implementations that will be customized.
+These will be used in the next code example.
+
+Next, the contract includes the {erc20-component} implementations; however, `ERC20Impl` and `ERC20CamelOnlyImplt` are *not* embedded.
+Creating a custom implementation of an interface means that the component implementation cannot be embedded.
+The following example shows the pausable logic integrated into the ERC20 implementations:
+
+[,javascript]
+----
+#[starknet::contract]
+mod ERC20Pausable {
+    (...)
+
+    // Custom ERC20 implementation
+    #[external(v0)]
+    impl CustomERC20Impl of IERC20<ContractState> {
+        fn transfer(
+            ref self: ContractState, recipient: ContractAddress, amount: u256
+        ) -> bool {
+            // Add the custom logic
+            self.pausable.assert_not_paused();
+            // Add the original implementation method from `IERC20Impl`
+            self.erc20.transfer(recipient, amount)
+        }
+
+        fn total_supply(self: @ContractState) -> u256 {
+            // This method's behavior does not change from the component
+            // implementation, but this method must still be defined.
+            // Simply add the original implementation method from `IERC20Impl`
+            self.erc20.total_supply()
+        }
+
+        (...)
+    }
+
+    // Custom ERC20CamelOnly implementation
+    #[external(v0)]
+    impl CustomERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
+        fn totalSupply(self: @ContractState) -> u256 {
+            self.erc20.total_supply()
+        }
+
+        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+            self.erc20.balance_of(account)
+        }
+
+        fn transferFrom(
+            ref self: ContractState,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) -> bool {
+            self.pausable.assert_not_paused();
+            self.erc20.transfer_from(sender, recipient, amount)
+        }
+    }
+}
+----
+
+Notice that in the `CustomERC20Impl`, the `transfer` method integrates `pausable.assert_not_paused` as well as `erc20.transfer` from `PausableImpl` and `ERC20Impl` respectively.
+This is why the contract defined the `ERC20Impl` from the component in the previous example.
+
+Creating a custom implementation of an interface must define *all* methods from that interface.
+This is true even if the behavior of a method does not change from the component implementation (as `total_supply` exemplifies in this example).
+
+TIP: The ERC20 documentation provides a more specific custom implementations guide with {custom-decimals}.
 
 === Accessing component storage
 

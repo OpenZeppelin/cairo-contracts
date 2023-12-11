@@ -122,6 +122,33 @@ impl OwnableTwoStepCamelOnlyImpl =
     OwnableComponent::OwnableTwoStepCamelOnlyImpl<ContractState>;
 ----
 
+[#interface-twostep]
+==== Interface
+
+This is the full interface of the two step `Ownable` implementation:
+
+[,javascript]
+----
+trait IOwnableTwoStep {
+    /// Returns the address of the current owner.
+    fn owner() -> ContractAddress;
+
+    /// Returns the address of the pending owner.
+    fn pending_owner() -> ContractAddress;
+
+    /// Finishes the two-step ownership transfer process
+    /// by accepting the ownership.
+    fn accept_ownership();
+
+    /// Starts the two-step ownership transfer process
+    /// by setting the pending owner.
+    fn transfer_ownership(new_owner: ContractAddress);
+
+    /// Renounces the ownership of the contract.
+    fn renounce_ownership();
+}
+----
+
 == Role-Based `AccessControl`
 
 While the simplicity of ownership can be useful for simple systems or quick prototyping, different levels of

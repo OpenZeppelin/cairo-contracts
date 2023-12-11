@@ -68,9 +68,8 @@ The `#[substorage(v0)]` attribute must be included for each component in the `St
 This allows the contract to have indirect access to the component's storage.
 
 The `#[flat]` attribute for events in the `Event` enum, however, is not required.
-Component events are not flattened in the component itself because it would remove the event ID from the event log.
-Note that if contracts do not flatten component events, the first key in the event log will be the component ID.
-By flattening the component event in the contract, the first key will be the event ID.
+For component events, the first key in the event log is the component ID.
+Flattening the component event removes it, leaving the event ID as the first key.
 
 === Implementations
 
@@ -152,7 +151,7 @@ Always read the API documentation for each integrated component.
 
 Some components require some sort of setup upon construction.
 Usually, this would be a job for a constructor; however, components themselves cannot provide constructors.
-Components instead offer ``initializer``s within their `InternalImpl` which enables a contract to create a constructor and invoke the component's `initializer`.
+Components instead offer ``initializer``s within their `InternalImpl` to be called by the contract's constructor.
 Let's look at how a contract would integrate {ownable-component}:
 
 [,javascript]
@@ -295,7 +294,7 @@ The first thing to notice is that the contract imports the interfaces of the imp
 These will be used in the next code example.
 
 Next, the contract includes the {erc20-component} implementations; however, `ERC20Impl` and `ERC20CamelOnlyImplt` are *not* embedded.
-Creating a custom implementation of an interface means that the component implementation cannot be embedded.
+Instead, we want to embed our custom implementation of an interface.
 The following example shows the pausable logic integrated into the ERC20 implementations:
 
 [,javascript]
@@ -356,7 +355,7 @@ This is why the contract defined the `ERC20Impl` from the component in the previ
 Creating a custom implementation of an interface must define *all* methods from that interface.
 This is true even if the behavior of a method does not change from the component implementation (as `total_supply` exemplifies in this example).
 
-TIP: The ERC20 documentation provides a more specific custom implementations guide with {custom-decimals}.
+TIP: The ERC20 documentation provides another custom implementation guide for {custom-decimals}.
 
 === Accessing component storage
 
@@ -385,6 +384,6 @@ mod MyContract {
 
 The maintainers of OpenZeppelin Contracts for Cairo are mainly concerned with the correctness and security of the code as published in the library.
 
-Customizing implementations and manipulating the component state may break some important assumptions and introduce vulnerabilities in otherwise secure code.
+Customizing implementations and manipulating the component state may break some important assumptions and introduce vulnerabilities.
 While we try to ensure the components remain secure in the face of a wide range of potential customizations, this is done in a best-effort manner.
 Any and all customizations to the component logic should be carefully reviewed and checked against the source code of the component they are customizing so as to fully understand their impact and guarantee their security. 

@@ -487,7 +487,7 @@ Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixe
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes-page}
+.{presets-page}
 --
 {erc20-class-hash}
 --

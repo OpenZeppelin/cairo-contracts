@@ -613,7 +613,7 @@ Basic ERC721 contract leveraging xref:#ERC721Component[ERC721Component].
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes-page}
+.{presets-page}
 --
 {erc721-class-hash}
 --

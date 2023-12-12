@@ -275,7 +275,7 @@ Basic account contract leveraging xref:#AccountComponent[AccountComponent].
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
-.{class-hashes-page}
+.{presets-page}
 --
 {account-class-hash}
 --

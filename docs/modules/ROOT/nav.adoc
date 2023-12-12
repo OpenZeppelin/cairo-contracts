@@ -25,10 +25,11 @@
 ** xref:/api/security.adoc[API Reference]
 
 * xref:introspection.adoc[Introspection]
+** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 ** xref:/api/introspection.adoc[API Reference]
 
 // * xref:udc.adoc[Universal Deployer Contract]
-// * xref:utilities.adoc[Utilities]
+* xref:utilities.adoc[Utilities]
 
 * xref:/presets.adoc[Presets]
 

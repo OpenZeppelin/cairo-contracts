@@ -71,6 +71,8 @@ Flattening the component event removes it, leaving the event ID as the first key
 
 === Implementations
 
+:erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
+
 Components come with granular implementations of different interfaces.
 This allows contracts to integrate only the implementations that they'll use and avoid unnecessary bloat.
 Integrating an implementation looks like this:
@@ -133,6 +135,18 @@ mod MyContract {
 
 `InitializableImpl` defines the `is_initialized` method in the component.
 By adding the embed attribute, `is_initialized` becomes a contract entrypoint for `MyContract`.
+
+[TIP]
+====
+Embeddable implementations, when available in this library's components, are segregated from the internal component implementation which makes it easier to safely embed.
+Components also separate standard implementations (`snake_case`) from `camelCase`.
+This trichotomy structures the API documentation design.
+See {erc20-component} as an example which includes:
+
+- *Embeddable implementations*
+- *Embeddable implementations (camelCase)*
+- *Internal implementations*
+====
 
 === Initializers
 

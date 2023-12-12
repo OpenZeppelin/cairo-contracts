@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (account/dual_account.cairo)
+// OpenZeppelin Contracts for Cairo vX.Y.Z (account/account/dual_account.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -24,7 +24,7 @@ trait DualCaseAccountABI {
 
 impl DualCaseAccountImpl of DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252) {
-        let mut args = array![new_public_key];
+        let args = array![new_public_key];
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()
@@ -33,7 +33,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
     }
 
     fn get_public_key(self: @DualCaseAccount) -> felt252 {
-        let mut args = array![];
+        let args = array![];
 
         try_selector_with_fallback(
             *self.contract_address, selectors::get_public_key, selectors::getPublicKey, args.span()
@@ -57,7 +57,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
     }
 
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool {
-        let mut args = array![interface_id];
+        let args = array![interface_id];
 
         try_selector_with_fallback(
             *self.contract_address,

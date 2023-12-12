@@ -1,7 +1,7 @@
 mod account;
-mod dual_account;
-mod interface;
+mod eth_account;
+mod utils;
 
 use account::AccountComponent;
-use interface::AccountABIDispatcher;
-use interface::AccountABIDispatcherTrait;
+use account::dual_account;
+use account::interface;

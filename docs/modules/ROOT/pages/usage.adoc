@@ -14,7 +14,10 @@ TIP: For more information on the construction and design of Starknet components,
 
 == Building a contract
 
+=== Setup
+
 :initializable-component: xref:/security.adoc#initializable[InitializableComponent]
+:accessing-storage: xref:/usage.adoc#accessing_component_storage[Accessing component storage]
 
 The contract should first import the component and declare it with the `component!` macro:
 
@@ -31,13 +34,8 @@ mod MyContract {
 ----
 
 The `path` argument should be the imported component itself (in this case, {initializable-component}).
-Notice that the `storage` and `event` arguments are representations set within the macro.
-In other words, the `initializable` and `InitializableEvent` names follow this library's convention, but they can be renamed.
-
-=== Storage and events
-
-The component's storage and events must be added to the contract's `Storage` struct and `Event` enum respectively.
-If the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
+The `storage` and `event` arguments are the variable names that will be set in the `Storage` struct and `Event` enum, respectively.
+Note that even if the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
 
 [,javascript]
 ----
@@ -59,8 +57,6 @@ mod MyContract {
         #[flat]
         InitializableEvent: InitializableComponent::Event
     }
-
-    (...)
 }
 ----
 

@@ -62,14 +62,13 @@ mod MyContract {
 
 The `#[substorage(v0)]` attribute must be included for each component in the `Storage` trait.
 This allows the contract to have indirect access to the component's storage.
+See {accessing-storage} for more on this.
 
 The `#[flat]` attribute for events in the `Event` enum, however, is not required.
 For component events, the first key in the event log is the component ID.
 Flattening the component event removes it, leaving the event ID as the first key.
 
 === Implementations
-
-:accessing-storage: xref:/usage.adoc#accessing_component_storage[Accessing component storage]
 
 Components come with granular implementations of different interfaces.
 This allows contracts to integrate only the implementations that they'll use and avoid unnecessary bloat.
@@ -114,12 +113,8 @@ mod MyContract {
 }
 ----
 
-Notice that the function must pass the state (`self`) and the component's storage (`initializable`) before finally accessing the implementation method.
-
-NOTE: Contracts can also (indirectly) access a component's storage. See {accessing-storage}.
-
 While there's nothing wrong with manually exposing methods like in the previous example, this process can be tedious for implementations with many methods.
-Fortunately, a contract can embed implementations into the ABI which will expose all of the methods of the implementation.
+Fortunately, a contract can embed implementations which will expose all of the methods of the implementation.
 To embed an implementation, add the `#[abi(embed_v0)]` attribute above the `impl`:
 
 [,javascript]

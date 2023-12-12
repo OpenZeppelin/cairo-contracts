@@ -359,18 +359,26 @@ TIP: The ERC20 documentation provides another custom implementation guide for {c
 
 === Accessing component storage
 
-Just as contracts can access methods within a component implementation, contracts can also access component storage.
-Storage members are accessible to the contract by instantiating the component's `InternalImpl` like this:
+There may be cases where the contract must read or write to an integrated component's storage.
+To do so, use the same syntax as calling an implementation method except replace the name of the method with the storage variable like this:
 
 [,javascript]
 ----
 #[starknet::contract]
 mod MyContract {
+    use openzeppelin::security::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        initializable: InitializableComponent::Storage
+    }
+
     (...)
 
-    impl InternalImpl = InitializableComponent::InternalImpl<ContractState>;
-
-    fn write_to_comp_storage(ref self: ContractState) -> bool {
+    fn write_to_comp_storage(ref self: ContractState) {
         self.initializable.Initializable_initialized.write(true);
     }
 

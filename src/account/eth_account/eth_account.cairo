@@ -59,6 +59,11 @@ mod EthAccountComponent {
         +Drop<TContractState>
     > of interface::ISRC6<ComponentState<TContractState>> {
         /// Executes a list of calls from the account.
+        ///
+        /// Requirements:
+        ///
+        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions.
+        /// For simulations, the version must be `QUERY_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -143,6 +148,12 @@ mod EthAccountComponent {
         }
 
         /// Sets the public key of the account to `new_public_key`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
+        ///
+        /// Emits an `OwnerRemoved` event.
         fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
             self.assert_only_self();
 
@@ -220,6 +231,8 @@ mod EthAccountComponent {
 
         /// Sets the public key without validating the caller.
         /// The usage of this method outside the `set_public_key` function is discouraged.
+        ///
+        /// Emits an `OwnerAdded` event.
         fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
             self.EthAccount_public_key.write(new_public_key);
             let new_owner_guid = _get_guid_from_public_key(new_public_key);

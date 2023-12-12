@@ -4,3 +4,4 @@ mod test_dual721_receiver;
 mod test_erc20;
 mod test_erc721;
 mod test_erc721_receiver;
+mod test_dual1155_receiver;

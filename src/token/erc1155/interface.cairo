@@ -205,7 +205,7 @@ trait IERC1155ReceiverCamel<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        token_id: u256,
+        tokenId: u256,
         value: u256,
         data: Span<felt252>
     ) -> felt252;
@@ -213,7 +213,7 @@ trait IERC1155ReceiverCamel<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        token_ids: Span<u256>,
+        tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252;

@@ -18,7 +18,9 @@ trait DualCaseERC1155Trait {
     fn supports_interface(self: @DualCaseERC1155, interface_id: felt252) -> bool;
     fn uri(self: @DualCaseERC1155, uri: u256) -> felt252;
     fn balance_of(self: @DualCaseERC1155, account: ContractAddress, token_id: u256) -> u256;
-    fn balance_of_batch(self: @DualCaseERC1155, accounts: Span<ContractAddress>, token_ids: Span<u256>) -> Span<u256>;
+    fn balance_of_batch(
+        self: @DualCaseERC1155, accounts: Span<ContractAddress>, token_ids: Span<u256>
+    ) -> Span<u256>;
     fn safe_transfer_from(
         self: @DualCaseERC1155,
         from: ContractAddress,
@@ -27,7 +29,13 @@ trait DualCaseERC1155Trait {
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(self: @DualCaseERC1155, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256);
+    fn transfer_from(
+        self: @DualCaseERC1155,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        value: u256
+    );
     fn safe_batch_transfer_from(
         self: @DualCaseERC1155,
         from: ContractAddress,
@@ -44,9 +52,7 @@ trait DualCaseERC1155Trait {
         values: Span<u256>,
     );
     fn is_approved_for_all(
-        self: @DualCaseERC1155,
-        owner: ContractAddress,
-        operator: ContractAddress
+        self: @DualCaseERC1155, owner: ContractAddress, operator: ContractAddress
     ) -> bool;
     fn set_approval_for_all(self: @DualCaseERC1155, operator: ContractAddress, approved: bool);
 }
@@ -98,7 +104,8 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             selectors::balance_of_batch,
             selectors::balanceOfBatch,
             args.span()
-        ).unwrap_and_cast()
+        )
+            .unwrap_and_cast()
     }
 
     fn safe_transfer_from(
@@ -126,7 +133,11 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
     }
 
     fn transfer_from(
-        self: @DualCaseERC1155, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256
+        self: @DualCaseERC1155,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        value: u256
     ) {
         let mut args = array![];
         args.append_serde(from);

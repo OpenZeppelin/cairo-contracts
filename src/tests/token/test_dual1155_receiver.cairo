@@ -1,7 +1,7 @@
 use core::array::ArrayTrait;
 use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
-    CamelERC1155ReceiverMock, CamelERC1155ReceiverPanicMock,
-    SnakeERC1155ReceiverMock, SnakeERC1155ReceiverPanicMock
+    CamelERC1155ReceiverMock, CamelERC1155ReceiverPanicMock, SnakeERC1155ReceiverMock,
+    SnakeERC1155ReceiverPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
@@ -68,7 +68,9 @@ fn test_dual_on_erc1155_received() {
     let (dispatcher, _) = setup_snake();
     assert(
         dispatcher
-            .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)) == IERC1155_RECEIVER_ID,
+            .on_erc1155_received(
+                OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)
+            ) == IERC1155_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -97,7 +99,9 @@ fn test_dual_on_erc1155_batch_received() {
     let values = array![TOKEN_VALUE, TOKEN_VALUE];
     assert(
         dispatcher
-            .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)) == IERC1155_RECEIVER_ID,
+            .on_erc1155_batch_received(
+                OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)
+            ) == IERC1155_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -113,7 +117,9 @@ fn test_dual_onERC1155Received() {
     let (dispatcher, _) = setup_camel();
     assert(
         dispatcher
-            .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)) == IERC1155_RECEIVER_ID,
+            .on_erc1155_received(
+                OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)
+            ) == IERC1155_RECEIVER_ID,
         'Should return interface id'
     );
 }
@@ -134,7 +140,9 @@ fn test_dual_onERC1155BatchReceived() {
     let values = array![TOKEN_VALUE, TOKEN_VALUE];
     assert(
         dispatcher
-            .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)) == IERC1155_RECEIVER_ID,
+            .on_erc1155_batch_received(
+                OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)
+            ) == IERC1155_RECEIVER_ID,
         'Should return interface id'
     );
 }

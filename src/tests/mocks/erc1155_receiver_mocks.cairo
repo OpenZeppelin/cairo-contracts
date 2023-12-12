@@ -7,7 +7,9 @@ mod DualCaseERC1155ReceiverMock {
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent);
+    component!(
+        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
+    );
 
     // ERC1155Receiver
     impl ERC1155ReceiverImpl = ERC1155ReceiverComponent::ERC1155ReceiverImpl<ContractState>;
@@ -75,7 +77,9 @@ mod SnakeERC1155ReceiverMock {
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent);
+    component!(
+        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
+    );
 
     // SRC5
     #[abi(embed_v0)]
@@ -147,14 +151,17 @@ mod CamelERC1155ReceiverMock {
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent);
+    component!(
+        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
+    );
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     // ERC1155Receiver
-    impl ERC1155ReceiverCamelImpl = ERC1155ReceiverComponent::ERC1155ReceiverCamelImpl<ContractState>;
+    impl ERC1155ReceiverCamelImpl =
+        ERC1155ReceiverComponent::ERC1155ReceiverCamelImpl<ContractState>;
     impl ERC1155ReceiverInternalImpl = ERC1155ReceiverComponent::InternalImpl<ContractState>;
 
     #[storage]

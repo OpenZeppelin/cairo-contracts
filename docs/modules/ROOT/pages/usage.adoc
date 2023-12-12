@@ -5,12 +5,13 @@ The following documentation provides reasoning and examples on how to use Contra
 == Components
 
 :shamans-post: https://community.starknet.io/t/cairo-components/101136#components-1[Starknet Shamans post]
+:cairo-book: https://book.cairo-lang.org/ch99-01-05-00-components.html[Cairo book]
 
 Starknet components are separate modules that contain storage, events, and implementations that can be integrated into a contract.
 Components themselves cannot be declared or deployed.
 Another way to think of components is that they are abstract modules that must be instantiated.
 
-TIP: For more information on the construction and design of Starknet components, see the {shamans-post}.
+TIP: For more information on the construction and design of Starknet components, see the {shamans-post} and the {cairo-book}.
 
 == Building a contract
 

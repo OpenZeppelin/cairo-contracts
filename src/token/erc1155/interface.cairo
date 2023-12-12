@@ -89,11 +89,6 @@ trait IERC1155CamelOnly<TState> {
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
 }
 
-#[starknet::interface]
-trait IERC1155MetadataCamelOnly<TState> {
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
-}
-
 //
 // ERC1155 ABI
 //

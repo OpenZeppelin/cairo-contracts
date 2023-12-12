@@ -242,7 +242,7 @@ mod ERC1155Component {
         }
 
         /// Enable or disable approval for `operator` to manage all of the
-        /// caller's assets.
+        /// caller s assets.
         ///
         /// Requirements:
         ///
@@ -356,19 +356,6 @@ mod ERC1155Component {
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
             self.is_approved_for_all(owner, operator)
-        }
-    }
-
-    /// Adds camelCase support for `IERC1155Metadata`.
-    #[embeddable_as(ERC1155MetadataCamelOnlyImpl)]
-    impl ERC1155MetadataCamelOnly<
-        TContractState,
-        +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of interface::IERC1155MetadataCamelOnly<ComponentState<TContractState>> {
-        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
-            self.uri(tokenId)
         }
     }
 

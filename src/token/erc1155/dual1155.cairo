@@ -16,7 +16,7 @@ struct DualCaseERC1155 {
 
 trait DualCaseERC1155Trait {
     fn supports_interface(self: @DualCaseERC1155, interface_id: felt252) -> bool;
-    fn uri(self: @DualCaseERC1155, uri: u256) -> felt252;
+    fn uri(self: @DualCaseERC1155, token_uri: u256) -> felt252;
     fn balance_of(self: @DualCaseERC1155, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
         self: @DualCaseERC1155, accounts: Span<ContractAddress>, token_ids: Span<u256>
@@ -71,9 +71,9 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             .unwrap_and_cast()
     }
 
-    fn uri(self: @DualCaseERC1155, uri: u256) -> felt252 {
+    fn uri(self: @DualCaseERC1155, token_uri: u256) -> felt252 {
         let mut args = array![];
-        args.append_serde(uri);
+        args.append_serde(token_uri);
 
         try_selector_with_fallback(
             *self.contract_address, selectors::uri, selectors::uri, args.span()

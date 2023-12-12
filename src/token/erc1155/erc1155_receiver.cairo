@@ -35,7 +35,7 @@ mod ERC1155ReceiverComponent {
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
-            id: u256,
+            token_id: u256,
             value: u256,
             data: Span<felt252>
         ) -> felt252 {
@@ -46,7 +46,7 @@ mod ERC1155ReceiverComponent {
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
-            ids: Span<u256>,
+            token_ids: Span<u256>,
             values: Span<u256>,
             data: Span<felt252>
         ) -> felt252 {
@@ -66,7 +66,7 @@ mod ERC1155ReceiverComponent {
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
-            id: u256,
+            token_id: u256,
             value: u256,
             data: Span<felt252>
         ) -> felt252 {
@@ -77,7 +77,7 @@ mod ERC1155ReceiverComponent {
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
-            ids: Span<u256>,
+            token_ids: Span<u256>,
             values: Span<u256>,
             data: Span<felt252>
         ) -> felt252 {

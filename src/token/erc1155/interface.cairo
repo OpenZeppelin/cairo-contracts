@@ -12,22 +12,22 @@ const IERC1155_RECEIVER_ID: felt252 =
 
 #[starknet::interface]
 trait IERC1155<TState> {
-    fn balance_of(self: @TState, account: ContractAddress, id: u256) -> u256;
-    fn balance_of_batch(self: @TState, accounts: Span<ContractAddress>, ids: Span<u256>) -> Span<u256>;
+    fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
+    fn balance_of_batch(self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>) -> Span<u256>;
     fn safe_transfer_from(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        id: u256,
+        token_id: u256,
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, id: u256, value: u256);
+    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256);
     fn safe_batch_transfer_from(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     );
@@ -35,12 +35,12 @@ trait IERC1155<TState> {
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        token_ids: Span<u256>,
         values: Span<u256>,
     );
     fn is_approved_for_all(
         self: @TState,
-        account: ContractAddress,
+        owner: ContractAddress,
         operator: ContractAddress
     ) -> bool;
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
@@ -48,27 +48,27 @@ trait IERC1155<TState> {
 
 #[starknet::interface]
 trait IERC1155Metadata<TState> {
-    fn uri(self: @TState, uri: u256) -> felt252;
+    fn uri(self: @TState, token_id: u256) -> felt252;
 }
 
 #[starknet::interface]
 trait IERC1155CamelOnly<TState> {
-    fn balanceOf(self: @TState, account: ContractAddress, id: u256) -> u256;
-    fn balanceOfBatch(self: @TState, accounts: Span<ContractAddress>, ids: Span<u256>) -> Span<u256>;
+    fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
+    fn balanceOfBatch(self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>) -> Span<u256>;
     fn safeTransferFrom(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        id: u256,
+        tokenId: u256,
         value: u256,
         data: Span<felt252>
     );
-    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, id: u256, value: u256);
+    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, value: u256);
     fn safeBatchTransferFrom(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     );
@@ -76,15 +76,20 @@ trait IERC1155CamelOnly<TState> {
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        tokenIds: Span<u256>,
         values: Span<u256>,
     );
     fn isApprovedForAll(
         self: @TState,
-        account: ContractAddress,
+        owner: ContractAddress,
         operator: ContractAddress
     ) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
+}
+
+#[starknet::interface]
+trait IERC1155MetadataCamelOnly<TState> {
+    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
 }
 
 //
@@ -94,22 +99,22 @@ trait IERC1155CamelOnly<TState> {
 #[starknet::interface]
 trait ERC1155ABI<TState> {
     // IERC1155
-    fn balance_of(self: @TState, account: ContractAddress, id: u256) -> u256;
-    fn balance_of_batch(self: @TState, accounts: Span<ContractAddress>, ids: Span<u256>) -> Span<u256>;
+    fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
+    fn balance_of_batch(self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>) -> Span<u256>;
     fn safe_transfer_from(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        id: u256,
+        token_id: u256,
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, id: u256, value: u256);
+    fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256);
     fn safe_batch_transfer_from(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     );
@@ -117,12 +122,12 @@ trait ERC1155ABI<TState> {
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
-        values: Span<u256>,
+        token_ids: Span<u256>,
+        values: Span<u256>
     );
     fn is_approved_for_all(
         self: @TState,
-        account: ContractAddress,
+        owner: ContractAddress,
         operator: ContractAddress
     ) -> bool;
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
@@ -131,31 +136,38 @@ trait ERC1155ABI<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
     // IERC1155Metadata
-    fn uri(self: @TState, id: u256) -> felt252;
+    fn uri(self: @TState, token_id: u256) -> felt252;
 
     // IERC1155CamelOnly
-    fn balanceOf(self: @TState, account: ContractAddress, id: u256) -> u256;
-    fn balanceOfBatch(self: @TState, accounts: Span<ContractAddress>, ids: Span<u256>) -> Span<u256>;
+    fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
+    fn balanceOfBatch(self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>) -> Span<u256>;
     fn safeTransferFrom(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        id: u256,
+        tokenId: u256,
         value: u256,
         data: Span<felt252>
     );
-    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, id: u256, value: u256);
+    fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, value: u256);
     fn safeBatchTransferFrom(
         ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
-        ids: Span<u256>,
+        tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     );
+    fn batchTransferFrom(
+        ref self: TState,
+        from: ContractAddress,
+        to: ContractAddress,
+        tokenIds: Span<u256>,
+        values: Span<u256>
+    );
     fn isApprovedForAll(
         self: @TState,
-        account: ContractAddress,
+        owner: ContractAddress,
         operator: ContractAddress
     ) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -174,7 +186,7 @@ trait IERC1155Receiver<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        id: u256,
+        token_id: u256,
         value: u256,
         data: Span<felt252>
     ) -> felt252;
@@ -182,7 +194,7 @@ trait IERC1155Receiver<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        ids: Span<u256>,
+        token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252;
@@ -193,7 +205,7 @@ trait IERC1155ReceiverCamel<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        id: u256,
+        token_id: u256,
         value: u256,
         data: Span<felt252>
     ) -> felt252;
@@ -201,7 +213,7 @@ trait IERC1155ReceiverCamel<TState> {
         self: @TState,
         operator: ContractAddress,
         from: ContractAddress,
-        ids: Span<u256>,
+        token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252;

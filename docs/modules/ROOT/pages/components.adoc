@@ -1,8 +1,6 @@
-= Usage
+= Components
 
 The following documentation provides reasoning and examples on how to use Contracts for Cairo components.
-
-== Components
 
 :shamans-post: https://community.starknet.io/t/cairo-components/101136#components-1[Starknet Shamans post]
 :cairo-book: https://book.cairo-lang.org/ch99-01-05-00-components.html[Cairo book]
@@ -18,7 +16,7 @@ TIP: For more information on the construction and design of Starknet components,
 === Setup
 
 :initializable-component: xref:/security.adoc#initializable[InitializableComponent]
-:accessing-storage: xref:/usage.adoc#accessing_component_storage[Accessing component storage]
+:accessing-storage: xref:accessing_component_storage[Accessing component storage]
 
 The contract should first import the component and declare it with the `component!` macro:
 
@@ -249,7 +247,7 @@ mod MyContract {
 
 == Customization
 
-:security: xref:/usage.adoc#security[Security]
+:security: xref:security[Security]
 
 WARNING: Customizing implementations and accessing component storage can potentially corrupt the state, bypass security checks, and undermine the component logic.
 *Exercise extreme caution*. See {security}.

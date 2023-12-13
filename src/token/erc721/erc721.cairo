@@ -226,8 +226,11 @@ mod ERC721Component {
         }
 
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-        ///
         /// If the URI is not set for the `token_id`, the return value will be `0`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.read(token_id)
@@ -390,8 +393,12 @@ mod ERC721Component {
         }
 
         /// Mints `token_id` and transfers it to `to`.
-        ///
         /// Internal function without access restriction.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is not the zero address.
+        /// - `token_id` does not exist.
         ///
         /// Emits a `Transfer` event.
         fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {

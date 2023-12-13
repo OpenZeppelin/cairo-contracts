@@ -1,11 +1,13 @@
 * xref:index.adoc[Overview]
+* xref:wizard.adoc[Wizard]
 
 * Learn
 
-** xref:extensibility.adoc[Extensibility]
+** xref:usage.adoc[Components]
+** xref:presets.adoc[Presets]
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
-** xref:/guides/deployment.adoc[Counterfactual deployments]
-** xref:udc.adoc[Universal Deployer Contract]
+** xref:guides/deployment.adoc[Counterfactual deployments]
+// ** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
 
@@ -16,6 +18,7 @@
 *** xref:/api/account.adoc[API Reference]
 
 ** xref:introspection.adoc[Introspection]
+*** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 *** xref:/api/introspection.adoc[API Reference]
 
 ** xref:security.adoc[Security]
@@ -25,17 +28,13 @@
 *** xref:erc20.adoc[ERC20]
 **** xref:/guides/erc20-supply.adoc[Creating Supply]
 **** xref:/api/erc20.adoc[API Reference]
-
 *** xref:erc721.adoc[ERC721]
 **** xref:/api/erc721.adoc[API Reference]
-*** xref:erc1155.adoc[ERC1155]
+// *** xref:erc1155.adoc[ERC1155]
 
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
 ** xref:utilities.adoc[Utilities]
 
-* See also
-
-** xref:wizard.adoc[Wizard]
-** xref:contracts::index.adoc[Contracts for Solidity]
+* xref:contracts::index.adoc[Contracts for Solidity]

@@ -31,4 +31,6 @@
 // * xref:udc.adoc[Universal Deployer Contract]
 * xref:utilities.adoc[Utilities]
 
+* xref:/presets.adoc[Presets]
+
 * xref:contracts::index.adoc[Contracts for Solidity]

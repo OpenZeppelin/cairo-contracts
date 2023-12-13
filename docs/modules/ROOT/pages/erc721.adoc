@@ -63,6 +63,7 @@ trait IERC721ABI {
 
 :erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
 :src5-api: xref:introspection.adoc#src5[SRC5]
+:introspection: xref:introspection.adoc[Introspection]
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP165]
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard by utilizing Cairo's short strings to simulate `name` and `symbol`.

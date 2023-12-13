@@ -7,8 +7,10 @@ use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
 use openzeppelin::tests::utils;
 use starknet::storage::StorageMemberAccessTrait;
 
-fn STATE() -> ReentrancyMock::ContractState {
-    ReentrancyMock::contract_state_for_testing()
+type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
+
+fn COMPONENT_STATE() -> ComponentState {
+    ReentrancyGuardComponent::component_state_for_testing()
 }
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
@@ -24,32 +26,32 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_start() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
 
-    assert(!state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should not be entered');
-    state.reentrancy_guard.start();
-    assert(state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should be entered');
+    assert(!state.ReentrancyGuard_entered.read(), 'Should not be entered');
+    state.start();
+    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
 }
 
 #[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_reentrancy_guard_start_when_started() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
 
-    state.reentrancy_guard.start();
-    state.reentrancy_guard.start();
+    state.start();
+    state.start();
 }
 
 #[test]
 #[available_gas(2000000)]
 fn test_reentrancy_guard_end() {
-    let mut state = STATE();
+    let mut state = COMPONENT_STATE();
 
-    state.reentrancy_guard.start();
-    assert(state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should be entered');
-    state.reentrancy_guard.end();
-    assert(!state.reentrancy_guard.ReentrancyGuard_entered.read(), 'Should no longer be entered');
+    state.start();
+    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+    state.end();
+    assert(!state.ReentrancyGuard_entered.read(), 'Should no longer be entered');
 }
 
 //

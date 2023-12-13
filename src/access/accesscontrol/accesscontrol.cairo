@@ -91,7 +91,7 @@ mod AccessControlComponent {
         ///
         /// Requirements:
         ///
-        /// - the caller must have `role`'s admin role.
+        /// - The caller must have `role`'s admin role.
         fn grant_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
@@ -106,7 +106,7 @@ mod AccessControlComponent {
         ///
         /// Requirements:
         ///
-        /// - the caller must have `role`'s admin role.
+        /// - The caller must have `role`'s admin role.
         fn revoke_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
@@ -126,7 +126,7 @@ mod AccessControlComponent {
         ///
         /// Requirements:
         ///
-        /// - the caller must be `account`.
+        /// - The caller must be `account`.
         fn renounce_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {

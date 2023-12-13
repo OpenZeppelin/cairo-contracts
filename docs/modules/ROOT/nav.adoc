@@ -1,33 +1,40 @@
 * xref:index.adoc[Overview]
-//* xref:wizard.adoc[Wizard]
-//* xref:extensibility.adoc[Extensibility]
-* xref:interfaces.adoc[Interfaces and Dispatchers]
-* xref:upgrades.adoc[Upgrades]
-** xref:/api/upgrades.adoc[API Reference]
+* xref:wizard.adoc[Wizard]
 
-* xref:accounts.adoc[Accounts]
-** xref:/guides/deployment.adoc[Counterfactual deployments]
-** xref:/api/account.adoc[API Reference]
+* Learn
 
-* xref:access.adoc[Access Control]
-** xref:/api/access.adoc[API Reference]
+** xref:components.adoc[Components]
+** xref:presets.adoc[Presets]
+** xref:interfaces.adoc[Interfaces and Dispatchers]
+** xref:guides/deployment.adoc[Counterfactual deployments]
+// ** xref:udc.adoc[Universal Deployer Contract]
 
-* Tokens
-** xref:erc20.adoc[ERC20]
-*** xref:/guides/erc20-supply.adoc[Creating Supply]
-*** xref:/api/erc20.adoc[API Reference]
+* Modules
 
-** xref:erc721.adoc[ERC721]
-*** xref:/api/erc721.adoc[API Reference]
-// ** xref:erc1155.adoc[ERC1155]
+** xref:access.adoc[Access Control]
+*** xref:/api/access.adoc[API Reference]
 
-* xref:security.adoc[Security]
-** xref:/api/security.adoc[API Reference]
+** xref:accounts.adoc[Accounts]
+*** xref:/api/account.adoc[API Reference]
 
-* xref:introspection.adoc[Introspection]
-** xref:/api/introspection.adoc[API Reference]
+** xref:introspection.adoc[Introspection]
+*** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
+*** xref:/api/introspection.adoc[API Reference]
 
-// * xref:udc.adoc[Universal Deployer Contract]
-// * xref:utilities.adoc[Utilities]
+** xref:security.adoc[Security]
+*** xref:/api/security.adoc[API Reference]
+
+** Tokens
+*** xref:erc20.adoc[ERC20]
+**** xref:/guides/erc20-supply.adoc[Creating Supply]
+**** xref:/api/erc20.adoc[API Reference]
+*** xref:erc721.adoc[ERC721]
+**** xref:/api/erc721.adoc[API Reference]
+// *** xref:erc1155.adoc[ERC1155]
+
+** xref:upgrades.adoc[Upgrades]
+*** xref:/api/upgrades.adoc[API Reference]
+
+** xref:utilities.adoc[Utilities]
 
 * xref:contracts::index.adoc[Contracts for Solidity]

@@ -22,7 +22,6 @@ trait UpgradesV1Trait<TState> {
 mod UpgradesV1 {
     use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
-    use starknet::ContractAddress;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
@@ -81,7 +80,6 @@ trait UpgradesV2Trait<TState> {
 mod UpgradesV2 {
     use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
-    use starknet::ContractAddress;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 

@@ -37,7 +37,9 @@ As a contributor, you are expected to fork this repository, work on your own for
     git checkout -b fix/some-bug-short-description-#123
     ```
 
-3. Make your changes, add your files, update documentation ([see Documentation section](#documentation)), commit, and push to your fork.
+3. Make your changes, add your files, and [update the documentation](#documentation). Make sure to update the [CHANGELOG](CHANGELOG.md) (*[learn how](https://keepachangelog.com/en/1.1.0/)*).
+
+4. Commit and push to your fork.
 
     ```sh
     git add src/file.cairo
@@ -45,7 +47,7 @@ As a contributor, you are expected to fork this repository, work on your own for
     git push origin fix/some-bug-short-description-#123
     ```
 
-4. Run tests and linter. This can be done by running local continuous integration and make sure it passes.
+5. Run tests and linter. This can be done by running local continuous integration and make sure it passes.
 
     ```bash
     # run tests
@@ -55,12 +57,12 @@ As a contributor, you are expected to fork this repository, work on your own for
     scarb fmt --check
     ```
 
-5. Go to [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts) in your web browser and issue a new pull request.
+6. Go to [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts) in your web browser and issue a new pull request.
     Begin the body of the PR with "Fixes #123" or "Resolves #123" to link the PR to the issue that it is resolving.
     *IMPORTANT* Read the PR template very carefully and make sure to follow all the instructions. These instructions
     refer to some very important conditions that your PR must meet in order to be accepted, such as making sure that all PR checks pass.
 
-6. Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin Contracts for Cairo.
+7. Maintainers will review your code and possibly ask for changes before your code is pulled in to the main repository. We'll check that all tests pass, review the coding style, and check for general code correctness. If everything is OK, we'll merge your pull request and your code will be part of OpenZeppelin Contracts for Cairo.
 
     *IMPORTANT* Please pay attention to the maintainer's feedback, since it's a necessary step to keep up with the standards OpenZeppelin Contracts attains to.
 
@@ -82,11 +84,16 @@ If you want to run the documentation UI locally:
     npm run docs:watch
     ```
 
+## Class hashes
+
+Every time there's a language bump or a change in a preset or component used by one, new class hashes should be checked and updated in the presets doc page.
+
 ## Integration tests
 
 Currently, Starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.
 
-We are looking into defining a better process for these integration tests, but for now the PR author/contributor must suggest an approach to test the feature when applicable, which has to be agreed and reproduced by the reviewer.
+We are looking into defining a better process for these integration tests, but in the meantime the PR author/contributor must test the feature in a live network and then share a link to a reviewable transaction.
+Ideally, the transaction should come from a verified contract whose execution can be traced, for the reviewer to evaluate and possibly reproduce.
 
 ## All set
 

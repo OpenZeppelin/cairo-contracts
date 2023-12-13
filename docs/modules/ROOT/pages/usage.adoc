@@ -138,7 +138,7 @@ By adding the embed attribute, `is_initialized` becomes a contract entrypoint fo
 
 [TIP]
 ====
-Embeddable implementations, when available in this library's components, are segregated from the internal component implementation which makes it easier to safely embed.
+Embeddable implementations, when available in this library's components, are segregated from the internal component implementation which makes it easier to safely expose.
 Components also separate standard implementations (`snake_case`) from `camelCase`.
 This trichotomy structures the API documentation design.
 See {erc20-component} as an example which includes:
@@ -156,8 +156,8 @@ WARNING: Failing to use a component's `initializer` can result in irreparable co
 Always read the API documentation for each integrated component.
 
 Some components require some sort of setup upon construction.
-Usually, this would be a job for a constructor; however, components themselves cannot provide constructors.
-Components instead offer ``initializer``s within their `InternalImpl` to be called by the contract's constructor.
+Usually, this would be a job for a constructor; however, components themselves cannot implement constructors.
+Components instead offer ``initializer``s within their `InternalImpl` to call from the contract's constructor.
 Let's look at how a contract would integrate {ownable-component}:
 
 [,javascript]
@@ -300,7 +300,7 @@ The first thing to notice is that the contract imports the interfaces of the imp
 These will be used in the next code example.
 
 Next, the contract includes the {erc20-component} implementations; however, `ERC20Impl` and `ERC20CamelOnlyImplt` are *not* embedded.
-Instead, we want to embed our custom implementation of an interface.
+Instead, we want to expose our custom implementation of an interface.
 The following example shows the pausable logic integrated into the ERC20 implementations:
 
 [,javascript]

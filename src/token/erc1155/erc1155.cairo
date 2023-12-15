@@ -18,13 +18,10 @@ mod ERC1155Component {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
-    // TODO
-
     #[storage]
     struct Storage {
         ERC1155_name: felt252,
         ERC1155_symbol: felt252,
-        ERC1155_owners: LegacyMap<u256, ContractAddress>,
         ERC1155_balances: LegacyMap<(u256, ContractAddress), u256>,
         ERC1155_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         ERC1155_uri: LegacyMap<u256, felt252>,
@@ -183,9 +180,7 @@ mod ERC1155Component {
             value: u256,
             data: Span<felt252>
         ) {
-            assert(
-                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
-            );
+            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
             self._safe_update_balances(from, to, token_id, value, data);
         }
 
@@ -206,9 +201,7 @@ mod ERC1155Component {
             token_id: u256,
             value: u256
         ) {
-            assert(
-                self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
-            );
+            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
             self._update_balances(from, to, token_id, value);
         }
 
@@ -259,7 +252,7 @@ mod ERC1155Component {
         fn is_approved_for_all(
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
-            self.ERC1155_operator_approvals.read((owner, operator))
+            self.ERC1155_operator_approvals.read((owner, operator)) || owner == operator
         }
     }
 
@@ -270,6 +263,15 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155Metadata<ComponentState<TContractState>> {
+        /// Returns the NFT Collection name.
+        fn name(self: @ComponentState<TContractState>) -> felt252 {
+            self.ERC1155_name.read()
+        }
+
+        /// Returns the NFT Collection symbol.
+        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+            self.ERC1155_symbol.read()
+        }
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set for the `token_id`, the return value will be `0`.
         ///
@@ -277,7 +279,6 @@ mod ERC1155Component {
         ///
         /// - `token_id` exists.
         fn uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
-            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC1155_uri.read(token_id)
         }
     }
@@ -373,40 +374,12 @@ mod ERC1155Component {
         /// Initializes the contract by setting the token name and symbol.
         /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+            self.ERC1155_name.write(name);
+            self.ERC1155_symbol.write(symbol);
+
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
             src5_component.register_interface(interface::IERC1155_METADATA_ID);
-        }
-
-        /// Returns the owner address of `token_id`.
-        ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
-        fn _owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
-            let owner = self.ERC1155_owners.read(token_id);
-            match owner.is_zero() {
-                bool::False(()) => owner,
-                bool::True(()) => panic_with_felt252(Errors::INVALID_TOKEN_ID)
-            }
-        }
-
-        /// Returns whether `token_id` exists.
-        fn _exists(self: @ComponentState<TContractState>, token_id: u256) -> bool {
-            !self.ERC1155_owners.read(token_id).is_zero()
-        }
-
-        /// Returns whether `spender` is allowed to manage `token_id`.
-        ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
-        fn _is_approved_or_owner(
-            self: @ComponentState<TContractState>, spender: ContractAddress, token_id: u256
-        ) -> bool {
-            let owner = self._owner_of(token_id);
-            let is_approved_for_all = self.is_approved_for_all(owner, spender);
-            owner == spender || is_approved_for_all
         }
 
         /// Enables or disables approval for `operator` to manage
@@ -526,8 +499,10 @@ mod ERC1155Component {
             value: u256
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-            let owner = self._owner_of(token_id);
-            assert(from == owner, Errors::WRONG_SENDER);
+            assert(from.is_non_zero(), Errors::WRONG_SENDER);
+            assert(
+                self.ERC1155_balances.read((token_id, from)) >= value, Errors::INSUFFICIENT_BALANCE
+            );
 
             self
                 .ERC1155_balances
@@ -608,12 +583,7 @@ mod ERC1155Component {
         }
 
         /// Sets the `uri` of `token_id`.
-        ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
         fn _set_uri(ref self: ComponentState<TContractState>, token_id: u256, uri: felt252) {
-            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC1155_uri.write(token_id, uri)
         }
     }

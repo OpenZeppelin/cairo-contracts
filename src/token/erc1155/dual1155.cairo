@@ -16,6 +16,8 @@ struct DualCaseERC1155 {
 
 trait DualCaseERC1155Trait {
     fn supports_interface(self: @DualCaseERC1155, interface_id: felt252) -> bool;
+    fn name(self: @DualCaseERC1155) -> felt252;
+    fn symbol(self: @DualCaseERC1155) -> felt252;
     fn uri(self: @DualCaseERC1155, token_uri: u256) -> felt252;
     fn balance_of(self: @DualCaseERC1155, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
@@ -68,6 +70,16 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             selectors::supportsInterface,
             args.span()
         )
+            .unwrap_and_cast()
+    }
+
+    fn name(self: @DualCaseERC1155) -> felt252 {
+        call_contract_syscall(*self.contract_address, selectors::name, array![].span())
+            .unwrap_and_cast()
+    }
+
+    fn symbol(self: @DualCaseERC1155) -> felt252 {
+        call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 

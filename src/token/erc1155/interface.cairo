@@ -50,6 +50,8 @@ trait IERC1155<TState> {
 
 #[starknet::interface]
 trait IERC1155Metadata<TState> {
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
     fn uri(self: @TState, token_id: u256) -> felt252;
 }
 
@@ -135,6 +137,8 @@ trait ERC1155ABI<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
     // IERC1155Metadata
+    fn name(self: @TState) -> felt252;
+    fn symbol(self: @TState) -> felt252;
     fn uri(self: @TState, token_id: u256) -> felt252;
 
     // IERC1155CamelOnly

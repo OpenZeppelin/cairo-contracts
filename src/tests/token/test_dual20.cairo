@@ -1,3 +1,4 @@
+use core::to_byte_array::{FormatAsByteArray, AppendFormattedToByteArray};
 use openzeppelin::tests::mocks::erc20_mocks::{CamelERC20Mock, SnakeERC20Mock};
 use openzeppelin::tests::mocks::erc20_mocks::{CamelERC20Panic, SnakeERC20Panic};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
@@ -59,8 +60,10 @@ fn setup_erc20_panic() -> (DualCaseERC20, DualCaseERC20) {
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.name() == NAME, 'Should return name');
-    assert(camel_dispatcher.name() == NAME, 'Should return name');
+    let expected = NAME.format_as_byte_array(16.try_into().unwrap());
+
+    assert(snake_dispatcher.name() == expected, 'Should return name');
+    assert(camel_dispatcher.name() == expected, 'Should return name');
 }
 
 #[test]
@@ -80,12 +83,12 @@ fn test_dual_name_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.symbol() == SYMBOL, 'Should return symbol');
-    assert(camel_dispatcher.symbol() == SYMBOL, 'Should return symbol');
+    let expected = SYMBOL.format_as_byte_array(16.try_into().unwrap());
+    assert(snake_dispatcher.symbol() == expected, 'Should return symbol');
+    assert(camel_dispatcher.symbol() == expected, 'Should return symbol');
 }
 
 #[test]

@@ -1,3 +1,4 @@
+use core::to_byte_array::{FormatAsByteArray, AppendFormattedToByteArray};
 use integer::BoundedInt;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
@@ -41,8 +42,13 @@ fn test_initializer() {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME, SYMBOL);
 
-    assert(state.name() == NAME, 'Should be NAME');
-    assert(state.symbol() == SYMBOL, 'Should be SYMBOL');
+    let expected = NAME.format_as_byte_array(16.try_into().unwrap());
+    assert(state.name() == expected, 'Should be NAME');
+
+    let expected = SYMBOL.format_as_byte_array(16.try_into().unwrap());
+    assert(state.symbol() == expected, 'Should be SYMBOL');
+    //assert(state.name() == NAME, 'Should be NAME');
+    //assert(state.symbol() == SYMBOL, 'Should be SYMBOL');
     assert(state.decimals() == DECIMALS, 'Should be DECIMALS');
     assert(state.total_supply() == 0, 'Should equal 0');
 }

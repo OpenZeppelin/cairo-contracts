@@ -1,6 +1,9 @@
-mod signature_validator;
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils.cairo)
 
-use signature_validator::{is_valid_signature, is_valid_eth_signature};
+mod signature;
+
+use signature::{is_valid_signature, is_valid_eth_signature};
 use starknet::account::Call;
 
 fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {

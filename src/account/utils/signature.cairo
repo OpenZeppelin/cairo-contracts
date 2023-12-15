@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils/signature_validator.cairo)
+// OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils/signature.cairo)
 
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::eth_account::interface::EthPublicKey;
@@ -33,7 +33,6 @@ fn is_valid_eth_signature(
     }
 
     let public_key_point: Secp256k1Point = recover_public_key(msg_hash.into(), signature).unwrap();
-
     if public_key_point.get_coordinates().unwrap() != public_key {
         // Invalid signature
         return false;

@@ -1,39 +1,50 @@
-use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
-use openzeppelin::account::AccountComponent;
-use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use openzeppelin::account::eth_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::eth_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin::account::eth_account::EthAccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
+use openzeppelin::account::eth_account::EthAccountComponent;
+use openzeppelin::account::eth_account::interface::EthPublicKey;
+use openzeppelin::account::eth_account::interface::{
+    EthAccountABIDispatcherTrait, EthAccountABIDispatcher
+};
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
-use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO};
+use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
+use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
+use starknet::eth_signature::Signature;
 use starknet::testing;
 
 #[derive(Drop)]
 struct SignedTransactionData {
-    private_key: felt252,
-    public_key: felt252,
+    private_key: u256,
+    public_key: EthPublicKey,
     transaction_hash: felt252,
-    r: felt252,
-    s: felt252
+    signature: Signature
 }
 
+/// This signature was computed using ethers.js.
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
-        private_key: 1234,
-        public_key: 0x1f3c942d7f492a37608cde0d77b884a5aa9e11d2919225968557370ddb5a5aa,
-        transaction_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
-        r: 0x6c8be1fb0fb5c730fbd7abaecbed9d980376ff2e660dfcd157e158d2b026891,
-        s: 0x76b4669998eb933f44a59eace12b41328ab975ceafddf92602b21eb23e22e35
+        private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9,
+        public_key: (
+            0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
+            0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
+        ),
+        transaction_hash: 0x008f882c63d0396d216d57529fe29ad5e70b6cd51b47bd2458b0a4ccb2ba0957,
+        signature: Signature {
+            r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
+            s: 0x6719fef30c11c74add873e4da0e1234deb69eae6a6bd4daa44b816dc199f3e86,
+            y_parity: true
+        }
     }
 }
 
@@ -42,49 +53,52 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 //
 
 fn CLASS_HASH() -> felt252 {
-    DualCaseAccountMock::TEST_CLASS_HASH
+    DualCaseEthAccountMock::TEST_CLASS_HASH
 }
 
 fn ACCOUNT_ADDRESS() -> ContractAddress {
-    contract_address_const::<0x111111>()
+    Zeroable::zero()
 }
 
 //
 // Setup
 //
 
-type ComponentState = AccountComponent::ComponentState<DualCaseAccountMock::ContractState>;
+type ComponentState = EthAccountComponent::ComponentState<DualCaseEthAccountMock::ContractState>;
 
-fn CONTRACT_STATE() -> DualCaseAccountMock::ContractState {
-    DualCaseAccountMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> DualCaseEthAccountMock::ContractState {
+    DualCaseEthAccountMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
-    AccountComponent::component_state_for_testing()
+    EthAccountComponent::component_state_for_testing()
 }
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(PUBKEY);
+    state.initializer(ETH_PUBKEY());
     utils::drop_event(ZERO());
     state
 }
 
-fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
+fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispatcher {
     testing::set_version(TRANSACTION_VERSION);
 
     let mut calldata = array![];
     if data.is_some() {
         let data = data.unwrap();
-        testing::set_signature(array![*data.r, *data.s].span());
+        let mut serialized_signature = array![];
+        data.signature.serialize(ref serialized_signature);
+
+        testing::set_signature(serialized_signature.span());
         testing::set_transaction_hash(*data.transaction_hash);
 
-        calldata.append(*data.public_key);
+        calldata.append_serde(*data.public_key);
     } else {
-        calldata.append(PUBKEY);
+        calldata.append_serde(ETH_PUBKEY());
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    AccountABIDispatcher { contract_address: address }
+    EthAccountABIDispatcher { contract_address: address }
 }
 
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
@@ -106,40 +120,51 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
+    let mut bad_signature = data.signature;
 
-    let mut good_signature = array![data.r, data.s];
-    let mut bad_signature = array![0x987, 0x564];
+    bad_signature.r += 1;
+
+    let mut serialized_good_signature = array![];
+    let mut serialized_bad_signature = array![];
+
+    data.signature.serialize(ref serialized_good_signature);
+    bad_signature.serialize(ref serialized_bad_signature);
 
     state.set_public_key(data.public_key);
 
-    let is_valid = state.is_valid_signature(hash, good_signature);
+    let is_valid = state.is_valid_signature(hash, serialized_good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = state.is_valid_signature(hash, bad_signature);
+    let is_valid = state.is_valid_signature(hash, serialized_bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_isValidSignature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
-    let mut good_signature = array![data.r, data.s];
-    let mut bad_signature = array![0x987, 0x564];
+    let mut bad_signature = data.signature;
+
+    bad_signature.r += 1;
+
+    let mut serialized_good_signature = array![];
+    let mut serialized_bad_signature = array![];
+
+    data.signature.serialize(ref serialized_good_signature);
+    bad_signature.serialize(ref serialized_bad_signature);
 
     state.set_public_key(data.public_key);
 
-    let is_valid = state.isValidSignature(hash, good_signature);
+    let is_valid = state.isValidSignature(hash, serialized_good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
 
-    let is_valid = state.isValidSignature(hash, bad_signature);
+    let is_valid = state.isValidSignature(hash, serialized_bad_signature);
     assert(is_valid == 0, 'Should reject invalid signature');
 }
 
@@ -148,7 +173,6 @@ fn test_isValidSignature() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_deploy() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
@@ -156,25 +180,23 @@ fn test_validate_deploy() {
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
     assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY) == starknet::VALIDATED,
+        account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY()) == starknet::VALIDATED,
         'Should validate correctly'
     );
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
     data.transaction_hash += 1;
     let account = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut signature = array![];
@@ -182,22 +204,20 @@ fn test_validate_deploy_invalid_signature_length() {
     signature.append(0x1);
     testing::set_signature(signature.span());
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let empty_sig = array![];
 
     testing::set_signature(empty_sig.span());
-    account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY);
+    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_declare() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
@@ -211,8 +231,7 @@ fn test_validate_declare() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
     data.transaction_hash += 1;
@@ -222,8 +241,7 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut signature = array![];
@@ -235,8 +253,7 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let empty_sig = array![];
@@ -282,26 +299,22 @@ fn test_execute_with_version(version: Option<felt252>) {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute() {
     test_execute_with_version(Option::None(()));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -310,8 +323,7 @@ fn test_validate() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_invalid() {
     let calls = array![];
     let mut data = SIGNED_TX_DATA();
@@ -322,7 +334,6 @@ fn test_validate_invalid() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_multicall() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
@@ -368,7 +379,6 @@ fn test_multicall() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_multicall_zero_calls() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut calls = array![];
@@ -380,8 +390,7 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: invalid caller',))]
+#[should_panic(expected: ('EthAccount: invalid caller',))]
 fn test_account_called_from_contract() {
     let state = setup();
     let calls = array![];
@@ -398,40 +407,36 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
     let mut state = COMPONENT_STATE();
+    let new_public_key = NEW_ETH_PUBKEY();
+
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
     // Check default
     let public_key = state.get_public_key();
-    assert(public_key == 0, 'Should be zero');
+    assert(public_key == (0, 0), 'Should be zero');
 
     // Set key
-    state.set_public_key(NEW_PUBKEY);
+    state.set_public_key(new_public_key);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), (0, 0));
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.get_public_key();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert(public_key == new_public_key, 'Should update key');
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized',))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.set_public_key(NEW_PUBKEY);
+    state.set_public_key(NEW_ETH_PUBKEY());
 }
 
 //
@@ -439,40 +444,34 @@ fn test_public_key_setter_different_account() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
     let mut state = COMPONENT_STATE();
+    let new_public_key = NEW_ETH_PUBKEY();
+
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
-    // Check default
     let public_key = state.getPublicKey();
-    assert(public_key == 0, 'Should be zero');
+    assert(public_key == (0, 0), 'Should be zero');
 
-    // Set key
-    state.setPublicKey(NEW_PUBKEY);
+    state.setPublicKey(new_public_key);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), (0, 0));
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.getPublicKey();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert(public_key == new_public_key, 'Should update key');
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized',))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
     let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.setPublicKey(NEW_PUBKEY);
+    state.setPublicKey(NEW_ETH_PUBKEY());
 }
 
 //
@@ -480,17 +479,16 @@ fn test_public_key_setter_different_account_camel() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
+    let public_key = ETH_PUBKEY();
 
-    state.initializer(PUBKEY);
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
+    state.initializer(public_key);
 
-    assert(state.get_public_key() == PUBKEY, 'Should return PUBKEY');
+    assert_only_event_owner_added(ZERO(), public_key);
+
+    assert(state.get_public_key() == public_key, 'Should return public_key');
 
     let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
     assert(supports_default_interface, 'Should support base interface');
@@ -500,7 +498,6 @@ fn test_initializer() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_only_self_true() {
     let mut state = COMPONENT_STATE();
 
@@ -510,8 +507,7 @@ fn test_assert_only_self_true() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Account: unauthorized',))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_assert_only_self_false() {
     let mut state = COMPONENT_STATE();
 
@@ -522,38 +518,64 @@ fn test_assert_only_self_false() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
 
-    let mut good_signature = array![data.r, data.s];
-    let mut bad_signature = array![0x987, 0x564];
-    let mut invalid_length_signature = array![0x987];
+    let mut bad_signature = data.signature;
+
+    bad_signature.r += 1;
+
+    let mut serialized_good_signature = array![];
+    let mut serialized_bad_signature = array![];
+
+    data.signature.serialize(ref serialized_good_signature);
+    bad_signature.serialize(ref serialized_bad_signature);
 
     state.set_public_key(data.public_key);
 
-    let is_valid = state._is_valid_signature(hash, good_signature.span());
+    let is_valid = state._is_valid_signature(hash, serialized_good_signature.span());
     assert(is_valid, 'Should accept valid signature');
 
-    let is_valid = state._is_valid_signature(hash, bad_signature.span());
+    let is_valid = state._is_valid_signature(hash, serialized_bad_signature.span());
     assert(!is_valid, 'Should reject invalid signature');
-
-    let is_valid = state._is_valid_signature(hash, invalid_length_signature.span());
-    assert(!is_valid, 'Should reject invalid length');
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
-    state._set_public_key(PUBKEY);
+    let public_key = ETH_PUBKEY();
+    state._set_public_key(public_key);
 
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
+    assert_only_event_owner_added(ZERO(), public_key);
 
     let public_key = state.get_public_key();
-    assert(public_key == PUBKEY, 'Should update key');
+    assert(public_key == public_key, 'Should update key');
+}
+
+//
+// Helpers
+//
+
+fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
+    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
+    let guid = get_guid_from_public_key(public_key);
+    assert(event.new_owner_guid == guid, 'Invalid `new_owner_guid`');
+}
+
+fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
+    assert_event_owner_added(contract, public_key);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
+    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
+    let guid = get_guid_from_public_key(public_key);
+    assert(event.removed_owner_guid == guid, 'Invalid `removed_owner_guid`');
+}
+
+fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
+    let (x, y) = public_key;
+    poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
 }

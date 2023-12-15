@@ -3,6 +3,7 @@ mod account_mocks;
 mod erc20_mocks;
 mod erc721_mocks;
 mod erc721_receiver_mocks;
+mod eth_account_mocks;
 mod initializable_mock;
 mod non_implementing_mock;
 mod ownable_mocks;

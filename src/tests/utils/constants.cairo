@@ -18,6 +18,14 @@ const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
 
+fn ETH_PUBKEY() -> (u256, u256) {
+    ('X', 'Y')
+}
+
+fn NEW_ETH_PUBKEY() -> (u256, u256) {
+    ('NEW_X', 'NEW_Y')
+}
+
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
 }

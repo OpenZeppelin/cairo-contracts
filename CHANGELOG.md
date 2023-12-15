@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Utilities documentation (#825)
-- Implemented ERC1155 token with Cairo Components design pattern
+- Implemented ERC1155 token with Cairo Components design pattern (#852)
 
 ## Changelog for ERC1155 Commits
 

@@ -45,13 +45,8 @@ fn setup_dispatcher() -> ERC20ABIDispatcher {
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
-    let expected = NAME.format_as_byte_array(16.try_into().unwrap());
-    assert(dispatcher.name() == expected, 'Should be NAME');
-
-    let expected = SYMBOL.format_as_byte_array(16.try_into().unwrap());
-    assert(dispatcher.symbol() == expected, 'Should be SYMBOL');
-    //assert(dispatcher.name() == NAME, 'Should be NAME');
-    //assert(dispatcher.symbol() == SYMBOL, 'Should be SYMBOL');
+    assert(dispatcher.name() == NAME, 'Should be NAME');
+    assert(dispatcher.symbol() == SYMBOL, 'Should be SYMBOL');
     assert(dispatcher.decimals() == DECIMALS, 'Should be DECIMALS');
     assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
     assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');

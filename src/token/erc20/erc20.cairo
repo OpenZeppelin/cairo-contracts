@@ -19,8 +19,8 @@ mod ERC20Component {
 
     #[storage]
     struct Storage {
-        ERC20_name: felt252,
-        ERC20_symbol: felt252,
+        ERC20_name: ByteArray,
+        ERC20_symbol: ByteArray,
         ERC20_total_supply: u256,
         ERC20_balances: LegacyMap<ContractAddress, u256>,
         ERC20_allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
@@ -152,14 +152,12 @@ mod ERC20Component {
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
-            let raw_name = self.ERC20_name.read();
-            raw_name.format_as_byte_array(16.try_into().unwrap())
+            self.ERC20_symbol.read();
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
         fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
-            let raw_symbol = self.ERC20_symbol.read();
-            raw_symbol.format_as_byte_array(16.try_into().unwrap())
+            self.ERC20_symbol.read();
         }
 
         /// Returns the number of decimals used to get its user representation.

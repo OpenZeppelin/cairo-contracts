@@ -3,8 +3,8 @@ use starknet::ContractAddress;
 use starknet::class_hash_const;
 use starknet::contract_address_const;
 
-const NAME: felt252 = 'NAME';
-const SYMBOL: felt252 = 'SYMBOL';
+const NAME: ByteArray = "NAME";
+const SYMBOL: ByteArray = "SYMBOL";
 const DECIMALS: u8 = 18_u8;
 const SUPPLY: u256 = 2000;
 const VALUE: u256 = 300;

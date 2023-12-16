@@ -18,7 +18,7 @@ trait DualCaseERC721ReceiverTrait {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252;
 }
 
@@ -28,7 +28,7 @@ impl DualCaseERC721ReceiverImpl of DualCaseERC721ReceiverTrait {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252 {
         let mut args = array![];
         args.append_serde(operator);

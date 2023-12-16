@@ -18,7 +18,7 @@ trait IERC721<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
@@ -31,9 +31,9 @@ trait IERC721<TState> {
 
 #[starknet::interface]
 trait IERC721Metadata<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn token_uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 #[starknet::interface]
@@ -45,7 +45,7 @@ trait IERC721CamelOnly<TState> {
         from: ContractAddress,
         to: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: ByteArray
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -55,7 +55,7 @@ trait IERC721CamelOnly<TState> {
 
 #[starknet::interface]
 trait IERC721MetadataCamelOnly<TState> {
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+    fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
 }
 
 //
@@ -72,7 +72,7 @@ trait ERC721ABI<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
@@ -86,9 +86,9 @@ trait ERC721ABI<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
     // IERC721Metadata
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn token_uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
 
     // IERC721CamelOnly
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
@@ -98,7 +98,7 @@ trait ERC721ABI<TState> {
         from: ContractAddress,
         to: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: ByteArray
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -109,7 +109,7 @@ trait ERC721ABI<TState> {
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 
     // IERC721MetadataCamelOnly
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+    fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
 }
 
 //
@@ -123,7 +123,7 @@ trait IERC721Receiver<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252;
 }
 
@@ -134,6 +134,6 @@ trait IERC721ReceiverCamel<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252;
 }

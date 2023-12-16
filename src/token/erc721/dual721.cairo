@@ -15,9 +15,9 @@ struct DualCaseERC721 {
 }
 
 trait DualCaseERC721Trait {
-    fn name(self: @DualCaseERC721) -> felt252;
-    fn symbol(self: @DualCaseERC721) -> felt252;
-    fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252;
+    fn name(self: @DualCaseERC721) -> ByteArray;
+    fn symbol(self: @DualCaseERC721) -> ByteArray;
+    fn token_uri(self: @DualCaseERC721, token_id: u256) -> ByteArray;
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256;
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
@@ -34,23 +34,23 @@ trait DualCaseERC721Trait {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     );
     fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool;
 }
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
-    fn name(self: @DualCaseERC721) -> felt252 {
+    fn name(self: @DualCaseERC721) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::name, array![].span())
             .unwrap_and_cast()
     }
 
-    fn symbol(self: @DualCaseERC721) -> felt252 {
+    fn symbol(self: @DualCaseERC721) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 
-    fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
+    fn token_uri(self: @DualCaseERC721, token_id: u256) -> ByteArray {
         let mut args = array![];
         args.append_serde(token_id);
 
@@ -147,7 +147,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        mut data: Span<felt252>
+        mut data: ByteArray
     ) {
         let mut args = array![];
         args.append_serde(from);

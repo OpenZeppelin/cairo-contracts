@@ -36,7 +36,7 @@ mod ERC721ReceiverComponent {
             operator: ContractAddress,
             from: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) -> felt252 {
             IERC721_RECEIVER_ID
         }
@@ -55,7 +55,7 @@ mod ERC721ReceiverComponent {
             operator: ContractAddress,
             from: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) -> felt252 {
             IERC721_RECEIVER_ID
         }

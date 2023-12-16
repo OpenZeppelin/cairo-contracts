@@ -20,13 +20,13 @@ mod ERC721Component {
 
     #[storage]
     struct Storage {
-        ERC721_name: felt252,
-        ERC721_symbol: felt252,
+        ERC721_name: ByteArray,
+        ERC721_symbol: ByteArray,
         ERC721_owners: LegacyMap<u256, ContractAddress>,
         ERC721_balances: LegacyMap<ContractAddress, u256>,
         ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
         ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        ERC721_token_uri: LegacyMap<u256, felt252>,
+        ERC721_token_uri: LegacyMap<u256, ByteArray>,
     }
 
     #[event]
@@ -127,7 +127,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             assert(
                 self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
@@ -216,12 +216,12 @@ mod ERC721Component {
         +Drop<TContractState>
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_name.read()
         }
 
         /// Returns the NFT symbol.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_symbol.read()
         }
 
@@ -231,7 +231,7 @@ mod ERC721Component {
         /// Requirements:
         ///
         /// - `token_id` exists.
-        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
+        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.read(token_id)
         }
@@ -258,7 +258,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             self.safe_transfer_from(from, to, tokenId, data)
         }
@@ -297,7 +297,7 @@ mod ERC721Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
-        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
             self.token_uri(tokenId)
         }
     }
@@ -315,7 +315,7 @@ mod ERC721Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
 
@@ -478,7 +478,7 @@ mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             self._mint(to, token_id);
             assert(
@@ -504,7 +504,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             self._transfer(from, to, token_id);
             assert(
@@ -518,7 +518,7 @@ mod ERC721Component {
         ///
         /// - `token_id` exists.
         fn _set_token_uri(
-            ref self: ComponentState<TContractState>, token_id: u256, token_uri: felt252
+            ref self: ComponentState<TContractState>, token_id: u256, token_uri: ByteArray
         ) {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
             self.ERC721_token_uri.write(token_id, token_uri)
@@ -529,7 +529,7 @@ mod ERC721Component {
     /// for the `IERC721Receiver` interface through SRC5. The transaction will
     /// fail if both cases are false.
     fn _check_on_erc721_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: ByteArray
     ) -> bool {
         if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC721_RECEIVER_ID)) {

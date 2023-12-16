@@ -10,7 +10,7 @@ const SUPPLY: u256 = 2000;
 const VALUE: u256 = 300;
 const ROLE: felt252 = 'ROLE';
 const OTHER_ROLE: felt252 = 'OTHER_ROLE';
-const URI: felt252 = 'URI';
+const URI: ByteArray = "URI";
 const TOKEN_ID: u256 = 21;
 const PUBKEY: felt252 = 'PUBKEY';
 const NEW_PUBKEY: felt252 = 'NEW_PUBKEY';
@@ -66,12 +66,12 @@ fn OPERATOR() -> ContractAddress {
     contract_address_const::<'OPERATOR'>()
 }
 
-fn DATA(success: bool) -> Span<felt252> {
-    let mut data = array![];
+fn DATA(success: bool) -> ByteArray {
+    let mut data: ByteArray = "";
     if success {
-        data.append(SUCCESS);
+        data.append_byte(1);
     } else {
-        data.append(FAILURE);
+        data.append(0);
     }
-    data.span()
+    data
 }

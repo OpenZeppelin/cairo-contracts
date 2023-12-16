@@ -43,11 +43,11 @@ mod DualCaseERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        uri: felt252
+        uri: ByteArray
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
@@ -95,11 +95,11 @@ mod SnakeERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        uri: felt252
+        uri: ByteArray
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
@@ -149,11 +149,11 @@ mod CamelERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        uri: felt252
+        uri: ByteArray
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
@@ -169,11 +169,11 @@ mod CamelERC721Mock {
             self.erc721.approve(to, tokenId);
         }
 
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> ByteArray {
             self.erc721.name()
         }
 
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> ByteArray {
             self.erc721.symbol()
         }
     }
@@ -196,14 +196,16 @@ mod SnakeERC721PanicMock {
     #[generate_trait]
     #[external(v0)]
     impl ExternalImpl of ExternalTrait {
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> ByteArray {
             panic_with_felt252('Some error');
-            3
+            let ba: ByteArray = "3";
+            ba
         }
 
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> ByteArray {
             panic_with_felt252('Some error');
-            3
+            let ba: ByteArray = "3";
+            ba
         }
 
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
@@ -215,9 +217,10 @@ mod SnakeERC721PanicMock {
             false
         }
 
-        fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
+        fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
             panic_with_felt252('Some error');
-            3
+            let ba: ByteArray = "3";
+            ba
         }
 
         fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
@@ -259,7 +262,7 @@ mod SnakeERC721PanicMock {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             panic_with_felt252('Some error');
         }
@@ -282,9 +285,10 @@ mod CamelERC721PanicMock {
             false
         }
 
-        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ContractState, tokenId: u256) -> ByteArray {
             panic_with_felt252('Some error');
-            3
+            let ba: ByteArray = "3";
+            ba
         }
 
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
@@ -324,7 +328,7 @@ mod CamelERC721PanicMock {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: ByteArray
         ) {
             panic_with_felt252('Some error');
         }

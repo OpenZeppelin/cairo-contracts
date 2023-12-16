@@ -34,8 +34,8 @@ mod DualCaseERC20Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         initial_supply: u256,
         recipient: ContractAddress
     ) {
@@ -75,8 +75,8 @@ mod SnakeERC20Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         initial_supply: u256,
         recipient: ContractAddress
     ) {
@@ -120,8 +120,8 @@ mod CamelERC20Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         initial_supply: u256,
         recipient: ContractAddress
     ) {
@@ -159,15 +159,17 @@ mod SnakeERC20Panic {
     struct Storage {}
 
     #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
+    fn name(self: @ContractState) -> ByteArray {
         panic_with_felt252('Some error');
-        3
+        let ba: ByteArray = "3";
+        ba
     }
 
     #[external(v0)]
-    fn symbol(self: @ContractState) -> felt252 {
+    fn symbol(self: @ContractState) -> ByteArray {
         panic_with_felt252('Some error');
-        3
+        let ba: ByteArray = "3";
+        ba
     }
 
     #[external(v0)]

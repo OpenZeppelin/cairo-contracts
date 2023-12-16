@@ -8,7 +8,7 @@ use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
-use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO};
+use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO, NAME, SYMBOL};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
@@ -88,12 +88,10 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
 }
 
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let name = 0;
-    let symbol = 0;
     let mut calldata = array![];
 
-    calldata.append_serde(name);
-    calldata.append_serde(symbol);
+    calldata.append_serde(NAME);
+    calldata.append_serde(SYMBOL);
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 

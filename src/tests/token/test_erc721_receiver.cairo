@@ -24,17 +24,17 @@ fn test_initializer() {
 #[available_gas(20000000)]
 fn test_on_erc721_received() {
     let mut state = STATE();
-    let data = array![];
+    let data: ByteArray = "";
     assert(
         state
             .erc721_receiver
-            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, data.span()) == IERC721_RECEIVER_ID,
+            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, data) == IERC721_RECEIVER_ID,
         'Should return receiver ID'
     );
     assert(
         state
             .erc721_receiver
-            .onERC721Received(OPERATOR(), OWNER(), TOKEN_ID, data.span()) == IERC721_RECEIVER_ID,
+            .onERC721Received(OPERATOR(), OWNER(), TOKEN_ID, data) == IERC721_RECEIVER_ID,
         'Should return receiver ID'
     );
 }

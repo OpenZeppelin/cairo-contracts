@@ -33,9 +33,9 @@ const NONEXISTENT: u256 = 9898;
 const TOKENS_LEN: u256 = 3;
 
 // Token URIs
-const URI_1: felt252 = 'URI_1';
-const URI_2: felt252 = 'URI_2';
-const URI_3: felt252 = 'URI_3';
+const URI_1: ByteArray = "URI_1";
+const URI_2: ByteArray = "URI_2";
+const URI_3: ByteArray = "URI_3";
 
 //
 // Setup

@@ -45,7 +45,7 @@ mod DualCaseERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252 {
         if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
@@ -60,7 +60,7 @@ mod DualCaseERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252 {
         self.on_erc721_received(operator, from, tokenId, data)
     }
@@ -111,7 +111,7 @@ mod SnakeERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252 {
         if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
@@ -166,7 +166,7 @@ mod CamelERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: ByteArray
     ) -> felt252 {
         if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.onERC721Received(operator, from, tokenId, data)
@@ -192,7 +192,8 @@ mod SnakeERC721ReceiverPanicMock {
         data: Span<felt252>
     ) -> felt252 {
         panic_with_felt252('Some error');
-        3
+        let ba: ByteArray = "3";
+        ba
     }
 }
 
@@ -212,7 +213,8 @@ mod CamelERC721ReceiverPanicMock {
         data: Span<felt252>
     ) -> felt252 {
         panic_with_felt252('Some error');
-        3
+        let ba: ByteArray = "3";
+        ba
     }
 }
 

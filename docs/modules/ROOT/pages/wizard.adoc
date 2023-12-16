@@ -1,4 +1,4 @@
-= Cairo Contracts Wizard
+= Wizard for Cairo
 :page-notoc:
 
 Not sure where to start? Use the interactive generator below to bootstrap your

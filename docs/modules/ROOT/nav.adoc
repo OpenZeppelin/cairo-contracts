@@ -11,7 +11,7 @@
 
 * Modules
 
-** xref:access.adoc[Access Control]
+** xref:access.adoc[Access]
 *** xref:/api/access.adoc[API Reference]
 
 ** xref:accounts.adoc[Accounts]

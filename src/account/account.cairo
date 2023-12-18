@@ -59,8 +59,7 @@ mod AccountComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions.
-        /// For simulations, the version must be `QUERY_VERSION`.
+        /// - The transaction version must be greater than or equal to `TRANSACTION_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -71,10 +70,8 @@ mod AccountComponent {
 
             // Check tx version
             let tx_info = get_tx_info().unbox();
-            let version = tx_info.version;
-            if version != TRANSACTION_VERSION {
-                assert(version == QUERY_VERSION, Errors::INVALID_TX_VERSION);
-            }
+            let tx_version: u256 = tx_info.version.into();
+            assert(TRANSACTION_VERSION.into() <= tx_version, Errors::INVALID_TX_VERSION);
 
             _execute_calls(calls)
         }

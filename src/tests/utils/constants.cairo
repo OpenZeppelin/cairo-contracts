@@ -1,7 +1,9 @@
+use openzeppelin::account::eth_account::interface::EthPublicKey;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::class_hash_const;
 use starknet::contract_address_const;
+use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 
 const NAME: felt252 = 'NAME';
 const SYMBOL: felt252 = 'SYMBOL';
@@ -18,12 +20,12 @@ const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
 
-fn ETH_PUBKEY() -> (u256, u256) {
-    ('X', 'Y')
+fn ETH_PUBKEY() -> EthPublicKey {
+    secp256k1_get_point_from_x_syscall(3, false).unwrap().unwrap()
 }
 
-fn NEW_ETH_PUBKEY() -> (u256, u256) {
-    ('NEW_X', 'NEW_Y')
+fn NEW_ETH_PUBKEY() -> EthPublicKey {
+    secp256k1_get_point_from_x_syscall(4, false).unwrap().unwrap()
 }
 
 fn ADMIN() -> ContractAddress {

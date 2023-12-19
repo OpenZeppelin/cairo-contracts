@@ -2,6 +2,7 @@
 mod DualCaseEthAccountMock {
     use openzeppelin::account::eth_account::EthAccountComponent;
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -47,6 +48,7 @@ mod DualCaseEthAccountMock {
 mod SnakeEthAccountMock {
     use openzeppelin::account::eth_account::EthAccountComponent;
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -88,6 +90,7 @@ mod SnakeEthAccountMock {
 mod CamelEthAccountMock {
     use openzeppelin::account::eth_account::EthAccountComponent;
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
 
@@ -149,6 +152,8 @@ mod CamelEthAccountMock {
 #[starknet::contract]
 mod SnakeEthAccountPanicMock {
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
     struct Storage {}
@@ -161,7 +166,7 @@ mod SnakeEthAccountPanicMock {
     #[external(v0)]
     fn get_public_key(self: @ContractState) -> EthPublicKey {
         panic_with_felt252('Some error');
-        (3, 3)
+        secp256k1_new_syscall(3, 3).unwrap().unwrap()
     }
 
     #[external(v0)]
@@ -182,6 +187,8 @@ mod SnakeEthAccountPanicMock {
 #[starknet::contract]
 mod CamelEthAccountPanicMock {
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
     struct Storage {}
@@ -194,7 +201,7 @@ mod CamelEthAccountPanicMock {
     #[external(v0)]
     fn getPublicKey(self: @ContractState) -> EthPublicKey {
         panic_with_felt252('Some error');
-        (3, 3)
+        secp256k1_new_syscall(3, 3).unwrap().unwrap()
     }
 
     #[external(v0)]

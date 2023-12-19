@@ -2,10 +2,11 @@
 // OpenZeppelin Contracts for Cairo vX.Y.Z (account/eth_account/interface.cairo)
 
 use openzeppelin::account::interface::{ISRC6, ISRC6CamelOnly, IDeclarer, ISRC6_ID};
+use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-type EthPublicKey = (u256, u256);
+type EthPublicKey = starknet::secp256k1::Secp256k1Point;
 
 #[starknet::interface]
 trait IDeployable<TState> {

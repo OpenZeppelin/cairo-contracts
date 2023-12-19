@@ -3,6 +3,7 @@
 
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::eth_account::interface::EthPublicKey;
+use openzeppelin::account::utils::secp256k1::Secp256k1PointPartialEq;
 use starknet::eth_signature::{Signature, is_eth_signature_valid};
 use starknet::secp256_trait::{Secp256PointTrait, is_signature_entry_valid, recover_public_key};
 use starknet::secp256k1::Secp256k1Point;
@@ -33,7 +34,7 @@ fn is_valid_eth_signature(
     }
 
     let public_key_point: Secp256k1Point = recover_public_key(msg_hash.into(), signature).unwrap();
-    if public_key_point.get_coordinates().unwrap() != public_key {
+    if public_key_point != public_key {
         // Invalid signature
         return false;
     }

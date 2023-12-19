@@ -1,3 +1,4 @@
+use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin::account::eth_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::eth_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
@@ -8,6 +9,7 @@ use openzeppelin::account::eth_account::interface::{
     EthAccountABIDispatcherTrait, EthAccountABIDispatcher
 };
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin::account::utils::secp256k1::{Secp256k1PointPartialEq, Secp256k1PointSerde};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
@@ -21,6 +23,7 @@ use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::eth_signature::Signature;
+use starknet::secp256k1::secp256k1_new_syscall;
 use starknet::testing;
 
 #[derive(Drop)]
@@ -35,10 +38,12 @@ struct SignedTransactionData {
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9,
-        public_key: (
+        public_key: secp256k1_new_syscall(
             0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
             0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-        ),
+        )
+            .unwrap()
+            .unwrap(),
         transaction_hash: 0x008f882c63d0396d216d57529fe29ad5e70b6cd51b47bd2458b0a4ccb2ba0957,
         signature: Signature {
             r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
@@ -134,7 +139,7 @@ fn test_is_valid_signature() {
     data.signature.serialize(ref serialized_good_signature);
     bad_signature.serialize(ref serialized_bad_signature);
 
-    state.set_public_key(data.public_key);
+    state.initializer(data.public_key);
 
     let is_valid = state.is_valid_signature(hash, serialized_good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
@@ -159,7 +164,7 @@ fn test_isValidSignature() {
     data.signature.serialize(ref serialized_good_signature);
     bad_signature.serialize(ref serialized_bad_signature);
 
-    state.set_public_key(data.public_key);
+    state.initializer(data.public_key);
 
     let is_valid = state.isValidSignature(hash, serialized_good_signature);
     assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
@@ -407,25 +412,48 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-fn test_public_key_setter_and_getter() {
+#[should_panic(expected: ('Option::unwrap failed.',))]
+fn test_cannot_get_without_initialize() {
+    let mut state = COMPONENT_STATE();
+    state.get_public_key();
+}
+
+#[test]
+#[should_panic(expected: ('Option::unwrap failed.',))]
+fn test_cannot_set_without_initialize() {
     let mut state = COMPONENT_STATE();
     let new_public_key = NEW_ETH_PUBKEY();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
+    state.set_public_key(new_public_key);
+}
+
+#[test]
+fn test_public_key_setter_and_getter() {
+    let mut state = COMPONENT_STATE();
+    let public_key = ETH_PUBKEY();
+    let new_public_key = NEW_ETH_PUBKEY();
+
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    testing::set_caller_address(ACCOUNT_ADDRESS());
+
+    state.initializer(public_key);
+    utils::drop_event(ACCOUNT_ADDRESS());
+
     // Check default
-    let public_key = state.get_public_key();
-    assert(public_key == (0, 0), 'Should be zero');
+    let current = state.get_public_key();
+    assert(current == public_key, 'Should be public_key');
 
     // Set key
     state.set_public_key(new_public_key);
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), (0, 0));
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), current);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.get_public_key();
-    assert(public_key == new_public_key, 'Should update key');
+    assert(public_key == new_public_key, 'Should be new_public_key');
 }
 
 #[test]
@@ -446,21 +474,25 @@ fn test_public_key_setter_different_account() {
 #[test]
 fn test_public_key_setter_and_getter_camel() {
     let mut state = COMPONENT_STATE();
+    let public_key = ETH_PUBKEY();
     let new_public_key = NEW_ETH_PUBKEY();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
-    let public_key = state.getPublicKey();
-    assert(public_key == (0, 0), 'Should be zero');
+    state.initializer(public_key);
+    utils::drop_event(ACCOUNT_ADDRESS());
+
+    let current = state.getPublicKey();
+    assert(current == public_key, 'Should be public_key');
 
     state.setPublicKey(new_public_key);
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), (0, 0));
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), public_key);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.getPublicKey();
-    assert(public_key == new_public_key, 'Should update key');
+    assert(public_key == new_public_key, 'Should be new_public_key');
 }
 
 #[test]
@@ -533,7 +565,7 @@ fn test__is_valid_signature() {
     data.signature.serialize(ref serialized_good_signature);
     bad_signature.serialize(ref serialized_bad_signature);
 
-    state.set_public_key(data.public_key);
+    state.initializer(data.public_key);
 
     let is_valid = state._is_valid_signature(hash, serialized_good_signature.span());
     assert(is_valid, 'Should accept valid signature');
@@ -576,6 +608,6 @@ fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKe
 }
 
 fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-    let (x, y) = public_key;
+    let (x, y) = public_key.get_coordinates().unwrap();
     poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
 }

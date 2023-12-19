@@ -1,3 +1,4 @@
+mod secp256k1;
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils.cairo)
 

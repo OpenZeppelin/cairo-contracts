@@ -6,8 +6,10 @@
 /// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
 #[starknet::component]
 mod EthAccountComponent {
+    use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::eth_account::interface::EthPublicKey;
     use openzeppelin::account::eth_account::interface;
+    use openzeppelin::account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointStorePacking};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -250,7 +252,7 @@ mod EthAccountComponent {
     }
 
     fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-        let (x, y) = public_key;
+        let (x, y) = public_key.get_coordinates().unwrap();
         poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 }

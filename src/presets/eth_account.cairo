@@ -9,6 +9,7 @@
 mod EthAccount {
     use openzeppelin::account::eth_account::EthAccountComponent;
     use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

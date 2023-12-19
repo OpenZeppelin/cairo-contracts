@@ -2,6 +2,7 @@
 // OpenZeppelin Contracts for Cairo vX.Y.Z (account/eth_account/dual_eth_account.cairo)
 
 use openzeppelin::account::eth_account::interface::EthPublicKey;
+use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;

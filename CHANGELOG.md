@@ -19,4 +19,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Two-step transfer functionality of the `Ownable` component (#809)
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)
-

@@ -65,6 +65,13 @@ mod OwnableComponent {
         }
 
         /// Transfers ownership of the contract to a new address.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_owner` is not the zero address.
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `OwnershipTransferred` event.
         fn transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
@@ -75,6 +82,12 @@ mod OwnableComponent {
 
         /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
         /// functions anymore. Can only be called by the current owner.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `OwnershipTransferred` event.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
             self.assert_only_owner();
             self._transfer_ownership(Zeroable::zero());
@@ -202,6 +215,8 @@ mod OwnableComponent {
         /// Transfers ownership of the contract to a new address.
         ///
         /// Internal function without access restriction.
+        ///
+        /// Emits an `OwnershipTransferred` event.
         fn _transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {

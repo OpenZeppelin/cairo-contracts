@@ -9,8 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Two-step transfer functionality of the `Ownable` component (#809)
+- Documentation for SRC5 migration (#821)
+- Usage docs (#823)
+- Utilities documentation (#825)
+- Documentation for presets (#832)
 
 ### Changed
 
-- `assert_event_ownership_transferred` checks for indexed keys now (#809)
+- Two-step transfer functionality of the `Ownable` component (#809)
+- Use ComponentState in tests (#836)
+- Docsite navbar (#838)
+

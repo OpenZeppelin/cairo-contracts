@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseERC20 {
+mod DualCaseERC20Mock {
     use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
 

@@ -3,6 +3,7 @@
 
 // Class Hashes
 :account-class-hash: 0x016c6081eb34ad1e0c5513234ed0c025b3c7f305902d291bad534cd6474c85bc
+:eth-account-upgradeable-class-hash: TBD
 :erc20-class-hash: 0x01d7085cee580ba542cdb5709bda80ebfe8bdede664261a3e6af92994d9a1de7
 :erc721-class-hash: 0x04376782cbcd20a05f8e742e96150757383dab737ab3e791b8505ad856756907
 

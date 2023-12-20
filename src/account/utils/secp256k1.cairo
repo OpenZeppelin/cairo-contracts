@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils/secp256k1.cairo)
+
 use starknet::SyscallResultTrait;
 use starknet::secp256_trait::Secp256PointTrait;
 use starknet::secp256k1::{

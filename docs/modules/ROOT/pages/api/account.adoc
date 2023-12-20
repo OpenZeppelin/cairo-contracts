@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/account.cairo#L27[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-vX.Y.Z/src/account/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -74,6 +74,8 @@ use openzeppelin::account::AccountComponent;
 Account component implementing xref:ISRC6[`ISRC6`].
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+
+NOTE: Every function involving signature verification, verifies with the account's current public key, using the Starknet curve.
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -260,6 +262,209 @@ Emitted when a `public_key` is added.
 
 Emitted when a `public_key` is removed.
 
+[.contract]
+[[EthAccountComponent]]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-vX.Y.Z/src/account/eth_account/eth_account.cairo[{github-icon},role=heading-link]
+
+:OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
+:OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
+
+```javascript
+use openzeppelin::account::eth_account::EthAccountComponent;
+```
+Account component implementing xref:ISRC6[`ISRC6`], but leveraging public key and signatures over the Secp256k1 curve.
+
+NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+
+NOTE: Every function involving signature verification, verifies with the account's current public key, using the Secp256k1 curve.
+
+[.contract-index#EthAccountComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+.SRC6Impl
+
+* xref:#EthAccountComponent-\\__execute__[`++__execute__(self, calls)++`]
+* xref:#EthAccountComponent-\\__validate__[`++__validate__(self, calls)++`]
+* xref:#EthAccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
+
+.DeclarerImpl
+
+* xref:#EthAccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
+
+.DeployableImpl
+
+* xref:#EthAccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
+
+.PublicKeyImpl
+
+* xref:#EthAccountComponent-get_public_key[`++get_public_key(self)++`]
+* xref:#EthAccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
+--
+
+[.contract-index#EthAccountComponent-Embeddable-Impls-camelCase]
+.Embeddable Implementations (camelCase)
+--
+.SRC6CamelOnlyImpl
+
+* xref:#EthAccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+
+.PublicKeyCamelImpl
+
+* xref:#EthAccountComponent-getPublicKey[`++getPublicKey(self)++`]
+* xref:#EthAccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#EthAccountComponent-initializer[`++initializer(self, public_key)++`]
+* xref:#EthAccountComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#EthAccountComponent-validate_transaction[`++validate_transaction(self)++`]
+* xref:#EthAccountComponent-_set_public_key[`++_set_public_key(self, new_public_key)++`]
+* xref:#EthAccountComponent-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#EthAccountComponent-OwnerAdded[`++OwnerAdded(new_owner_guid)++`]
+* xref:#EthAccountComponent-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
+--
+
+[#EthAccountComponent-Embeddable-Functions]
+==== Embeddable Functions
+
+[.contract-item]
+[[EthAccountComponent-__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+
+See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
+
+[.contract-item]
+[[EthAccountComponent-__validate__]]
+==== `[.contract-item-name]#++__validate__++#++(self: @ContractState, calls: Array<Call>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-\\__validate__[ISRC6::\\__validate__].
+
+[.contract-item]
+[[EthAccountComponent-is_valid_signature]]
+==== `[.contract-item-name]#++is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
+
+[.contract-item]
+[[EthAccountComponent-__validate_declare__]]
+==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
+
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[EthAccountComponent-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: Secp256k1Point) → felt252++` [.item-kind]#external#
+
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+See xref:/guides/deployment.adoc[Counterfactual Deployments].
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[EthAccountComponent-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → Secp256k1Point` [.item-kind]#external#
+
+Returns the current public key of the account.
+
+[.contract-item]
+[[EthAccountComponent-set_public_key]]
+==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: Secp256k1Point)++` [.item-kind]#external#
+
+Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
+
+Emits both an {OwnerRemoved} and an {OwnerAdded} event.
+
+[#EthAccountComponent-camelCase-Support]
+==== camelCase Support
+
+[.contract-item]
+[[EthAccountComponent-isValidSignature]]
+==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
+
+[.contract-item]
+[[EthAccountComponent-getPublicKey]]
+==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → Secp256k1Point` [.item-kind]#external#
+
+See xref:EthAccountComponent-get_public_key[get_public_key].
+
+[.contract-item]
+[[EthAccountComponent-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: Secp256k1Point)++` [.item-kind]#external#
+
+See xref:EthAccountComponent-set_public_key[set_public_key].
+
+[#EthAccountComponent-Internal-Functions]
+==== Internal Functions
+
+[.contract-item]
+[[EthAccountComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: Secp256k1Point)++` [.item-kind]#internal#
+
+Initializes the account with the given public key, and registers the ISRC6 interface ID.
+
+Emits an {OwnerAdded} event.
+
+[.contract-item]
+[[EthAccountComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ComponentState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
+
+[.contract-item]
+[[EthAccountComponent-validate_transaction]]
+==== `[.contract-item-name]#++validate_transaction++#++(self: @ComponentState)++ → felt252` [.item-kind]#internal#
+
+Validates a transaction signature from the
+https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/info.cairo#L61[global context].
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[EthAccountComponent-_set_public_key]]
+==== `[.contract-item-name]#++_set_public_key++#++(ref self: ComponentState, new_public_key: Secp256k1Point)++` [.item-kind]#internal#
+
+Set the public key without validating the caller.
+
+Emits an {OwnerAdded} event.
+
+CAUTION: The usage of this method outside the `set_public_key` function is discouraged.
+
+[.contract-item]
+[[EthAccountComponent-_is_valid_signature]]
+==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ComponentState, hash: felt252, signature: Span<felt252>)++ → bool` [.item-kind]#internal#
+
+Validates the provided `signature` for the `hash`, using the account's current public key.
+
+[#EthAccountComponent-Events]
+==== Events
+
+NOTE: The `guid` is computed as the hash of the public key, using the poseidon hash function.
+
+[.contract-item]
+[[EthAccountComponent-OwnerAdded]]
+==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
+
+Emitted when a `public_key` is added.
+
+[.contract-item]
+[[EthAccountComponent-OwnerRemoved]]
+==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
+
+Emitted when a `public_key` is removed.
+
 == Presets
 
 [.contract]
@@ -311,3 +516,68 @@ include::../utils/_class_hashes.adoc[]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: felt252)++` [.item-kind]#constructor#
 
 Sets the account `public_key` and registers the interfaces the contract supports.
+
+[.contract]
+[[EthAccountUpgradeable]]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-vX.Y.Z/src/presets/eth_account.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::presets::EthAccountUpgradeable;
+```
+
+Account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
+
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{eth-account-upgradeable-class-hash}
+--
+
+[.contract-index]
+.Constructor
+--
+* xref:#EthAccountUpgradeable-constructor[`++constructor(self, public_key)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.EthAccountComponent
+
+* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+
+.SRC5Component
+
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index]
+.External Functions
+--
+* xref:#EthAccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#EthAccountUpgradeable-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[EthAccountUpgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: Secp256k1Point)++` [.item-kind]#constructor#
+
+Sets the account `public_key` and registers the interfaces the contract supports.
+
+[#EthAccountUpgradeable-external-functions]
+==== External Functions
+
+[.contract-item]
+[[EthAccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.

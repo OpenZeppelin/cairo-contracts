@@ -6,9 +6,10 @@ include::utils/_class_hashes.adoc[]
 
 List of "ready-to-deploy" presets available and their corresponding class hashes.
 
-:account: xref:/api/account.adoc#Account[Account.cairo]
-:erc20: xref:/api/erc20.adoc#ERC20[ERC20.cairo]
-:erc721: xref:/api/erc721.adoc#ERC721[ERC721.cairo]
+:account: xref:/api/account.adoc#Account[Account]
+:eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
+:erc20: xref:/api/erc20.adoc#ERC20[ERC20]
+:erc721: xref:/api/erc721.adoc#ERC721[ERC721]
 :cairo-and-sierra: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/cairo-and-sierra/[Cairo and Sierra]
 
 NOTE: Class hashes were computed using {class-hash-cairo-version}.
@@ -18,6 +19,9 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 
 | `{account}`
 | `{account-class-hash}`
+
+| `{eth-account-upgradeable}`
+| `{eth-account-upgradeable-class-hash}`
 
 | `{erc20}`
 | `{erc20-class-hash}`

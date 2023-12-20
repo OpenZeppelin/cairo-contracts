@@ -4,8 +4,8 @@
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::eth_account::interface::EthPublicKey;
 use openzeppelin::account::utils::secp256k1::Secp256k1PointPartialEq;
-use starknet::eth_signature::{Signature, is_eth_signature_valid};
-use starknet::secp256_trait::{Secp256PointTrait, is_signature_entry_valid, recover_public_key};
+use starknet::eth_signature::Signature;
+use starknet::secp256_trait::{is_signature_entry_valid, recover_public_key};
 use starknet::secp256k1::Secp256k1Point;
 
 

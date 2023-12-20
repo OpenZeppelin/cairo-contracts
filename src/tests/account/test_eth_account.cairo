@@ -201,7 +201,7 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut signature = array![];
@@ -213,7 +213,7 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let empty_sig = array![];
@@ -246,7 +246,7 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut signature = array![];
@@ -258,7 +258,7 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let empty_sig = array![];
@@ -412,14 +412,14 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.',))]
+#[should_panic(expected: ('Secp256k1Point: Invalid point.',))]
 fn test_cannot_get_without_initialize() {
     let mut state = COMPONENT_STATE();
     state.get_public_key();
 }
 
 #[test]
-#[should_panic(expected: ('Option::unwrap failed.',))]
+#[should_panic(expected: ('Secp256k1Point: Invalid point.',))]
 fn test_cannot_set_without_initialize() {
     let mut state = COMPONENT_STATE();
     let new_public_key = NEW_ETH_PUBKEY();

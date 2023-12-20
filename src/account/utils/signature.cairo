@@ -23,7 +23,8 @@ fn is_valid_eth_signature(
     msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
 ) -> bool {
     let mut signature = signature;
-    let signature: Signature = Serde::deserialize(ref signature).unwrap();
+    let signature: Signature = Serde::deserialize(ref signature)
+        .expect('Signature: Invalid format.');
 
     // Signature out of range
     if !is_signature_entry_valid::<Secp256k1Point>(signature.r) {

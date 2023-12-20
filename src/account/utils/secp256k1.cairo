@@ -30,7 +30,9 @@ impl Secp256k1PointStorePacking of starknet::StorePacking<Secp256k1Point, (felt2
         let parity = xhigh_and_parity % 2 == 1;
 
         // Expects parity odd to be true
-        secp256k1_get_point_from_x_syscall(x, parity).unwrap_syscall().unwrap()
+        secp256k1_get_point_from_x_syscall(x, parity)
+            .unwrap_syscall()
+            .expect('Secp256k1Point: Invalid point.')
     }
 }
 

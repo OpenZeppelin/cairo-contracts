@@ -6,4 +6,4 @@ mod eth_account;
 use account::Account;
 use erc20::ERC20;
 use erc721::ERC721;
-use eth_account::EthAccount;
+use eth_account::EthAccountUpgradeable;

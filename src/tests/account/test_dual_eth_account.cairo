@@ -188,7 +188,7 @@ fn test_dual_setPublicKey_exists_and_panics() {
 #[test]
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
-// assert(camel_dispatcher.get_public_key() == ETH_PUBKEY(), 'Should return ETH_PUBKEY');
+    assert(camel_dispatcher.get_public_key() == ETH_PUBKEY(), 'Should return ETH_PUBKEY');
 }
 
 #[test]

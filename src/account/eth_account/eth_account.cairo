@@ -18,8 +18,6 @@ mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
-
-
     const TRANSACTION_VERSION: felt252 = 1;
     // 2**128 + TRANSACTION_VERSION
     const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;

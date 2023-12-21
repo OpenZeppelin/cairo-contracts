@@ -10,6 +10,7 @@ mod EthAccountComponent {
     use openzeppelin::account::eth_account::interface::EthPublicKey;
     use openzeppelin::account::eth_account::interface;
     use openzeppelin::account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointStorePacking};
+    use openzeppelin::account::utils::{TRANSACTION_VERSION, QUERY_VERSION};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -18,11 +19,6 @@ mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
-
-
-    const TRANSACTION_VERSION: felt252 = 1;
-    // 2**128 + TRANSACTION_VERSION
-    const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
     #[storage]
     struct Storage {
@@ -38,11 +34,13 @@ mod EthAccountComponent {
 
     #[derive(Drop, starknet::Event)]
     struct OwnerAdded {
+        #[key]
         new_owner_guid: felt252
     }
 
     #[derive(Drop, starknet::Event)]
     struct OwnerRemoved {
+        #[key]
         removed_owner_guid: felt252
     }
 

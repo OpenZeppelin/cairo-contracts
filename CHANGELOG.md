@@ -19,3 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)
+- Account events indexed keys (#853)

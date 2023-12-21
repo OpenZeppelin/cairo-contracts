@@ -411,12 +411,8 @@ fn test_public_key_setter_and_getter() {
     // Set key
     state.set_public_key(NEW_PUBKEY);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.get_public_key();
     assert(public_key == NEW_PUBKEY, 'Should update key');
@@ -452,12 +448,8 @@ fn test_public_key_setter_and_getter_camel() {
     // Set key
     state.setPublicKey(NEW_PUBKEY);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.getPublicKey();
     assert(public_key == NEW_PUBKEY, 'Should update key');
@@ -486,10 +478,8 @@ fn test_initializer() {
     let mock_state = CONTRACT_STATE();
 
     state.initializer(PUBKEY);
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
 
+    assert_only_event_owner_added(ZERO(), PUBKEY);
     assert(state.get_public_key() == PUBKEY, 'Should return PUBKEY');
 
     let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
@@ -550,10 +540,35 @@ fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
     state._set_public_key(PUBKEY);
 
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
+    assert_only_event_owner_added(ZERO(), PUBKEY);
 
     let public_key = state.get_public_key();
     assert(public_key == PUBKEY, 'Should update key');
+}
+
+//
+// Helpers
+//
+
+fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
+    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
+    assert(event.removed_owner_guid == removed_owner_guid, 'Invalid `removed_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![removed_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
+    assert(event.new_owner_guid == new_owner_guid, 'Invalid `new_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![new_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+    assert_event_owner_added(contract, new_owner_guid);
+    utils::assert_no_events_left(contract);
 }

@@ -19,7 +19,7 @@ mod EthAccountUpgradeable {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    // Account
+    // EthAccount
     #[abi(embed_v0)]
     impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
@@ -33,7 +33,7 @@ mod EthAccountUpgradeable {
     impl DeclarerImpl = EthAccountComponent::DeclarerImpl<ContractState>;
     #[abi(embed_v0)]
     impl DeployableImpl = EthAccountComponent::DeployableImpl<ContractState>;
-    impl AccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
+    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]

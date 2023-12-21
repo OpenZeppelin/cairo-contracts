@@ -10,8 +10,8 @@ use starknet::secp256k1::{
 /// Packs a Secp256k1Point into a (felt252, felt252).
 ///
 /// The packing is done as follows:
-/// - First felt contains x.low (being x the x-coordinate of the point).
-/// - Second felt contains x.high and the parity bit, at the less significant bits (2 * x.high + parity).
+/// - First felt contains x.low (x being the x-coordinate of the point).
+/// - Second felt contains x.high and the parity bit, at the least significant bits (2 * x.high + parity).
 impl Secp256k1PointStorePacking of starknet::StorePacking<Secp256k1Point, (felt252, felt252)> {
     fn pack(value: Secp256k1Point) -> (felt252, felt252) {
         let (x, y) = value.get_coordinates().unwrap();
@@ -24,7 +24,6 @@ impl Secp256k1PointStorePacking of starknet::StorePacking<Secp256k1Point, (felt2
 
     fn unpack(value: (felt252, felt252)) -> Secp256k1Point {
         let (xlow, xhigh_and_parity) = value;
-
         let xhigh_and_parity: u256 = xhigh_and_parity.into();
 
         let x = u256 {
@@ -69,7 +68,6 @@ mod test {
         SyscallResultTrait, Secp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq,
         Secp256k1PointStorePacking as StorePacking
     };
-
 
     #[test]
     fn test_pack_big_secp256k1_points() {

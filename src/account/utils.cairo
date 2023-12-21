@@ -1,11 +1,15 @@
-mod secp256k1;
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo vX.Y.Z (account/utils.cairo)
 
+mod secp256k1;
 mod signature;
 
 use signature::{is_valid_signature, is_valid_eth_signature};
 use starknet::account::Call;
+
+const TRANSACTION_VERSION: felt252 = 1;
+// 2**128 + TRANSACTION_VERSION
+const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
 fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
     let mut res = ArrayTrait::new();

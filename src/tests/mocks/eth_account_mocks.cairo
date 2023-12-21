@@ -20,7 +20,6 @@ mod DualCaseEthAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -61,7 +60,6 @@ mod SnakeEthAccountMock {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
-
 
     #[storage]
     struct Storage {
@@ -106,7 +104,6 @@ mod CamelEthAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
-
 
     #[storage]
     struct Storage {
@@ -160,12 +157,12 @@ mod SnakeEthAccountPanicMock {
 
     #[external(v0)]
     fn set_public_key(ref self: ContractState, new_public_key: EthPublicKey) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn get_public_key(self: @ContractState) -> EthPublicKey {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         secp256k1_new_syscall(3, 3).unwrap().unwrap()
     }
 
@@ -173,13 +170,13 @@ mod SnakeEthAccountPanicMock {
     fn is_valid_signature(
         self: @ContractState, hash: felt252, signature: Array<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }
@@ -195,24 +192,24 @@ mod CamelEthAccountPanicMock {
 
     #[external(v0)]
     fn setPublicKey(ref self: ContractState, newPublicKey: EthPublicKey) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn getPublicKey(self: @ContractState) -> EthPublicKey {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         secp256k1_new_syscall(3, 3).unwrap().unwrap()
     }
 
     #[external(v0)]
     fn isValidSignature(self: @ContractState, hash: felt252, signature: Array<felt252>) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }

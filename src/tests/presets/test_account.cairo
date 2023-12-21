@@ -7,14 +7,15 @@ use openzeppelin::presets::Account;
 use openzeppelin::tests::account::test_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO, RECIPIENT};
+use openzeppelin::tests::utils::constants::{
+    PUBKEY, NEW_PUBKEY, SALT, ZERO, RECIPIENT, OTHER, CALLER
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::account::Call;
-use starknet::contract_address_const;
 use starknet::testing;
 
 fn CLASS_HASH() -> felt252 {
@@ -367,8 +368,8 @@ fn test_validate_invalid() {
 fn test_multicall() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = contract_address_const::<0x123>();
-    let recipient2 = contract_address_const::<0x456>();
+    let recipient1 = RECIPIENT();
+    let recipient2 = OTHER();
     let mut calls = array![];
 
     // Craft call1
@@ -426,10 +427,9 @@ fn test_multicall_zero_calls() {
 fn test_account_called_from_contract() {
     let account = setup_dispatcher();
     let calls = array![];
-    let caller = contract_address_const::<0x123>();
 
     testing::set_contract_address(account.contract_address);
-    testing::set_caller_address(caller);
+    testing::set_caller_address(CALLER());
 
     account.__execute__(calls);
 }
@@ -441,11 +441,19 @@ fn test_account_called_from_contract() {
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     assert(event.removed_owner_guid == removed_owner_guid, 'Invalid `removed_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![removed_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     assert(event.new_owner_guid == new_owner_guid, 'Invalid `new_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![new_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {

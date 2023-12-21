@@ -13,7 +13,9 @@ use openzeppelin::account::utils::secp256k1::{Secp256k1PointPartialEq, Secp256k1
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
-use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO};
+use openzeppelin::tests::utils::constants::{
+    ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
@@ -21,7 +23,6 @@ use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 use starknet::account::Call;
-use starknet::contract_address_const;
 use starknet::eth_signature::Signature;
 use starknet::secp256k1::secp256k1_new_syscall;
 use starknet::testing;
@@ -204,9 +205,8 @@ fn test_validate_deploy_invalid_signature_data() {
 #[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
-    let mut signature = array![];
+    let signature = array![0x1];
 
-    signature.append(0x1);
     testing::set_signature(signature.span());
 
     account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
@@ -272,7 +272,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let data = SIGNED_TX_DATA();
     let account = setup_dispatcher(Option::Some(@data));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient = contract_address_const::<0x123>();
+    let recipient = RECIPIENT();
 
     // Craft call and add to calls array
     let mut calldata = array![];
@@ -342,8 +342,8 @@ fn test_validate_invalid() {
 fn test_multicall() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = contract_address_const::<0x123>();
-    let recipient2 = contract_address_const::<0x456>();
+    let recipient1 = RECIPIENT();
+    let recipient2 = OTHER();
     let mut calls = array![];
 
     // Craft call1
@@ -399,10 +399,9 @@ fn test_multicall_zero_calls() {
 fn test_account_called_from_contract() {
     let state = setup();
     let calls = array![];
-    let caller = contract_address_const::<0x123>();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(caller);
+    testing::set_caller_address(CALLER());
 
     state.__execute__(calls);
 }
@@ -460,9 +459,8 @@ fn test_public_key_setter_and_getter() {
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
-    let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(caller);
+    testing::set_caller_address(CALLER());
 
     state.set_public_key(NEW_ETH_PUBKEY());
 }
@@ -499,9 +497,8 @@ fn test_public_key_setter_and_getter_camel() {
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
-    let caller = contract_address_const::<0x123>();
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(caller);
+    testing::set_caller_address(CALLER());
 
     state.setPublicKey(NEW_ETH_PUBKEY());
 }
@@ -544,8 +541,7 @@ fn test_assert_only_self_false() {
     let mut state = COMPONENT_STATE();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
-    let other = contract_address_const::<0x4567>();
-    testing::set_caller_address(other);
+    testing::set_caller_address(OTHER());
     state.assert_only_self();
 }
 
@@ -594,6 +590,10 @@ fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey)
     let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert(event.new_owner_guid == guid, 'Invalid `new_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
@@ -605,6 +605,10 @@ fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKe
     let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert(event.removed_owner_guid == guid, 'Invalid `removed_owner_guid`');
+
+    // Check indexed keys
+    let indexed_keys = array![guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {

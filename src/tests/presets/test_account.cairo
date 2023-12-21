@@ -5,6 +5,9 @@ use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDisp
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::Account;
 use openzeppelin::tests::account::test_account::{
+    assert_only_event_owner_added, assert_event_owner_removed
+};
+use openzeppelin::tests::account::test_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
 use openzeppelin::tests::utils::constants::{
@@ -432,31 +435,4 @@ fn test_account_called_from_contract() {
     testing::set_caller_address(CALLER());
 
     account.__execute__(calls);
-}
-
-//
-// Helpers
-//
-
-fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
-    assert(event.removed_owner_guid == removed_owner_guid, 'Invalid `removed_owner_guid`');
-
-    // Check indexed keys
-    let indexed_keys = array![removed_owner_guid];
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
-    assert(event.new_owner_guid == new_owner_guid, 'Invalid `new_owner_guid`');
-
-    // Check indexed keys
-    let indexed_keys = array![new_owner_guid];
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
-    assert_event_owner_added(contract, new_owner_guid);
-    utils::assert_no_events_left(contract);
 }

@@ -44,8 +44,8 @@ mod ERC20 {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         fixed_supply: u256,
         recipient: ContractAddress
     ) {

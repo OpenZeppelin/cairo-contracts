@@ -90,8 +90,8 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let mut calldata = array![];
 
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 

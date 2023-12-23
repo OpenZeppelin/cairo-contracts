@@ -15,7 +15,7 @@ mod ERC20Component {
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use core::to_byte_array::{FormatAsByteArray, AppendFormattedToByteArray};
+    use openzeppelin::utils::bytearray::ByteArrayStore;
 
     #[storage]
     struct Storage {
@@ -152,12 +152,12 @@ mod ERC20Component {
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
-            self.ERC20_symbol.read();
+            self.ERC20_name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
         fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
-            self.ERC20_symbol.read();
+            self.ERC20_symbol.read()
         }
 
         /// Returns the number of decimals used to get its user representation.
@@ -253,7 +253,7 @@ mod ERC20Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
         }

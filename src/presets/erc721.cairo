@@ -57,11 +57,11 @@ mod ERC721 {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         recipient: ContractAddress,
         token_ids: Span<u256>,
-        token_uris: Span<felt252>
+        token_uris: Span<ByteArray>
     ) {
         self.erc721.initializer(name, symbol);
         self._mint_assets(recipient, token_ids, token_uris);
@@ -80,7 +80,7 @@ mod ERC721 {
             ref self: ContractState,
             recipient: ContractAddress,
             mut token_ids: Span<u256>,
-            mut token_uris: Span<felt252>
+            mut token_uris: Span<ByteArray>
         ) {
             assert(token_ids.len() == token_uris.len(), Errors::UNEQUAL_ARRAYS);
 

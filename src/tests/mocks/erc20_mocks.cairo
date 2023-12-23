@@ -145,12 +145,6 @@ mod CamelERC20Mock {
     }
 }
 
-/// Although these modules are designed to panic, functions
-/// still need a valid return value. We chose:
-///
-/// 3 for felt252, u8, and u256
-/// zero for ContractAddress
-/// false for bool
 #[starknet::contract]
 mod SnakeERC20Panic {
     use starknet::ContractAddress;
@@ -159,61 +153,51 @@ mod SnakeERC20Panic {
     struct Storage {}
 
     #[external(v0)]
-    fn name(self: @ContractState) -> ByteArray {
+    fn name(self: @ContractState) {
         panic_with_felt252('Some error');
-        let ba: ByteArray = "3";
-        ba
     }
 
     #[external(v0)]
-    fn symbol(self: @ContractState) -> ByteArray {
+    fn symbol(self: @ContractState) {
         panic_with_felt252('Some error');
-        let ba: ByteArray = "3";
-        ba
+        //panic_with_felt252('Some error');
     }
 
     #[external(v0)]
-    fn decimals(self: @ContractState) -> u8 {
+    fn decimals(self: @ContractState) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
-    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
-    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         panic_with_felt252('Some error');
-        false
     }
 
     #[external(v0)]
-    fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) -> bool {
+    fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
         panic_with_felt252('Some error');
-        false
     }
 
     #[external(v0)]
-    fn total_supply(self: @ContractState) -> u256 {
+    fn total_supply(self: @ContractState) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
-    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+    fn balance_of(self: @ContractState, account: ContractAddress) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
     fn transfer_from(
         ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
-    ) -> bool {
+    ) {
         panic_with_felt252('Some error');
-        false
     }
 }
 
@@ -225,15 +209,13 @@ mod CamelERC20Panic {
     struct Storage {}
 
     #[external(v0)]
-    fn totalSupply(self: @ContractState) -> u256 {
+    fn totalSupply(self: @ContractState) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
-    fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+    fn balanceOf(self: @ContractState, account: ContractAddress) {
         panic_with_felt252('Some error');
-        3
     }
 
     #[external(v0)]
@@ -243,3 +225,4 @@ mod CamelERC20Panic {
         panic_with_felt252('Some error');
     }
 }
+

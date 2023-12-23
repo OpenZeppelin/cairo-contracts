@@ -25,7 +25,7 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME, SYMBOL);
+    state.initializer(NAME(), SYMBOL());
     state._mint(OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
@@ -39,10 +39,10 @@ fn setup() -> ComponentState {
 #[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME, SYMBOL);
+    state.initializer(NAME(), SYMBOL());
 
-    assert(state.name() == NAME, 'Should be NAME');
-    assert(state.symbol() == SYMBOL, 'Should be SYMBOL');
+    assert(state.name() == NAME(), 'Should be NAME');
+    assert(state.symbol() == SYMBOL(), 'Should be SYMBOL');
     assert(state.decimals() == DECIMALS, 'Should be DECIMALS');
     assert(state.total_supply() == 0, 'Should equal 0');
 }

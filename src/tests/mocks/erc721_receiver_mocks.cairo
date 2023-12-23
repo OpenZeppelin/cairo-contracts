@@ -190,10 +190,8 @@ mod SnakeERC721ReceiverPanicMock {
         from: ContractAddress,
         token_id: u256,
         data: Span<felt252>
-    ) -> felt252 {
+    ) {
         panic_with_felt252('Some error');
-        let ba: ByteArray = "3";
-        ba
     }
 }
 
@@ -211,10 +209,8 @@ mod CamelERC721ReceiverPanicMock {
         from: ContractAddress,
         tokenId: u256,
         data: Span<felt252>
-    ) -> felt252 {
+    ) {
         panic_with_felt252('Some error');
-        let ba: ByteArray = "3";
-        ba
     }
 }
 

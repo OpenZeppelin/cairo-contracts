@@ -196,53 +196,42 @@ mod SnakeERC721PanicMock {
     #[generate_trait]
     #[external(v0)]
     impl ExternalImpl of ExternalTrait {
-        fn name(self: @ContractState) -> ByteArray {
+        fn name(self: @ContractState) {
             panic_with_felt252('Some error');
-            let ba: ByteArray = "3";
-            ba
         }
 
-        fn symbol(self: @ContractState) -> ByteArray {
+        fn symbol(self: @ContractState) {
             panic_with_felt252('Some error');
-            let ba: ByteArray = "3";
-            ba
         }
 
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             panic_with_felt252('Some error');
         }
 
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+        fn supports_interface(self: @ContractState, interface_id: felt252) {
             panic_with_felt252('Some error');
-            false
         }
 
-        fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
+        fn token_uri(self: @ContractState, token_id: u256) {
             panic_with_felt252('Some error');
-            let ba: ByteArray = "3";
-            ba
         }
 
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+        fn balance_of(self: @ContractState, account: ContractAddress) {
             panic_with_felt252('Some error');
-            u256 { low: 3, high: 3 }
         }
 
-        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+        fn owner_of(self: @ContractState, token_id: u256) {
             panic_with_felt252('Some error');
-            Zeroable::zero()
         }
 
-        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
+        fn get_approved(self: @ContractState, token_id: u256) {
             panic_with_felt252('Some error');
-            Zeroable::zero()
         }
 
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
+        ) {
             panic_with_felt252('Some error');
-            false
         }
 
         fn set_approval_for_all(
@@ -280,37 +269,30 @@ mod CamelERC721PanicMock {
     #[generate_trait]
     #[external(v0)]
     impl ExternalImpl of ExternalTrait {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) {
             panic_with_felt252('Some error');
-            false
         }
 
-        fn tokenURI(self: @ContractState, tokenId: u256) -> ByteArray {
+        fn tokenURI(self: @ContractState, tokenId: u256) {
             panic_with_felt252('Some error');
-            let ba: ByteArray = "3";
-            ba
         }
 
-        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+        fn balanceOf(self: @ContractState, account: ContractAddress) {
             panic_with_felt252('Some error');
-            u256 { low: 3, high: 3 }
         }
 
-        fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
+        fn ownerOf(self: @ContractState, tokenId: u256) {
             panic_with_felt252('Some error');
-            Zeroable::zero()
         }
 
-        fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
+        fn getApproved(self: @ContractState, tokenId: u256) {
             panic_with_felt252('Some error');
-            Zeroable::zero()
         }
 
         fn isApprovedForAll(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
             panic_with_felt252('Some error');
-            false
         }
 
         fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {

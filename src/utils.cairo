@@ -4,6 +4,7 @@
 mod selectors;
 mod serde;
 mod unwrap_and_cast;
+mod bytearray;
 
 use starknet::ContractAddress;
 use starknet::SyscallResult;

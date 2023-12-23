@@ -17,6 +17,7 @@ mod ERC721Component {
     use openzeppelin::token::erc721::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use openzeppelin::utils::bytearray::ByteArrayStore;
 
     #[storage]
     struct Storage {

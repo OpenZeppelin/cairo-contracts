@@ -160,7 +160,6 @@ mod SnakeERC20Panic {
     #[external(v0)]
     fn symbol(self: @ContractState) {
         panic_with_felt252('Some error');
-        //panic_with_felt252('Some error');
     }
 
     #[external(v0)]

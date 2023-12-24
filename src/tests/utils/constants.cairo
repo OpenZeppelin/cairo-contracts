@@ -22,18 +22,15 @@ fn FAILURE() -> ByteArray {
 }
 
 fn NAME() -> ByteArray {
-    let ba: ByteArray = "NAME";
-    ba
+    "NAME"
 }
 
 fn SYMBOL() -> ByteArray {
-    let ba: ByteArray = "SYMBOL";
-    ba
+    "SYMBOL"
 }
 
 fn URI() -> ByteArray {
-    let ba: ByteArray = "URI";
-    ba
+    "URI"
 }
 
 fn ADMIN() -> ContractAddress {

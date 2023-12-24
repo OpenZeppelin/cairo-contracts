@@ -224,4 +224,3 @@ mod CamelERC20Panic {
         panic_with_felt252('Some error');
     }
 }
-

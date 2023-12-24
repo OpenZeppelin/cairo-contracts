@@ -3,13 +3,16 @@
 ///
 
 use core::bytes_31::BYTES_IN_BYTES31;
+use starknet::storage_access::{
+    StorageBaseAddress, storage_address_from_base, storage_address_from_base_and_offset,
+    StorageAddress, storage_base_address_from_felt252
+};
+use starknet::storage_access;
 use starknet::{
     SyscallResult, syscalls::{storage_read_syscall, storage_write_syscall},
     contract_address::{ContractAddress, Felt252TryIntoContractAddress, ContractAddressIntoFelt252},
     class_hash::{ClassHash, Felt252TryIntoClassHash, ClassHashIntoFelt252}
 };
-use starknet::storage_access;
-use starknet::storage_access::{StorageBaseAddress, storage_address_from_base, storage_address_from_base_and_offset, StorageAddress, storage_base_address_from_felt252};
 
 impl ByteArrayStore of starknet::Store<ByteArray> {
     #[inline(always)]

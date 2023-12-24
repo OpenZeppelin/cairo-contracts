@@ -15,9 +15,9 @@ mod ERC721Component {
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
     };
     use openzeppelin::token::erc721::interface;
+    use openzeppelin::utils::bytearray::ByteArrayStore;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use openzeppelin::utils::bytearray::ByteArrayStore;
 
     #[storage]
     struct Storage {
@@ -316,7 +316,9 @@ mod ERC721Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray) {
+        fn initializer(
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+        ) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
 

@@ -13,9 +13,9 @@
 mod ERC20Component {
     use integer::BoundedInt;
     use openzeppelin::token::erc20::interface;
+    use openzeppelin::utils::bytearray::ByteArrayStore;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use openzeppelin::utils::bytearray::ByteArrayStore;
 
     #[storage]
     struct Storage {
@@ -253,7 +253,9 @@ mod ERC20Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray) {
+        fn initializer(
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+        ) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
         }

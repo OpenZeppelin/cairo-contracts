@@ -79,19 +79,17 @@ mod ERC721 {
         fn _mint_assets(
             ref self: ContractState,
             recipient: ContractAddress,
-            token_ids: Span<u256>,
-            token_uris: Span<ByteArray>
+            mut token_ids: Span<u256>,
+            mut token_uris: Span<ByteArray>
         ) {
             assert(token_ids.len() == token_uris.len(), Errors::UNEQUAL_ARRAYS);
-            let mut _token_ids = token_ids;
-            let mut _token_uris = token_uris;
 
             loop {
-                if _token_ids.len() == 0 {
+                if token_ids.len() == 0 {
                     break;
                 }
-                let id = *_token_ids.pop_front().unwrap();
-                let uri = _token_uris.pop_front().unwrap().clone();
+                let id = *token_ids.pop_front().unwrap();
+                let uri = token_uris.pop_front().unwrap().clone();
 
                 self.erc721._mint(recipient, id);
                 self.erc721._set_token_uri(id, uri);

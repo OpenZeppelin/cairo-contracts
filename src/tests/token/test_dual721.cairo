@@ -23,11 +23,11 @@ use starknet::testing::set_contract_address;
 
 fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
-    calldata.append_serde(URI);
+    calldata.append_serde(URI());
     set_contract_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
@@ -35,11 +35,11 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
 
 fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
-    calldata.append_serde(URI);
+    calldata.append_serde(URI());
     set_contract_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
@@ -72,16 +72,14 @@ fn setup_receiver() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.name() == NAME, 'Should return name');
-    assert(camel_dispatcher.name() == NAME, 'Should return name');
+    assert(snake_dispatcher.name() == NAME(), 'Should return name');
+    assert(camel_dispatcher.name() == NAME(), 'Should return name');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_name() {
     let dispatcher = setup_non_erc721();
@@ -89,7 +87,6 @@ fn test_dual_no_name() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -97,16 +94,14 @@ fn test_dual_name_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.symbol() == SYMBOL, 'Should return symbol');
-    assert(camel_dispatcher.symbol() == SYMBOL, 'Should return symbol');
+    assert(snake_dispatcher.symbol() == SYMBOL(), 'Should return symbol');
+    assert(camel_dispatcher.symbol() == SYMBOL(), 'Should return symbol');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_symbol() {
     let dispatcher = setup_non_erc721();
@@ -114,7 +109,6 @@ fn test_dual_no_symbol() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_symbol_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -136,7 +130,6 @@ fn test_dual_approve() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_approve() {
     let dispatcher = setup_non_erc721();
@@ -144,7 +137,6 @@ fn test_dual_no_approve() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -156,14 +148,12 @@ fn test_dual_approve_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_balance_of() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.balance_of(OWNER()) == 1, 'Should return balance');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc721();
@@ -171,7 +161,6 @@ fn test_dual_no_balance_of() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -179,14 +168,12 @@ fn test_dual_balance_of_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_owner_of() {
     let (dispatcher, target) = setup_snake();
     assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_owner_of() {
     let dispatcher = setup_non_erc721();
@@ -194,7 +181,6 @@ fn test_dual_no_owner_of() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_owner_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -202,7 +188,6 @@ fn test_dual_owner_of_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
@@ -210,7 +195,6 @@ fn test_dual_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc721();
@@ -218,7 +202,6 @@ fn test_dual_no_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -226,7 +209,6 @@ fn test_dual_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_safe_transfer_from() {
     let (dispatcher, target) = setup_snake();
     let receiver = setup_receiver();
@@ -235,7 +217,6 @@ fn test_dual_safe_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc721();
@@ -243,7 +224,6 @@ fn test_dual_no_safe_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -251,7 +231,6 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_get_approved() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
@@ -260,7 +239,6 @@ fn test_dual_get_approved() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_approved() {
     let dispatcher = setup_non_erc721();
@@ -268,7 +246,6 @@ fn test_dual_no_get_approved() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_approved_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -276,7 +253,6 @@ fn test_dual_get_approved_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_set_approval_for_all() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
@@ -285,7 +261,6 @@ fn test_dual_set_approval_for_all() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_approval_for_all() {
     let dispatcher = setup_non_erc721();
@@ -293,7 +268,6 @@ fn test_dual_no_set_approval_for_all() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_set_approval_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -301,7 +275,6 @@ fn test_dual_set_approval_for_all_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_is_approved_for_all() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
@@ -310,7 +283,6 @@ fn test_dual_is_approved_for_all() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_approved_for_all() {
     let dispatcher = setup_non_erc721();
@@ -318,7 +290,6 @@ fn test_dual_no_is_approved_for_all() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_is_approved_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -326,14 +297,12 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_token_uri() {
     let (dispatcher, target) = setup_snake();
-    assert(dispatcher.token_uri(TOKEN_ID) == URI, 'Should return URI');
+    assert(dispatcher.token_uri(TOKEN_ID) == URI(), 'Should return URI');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_token_uri() {
     let dispatcher = setup_non_erc721();
@@ -341,7 +310,6 @@ fn test_dual_no_token_uri() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_token_uri_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -349,14 +317,12 @@ fn test_dual_token_uri_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.supports_interface(IERC721_ID), 'Should support own interface');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_erc721();
@@ -364,7 +330,6 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
@@ -376,14 +341,12 @@ fn test_dual_supports_interface_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_balanceOf() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.balance_of(OWNER()) == 1, 'Should return balance');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -391,14 +354,12 @@ fn test_dual_balanceOf_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_ownerOf() {
     let (dispatcher, target) = setup_camel();
     assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_ownerOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -406,7 +367,6 @@ fn test_dual_ownerOf_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
@@ -415,7 +375,6 @@ fn test_dual_transferFrom() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -423,7 +382,6 @@ fn test_dual_transferFrom_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_safeTransferFrom() {
     let (dispatcher, target) = setup_camel();
     let receiver = setup_receiver();
@@ -432,7 +390,6 @@ fn test_dual_safeTransferFrom() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -440,7 +397,6 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_getApproved() {
     let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
@@ -449,7 +405,6 @@ fn test_dual_getApproved() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -457,7 +412,6 @@ fn test_dual_getApproved_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_setApprovalForAll() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
@@ -466,7 +420,6 @@ fn test_dual_setApprovalForAll() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -474,7 +427,6 @@ fn test_dual_setApprovalForAll_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_isApprovedForAll() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
@@ -483,7 +435,6 @@ fn test_dual_isApprovedForAll() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -491,14 +442,12 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_tokenURI() {
     let (dispatcher, target) = setup_camel();
-    assert(dispatcher.token_uri(TOKEN_ID) == URI, 'Should return URI');
+    assert(dispatcher.token_uri(TOKEN_ID) == URI(), 'Should return URI');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -506,14 +455,12 @@ fn test_dual_tokenURI_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supportsInterface() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.supports_interface(IERC721_ID), 'Should support own interface');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();

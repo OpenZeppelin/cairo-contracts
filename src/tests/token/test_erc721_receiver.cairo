@@ -22,7 +22,6 @@ fn test_initializer() {
 #[test]
 fn test_on_erc721_received() {
     let mut state = STATE();
-    //let data: ByteArray = "";
     assert(
         state
             .erc721_receiver

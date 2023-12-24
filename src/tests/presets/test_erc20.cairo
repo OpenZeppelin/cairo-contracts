@@ -1,4 +1,3 @@
-use core::to_byte_array::{FormatAsByteArray, AppendFormattedToByteArray};
 use integer::BoundedInt;
 use openzeppelin::presets::ERC20;
 use openzeppelin::tests::utils::constants::{

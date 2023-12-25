@@ -35,8 +35,8 @@ trait ERC20ABI {
     fn approve(spender: ContractAddress, amount: u256) -> bool;
 
     // IERC20Metadata
-    fn name() -> felt252;
-    fn symbol() -> felt252;
+    fn name() -> ByteArray;
+    fn symbol() -> ByteArray;
     fn decimals() -> u8;
 
     // ISafeAllowance
@@ -65,7 +65,7 @@ trait ERC20ABI {
 Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC20 token standard.
 Some notable differences, however, can still be found, such as:
 
-* Cairo short strings are used to simulate `name` and `symbol` because Cairo does not yet include native string support.
+* The `ByteArray` type is used to represent strings in Cairo.
 * The component offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
 * Function selectors are calculated differently between {cairo-selectors} and {solidity-selectors}.
@@ -113,8 +113,8 @@ mod MyToken {
         initial_supply: u256,
         recipient: ContractAddress
     ) {
-        let name = 'MyToken';
-        let symbol = 'MTK';
+        let name: ByteArray = "MyToken";
+        let symbol: ByteArray = "MTK";
 
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);
@@ -211,8 +211,8 @@ mod MyToken {
         self._set_decimals(decimals);
 
         // Initialize ERC20
-        let name = 'MyToken';
-        let symbol = 'MTK';
+        let name: ByteArray = "MyToken";
+        let symbol: ByteArray = "MTK";
 
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);
@@ -220,11 +220,11 @@ mod MyToken {
 
     #[external(v0)]
     impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> ByteArray {
             self.erc20.name()
         }
 
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> ByteArray {
             self.erc20.symbol()
         }
 

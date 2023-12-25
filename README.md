@@ -95,8 +95,8 @@ mod MyToken {
         initial_supply: u256,
         recipient: ContractAddress
     ) {
-        let name = 'MyToken';
-        let symbol = 'MTK';
+        let name: ByteArray = "MyToken";
+        let symbol: ByteArray = "MTK";
 
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);

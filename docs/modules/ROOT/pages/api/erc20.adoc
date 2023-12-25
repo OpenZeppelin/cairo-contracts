@@ -134,13 +134,13 @@ Interface for the optional metadata functions in {eip20}.
 
 [.contract-item]
 [[IERC20Metadata-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++() → ByteArray++` [.item-kind]#external#
 
 Returns the name of the token.
 
 [.contract-item]
 [[IERC20Metadata-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++() → ByteArray++` [.item-kind]#external#
 
 Returns the ticker symbol of the token.
 
@@ -280,13 +280,13 @@ Requirements:
 
 [.contract-item]
 [[ERC20Component-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++() → ByteArray++` [.item-kind]#external#
 
 See <<IERC20Metadata-name,IERC20Metadata::name>>.
 
 [.contract-item]
 [[ERC20Component-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++() → ByteArray++` [.item-kind]#external#
 
 See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
 
@@ -371,7 +371,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[ERC20Component-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray)++` [.item-kind]#internal#
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside of the contract's constructor.
@@ -515,6 +515,6 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol` and mints `fixed_supply` tokens to `recipient`.

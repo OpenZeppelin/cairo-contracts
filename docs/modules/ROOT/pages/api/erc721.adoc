@@ -160,19 +160,19 @@ Interface for the optional metadata functions in {eip721}.
 
 [.contract-item]
 [[IERC721Metadata-name]]
-==== `[.contract-item-name]#++name++#++() -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++() -> ByteArray++` [.item-kind]#external#
 
 Returns the NFT name.
 
 [.contract-item]
 [[IERC721Metadata-symbol]]
-==== `[.contract-item-name]#++symbol++#++() -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++() -> ByteArray++` [.item-kind]#external#
 
 Returns the NFT ticker symbol.
 
 [.contract-item]
 [[IERC721Metadata-token_uri]]
-==== `[.contract-item-name]#++token_uri++#++(token_id: u256) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++token_uri++#++(token_id: u256) -> ByteArray++` [.item-kind]#external#
 
 Returns the Uniform Resource Identifier (URI) as a short string for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be `0`.
@@ -337,19 +337,19 @@ See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
 
 [.contract-item]
 [[ERC721-name]]
-==== `[.contract-item-name]#++name++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++(self: @ContractState) -> ByteArray++` [.item-kind]#external#
 
 See <<IERC721Metadata-name,IERC721Metadata::name>>.
 
 [.contract-item]
 [[ERC721-symbol]]
-==== `[.contract-item-name]#++symbol++#++(self: @ContractState) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++(self: @ContractState) -> ByteArray++` [.item-kind]#external#
 
 See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
 
 [.contract-item]
 [[ERC721-token_uri]]
-==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> ByteArray++` [.item-kind]#external#
 
 See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
@@ -399,7 +399,7 @@ See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
 
 [.contract-item]
 [[ERC721-tokenURI]]
-==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> ByteArray++` [.item-kind]#external#
 
 See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
@@ -407,7 +407,7 @@ See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
 [.contract-item]
 [[ERC721-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name_: felt252, symbol_: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray)++` [.item-kind]#internal#
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside the contract's constructor.
@@ -506,7 +506,7 @@ Requirements:
 
 [.contract-item]
 [[ERC721-_safe_mint]]
-==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: ByteArray)++` [.item-kind]#internal#
 
 Internal function that mints `token_id` and transfers it to `to`.
 If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
@@ -520,7 +520,7 @@ Requirements:
 
 [.contract-item]
 [[ERC721-_safe_transfer]]
-==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: ByteArray)++` [.item-kind]#internal#
 
 Internal function that transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
@@ -539,7 +539,7 @@ Requirements:
 
 [.contract-item]
 [[ERC721-_set_token_uri]]
-==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
 
 Internal function that sets the `token_uri` of `token_id`.
 
@@ -594,7 +594,7 @@ Interface for contracts that support receiving `safe_transfer_from` transfers.
 
 [.contract-item]
 [[IERC721Receiver-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: ByteArray) -> felt252++` [.item-kind]#external#
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
 
@@ -644,7 +644,7 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[ERC721-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, recipient: ContractAddress, token_ids: Span<u256>, token_uris: Span<felt252>)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, token_uris: Span<ByteArray>)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol`.
 

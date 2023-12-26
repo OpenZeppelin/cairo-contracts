@@ -36,9 +36,9 @@ trait IERC721ABI {
     fn is_approved_for_all(owner: ContractAddress, operator: ContractAddress) -> bool;
 
     // IERC721Metadata
-    fn name() -> felt252;
-    fn symbol() -> felt252;
-    fn token_uri(token_id: u256) -> felt252;
+    fn name() -> ByteArray;
+    fn symbol() -> ByteArray;
+    fn token_uri(token_id: u256) -> ByteArray;
 
     // IERC721CamelOnly
     fn balanceOf(account: ContractAddress) -> u256;
@@ -55,7 +55,7 @@ trait IERC721ABI {
     fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
 
     // IERC721MetadataCamelOnly
-    fn tokenURI(tokenId: u256) -> felt252;
+    fn tokenURI(tokenId: u256) -> ByteArray;
 }
 ----
 
@@ -66,24 +66,17 @@ trait IERC721ABI {
 :introspection: xref:introspection.adoc[Introspection]
 :eip165: https://eips.ethereum.org/EIPS/eip-165[EIP165]
 
-Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard by utilizing Cairo's short strings to simulate `name` and `symbol`.
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC721 standard.
 This implementation does, however, include a few notable differences such as:
 
-* `token_uri` returns a felt252 representation of the queried token's URI.
-The EIP721 standard, however, states that the return value should be of type string.
-If a token's URI is not set, the returned value is `0`.
-Note that URIs cannot exceed 31 characters at this time.
-See <<storing_erc721_uris,Storing ERC721 URIs>>.
 * ``interface_id``s are hardcoded and initialized by the constructor.
 The hardcoded values derive from Starknet's selector calculations.
 See the {introspection} docs.
 * `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721, because function overloading is currently not possible in Cairo.
 The difference between both functions consists of accepting `data` as an argument.
 `safe_transfer_from` by default accepts the `data` argument.
-If `data` is not used, simply pass an empty array.
-* `safe_transfer_from` is implemented such that the optional `data` argument mimics `bytes`.
-In Solidity, this means a dynamically-sized array.
-To be as close as possible to the standard, it accepts a dynamic array of felts.
+If `data` is not used, simply pass an empty `ByteArray`.
+* `safe_transfer_from` is implemented such that the optional `data` argument is a `ByteArray` which is the Cairo equivalent to `bytes` in Solidity.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).
@@ -145,10 +138,10 @@ mod MyNFT {
         ref self: ContractState,
         recipient: ContractAddress
     ) {
-        let name = 'MyNFT';
-        let symbol = 'NFT';
+        let name: ByteArray = "MyNFT";
+        let symbol: ByteArray = "NFT";
         let token_id = 1;
-        let token_uri = 'NFT_URI';
+        let token_uri: ByteArray = "NFT_URI";
 
         self.erc721.initializer(name, symbol);
         self._mint_with_uri(recipient, token_id, token_uri);
@@ -160,7 +153,7 @@ mod MyNFT {
             ref self: ContractState,
             recipient: ContractAddress,
             token_id: u256,
-            token_uri: felt252
+            token_uri: ByteArray
         ) {
             // Initialize the ERC721 storage
             self.erc721._mint(recipient, token_id);
@@ -204,7 +197,7 @@ trait IERC721Receiver {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: Span<ByteArray>
     ) -> felt252;
 }
 ----
@@ -218,7 +211,7 @@ TIP: For information on how to calculate interface IDs, see {computing-interface
 ==== Creating a token receiver contract
 
 The Contracts for Cairo `IERC721ReceiverImpl` already returns the correct interface ID for safe token transfers.
-To integrate the `IERC721Receiver` interface into a contract, simply include the ABI embed directive to the implementation and add the `initializer` in the contract's constructor .
+To integrate the `IERC721Receiver` interface into a contract, simply include the ABI embed directive to the implementation and add the `initializer` in the contract's constructor.
 Here's an example of a simple token receiver contract:
 
 [,javascript]
@@ -266,13 +259,3 @@ mod MyTokenReceiver {
     }
 }
 ----
-
-=== Storing ERC721 URIs
-
-:string-roadmap: https://github.com/orgs/starkware-libs/projects/1/views/1?pane=issue&itemId=28823165[here]
-
-Token URIs in Cairo are stored as single field elements (`felt252`).
-Each field element equates to 252-bits (or 31.5 bytes) which means that a token's URI can be no longer than 31 characters.
-
-NOTE: Native string support in Cairo is currently in progress and tracked {string-roadmap}.
-Once Cairo offers full string support, this will be revisited.

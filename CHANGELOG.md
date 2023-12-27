@@ -13,8 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage docs (#823)
 - Utilities documentation (#825)
 - Documentation for presets (#832)
+- Backwards compatibility notice (#861)
 
 ### Changed
 
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)
+- Add security section to Upgrades docs (#861)

@@ -10,7 +10,7 @@ In backwards compatible releases, all changes should be either additions or modi
 
 === Security
 
-Infrequently a patch or minor update will remove or change an API in a breaking way, but only if the previous API is considered insecure. These breaking changes will be noted in the changelog and release notes, and published along with a security advisory.
+Infrequently, a patch or minor update will remove or change an API in a breaking way but only if the previous API is considered insecure. These breaking changes will be noted in the changelog and release notes, and published along with a security advisory.
 
 === Underscores
 

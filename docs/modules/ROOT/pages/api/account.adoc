@@ -67,6 +67,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
+:starknet-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve/[Starknet curve]
 
 ```javascript
 use openzeppelin::account::AccountComponent;
@@ -75,7 +76,7 @@ Account component implementing xref:ISRC6[`ISRC6`].
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
-NOTE: Every function involving signature verification, verifies with the account's current public key, using the Starknet curve.
+NOTE: Every function involving signature verification, verifies with the account's current public key, using the {starknet-curve}.
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -268,15 +269,16 @@ Emitted when a `public_key` is removed.
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
+:secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1[Secp256k1 curve]
 
 ```javascript
 use openzeppelin::account::eth_account::EthAccountComponent;
 ```
-Account component implementing xref:ISRC6[`ISRC6`], but leveraging public key and signatures over the Secp256k1 curve.
+Account component implementing xref:ISRC6[`ISRC6`], but leveraging public key and signatures over the {secp256k1-curve}.
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
-NOTE: Every function involving signature verification, verifies with the account's current public key, using the Secp256k1 curve.
+NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
 [.contract-index#EthAccountComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -364,7 +366,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[EthAccountComponent-__validate_deploy__]]
-==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: Secp256k1Point) → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey) → felt252++` [.item-kind]#external#
 
 Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
@@ -373,13 +375,13 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[EthAccountComponent-get_public_key]]
-==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → Secp256k1Point` [.item-kind]#external#
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState)++ → EthPublicKey` [.item-kind]#external#
 
 Returns the current public key of the account.
 
 [.contract-item]
 [[EthAccountComponent-set_public_key]]
-==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: Secp256k1Point)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: EthPublicKey)++` [.item-kind]#external#
 
 Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
@@ -396,13 +398,13 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 
 [.contract-item]
 [[EthAccountComponent-getPublicKey]]
-==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → Secp256k1Point` [.item-kind]#external#
+==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState)++ → EthPublicKey` [.item-kind]#external#
 
 See xref:EthAccountComponent-get_public_key[get_public_key].
 
 [.contract-item]
 [[EthAccountComponent-setPublicKey]]
-==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: Secp256k1Point)++` [.item-kind]#external#
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: EthPublicKey)++` [.item-kind]#external#
 
 See xref:EthAccountComponent-set_public_key[set_public_key].
 
@@ -411,7 +413,7 @@ See xref:EthAccountComponent-set_public_key[set_public_key].
 
 [.contract-item]
 [[EthAccountComponent-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: Secp256k1Point)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: EthPublicKey)++` [.item-kind]#internal#
 
 Initializes the account with the given public key, and registers the ISRC6 interface ID.
 
@@ -434,7 +436,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract-item]
 [[EthAccountComponent-_set_public_key]]
-==== `[.contract-item-name]#++_set_public_key++#++(ref self: ComponentState, new_public_key: Secp256k1Point)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_set_public_key++#++(ref self: ComponentState, new_public_key: EthPublicKey)++` [.item-kind]#internal#
 
 Set the public key without validating the caller.
 
@@ -527,6 +529,8 @@ use openzeppelin::presets::EthAccountUpgradeable;
 
 Account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
 
+NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
+
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
@@ -569,7 +573,7 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[EthAccountUpgradeable-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: Secp256k1Point)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: EthPublicKey)++` [.item-kind]#constructor#
 
 Sets the account `public_key` and registers the interfaces the contract supports.
 

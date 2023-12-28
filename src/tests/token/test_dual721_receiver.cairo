@@ -84,7 +84,7 @@ fn test_dual_no_on_erc721_received() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
@@ -107,7 +107,7 @@ fn test_dual_onERC721Received() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));

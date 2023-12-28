@@ -1,7 +1,7 @@
 use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
 use openzeppelin::security::PausableComponent::{Paused, Unpaused};
 use openzeppelin::security::PausableComponent;
-use openzeppelin::tests::mocks::pausable_mock::PausableMock;
+use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;

@@ -60,7 +60,7 @@ fn test_dual_no_supports_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_src5_panic();
     dispatcher.supports_interface(ISRC5_ID);
@@ -79,7 +79,7 @@ fn test_dual_supportsInterface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_src5_panic();
     dispatcher.supports_interface(ISRC5_ID);

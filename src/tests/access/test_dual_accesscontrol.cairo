@@ -77,7 +77,7 @@ fn test_dual_no_supports_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -100,7 +100,7 @@ fn test_dual_no_has_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_has_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -123,7 +123,7 @@ fn test_dual_no_get_role_admin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_role_admin_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.get_role_admin(ROLE);
@@ -148,7 +148,7 @@ fn test_dual_no_grant_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_grant_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -173,7 +173,7 @@ fn test_dual_no_revoke_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_revoke_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -198,7 +198,7 @@ fn test_dual_no_renounce_role() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounce_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -217,7 +217,7 @@ fn test_dual_supportsInterface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -232,7 +232,7 @@ fn test_dual_hasRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_hasRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -247,7 +247,7 @@ fn test_dual_getRoleAdmin() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_getRoleAdmin_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.get_role_admin(ROLE);
@@ -264,7 +264,7 @@ fn test_dual_grantRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_grantRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -282,7 +282,7 @@ fn test_dual_revokeRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_revokeRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -299,7 +299,7 @@ fn test_dual_renounceRole() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounceRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
     dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());

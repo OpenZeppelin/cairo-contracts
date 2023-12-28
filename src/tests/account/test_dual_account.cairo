@@ -72,7 +72,7 @@ fn test_dual_no_set_public_key() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.set_public_key(NEW_PUBKEY);
@@ -95,7 +95,7 @@ fn test_dual_no_get_public_key() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.get_public_key();
@@ -130,7 +130,7 @@ fn test_dual_no_is_valid_signature() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_is_valid_signature_exists_and_panics() {
     let hash = 0x0;
     let signature = array![];
@@ -156,7 +156,7 @@ fn test_dual_no_supports_interface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.supports_interface(ISRC5_ID);
@@ -179,7 +179,7 @@ fn test_dual_setPublicKey() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.set_public_key(NEW_PUBKEY);
@@ -194,7 +194,7 @@ fn test_dual_getPublicKey() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_getPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.get_public_key();
@@ -218,7 +218,7 @@ fn test_dual_isValidSignature() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_isValidSignature_exists_and_panics() {
     let hash = 0x0;
     let signature = array![];
@@ -236,7 +236,7 @@ fn test_dual_supportsInterface() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.supports_interface(ISRC5_ID);

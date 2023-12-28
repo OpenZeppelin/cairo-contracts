@@ -1,26 +1,30 @@
 #[starknet::contract]
 mod DualCaseSRC5Mock {
+    use openzeppelin::introspection::mixins::SRC5Dual;
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: SRC5Dual, storage: src5dual, event: SRC5DualEvent);
 
     #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC5CamelOnlyImpl = SRC5Component::SRC5CamelImpl<ContractState>;
+    impl SRC5DualImpl = SRC5Dual::SRC5DualImpl<ContractState>;
     impl InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        src5dual: SRC5Dual::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        SRC5DualEvent: SRC5Dual::Event
     }
 }
 

@@ -12,24 +12,20 @@ In backwards compatible releases, all changes should be either additions or modi
 
 Infrequently, a patch or minor update will remove or change an API in a breaking way but only if the previous API is considered insecure. These breaking changes will be noted in the changelog and release notes, and published along with a security advisory.
 
-=== Underscores
-
-Functions and struct members with an underscore prefix should be considered "private" and may break in minor versions.
-
 === Errors
 
 The specific error format and data that is included with reverts should not be assumed stable unless otherwise specified.
 
-=== Major Releases
+=== Major releases
 
 Major releases should be assumed incompatible. Nevertheless, the external interfaces of contracts will remain compatible if they are standardized, or if the maintainers judge that changing them would cause significant strain on the ecosystem.
 
 An important aspect that major releases may break is "upgrade compatibility", in particular storage layout compatibility. It will never be safe for a live contract to upgrade from one major release to another.
 
-== Storage Layout
+== Storage layout
 
 Patch updates will always preserve storage layout compatibility, and after `v1.0.0` minors will too. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
 
-== Cairo Version
+== Cairo version
 
 The minimum Cairo version required to compile the contracts will remain unchanged for patch updates, but it may change for minors.

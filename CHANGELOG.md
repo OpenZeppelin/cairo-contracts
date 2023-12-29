@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage docs (#823)
 - Utilities documentation (#825)
 - Documentation for presets (#832)
+- Add automatic version bump to CI (#862)
 
 ### Changed
 

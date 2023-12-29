@@ -15,7 +15,7 @@ mod AccountComponent {
     use starknet::get_contract_address;
     use starknet::get_tx_info;
 
-    const TRANSACTION_VERSION: u256 = 1;
+    const MIN_TRANSACTION_VERSION: u256 = 1;
     // 2**128 + TRANSACTION_VERSION
     const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
@@ -71,7 +71,7 @@ mod AccountComponent {
             // Check tx version
             let tx_info = get_tx_info().unbox();
             let tx_version: u256 = tx_info.version.into();
-            assert(TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
+            assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
 
             _execute_calls(calls)
         }

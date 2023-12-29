@@ -77,8 +77,8 @@ fn DATA(success: bool) -> Span<felt252> {
     data.span()
 }
 
-fn TRANSACTION_VERSION() -> felt252 {
-    AccountComponent::TRANSACTION_VERSION.try_into().unwrap()
+fn MIN_TRANSACTION_VERSION() -> felt252 {
+    AccountComponent::MIN_TRANSACTION_VERSION.try_into().unwrap()
 }
 
 fn QUERY_VERSION() -> felt252 {

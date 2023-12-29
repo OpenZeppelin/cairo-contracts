@@ -1,4 +1,4 @@
-use openzeppelin::account::utils;
+use openzeppelin::account::AccountComponent;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::class_hash_const;
@@ -78,9 +78,9 @@ fn DATA(success: bool) -> Span<felt252> {
 }
 
 fn TRANSACTION_VERSION() -> felt252 {
-    utils::TRANSACTION_VERSION.try_into().unwrap()
+    AccountComponent::TRANSACTION_VERSION.try_into().unwrap()
 }
 
 fn QUERY_VERSION() -> felt252 {
-    utils::QUERY_VERSION.try_into().unwrap()
+    AccountComponent::QUERY_VERSION.try_into().unwrap()
 }

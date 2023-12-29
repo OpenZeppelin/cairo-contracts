@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo vX.Y.Z (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (account/account.cairo)
 
 /// # Account Component
 ///
@@ -8,13 +8,16 @@
 mod AccountComponent {
     use ecdsa::check_ecdsa_signature;
     use openzeppelin::account::interface;
-    use openzeppelin::account::utils::TRANSACTION_VERSION;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+
+    const TRANSACTION_VERSION: u256 = 1;
+    // 2**128 + TRANSACTION_VERSION
+    const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
     #[storage]
     struct Storage {

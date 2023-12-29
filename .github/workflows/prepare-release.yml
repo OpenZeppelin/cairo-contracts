@@ -26,7 +26,7 @@ jobs:
       run: |
         echo "Current version: ${{ env.CURRENT_VERSION }}"
         echo "New version: ${{ env.NEW_VERSION }}"
-        find . -type f -not -path '*/\.*' -not -path 'CHANGELOG.md' -not -path 'docs/package-lock.json' -not -path 'RELEASING.md' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +
+        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +
 
 
     - name: Auto-commit changes

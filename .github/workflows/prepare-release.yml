@@ -1,0 +1,30 @@
+name: Update version on new release branch
+
+on:
+  create:
+
+jobs:
+  update_version:
+    if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-v')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Extract current version
+      id: current-version
+      run: |
+        CURRENT_VERSION=$(grep 'version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+    - name: Extract new version number
+      id: new-version
+      run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> $GITHUB_ENV
+
+    - name: Replace version in files
+      run: |
+        echo "Current version: ${{ env.CURRENT_VERSION }}"
+        echo "New version: ${{ env.NEW_VERSION }}"
+        find . -type f -not -path '*/\.*' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +
+        find . -type f -not -path '*/\.*' -not -name 'CHANGELOG.md' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +

@@ -1,4 +1,3 @@
-use openzeppelin::account::AccountComponent;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::class_hash_const;
@@ -18,6 +17,8 @@ const NEW_PUBKEY: felt252 = 'NEW_PUBKEY';
 const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
+const MIN_TRANSACTION_VERSION: felt252 = 1;
+const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
@@ -75,12 +76,4 @@ fn DATA(success: bool) -> Span<felt252> {
         data.append(FAILURE);
     }
     data.span()
-}
-
-fn MIN_TRANSACTION_VERSION() -> felt252 {
-    AccountComponent::MIN_TRANSACTION_VERSION.try_into().unwrap()
-}
-
-fn QUERY_VERSION() -> felt252 {
-    AccountComponent::QUERY_VERSION.try_into().unwrap()
 }

@@ -28,7 +28,6 @@ jobs:
         echo "New version: ${{ env.NEW_VERSION }}"
         find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +
 
-
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
       with:

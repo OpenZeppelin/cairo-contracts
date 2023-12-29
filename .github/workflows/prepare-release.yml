@@ -26,5 +26,4 @@ jobs:
       run: |
         echo "Current version: ${{ env.CURRENT_VERSION }}"
         echo "New version: ${{ env.NEW_VERSION }}"
-        find . -type f -not -path '*/\.*' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +
         find . -type f -not -path '*/\.*' -not -name 'CHANGELOG.md' -exec sed -i "s/${{ env.CURRENT_VERSION }}/${{ env.NEW_VERSION }}/g" {} +

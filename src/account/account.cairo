@@ -15,9 +15,9 @@ mod AccountComponent {
     use starknet::get_contract_address;
     use starknet::get_tx_info;
 
-    const MIN_TRANSACTION_VERSION: u256 = 1;
+    const MIN_TRANSACTION_VERSION: u64 = 1;
     // 2**128 + TRANSACTION_VERSION
-    const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
+    const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
     #[storage]
     struct Storage {
@@ -59,7 +59,7 @@ mod AccountComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction version must be greater than or equal to `TRANSACTION_VERSION`.
+        /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -70,8 +70,10 @@ mod AccountComponent {
 
             // Check tx version
             let tx_info = get_tx_info().unbox();
-            let tx_version: u256 = tx_info.version.into();
-            assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
+            if (tx_info.version != QUERY_VERSION) {
+                let tx_version: u64 = tx_info.version.try_into().unwrap();
+                assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
+            }
 
             _execute_calls(calls)
         }

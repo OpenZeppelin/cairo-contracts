@@ -17,7 +17,7 @@ mod SRC5Dual {
         }
 
         fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
-            self.supports_interface(interfaceId)
+            self.supportsInterface(interfaceId)
         }
     }
 }

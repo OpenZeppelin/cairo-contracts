@@ -1,6 +1,5 @@
 #[starknet::component]
 mod OwnableDual {
-    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
 
@@ -11,7 +10,6 @@ mod OwnableDual {
     impl IOwnableDual<
         TContractState, +HasComponent<TContractState>
     > of interface::IOwnableDual<ComponentState<TContractState>> {
-        /// Returns the address of the current owner.
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             self.owner()
         }
@@ -27,11 +25,11 @@ mod OwnableDual {
         }
 
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
-            self.transfer_ownership(newOwner);
+            self.transferOwnership(newOwner);
         }
 
         fn renounceOwnership(ref self: ComponentState<TContractState>) {
-            self.renounce_ownership();
+            self.renounceOwnership();
         }
     }
 }

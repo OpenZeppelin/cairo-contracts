@@ -1,6 +1,7 @@
 mod accesscontrol;
 mod dual_accesscontrol;
 mod interface;
+mod mixins;
 
 use accesscontrol::AccessControlComponent;
 

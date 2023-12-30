@@ -13,9 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage docs (#823)
 - Utilities documentation (#825)
 - Documentation for presets (#832)
+- Ownable two-step functionality (#809)
 
 ### Changed
 
-- Two-step transfer functionality of the `Ownable` component (#809)
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)

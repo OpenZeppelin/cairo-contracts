@@ -181,7 +181,7 @@ Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted
 include::./access.adoc[tag=renounce_ownership]
 
 [#OwnableComponent-camelCase-Support-Two-Step]
-=== camelCase Support (two step transfer)
+==== camelCase Support (two step transfer)
 
 [.contract-item]
 [[OwnableComponent-two-step-pendingOwner]]

@@ -20,9 +20,3 @@ trait ISRC5Dual<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
-
-#[starknet::interface]
-trait Thing<TState> {
-    fn thing(self: @TState, interface_id: felt252) -> bool;
-    fn thing2(self: @TState, interfaceId: felt252) -> bool;
-}

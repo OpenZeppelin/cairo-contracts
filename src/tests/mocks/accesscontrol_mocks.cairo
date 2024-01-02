@@ -2,18 +2,16 @@
 mod DualCaseAccessControlMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin::access::accesscontrol::mixins::AccessControlDual;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: AccessControlDual, storage: accesscontroldual, event: AccessControlDualEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
-    impl AccessControlImpl =
-        AccessControlComponent::AccessControlImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl AccessControlCamelImpl =
-        AccessControlComponent::AccessControlCamelImpl<ContractState>;
+    impl AccessControlDualImpl = AccessControlDual::AccessControlDualImpl<ContractState>;
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
@@ -24,6 +22,8 @@ mod DualCaseAccessControlMock {
         #[substorage(v0)]
         accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
+        accesscontroldual: AccessControlDual::Storage,
+        #[substorage(v0)]
         src5: SRC5Component::Storage
     }
 
@@ -32,6 +32,8 @@ mod DualCaseAccessControlMock {
     enum Event {
         #[flat]
         AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
+        AccessControlDualEvent: AccessControlDual::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }

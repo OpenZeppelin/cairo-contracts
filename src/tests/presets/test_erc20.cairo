@@ -41,7 +41,6 @@ fn setup_dispatcher() -> ERC20ABIDispatcher {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
@@ -58,7 +57,6 @@ fn test_constructor() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_total_supply() {
     let mut dispatcher = setup_dispatcher();
 
@@ -67,7 +65,6 @@ fn test_total_supply() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_balance_of() {
     let mut dispatcher = setup_dispatcher();
 
@@ -76,7 +73,6 @@ fn test_balance_of() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_allowance() {
     let mut dispatcher = setup_dispatcher();
 
@@ -90,7 +86,6 @@ fn test_allowance() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_approve() {
     let mut dispatcher = setup_dispatcher();
     assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal ZERO');
@@ -103,7 +98,6 @@ fn test_approve() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0', 'ENTRYPOINT_FAILED'))]
 fn test_approve_from_zero() {
     let mut dispatcher = setup_dispatcher();
@@ -111,7 +105,6 @@ fn test_approve_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0', 'ENTRYPOINT_FAILED'))]
 fn test_approve_to_zero() {
     let mut dispatcher = setup_dispatcher();
@@ -124,7 +117,6 @@ fn test_approve_to_zero() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer() {
     let mut dispatcher = setup_dispatcher();
 
@@ -138,7 +130,6 @@ fn test_transfer() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_not_enough_balance() {
     let mut dispatcher = setup_dispatcher();
@@ -149,7 +140,6 @@ fn test_transfer_not_enough_balance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer from 0', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_zero() {
     let mut dispatcher = setup_dispatcher();
@@ -157,7 +147,6 @@ fn test_transfer_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_to_zero() {
     let mut dispatcher = setup_dispatcher();
@@ -170,7 +159,6 @@ fn test_transfer_to_zero() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_from() {
     let mut dispatcher = setup_dispatcher();
 
@@ -191,7 +179,6 @@ fn test_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut dispatcher = setup_dispatcher();
 
@@ -207,7 +194,6 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_greater_than_allowance() {
     let mut dispatcher = setup_dispatcher();
@@ -220,7 +206,6 @@ fn test_transfer_from_greater_than_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -232,7 +217,6 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -240,7 +224,6 @@ fn test_transfer_from_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferFrom() {
     let mut dispatcher = setup_dispatcher();
 
@@ -261,7 +244,6 @@ fn test_transferFrom() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -276,7 +258,6 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_greater_than_allowance() {
     let mut dispatcher = setup_dispatcher();
@@ -289,7 +270,6 @@ fn test_transferFrom_greater_than_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -301,7 +281,6 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -313,7 +292,6 @@ fn test_transferFrom_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_increase_allowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -327,7 +305,6 @@ fn test_increase_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0', 'ENTRYPOINT_FAILED'))]
 fn test_increase_allowance_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -336,7 +313,6 @@ fn test_increase_allowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0', 'ENTRYPOINT_FAILED'))]
 fn test_increase_allowance_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -344,7 +320,6 @@ fn test_increase_allowance_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_increaseAllowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -358,7 +333,6 @@ fn test_increaseAllowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0', 'ENTRYPOINT_FAILED'))]
 fn test_increaseAllowance_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -367,7 +341,6 @@ fn test_increaseAllowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0', 'ENTRYPOINT_FAILED'))]
 fn test_increaseAllowance_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -379,7 +352,6 @@ fn test_increaseAllowance_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_decrease_allowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -393,7 +365,6 @@ fn test_decrease_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_decrease_allowance_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -402,7 +373,6 @@ fn test_decrease_allowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_decrease_allowance_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -410,7 +380,6 @@ fn test_decrease_allowance_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_decreaseAllowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -424,7 +393,6 @@ fn test_decreaseAllowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_decreaseAllowance_to_zero_address() {
     let mut dispatcher = setup_dispatcher();
@@ -433,7 +401,6 @@ fn test_decreaseAllowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_decreaseAllowance_from_zero_address() {
     let mut dispatcher = setup_dispatcher();

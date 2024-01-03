@@ -12,7 +12,6 @@ fn COMPONENT_STATE() -> ComponentState {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_default_behavior() {
     let state = COMPONENT_STATE();
     let supports_default_interface = state.supports_interface(ISRC5_ID);
@@ -20,7 +19,6 @@ fn test_default_behavior() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_not_registered_interface() {
     let state = COMPONENT_STATE();
     let supports_unregistered_interface = state.supports_interface(OTHER_ID);
@@ -28,7 +26,6 @@ fn test_not_registered_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_register_interface() {
     let mut state = COMPONENT_STATE();
     state.register_interface(OTHER_ID);
@@ -37,7 +34,6 @@ fn test_register_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_deregister_interface() {
     let mut state = COMPONENT_STATE();
     state.register_interface(OTHER_ID);
@@ -47,7 +43,6 @@ fn test_deregister_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('SRC5: invalid id',))]
 fn test_deregister_default_interface() {
     let mut state = COMPONENT_STATE();

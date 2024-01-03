@@ -52,7 +52,6 @@ fn setup_account_panic() -> (DualCaseAccount, DualCaseAccount) {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_set_public_key() {
     let (snake_dispatcher, target) = setup_snake();
 
@@ -63,7 +62,6 @@ fn test_dual_set_public_key() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
@@ -71,7 +69,6 @@ fn test_dual_no_set_public_key() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
@@ -79,14 +76,12 @@ fn test_dual_set_public_key_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_get_public_key() {
     let (snake_dispatcher, _) = setup_snake();
     assert(snake_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_public_key() {
     let dispatcher = setup_non_account();
@@ -94,7 +89,6 @@ fn test_dual_no_get_public_key() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
@@ -102,7 +96,6 @@ fn test_dual_get_public_key_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_is_valid_signature() {
     let (snake_dispatcher, target) = setup_snake();
 
@@ -118,7 +111,6 @@ fn test_dual_is_valid_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_valid_signature() {
     let hash = 0x0;
@@ -129,7 +121,6 @@ fn test_dual_no_is_valid_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_is_valid_signature_exists_and_panics() {
     let hash = 0x0;
@@ -140,14 +131,12 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supports_interface() {
     let (snake_dispatcher, target) = setup_snake();
     assert(snake_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_account();
@@ -155,7 +144,6 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
@@ -167,7 +155,6 @@ fn test_dual_supports_interface_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_setPublicKey() {
     let (camel_dispatcher, target) = setup_camel();
 
@@ -178,7 +165,6 @@ fn test_dual_setPublicKey() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
@@ -186,14 +172,12 @@ fn test_dual_setPublicKey_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
     assert(camel_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_getPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
@@ -201,7 +185,6 @@ fn test_dual_getPublicKey_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_isValidSignature() {
     let (camel_dispatcher, target) = setup_camel();
 
@@ -217,7 +200,6 @@ fn test_dual_isValidSignature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_isValidSignature_exists_and_panics() {
     let hash = 0x0;
@@ -228,14 +210,12 @@ fn test_dual_isValidSignature_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supportsInterface() {
     let (camel_dispatcher, _) = setup_camel();
     assert(camel_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();

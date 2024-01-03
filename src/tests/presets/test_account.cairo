@@ -55,7 +55,6 @@ fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> AccountAB
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_constructor() {
     let mut state = Account::contract_state_for_testing();
     Account::constructor(ref state, PUBKEY);
@@ -72,7 +71,6 @@ fn test_constructor() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
     let dispatcher = setup_dispatcher();
 
@@ -86,7 +84,6 @@ fn test_public_key_setter_and_getter() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
     let dispatcher = setup_dispatcher();
 
@@ -100,7 +97,6 @@ fn test_public_key_setter_and_getter_camel() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
@@ -108,7 +104,6 @@ fn test_set_public_key_different_account() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
@@ -133,7 +128,6 @@ fn is_valid_sig_dispatcher() -> (AccountABIDispatcher, felt252, Array<felt252>) 
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_valid_signature() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
@@ -142,7 +136,6 @@ fn test_is_valid_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_valid_signature_bad_sig() {
     let (dispatcher, hash, _) = is_valid_sig_dispatcher();
 
@@ -153,7 +146,6 @@ fn test_is_valid_signature_bad_sig() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_isValidSignature() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
@@ -162,7 +154,6 @@ fn test_isValidSignature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_isValidSignature_bad_sig() {
     let (dispatcher, hash, _) = is_valid_sig_dispatcher();
 
@@ -177,7 +168,6 @@ fn test_isValidSignature_bad_sig() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
     assert(dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
@@ -190,7 +180,6 @@ fn test_supports_interface() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_deploy() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
 
@@ -204,7 +193,6 @@ fn test_validate_deploy() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -215,7 +203,6 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
@@ -227,7 +214,6 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
@@ -238,7 +224,6 @@ fn test_validate_deploy_empty_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_declare() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
 
@@ -252,7 +237,6 @@ fn test_validate_declare() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -263,7 +247,6 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
@@ -275,7 +258,6 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
@@ -323,26 +305,22 @@ fn test_execute_with_version(version: Option<felt252>) {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute() {
     test_execute_with_version(Option::None(()));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
@@ -351,7 +329,6 @@ fn test_validate() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_invalid() {
     let calls = array![];
@@ -363,7 +340,6 @@ fn test_validate_invalid() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_multicall() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
@@ -409,7 +385,6 @@ fn test_multicall() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_multicall_zero_calls() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
     let mut calls = array![];
@@ -421,7 +396,6 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid caller', 'ENTRYPOINT_FAILED'))]
 fn test_account_called_from_contract() {
     let account = setup_dispatcher();

@@ -106,7 +106,6 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -125,7 +124,6 @@ fn test_is_valid_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_isValidSignature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -148,7 +146,6 @@ fn test_isValidSignature() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_deploy() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
@@ -162,7 +159,6 @@ fn test_validate_deploy() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -173,7 +169,6 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -186,7 +181,6 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -197,7 +191,6 @@ fn test_validate_deploy_empty_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_declare() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
@@ -211,7 +204,6 @@ fn test_validate_declare() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -222,7 +214,6 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -235,7 +226,6 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -282,26 +272,22 @@ fn test_execute_with_version(version: Option<felt252>) {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute() {
     test_execute_with_version(Option::None(()));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -310,7 +296,6 @@ fn test_validate() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_invalid() {
     let calls = array![];
@@ -322,7 +307,6 @@ fn test_validate_invalid() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_multicall() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
@@ -368,7 +352,6 @@ fn test_multicall() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_multicall_zero_calls() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut calls = array![];
@@ -380,7 +363,6 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid caller',))]
 fn test_account_called_from_contract() {
     let state = setup();
@@ -398,7 +380,6 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
     let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
@@ -423,7 +404,6 @@ fn test_public_key_setter_and_getter() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
@@ -439,7 +419,6 @@ fn test_public_key_setter_different_account() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
     let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
@@ -464,7 +443,6 @@ fn test_public_key_setter_and_getter_camel() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
@@ -480,7 +458,6 @@ fn test_public_key_setter_different_account_camel() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
@@ -500,7 +477,6 @@ fn test_initializer() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_only_self_true() {
     let mut state = COMPONENT_STATE();
 
@@ -510,7 +486,6 @@ fn test_assert_only_self_true() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_assert_only_self_false() {
     let mut state = COMPONENT_STATE();
@@ -522,7 +497,6 @@ fn test_assert_only_self_false() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -545,7 +519,6 @@ fn test__is_valid_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
     state._set_public_key(PUBKEY);

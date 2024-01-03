@@ -61,14 +61,12 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_accesscontrol();
@@ -76,7 +74,6 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -84,14 +81,12 @@ fn test_dual_supports_interface_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_has_role() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should have role');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_has_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -99,7 +94,6 @@ fn test_dual_no_has_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_has_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -107,14 +101,12 @@ fn test_dual_has_role_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_get_role_admin() {
     let (dispatcher, _) = setup_snake();
     assert(dispatcher.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, 'Should get admin');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_role_admin() {
     let dispatcher = setup_non_accesscontrol();
@@ -122,7 +114,6 @@ fn test_dual_no_get_role_admin() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_get_role_admin_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -130,7 +121,6 @@ fn test_dual_get_role_admin_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_grant_role() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(ADMIN());
@@ -139,7 +129,6 @@ fn test_dual_grant_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_grant_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -147,7 +136,6 @@ fn test_dual_no_grant_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_grant_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -155,7 +143,6 @@ fn test_dual_grant_role_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_revoke_role() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(ADMIN());
@@ -164,7 +151,6 @@ fn test_dual_revoke_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_revoke_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -172,7 +158,6 @@ fn test_dual_no_revoke_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_revoke_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -180,7 +165,6 @@ fn test_dual_revoke_role_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_renounce_role() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(ADMIN());
@@ -189,7 +173,6 @@ fn test_dual_renounce_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -197,7 +180,6 @@ fn test_dual_no_renounce_role() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounce_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
@@ -209,14 +191,12 @@ fn test_dual_renounce_role_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_supportsInterface() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
@@ -224,14 +204,12 @@ fn test_dual_supportsInterface_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_hasRole() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN()), 'Should have role');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_hasRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
@@ -239,14 +217,12 @@ fn test_dual_hasRole_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_getRoleAdmin() {
     let (dispatcher, _) = setup_camel();
     assert(dispatcher.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, 'Should get admin');
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_getRoleAdmin_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
@@ -254,7 +230,6 @@ fn test_dual_getRoleAdmin_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_grantRole() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(ADMIN());
@@ -263,7 +238,6 @@ fn test_dual_grantRole() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_grantRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
@@ -271,7 +245,6 @@ fn test_dual_grantRole_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_revokeRole() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(ADMIN());
@@ -281,7 +254,6 @@ fn test_dual_revokeRole() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_revokeRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();
@@ -289,7 +261,6 @@ fn test_dual_revokeRole_exists_and_panics() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_renounceRole() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(ADMIN());
@@ -298,7 +269,6 @@ fn test_dual_renounceRole() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounceRole_exists_and_panics() {
     let (_, dispatcher) = setup_accesscontrol_panic();

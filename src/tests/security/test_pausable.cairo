@@ -19,7 +19,6 @@ fn COMPONENT_STATE() -> ComponentState {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_paused() {
     let mut state = COMPONENT_STATE();
     assert(!state.is_paused(), 'Should not be paused');
@@ -36,7 +35,6 @@ fn test_is_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_paused_when_paused() {
     let mut state = COMPONENT_STATE();
     state._pause();
@@ -44,7 +42,6 @@ fn test_assert_paused_when_paused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_assert_paused_when_not_paused() {
     let state = COMPONENT_STATE();
@@ -56,7 +53,6 @@ fn test_assert_paused_when_not_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_assert_not_paused_when_paused() {
     let mut state = COMPONENT_STATE();
@@ -65,7 +61,6 @@ fn test_assert_not_paused_when_paused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_not_paused_when_not_paused() {
     let state = COMPONENT_STATE();
     state.assert_not_paused();
@@ -76,7 +71,6 @@ fn test_assert_not_paused_when_not_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_pause_when_unpaused() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(CALLER());
@@ -88,7 +82,6 @@ fn test_pause_when_unpaused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_pause_when_paused() {
     let mut state = COMPONENT_STATE();
@@ -101,7 +94,6 @@ fn test_pause_when_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_unpause_when_paused() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(CALLER());
@@ -116,7 +108,6 @@ fn test_unpause_when_paused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_unpause_when_unpaused() {
     let mut state = COMPONENT_STATE();

@@ -8,7 +8,7 @@
 mod AccountComponent {
     use openzeppelin::account::interface;
     use openzeppelin::account::utils::{TRANSACTION_VERSION, QUERY_VERSION};
-    use openzeppelin::account::utils::{execute_calls, is_valid_signature};
+    use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -236,7 +236,7 @@ mod AccountComponent {
             self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
         ) -> bool {
             let public_key = self.Account_public_key.read();
-            is_valid_signature(hash, public_key, signature)
+            is_valid_stark_signature(hash, public_key, signature)
         }
     }
 }

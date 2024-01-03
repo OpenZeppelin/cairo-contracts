@@ -76,7 +76,7 @@ Account component implementing xref:ISRC6[`ISRC6`].
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
-NOTE: Every function involving signature verification, verifies with the account's current public key, using the {starknet-curve}.
+NOTE: Every function involving signature verification verifies with the account's current public key using the {starknet-curve}.
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations

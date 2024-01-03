@@ -9,7 +9,9 @@ use openzeppelin::account::eth_account::interface::{
     EthAccountABIDispatcherTrait, EthAccountABIDispatcher
 };
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin::account::utils::secp256k1::{Secp256k1PointPartialEq, Secp256k1PointSerde};
+use openzeppelin::account::utils::secp256k1::{
+    DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
+};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
@@ -143,10 +145,10 @@ fn test_is_valid_signature() {
     state.initializer(data.public_key);
 
     let is_valid = state.is_valid_signature(hash, serialized_good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.is_valid_signature(hash, serialized_bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert_eq!(is_valid, 0, "Should reject invalid signature");
 }
 
 #[test]
@@ -168,10 +170,10 @@ fn test_isValidSignature() {
     state.initializer(data.public_key);
 
     let is_valid = state.isValidSignature(hash, serialized_good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.isValidSignature(hash, serialized_bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert_eq!(is_valid, 0, "Should reject invalid signature");
 }
 
 //
@@ -185,10 +187,7 @@ fn test_validate_deploy() {
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    assert_eq!(account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY()), starknet::VALIDATED);
 }
 
 #[test]
@@ -229,10 +228,7 @@ fn test_validate_declare() {
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    assert(
-        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    assert_eq!(account.__validate_declare__(CLASS_HASH()), starknet::VALIDATED);
 }
 
 #[test]
@@ -294,13 +290,13 @@ fn test_execute_with_version(version: Option<felt252>) {
     let ret = account.__execute__(calls);
 
     // Assert that the transfer was successful
-    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
 
     // Test return value
     let mut call_serialized_retval = *ret.at(0);
     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert(call_retval.unwrap(), 'Should have succeeded');
+    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -324,7 +320,7 @@ fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+    assert_eq!(account.__validate__(calls), starknet::VALIDATED);
 }
 
 #[test]
@@ -370,17 +366,17 @@ fn test_multicall() {
     let ret = account.__execute__(calls);
 
     // Assert that the transfers were successful
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred in call 1");
+    assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred in call 2");
 
     // Test return value
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert(call1_retval.unwrap(), 'Should have succeeded');
-    assert(call2_retval.unwrap(), 'Should have succeeded');
+    assert!(call1_retval.unwrap());
+    assert!(call2_retval.unwrap());
 }
 
 #[test]
@@ -391,7 +387,7 @@ fn test_multicall_zero_calls() {
     let ret = account.__execute__(calls);
 
     // Test return value
-    assert(ret.len() == 0, 'Should have an empty response');
+    assert_eq!(ret.len(), 0, "Should have an empty response");
 }
 
 #[test]
@@ -443,7 +439,7 @@ fn test_public_key_setter_and_getter() {
 
     // Check default
     let current = state.get_public_key();
-    assert(current == public_key, 'Should be public_key');
+    assert_eq!(current, public_key);
 
     // Set key
     state.set_public_key(new_public_key);
@@ -452,7 +448,7 @@ fn test_public_key_setter_and_getter() {
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.get_public_key();
-    assert(public_key == new_public_key, 'Should be new_public_key');
+    assert_eq!(public_key, new_public_key);
 }
 
 #[test]
@@ -482,7 +478,7 @@ fn test_public_key_setter_and_getter_camel() {
     utils::drop_event(ACCOUNT_ADDRESS());
 
     let current = state.getPublicKey();
-    assert(current == public_key, 'Should be public_key');
+    assert_eq!(current, public_key);
 
     state.setPublicKey(new_public_key);
 
@@ -490,7 +486,7 @@ fn test_public_key_setter_and_getter_camel() {
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
 
     let public_key = state.getPublicKey();
-    assert(public_key == new_public_key, 'Should be new_public_key');
+    assert_eq!(public_key, new_public_key);
 }
 
 #[test]
@@ -517,13 +513,13 @@ fn test_initializer() {
 
     assert_only_event_owner_added(ZERO(), public_key);
 
-    assert(state.get_public_key() == public_key, 'Should return public_key');
+    assert_eq!(state.get_public_key(), public_key);
 
     let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
-    assert(supports_default_interface, 'Should support base interface');
+    assert!(supports_default_interface, "Should support ISRC5");
 
     let supports_account_interface = mock_state.supports_interface(ISRC6_ID);
-    assert(supports_account_interface, 'Should support account id');
+    assert!(supports_account_interface, "Should support ISRC6");
 }
 
 #[test]
@@ -564,10 +560,10 @@ fn test__is_valid_signature() {
     state.initializer(data.public_key);
 
     let is_valid = state._is_valid_signature(hash, serialized_good_signature.span());
-    assert(is_valid, 'Should accept valid signature');
+    assert!(is_valid);
 
-    let is_valid = state._is_valid_signature(hash, serialized_bad_signature.span());
-    assert(!is_valid, 'Should reject invalid signature');
+    let is_not_valid = !state._is_valid_signature(hash, serialized_bad_signature.span());
+    assert!(is_not_valid);
 }
 
 #[test]
@@ -579,7 +575,7 @@ fn test__set_public_key() {
     assert_only_event_owner_added(ZERO(), public_key);
 
     let public_key = state.get_public_key();
-    assert(public_key == public_key, 'Should update key');
+    assert_eq!(public_key, public_key);
 }
 
 //
@@ -589,7 +585,7 @@ fn test__set_public_key() {
 fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
     let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
-    assert(event.new_owner_guid == guid, 'Invalid `new_owner_guid`');
+    assert_eq!(event.new_owner_guid, guid);
 
     // Check indexed keys
     let indexed_keys = array![guid];
@@ -604,7 +600,7 @@ fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPubli
 fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
     let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
-    assert(event.removed_owner_guid == guid, 'Invalid `removed_owner_guid`');
+    assert_eq!(event.removed_owner_guid, guid);
 
     // Check indexed keys
     let indexed_keys = array![guid];

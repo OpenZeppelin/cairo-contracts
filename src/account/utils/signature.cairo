@@ -8,7 +8,9 @@ use starknet::eth_signature::Signature;
 use starknet::secp256_trait::{is_signature_entry_valid, recover_public_key};
 use starknet::secp256k1::Secp256k1Point;
 
-fn is_valid_signature(msg_hash: felt252, public_key: felt252, signature: Span<felt252>) -> bool {
+fn is_valid_stark_signature(
+    msg_hash: felt252, public_key: felt252, signature: Span<felt252>
+) -> bool {
     let valid_length = signature.len() == 2;
 
     if valid_length {

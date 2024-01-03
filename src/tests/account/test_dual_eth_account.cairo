@@ -4,7 +4,9 @@ use openzeppelin::account::eth_account::dual_eth_account::{
 use openzeppelin::account::eth_account::interface::{
     EthAccountABIDispatcherTrait, EthAccountABIDispatcher
 };
-use openzeppelin::account::utils::secp256k1::{Secp256k1PointPartialEq, Secp256k1PointSerde};
+use openzeppelin::account::utils::secp256k1::{
+    DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
+};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::eth_account_mocks::{
@@ -70,7 +72,7 @@ fn test_dual_set_public_key() {
 
     let new_public_key = NEW_ETH_PUBKEY();
     snake_dispatcher.set_public_key(new_public_key);
-    assert(target.get_public_key() == new_public_key, 'Should return NEW_ETH_PUBKEY');
+    assert_eq!(target.get_public_key(), new_public_key);
 }
 
 #[test]
@@ -90,7 +92,7 @@ fn test_dual_set_public_key_exists_and_panics() {
 #[test]
 fn test_dual_get_public_key() {
     let (snake_dispatcher, _) = setup_snake();
-    assert(snake_dispatcher.get_public_key() == ETH_PUBKEY(), 'Should return ETH_PUBKEY');
+    assert_eq!(snake_dispatcher.get_public_key(), ETH_PUBKEY());
 }
 
 #[test]
@@ -120,7 +122,7 @@ fn test_dual_is_valid_signature() {
     target.set_public_key(data.public_key);
 
     let is_valid = snake_dispatcher.is_valid_signature(hash, serialized_signature);
-    assert(is_valid == 'VALID', 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -146,7 +148,7 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 #[test]
 fn test_dual_supports_interface() {
     let (snake_dispatcher, target) = setup_snake();
-    assert(snake_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
+    assert!(snake_dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
 }
 
 #[test]
@@ -175,7 +177,7 @@ fn test_dual_setPublicKey() {
     testing::set_contract_address(camel_dispatcher.contract_address);
 
     camel_dispatcher.set_public_key(new_public_key);
-    assert(target.getPublicKey() == new_public_key, 'Should return NEW_ETH_PUBKEY');
+    assert_eq!(target.getPublicKey(), new_public_key);
 }
 
 #[test]
@@ -188,7 +190,7 @@ fn test_dual_setPublicKey_exists_and_panics() {
 #[test]
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
-    assert(camel_dispatcher.get_public_key() == ETH_PUBKEY(), 'Should return ETH_PUBKEY');
+    assert_eq!(camel_dispatcher.get_public_key(), ETH_PUBKEY());
 }
 
 #[test]
@@ -211,7 +213,7 @@ fn test_dual_isValidSignature() {
     target.setPublicKey(data.public_key);
 
     let is_valid = camel_dispatcher.is_valid_signature(hash, serialized_signature);
-    assert(is_valid == 'VALID', 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -227,7 +229,7 @@ fn test_dual_isValidSignature_exists_and_panics() {
 #[test]
 fn test_dual_supportsInterface() {
     let (camel_dispatcher, _) = setup_camel();
-    assert(camel_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
+    assert!(camel_dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
 }
 
 #[test]

@@ -4,7 +4,7 @@
 mod secp256k1;
 mod signature;
 
-use signature::{is_valid_signature, is_valid_eth_signature};
+use signature::{is_valid_stark_signature, is_valid_eth_signature};
 use starknet::account::Call;
 
 const TRANSACTION_VERSION: felt252 = 1;

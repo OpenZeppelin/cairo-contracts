@@ -506,7 +506,7 @@ Requirements:
 
 [.contract-item]
 [[ERC721-_safe_mint]]
-==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: ByteArray)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
 Internal function that mints `token_id` and transfers it to `to`.
 If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
@@ -520,7 +520,7 @@ Requirements:
 
 [.contract-item]
 [[ERC721-_safe_transfer]]
-==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: ByteArray)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
 Internal function that transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
@@ -594,7 +594,7 @@ Interface for contracts that support receiving `safe_transfer_from` transfers.
 
 [.contract-item]
 [[IERC721Receiver-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: ByteArray) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
 

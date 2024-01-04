@@ -245,7 +245,7 @@ mod SnakeERC721PanicMock {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             panic_with_felt252('Some error');
         }
@@ -304,7 +304,7 @@ mod CamelERC721PanicMock {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             panic_with_felt252('Some error');
         }

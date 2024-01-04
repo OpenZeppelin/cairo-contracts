@@ -18,7 +18,7 @@ trait IERC721<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
@@ -41,7 +41,7 @@ trait IERC721CamelOnly<TState> {
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: ByteArray
+        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -68,7 +68,7 @@ trait ERC721ABI<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
@@ -90,7 +90,7 @@ trait ERC721ABI<TState> {
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: ByteArray
+        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -115,7 +115,7 @@ trait IERC721Receiver<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252;
 }
 
@@ -126,6 +126,6 @@ trait IERC721ReceiverCamel<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252;
 }

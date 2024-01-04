@@ -128,7 +128,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             assert(
                 self._is_approved_or_owner(get_caller_address(), token_id), Errors::UNAUTHORIZED
@@ -259,7 +259,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             self.safe_transfer_from(from, to, tokenId, data)
         }
@@ -481,7 +481,7 @@ mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             self._mint(to, token_id);
             assert(
@@ -507,7 +507,7 @@ mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: ByteArray
+            data: Span<felt252>
         ) {
             self._transfer(from, to, token_id);
             assert(
@@ -532,7 +532,7 @@ mod ERC721Component {
     /// for the `IERC721Receiver` interface through SRC5. The transaction will
     /// fail if both cases are false.
     fn _check_on_erc721_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: ByteArray
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
         if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC721_RECEIVER_ID)) {

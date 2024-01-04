@@ -34,7 +34,7 @@ trait DualCaseERC721Trait {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     );
     fn supports_interface(self: @DualCaseERC721, interface_id: felt252) -> bool;
 }
@@ -147,7 +147,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        mut data: ByteArray
+        mut data: Span<felt252>
     ) {
         let mut args = array![];
         args.append_serde(from);

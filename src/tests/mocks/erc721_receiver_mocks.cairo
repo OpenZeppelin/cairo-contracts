@@ -45,9 +45,9 @@ mod DualCaseERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252 {
-        if data == super::SUCCESS() {
+        if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
         } else {
             0
@@ -60,7 +60,7 @@ mod DualCaseERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252 {
         self.on_erc721_received(operator, from, tokenId, data)
     }
@@ -111,9 +111,9 @@ mod SnakeERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252 {
-        if data == super::SUCCESS() {
+        if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
         } else {
             0
@@ -166,9 +166,9 @@ mod CamelERC721ReceiverMock {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) -> felt252 {
-        if data == super::SUCCESS() {
+        if *data.at(0) == super::SUCCESS {
             self.erc721_receiver.onERC721Received(operator, from, tokenId, data)
         } else {
             0
@@ -189,7 +189,7 @@ mod SnakeERC721ReceiverPanicMock {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) {
         panic_with_felt252('Some error');
     }
@@ -208,7 +208,7 @@ mod CamelERC721ReceiverPanicMock {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: ByteArray
+        data: Span<felt252>
     ) {
         panic_with_felt252('Some error');
     }

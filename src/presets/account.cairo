@@ -4,7 +4,7 @@
 /// # Account Preset
 ///
 /// OpenZeppelin's basic account which can change its public key and declare, deploy, or call contracts.
-#[starknet::contract]
+#[starknet::contract(account)]
 mod Account {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;

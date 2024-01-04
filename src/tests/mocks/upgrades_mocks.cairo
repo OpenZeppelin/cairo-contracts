@@ -12,12 +12,6 @@ trait IUpgradesV1<TState> {
     fn remove_selector(self: @TState);
 }
 
-trait UpgradesV1Trait<TState> {
-    fn set_value(ref self: TState, val: felt252);
-    fn get_value(self: @TState) -> felt252;
-    fn remove_selector(self: @TState);
-}
-
 #[starknet::contract]
 mod UpgradesV1 {
     use openzeppelin::upgrades::UpgradeableComponent;
@@ -41,13 +35,12 @@ mod UpgradesV1 {
         UpgradeableEvent: UpgradeableComponent::Event
     }
 
-    #[external(v0)]
-    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-        self.upgradeable._upgrade(new_class_hash);
-    }
+    #[abi(embed_v0)]
+    impl UpgradesV1Impl of super::IUpgradesV1<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.upgradeable._upgrade(new_class_hash);
+        }
 
-    #[external(v0)]
-    impl UpgradesV1Impl of super::UpgradesV1Trait<ContractState> {
         fn set_value(ref self: ContractState, val: felt252) {
             self.value.write(val);
         }
@@ -63,13 +56,6 @@ mod UpgradesV1 {
 #[starknet::interface]
 trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
-    fn set_value(ref self: TState, val: felt252);
-    fn set_value2(ref self: TState, val: felt252);
-    fn get_value(self: @TState) -> felt252;
-    fn get_value2(self: @TState) -> felt252;
-}
-
-trait UpgradesV2Trait<TState> {
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -100,13 +86,12 @@ mod UpgradesV2 {
         UpgradeableEvent: UpgradeableComponent::Event
     }
 
-    #[external(v0)]
-    fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-        self.upgradeable._upgrade(new_class_hash);
-    }
+    #[abi(embed_v0)]
+    impl UpgradesV2Impl of super::IUpgradesV2<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.upgradeable._upgrade(new_class_hash);
+        }
 
-    #[external(v0)]
-    impl UpgradesV2Impl of super::UpgradesV2Trait<ContractState> {
         fn set_value(ref self: ContractState, val: felt252) {
             self.value.write(val);
         }

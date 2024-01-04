@@ -13,7 +13,7 @@ mod Attacker {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl IAttackerImpl of super::IAttacker<ContractState> {
         fn call_sender(self: @ContractState) {
             let caller: ContractAddress = get_caller_address();

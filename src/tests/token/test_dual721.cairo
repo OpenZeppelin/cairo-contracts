@@ -169,7 +169,7 @@ fn test_dual_balance_of_exists_and_panics() {
 
 #[test]
 fn test_dual_owner_of() {
-    let (dispatcher, target) = setup_snake();
+    let (dispatcher, _) = setup_snake();
     assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
@@ -298,7 +298,7 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 
 #[test]
 fn test_dual_token_uri() {
-    let (dispatcher, target) = setup_snake();
+    let (dispatcher, _) = setup_snake();
     assert(dispatcher.token_uri(TOKEN_ID) == URI(), 'Should return URI');
 }
 
@@ -355,7 +355,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 
 #[test]
 fn test_dual_ownerOf() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     assert(dispatcher.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
@@ -443,7 +443,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 fn test_dual_tokenURI() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     assert(dispatcher.token_uri(TOKEN_ID) == URI(), 'Should return URI');
 }
 

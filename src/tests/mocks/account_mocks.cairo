@@ -1,4 +1,4 @@
-#[starknet::contract]
+#[starknet::contract(account)]
 mod DualCaseAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -42,7 +42,7 @@ mod DualCaseAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod SnakeAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -57,7 +57,6 @@ mod SnakeAccountMock {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
-
 
     #[storage]
     struct Storage {
@@ -82,7 +81,7 @@ mod SnakeAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod CamelAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -97,6 +96,7 @@ mod CamelAccountMock {
     impl PublicKeyCamelImpl = AccountComponent::PublicKeyCamelImpl<ContractState>;
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    #[abi(embed_v0)]
     impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
@@ -123,7 +123,7 @@ mod CamelAccountMock {
         self.account.initializer(publicKey);
     }
 
-    #[external(v0)]
+    #[abi(per_item)]
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {

@@ -41,7 +41,11 @@ trait IERC721CamelOnly<TState> {
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
+        ref self: TState,
+        from: ContractAddress,
+        to: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -90,7 +94,11 @@ trait ERC721ABI<TState> {
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn ownerOf(self: @TState, tokenId: u256) -> ContractAddress;
     fn safeTransferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>
+        ref self: TState,
+        from: ContractAddress,
+        to: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);

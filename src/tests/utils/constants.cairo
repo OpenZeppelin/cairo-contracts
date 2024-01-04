@@ -15,14 +15,6 @@ const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
 
-//fn SUCCESS() -> ByteArray {
-//    "123123"
-//}
-//
-//fn FAILURE() -> ByteArray {
-//    "456456"
-//}
-
 fn NAME() -> ByteArray {
     "NAME"
 }
@@ -82,14 +74,6 @@ fn RECIPIENT() -> ContractAddress {
 fn OPERATOR() -> ContractAddress {
     contract_address_const::<'OPERATOR'>()
 }
-
-//fn DATA(success: bool) -> ByteArray {
-//    if success {
-//        return SUCCESS();
-//    } else {
-//        return FAILURE();
-//    }
-//}
 
 fn DATA(success: bool) -> Span<felt252> {
     let mut data = array![];

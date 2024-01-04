@@ -75,8 +75,8 @@ See the {introspection} docs.
 * `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721, because function overloading is currently not possible in Cairo.
 The difference between both functions consists of accepting `data` as an argument.
 `safe_transfer_from` by default accepts the `data` argument.
-If `data` is not used, simply pass an empty `ByteArray`.
-* `safe_transfer_from` is implemented such that the optional `data` argument is a `ByteArray` which is the Cairo equivalent to `bytes` in Solidity.
+If `data` is not used, simply pass an empty array.
+* `safe_transfer_from` is implemented such that the optional `data` argument is a span of felts.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).
@@ -197,7 +197,7 @@ trait IERC721Receiver {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<ByteArray>
+        data: Span<felt252>
     ) -> felt252;
 }
 ----

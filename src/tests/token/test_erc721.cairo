@@ -1218,8 +1218,7 @@ fn test__burn_nonexistent() {
 fn test__set_token_uri() {
     let mut state = setup();
 
-    let ba: ByteArray = "";
-    assert(state.token_uri(TOKEN_ID) == ba, 'URI should be 0');
+    assert_eq!(state.token_uri(TOKEN_ID), "", "URI should be an empty ByteArray");
     state._set_token_uri(TOKEN_ID, URI());
     assert(state.token_uri(TOKEN_ID) == URI(), 'URI should be set');
 }

@@ -138,10 +138,10 @@ mod MyNFT {
         ref self: ContractState,
         recipient: ContractAddress
     ) {
-        let name: ByteArray = "MyNFT";
-        let symbol: ByteArray = "NFT";
+        let name = "MyNFT";
+        let symbol = "NFT";
         let token_id = 1;
-        let token_uri: ByteArray = "NFT_URI";
+        let token_uri = "NFT_URI";
 
         self.erc721.initializer(name, symbol);
         self._mint_with_uri(recipient, token_id, token_uri);

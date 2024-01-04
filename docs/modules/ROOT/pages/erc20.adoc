@@ -114,7 +114,7 @@ mod MyToken {
         recipient: ContractAddress
     ) {
         let name = "MyToken";
-        let symbol: ByteArray = "MTK";
+        let symbol = "MTK";
 
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);
@@ -211,8 +211,8 @@ mod MyToken {
         self._set_decimals(decimals);
 
         // Initialize ERC20
-        let name: ByteArray = "MyToken";
-        let symbol: ByteArray = "MTK";
+        let name = "MyToken";
+        let symbol = "MTK";
 
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, initial_supply);

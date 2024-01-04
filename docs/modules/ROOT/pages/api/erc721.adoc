@@ -174,7 +174,7 @@ Returns the NFT ticker symbol.
 [[IERC721Metadata-token_uri]]
 ==== `[.contract-item-name]#++token_uri++#++(token_id: u256) -> ByteArray++` [.item-kind]#external#
 
-Returns the Uniform Resource Identifier (URI) as a short string for the `token_id` token.
+Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be `0`.
 
 [.contract]

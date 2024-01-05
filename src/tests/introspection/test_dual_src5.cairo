@@ -46,7 +46,8 @@ fn setup_src5_panic() -> (DualCaseSRC5, DualCaseSRC5) {
 #[test]
 fn test_dual_supports_interface() {
     let dispatcher = setup_snake();
-    assert(dispatcher.supports_interface(ISRC5_ID), 'Should support base interface');
+    let supported = dispatcher.supports_interface(ISRC5_ID);
+    assert!(supported, "Should implement ISRC5");
 }
 
 #[test]
@@ -70,7 +71,8 @@ fn test_dual_supports_interface_exists_and_panics() {
 #[test]
 fn test_dual_supportsInterface() {
     let dispatcher = setup_camel();
-    assert(dispatcher.supports_interface(ISRC5_ID), 'Should support base interface');
+    let supported = dispatcher.supports_interface(ISRC5_ID);
+    assert!(supported, "Should implement ISRC5");
 }
 
 #[test]

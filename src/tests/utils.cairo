@@ -1,4 +1,5 @@
 mod constants;
+mod debug;
 
 use starknet::ContractAddress;
 use starknet::testing;

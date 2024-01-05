@@ -4,6 +4,7 @@ use openzeppelin::access::ownable::OwnableComponent;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 use starknet::storage::StorageMemberAccessTrait;
@@ -33,12 +34,16 @@ fn setup() -> ComponentState {
 #[test]
 fn test_initializer_owner() {
     let mut state = COMPONENT_STATE();
-    assert(state.Ownable_owner.read().is_zero(), 'Should be zero');
+
+    let current_owner = state.Ownable_owner.read();
+    assert!(current_owner.is_zero());
+
     state.initializer(OWNER());
 
     assert_event_ownership_transferred(ZERO(), OWNER());
 
-    assert(state.Ownable_owner.read() == OWNER(), 'Owner should be set');
+    let new_owner = state.Ownable_owner.read();
+    assert_eq!(new_owner, OWNER());
 }
 
 //
@@ -78,7 +83,8 @@ fn test__transfer_ownership() {
 
     assert_event_ownership_transferred(OWNER(), OTHER());
 
-    assert(state.Ownable_owner.read() == OTHER(), 'Owner should be OTHER');
+    let current_owner = state.Ownable_owner.read();
+    assert_eq!(current_owner, OTHER());
 }
 
 //
@@ -92,8 +98,7 @@ fn test_transfer_ownership() {
     state.transfer_ownership(OTHER());
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-
-    assert(state.owner() == OTHER(), 'Should transfer ownership');
+    assert_eq!(state.owner(), OTHER());
 }
 
 #[test]
@@ -126,8 +131,7 @@ fn test_transferOwnership() {
     state.transferOwnership(OTHER());
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-
-    assert(state.owner() == OTHER(), 'Should transfer ownership');
+    assert_eq!(state.owner(), OTHER());
 }
 
 #[test]
@@ -164,8 +168,7 @@ fn test_renounce_ownership() {
     state.renounce_ownership();
 
     assert_event_ownership_transferred(OWNER(), ZERO());
-
-    assert(state.owner() == ZERO(), 'Should renounce ownership');
+    assert!(state.owner().is_zero());
 }
 
 #[test]
@@ -190,8 +193,7 @@ fn test_renounceOwnership() {
     state.renounceOwnership();
 
     assert_event_ownership_transferred(OWNER(), ZERO());
-
-    assert(state.owner() == ZERO(), 'Should renounce ownership');
+    assert!(state.owner().is_zero());
 }
 
 #[test]
@@ -215,7 +217,7 @@ fn test_renounceOwnership_from_nonowner() {
 
 fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner: ContractAddress) {
     let event = utils::pop_log::<OwnershipTransferred>(ZERO()).unwrap();
-    assert(event.previous_owner == previous_owner, 'Invalid `previous_owner`');
-    assert(event.new_owner == new_owner, 'Invalid `new_owner`');
+    assert_eq!(event.previous_owner, previous_owner);
+    assert_eq!(event.new_owner, new_owner);
     utils::assert_no_events_left(ZERO());
 }

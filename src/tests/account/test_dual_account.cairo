@@ -58,7 +58,9 @@ fn test_dual_set_public_key() {
     testing::set_contract_address(snake_dispatcher.contract_address);
 
     snake_dispatcher.set_public_key(NEW_PUBKEY);
-    assert(target.get_public_key() == NEW_PUBKEY, 'Should return NEW_PUBKEY');
+
+    let public_key = target.get_public_key();
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
@@ -78,7 +80,8 @@ fn test_dual_set_public_key_exists_and_panics() {
 #[test]
 fn test_dual_get_public_key() {
     let (snake_dispatcher, _) = setup_snake();
-    assert(snake_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
+    let public_key = snake_dispatcher.get_public_key();
+    assert_eq!(public_key, PUBKEY);
 }
 
 #[test]
@@ -107,7 +110,7 @@ fn test_dual_is_valid_signature() {
     target.set_public_key(data.public_key);
 
     let is_valid = snake_dispatcher.is_valid_signature(hash, signature);
-    assert(is_valid == 'VALID', 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -133,7 +136,8 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 #[test]
 fn test_dual_supports_interface() {
     let (snake_dispatcher, target) = setup_snake();
-    assert(snake_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
+    let supported = snake_dispatcher.supports_interface(ISRC5_ID);
+    assert!(supported, "Should implement ISRC5");
 }
 
 #[test]
@@ -161,7 +165,9 @@ fn test_dual_setPublicKey() {
     testing::set_contract_address(camel_dispatcher.contract_address);
 
     camel_dispatcher.set_public_key(NEW_PUBKEY);
-    assert(target.getPublicKey() == NEW_PUBKEY, 'Should return NEW_PUBKEY');
+
+    let public_key = target.getPublicKey();
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
@@ -174,7 +180,8 @@ fn test_dual_setPublicKey_exists_and_panics() {
 #[test]
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
-    assert(camel_dispatcher.get_public_key() == PUBKEY, 'Should return PUBKEY');
+    let public_key = camel_dispatcher.get_public_key();
+    assert_eq!(public_key, PUBKEY);
 }
 
 #[test]
@@ -196,7 +203,7 @@ fn test_dual_isValidSignature() {
     target.setPublicKey(data.public_key);
 
     let is_valid = camel_dispatcher.is_valid_signature(hash, signature);
-    assert(is_valid == 'VALID', 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -212,7 +219,8 @@ fn test_dual_isValidSignature_exists_and_panics() {
 #[test]
 fn test_dual_supportsInterface() {
     let (camel_dispatcher, _) = setup_camel();
-    assert(camel_dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
+    let supported = camel_dispatcher.supports_interface(ISRC5_ID);
+    assert!(supported, "Should implement ISRC5");
 }
 
 #[test]

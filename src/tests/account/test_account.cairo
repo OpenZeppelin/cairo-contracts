@@ -1,3 +1,4 @@
+use core::array::ArrayTrait;
 use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
@@ -117,10 +118,10 @@ fn test_is_valid_signature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state.is_valid_signature(hash, good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.is_valid_signature(hash, bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 #[test]
@@ -135,10 +136,10 @@ fn test_isValidSignature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state.isValidSignature(hash, good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.isValidSignature(hash, bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 //
@@ -152,10 +153,8 @@ fn test_validate_deploy() {
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -197,10 +196,8 @@ fn test_validate_declare() {
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    assert(
-        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_declare__(CLASS_HASH());
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -262,13 +259,13 @@ fn test_execute_with_version(version: Option<felt252>) {
     let ret = account.__execute__(calls);
 
     // Assert that the transfer was successful
-    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
 
     // Test return value
     let mut call_serialized_retval = *ret.at(0);
     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert(call_retval.unwrap(), 'Should have succeeded');
+    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -292,7 +289,8 @@ fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+    let is_valid = account.__validate__(calls);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -338,17 +336,17 @@ fn test_multicall() {
     let ret = account.__execute__(calls);
 
     // Assert that the transfers were successful
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred from call1");
+    assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred from call2");
 
-    // Test return value
+    // Test return values
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert(call1_retval.unwrap(), 'Should have succeeded');
-    assert(call2_retval.unwrap(), 'Should have succeeded');
+    assert!(call1_retval.unwrap());
+    assert!(call2_retval.unwrap());
 }
 
 #[test]
@@ -356,10 +354,8 @@ fn test_multicall_zero_calls() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut calls = array![];
 
-    let ret = account.__execute__(calls);
-
-    // Test return value
-    assert(ret.len() == 0, 'Should have an empty response');
+    let response = account.__execute__(calls);
+    assert!(response.is_empty());
 }
 
 #[test]
@@ -387,20 +383,16 @@ fn test_public_key_setter_and_getter() {
 
     // Check default
     let public_key = state.get_public_key();
-    assert(public_key == 0, 'Should be zero');
+    assert!(public_key.is_zero());
 
     // Set key
     state.set_public_key(NEW_PUBKEY);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.get_public_key();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
@@ -426,20 +418,16 @@ fn test_public_key_setter_and_getter_camel() {
 
     // Check default
     let public_key = state.getPublicKey();
-    assert(public_key == 0, 'Should be zero');
+    assert!(public_key.is_zero());
 
     // Set key
     state.setPublicKey(NEW_PUBKEY);
 
-    let event = utils::pop_log::<OwnerRemoved>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.removed_owner_guid == 0, 'Invalid old owner key');
-
-    let event = utils::pop_log::<OwnerAdded>(ACCOUNT_ADDRESS()).unwrap();
-    assert(event.new_owner_guid == NEW_PUBKEY, 'Invalid new owner key');
-    utils::assert_no_events_left(ACCOUNT_ADDRESS());
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.getPublicKey();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
@@ -463,17 +451,16 @@ fn test_initializer() {
     let mock_state = CONTRACT_STATE();
 
     state.initializer(PUBKEY);
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
+    assert_only_event_owner_added(ZERO(), PUBKEY);
 
-    assert(state.get_public_key() == PUBKEY, 'Should return PUBKEY');
+    let public_key = state.get_public_key();
+    assert_eq!(public_key, PUBKEY);
 
     let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
-    assert(supports_default_interface, 'Should support base interface');
+    assert!(supports_default_interface, "Should implement ISRC5");
 
     let supports_account_interface = mock_state.supports_interface(ISRC6_ID);
-    assert(supports_account_interface, 'Should support account id');
+    assert!(supports_account_interface, "Should implement ISRC6");
 }
 
 #[test]
@@ -509,13 +496,13 @@ fn test__is_valid_signature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state._is_valid_signature(hash, good_signature.span());
-    assert(is_valid, 'Should accept valid signature');
+    assert!(is_valid);
 
-    let is_valid = state._is_valid_signature(hash, bad_signature.span());
-    assert(!is_valid, 'Should reject invalid signature');
+    let is_not_valid = state._is_valid_signature(hash, bad_signature.span());
+    assert!(is_not_valid);
 
-    let is_valid = state._is_valid_signature(hash, invalid_length_signature.span());
-    assert(!is_valid, 'Should reject invalid length');
+    let is_not_valid = state._is_valid_signature(hash, invalid_length_signature.span());
+    assert!(is_not_valid);
 }
 
 #[test]
@@ -523,10 +510,35 @@ fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
     state._set_public_key(PUBKEY);
 
-    let event = utils::pop_log::<OwnerAdded>(ZERO()).unwrap();
-    assert(event.new_owner_guid == PUBKEY, 'Invalid owner key');
-    utils::assert_no_events_left(ZERO());
+    assert_only_event_owner_added(ZERO(), PUBKEY);
 
     let public_key = state.get_public_key();
-    assert(public_key == PUBKEY, 'Should update key');
+    assert_eq!(public_key, PUBKEY);
+}
+
+//
+// Helpers
+//
+
+fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
+    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
+    assert_eq!(event.removed_owner_guid, removed_owner_guid);
+
+    // Check indexed keys
+    let indexed_keys = array![removed_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
+    assert_eq!(event.new_owner_guid, new_owner_guid);
+
+    // Check indexed keys
+    let indexed_keys = array![new_owner_guid];
+    utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+    assert_event_owner_added(contract, new_owner_guid);
+    utils::assert_no_events_left(contract);
 }

@@ -11,9 +11,9 @@ fn COMPONENT_STATE() -> ComponentState {
 #[test]
 fn test_initialize() {
     let mut state = COMPONENT_STATE();
-    assert(!state.is_initialized(), 'Should not be initialized');
+    assert!(!state.is_initialized());
     state.initialize();
-    assert(state.is_initialized(), 'Should be initialized');
+    assert!(state.is_initialized());
 }
 
 #[test]

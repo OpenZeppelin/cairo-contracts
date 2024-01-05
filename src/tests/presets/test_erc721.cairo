@@ -11,6 +11,7 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL
 };
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
@@ -95,7 +96,7 @@ fn test__mint_assets() {
 
     state._mint_assets(OWNER(), token_ids, token_uris);
 
-    assert(state.erc721.balance_of(OWNER()) == TOKENS_LEN, 'Should equal IDs length');
+    assert_eq!(state.erc721.balance_of(OWNER()), TOKENS_LEN);
 
     loop {
         if token_ids.len() == 0 {
@@ -105,8 +106,8 @@ fn test__mint_assets() {
         let id = *token_ids.pop_front().unwrap();
         let uri = *token_uris.pop_front().unwrap();
 
-        assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by OWNER');
-        assert(state.erc721.token_uri(id) == uri, 'Should equal correct URI');
+        assert_eq!(state.erc721.owner_of(id), OWNER());
+        assert_eq!(state.erc721.token_uri(id), uri);
     };
 }
 
@@ -145,18 +146,21 @@ fn test_constructor() {
         if interface_ids.len() == 0 {
             break;
         }
-        assert(dispatcher.supports_interface(id), 'Should support interface');
+        let supported = dispatcher.supports_interface(id);
+        assert!(supported, "Should implement interface");
     };
 
     // Check token balance and owner
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Should equal TOKENS_LEN');
+    assert_eq!(dispatcher.balance_of(OWNER()), TOKENS_LEN);
+
     loop {
         let token = tokens.pop_front().unwrap();
         if tokens.len() == 0 {
             break;
         }
-        assert(dispatcher.owner_of(token) == OWNER(), 'Should be owned by OWNER');
+        let current_owner = dispatcher.owner_of(token);
+        assert_eq!(current_owner, OWNER());
     };
 }
 
@@ -183,7 +187,7 @@ fn test_constructor_events() {
 #[test]
 fn test_balance_of() {
     let dispatcher = setup_dispatcher();
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Should return balance');
+    assert_eq!(dispatcher.balance_of(OWNER()), TOKENS_LEN);
 }
 
 #[test]
@@ -196,7 +200,7 @@ fn test_balance_of_zero() {
 #[test]
 fn test_owner_of() {
     let dispatcher = setup_dispatcher();
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Should return owner');
+    assert_eq!(dispatcher.owner_of(TOKEN_1), OWNER());
 }
 
 #[test]
@@ -219,10 +223,12 @@ fn test_get_approved() {
     let spender = SPENDER();
     let token_id = TOKEN_1;
 
-    assert(dispatcher.get_approved(token_id) == ZERO(), 'Should return non-approval');
+    let approved = dispatcher.get_approved(token_id);
+    assert!(approved.is_zero());
 
     dispatcher.approve(spender, token_id);
-    assert(dispatcher.get_approved(token_id) == spender, 'Should return approval');
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, spender);
 }
 
 #[test]
@@ -243,7 +249,8 @@ fn test_approve_from_owner() {
     dispatcher.approve(SPENDER(), TOKEN_1);
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
 
-    assert(dispatcher.get_approved(TOKEN_1) == SPENDER(), 'Spender not approved correctly');
+    let approved = dispatcher.get_approved(TOKEN_1);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
@@ -257,7 +264,8 @@ fn test_approve_from_operator() {
     dispatcher.approve(SPENDER(), TOKEN_1);
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
 
-    assert(dispatcher.get_approved(TOKEN_1) == SPENDER(), 'Spender not approved correctly');
+    let approved = dispatcher.get_approved(TOKEN_1);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
@@ -292,17 +300,20 @@ fn test_approve_nonexistent() {
 fn test_set_approval_for_all() {
     let dispatcher = setup_dispatcher();
 
-    assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_not_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), true);
 
-    assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), false);
 
-    assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
+    let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_not_approved_for_all);
 }
 
 #[test]
@@ -335,7 +346,9 @@ fn test_transfer_from_owner() {
     utils::drop_event(dispatcher.contract_address);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
-    assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     dispatcher.transfer_from(owner, recipient, token_id);
     assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -355,7 +368,9 @@ fn test_transferFrom_owner() {
     utils::drop_event(dispatcher.contract_address);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
-    assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     dispatcher.transferFrom(owner, recipient, token_id);
     assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -971,9 +986,9 @@ fn assert_state_before_transfer(
     recipient: ContractAddress,
     token_id: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-    assert(dispatcher.balance_of(owner) == TOKENS_LEN, 'Balance of owner before');
-    assert(dispatcher.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert_eq!(dispatcher.owner_of(token_id), owner);
+    assert_eq!(dispatcher.balance_of(owner), TOKENS_LEN);
+    assert!(dispatcher.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_transfer(
@@ -982,26 +997,29 @@ fn assert_state_after_transfer(
     recipient: ContractAddress,
     token_id: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == recipient, 'Ownership after');
-    assert(dispatcher.balance_of(owner) == TOKENS_LEN - 1, 'Balance of owner after');
-    assert(dispatcher.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(dispatcher.get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+    let current_owner = dispatcher.owner_of(token_id);
+    assert_eq!(current_owner, recipient);
+    assert_eq!(dispatcher.balance_of(owner), TOKENS_LEN - 1);
+    assert_eq!(dispatcher.balance_of(recipient), 1);
+
+    let approved = dispatcher.get_approved(token_id);
+    assert!(approved.is_zero());
 }
 
 fn assert_state_transfer_to_self(
     dispatcher: ERC721ABIDispatcher, target: ContractAddress, token_id: u256, token_balance: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == target, 'Ownership before');
-    assert(dispatcher.balance_of(target) == token_balance, 'Balance of owner before');
+    assert_eq!(dispatcher.owner_of(token_id), target);
+    assert_eq!(dispatcher.balance_of(target), token_balance);
 }
 
 fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.operator == operator, 'Invalid `operator`');
-    assert(event.approved == approved, 'Invalid `approved`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.operator, operator);
+    assert_eq!(event.approved, approved);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
@@ -1015,9 +1033,9 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Approval>(contract).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.approved == approved, 'Invalid `approved`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.approved, approved);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
@@ -1032,9 +1050,9 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Transfer>(contract).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.token_id, token_id);
 
     // Check indexed keys
     let mut indexed_keys = array![];

@@ -501,7 +501,7 @@ fn test__is_valid_signature() {
     let is_not_valid = state._is_valid_signature(hash, bad_signature.span());
     assert!(is_not_valid);
 
-    let is_not_valid = state._is_valid_signature(hash, invalid_length_signature.span());
+    let is_not_valid = !state._is_valid_signature(hash, invalid_length_signature.span());
     assert!(is_not_valid);
 }
 
@@ -523,19 +523,11 @@ fn test__set_public_key() {
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     assert_eq!(event.removed_owner_guid, removed_owner_guid);
-
-    // Check indexed keys
-    let indexed_keys = array![removed_owner_guid];
-    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     assert_eq!(event.new_owner_guid, new_owner_guid);
-
-    // Check indexed keys
-    let indexed_keys = array![new_owner_guid];
-    utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {

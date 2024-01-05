@@ -26,9 +26,13 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 fn test_reentrancy_guard_start() {
     let mut state = COMPONENT_STATE();
 
-    assert(!state.ReentrancyGuard_entered.read(), 'Should not be entered');
+    let not_entered = !state.ReentrancyGuard_entered.read();
+    assert!(not_entered);
+
     state.start();
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+
+    let entered = state.ReentrancyGuard_entered.read();
+    assert!(entered);
 }
 
 #[test]
@@ -45,9 +49,14 @@ fn test_reentrancy_guard_end() {
     let mut state = COMPONENT_STATE();
 
     state.start();
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+
+    let entered = state.ReentrancyGuard_entered.read();
+    assert!(entered);
+
     state.end();
-    assert(!state.ReentrancyGuard_entered.read(), 'Should no longer be entered');
+
+    let not_entered = !state.ReentrancyGuard_entered.read();
+    assert!(not_entered);
 }
 
 //
@@ -93,5 +102,5 @@ fn test_external_recursion() {
 fn test_nonreentrant_function_call() {
     let contract = deploy_mock();
     contract.callback();
-    assert(contract.current_count() == 1, 'Call should execute');
+    assert_eq!(contract.current_count(), 1, "Call should execute");
 }

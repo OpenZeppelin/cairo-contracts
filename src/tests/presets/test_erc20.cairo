@@ -3,6 +3,7 @@ use openzeppelin::presets::ERC20;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
@@ -44,11 +45,11 @@ fn setup_dispatcher() -> ERC20ABIDispatcher {
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
-    assert(dispatcher.name() == NAME, 'Should be NAME');
-    assert(dispatcher.symbol() == SYMBOL, 'Should be SYMBOL');
-    assert(dispatcher.decimals() == DECIMALS, 'Should be DECIMALS');
-    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(dispatcher.name(), NAME);
+    assert_eq!(dispatcher.symbol(), SYMBOL);
+    assert_eq!(dispatcher.decimals(), DECIMALS);
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
     assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), SUPPLY);
 }
 
@@ -60,16 +61,16 @@ fn test_constructor() {
 fn test_total_supply() {
     let mut dispatcher = setup_dispatcher();
 
-    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
-    assert(dispatcher.totalSupply() == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
+    assert_eq!(dispatcher.totalSupply(), SUPPLY);
 }
 
 #[test]
 fn test_balance_of() {
     let mut dispatcher = setup_dispatcher();
 
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
-    assert(dispatcher.balanceOf(OWNER()) == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
+    assert_eq!(dispatcher.balanceOf(OWNER()), SUPPLY);
 }
 
 #[test]
@@ -78,7 +79,9 @@ fn test_allowance() {
 
     testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
+
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE);
 }
 
 //
@@ -88,12 +91,15 @@ fn test_allowance() {
 #[test]
 fn test_approve() {
     let mut dispatcher = setup_dispatcher();
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal ZERO');
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert!(allowance.is_zero());
 
     testing::set_contract_address(OWNER());
-    assert(dispatcher.approve(SPENDER(), VALUE), 'Should return true');
+    assert!(dispatcher.approve(SPENDER(), VALUE));
 
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE);
+
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), VALUE);
 }
 
@@ -121,11 +127,12 @@ fn test_transfer() {
     let mut dispatcher = setup_dispatcher();
 
     testing::set_contract_address(OWNER());
-    assert(dispatcher.transfer(RECIPIENT(), VALUE), 'Should return true');
+    assert!(dispatcher.transfer(RECIPIENT(), VALUE));
 
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
-    assert(dispatcher.total_supply() == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
+
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 }
 
@@ -167,15 +174,15 @@ fn test_transfer_from() {
     utils::drop_event(dispatcher.contract_address);
 
     testing::set_contract_address(SPENDER());
-    assert(dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE), 'Should return true');
+    assert!(dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal supply - amount');
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
-    assert(dispatcher.total_supply() == SUPPLY, 'Total supply should not change');
+    assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(dispatcher.allowance(OWNER(), SPENDER()), 0);
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
 }
 
 #[test]
@@ -188,9 +195,8 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     testing::set_contract_address(SPENDER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
-    assert(
-        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
-    );
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, BoundedInt::max(), "Should not decrease");
 }
 
 #[test]
@@ -232,15 +238,15 @@ fn test_transferFrom() {
     utils::drop_event(dispatcher.contract_address);
 
     testing::set_contract_address(SPENDER());
-    assert(dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE), 'Should return true');
+    assert!(dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
     assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
-    assert(dispatcher.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal supply - amount');
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
-    assert(dispatcher.total_supply() == SUPPLY, 'Total supply should not change');
+    assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(dispatcher.allowance(OWNER(), SPENDER()), 0);
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
 }
 
 #[test]
@@ -252,9 +258,8 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
     testing::set_contract_address(SPENDER());
     dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
-    assert(
-        dispatcher.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change'
-    );
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, BoundedInt::max(), "Should not decrease");
 }
 
 #[test]
@@ -298,10 +303,12 @@ fn test_increase_allowance() {
     dispatcher.approve(SPENDER(), VALUE);
     utils::drop_event(dispatcher.contract_address);
 
-    assert(dispatcher.increase_allowance(SPENDER(), VALUE), 'Should return true');
+    assert!(dispatcher.increase_allowance(SPENDER(), VALUE));
 
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), VALUE * 2);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
+
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE * 2);
 }
 
 #[test]
@@ -326,10 +333,12 @@ fn test_increaseAllowance() {
     dispatcher.approve(SPENDER(), VALUE);
     utils::drop_event(dispatcher.contract_address);
 
-    assert(dispatcher.increaseAllowance(SPENDER(), VALUE), 'Should return true');
+    assert!(dispatcher.increaseAllowance(SPENDER(), VALUE));
 
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 2 * VALUE);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should be amount * 2');
+
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE * 2);
 }
 
 #[test]
@@ -358,10 +367,12 @@ fn test_decrease_allowance() {
     dispatcher.approve(SPENDER(), VALUE);
     utils::drop_event(dispatcher.contract_address);
 
-    assert(dispatcher.decrease_allowance(SPENDER(), VALUE), 'Should return true');
+    assert!(dispatcher.decrease_allowance(SPENDER(), VALUE));
 
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
+
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert!(allowance.is_zero());
 }
 
 #[test]
@@ -386,10 +397,12 @@ fn test_decreaseAllowance() {
     dispatcher.approve(SPENDER(), VALUE);
     utils::drop_event(dispatcher.contract_address);
 
-    assert(dispatcher.decreaseAllowance(SPENDER(), VALUE), 'Should return true');
+    assert!(dispatcher.decreaseAllowance(SPENDER(), VALUE));
 
     assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
-    assert(dispatcher.allowance(OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
+
+    let allowance = dispatcher.allowance(OWNER(), SPENDER());
+    assert!(allowance.is_zero());
 }
 
 #[test]
@@ -415,9 +428,9 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<Approval>(contract).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.spender == spender, 'Invalid `spender`');
-    assert(event.value == value, 'Invalid `value`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.spender, spender);
+    assert_eq!(event.value, value);
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -437,9 +450,9 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<Transfer>(contract).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.value == value, 'Invalid `value`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.value, value);
 
     // Check indexed keys
     let mut indexed_keys = array![];

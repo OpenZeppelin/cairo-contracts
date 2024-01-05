@@ -21,7 +21,7 @@ fn test_default_behavior() {
 #[test]
 fn test_not_registered_interface() {
     let state = COMPONENT_STATE();
-    let does_not_support_unregistered_interface = state.supports_interface(OTHER_ID);
+    let does_not_support_unregistered_interface = !state.supports_interface(OTHER_ID);
     assert!(does_not_support_unregistered_interface);
 }
 
@@ -38,7 +38,7 @@ fn test_deregister_interface() {
     let mut state = COMPONENT_STATE();
     state.register_interface(OTHER_ID);
     state.deregister_interface(OTHER_ID);
-    let does_not_support_old_interface = state.supports_interface(OTHER_ID);
+    let does_not_support_old_interface = !state.supports_interface(OTHER_ID);
     assert!(does_not_support_old_interface);
 }
 

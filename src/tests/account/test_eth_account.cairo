@@ -187,7 +187,8 @@ fn test_validate_deploy() {
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    assert_eq!(account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY()), starknet::VALIDATED);
+    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -228,7 +229,8 @@ fn test_validate_declare() {
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    assert_eq!(account.__validate_declare__(CLASS_HASH()), starknet::VALIDATED);
+    let is_valid = account.__validate_declare__(CLASS_HASH());
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -320,7 +322,8 @@ fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert_eq!(account.__validate__(calls), starknet::VALIDATED);
+    let is_valid = account.__validate__(calls);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -575,7 +578,7 @@ fn test__set_public_key() {
     assert_only_event_owner_added(ZERO(), public_key);
 
     let public_key = state.get_public_key();
-    assert_eq!(public_key, public_key);
+    assert_eq!(public_key, ETH_PUBKEY());
 }
 
 //

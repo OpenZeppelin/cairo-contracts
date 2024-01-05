@@ -5,6 +5,7 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
     IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait, UpgradesV2
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
+use openzeppelin::tests::utils::debug::DebugClassHash;
 use openzeppelin::tests::utils;
 use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
 use starknet::ClassHash;
@@ -43,7 +44,7 @@ fn test_upgraded_event() {
     v1.upgrade(V2_CLASS_HASH());
 
     let event = utils::pop_log::<Upgraded>(v1.contract_address).unwrap();
-    assert(event.class_hash == V2_CLASS_HASH(), 'Invalid class hash');
+    assert_eq!(event.class_hash, V2_CLASS_HASH());
 
     utils::assert_no_events_left(v1.contract_address);
 }
@@ -56,7 +57,7 @@ fn test_new_selector_after_upgrade() {
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
 
     v2.set_value2(VALUE);
-    assert(v2.get_value2() == VALUE, 'New selector should be callable');
+    assert_eq!(v2.get_value2(), VALUE);
 }
 
 #[test]
@@ -67,7 +68,7 @@ fn test_state_persists_after_upgrade() {
     v1.upgrade(V2_CLASS_HASH());
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
 
-    assert(v2.get_value() == VALUE, 'Should keep state after upgrade');
+    assert_eq!(v2.get_value(), VALUE);
 }
 
 #[test]

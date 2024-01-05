@@ -498,7 +498,7 @@ fn test__is_valid_signature() {
     let is_valid = state._is_valid_signature(hash, good_signature.span());
     assert!(is_valid);
 
-    let is_not_valid = state._is_valid_signature(hash, bad_signature.span());
+    let is_not_valid = !state._is_valid_signature(hash, bad_signature.span());
     assert!(is_not_valid);
 
     let is_not_valid = !state._is_valid_signature(hash, invalid_length_signature.span());

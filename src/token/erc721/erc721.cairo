@@ -15,6 +15,7 @@ mod ERC721Component {
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
     };
     use openzeppelin::token::erc721::interface;
+    use openzeppelin::utils::bytearray::ByteArrayStore;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

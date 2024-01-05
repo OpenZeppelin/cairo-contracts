@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.8.0 (utils.cairo)
 
+mod bytearray;
 mod selectors;
 mod serde;
 mod unwrap_and_cast;

@@ -13,6 +13,7 @@
 mod ERC20Component {
     use integer::BoundedInt;
     use openzeppelin::token::erc20::interface;
+    use openzeppelin::utils::bytearray::ByteArrayStore;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

@@ -367,7 +367,7 @@ fn test_renounceRole_unauthorized() {
 #[test]
 fn test__set_role_admin() {
     let mut state = setup();
-    assert(state.get_role_admin(ROLE) == DEFAULT_ADMIN_ROLE, 'Default admin should be zero');
+    assert_eq!(state.get_role_admin(ROLE), DEFAULT_ADMIN_ROLE);
     state._set_role_admin(ROLE, OTHER_ROLE);
 
     assert_event_role_admin_changed(ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);

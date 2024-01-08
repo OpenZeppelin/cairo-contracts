@@ -27,8 +27,8 @@ fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option
     keys.pop_front();
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
-    assert(data.is_empty(), 'Event has extra data');
-    assert(keys.is_empty(), 'Event has extra keys');
+    assert!(data.is_empty(), "Event has extra data");
+    assert!(keys.is_empty(), "Event has extra keys");
     ret
 }
 
@@ -41,11 +41,11 @@ fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys
     let mut data = array![];
 
     event.append_keys_and_data(ref keys, ref data);
-    assert(expected_keys == keys.span(), 'Invalid keys');
+    assert!(expected_keys == keys.span());
 }
 
 fn assert_no_events_left(address: ContractAddress) {
-    assert(testing::pop_log_raw(address).is_none(), 'Events remaining on queue');
+    assert!(testing::pop_log_raw(address).is_none(), "Events remaining on queue");
 }
 
 fn drop_event(address: ContractAddress) {

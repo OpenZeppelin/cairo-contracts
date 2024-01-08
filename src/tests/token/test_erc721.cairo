@@ -12,6 +12,7 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
@@ -76,18 +77,18 @@ fn test_initialize() {
 
     state.initializer(NAME, SYMBOL);
 
-    assert(state.name() == NAME, 'Name should be NAME');
-    assert(state.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(state.balance_of(OWNER()) == 0, 'Balance should be zero');
+    assert_eq!(state.name(), NAME);
+    assert_eq!(state.symbol(), SYMBOL);
+    assert!(state.balance_of(OWNER()).is_zero());
 
-    assert(mock_state.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
-    assert(
-        mock_state.supports_interface(erc721::interface::IERC721_METADATA_ID),
-        'Missing interface ID'
-    );
-    assert(
-        mock_state.supports_interface(introspection::interface::ISRC5_ID), 'Missing interface ID'
-    );
+    let supports_erc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    let supports_erc721_metadata = mock_state
+        .supports_interface(erc721::interface::IERC721_METADATA_ID);
+    let supports_src5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
+
+    assert!(supports_erc721, "Should implement IERC721");
+    assert!(supports_erc721_metadata, "Should implement IERC721Metadata");
+    assert!(supports_src5, "Should implement ISRC5");
 }
 
 //
@@ -97,7 +98,7 @@ fn test_initialize() {
 #[test]
 fn test_balance_of() {
     let state = setup();
-    assert(state.balance_of(OWNER()) == 1, 'Should return balance');
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
@@ -110,7 +111,7 @@ fn test_balance_of_zero() {
 #[test]
 fn test_owner_of() {
     let state = setup();
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
 }
 
 #[test]
@@ -133,9 +134,9 @@ fn test_get_approved() {
     let spender = SPENDER();
     let token_id = TOKEN_ID;
 
-    assert(state.get_approved(token_id) == ZERO(), 'Should return non-approval');
+    assert_eq!(state.get_approved(token_id), ZERO());
     state._approve(spender, token_id);
-    assert(state.get_approved(token_id) == spender, 'Should return approval');
+    assert_eq!(state.get_approved(token_id), spender);
 }
 
 #[test]
@@ -151,21 +152,27 @@ fn test__exists() {
     let zero = ZERO();
     let token_id = TOKEN_ID;
 
-    assert(!state._exists(token_id), 'Token should not exist');
+    let not_exists = !state._exists(token_id);
+    assert!(not_exists);
+
     let mut owner = state.ERC721_owners.read(token_id);
-    assert(owner == zero, '');
+    assert!(owner.is_zero());
 
     state._mint(RECIPIENT(), token_id);
 
-    assert(state._exists(token_id), 'Token should exist');
+    let exists = state._exists(token_id);
+    assert!(exists);
+
     owner = state.ERC721_owners.read(token_id);
-    assert(owner == RECIPIENT(), 'Invalid owner');
+    assert_eq!(owner, RECIPIENT());
 
     state._burn(token_id);
 
-    assert(!state._exists(token_id), 'Token should not exist');
+    let not_exists = !state._exists(token_id);
+    assert!(not_exists);
+
     owner = state.ERC721_owners.read(token_id);
-    assert(owner == zero, 'Invalid owner');
+    assert!(owner.is_zero());
 }
 
 //
@@ -180,7 +187,8 @@ fn test_approve_from_owner() {
     state.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
@@ -195,7 +203,8 @@ fn test_approve_from_operator() {
     state.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
@@ -229,7 +238,8 @@ fn test__approve() {
     state._approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
@@ -255,17 +265,20 @@ fn test_set_approval_for_all() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(OWNER());
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
-    assert(state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 }
 
 #[test]
@@ -287,17 +300,21 @@ fn test_set_approval_for_all_owner_equal_operator_false() {
 #[test]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), true);
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
-    assert(state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 }
 
 #[test]
@@ -329,7 +346,9 @@ fn test_transfer_from_owner() {
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
-    assert(state.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = state.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     testing::set_caller_address(owner);
     state.transfer_from(owner, recipient, token_id);
@@ -349,7 +368,9 @@ fn test_transferFrom_owner() {
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
-    assert(state.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = state.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     testing::set_caller_address(owner);
     state.transferFrom(owner, recipient, token_id);
@@ -393,30 +414,30 @@ fn test_transferFrom_to_zero() {
 fn test_transfer_from_to_owner() {
     let mut state = setup();
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 
     testing::set_caller_address(OWNER());
     state.transfer_from(OWNER(), OWNER(), TOKEN_ID);
     assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
 fn test_transferFrom_to_owner() {
     let mut state = setup();
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 
     testing::set_caller_address(OWNER());
     state.transferFrom(OWNER(), OWNER(), TOKEN_ID);
     assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
@@ -756,15 +777,15 @@ fn test_safe_transfer_from_to_owner() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
@@ -776,15 +797,15 @@ fn test_safeTransferFrom_to_owner() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
@@ -796,15 +817,15 @@ fn test_safe_transfer_from_to_owner_camel() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
@@ -816,15 +837,15 @@ fn test_safeTransferFrom_to_owner_camel() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
@@ -1191,16 +1212,16 @@ fn test__burn() {
     state._approve(OTHER(), TOKEN_ID);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
-    assert(state.get_approved(TOKEN_ID) == OTHER(), 'Approval before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
+    assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
     state._burn(TOKEN_ID);
     assert_event_transfer(OWNER(), ZERO(), TOKEN_ID);
 
-    assert(state.ERC721_owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 0, 'Balance of owner after');
-    assert(state.ERC721_token_approvals.read(TOKEN_ID) == ZERO(), 'Approval after');
+    assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
+    assert_eq!(state.balance_of(OWNER()), 0);
+    assert_eq!(state.ERC721_token_approvals.read(TOKEN_ID), ZERO());
 }
 
 #[test]
@@ -1218,9 +1239,9 @@ fn test__burn_nonexistent() {
 fn test__set_token_uri() {
     let mut state = setup();
 
-    assert(state.token_uri(TOKEN_ID) == 0, 'URI should be 0');
+    assert!(state.token_uri(TOKEN_ID).is_zero());
     state._set_token_uri(TOKEN_ID, URI);
-    assert(state.token_uri(TOKEN_ID) == URI, 'URI should be set');
+    assert_eq!(state.token_uri(TOKEN_ID), URI);
 }
 
 #[test]
@@ -1238,38 +1259,38 @@ fn assert_state_before_transfer(
     owner: ContractAddress, recipient: ContractAddress, token_id: u256
 ) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
-    assert(state.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
+    assert!(state.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_transfer(owner: ContractAddress, recipient: ContractAddress, token_id: u256) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == recipient, 'Ownership after');
-    assert(state.balance_of(owner) == 0, 'Balance of owner after');
-    assert(state.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(state.get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+    assert_eq!(state.owner_of(token_id), recipient);
+    assert_eq!(state.balance_of(owner), 0);
+    assert_eq!(state.balance_of(recipient), 1);
+    assert!(state.get_approved(token_id).is_zero());
 }
 
 fn assert_state_before_mint(recipient: ContractAddress) {
     let state = COMPONENT_STATE();
-    assert(state.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert!(state.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == recipient, 'Ownership after');
-    assert(state.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(state.get_approved(token_id) == ZERO(), 'Approval implicitly set');
+    assert_eq!(state.owner_of(token_id), recipient);
+    assert_eq!(state.balance_of(recipient), 1);
+    assert!(state.get_approved(token_id).is_zero());
 }
 
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.operator == operator, 'Invalid `operator`');
-    assert(event.approved == approved, 'Invalid `approved`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.operator, operator);
+    assert_eq!(event.approved, approved);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
@@ -1281,9 +1302,9 @@ fn assert_event_approval_for_all(
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.approved == approved, 'Invalid `approved`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.approved, approved);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
@@ -1296,9 +1317,9 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys

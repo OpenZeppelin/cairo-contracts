@@ -242,11 +242,11 @@ fn test_transfer_from() {
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
 
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
-    assert_eq!(allowance, 0);
 }
 
 #[test]
@@ -306,10 +306,11 @@ fn test_transferFrom() {
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
 
-    assert_eq!(state.balanceOf(RECIPIENT()), VALUE);
-    assert_eq!(state.balanceOf(OWNER()), SUPPLY - VALUE);
-    assert_eq!(state.totalSupply(), SUPPLY);
+    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(state.total_supply(), SUPPLY);
     assert_eq!(allowance, 0);
 }
 

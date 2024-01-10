@@ -1,4 +1,3 @@
-use core::array::ArrayTrait;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::interface::ISRC6_ID;
@@ -67,8 +66,8 @@ fn test_constructor() {
 
     let supports_isrc5 = Account::SRC5Impl::supports_interface(@state, ISRC5_ID);
     let supports_isrc6 = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
-    assert!(supports_isrc5, "Should implement ISRC5");
-    assert!(supports_isrc6, "Should implement ISRC6");
+    assert!(supports_isrc5);
+    assert!(supports_isrc6);
 }
 
 //
@@ -177,9 +176,12 @@ fn test_isValidSignature_bad_sig() {
 #[test]
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
-    assert!(dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
-    assert!(dispatcher.supports_interface(ISRC6_ID), "Should implement ISRC6");
-    assert!(!dispatcher.supports_interface(0x123), "Should not implement 0x123");
+    let supports_isrc5 = dispatcher.supports_interface(ISRC5_ID);
+    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
+    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
+    assert!(supports_isrc5);
+    assert!(supports_isrc6);
+    assert!(doesnt_support_0x123);
 }
 
 //

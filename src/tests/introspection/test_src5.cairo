@@ -14,8 +14,8 @@ fn COMPONENT_STATE() -> ComponentState {
 #[test]
 fn test_default_behavior() {
     let state = COMPONENT_STATE();
-    let supports_default_interface = state.supports_interface(ISRC5_ID);
-    assert!(supports_default_interface, "Should implement ISRC5");
+    let supports_isrc5 = state.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
 }
 
 #[test]

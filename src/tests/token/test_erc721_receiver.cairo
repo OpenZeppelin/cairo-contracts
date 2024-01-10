@@ -16,11 +16,11 @@ fn test_initializer() {
     let mut state = STATE();
     state.erc721_receiver.initializer();
 
-    let supports_erc721_receiver = state.src5.supports_interface(IERC721_RECEIVER_ID);
-    let supports_src5 = state.src5.supports_interface(ISRC5_ID);
+    let supports_ierc721_receiver = state.src5.supports_interface(IERC721_RECEIVER_ID);
+    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
 
-    assert!(supports_erc721_receiver, "Should implement IERC721Receiver");
-    assert!(supports_src5, "Should implement ISRC5");
+    assert!(supports_ierc721_receiver);
+    assert!(supports_isrc5);
 }
 
 #[test]

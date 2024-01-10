@@ -1,4 +1,3 @@
-use core::array::ArrayTrait;
 use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
@@ -456,11 +455,11 @@ fn test_initializer() {
     let public_key = state.get_public_key();
     assert_eq!(public_key, PUBKEY);
 
-    let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
-    assert!(supports_default_interface, "Should implement ISRC5");
+    let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
 
-    let supports_account_interface = mock_state.supports_interface(ISRC6_ID);
-    assert!(supports_account_interface, "Should implement ISRC6");
+    let supports_isrc6 = mock_state.supports_interface(ISRC6_ID);
+    assert!(supports_isrc6);
 }
 
 #[test]

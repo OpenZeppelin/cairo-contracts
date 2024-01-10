@@ -63,8 +63,8 @@ fn setup_accesscontrol_panic() -> (DualCaseAccessControl, DualCaseAccessControl)
 #[test]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
-    let supported = dispatcher.supports_interface(IACCESSCONTROL_ID);
-    assert!(supported, "Should implement IACCESSCONTROL");
+    let supports_iaccesscontrol = dispatcher.supports_interface(IACCESSCONTROL_ID);
+    assert!(supports_iaccesscontrol);
 }
 
 #[test]

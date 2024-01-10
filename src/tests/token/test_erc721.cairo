@@ -81,14 +81,14 @@ fn test_initialize() {
     assert_eq!(state.symbol(), SYMBOL);
     assert!(state.balance_of(OWNER()).is_zero());
 
-    let supports_erc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
-    let supports_erc721_metadata = mock_state
+    let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    let supports_ierc721_metadata = mock_state
         .supports_interface(erc721::interface::IERC721_METADATA_ID);
-    let supports_src5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
+    let supports_isrc5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
 
-    assert!(supports_erc721, "Should implement IERC721");
-    assert!(supports_erc721_metadata, "Should implement IERC721Metadata");
-    assert!(supports_src5, "Should implement ISRC5");
+    assert!(supports_ierc721);
+    assert!(supports_ierc721_metadata);
+    assert!(supports_isrc5);
 }
 
 //

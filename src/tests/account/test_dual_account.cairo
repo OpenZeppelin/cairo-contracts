@@ -136,8 +136,8 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 #[test]
 fn test_dual_supports_interface() {
     let (snake_dispatcher, target) = setup_snake();
-    let supported = snake_dispatcher.supports_interface(ISRC5_ID);
-    assert!(supported, "Should implement ISRC5");
+    let supports_isrc5 = snake_dispatcher.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
 }
 
 #[test]
@@ -219,8 +219,8 @@ fn test_dual_isValidSignature_exists_and_panics() {
 #[test]
 fn test_dual_supportsInterface() {
     let (camel_dispatcher, _) = setup_camel();
-    let supported = camel_dispatcher.supports_interface(ISRC5_ID);
-    assert!(supported, "Should implement ISRC5");
+    let supports_isrc5 = camel_dispatcher.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
 }
 
 #[test]

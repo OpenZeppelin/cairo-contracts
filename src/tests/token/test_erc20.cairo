@@ -1,4 +1,3 @@
-use core::num::traits::zero::Zero;
 use integer::BoundedInt;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{

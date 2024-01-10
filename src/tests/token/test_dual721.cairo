@@ -323,8 +323,8 @@ fn test_dual_token_uri_exists_and_panics() {
 #[test]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
-    let supported = dispatcher.supports_interface(IERC721_ID);
-    assert!(supported, "Should implement IERC721");
+    let supports_ierc721 = dispatcher.supports_interface(IERC721_ID);
+    assert!(supports_ierc721);
 }
 
 #[test]
@@ -474,8 +474,8 @@ fn test_dual_tokenURI_exists_and_panics() {
 #[test]
 fn test_dual_supportsInterface() {
     let (dispatcher, _) = setup_camel();
-    let supported = dispatcher.supports_interface(IERC721_ID);
-    assert!(supported, "Should implement IERC721");
+    let supports_ierc721 = dispatcher.supports_interface(IERC721_ID);
+    assert!(supports_ierc721);
 }
 
 #[test]

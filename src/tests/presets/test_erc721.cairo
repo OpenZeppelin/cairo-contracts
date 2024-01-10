@@ -146,8 +146,8 @@ fn test_constructor() {
         if interface_ids.len() == 0 {
             break;
         }
-        let supported = dispatcher.supports_interface(id);
-        assert!(supported, "Should implement interface");
+        let supports_isrc5 = dispatcher.supports_interface(id);
+        assert!(supports_isrc5);
     };
 
     // Check token balance and owner

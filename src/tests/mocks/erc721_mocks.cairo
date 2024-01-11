@@ -146,25 +146,25 @@ mod CamelERC721Mock {
         SRC5Event: SRC5Component::Event
     }
 
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
-        recipient: ContractAddress,
-        token_id: u256,
-        uri: ByteArray
-    ) {
-        self.erc721.initializer(name, symbol);
-        self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
-    }
-
     /// The following external methods are included because they are case-agnostic
     /// and this contract should not embed the snake_case impl.
     #[abi(per_item)]
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
+        #[constructor]
+        fn constructor(
+            ref self: ContractState,
+            name: ByteArray,
+            symbol: ByteArray,
+            recipient: ContractAddress,
+            token_id: u256,
+            uri: ByteArray
+        ) {
+            self.erc721.initializer(name, symbol);
+            self.erc721._mint(recipient, token_id);
+            self.erc721._set_token_uri(token_id, uri);
+        }
+
         #[external(v0)]
         fn approve(ref self: ContractState, to: ContractAddress, tokenId: u256) {
             self.erc721.approve(to, tokenId);

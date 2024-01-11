@@ -1,15 +1,15 @@
 #[starknet::component]
-mod OwnableDual {
+mod OwnableMixin {
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
 
     #[storage]
     struct Storage {}
 
-    #[embeddable_as(OwnableDualImpl)]
-    impl IOwnableDual<
+    #[embeddable_as(OwnableMixinImpl)]
+    impl OwnableMixin<
         TContractState, +HasComponent<TContractState>
-    > of interface::IOwnableDual<ComponentState<TContractState>> {
+    > of interface::IOwnableMixin<ComponentState<TContractState>> {
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             self.owner()
         }

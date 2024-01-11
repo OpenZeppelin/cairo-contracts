@@ -1,15 +1,15 @@
 #[starknet::component]
-mod AccessControlDual {
+mod AccessControlMixin {
     use openzeppelin::access::accesscontrol::interface;
     use starknet::ContractAddress;
 
     #[storage]
     struct Storage {}
 
-    #[embeddable_as(AccessControlDualImpl)]
-    impl AccessControlDual<
+    #[embeddable_as(AccessControlMixinImpl)]
+    impl AccessControlMixin<
         TContractState, +HasComponent<TContractState>
-    > of interface::IAccessControlDual<ComponentState<TContractState>> {
+    > of interface::IAccessControlMixin<ComponentState<TContractState>> {
         fn has_role(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) -> bool {

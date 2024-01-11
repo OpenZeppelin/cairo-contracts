@@ -51,31 +51,32 @@ mod ERC721 {
         const UNEQUAL_ARRAYS: felt252 = 'Array lengths do not match';
     }
 
-    /// Sets the token `name` and `symbol`.
-    /// Mints the `token_ids` tokens to `recipient` and sets
-    /// each token's URI.
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
-        recipient: ContractAddress,
-        token_ids: Span<u256>,
-        token_uris: Span<ByteArray>
-    ) {
-        self.erc721.initializer(name, symbol);
-        self._mint_assets(recipient, token_ids, token_uris);
-    }
-
-    /// Mints `token_ids` to `recipient`.
-    /// Sets the token URI from `token_uris` to the corresponding
-    /// token ID of `token_ids`.
-    ///
-    /// Requirements:
-    ///
-    /// - `token_ids` must be equal in length to `token_uris`.
+    #[abi(per_item)]
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
+    impl CtorImpl of CtorTrait {
+        /// Sets the token `name` and `symbol`.
+        /// Mints the `token_ids` tokens to `recipient` and sets
+        /// each token's URI.
+        #[constructor]
+        fn constructor(
+            ref self: ContractState,
+            name: ByteArray,
+            symbol: ByteArray,
+            recipient: ContractAddress,
+            token_ids: Span<u256>,
+            token_uris: Span<ByteArray>
+        ) {
+            self.erc721.initializer(name, symbol);
+            self._mint_assets(recipient, token_ids, token_uris);
+        }
+
+        /// Mints `token_ids` to `recipient`.
+        /// Sets the token URI from `token_uris` to the corresponding
+        /// token ID of `token_ids`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_ids` must be equal in length to `token_uris`.
         fn _mint_assets(
             ref self: ContractState,
             recipient: ContractAddress,

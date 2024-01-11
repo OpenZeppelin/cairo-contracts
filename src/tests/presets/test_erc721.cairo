@@ -1,7 +1,7 @@
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::presets::ERC721::InternalImpl;
+use openzeppelin::presets::ERC721::CtorImpl;
 use openzeppelin::presets::ERC721;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{

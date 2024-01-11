@@ -117,31 +117,35 @@ mod CamelERC20Mock {
         ERC20Event: ERC20Component::Event
     }
 
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
-        initial_supply: u256,
-        recipient: ContractAddress
-    ) {
-        self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
-    }
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[constructor]
+        fn constructor(
+            ref self: ContractState,
+            name: ByteArray,
+            symbol: ByteArray,
+            initial_supply: u256,
+            recipient: ContractAddress
+        ) {
+            self.erc20.initializer(name, symbol);
+            self.erc20._mint(recipient, initial_supply);
+        }
 
-    #[external(v0)]
-    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
-        self.erc20.allowance(owner, spender)
-    }
+        #[external(v0)]
+        fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
+            self.erc20.allowance(owner, spender)
+        }
 
-    #[external(v0)]
-    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
-        self.erc20.transfer(recipient, amount)
-    }
+        #[external(v0)]
+        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+            self.erc20.transfer(recipient, amount)
+        }
 
-    #[external(v0)]
-    fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
-        self.erc20.approve(spender, amount)
+        #[external(v0)]
+        fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+            self.erc20.approve(spender, amount)
+        }
     }
 }
 

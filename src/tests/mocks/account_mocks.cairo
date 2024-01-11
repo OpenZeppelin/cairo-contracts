@@ -118,14 +118,14 @@ mod CamelAccountMock {
         SRC5Event: SRC5Component::Event
     }
 
-    #[constructor]
-    fn constructor(ref self: ContractState, publicKey: felt252) {
-        self.account.initializer(publicKey);
-    }
-
     #[abi(per_item)]
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
+        #[constructor]
+        fn constructor(ref self: ContractState, publicKey: felt252) {
+            self.account.initializer(publicKey);
+        }
+
         fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
             self.account.__execute__(calls)
         }

@@ -7,7 +7,9 @@ mod DualCaseAccessControlMock {
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: AccessControlMixin, storage: accesscontrolmixin, event: AccessControlMixinEvent);
+    component!(
+        path: AccessControlMixin, storage: accesscontrolmixin, event: AccessControlMixinEvent
+    );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]

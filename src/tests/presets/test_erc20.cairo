@@ -9,7 +9,9 @@ use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
 use openzeppelin::token::erc20::mixins::interface::IERC20MetadataSafeAllowanceMixin;
-use openzeppelin::token::erc20::mixins::interface::{IERC20MetadataSafeAllowanceMixinDispatcher, IERC20MetadataSafeAllowanceMixinDispatcherTrait};
+use openzeppelin::token::erc20::mixins::interface::{
+    IERC20MetadataSafeAllowanceMixinDispatcher, IERC20MetadataSafeAllowanceMixinDispatcherTrait
+};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;

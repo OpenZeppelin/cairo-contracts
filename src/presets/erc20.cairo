@@ -16,7 +16,8 @@ mod ERC20 {
     component!(path: ERC20Mixin, storage: erc20mixin, event: ERC20MixinEvent);
 
     #[abi(embed_v0)]
-    impl ERC20MixinImpl = ERC20Mixin::ERC20MetadataSafeAllowanceMixinImpl<ContractState>;
+    impl ERC20MixinImpl =
+        ERC20Mixin::ERC20MetadataSafeAllowanceMixinImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]

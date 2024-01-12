@@ -3,9 +3,9 @@
 
 #[starknet::component]
 mod ERC20SafeAllowanceMixin {
-    use openzeppelin::token::erc20::ERC20Component;
     use openzeppelin::token::erc20::ERC20Component::{ERC20Impl, ERC20CamelOnlyImpl};
     use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
+    use openzeppelin::token::erc20::ERC20Component;
     use openzeppelin::token::erc20::mixins::interface;
     use starknet::ContractAddress;
 
@@ -30,36 +30,49 @@ mod ERC20SafeAllowanceMixin {
             erc20.balance_of(account)
         }
 
-        fn allowance(self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress) -> u256 {
+        fn allowance(
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+        ) -> u256 {
             let erc20 = self.get_erc20();
             erc20.allowance(owner, spender)
         }
 
-        fn transfer(ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256) -> bool {
+        fn transfer(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.transfer(recipient, amount)
         }
 
         fn transfer_from(
-            ref self: ComponentState<TContractState>, sender: ContractAddress, recipient: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
         ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.transfer_from(sender, recipient, amount)
         }
 
-        fn approve(ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256) -> bool {
+        fn approve(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+        ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.approve(spender, amount)
         }
 
         // IERC20SafeAllowance
-        fn increase_allowance(ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256) -> bool {
+        fn increase_allowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
+        ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.increase_allowance(spender, added_value)
         }
 
         fn decrease_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, subtracted_value: u256
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtracted_value: u256
         ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.decrease_allowance(spender, subtracted_value)
@@ -77,19 +90,28 @@ mod ERC20SafeAllowanceMixin {
         }
 
         fn transferFrom(
-            ref self: ComponentState<TContractState>, sender: ContractAddress, recipient: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
         ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.transferFrom(sender, recipient, amount)
         }
 
         // IERC20CamelSafeAllowance
-        fn increaseAllowance(ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256) -> bool {
+        fn increaseAllowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
+        ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.increaseAllowance(spender, addedValue)
         }
 
-        fn decreaseAllowance(ref self: ComponentState<TContractState>, spender: ContractAddress, subtractedValue: u256) -> bool {
+        fn decreaseAllowance(
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtractedValue: u256
+        ) -> bool {
             let mut erc20 = self.get_erc20_mut();
             erc20.decreaseAllowance(spender, subtractedValue)
         }
@@ -102,12 +124,16 @@ mod ERC20SafeAllowanceMixin {
         +ERC20Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of GetERC20Trait<TContractState> {
-        fn get_erc20(self: @ComponentState<TContractState>) -> @ERC20Component::ComponentState::<TContractState> {
+        fn get_erc20(
+            self: @ComponentState<TContractState>
+        ) -> @ERC20Component::ComponentState::<TContractState> {
             let contract = self.get_contract();
             ERC20Component::HasComponent::<TContractState>::get_component(contract)
         }
 
-        fn get_erc20_mut(ref self: ComponentState<TContractState>) -> ERC20Component::ComponentState::<TContractState> {
+        fn get_erc20_mut(
+            ref self: ComponentState<TContractState>
+        ) -> ERC20Component::ComponentState::<TContractState> {
             let mut contract = self.get_contract_mut();
             ERC20Component::HasComponent::<TContractState>::get_component_mut(ref contract)
         }

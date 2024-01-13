@@ -12,11 +12,3 @@ trait ISRC5<TState> {
 trait ISRC5Camel<TState> {
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
-
-// Mixins
-
-#[starknet::interface]
-trait ISRC5Dual<TState> {
-    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
-    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
-}

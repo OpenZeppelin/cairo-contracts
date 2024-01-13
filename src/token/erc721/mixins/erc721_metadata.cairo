@@ -137,12 +137,12 @@ mod ERC721MetadataMixin {
     }
 
     #[generate_trait]
-    impl GetERC20Impl<
+    impl GetERC721Impl<
         TContractState,
         +HasComponent<TContractState>,
         +ERC721Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of GetERC20Trait<TContractState> {
+    > of GetERC721Trait<TContractState> {
         fn get_erc721(
             self: @ComponentState<TContractState>
         ) -> @ERC721Component::ComponentState::<TContractState> {

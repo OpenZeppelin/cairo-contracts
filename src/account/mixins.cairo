@@ -1,0 +1,4 @@
+mod interface;
+mod src6_pubkey_declarer_deployer;
+
+use src6_pubkey_declarer_deployer::SRC6PubKeyDeclarerDeployerMixin;

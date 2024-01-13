@@ -14,8 +14,8 @@ trait IOwnableMixin<TState> {
 
 #[starknet::component]
 mod OwnableMixin {
-    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::OwnableComponent::{OwnableImpl, OwnableCamelOnlyImpl};
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     #[storage]

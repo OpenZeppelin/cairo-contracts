@@ -43,7 +43,12 @@ mod ERC721Mixin {
         }
 
 
-        fn transfer_from(ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, token_id: u256) {
+        fn transfer_from(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256
+        ) {
             let mut erc721 = self.get_erc721_mut();
             erc721.transfer_from(from, to, token_id);
         }
@@ -53,7 +58,9 @@ mod ERC721Mixin {
             erc721.approve(to, token_id);
         }
 
-        fn set_approval_for_all(ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool) {
+        fn set_approval_for_all(
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+        ) {
             let mut erc721 = self.get_erc721_mut();
             erc721.set_approval_for_all(operator, approved);
         }
@@ -92,12 +99,19 @@ mod ERC721Mixin {
             erc721.safeTransferFrom(from, to, tokenId, data);
         }
 
-        fn transferFrom(ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, tokenId: u256) {
+        fn transferFrom(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            tokenId: u256
+        ) {
             let mut erc721 = self.get_erc721_mut();
             erc721.transferFrom(from, to, tokenId);
         }
 
-        fn setApprovalForAll(ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool) {
+        fn setApprovalForAll(
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+        ) {
             let mut erc721 = self.get_erc721_mut();
             erc721.setApprovalForAll(operator, approved);
         }
@@ -107,7 +121,9 @@ mod ERC721Mixin {
             erc721.getApproved(tokenId)
         }
 
-        fn isApprovedForAll(self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress) -> bool {
+        fn isApprovedForAll(
+            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+        ) -> bool {
             let erc721 = self.get_erc721();
             erc721.isApprovedForAll(owner, operator)
         }

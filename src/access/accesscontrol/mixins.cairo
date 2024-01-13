@@ -20,8 +20,10 @@ trait IAccessControlMixin<TState> {
 
 #[starknet::component]
 mod AccessControlMixin {
+    use openzeppelin::access::accesscontrol::AccessControlComponent::{
+        AccessControlImpl, AccessControlCamelImpl
+    };
     use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::access::accesscontrol::AccessControlComponent::{AccessControlImpl, AccessControlCamelImpl};
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 

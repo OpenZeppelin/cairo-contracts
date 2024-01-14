@@ -3,8 +3,8 @@
 
 #[starknet::component]
 mod SRC6PubKeyDeployerMixin {
-    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
+    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
     use openzeppelin::introspection::src5::SRC5Component;

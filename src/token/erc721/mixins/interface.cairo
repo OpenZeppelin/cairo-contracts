@@ -88,3 +88,27 @@ trait IERC721MetadataMixin<TState> {
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
+
+#[starknet::interface]
+trait IERC721ReceiverMixin<TState> {
+    // IERC721Receiver
+    fn on_erc721_received(
+            self: @TState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252;
+
+    // IERC721ReceiverCamel
+    fn onERC721Received(
+            self: @TState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+}

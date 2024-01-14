@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (account/mixins/src6_pubkey_declarer_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (account/mixins/src6_declarer_deployer.cairo)
 
 #[starknet::component]
-mod SRC6PubKeyDeclarerDeployerMixin {
+mod SRC6DeclarerDeployerMixin {
     use openzeppelin::account::AccountComponent::{DeclarerImpl, DeployableImpl};
-    use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
     use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
     use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
@@ -15,14 +14,14 @@ mod SRC6PubKeyDeclarerDeployerMixin {
     #[storage]
     struct Storage {}
 
-    #[embeddable_as(SRC6PubKeyDeclarerDeployerMixinImpl)]
-    impl SRC6PubKeyDeclarerDeployerMixin<
+    #[embeddable_as(SRC6DeclarerDeployerMixinImpl)]
+    impl SRC6DeclarerDeployerMixin<
         TContractState,
         +HasComponent<TContractState>,
         +AccountComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::ISRC6PubKeyDeclarerDeployerMixin<ComponentState<TContractState>> {
+    > of interface::ISRC6DeclarerDeployerMixin<ComponentState<TContractState>> {
         // ISRC6
         fn __execute__(
             self: @ComponentState<TContractState>, calls: Array<Call>
@@ -68,28 +67,6 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         ) -> felt252 {
             let account = self.get_account();
             account.__validate_deploy__(class_hash, contract_address_salt, public_key)
-        }
-
-        // IPublicKey
-        fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
-            let account = self.get_account();
-            account.get_public_key()
-        }
-
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            let mut account = self.get_account_mut();
-            account.set_public_key(new_public_key);
-        }
-
-        // IPublicKeyCamel
-        fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
-            let account = self.get_account();
-            account.getPublicKey()
-        }
-
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            let mut account = self.get_account_mut();
-            account.setPublicKey(newPublicKey);
         }
     }
 

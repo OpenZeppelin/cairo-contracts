@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (account/mixins/src6_pubkey_declarer_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (account/mixins/src6_pubkey_deployer.cairo)
 
 #[starknet::component]
-mod SRC6PubKeyDeclarerDeployerMixin {
-    use openzeppelin::account::AccountComponent::{DeclarerImpl, DeployableImpl};
+mod SRC6PubKeyDeployerMixin {
+    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
-    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
     use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -15,14 +14,14 @@ mod SRC6PubKeyDeclarerDeployerMixin {
     #[storage]
     struct Storage {}
 
-    #[embeddable_as(SRC6PubKeyDeclarerDeployerMixinImpl)]
-    impl SRC6PubKeyDeclarerDeployerMixin<
+    #[embeddable_as(SRC6PubKeyDeployerMixinImpl)]
+    impl SRC6PubKeyDeployerMixin<
         TContractState,
         +HasComponent<TContractState>,
         +AccountComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::ISRC6PubKeyDeclarerDeployerMixin<ComponentState<TContractState>> {
+    > of interface::ISRC6PubKeyDeployerMixin<ComponentState<TContractState>> {
         // ISRC6
         fn __execute__(
             self: @ComponentState<TContractState>, calls: Array<Call>
@@ -49,14 +48,6 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         ) -> felt252 {
             let account = self.get_account();
             account.isValidSignature(hash, signature)
-        }
-
-        // IDeclarer
-        fn __validate_declare__(
-            self: @ComponentState<TContractState>, class_hash: felt252
-        ) -> felt252 {
-            let account = self.get_account();
-            account.__validate_declare__(class_hash)
         }
 
         // IDeployable

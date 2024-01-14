@@ -99,8 +99,8 @@ mod CamelOwnableMock {
 
 #[starknet::contract]
 mod SnakeOwnablePanicMock {
+    use core::{panic_with_felt252, zeroable::Zeroable};
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -124,6 +124,7 @@ mod SnakeOwnablePanicMock {
 
 #[starknet::contract]
 mod CamelOwnablePanicMock {
+    use core::{panic_with_felt252, zeroable::Zeroable};
     use starknet::ContractAddress;
 
     #[storage]

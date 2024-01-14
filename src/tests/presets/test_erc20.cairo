@@ -1,4 +1,4 @@
-use integer::BoundedInt;
+use core::{integer::BoundedInt, zeroable::Zeroable};
 use openzeppelin::presets::ERC20;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE

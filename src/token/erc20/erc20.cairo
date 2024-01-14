@@ -11,7 +11,7 @@
 /// for examples.
 #[starknet::component]
 mod ERC20Component {
-    use integer::BoundedInt;
+    use core::{integer::BoundedInt, zeroable::Zeroable};
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;

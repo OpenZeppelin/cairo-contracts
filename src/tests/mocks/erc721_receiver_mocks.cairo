@@ -178,6 +178,7 @@ mod CamelERC721ReceiverMock {
 
 #[starknet::contract]
 mod SnakeERC721ReceiverPanicMock {
+    use core::panic_with_felt252;
     use starknet::ContractAddress;
 
     #[storage]
@@ -198,6 +199,7 @@ mod SnakeERC721ReceiverPanicMock {
 
 #[starknet::contract]
 mod CamelERC721ReceiverPanicMock {
+    use core::panic_with_felt252;
     use starknet::ContractAddress;
 
     #[storage]

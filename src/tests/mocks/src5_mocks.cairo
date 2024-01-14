@@ -72,6 +72,8 @@ mod CamelSRC5Mock {
 
 #[starknet::contract]
 mod SnakeSRC5PanicMock {
+    use core::panic_with_felt252;
+
     #[storage]
     struct Storage {}
 
@@ -84,6 +86,8 @@ mod SnakeSRC5PanicMock {
 
 #[starknet::contract]
 mod CamelSRC5PanicMock {
+    use core::panic_with_felt252;
+
     #[storage]
     struct Storage {}
 

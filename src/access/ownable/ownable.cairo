@@ -14,6 +14,7 @@ mod OwnableComponent {
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use core::zeroable::Zeroable;
 
     #[storage]
     struct Storage {

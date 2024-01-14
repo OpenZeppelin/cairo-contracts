@@ -9,6 +9,7 @@ readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
 license-file = "LICENSE"
 keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
+edition = "2023_10"
 
 [dependencies]
 starknet = "2.3.1"

@@ -187,8 +187,8 @@ mod CamelERC721Mock {
 /// u256 { 3, 3 } for u256
 #[starknet::contract]
 mod SnakeERC721PanicMock {
+    use core::{panic_with_felt252, zeroable::Zeroable};
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -268,8 +268,8 @@ mod SnakeERC721PanicMock {
 
 #[starknet::contract]
 mod CamelERC721PanicMock {
+    use core::{panic_with_felt252, zeroable::Zeroable};
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}

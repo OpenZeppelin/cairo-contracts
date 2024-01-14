@@ -153,6 +153,7 @@ mod CamelERC20Mock {
 /// false for bool
 #[starknet::contract]
 mod SnakeERC20Panic {
+    use core::panic_with_felt252;
     use starknet::ContractAddress;
 
     #[storage]
@@ -217,6 +218,7 @@ mod SnakeERC20Panic {
 
 #[starknet::contract]
 mod CamelERC20Panic {
+    use core::panic_with_felt252;
     use starknet::ContractAddress;
 
     #[storage]

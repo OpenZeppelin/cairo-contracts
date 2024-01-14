@@ -144,6 +144,8 @@ mod CamelAccountMock {
 
 #[starknet::contract]
 mod SnakeAccountPanicMock {
+    use core::panic_with_felt252;
+
     #[storage]
     struct Storage {}
 
@@ -175,6 +177,8 @@ mod SnakeAccountPanicMock {
 
 #[starknet::contract]
 mod CamelAccountPanicMock {
+    use core::panic_with_felt252;
+
     #[storage]
     struct Storage {}
 

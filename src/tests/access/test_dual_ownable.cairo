@@ -1,3 +1,4 @@
+use core::zeroable::Zeroable;
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnable;
 use openzeppelin::access::ownable::dual_ownable::DualCaseOwnableTrait;
 use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcher;

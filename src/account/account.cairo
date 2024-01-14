@@ -6,7 +6,7 @@
 /// The Account component enables contracts to behave as accounts.
 #[starknet::component]
 mod AccountComponent {
-    use ecdsa::check_ecdsa_signature;
+    use core::{ecdsa::check_ecdsa_signature, zeroable::Zeroable};
     use openzeppelin::account::interface;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;

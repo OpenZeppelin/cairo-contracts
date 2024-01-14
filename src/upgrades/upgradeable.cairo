@@ -6,6 +6,7 @@
 /// The Upgradeable component provides a mechanism to make a contract upgradeable.
 #[starknet::component]
 mod UpgradeableComponent {
+    use core::zeroable::Zeroable;
     use starknet::ClassHash;
 
     #[storage]

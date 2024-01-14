@@ -7,6 +7,7 @@
 /// and the IERC721Metadata interface.
 #[starknet::component]
 mod ERC721Component {
+    use core::{zeroable::Zeroable, panic_with_felt252};
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;

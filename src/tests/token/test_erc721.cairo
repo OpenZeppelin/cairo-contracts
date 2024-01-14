@@ -1,4 +1,4 @@
-use integer::u256_from_felt252;
+use core::integer::u256_from_felt252;
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;

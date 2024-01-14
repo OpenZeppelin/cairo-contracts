@@ -1,3 +1,4 @@
+use core::zeroable::Zeroable;
 use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
 use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::access::ownable::OwnableComponent;

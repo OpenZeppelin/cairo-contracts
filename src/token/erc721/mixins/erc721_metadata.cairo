@@ -4,6 +4,7 @@
 #[starknet::component]
 mod ERC721MetadataMixin {
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::token::erc721::ERC721Component::{
         ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl
     };
@@ -19,8 +20,8 @@ mod ERC721MetadataMixin {
     impl ERC721MetadataMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +ERC721Component::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721MetadataMixin<ComponentState<TContractState>> {
         // IERC721
@@ -41,7 +42,7 @@ mod ERC721MetadataMixin {
             token_id: u256,
             data: Span<felt252>
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.safe_transfer_from(from, to, token_id, data);
         }
 
@@ -52,19 +53,19 @@ mod ERC721MetadataMixin {
             to: ContractAddress,
             token_id: u256
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.transfer_from(from, to, token_id);
         }
 
         fn approve(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.approve(to, token_id);
         }
 
         fn set_approval_for_all(
             ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.set_approval_for_all(operator, approved);
         }
 
@@ -114,7 +115,7 @@ mod ERC721MetadataMixin {
             tokenId: u256,
             data: Span<felt252>
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.safeTransferFrom(from, to, tokenId, data);
         }
 
@@ -124,14 +125,14 @@ mod ERC721MetadataMixin {
             to: ContractAddress,
             tokenId: u256
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.transferFrom(from, to, tokenId);
         }
 
         fn setApprovalForAll(
             ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
         ) {
-            let mut erc721 = self.get_erc721_mut();
+            let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.setApprovalForAll(operator, approved);
         }
 
@@ -152,6 +153,13 @@ mod ERC721MetadataMixin {
             let erc721 = self.get_erc721();
             erc721.tokenURI(tokenId)
         }
+
+        // ISRC5
+        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
+        }
     }
 
     #[generate_trait]
@@ -166,13 +174,6 @@ mod ERC721MetadataMixin {
         ) -> @ERC721Component::ComponentState::<TContractState> {
             let contract = self.get_contract();
             ERC721Component::HasComponent::<TContractState>::get_component(contract)
-        }
-
-        fn get_erc721_mut(
-            ref self: ComponentState<TContractState>
-        ) -> ERC721Component::ComponentState::<TContractState> {
-            let mut contract = self.get_contract_mut();
-            ERC721Component::HasComponent::<TContractState>::get_component_mut(ref contract)
         }
     }
 }

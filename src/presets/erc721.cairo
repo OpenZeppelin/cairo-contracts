@@ -21,10 +21,6 @@ mod ERC721 {
     impl ERC721MixinImpl = ERC721Mixin::ERC721MetadataMixinImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]

@@ -37,6 +37,9 @@ trait IERC721Mixin<TState> {
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
     fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -81,4 +84,7 @@ trait IERC721MetadataMixin<TState> {
 
     // IERC721MetadataCamelOnly
     fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }

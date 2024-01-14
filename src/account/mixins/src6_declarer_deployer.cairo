@@ -20,7 +20,7 @@ mod SRC6DeclarerDeployerMixin {
         TContractState,
         +HasComponent<TContractState>,
         impl Account: AccountComponent::HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6DeclarerDeployerMixin<ComponentState<TContractState>> {
         // ISRC6

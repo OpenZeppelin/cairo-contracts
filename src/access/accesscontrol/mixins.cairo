@@ -39,7 +39,7 @@ mod AccessControlMixin {
         TContractState,
         +HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of super::IAccessControlMixin<ComponentState<TContractState>> {
         // IAccessControl

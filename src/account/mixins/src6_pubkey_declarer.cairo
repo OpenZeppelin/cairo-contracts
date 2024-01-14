@@ -20,7 +20,7 @@ mod SRC6PubKeyDeclarerMixin {
         TContractState,
         +HasComponent<TContractState>,
         impl Account: AccountComponent::HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6PubKeyDeclarerMixin<ComponentState<TContractState>> {
         // ISRC6

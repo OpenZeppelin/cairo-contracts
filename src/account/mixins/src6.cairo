@@ -19,7 +19,7 @@ mod SRC6Mixin {
         TContractState,
         +HasComponent<TContractState>,
         impl Account: AccountComponent::HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6Mixin<ComponentState<TContractState>> {
         // ISRC6

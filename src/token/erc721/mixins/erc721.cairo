@@ -18,7 +18,7 @@ mod ERC721Mixin {
         TContractState,
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721Mixin<ComponentState<TContractState>> {
         // IERC721

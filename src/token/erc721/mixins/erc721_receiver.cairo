@@ -5,7 +5,9 @@
 mod ERC721ReceiverMixin {
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721ReceiverComponent::{ERC721ReceiverImpl, ERC721ReceiverCamelImpl};
+    use openzeppelin::token::erc721::ERC721ReceiverComponent::{
+        ERC721ReceiverImpl, ERC721ReceiverCamelImpl
+    };
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use openzeppelin::token::erc721::mixins::interface;
     use starknet::ContractAddress;

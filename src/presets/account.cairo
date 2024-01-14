@@ -20,10 +20,6 @@ mod Account {
         AccountMixin::SRC6PubKeyDeclarerDeployerMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]

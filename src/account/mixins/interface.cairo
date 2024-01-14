@@ -14,6 +14,9 @@ trait ISRC6Mixin<TState> {
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -25,6 +28,9 @@ trait ISRC6DeclarerMixin<TState> {
 
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -38,6 +44,9 @@ trait ISRC6DeployerMixin<TState> {
     fn __validate_deploy__(
         self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -54,6 +63,9 @@ trait ISRC6DeclarerDeployerMixin<TState> {
     fn __validate_deploy__(
         self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
     ) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -70,6 +82,9 @@ trait ISRC6PubKeyMixin<TState> {
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -91,6 +106,9 @@ trait ISRC6PubKeyDeployerMixin<TState> {
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -110,6 +128,9 @@ trait ISRC6PubKeyDeclarerMixin<TState> {
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 #[starknet::interface]
@@ -134,4 +155,7 @@ trait ISRC6PubKeyDeclarerDeployerMixin<TState> {
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }

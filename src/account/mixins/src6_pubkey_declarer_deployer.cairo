@@ -3,12 +3,14 @@
 
 #[starknet::component]
 mod SRC6PubKeyDeclarerDeployerMixin {
+    use openzeppelin::account::interface::IPublicKeyCamel;
     use openzeppelin::account::AccountComponent::{DeclarerImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
     use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
     use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use starknet::ContractAddress;
     use starknet::account::Call;
 
@@ -19,8 +21,8 @@ mod SRC6PubKeyDeclarerDeployerMixin {
     impl SRC6PubKeyDeclarerDeployerMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +AccountComponent::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl Account: AccountComponent::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6PubKeyDeclarerDeployerMixin<ComponentState<TContractState>> {
         // ISRC6
@@ -77,7 +79,7 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         }
 
         fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            let mut account = self.get_account_mut();
+            let mut account = get_dep_component_mut!(ref self, Account);
             account.set_public_key(new_public_key);
         }
 
@@ -88,30 +90,30 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         }
 
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            let mut account = self.get_account_mut();
+            let mut account = get_dep_component_mut!(ref self, Account);
             account.setPublicKey(newPublicKey);
+        }
+
+        // ISRC5
+        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
         }
     }
 
     #[generate_trait]
-    impl GetAccountImpl<
+    impl GetDepImpl<
         TContractState,
         +HasComponent<TContractState>,
         +AccountComponent::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of GetAccountTrait<TContractState> {
+    > of GetDepTrait<TContractState> {
         fn get_account(
             self: @ComponentState<TContractState>
         ) -> @AccountComponent::ComponentState::<TContractState> {
             let contract = self.get_contract();
             AccountComponent::HasComponent::<TContractState>::get_component(contract)
-        }
-
-        fn get_account_mut(
-            ref self: ComponentState<TContractState>
-        ) -> AccountComponent::ComponentState::<TContractState> {
-            let mut contract = self.get_contract_mut();
-            AccountComponent::HasComponent::<TContractState>::get_component_mut(ref contract)
         }
     }
 }

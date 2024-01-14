@@ -8,6 +8,7 @@ mod SRC6DeclarerDeployerMixin {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use starknet::ContractAddress;
     use starknet::account::Call;
 
@@ -18,8 +19,8 @@ mod SRC6DeclarerDeployerMixin {
     impl SRC6DeclarerDeployerMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +AccountComponent::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl Account: AccountComponent::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::ISRC6DeclarerDeployerMixin<ComponentState<TContractState>> {
         // ISRC6
@@ -68,27 +69,27 @@ mod SRC6DeclarerDeployerMixin {
             let account = self.get_account();
             account.__validate_deploy__(class_hash, contract_address_salt, public_key)
         }
+
+        // ISRC5
+        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
+        }
     }
 
     #[generate_trait]
-    impl GetAccountImpl<
+    impl GetDepImpl<
         TContractState,
         +HasComponent<TContractState>,
         +AccountComponent::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of GetAccountTrait<TContractState> {
+    > of GetDepTrait<TContractState> {
         fn get_account(
             self: @ComponentState<TContractState>
         ) -> @AccountComponent::ComponentState::<TContractState> {
             let contract = self.get_contract();
             AccountComponent::HasComponent::<TContractState>::get_component(contract)
-        }
-
-        fn get_account_mut(
-            ref self: ComponentState<TContractState>
-        ) -> AccountComponent::ComponentState::<TContractState> {
-            let mut contract = self.get_contract_mut();
-            AccountComponent::HasComponent::<TContractState>::get_component_mut(ref contract)
         }
     }
 }

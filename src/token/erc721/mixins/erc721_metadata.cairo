@@ -4,10 +4,10 @@
 #[starknet::component]
 mod ERC721MetadataMixin {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
     use openzeppelin::token::erc721::ERC721Component::{
         ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl
     };
+    use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::mixins::interface;
     use starknet::ContractAddress;

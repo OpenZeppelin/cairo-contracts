@@ -16,7 +16,8 @@ mod Account {
 
     // Account
     #[abi(embed_v0)]
-    impl AccountMixinImpl = AccountMixin::SRC6PubKeyDeclarerDeployerMixinImpl<ContractState>;
+    impl AccountMixinImpl =
+        AccountMixin::SRC6PubKeyDeclarerDeployerMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     // SRC5

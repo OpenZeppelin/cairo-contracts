@@ -3,14 +3,14 @@
 
 #[starknet::component]
 mod SRC6PubKeyDeclarerDeployerMixin {
-    use openzeppelin::account::AccountComponent;
-    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
     use openzeppelin::account::AccountComponent::{DeclarerImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
+    use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
+    use openzeppelin::account::AccountComponent;
     use openzeppelin::account::mixins::interface;
     use openzeppelin::introspection::src5::SRC5Component;
-    use starknet::account::Call;
     use starknet::ContractAddress;
+    use starknet::account::Call;
 
     #[storage]
     struct Storage {}
@@ -24,7 +24,9 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         +Drop<TContractState>
     > of interface::ISRC6PubKeyDeclarerDeployerMixin<ComponentState<TContractState>> {
         // ISRC6
-        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) -> Array<Span<felt252>> {
+        fn __execute__(
+            self: @ComponentState<TContractState>, calls: Array<Call>
+        ) -> Array<Span<felt252>> {
             let account = self.get_account();
             account.__execute__(calls)
         }
@@ -34,19 +36,25 @@ mod SRC6PubKeyDeclarerDeployerMixin {
             account.__validate__(calls)
         }
 
-        fn is_valid_signature(self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>) -> felt252 {
+        fn is_valid_signature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
             let account = self.get_account();
             account.is_valid_signature(hash, signature)
         }
 
         // ISRC6CamelOnly
-        fn isValidSignature(self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>) -> felt252 {
+        fn isValidSignature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
             let account = self.get_account();
             account.isValidSignature(hash, signature)
         }
 
         // IDeclarer
-        fn __validate_declare__(self: @ComponentState<TContractState>, class_hash: felt252) -> felt252 {
+        fn __validate_declare__(
+            self: @ComponentState<TContractState>, class_hash: felt252
+        ) -> felt252 {
             let account = self.get_account();
             account.__validate_declare__(class_hash)
         }

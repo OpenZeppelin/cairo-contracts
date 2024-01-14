@@ -15,6 +15,9 @@ trait IAccessControlMixin<TState> {
     fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
     fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
 
@@ -25,6 +28,7 @@ mod AccessControlMixin {
     };
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use starknet::ContractAddress;
 
     #[storage]
@@ -34,8 +38,8 @@ mod AccessControlMixin {
     impl AccessControlMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +AccessControlComponent::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of super::IAccessControlMixin<ComponentState<TContractState>> {
         // IAccessControl
@@ -54,21 +58,21 @@ mod AccessControlMixin {
         fn grant_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.grant_role(role, account);
         }
 
         fn revoke_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.revoke_role(role, account);
         }
 
         fn renounce_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.renounce_role(role, account);
         }
 
@@ -88,22 +92,29 @@ mod AccessControlMixin {
         fn grantRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.grantRole(role, account);
         }
 
         fn revokeRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.revokeRole(role, account);
         }
 
         fn renounceRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut accesscontrol = self.get_access_mut();
+            let mut accesscontrol = get_dep_component_mut!(ref self, AccessControl);
             accesscontrol.renounceRole(role, account);
+        }
+
+        // ISRC5
+        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
         }
     }
 
@@ -119,13 +130,6 @@ mod AccessControlMixin {
         ) -> @AccessControlComponent::ComponentState::<TContractState> {
             let contract = self.get_contract();
             AccessControlComponent::HasComponent::<TContractState>::get_component(contract)
-        }
-
-        fn get_access_mut(
-            ref self: ComponentState<TContractState>
-        ) -> AccessControlComponent::ComponentState::<TContractState> {
-            let mut contract = self.get_contract_mut();
-            AccessControlComponent::HasComponent::<TContractState>::get_component_mut(ref contract)
         }
     }
 }

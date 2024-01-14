@@ -17,7 +17,7 @@ mod ERC20MetadataMixin {
     impl ERC20MetadataMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +ERC20Component::HasComponent<TContractState>,
+        impl ERC20: ERC20Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC20MetadataMixin<ComponentState<TContractState>> {
         // IERC20
@@ -41,7 +41,7 @@ mod ERC20MetadataMixin {
         fn transfer(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) -> bool {
-            let mut erc20 = self.get_erc20_mut();
+            let mut erc20 = get_dep_component_mut!(ref self, ERC20);
             erc20.transfer(recipient, amount)
         }
 
@@ -51,14 +51,14 @@ mod ERC20MetadataMixin {
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            let mut erc20 = self.get_erc20_mut();
+            let mut erc20 = get_dep_component_mut!(ref self, ERC20);
             erc20.transfer_from(sender, recipient, amount)
         }
 
         fn approve(
             ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
         ) -> bool {
-            let mut erc20 = self.get_erc20_mut();
+            let mut erc20 = get_dep_component_mut!(ref self, ERC20);
             erc20.approve(spender, amount)
         }
 
@@ -95,7 +95,7 @@ mod ERC20MetadataMixin {
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            let mut erc20 = self.get_erc20_mut();
+            let mut erc20 = get_dep_component_mut!(ref self, ERC20);
             erc20.transferFrom(sender, recipient, amount)
         }
     }
@@ -112,13 +112,6 @@ mod ERC20MetadataMixin {
         ) -> @ERC20Component::ComponentState::<TContractState> {
             let contract = self.get_contract();
             ERC20Component::HasComponent::<TContractState>::get_component(contract)
-        }
-
-        fn get_erc20_mut(
-            ref self: ComponentState<TContractState>
-        ) -> ERC20Component::ComponentState::<TContractState> {
-            let mut contract = self.get_contract_mut();
-            ERC20Component::HasComponent::<TContractState>::get_component_mut(ref contract)
         }
     }
 }

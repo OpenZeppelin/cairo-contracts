@@ -3,8 +3,8 @@
 
 #[starknet::component]
 mod ERC721MetadataMixin {
-    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::{
         ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl
     };
@@ -155,7 +155,9 @@ mod ERC721MetadataMixin {
         }
 
         // ISRC5
-        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)

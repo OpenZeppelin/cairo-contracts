@@ -3,8 +3,8 @@
 
 #[starknet::component]
 mod ERC721Mixin {
-    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::mixins::interface;
@@ -98,7 +98,6 @@ mod ERC721Mixin {
         ) {
             let mut erc721 = get_dep_component_mut!(ref self, ERC721);
             erc721.safeTransferFrom(from, to, tokenId, data);
-
         }
 
         fn transferFrom(
@@ -132,7 +131,9 @@ mod ERC721Mixin {
         }
 
         // ISRC5
-        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)

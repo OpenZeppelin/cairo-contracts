@@ -62,8 +62,12 @@ fn test_constructor() {
     assert_only_event_owner_added(PUBKEY, ZERO());
 
     assert(Account::AccountMixinImpl::get_public_key(@state) == PUBKEY, 'Should return PUBKEY');
-    assert(Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID), 'Should implement ISRC5');
-    assert(Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID), 'Should implement ISRC6');
+    assert(
+        Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID), 'Should implement ISRC5'
+    );
+    assert(
+        Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID), 'Should implement ISRC6'
+    );
 }
 
 //

@@ -3,14 +3,14 @@
 
 #[starknet::component]
 mod SRC6PubKeyDeclarerDeployerMixin {
-    use openzeppelin::account::interface::IPublicKeyCamel;
     use openzeppelin::account::AccountComponent::{DeclarerImpl, DeployableImpl};
     use openzeppelin::account::AccountComponent::{PublicKeyImpl, PublicKeyCamelImpl};
     use openzeppelin::account::AccountComponent::{SRC6Impl, SRC6CamelOnlyImpl};
     use openzeppelin::account::AccountComponent;
+    use openzeppelin::account::interface::IPublicKeyCamel;
     use openzeppelin::account::mixins::interface;
-    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::account::Call;
 
@@ -95,7 +95,9 @@ mod SRC6PubKeyDeclarerDeployerMixin {
         }
 
         // ISRC5
-        fn supports_interface(self: @ComponentState<TContractState>, interface_id: felt252) -> bool {
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)

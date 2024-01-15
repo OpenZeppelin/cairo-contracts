@@ -10,9 +10,12 @@ use starknet::account::Call;
 
 #[starknet::interface]
 trait ISRC6Mixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // ISRC5
@@ -21,9 +24,12 @@ trait ISRC6Mixin<TState> {
 
 #[starknet::interface]
 trait ISRC6DeclarerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeclarer
@@ -35,9 +41,12 @@ trait ISRC6DeclarerMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6DeployerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeployer
@@ -51,9 +60,12 @@ trait ISRC6DeployerMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6DeclarerDeployerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeclarer
@@ -70,9 +82,12 @@ trait ISRC6DeclarerDeployerMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6PubKeyMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IPublicKey
@@ -89,9 +104,12 @@ trait ISRC6PubKeyMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6PubKeyDeployerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeployer
@@ -113,9 +131,12 @@ trait ISRC6PubKeyDeployerMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6PubKeyDeclarerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeclarer
@@ -135,9 +156,12 @@ trait ISRC6PubKeyDeclarerMixin<TState> {
 
 #[starknet::interface]
 trait ISRC6PubKeyDeclarerDeployerMixin<TState> {
+    // ISRC6
     fn __execute__(self: @TState, calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
     fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IDeclarer

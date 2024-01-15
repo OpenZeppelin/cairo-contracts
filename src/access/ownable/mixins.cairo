@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.8.0 (access/ownable/mixins.cairo)
+
 use starknet::ContractAddress;
 
 #[starknet::interface]

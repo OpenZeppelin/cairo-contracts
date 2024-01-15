@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc721/mixins/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc721/mixins/erc721_receiver.cairo)
 
 #[starknet::component]
 mod ERC721ReceiverMixin {

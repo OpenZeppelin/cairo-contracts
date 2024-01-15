@@ -31,8 +31,8 @@ mod ERC721ReceiverMixin {
             token_id: u256,
             data: Span<felt252>
         ) -> felt252 {
-            let erc721 = self.get_erc721();
-            erc721.on_erc721_received(operator, from, token_id, data)
+            let erc721_receiver = self.get_erc721_receiver();
+            erc721_receiver.on_erc721_received(operator, from, token_id, data)
         }
 
         // IERC721ReceiverCamel
@@ -43,7 +43,7 @@ mod ERC721ReceiverMixin {
             tokenId: u256,
             data: Span<felt252>
         ) -> felt252 {
-            let erc721 = self.get_erc721();
+            let erc721 = self.get_erc721_receiver();
             erc721.onERC721Received(operator, from, tokenId, data)
         }
 
@@ -58,13 +58,13 @@ mod ERC721ReceiverMixin {
     }
 
     #[generate_trait]
-    impl GetERC721Impl<
+    impl GetERC721ReceiverImpl<
         TContractState,
         +HasComponent<TContractState>,
         +ERC721ReceiverComponent::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of GetERC721Trait<TContractState> {
-        fn get_erc721(
+    > of GetERC721ReceiverTrait<TContractState> {
+        fn get_erc721_receiver(
             self: @ComponentState<TContractState>
         ) -> @ERC721ReceiverComponent::ComponentState::<TContractState> {
             let contract = self.get_contract();

@@ -204,8 +204,8 @@ fn test_dual_renounce_role_exists_and_panics() {
 fn test_dual_supportsInterface() {
     let (dispatcher, _) = setup_camel();
 
-    let supported = dispatcher.supports_interface(IACCESSCONTROL_ID);
-    assert!(supported, "Should support IACCESSCONTROL");
+    let supports_iaccesscontrol = dispatcher.supports_interface(IACCESSCONTROL_ID);
+    assert!(supports_iaccesscontrol);
 }
 
 #[test]

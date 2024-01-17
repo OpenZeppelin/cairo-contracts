@@ -305,6 +305,7 @@ mod AccessControlComponent {
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)

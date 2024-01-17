@@ -9,7 +9,7 @@ mod AccountComponent {
     use ecdsa::check_ecdsa_signature;
     use openzeppelin::account::interface;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -274,7 +274,7 @@ mod AccountComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IAccountMixin<ComponentState<TContractState>> {
+    > of interface::AccountABI<ComponentState<TContractState>> {
         // ISRC6
         fn __execute__(
             self: @ComponentState<TContractState>, calls: Array<Call>
@@ -338,9 +338,20 @@ mod AccountComponent {
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)
+        }
+
+        // ISRC5Camel
+        fn supportsInterface(
+            self: @ComponentState<TContractState>, interfaceId: felt252
+        ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supportsInterface(interfaceId)
         }
     }
 }

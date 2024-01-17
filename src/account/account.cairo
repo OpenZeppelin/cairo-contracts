@@ -345,9 +345,7 @@ mod AccountComponent {
         }
 
         // ISRC5Camel
-        fn supportsInterface(
-            self: @ComponentState<TContractState>, interfaceId: felt252
-        ) -> bool {
+        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
             // TMP - until `get_dep_component!` supports snapshots
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);

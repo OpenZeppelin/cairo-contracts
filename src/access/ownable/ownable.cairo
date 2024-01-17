@@ -127,4 +127,31 @@ mod OwnableComponent {
                 );
         }
     }
+
+    #[embeddable_as(OwnableMixinImpl)]
+    impl OwnableMixin<
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+    > of interface::IOwnableMixin<ComponentState<TContractState>> {
+        fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
+            Ownable::owner(self)
+        }
+
+        fn transfer_ownership(
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+        ) {
+            Ownable::transfer_ownership(ref self, new_owner);
+        }
+
+        fn renounce_ownership(ref self: ComponentState<TContractState>) {
+            Ownable::renounce_ownership(ref self);
+        }
+
+        fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
+            OwnableCamelOnly::transferOwnership(ref self, newOwner);
+        }
+
+        fn renounceOwnership(ref self: ComponentState<TContractState>) {
+            OwnableCamelOnly::renounceOwnership(ref self);
+        }
+    }
 }

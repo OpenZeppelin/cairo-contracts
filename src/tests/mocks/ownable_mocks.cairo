@@ -1,31 +1,25 @@
 #[starknet::contract]
 mod DualCaseOwnableMock {
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::access::ownable::mixins::OwnableMixin;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
-    component!(path: OwnableMixin, storage: ownablemixin, event: OwnableMixinEvent);
 
     #[abi(embed_v0)]
-    impl OwnableMixinImpl = OwnableMixin::OwnableMixinImpl<ContractState>;
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
-        #[substorage(v0)]
-        ownablemixin: OwnableMixin::Storage
+        ownable: OwnableComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event,
-        #[flat]
-        OwnableMixinEvent: OwnableMixin::Event
+        OwnableEvent: OwnableComponent::Event
     }
 
     #[constructor]

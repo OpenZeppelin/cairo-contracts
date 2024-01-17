@@ -15,3 +15,15 @@ trait IOwnableCamelOnly<TState> {
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);
 }
+
+#[starknet::interface]
+trait IOwnableMixin<TState> {
+    // IOwnable
+    fn owner(self: @TState) -> ContractAddress;
+    fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
+    fn renounce_ownership(ref self: TState);
+
+    // IOwnableCamelOnly
+    fn transferOwnership(ref self: TState, newOwner: ContractAddress);
+    fn renounceOwnership(ref self: TState);
+}

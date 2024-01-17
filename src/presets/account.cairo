@@ -7,25 +7,20 @@
 #[starknet::contract]
 mod Account {
     use openzeppelin::account::AccountComponent;
-    use openzeppelin::account::mixins::SRC6PubKeyDeclarerDeployerMixin as AccountMixin;
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
-    component!(path: AccountMixin, storage: accountmixin, event: AccountMixinEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // Account
     #[abi(embed_v0)]
-    impl AccountMixinImpl =
-        AccountMixin::SRC6PubKeyDeclarerDeployerMixinImpl<ContractState>;
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         account: AccountComponent::Storage,
-        #[substorage(v0)]
-        accountmixin: AccountMixin::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage
     }
@@ -35,8 +30,6 @@ mod Account {
     enum Event {
         #[flat]
         AccountEvent: AccountComponent::Event,
-        #[flat]
-        AccountMixinEvent: AccountMixin::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }

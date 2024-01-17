@@ -9,6 +9,7 @@ mod AccountComponent {
     use ecdsa::check_ecdsa_signature;
     use openzeppelin::account::interface;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -169,7 +170,7 @@ mod AccountComponent {
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
-            self.is_valid_signature(hash, signature)
+            SRC6::is_valid_signature(self, hash, signature)
         }
     }
 
@@ -182,11 +183,11 @@ mod AccountComponent {
         +Drop<TContractState>
     > of interface::IPublicKeyCamel<ComponentState<TContractState>> {
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
-            self.Account_public_key.read()
+            PublicKey::get_public_key(self)
         }
 
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            self.set_public_key(newPublicKey);
+            PublicKey::set_public_key(ref self, newPublicKey);
         }
     }
 
@@ -265,5 +266,81 @@ mod AccountComponent {
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()
+    }
+
+    #[embeddable_as(AccountMixinImpl)]
+    impl AccountMixin<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IAccountMixin<ComponentState<TContractState>> {
+        // ISRC6
+        fn __execute__(
+            self: @ComponentState<TContractState>, calls: Array<Call>
+        ) -> Array<Span<felt252>> {
+            SRC6::__execute__(self, calls)
+        }
+
+        fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
+            SRC6::__validate__(self, calls)
+        }
+
+        fn is_valid_signature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6::is_valid_signature(self, hash, signature)
+        }
+
+        // ISRC6CamelOnly
+        fn isValidSignature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6CamelOnly::isValidSignature(self, hash, signature)
+        }
+
+        // IDeclarer
+        fn __validate_declare__(
+            self: @ComponentState<TContractState>, class_hash: felt252
+        ) -> felt252 {
+            Declarer::__validate_declare__(self, class_hash)
+        }
+
+        // IDeployable
+        fn __validate_deploy__(
+            self: @ComponentState<TContractState>,
+            class_hash: felt252,
+            contract_address_salt: felt252,
+            public_key: felt252
+        ) -> felt252 {
+            Deployable::__validate_deploy__(self, class_hash, contract_address_salt, public_key)
+        }
+
+        // IPublicKey
+        fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
+            PublicKey::get_public_key(self)
+        }
+
+        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
+            PublicKey::set_public_key(ref self, new_public_key);
+        }
+
+        // IPublicKeyCamel
+        fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
+            PublicKeyCamel::getPublicKey(self)
+        }
+
+        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
+            PublicKeyCamel::setPublicKey(ref self, newPublicKey);
+        }
+
+        // ISRC5
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
+        }
     }
 }

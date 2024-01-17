@@ -72,11 +72,9 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 ```javascript
 use openzeppelin::account::AccountComponent;
 ```
-Account component implementing xref:ISRC6[`ISRC6`].
+Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
-
-NOTE: Every function involving signature verification verifies with the account's current public key using the {starknet-curve}.
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations

@@ -1,11 +1,14 @@
 use core::serde::Serde;
+use core::traits::TryInto;
 use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::eth_account::EthAccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::eth_account::interface::ISRC6_ID;
 use openzeppelin::account::eth_account::interface::{
     EthAccountABIDispatcherTrait, EthAccountABIDispatcher
 };
-use openzeppelin::account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointPartialEq};
+use openzeppelin::account::utils::secp256k1::{
+    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
+};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::tests::account::test_eth_account::{
@@ -14,17 +17,28 @@ use openzeppelin::tests::account::test_eth_account::{
 use openzeppelin::tests::account::test_eth_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT};
+use openzeppelin::tests::account::test_secp256k1::get_points;
+use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
+use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::utils::constants::{
+    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin::upgrades::interface::{IUpgradeableDispatcherTrait, IUpgradeableDispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 fn CLASS_HASH() -> felt252 {
     EthAccountUpgradeable::TEST_CLASS_HASH
+}
+
+fn V2_CLASS_HASH() -> ClassHash {
+    SnakeEthAccountMock::TEST_CLASS_HASH.try_into().unwrap()
 }
 
 //
@@ -59,6 +73,16 @@ fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> EthAccoun
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
     EthAccountABIDispatcher { contract_address: address }
+}
+
+fn setup_upgradeable() -> IUpgradeableDispatcher {
+    let mut calldata = array![];
+    calldata.append_serde(ETH_PUBKEY());
+
+    let target = utils::deploy(CLASS_HASH(), calldata);
+    utils::drop_event(target);
+
+    IUpgradeableDispatcher { contract_address: target }
 }
 
 //
@@ -415,4 +439,79 @@ fn test_account_called_from_contract() {
     testing::set_caller_address(caller);
 
     account.__execute__(calls);
+}
+
+
+//
+// upgrade
+//
+
+#[test]
+#[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_access_control() {
+    let v1 = setup_upgradeable();
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_with_class_hash_zero() {
+    let v1 = setup_upgradeable();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+fn test_upgraded_event() {
+    let v1 = setup_upgradeable();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(v2_class_hash);
+
+    assert_only_event_upgraded(v2_class_hash, v1.contract_address);
+}
+
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+fn test_v2_missing_camel_selector() {
+    let v1 = setup_upgradeable();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(v2_class_hash);
+
+    let dispatcher = EthAccountABIDispatcher { contract_address: v1.contract_address };
+    dispatcher.getPublicKey();
+}
+
+#[test]
+fn test_state_persists_after_upgrade() {
+    let v1 = setup_upgradeable();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    let dispatcher = EthAccountABIDispatcher { contract_address: v1.contract_address };
+
+    let (point, _) = get_points();
+
+    dispatcher.set_public_key(point);
+
+    let camel_public_key = dispatcher.getPublicKey();
+    assert_eq!(camel_public_key, point);
+
+    v1.upgrade(v2_class_hash);
+    let snake_public_key = dispatcher.get_public_key();
+
+    assert_eq!(snake_public_key, camel_public_key);
+}
+
+//
+// Helpers
+//
+
+fn set_contract_and_caller(address: ContractAddress) {
+    testing::set_contract_address(address);
+    testing::set_caller_address(address);
 }

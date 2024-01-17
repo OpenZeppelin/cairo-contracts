@@ -84,6 +84,10 @@ If you want to run the documentation UI locally:
     npm run docs:watch
     ```
 
+## Class hashes
+
+Every time there's a language bump or a change in a preset or component used by one, new class hashes should be checked and updated in the presets doc page.
+
 ## Integration tests
 
 Currently, Starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.

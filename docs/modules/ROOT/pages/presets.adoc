@@ -1,0 +1,36 @@
+:scarb: https://docs.swmansion.com/scarb[scarb]
+
+= Presets
+
+include::utils/_class_hashes.adoc[]
+
+List of "ready-to-deploy" presets available and their corresponding class hashes.
+
+:account: xref:/api/account.adoc#Account[Account.cairo]
+:erc20: xref:/api/erc20.adoc#ERC20[ERC20.cairo]
+:erc721: xref:/api/erc721.adoc#ERC721[ERC721.cairo]
+:cairo-and-sierra: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/cairo-and-sierra/[Cairo and Sierra]
+
+NOTE: Class hashes were computed using {class-hash-cairo-version}.
+
+|===
+| Name | Compiled Class Hash
+
+| `{account}`
+| `{account-class-hash}`
+
+| `{erc20}`
+| `{erc20-class-hash}`
+
+| `{erc721}`
+| `{erc721-class-hash}`
+|===
+
+:starkli: https://book.starkli.rs/introduction[starkli]
+
+To understand the compiled class hash term, check {cairo-and-sierra}.
+
+TIP: {starkli} class-hash command can be used to compute the class hash from a compiled artifact.
+
+TIP: To obtain the artifact
+using {scarb}, set the `casm = true` option under `\[[target.starknet-contract]]` in the `Scarb.toml` file.

@@ -484,6 +484,14 @@ use openzeppelin::presets::ERC20;
 
 Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
 
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{erc20-class-hash}
+--
+
 [.contract-index]
 .Constructor
 --
@@ -509,5 +517,4 @@ Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixe
 [[ERC20-constructor]]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
 
-Sets the `name` and `symbol`.
-Mints `fixed_supply` tokens to `recipient`.
+Sets the `name` and `symbol` and mints `fixed_supply` tokens to `recipient`.

@@ -46,7 +46,9 @@ fn setup() -> ComponentState {
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     state.initializer();
-    assert(CONTRACT_STATE().src5.supports_interface(IACCESSCONTROL_ID), 'Should support own interface');
+    assert(
+        CONTRACT_STATE().src5.supports_interface(IACCESSCONTROL_ID), 'Should support own interface'
+    );
 }
 
 //

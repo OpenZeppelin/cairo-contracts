@@ -10,8 +10,8 @@ mod ERC721Component {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
     };
@@ -172,7 +172,8 @@ mod ERC721Component {
 
             let caller = get_caller_address();
             assert(
-                owner == caller || ERC721::is_approved_for_all(@self, owner, caller), Errors::UNAUTHORIZED
+                owner == caller || ERC721::is_approved_for_all(@self, owner, caller),
+                Errors::UNAUTHORIZED
             );
             self._approve(to, token_id);
         }
@@ -353,7 +354,9 @@ mod ERC721Component {
         ) -> bool {
             let owner = self._owner_of(token_id);
             let is_approved_for_all = ERC721::is_approved_for_all(self, owner, spender);
-            owner == spender || is_approved_for_all || spender == ERC721::get_approved(self, token_id)
+            owner == spender
+                || is_approved_for_all
+                || spender == ERC721::get_approved(self, token_id)
         }
 
         /// Changes or reaffirms the approved address for an NFT.

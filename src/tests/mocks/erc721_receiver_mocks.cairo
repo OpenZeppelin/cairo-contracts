@@ -9,12 +9,9 @@ mod DualCaseERC721ReceiverMock {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     // ERC721Receiver
-    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721ReceiverMixinImpl = ERC721ReceiverComponent::ERC721ReceiverMixinImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     #[storage]

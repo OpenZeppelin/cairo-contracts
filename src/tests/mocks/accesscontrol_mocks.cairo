@@ -2,30 +2,21 @@
 mod DualCaseAccessControlMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::access::accesscontrol::mixins::AccessControlMixin;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
-    component!(
-        path: AccessControlMixin, storage: accesscontrolmixin, event: AccessControlMixinEvent
-    );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
     impl AccessControlMixinImpl =
-        AccessControlMixin::AccessControlMixinImpl<ContractState>;
+        AccessControlComponent::AccessControlMixinImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
-
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         accesscontrol: AccessControlComponent::Storage,
-        #[substorage(v0)]
-        accesscontrolmixin: AccessControlMixin::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage
     }
@@ -35,8 +26,6 @@ mod DualCaseAccessControlMock {
     enum Event {
         #[flat]
         AccessControlEvent: AccessControlComponent::Event,
-        #[flat]
-        AccessControlMixinEvent: AccessControlMixin::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }

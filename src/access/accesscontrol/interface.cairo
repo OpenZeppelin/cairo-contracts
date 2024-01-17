@@ -23,3 +23,25 @@ trait IAccessControlCamel<TState> {
     fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
 }
+
+// Mixins
+
+#[starknet::interface]
+trait IAccessControlMixin<TState> {
+    // IAccessControl
+    fn has_role(self: @TState, role: felt252, account: ContractAddress) -> bool;
+    fn get_role_admin(self: @TState, role: felt252) -> felt252;
+    fn grant_role(ref self: TState, role: felt252, account: ContractAddress);
+    fn revoke_role(ref self: TState, role: felt252, account: ContractAddress);
+    fn renounce_role(ref self: TState, role: felt252, account: ContractAddress);
+
+    // IAccessControlCamel
+    fn hasRole(self: @TState, role: felt252, account: ContractAddress) -> bool;
+    fn getRoleAdmin(self: @TState, role: felt252) -> felt252;
+    fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
+    fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
+    fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+}

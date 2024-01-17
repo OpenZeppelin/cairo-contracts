@@ -24,8 +24,6 @@ trait IAccessControlCamel<TState> {
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
 }
 
-// Mixins
-
 #[starknet::interface]
 trait IAccessControlMixin<TState> {
     // IAccessControl

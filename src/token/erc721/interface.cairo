@@ -112,34 +112,6 @@ trait ERC721ABI<TState> {
     fn tokenURI(self: @TState, tokenId: u256) -> felt252;
 }
 
-//
-// ERC721Receiver
-//
-
-#[starknet::interface]
-trait IERC721Receiver<TState> {
-    fn on_erc721_received(
-        self: @TState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252;
-}
-
-#[starknet::interface]
-trait IERC721ReceiverCamel<TState> {
-    fn onERC721Received(
-        self: @TState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) -> felt252;
-}
-
-// Mixins
-
 #[starknet::interface]
 trait IERC721Mixin<TState> {
     // IERC721
@@ -185,6 +157,32 @@ trait IERC721Mixin<TState> {
 
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+}
+
+//
+// ERC721Receiver
+//
+
+#[starknet::interface]
+trait IERC721Receiver<TState> {
+    fn on_erc721_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
+    ) -> felt252;
+}
+
+#[starknet::interface]
+trait IERC721ReceiverCamel<TState> {
+    fn onERC721Received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
+    ) -> felt252;
 }
 
 #[starknet::interface]

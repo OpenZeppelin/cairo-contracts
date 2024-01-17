@@ -10,7 +10,7 @@ mod ERC721Component {
     use openzeppelin::account;
     use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
@@ -552,7 +552,7 @@ mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC721Mixin<ComponentState<TContractState>> {
+    > of interface::ERC721ABI<ComponentState<TContractState>> {
         // IERC721
         fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             ERC721::balance_of(self, account)
@@ -668,9 +668,20 @@ mod ERC721Component {
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
             let contract = self.get_contract();
             let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
             src5.supports_interface(interface_id)
+        }
+
+        // ISRC5Camel
+        fn supportsInterface(
+            self: @ComponentState<TContractState>, interfaceId: felt252
+        ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supportsInterface(interfaceId)
         }
     }
 }

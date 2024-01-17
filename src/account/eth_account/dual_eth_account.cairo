@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo vX.Y.Z (account/eth_account/dual_eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.0 (account/eth_account/dual_eth_account.cairo)
 
 use openzeppelin::account::eth_account::interface::EthPublicKey;
 use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;

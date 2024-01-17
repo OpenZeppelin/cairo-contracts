@@ -16,9 +16,11 @@ git checkout -b release-v0.8.0
 git push release-v0.8.0
 ```
 
-(5) Once merged, create a tag on the release branch and push it to the main repository.
+(5) Once merged, pull the changes from the release branch.
+Then, create a tag on the release branch and push it to the main repository.
 
 ```sh
+git pull
 git tag v0.8.0
 git push origin v0.8.0
 ```

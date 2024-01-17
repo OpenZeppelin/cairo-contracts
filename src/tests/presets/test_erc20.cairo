@@ -5,7 +5,7 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
-use openzeppelin::token::erc20::interface::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
+use openzeppelin::token::erc20::interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -14,7 +14,7 @@ use starknet::testing;
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> IERC20MixinDispatcher {
+fn setup_dispatcher_with_event() -> ERC20ABIDispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME);
@@ -23,10 +23,10 @@ fn setup_dispatcher_with_event() -> IERC20MixinDispatcher {
     calldata.append_serde(OWNER());
 
     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
-    IERC20MixinDispatcher { contract_address: address }
+    ERC20ABIDispatcher { contract_address: address }
 }
 
-fn setup_dispatcher() -> IERC20MixinDispatcher {
+fn setup_dispatcher() -> ERC20ABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
     utils::drop_event(dispatcher.contract_address);
     dispatcher

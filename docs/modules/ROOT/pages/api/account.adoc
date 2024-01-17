@@ -274,7 +274,7 @@ Emitted when a `public_key` is removed.
 ```javascript
 use openzeppelin::account::eth_account::EthAccountComponent;
 ```
-Account component implementing xref:ISRC6[`ISRC6`], but leveraging public key and signatures over the {secp256k1-curve}.
+Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 

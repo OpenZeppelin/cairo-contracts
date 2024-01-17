@@ -8,10 +8,7 @@ use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
-use openzeppelin::token::erc20::mixins::interface::IERC20MetadataSafeAllowanceMixin;
-use openzeppelin::token::erc20::mixins::interface::{
-    IERC20MetadataSafeAllowanceMixinDispatcher, IERC20MetadataSafeAllowanceMixinDispatcherTrait
-};
+use openzeppelin::token::erc20::interface::{IERC20MixinDispatcher, IERC20MixinDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -20,7 +17,7 @@ use starknet::testing;
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> IERC20MetadataSafeAllowanceMixinDispatcher {
+fn setup_dispatcher_with_event() -> IERC20MixinDispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME);
@@ -29,10 +26,10 @@ fn setup_dispatcher_with_event() -> IERC20MetadataSafeAllowanceMixinDispatcher {
     calldata.append_serde(OWNER());
 
     let address = utils::deploy(ERC20::TEST_CLASS_HASH, calldata);
-    IERC20MetadataSafeAllowanceMixinDispatcher { contract_address: address }
+    IERC20MixinDispatcher { contract_address: address }
 }
 
-fn setup_dispatcher() -> IERC20MetadataSafeAllowanceMixinDispatcher {
+fn setup_dispatcher() -> IERC20MixinDispatcher {
     let dispatcher = setup_dispatcher_with_event();
     utils::drop_event(dispatcher.contract_address);
     dispatcher

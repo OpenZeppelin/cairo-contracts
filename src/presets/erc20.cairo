@@ -9,32 +9,26 @@
 #[starknet::contract]
 mod ERC20 {
     use openzeppelin::token::erc20::ERC20Component;
-    use openzeppelin::token::erc20::mixins::ERC20MetadataSafeAllowanceMixin as ERC20Mixin;
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: ERC20Mixin, storage: erc20mixin, event: ERC20MixinEvent);
 
     #[abi(embed_v0)]
     impl ERC20MixinImpl =
-        ERC20Mixin::ERC20MetadataSafeAllowanceMixinImpl<ContractState>;
+        ERC20Component::ERC20MixinImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        erc20mixin: ERC20Mixin::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event,
-        #[flat]
-        ERC20MixinEvent: ERC20Mixin::Event
+        ERC20Event: ERC20Component::Event
     }
 
     /// Sets the token `name` and `symbol`.

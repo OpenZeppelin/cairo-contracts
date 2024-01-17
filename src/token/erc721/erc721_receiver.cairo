@@ -9,9 +9,11 @@
 #[starknet::component]
 mod ERC721ReceiverComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin::token::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel};
+    use openzeppelin::token::erc721::interface;
     use starknet::ContractAddress;
 
     #[storage]
@@ -73,6 +75,45 @@ mod ERC721ReceiverComponent {
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC721_RECEIVER_ID);
+        }
+    }
+
+    #[embeddable_as(ERC721ReceiverMixinImpl)]
+    impl ERC721ReceiverMixin<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IERC721ReceiverMixin<ComponentState<TContractState>> {
+        // IERC721Receiver
+        fn on_erc721_received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            ERC721Receiver::on_erc721_received(self, operator, from, token_id, data)
+        }
+
+        // IERC721ReceiverCamel
+        fn onERC721Received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            ERC721ReceiverCamel::onERC721Received(self, operator, from, tokenId, data)
+        }
+
+        // ISRC5
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
         }
     }
 }

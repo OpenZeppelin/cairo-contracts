@@ -386,4 +386,108 @@ mod ERC20Component {
             }
         }
     }
+
+    #[embeddable_as(ERC20MixinImpl)]
+    impl ERC20Mixin<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IERC20Mixin<ComponentState<TContractState>> {
+        // IERC20
+        fn total_supply(self: @ComponentState<TContractState>) -> u256 {
+            ERC20::total_supply(self)
+        }
+
+        fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
+            ERC20::balance_of(self, account)
+        }
+
+        fn allowance(
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+        ) -> u256 {
+            ERC20::allowance(self, owner, spender)
+        }
+
+        fn transfer(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) -> bool {
+            ERC20::transfer(ref self, recipient, amount)
+        }
+
+        fn transfer_from(
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) -> bool {
+            ERC20::transfer_from(ref self, sender, recipient, amount)
+        }
+
+        fn approve(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+        ) -> bool {
+            ERC20::approve(ref self, spender, amount)
+        }
+
+        // IERC20Metadata
+        fn name(self: @ComponentState<TContractState>) -> felt252 {
+            ERC20Metadata::name(self)
+        }
+
+        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+            ERC20Metadata::symbol(self)
+        }
+
+        fn decimals(self: @ComponentState<TContractState>) -> u8 {
+            ERC20Metadata::decimals(self)
+        }
+
+        // IERC20SafeAllowance
+        fn increase_allowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
+        ) -> bool {
+            SafeAllowance::increase_allowance(ref self, spender, added_value)
+        }
+
+        fn decrease_allowance(
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtracted_value: u256
+        ) -> bool {
+            SafeAllowance::decrease_allowance(ref self, spender, subtracted_value)
+        }
+
+        // IERC20CamelOnly
+        fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
+            ERC20CamelOnly::totalSupply(self)
+        }
+
+        fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
+            ERC20CamelOnly::balanceOf(self, account)
+        }
+
+        fn transferFrom(
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) -> bool {
+            ERC20CamelOnly::transferFrom(ref self, sender, recipient, amount)
+        }
+
+        // IERC20CamelSafeAllowance
+        fn increaseAllowance(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
+        ) -> bool {
+            SafeAllowanceCamel::increaseAllowance(ref self, spender, addedValue)
+        }
+
+        fn decreaseAllowance(
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            subtractedValue: u256
+        ) -> bool {
+            SafeAllowanceCamel::decreaseAllowance(ref self, spender, subtractedValue)
+        }
+    }
 }

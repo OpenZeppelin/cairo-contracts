@@ -9,24 +9,20 @@
 mod ERC721 {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::token::erc721::mixins::ERC721MetadataMixin as ERC721Mixin;
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: ERC721Mixin, storage: erc721mixin, event: ERC721MixinEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Mixin::ERC721MetadataMixinImpl<ContractState>;
+    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
         erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        erc721mixin: ERC721Mixin::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage
     }
@@ -36,8 +32,6 @@ mod ERC721 {
     enum Event {
         #[flat]
         ERC721Event: ERC721Component::Event,
-        #[flat]
-        ERC721MixinEvent: ERC721Mixin::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }

@@ -560,6 +560,39 @@ mod ERC1155Component {
             self.emit(TransferSingle { from, to: Zeroable::zero(), id: token_id, value });
         }
 
+        /// batch Mints `values` and transfers it to `to`.
+        ///
+        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        ///
+        /// Emits a `Transfer` event.
+        fn _batch_mint(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            mut token_ids: Span<u256>,
+            mut values: Span<u256>
+        ) {
+            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
+
+            loop {
+                if token_ids.len() == 0 {
+                    break ();
+                }
+                let token_id = *token_ids.pop_front().unwrap();
+                let value = *values.pop_front().unwrap();
+
+                self._mint(to, token_id, value);
+            };
+
+            self
+                .emit(
+                    TransferBatch { operator: get_caller_address(), from: Zeroable::zero(), to, ids: token_ids, values }
+            );
+        }
+
         /// Mints `values` and transfers it to `to`.
         /// Internal function without access restriction.
         ///
@@ -581,6 +614,40 @@ mod ERC1155Component {
                 .write((token_id, to), self.ERC1155_balances.read((token_id, to)) + value);
 
             self.emit(TransferSingle { from: Zeroable::zero(), to, id: token_id, value });
+        }
+
+        /// Safe batch Mints `values` and transfers it to `to`.
+        ///
+        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        ///
+        /// Emits a `Transfer` event.
+        fn _safe_batch_mint(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            mut token_ids: Span<u256>,
+            mut values: Span<u256>,
+            data: Span<felt252>
+        ) {
+            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
+
+            loop {
+                if token_ids.len() == 0 {
+                    break ();
+                }
+                let token_id = *token_ids.pop_front().unwrap();
+                let value = *values.pop_front().unwrap();
+
+                self._safe_mint(to, token_id, value, data);
+            };
+
+            self
+                .emit(
+                    TransferBatch { operator: get_caller_address(), from: Zeroable::zero(), to, ids: token_ids, values }
+            );
         }
 
         /// Mints `value` if `to` is either an account or `IERC1155Receiver`.

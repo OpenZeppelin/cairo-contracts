@@ -30,44 +30,36 @@ mod ERC1155Component {
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        Transfer: Transfer,
+        TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
-        Approval: Approval,
         ApprovalForAll: ApprovalForAll,
+        URI: URI,
     }
 
-    /// Emitted when `value` token is transferred from `from` to `to` for `token_id`.
+    /// Emitted when `value` token is transferred from `from` to `to` for `id`.
     #[derive(Drop, starknet::Event)]
-    struct Transfer {
+    struct TransferSingle {
         #[key]
         from: ContractAddress,
         #[key]
         to: ContractAddress,
         #[key]
-        token_id: u256,
-        #[key]
+        id: u256,
         value: u256
     }
 
-    /// Emitted when `values` are transferred from `from` to `to` for `token_ids`.
+    /// Emitted when `values` are transferred from `from` to `to` for `id`.
     #[derive(Drop, starknet::Event)]
     struct TransferBatch {
+        #[key]
         operator: starknet::ContractAddress,
+        #[key]
         from: starknet::ContractAddress,
+        #[key]
         to: starknet::ContractAddress,
-        token_ids: Span<u256>,
+        #[key]
+        ids: Span<u256>,
         values: Span<u256>,
-    }
-
-    /// Emitted when `owner` enables `approved` to manage the `token_id` token.
-    #[derive(Drop, starknet::Event)]
-    struct Approval {
-        #[key]
-        owner: ContractAddress,
-        #[key]
-        approved: ContractAddress,
-        #[key]
-        token_id: u256
     }
 
     /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
@@ -79,6 +71,15 @@ mod ERC1155Component {
         #[key]
         operator: ContractAddress,
         approved: bool
+    }
+
+    /// Emitted when the `URI` is updated for a token `id`.
+    /// all of its assets.
+    #[derive(Drop, starknet::Event)]
+    struct URI {
+        value: felt252,
+        #[key]
+        id: u256,
     }
 
     mod Errors {
@@ -423,7 +424,7 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from, to, token_ids, values }
+                    TransferBatch { operator: get_caller_address(), from, to, ids: token_ids, values }
                 );
         }
 
@@ -448,7 +449,7 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from, to, token_ids, values }
+                    TransferBatch { operator: get_caller_address(), from, to, ids: token_ids, values }
                 );
         }
 
@@ -511,7 +512,31 @@ mod ERC1155Component {
                 .ERC1155_balances
                 .write((token_id, to), self.ERC1155_balances.read((token_id, to)) + value);
 
-            self.emit(Transfer { from, to, token_id, value });
+            self.emit(TransferSingle { from, to, id: token_id, value });
+        }
+
+        fn _batch_burn(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            mut token_ids: Span<u256>,
+            mut values: Span<u256>
+        ) {
+            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
+
+            loop {
+                if token_ids.len() == 0 {
+                    break ();
+                }
+                let token_id = *token_ids.pop_front().unwrap();
+                let value = *values.pop_front().unwrap();
+
+                self._burn(from, token_id, value);
+            };
+
+            self
+                .emit(
+                    TransferBatch { operator: get_caller_address(), from, to: Zeroable::zero(), ids: token_ids, values }
+                );
         }
 
         /// Destroys `value`. The approval is cleared when the token is burned.
@@ -524,16 +549,15 @@ mod ERC1155Component {
         /// - `value` >= balances.
         ///
         /// Emits a `Transfer` event.
-        fn _burn(ref self: ComponentState<TContractState>, token_id: u256, value: u256) {
-            let caller = get_caller_address();
+        fn _burn(ref self: ComponentState<TContractState>, from: ContractAddress, token_id: u256, value: u256) {
             assert(
-                self.ERC1155_balances.read((token_id, caller)) >= value,
+                self.ERC1155_balances.read((token_id, from)) >= value,
                 Errors::INSUFFICIENT_BALANCE
             );
 
-            self._update_balances(caller, Zeroable::zero(), token_id, value);
+            self._update_balances(from, Zeroable::zero(), token_id, value);
 
-            self.emit(Transfer { from: caller, to: Zeroable::zero(), token_id, value });
+            self.emit(TransferSingle { from, to: Zeroable::zero(), id: token_id, value });
         }
 
         /// Mints `values` and transfers it to `to`.
@@ -556,7 +580,7 @@ mod ERC1155Component {
                 .ERC1155_balances
                 .write((token_id, to), self.ERC1155_balances.read((token_id, to)) + value);
 
-            self.emit(Transfer { from: Zeroable::zero(), to, token_id, value });
+            self.emit(TransferSingle { from: Zeroable::zero(), to, id: token_id, value });
         }
 
         /// Mints `value` if `to` is either an account or `IERC1155Receiver`.
@@ -584,7 +608,9 @@ mod ERC1155Component {
 
         /// Sets the `uri` of `token_id`.
         fn _set_uri(ref self: ComponentState<TContractState>, token_id: u256, uri: felt252) {
-            self.ERC1155_uri.write(token_id, uri)
+            self.ERC1155_uri.write(token_id, uri);
+            
+            self.emit(URI { value: uri, id: token_id });
         }
     }
 

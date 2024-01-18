@@ -18,7 +18,7 @@ use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelOnlyImpl;
 use openzeppelin::token::erc1155::ERC1155Component::{
     ERC1155Impl, ERC1155MetadataImpl, InternalImpl
 };
-use openzeppelin::token::erc1155::ERC1155Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin::token::erc1155::ERC1155Component;
 use openzeppelin::token::erc1155;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -1146,7 +1146,7 @@ fn test__burn() {
 
     assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == TOKEN_VALUE, 'Balance of owner before');
 
-    state.erc1155._burn(TOKEN_ID, TOKEN_VALUE);
+    state.erc1155._burn(OWNER(), TOKEN_ID, TOKEN_VALUE);
     assert_event_update_balances(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
     assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 0, 'Balance of owner after');
 }
@@ -1156,7 +1156,7 @@ fn test__burn() {
 #[should_panic(expected: ('ERC1155: invalid token ID',))]
 fn test__burn_nonexistent() {
     let mut state = STATE();
-    state.erc1155._burn(TOKEN_ID, TOKEN_VALUE);
+    state.erc1155._burn(OWNER(), TOKEN_ID, TOKEN_VALUE);
 }
 
 //
@@ -1230,11 +1230,11 @@ fn assert_event_approval_for_all(
 fn assert_event_update_balances(
     from: ContractAddress, to: ContractAddress, token_id: u256, value: u256
 ) {
-    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
+    let event = utils::pop_log::<TransferSingle>(ZERO()).unwrap();
     assert(event.from == from, 'Invalid `from`');
     assert(event.to == to, 'Invalid `to`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
-    assert(event.value == token_id, 'Invalid `token_id`');
+    assert(event.id == token_id, 'Invalid `token_id`');
+    assert(event.value == value, 'Invalid `value`');
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys

@@ -72,6 +72,8 @@ mod AccountComponent {
             // Check tx version
             let tx_info = get_tx_info().unbox();
             let tx_version: u256 = tx_info.version.into();
+
+            // If `tx_version` is greater than or equal to `QUERY_OFFSET`, the tx is a query
             if (tx_version >= QUERY_OFFSET) {
                 assert(
                     QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION

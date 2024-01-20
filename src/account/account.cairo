@@ -59,8 +59,8 @@ mod AccountComponent {
         /// Requirements:
         ///
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
-        /// - If the transaction is a query (greater than `QUERY_OFFSET`), the transaction version must
-        /// be greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
+        /// - If the transaction is a simulation (version than `QUERY_OFFSET`), it must be
+        /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {

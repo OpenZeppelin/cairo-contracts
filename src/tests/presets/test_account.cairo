@@ -320,7 +320,6 @@ fn test_execute_future_version() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
@@ -332,13 +331,11 @@ fn test_execute_invalid_query_version() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_future_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION + 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));

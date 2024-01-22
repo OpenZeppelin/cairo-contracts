@@ -19,6 +19,11 @@ const NEW_PUBKEY: felt252 = 'NEW_PUBKEY';
 const SALT: felt252 = 'SALT';
 const SUCCESS: felt252 = 123123;
 const FAILURE: felt252 = 456456;
+const MIN_TRANSACTION_VERSION: felt252 = 1;
+// 2**128
+const QUERY_OFFSET: felt252 = 0x100000000000000000000000000000000;
+// QUERY_OFFSET + MIN_TRANSACTION_VERSION
+const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
 
 fn ETH_PUBKEY() -> EthPublicKey {
     secp256k1_get_point_from_x_syscall(3, false).unwrap().unwrap()

@@ -7,7 +7,7 @@
 #[starknet::component]
 mod AccountComponent {
     use openzeppelin::account::interface;
-    use openzeppelin::account::utils::{TRANSACTION_VERSION, QUERY_VERSION};
+    use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -58,8 +58,9 @@ mod AccountComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction version must be `TRANSACTION_VERSION` for actual transactions.
-        /// For simulations, the version must be `QUERY_VERSION`.
+        /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
+        /// - If the transaction is a simulation (version than `QUERY_OFFSET`), it must be
+        /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
         fn __execute__(
             self: @ComponentState<TContractState>, mut calls: Array<Call>
         ) -> Array<Span<felt252>> {
@@ -70,9 +71,14 @@ mod AccountComponent {
 
             // Check tx version
             let tx_info = get_tx_info().unbox();
-            let version = tx_info.version;
-            if version != TRANSACTION_VERSION {
-                assert(version == QUERY_VERSION, Errors::INVALID_TX_VERSION);
+            let tx_version: u256 = tx_info.version.into();
+            // Check if tx is a query
+            if (tx_version >= QUERY_OFFSET) {
+                assert(
+                    QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION
+                );
+            } else {
+                assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
             }
 
             execute_calls(calls)

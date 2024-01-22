@@ -7,9 +7,10 @@ mod signature;
 use signature::{is_valid_stark_signature, is_valid_eth_signature};
 use starknet::account::Call;
 
-const TRANSACTION_VERSION: felt252 = 1;
-// 2**128 + TRANSACTION_VERSION
-const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
+const MIN_TRANSACTION_VERSION: u256 = 1;
+const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
+// QUERY_OFFSET + TRANSACTION_VERSION
+const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
 fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
     let mut res = ArrayTrait::new();

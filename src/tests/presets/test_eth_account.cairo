@@ -1,7 +1,6 @@
 use core::serde::Serde;
 use core::traits::TryInto;
 use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::eth_account::EthAccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::eth_account::interface::ISRC6_ID;
 use openzeppelin::account::eth_account::interface::{
     EthAccountABIDispatcherTrait, EthAccountABIDispatcher
@@ -21,7 +20,8 @@ use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT
+    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
@@ -56,7 +56,7 @@ fn setup_dispatcher() -> EthAccountABIDispatcher {
 }
 
 fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> EthAccountABIDispatcher {
-    testing::set_version(TRANSACTION_VERSION);
+    testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
     if data.is_some() {
@@ -356,7 +356,7 @@ fn test_execute_query_version() {
 #[test]
 #[should_panic(expected: ('EthAccount: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
-    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+    test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
 
 #[test]

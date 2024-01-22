@@ -2,7 +2,6 @@ use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin::account::eth_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::eth_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::eth_account::EthAccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::eth_account::EthAccountComponent;
 use openzeppelin::account::eth_account::interface::EthPublicKey;
 use openzeppelin::account::eth_account::interface::{
@@ -16,7 +15,8 @@ use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
 use openzeppelin::tests::utils::constants::{
-    ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER
+    ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
@@ -90,7 +90,7 @@ fn setup() -> ComponentState {
 }
 
 fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispatcher {
-    testing::set_version(TRANSACTION_VERSION);
+    testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
     if data.is_some() {
@@ -314,7 +314,7 @@ fn test_execute_query_version() {
 #[test]
 #[should_panic(expected: ('EthAccount: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
-    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+    test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
 
 #[test]

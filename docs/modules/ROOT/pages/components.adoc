@@ -146,6 +146,53 @@ See {erc20-component} as an example which includes:
 - *Internal implementations*
 ====
 
+=== Mixins
+
+While separating components into granular implementations offers flexibility, integrating components with many implementations can appear crowded especially when the contract will use all of the component's implementations.
+To simplify this process, applicable components offer a mixin implementation.
+Component mixins allow contracts to embed all of a component's implementations through the use of a single implementation.
+Here's an example of an account contract that embeds the `AccountMixinImpl`:
+
+[,javascript]
+----
+#[starknet::contract]
+mod Account {
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // This embeds all of the methods from the many AccountComponent implementations
+    // and also includes `supports_interface` from `SRC5Impl`
+    #[abi(embed_v0)]
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        account: AccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+}
+----
+
 === Initializers
 
 :ownable-component: xref:/api/access.adoc#OwnableComponent[OwnableComponent]

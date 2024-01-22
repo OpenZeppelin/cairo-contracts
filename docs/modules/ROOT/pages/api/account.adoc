@@ -178,7 +178,7 @@ Returns the current public key of the account.
 [[AccountComponent-set_public_key]]
 ==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
 
-Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
+Sets a new public key for the account. Only accessible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 

@@ -40,7 +40,7 @@ Module containing core utilities of the library.
 
 Tries to call a given selector on a given contract, and if it fails, tries to call a fallback selector.
 
-It was designed for falling back to the `camelCase` selector for backward compatiblity in the
+It was designed for falling back to the `camelCase` selector for backward compatibility in the
 case of a failure of the `snake_case` selector.
 
 Returns a `SyscallResult` with the result of the successful call.

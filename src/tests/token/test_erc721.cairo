@@ -70,6 +70,7 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_initialize() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
@@ -95,12 +96,14 @@ fn test_initialize() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_balance_of() {
     let state = setup();
     assert(state.balance_of(OWNER()) == 1, 'Should return balance');
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid account',))]
 fn test_balance_of_zero() {
     let state = setup();
@@ -108,12 +111,14 @@ fn test_balance_of_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_owner_of() {
     let state = setup();
     assert(state.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_owner_of_non_minted() {
     let state = setup();
@@ -121,6 +126,7 @@ fn test_owner_of_non_minted() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_token_uri_non_minted() {
     let state = setup();
@@ -128,6 +134,7 @@ fn test_token_uri_non_minted() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_get_approved() {
     let mut state = setup();
     let spender = SPENDER();
@@ -139,6 +146,7 @@ fn test_get_approved() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_get_approved_nonexistent() {
     let state = setup();
@@ -146,6 +154,7 @@ fn test_get_approved_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__exists() {
     let mut state = COMPONENT_STATE();
     let zero = ZERO();
@@ -173,6 +182,7 @@ fn test__exists() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_approve_from_owner() {
     let mut state = setup();
 
@@ -184,6 +194,7 @@ fn test_approve_from_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_approve_from_operator() {
     let mut state = setup();
 
@@ -199,6 +210,7 @@ fn test_approve_from_operator() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_approve_from_unauthorized() {
     let mut state = setup();
@@ -208,6 +220,7 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner',))]
 fn test_approve_to_owner() {
     let mut state = setup();
@@ -217,6 +230,7 @@ fn test_approve_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_approve_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -224,6 +238,7 @@ fn test_approve_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__approve() {
     let mut state = setup();
     state._approve(SPENDER(), TOKEN_ID);
@@ -233,6 +248,7 @@ fn test__approve() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner',))]
 fn test__approve_to_owner() {
     let mut state = setup();
@@ -240,6 +256,7 @@ fn test__approve_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__approve_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -251,6 +268,7 @@ fn test__approve_nonexistent() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_set_approval_for_all() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(OWNER());
@@ -269,6 +287,7 @@ fn test_set_approval_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
@@ -277,6 +296,7 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
@@ -285,6 +305,7 @@ fn test_set_approval_for_all_owner_equal_operator_false() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
     assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
@@ -301,6 +322,7 @@ fn test__set_approval_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
@@ -308,6 +330,7 @@ fn test__set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
@@ -319,6 +342,7 @@ fn test__set_approval_for_all_owner_equal_operator_false() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_transfer_from_owner() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -339,6 +363,7 @@ fn test_transfer_from_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transferFrom_owner() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -359,6 +384,7 @@ fn test_transferFrom_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -366,6 +392,7 @@ fn test_transfer_from_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -373,6 +400,7 @@ fn test_transferFrom_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transfer_from_to_zero() {
     let mut state = setup();
@@ -381,6 +409,7 @@ fn test_transfer_from_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transferFrom_to_zero() {
     let mut state = setup();
@@ -390,6 +419,7 @@ fn test_transferFrom_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transfer_from_to_owner() {
     let mut state = setup();
 
@@ -405,6 +435,7 @@ fn test_transfer_from_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transferFrom_to_owner() {
     let mut state = setup();
 
@@ -420,6 +451,7 @@ fn test_transferFrom_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transfer_from_approved() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -439,6 +471,7 @@ fn test_transfer_from_approved() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transferFrom_approved() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -458,6 +491,7 @@ fn test_transferFrom_approved() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transfer_from_approved_for_all() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -478,6 +512,7 @@ fn test_transfer_from_approved_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_transferFrom_approved_for_all() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -498,6 +533,7 @@ fn test_transferFrom_approved_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transfer_from_unauthorized() {
     let mut state = setup();
@@ -506,6 +542,7 @@ fn test_transfer_from_unauthorized() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transferFrom_unauthorized() {
     let mut state = setup();
@@ -518,6 +555,7 @@ fn test_transferFrom_unauthorized() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account() {
     let mut state = setup();
     let account = setup_account();
@@ -534,6 +572,7 @@ fn test_safe_transfer_from_to_account() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account() {
     let mut state = setup();
     let account = setup_account();
@@ -550,6 +589,7 @@ fn test_safeTransferFrom_to_account() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account_camel() {
     let mut state = setup();
     let account = setup_camel_account();
@@ -566,6 +606,7 @@ fn test_safe_transfer_from_to_account_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account_camel() {
     let mut state = setup();
     let account = setup_camel_account();
@@ -582,6 +623,7 @@ fn test_safeTransferFrom_to_account_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -598,6 +640,7 @@ fn test_safe_transfer_from_to_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -614,6 +657,7 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -630,6 +674,7 @@ fn test_safe_transfer_from_to_receiver_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -646,6 +691,7 @@ fn test_safeTransferFrom_to_receiver_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure() {
     let mut state = setup();
@@ -658,6 +704,7 @@ fn test_safe_transfer_from_to_receiver_failure() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure() {
     let mut state = setup();
@@ -670,6 +717,7 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let mut state = setup();
@@ -682,6 +730,7 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let mut state = setup();
@@ -694,6 +743,7 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
@@ -706,6 +756,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
@@ -718,6 +769,7 @@ fn test_safeTransferFrom_to_non_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safe_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -725,6 +777,7 @@ fn test_safe_transfer_from_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safeTransferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -732,6 +785,7 @@ fn test_safeTransferFrom_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
     let mut state = setup();
@@ -740,6 +794,7 @@ fn test_safe_transfer_from_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safeTransferFrom_to_zero() {
     let mut state = setup();
@@ -748,6 +803,7 @@ fn test_safeTransferFrom_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -768,6 +824,7 @@ fn test_safe_transfer_from_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -788,6 +845,7 @@ fn test_safeTransferFrom_to_owner() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -808,6 +866,7 @@ fn test_safe_transfer_from_to_owner_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -828,6 +887,7 @@ fn test_safeTransferFrom_to_owner_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -848,6 +908,7 @@ fn test_safe_transfer_from_approved() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -868,6 +929,7 @@ fn test_safeTransferFrom_approved() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -888,6 +950,7 @@ fn test_safe_transfer_from_approved_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -908,6 +971,7 @@ fn test_safeTransferFrom_approved_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -928,6 +992,7 @@ fn test_safe_transfer_from_approved_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -948,6 +1013,7 @@ fn test_safeTransferFrom_approved_for_all() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -968,6 +1034,7 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -988,6 +1055,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safe_transfer_from_unauthorized() {
     let mut state = setup();
@@ -996,6 +1064,7 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safeTransferFrom_unauthorized() {
     let mut state = setup();
@@ -1008,6 +1077,7 @@ fn test_safeTransferFrom_unauthorized() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test__transfer() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -1023,6 +1093,7 @@ fn test__transfer() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__transfer_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -1030,6 +1101,7 @@ fn test__transfer_nonexistent() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
@@ -1037,6 +1109,7 @@ fn test__transfer_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: wrong sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
@@ -1048,6 +1121,7 @@ fn test__transfer_from_invalid_owner() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test__mint() {
     let mut state = COMPONENT_STATE();
     let recipient = RECIPIENT();
@@ -1061,6 +1135,7 @@ fn test__mint() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__mint_to_zero() {
     let mut state = COMPONENT_STATE();
@@ -1068,6 +1143,7 @@ fn test__mint_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__mint_already_exist() {
     let mut state = setup();
@@ -1079,6 +1155,7 @@ fn test__mint_already_exist() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test__safe_mint_to_receiver() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_receiver();
@@ -1092,6 +1169,7 @@ fn test__safe_mint_to_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__safe_mint_to_receiver_camel() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_camel_receiver();
@@ -1105,6 +1183,7 @@ fn test__safe_mint_to_receiver_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__safe_mint_to_account() {
     let mut state = COMPONENT_STATE();
     let account = setup_account();
@@ -1118,6 +1197,7 @@ fn test__safe_mint_to_account() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test__safe_mint_to_account_camel() {
     let mut state = COMPONENT_STATE();
     let account = setup_camel_account();
@@ -1131,6 +1211,7 @@ fn test__safe_mint_to_account_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = COMPONENT_STATE();
@@ -1143,6 +1224,7 @@ fn test__safe_mint_to_non_receiver() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure() {
     let mut state = COMPONENT_STATE();
@@ -1155,6 +1237,7 @@ fn test__safe_mint_to_receiver_failure() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure_camel() {
     let mut state = COMPONENT_STATE();
@@ -1167,6 +1250,7 @@ fn test__safe_mint_to_receiver_failure_camel() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__safe_mint_to_zero() {
     let mut state = COMPONENT_STATE();
@@ -1174,6 +1258,7 @@ fn test__safe_mint_to_zero() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__safe_mint_already_exist() {
     let mut state = setup();
@@ -1185,6 +1270,7 @@ fn test__safe_mint_already_exist() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test__burn() {
     let mut state = setup();
 
@@ -1204,6 +1290,7 @@ fn test__burn() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__burn_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -1215,6 +1302,7 @@ fn test__burn_nonexistent() {
 //
 
 #[test]
+#[available_gas(20000000)]
 fn test__set_token_uri() {
     let mut state = setup();
 
@@ -1224,6 +1312,7 @@ fn test__set_token_uri() {
 }
 
 #[test]
+#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__set_token_uri_nonexistent() {
     let mut state = COMPONENT_STATE();

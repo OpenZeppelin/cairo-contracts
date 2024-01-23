@@ -12,6 +12,7 @@ fn STATE() -> DualCaseERC721ReceiverMock::ContractState {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_initializer() {
     let mut state = STATE();
     state.erc721_receiver.initializer();
@@ -20,6 +21,7 @@ fn test_initializer() {
 }
 
 #[test]
+#[available_gas(20000000)]
 fn test_on_erc721_received() {
     let mut state = STATE();
     assert(

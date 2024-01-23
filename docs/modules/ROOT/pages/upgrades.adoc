@@ -109,7 +109,7 @@ Upgrades can be very sensitive operations, and security should always be top of 
 
 - API changes that might affect integration. For example, changing an external function's arguments might break existing contracts or offchain systems calling your contract.
 - Storage changes that might result in lost data (e.g. changing a storage slot name, making existing storage inaccessible).
-- Collisions (e.g. mistakenly reusing the same storage slot from another component) are also possible, although less likely if best practices are followed, for example preppending storage variables with the component's name (e.g. `ERC20_balances`).
+- Collisions (e.g. mistakenly reusing the same storage slot from another component) are also possible, although less likely if best practices are followed, for example prepending storage variables with the component's name (e.g. `ERC20_balances`).
 - Always check for xref:backwards-compatibility.adoc[backwards compatibility] before upgrading between versions of OpenZeppelin Contracts.
 
 == Proxies in Starknet

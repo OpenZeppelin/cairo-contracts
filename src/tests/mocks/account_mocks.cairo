@@ -18,7 +18,6 @@ mod DualCaseAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -98,7 +97,6 @@ mod CamelAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
-
 
     #[storage]
     struct Storage {

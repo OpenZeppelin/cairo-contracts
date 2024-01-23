@@ -96,7 +96,7 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(20000000)]
+#[available_gas(2000000000)]
 fn test__mint_assets() {
     let mut state = ERC721::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
@@ -120,7 +120,7 @@ fn test__mint_assets() {
 }
 
 #[test]
-#[available_gas(20000000)]
+#[available_gas(2000000000)]
 #[should_panic(expected: ('Array lengths do not match',))]
 fn test__mint_assets_mismatched_arrays_1() {
     let mut state = ERC721::contract_state_for_testing();

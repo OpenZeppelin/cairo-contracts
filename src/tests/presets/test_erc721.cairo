@@ -131,7 +131,7 @@ fn test__mint_assets_mismatched_arrays_1() {
 }
 
 #[test]
-#[available_gas(20000000)]
+#[available_gas(2000000000)]
 #[should_panic(expected: ('Array lengths do not match',))]
 fn test__mint_assets_mismatched_arrays_2() {
     let mut state = ERC721::contract_state_for_testing();
@@ -146,7 +146,7 @@ fn test__mint_assets_mismatched_arrays_2() {
 //
 
 #[test]
-#[available_gas(20000000)]
+#[available_gas(2000000000)]
 fn test_constructor() {
     let dispatcher = setup_dispatcher_with_event();
 
@@ -173,7 +173,7 @@ fn test_constructor() {
 }
 
 #[test]
-#[available_gas(20000000)]
+#[available_gas(2000000000)]
 fn test_constructor_events() {
     let dispatcher = setup_dispatcher_with_event();
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];

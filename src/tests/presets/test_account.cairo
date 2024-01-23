@@ -1,5 +1,4 @@
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::AccountComponent::{TRANSACTION_VERSION, QUERY_VERSION};
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
@@ -7,7 +6,9 @@ use openzeppelin::presets::Account;
 use openzeppelin::tests::account::test_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY, SALT, ZERO, RECIPIENT};
+use openzeppelin::tests::utils::constants::{
+    PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, RECIPIENT, MIN_TRANSACTION_VERSION
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
@@ -34,7 +35,7 @@ fn setup_dispatcher() -> AccountABIDispatcher {
 }
 
 fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
-    testing::set_version(TRANSACTION_VERSION);
+    testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
     if data.is_some() {
@@ -329,16 +330,33 @@ fn test_execute() {
 }
 
 #[test]
+fn test_execute_future_version() {
+    test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION + 1));
+}
+
+#[test]
 #[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
 
 #[test]
+#[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
+fn test_execute_invalid_query_version() {
+    test_execute_with_version(Option::Some(QUERY_OFFSET));
+}
+
+#[test]
+#[available_gas(2000000)]
+fn test_execute_future_query_version() {
+    test_execute_with_version(Option::Some(QUERY_VERSION + 1));
+}
+
+#[test]
 #[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
-    test_execute_with_version(Option::Some(TRANSACTION_VERSION - 1));
+    test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
 
 #[test]

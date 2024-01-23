@@ -8,7 +8,8 @@ use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
-    NAME, SYMBOL, PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    NAME, SYMBOL, PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};

@@ -2,9 +2,9 @@
 :class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.3.1[cairo 2.3.1]
 
 // Class Hashes
-:account-class-hash: 0x016c6081eb34ad1e0c5513234ed0c025b3c7f305902d291bad534cd6474c85bc
-:erc20-class-hash: 0x01d7085cee580ba542cdb5709bda80ebfe8bdede664261a3e6af92994d9a1de7
-:erc721-class-hash: 0x04376782cbcd20a05f8e742e96150757383dab737ab3e791b8505ad856756907
+:account-class-hash: 0x067926212d81cdf498865e1f4eb818a5585bd25ca3cf18252af5d2580488264d
+:erc20-class-hash: 0x058590c6c9a8dbbabf8b0b0fea3ec30439387bc85e55ed926f9be2fb8516bf95
+:erc721-class-hash: 0x07014d9f1a4c6ecc3dd371ea74aebfdbda2bc1e110f854cb120642af3413a72a
 
 // Presets page
 :presets-page: xref:presets.adoc[Compiled class hash]

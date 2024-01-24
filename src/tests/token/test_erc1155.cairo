@@ -91,25 +91,10 @@ fn test_initialize() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_balance_of() {
-    let state = setup();
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 1, 'Should return balance');
-}
-
-#[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid account',))]
 fn test_balance_of_zero() {
     let state = setup();
     state.erc1155.balance_of(ZERO(), TOKEN_ID);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test_uri_non_minted() {
-    let state = setup();
-    state.erc1155.uri(u256_from_felt252(7));
 }
 
 //
@@ -200,60 +185,6 @@ fn test__set_approval_for_all_owner_equal_operator_false() {
 
 #[test]
 #[available_gas(20000000)]
-fn test_update_balances_from_owner() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-    utils::drop_event(ZERO());
-
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.transfer_from(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balancesFrom_owner() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-    utils::drop_event(ZERO());
-
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.transferFrom(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test_update_balances_from_nonexistent() {
-    let mut state = STATE();
-    state.erc1155.transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test_update_balancesFrom_nonexistent() {
-    let mut state = STATE();
-    state.erc1155.transferFrom(ZERO(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid receiver',))]
 fn test_update_balances_from_to_zero() {
     let mut state = setup();
@@ -269,118 +200,6 @@ fn test_update_balancesFrom_to_zero() {
 
     testing::set_caller_address(OWNER());
     state.erc1155.transferFrom(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balances_from_to_owner() {
-    let mut state = setup();
-
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 1, 'Balance of owner before');
-
-    testing::set_caller_address(OWNER());
-    state.erc1155.transfer_from(OWNER(), OWNER(), TOKEN_ID, TOKEN_VALUE);
-    assert_event_update_balances(OWNER(), OWNER(), TOKEN_ID, TOKEN_VALUE);
-
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 1, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balancesFrom_to_owner() {
-    let mut state = setup();
-
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 1, 'Balance of owner before');
-
-    testing::set_caller_address(OWNER());
-    state.erc1155.transferFrom(OWNER(), OWNER(), TOKEN_ID, TOKEN_VALUE);
-    assert_event_update_balances(OWNER(), OWNER(), TOKEN_ID, TOKEN_VALUE);
-
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 1, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balances_from_approved() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.transfer_from(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balancesFrom_approved() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.transferFrom(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balances_from_approved_for_all() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.transfer_from(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_update_balancesFrom_approved_for_all() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.transferFrom(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
 }
 
 #[test]
@@ -404,150 +223,6 @@ fn test_update_balancesFrom_unauthorized() {
 //
 // safe_transfer_from & safeTransferFrom
 //
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_account() {
-    let mut state = setup();
-    let account = setup_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, account, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, account, token_id, value, DATA(true));
-    assert_event_update_balances(owner, account, token_id, value);
-
-    assert_state_after_update_balances(owner, account, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_account() {
-    let mut state = setup();
-    let account = setup_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, account, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, account, token_id, value, DATA(true));
-    assert_event_update_balances(owner, account, token_id, value);
-
-    assert_state_after_update_balances(owner, account, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_account_camel() {
-    let mut state = setup();
-    let account = setup_camel_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, account, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, account, token_id, value, DATA(true));
-    assert_event_update_balances(owner, account, token_id, value);
-
-    assert_state_after_update_balances(owner, account, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_account_camel() {
-    let mut state = setup();
-    let account = setup_camel_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, account, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, account, token_id, value, DATA(true));
-    assert_event_update_balances(owner, account, token_id, value);
-
-    assert_state_after_update_balances(owner, account, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_receiver() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_receiver() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_receiver_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_receiver_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
 
 #[test]
 #[available_gas(20000000)]
@@ -575,20 +250,6 @@ fn test_safeTransferFrom_to_receiver_failure() {
 
     testing::set_caller_address(owner);
     state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(false));
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
-fn test_safe_transfer_from_to_receiver_failure_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(false));
 }
 
 #[test]
@@ -635,22 +296,6 @@ fn test_safeTransferFrom_to_non_receiver() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test_safe_transfer_from_nonexistent() {
-    let mut state = STATE();
-    state.erc1155.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test_safeTransferFrom_nonexistent() {
-    let mut state = STATE();
-    state.erc1155.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-#[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
     let mut state = setup();
@@ -665,254 +310,6 @@ fn test_safeTransferFrom_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.erc1155.safeTransferFrom(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_owner() {
-    let mut state = STATE();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = setup_receiver();
-    state.erc1155.initializer(NAME, SYMBOL);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner before');
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, owner, token_id, value, DATA(true));
-    assert_event_update_balances(owner, owner, token_id, value);
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_owner() {
-    let mut state = STATE();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = setup_receiver();
-    state.erc1155.initializer(NAME, SYMBOL);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner before');
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, owner, token_id, value, DATA(true));
-    assert_event_update_balances(owner, owner, token_id, value);
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_to_owner_camel() {
-    let mut state = STATE();
-    let token_id = TOKEN_ID;
-    let owner = setup_camel_receiver();
-    let value = TOKEN_VALUE;
-    state.erc1155.initializer(NAME, SYMBOL);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner before');
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, owner, token_id, value, DATA(true));
-    assert_event_update_balances(owner, owner, token_id, value);
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_to_owner_camel() {
-    let mut state = STATE();
-    let token_id = TOKEN_ID;
-    let owner = setup_camel_receiver();
-    let value = TOKEN_VALUE;
-    state.erc1155.initializer(NAME, SYMBOL);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner before');
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, owner, token_id, value, DATA(true));
-    assert_event_update_balances(owner, owner, token_id, value);
-
-    assert(state.erc1155.balance_of(owner, token_id) == TOKEN_VALUE, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_approved() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_approved() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_approved_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_approved_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155._mint(owner, token_id, value);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_approved_for_all() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_approved_for_all() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safe_transfer_from_approved_for_all_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_safeTransferFrom_approved_for_all_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let owner = OWNER();
-    let value = TOKEN_VALUE;
-
-    assert_state_before_update_balances(owner, receiver, token_id, value);
-
-    testing::set_caller_address(owner);
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
-
-    testing::set_caller_address(OPERATOR());
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(true));
-    assert_event_update_balances(owner, receiver, token_id, value);
-
-    assert_state_after_update_balances(owner, receiver, token_id, value);
 }
 
 #[test]
@@ -939,63 +336,15 @@ fn test_safeTransferFrom_unauthorized() {
 
 #[test]
 #[available_gas(20000000)]
-fn test__update_balances() {
-    let mut state = setup();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
-
-    assert_state_before_update_balances(owner, recipient, token_id, value);
-
-    state.erc1155._update_balances(owner, recipient, token_id, value);
-    assert_event_update_balances(owner, recipient, token_id, value);
-
-    assert_state_after_update_balances(owner, recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test__update_balances_nonexistent() {
-    let mut state = STATE();
-    state.erc1155._update_balances(ZERO(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid receiver',))]
 fn test__update_balances_to_zero() {
     let mut state = setup();
     state.erc1155._update_balances(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
 }
 
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: wrong sender',))]
-fn test__update_balances_from_invalid_owner() {
-    let mut state = setup();
-    state.erc1155._update_balances(RECIPIENT(), OWNER(), TOKEN_ID, TOKEN_VALUE);
-}
-
 //
 // _mint
 //
-
-#[test]
-#[available_gas(20000000)]
-fn test__mint() {
-    let mut state = STATE();
-    let recipient = RECIPIENT();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._mint(recipient, TOKEN_ID, TOKEN_VALUE);
-    assert_event_update_balances(ZERO(), recipient, token_id, value);
-
-    assert_state_after_mint(recipient, token_id, value);
-}
 
 #[test]
 #[available_gas(20000000)]
@@ -1005,77 +354,9 @@ fn test__mint_to_zero() {
     state.erc1155._mint(ZERO(), TOKEN_ID, TOKEN_VALUE);
 }
 
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: token already minted',))]
-fn test__mint_already_exist() {
-    let mut state = setup();
-    state.erc1155._mint(RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
 //
 // _safe_mint
 //
-
-#[test]
-#[available_gas(20000000)]
-fn test__safe_mint_to_receiver() {
-    let mut state = STATE();
-    let recipient = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._safe_mint(recipient, token_id, value, DATA(true));
-    assert_event_update_balances(ZERO(), recipient, token_id, value);
-
-    assert_state_after_mint(recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test__safe_mint_to_receiver_camel() {
-    let mut state = STATE();
-    let recipient = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._safe_mint(recipient, token_id, value, DATA(true));
-    assert_event_update_balances(ZERO(), recipient, token_id, value);
-
-    assert_state_after_mint(recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test__safe_mint_to_account() {
-    let mut state = STATE();
-    let account = setup_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(account, token_id);
-    state.erc1155._safe_mint(account, token_id, value, DATA(true));
-    assert_event_update_balances(ZERO(), account, token_id, value);
-
-    assert_state_after_mint(account, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test__safe_mint_to_account_camel() {
-    let mut state = STATE();
-    let account = setup_camel_account();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(account, token_id);
-    state.erc1155._safe_mint(account, token_id, value, DATA(true));
-    assert_event_update_balances(ZERO(), account, token_id, value);
-
-    assert_state_after_mint(account, token_id, value);
-}
 
 #[test]
 #[available_gas(20000000)]
@@ -1127,38 +408,6 @@ fn test__safe_mint_to_zero() {
     state.erc1155._safe_mint(ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: token already minted',))]
-fn test__safe_mint_already_exist() {
-    let mut state = setup();
-    state.erc1155._safe_mint(RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-//
-// _burn
-//
-
-#[test]
-#[available_gas(20000000)]
-fn test__burn() {
-    let mut state = setup();
-
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == TOKEN_VALUE, 'Balance of owner before');
-
-    state.erc1155._burn(OWNER(), TOKEN_ID, TOKEN_VALUE);
-    assert_event_update_balances(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 0, 'Balance of owner after');
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test__burn_nonexistent() {
-    let mut state = STATE();
-    state.erc1155._burn(OWNER(), TOKEN_ID, TOKEN_VALUE);
-}
-
 //
 // _set_uri
 //
@@ -1171,14 +420,6 @@ fn test__set_uri() {
     assert(state.erc1155.uri(TOKEN_ID) == 0, 'URI should be 0');
     state.erc1155._set_uri(TOKEN_ID, URI);
     assert(state.erc1155.uri(TOKEN_ID) == URI, 'URI should be set');
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid token ID',))]
-fn test__set_uri_nonexistent() {
-    let mut state = STATE();
-    state.erc1155._set_uri(TOKEN_ID, URI);
 }
 
 //

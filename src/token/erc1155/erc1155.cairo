@@ -424,7 +424,9 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from, to, ids: token_ids, values }
+                    TransferBatch {
+                        operator: get_caller_address(), from, to, ids: token_ids, values
+                    }
                 );
         }
 
@@ -449,7 +451,9 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from, to, ids: token_ids, values }
+                    TransferBatch {
+                        operator: get_caller_address(), from, to, ids: token_ids, values
+                    }
                 );
         }
 
@@ -535,7 +539,13 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from, to: Zeroable::zero(), ids: token_ids, values }
+                    TransferBatch {
+                        operator: get_caller_address(),
+                        from,
+                        to: Zeroable::zero(),
+                        ids: token_ids,
+                        values
+                    }
                 );
         }
 
@@ -549,10 +559,14 @@ mod ERC1155Component {
         /// - `value` >= balances.
         ///
         /// Emits a `Transfer` event.
-        fn _burn(ref self: ComponentState<TContractState>, from: ContractAddress, token_id: u256, value: u256) {
+        fn _burn(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            token_id: u256,
+            value: u256
+        ) {
             assert(
-                self.ERC1155_balances.read((token_id, from)) >= value,
-                Errors::INSUFFICIENT_BALANCE
+                self.ERC1155_balances.read((token_id, from)) >= value, Errors::INSUFFICIENT_BALANCE
             );
 
             self._update_balances(from, Zeroable::zero(), token_id, value);
@@ -589,8 +603,14 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from: Zeroable::zero(), to, ids: token_ids, values }
-            );
+                    TransferBatch {
+                        operator: get_caller_address(),
+                        from: Zeroable::zero(),
+                        to,
+                        ids: token_ids,
+                        values
+                    }
+                );
         }
 
         /// Mints `values` and transfers it to `to`.
@@ -646,8 +666,14 @@ mod ERC1155Component {
 
             self
                 .emit(
-                    TransferBatch { operator: get_caller_address(), from: Zeroable::zero(), to, ids: token_ids, values }
-            );
+                    TransferBatch {
+                        operator: get_caller_address(),
+                        from: Zeroable::zero(),
+                        to,
+                        ids: token_ids,
+                        values
+                    }
+                );
         }
 
         /// Mints `value` if `to` is either an account or `IERC1155Receiver`.
@@ -676,7 +702,7 @@ mod ERC1155Component {
         /// Sets the `uri` of `token_id`.
         fn _set_uri(ref self: ComponentState<TContractState>, token_id: u256, uri: felt252) {
             self.ERC1155_uri.write(token_id, uri);
-            
+
             self.emit(URI { value: uri, id: token_id });
         }
     }

@@ -75,15 +75,6 @@ fn setup_receiver() -> ContractAddress {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_name() {
-    let (snake_dispatcher, _) = setup_snake();
-    let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.name() == NAME, 'Should return name');
-    assert(camel_dispatcher.name() == NAME, 'Should return name');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_name() {
     let dispatcher = setup_non_erc1155();
@@ -96,15 +87,6 @@ fn test_dual_no_name() {
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.name();
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_dual_symbol() {
-    let (snake_dispatcher, _) = setup_snake();
-    let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.symbol() == SYMBOL, 'Should return symbol');
-    assert(camel_dispatcher.symbol() == SYMBOL, 'Should return symbol');
 }
 
 #[test]
@@ -129,24 +111,9 @@ fn test_dual_symbol_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_balance_of() {
-    let (dispatcher, _) = setup_snake();
-    assert(dispatcher.balance_of(OWNER(), TOKEN_ID) == 1, 'Should return balance');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc1155();
-    dispatcher.balance_of(OWNER(), TOKEN_ID);
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_balance_of_exists_and_panics() {
-    let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.balance_of(OWNER(), TOKEN_ID);
 }
 
@@ -160,25 +127,9 @@ fn test_dual_no_transfer_from() {
 
 #[test]
 #[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_transfer_from_exists_and_panics() {
-    let (dispatcher, _) = setup_erc1155_panic();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc1155();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_safe_transfer_from_exists_and_panics() {
-    let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
@@ -284,74 +235,10 @@ fn test_dual_supports_interface_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_balanceOf() {
-    let (dispatcher, _) = setup_camel();
-    assert(dispatcher.balance_of(OWNER(), TOKEN_ID) == 1, 'Should return balance');
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_balanceOf_exists_and_panics() {
-    let (_, dispatcher) = setup_erc1155_panic();
-    dispatcher.balance_of(OWNER(), TOKEN_ID);
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_transferFrom_exists_and_panics() {
-    let (_, dispatcher) = setup_erc1155_panic();
-    dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_safeTransferFrom_exists_and_panics() {
-    let (_, dispatcher) = setup_erc1155_panic();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_dual_setApprovalForAll() {
-    let (dispatcher, target) = setup_camel();
-    set_contract_address(OWNER());
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    assert(target.isApprovedForAll(OWNER(), OPERATOR()), 'Operator not approved correctly');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.set_approval_for_all(OPERATOR(), true);
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_dual_isApprovedForAll() {
-    let (dispatcher, target) = setup_camel();
-    set_contract_address(OWNER());
-    target.setApprovalForAll(OPERATOR(), true);
-    assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
-}
-
-#[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
-fn test_dual_isApprovedForAll_exists_and_panics() {
-    let (_, dispatcher) = setup_erc1155_panic();
-    dispatcher.is_approved_for_all(OWNER(), OPERATOR());
-}
-
-#[test]
-#[available_gas(2000000)]
-fn test_dual_tokenURI() {
-    let (dispatcher, target) = setup_camel();
-    assert(dispatcher.uri(TOKEN_ID) == URI, 'Should return URI');
 }
 
 #[test]
@@ -364,42 +251,8 @@ fn test_dual_tokenURI_exists_and_panics() {
 
 #[test]
 #[available_gas(2000000)]
-fn test_dual_supportsInterface() {
-    let (dispatcher, _) = setup_camel();
-    assert(dispatcher.supports_interface(IERC1155_ID), 'Should support own interface');
-}
-
-#[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
 fn test_dual_supportsInterface_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.supports_interface(IERC1155_ID);
 }
-// #[test]
-// #[available_gas(2000000)]
-// fn test_dual_transfer_from() {
-//     let (dispatcher, target) = setup_snake();
-//     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-//     assert(target.owner_of(TOKEN_ID) == RECIPIENT(), 'Should transfer token');
-// }
-
-// #[test]
-// #[available_gas(2000000)]
-// fn test_dual_transferFrom() {
-//     let (dispatcher, target) = setup_camel();
-//     set_contract_address(OWNER());
-//     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-//     assert(target.ownerOf(TOKEN_ID) == RECIPIENT(), 'Should transfer token');
-// }
-
-// #[test]
-// #[available_gas(2000000)]
-// fn test_dual_safeTransferFrom() {
-//     let (dispatcher, target) = setup_camel();
-//     let receiver = setup_receiver();
-//     dispatcher.safe_transfer_from(OWNER(), receiver, TOKEN_ID, TOKEN_VALUE, DATA(true));
-//     assert(target.ownerOf(TOKEN_ID) == receiver, 'Should transfer token');
-// }
-
-

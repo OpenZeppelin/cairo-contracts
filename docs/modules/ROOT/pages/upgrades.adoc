@@ -10,7 +10,9 @@
 
 In different blockchains, multiple patterns have been developed for making a contract upgradeable including the widely adopted proxy patterns.
 
-Starknet has native upgradeability through a syscall that updates the contract source code, removing the need for proxies.
+Starknet has native upgradeability through a syscall that updates the contract source code, removing xref:#proxies_in_starknet[the need for proxies].
+
+WARNING: Make sure you follow xref:#security[our security recommendations] before upgrading.
 
 == Replacing contract classes
 
@@ -101,7 +103,16 @@ mod UpgradeableContract {
 }
 ----
 
-== Proxies and Starknet
+== Security
+
+Upgrades can be very sensitive operations, and security should always be top of mind while performing one. Please make sure you thoroughly review the changes and their consequences before upgrading. Some aspects to consider are:
+
+- API changes that might affect integration. For example, changing an external function's arguments might break existing contracts or offchain systems calling your contract.
+- Storage changes that might result in lost data (e.g. changing a storage slot name, making existing storage inaccessible).
+- Collisions (e.g. mistakenly reusing the same storage slot from another component) are also possible, although less likely if best practices are followed, for example prepending storage variables with the component's name (e.g. `ERC20_balances`).
+- Always check for xref:backwards-compatibility.adoc[backwards compatibility] before upgrading between versions of OpenZeppelin Contracts.
+
+== Proxies in Starknet
 
 Proxies enable different patterns such as upgrades and clones. But since Starknet achieves the same in different ways is that there's no support to implement them.
 

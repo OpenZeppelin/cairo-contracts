@@ -259,3 +259,10 @@ mod MyTokenReceiver {
     }
 }
 ----
+
+=== Storing ERC721 URIs
+
+:erc721uri-storage: https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#ERC721URIStorage[ERC721URIStorage]
+
+Token URIs were previously stored as single field elements prior to Cairo v0.2.5; however, they are now stored as ``ByteArray``s.
+This design is similar to {erc721uri-storage}.

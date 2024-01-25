@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage docs (#823)
 - Utilities documentation (#825)
 - Documentation for presets (#832)
+- Backwards compatibility notice (#861)
 - Add automatic version bump to CI (#862)
 
 ### Changed
@@ -21,3 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docsite navbar (#838)
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
+- Add security section to Upgrades docs (#861)

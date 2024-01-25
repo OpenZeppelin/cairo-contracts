@@ -229,7 +229,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 .Internal Functions
 --
 .InternalImpl
-* xref:#ERC721-initializer[`++initializer(self, name_, symbol_)++`]
+* xref:#ERC721-initializer[`++initializer(self, name, symbol)++`]
 * xref:#ERC721-_owner_of[`++_owner_of(self, token_id)++`]
 * xref:#ERC721-_exists[`++_exists(self, token_id)++`]
 * xref:#ERC721-_is_approved_or_owner[`++_is_approved_or_owner(self, spender, token_id)++`]

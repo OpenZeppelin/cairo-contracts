@@ -25,7 +25,7 @@ trait IAccessControlCamel<TState> {
 }
 
 #[starknet::interface]
-trait IAccessControlMixin<TState> {
+trait AccessControlABI<TState> {
     // IAccessControl
     fn has_role(self: @TState, role: felt252, account: ContractAddress) -> bool;
     fn get_role_admin(self: @TState, role: felt252) -> felt252;

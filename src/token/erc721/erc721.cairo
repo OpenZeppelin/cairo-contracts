@@ -546,8 +546,8 @@ mod ERC721Component {
         }
     }
 
-    #[embeddable_as(ERC721MixinImpl)]
-    impl ERC721Mixin<
+    #[embeddable_as(ERC721ABIImpl)]
+    impl ERC721ABI<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

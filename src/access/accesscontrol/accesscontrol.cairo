@@ -236,13 +236,13 @@ mod AccessControlComponent {
         }
     }
 
-    #[embeddable_as(AccessControlMixinImpl)]
-    impl AccessControlMixin<
+    #[embeddable_as(AccessControlABIImpl)]
+    impl AccessControlABI<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IAccessControlMixin<ComponentState<TContractState>> {
+    > of interface::AccessControlABI<ComponentState<TContractState>> {
         // IAccessControl
         fn has_role(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress

@@ -128,10 +128,10 @@ mod OwnableComponent {
         }
     }
 
-    #[embeddable_as(OwnableMixinImpl)]
-    impl OwnableMixin<
+    #[embeddable_as(OwnableABIImpl)]
+    impl OwnableABI<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
-    > of interface::IOwnableMixin<ComponentState<TContractState>> {
+    > of interface::OwnableABI<ComponentState<TContractState>> {
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             Ownable::owner(self)
         }

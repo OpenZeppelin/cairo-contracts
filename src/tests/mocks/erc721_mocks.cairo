@@ -9,7 +9,7 @@ mod DualCaseERC721Mock {
 
     // ERC721
     #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
+    impl ERC721ABIImpl = ERC721Component::ERC721ABIImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     #[storage]

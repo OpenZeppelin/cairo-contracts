@@ -29,7 +29,7 @@ use openzeppelin::access::ownable::OwnableComponent;
 
 This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
-[.contract-index]
+[.contract-index#OwnableComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
 .OwnableImpl
@@ -39,13 +39,23 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-renounce_ownership[`++renounce_ownership(self)++`]
 --
 
-[.contract-index]
+[.contract-index#OwnableComponent-Embeddable-Impls-camelCase]
 .Embeddable Implementations (camelCase)
 --
 .OwnableCamelOnlyImpl
 
 * xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
 * xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
+--
+
+[.contract-index#OwnableComponent-ABI-Impl]
+.Embeddable ABI Implementation
+
+--
+.OwnableABIImpl
+
+* xref:#OwnableComponent-Embeddable-Impls[`++OwnableImpl++`]
+* xref:#OwnableComponent-Embeddable-Impls-camelCase[`++OwnableCamelOnlyImpl++`]
 --
 
 [.contract-index]
@@ -321,7 +331,7 @@ WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
 grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
-[.contract-index]
+[.contract-index#AccessControlComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
 .AccessControlImpl
@@ -336,7 +346,7 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
 --
 
-[.contract-index]
+[.contract-index#AccessControlComponent-Embeddable-Impls-camelCase]
 .Embeddable Implementations (camelCase)
 --
 .AccessControlCamelImpl
@@ -346,6 +356,17 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-grantRole[`++grantRole(self, role, account)++`]
 * xref:#AccessControlComponent-revokeRole[`++revokeRole(self, role, account)++`]
 * xref:#AccessControlComponent-renounceRole[`++renounceRole(self, role, account)++`]
+--
+
+[.contract-index#AccessControl-ABI-Impl]
+.Embeddable ABI Implementation
+
+--
+.AccessControlABIImpl
+
+* xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-camelCase[`++AccessControlCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
 [.contract-index]

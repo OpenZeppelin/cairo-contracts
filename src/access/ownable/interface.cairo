@@ -17,7 +17,7 @@ trait IOwnableCamelOnly<TState> {
 }
 
 #[starknet::interface]
-trait IOwnableMixin<TState> {
+trait OwnableABI<TState> {
     // IOwnable
     fn owner(self: @TState) -> ContractAddress;
     fn transfer_ownership(ref self: TState, new_owner: ContractAddress);

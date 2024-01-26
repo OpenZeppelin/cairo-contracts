@@ -139,7 +139,7 @@ trait IERC721ReceiverCamel<TState> {
 }
 
 #[starknet::interface]
-trait IERC721ReceiverMixin<TState> {
+trait ERC721ReceiverABI<TState> {
     // IERC721Receiver
     fn on_erc721_received(
         self: @TState,

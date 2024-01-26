@@ -11,8 +11,8 @@ mod DualCaseERC721ReceiverMock {
 
     // ERC721Receiver
     #[abi(embed_v0)]
-    impl ERC721ReceiverMixinImpl =
-        ERC721ReceiverComponent::ERC721ReceiverMixinImpl<ContractState>;
+    impl ERC721ReceiverABIImpl =
+        ERC721ReceiverComponent::ERC721ReceiverABIImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     #[storage]

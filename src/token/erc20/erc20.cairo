@@ -387,8 +387,8 @@ mod ERC20Component {
         }
     }
 
-    #[embeddable_as(ERC20MixinImpl)]
-    impl ERC20Mixin<
+    #[embeddable_as(ERC20ABIImpl)]
+    impl ERC20ABI<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of interface::ERC20ABI<ComponentState<TContractState>> {
         // IERC20

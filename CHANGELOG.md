@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- ABI implementations (mixins) in components (#863)
+
+### Changed
+
 ## 0.8.1 (2024-01-23)
 
 ### Added

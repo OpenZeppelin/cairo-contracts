@@ -132,6 +132,7 @@ mod OwnableComponent {
     impl OwnableABI<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of interface::OwnableABI<ComponentState<TContractState>> {
+        // IOwnable
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
             Ownable::owner(self)
         }
@@ -146,6 +147,7 @@ mod OwnableComponent {
             Ownable::renounce_ownership(ref self);
         }
 
+        // IOwnableCamelOnly
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
             OwnableCamelOnly::transferOwnership(ref self, newOwner);
         }

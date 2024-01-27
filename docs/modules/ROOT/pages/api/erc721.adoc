@@ -639,15 +639,12 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Embedded Implementations
 --
-.ERC721Component
+.ERC721ABIImpl
 
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
 * xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnly++`]
 * xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnly++`]
-
-.SRC5Component
-
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 

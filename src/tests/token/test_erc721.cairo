@@ -82,12 +82,13 @@ fn test_initialize() {
     assert!(state.balance_of(OWNER()).is_zero());
 
     let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    assert!(supports_ierc721);
+
     let supports_ierc721_metadata = mock_state
         .supports_interface(erc721::interface::IERC721_METADATA_ID);
-    let supports_isrc5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
-
-    assert!(supports_ierc721);
     assert!(supports_ierc721_metadata);
+
+    let supports_isrc5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
     assert!(supports_isrc5);
 }
 

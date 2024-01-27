@@ -66,8 +66,9 @@ fn test_constructor() {
     assert_eq!(public_key, PUBKEY);
 
     let supports_isrc5 = Account::SRC5Impl::supports_interface(@state, ISRC5_ID);
-    let supports_isrc6 = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc5);
+
+    let supports_isrc6 = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc6);
 }
 
@@ -401,9 +402,11 @@ fn test_multicall() {
     // Test return value
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
+
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
     assert!(call1_retval.unwrap());
+
+    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
     assert!(call2_retval.unwrap());
 }
 

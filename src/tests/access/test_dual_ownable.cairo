@@ -59,8 +59,9 @@ fn test_dual_owner() {
     let (camel_dispatcher, _) = setup_camel();
 
     let snake_owner = snake_dispatcher.owner();
-    let camel_owner = camel_dispatcher.owner();
     assert_eq!(snake_owner, OWNER());
+
+    let camel_owner = camel_dispatcher.owner();
     assert_eq!(camel_owner, OWNER());
 }
 

@@ -359,9 +359,11 @@ fn test_multicall() {
     // Test return values
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
+
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
     assert!(call1_retval.unwrap());
+
+    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
     assert!(call2_retval.unwrap());
 }
 

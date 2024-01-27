@@ -57,8 +57,9 @@ fn setup_erc20_panic() -> (DualCaseERC20, DualCaseERC20) {
 #[test]
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
-    let (camel_dispatcher, _) = setup_camel();
     assert_eq!(snake_dispatcher.name(), NAME);
+
+    let (camel_dispatcher, _) = setup_camel();
     assert_eq!(camel_dispatcher.name(), NAME);
 }
 

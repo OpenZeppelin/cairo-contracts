@@ -269,6 +269,6 @@ mod AccountComponent {
 
     fn _execute_single_call(call: Call) -> Span<felt252> {
         let Call{to, selector, calldata } = call;
-        starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()
+        starknet::call_contract_syscall(to, selector, calldata.into()).unwrap()
     }
 }

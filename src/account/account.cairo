@@ -273,8 +273,8 @@ mod AccountComponent {
         starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()
     }
 
-    #[embeddable_as(AccountMixinImpl)]
-    impl AccountMixin<
+    #[embeddable_as(AccountABIImpl)]
+    impl AccountABI<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

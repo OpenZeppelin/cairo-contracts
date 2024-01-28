@@ -166,7 +166,7 @@ mod Account {
     // This embeds all of the methods from the many AccountComponent implementations
     // and also includes `supports_interface` from `SRC5Impl`
     #[abi(embed_v0)]
-    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountABIImpl = AccountComponent::AccountABIImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     #[storage]

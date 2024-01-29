@@ -11,6 +11,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.OPENZEPPELIN_ORG_GITHUB_PAT }}
 
     - name: Extract current version
       run: |
@@ -29,5 +31,4 @@ jobs:
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
       with:
-        token: ${{ secrets.OPENZEPPELIN_ORG_GITHUB_PAT }}
         commit_message: Bump version to ${{ env.NEW_VERSION }}

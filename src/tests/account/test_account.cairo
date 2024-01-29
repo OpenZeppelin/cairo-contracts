@@ -107,7 +107,6 @@ fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispa
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -119,14 +118,13 @@ fn test_is_valid_signature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state.is_valid_signature(hash, good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.is_valid_signature(hash, bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_isValidSignature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -138,10 +136,10 @@ fn test_isValidSignature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state.isValidSignature(hash, good_signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 
     let is_valid = state.isValidSignature(hash, bad_signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 //
@@ -149,21 +147,17 @@ fn test_isValidSignature() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_deploy() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, PUBKEY);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -174,7 +168,6 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -187,7 +180,6 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_deploy_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -198,21 +190,17 @@ fn test_validate_deploy_empty_signature() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate_declare() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    assert(
-        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_declare__(CLASS_HASH());
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_data() {
     let mut data = SIGNED_TX_DATA();
@@ -223,7 +211,6 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_invalid_signature_length() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -236,7 +223,6 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_declare_empty_signature() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
@@ -273,17 +259,16 @@ fn test_execute_with_version(version: Option<felt252>) {
     let ret = account.__execute__(calls);
 
     // Assert that the transfer was successful
-    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-    assert(erc20.balance_of(recipient) == amount, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
 
     // Test return value
     let mut call_serialized_retval = *ret.at(0);
     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert(call_retval.unwrap(), 'Should have succeeded');
+    assert!(call_retval.unwrap());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute() {
     test_execute_with_version(Option::None(()));
 }
@@ -294,7 +279,6 @@ fn test_execute_future_version() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION));
 }
@@ -306,29 +290,26 @@ fn test_execute_invalid_query_version() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_execute_future_query_version() {
     test_execute_with_version(Option::Some(QUERY_VERSION + 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid tx version', 'ENTRYPOINT_FAILED'))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+    let is_valid = account.__validate__(calls);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid signature', 'ENTRYPOINT_FAILED'))]
 fn test_validate_invalid() {
     let calls = array![];
@@ -340,7 +321,6 @@ fn test_validate_invalid() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_multicall() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
@@ -372,33 +352,31 @@ fn test_multicall() {
     let ret = account.__execute__(calls);
 
     // Assert that the transfers were successful
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred from call1");
+    assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred from call2");
 
-    // Test return value
+    // Test return values
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
+
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
+    assert!(call1_retval.unwrap());
+
     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert(call1_retval.unwrap(), 'Should have succeeded');
-    assert(call2_retval.unwrap(), 'Should have succeeded');
+    assert!(call2_retval.unwrap());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_multicall_zero_calls() {
     let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
     let mut calls = array![];
 
-    let ret = account.__execute__(calls);
-
-    // Test return value
-    assert(ret.len() == 0, 'Should have an empty response');
+    let response = account.__execute__(calls);
+    assert!(response.is_empty());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: invalid caller',))]
 fn test_account_called_from_contract() {
     let state = setup();
@@ -416,7 +394,6 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter() {
     let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
@@ -424,7 +401,7 @@ fn test_public_key_setter_and_getter() {
 
     // Check default
     let public_key = state.get_public_key();
-    assert(public_key == 0, 'Should be zero');
+    assert!(public_key.is_zero());
 
     // Set key
     state.set_public_key(NEW_PUBKEY);
@@ -433,11 +410,10 @@ fn test_public_key_setter_and_getter() {
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.get_public_key();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
@@ -453,7 +429,6 @@ fn test_public_key_setter_different_account() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_public_key_setter_and_getter_camel() {
     let mut state = COMPONENT_STATE();
     testing::set_contract_address(ACCOUNT_ADDRESS());
@@ -461,7 +436,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     // Check default
     let public_key = state.getPublicKey();
-    assert(public_key == 0, 'Should be zero');
+    assert!(public_key.is_zero());
 
     // Set key
     state.setPublicKey(NEW_PUBKEY);
@@ -470,11 +445,10 @@ fn test_public_key_setter_and_getter_camel() {
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.getPublicKey();
-    assert(public_key == NEW_PUBKEY, 'Should update key');
+    assert_eq!(public_key, NEW_PUBKEY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
@@ -490,25 +464,24 @@ fn test_public_key_setter_different_account_camel() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
 
     state.initializer(PUBKEY);
-
     assert_only_event_owner_added(ZERO(), PUBKEY);
-    assert(state.get_public_key() == PUBKEY, 'Should return PUBKEY');
 
-    let supports_default_interface = mock_state.supports_interface(ISRC5_ID);
-    assert(supports_default_interface, 'Should support base interface');
+    let public_key = state.get_public_key();
+    assert_eq!(public_key, PUBKEY);
 
-    let supports_account_interface = mock_state.supports_interface(ISRC6_ID);
-    assert(supports_account_interface, 'Should support account id');
+    let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
+
+    let supports_isrc6 = mock_state.supports_interface(ISRC6_ID);
+    assert!(supports_isrc6);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_only_self_true() {
     let mut state = COMPONENT_STATE();
 
@@ -518,7 +491,6 @@ fn test_assert_only_self_true() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Account: unauthorized',))]
 fn test_assert_only_self_false() {
     let mut state = COMPONENT_STATE();
@@ -530,7 +502,6 @@ fn test_assert_only_self_false() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -543,17 +514,16 @@ fn test__is_valid_signature() {
     state.set_public_key(data.public_key);
 
     let is_valid = state._is_valid_signature(hash, good_signature.span());
-    assert(is_valid, 'Should accept valid signature');
+    assert!(is_valid);
 
-    let is_valid = state._is_valid_signature(hash, bad_signature.span());
-    assert(!is_valid, 'Should reject invalid signature');
+    let is_not_valid = !state._is_valid_signature(hash, bad_signature.span());
+    assert!(is_not_valid);
 
-    let is_valid = state._is_valid_signature(hash, invalid_length_signature.span());
-    assert(!is_valid, 'Should reject invalid length');
+    let is_not_valid = !state._is_valid_signature(hash, invalid_length_signature.span());
+    assert!(is_not_valid);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
     state._set_public_key(PUBKEY);
@@ -561,7 +531,7 @@ fn test__set_public_key() {
     assert_only_event_owner_added(ZERO(), PUBKEY);
 
     let public_key = state.get_public_key();
-    assert(public_key == PUBKEY, 'Should update key');
+    assert_eq!(public_key, PUBKEY);
 }
 
 //
@@ -570,7 +540,7 @@ fn test__set_public_key() {
 
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
-    assert(event.removed_owner_guid == removed_owner_guid, 'Invalid `removed_owner_guid`');
+    assert_eq!(event.removed_owner_guid, removed_owner_guid);
 
     // Check indexed keys
     let indexed_keys = array![removed_owner_guid];
@@ -579,7 +549,7 @@ fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: fel
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
     let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
-    assert(event.new_owner_guid == new_owner_guid, 'Invalid `new_owner_guid`');
+    assert_eq!(event.new_owner_guid, new_owner_guid);
 
     // Check indexed keys
     let indexed_keys = array![new_owner_guid];

@@ -19,7 +19,7 @@ starknet = "2.4.4"
 [[target.starknet-contract]]
 allowed-libfuncs-list.name = "experimental"
 sierra = true
-casm = false
+casm = true
 
 [tool.fmt]
 sort-module-level-items = true

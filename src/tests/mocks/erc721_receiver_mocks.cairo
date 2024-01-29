@@ -6,16 +6,16 @@ mod DualCaseERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -72,16 +72,16 @@ mod SnakeERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -127,16 +127,16 @@ mod CamelERC721ReceiverMock {
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -191,7 +191,7 @@ mod SnakeERC721ReceiverPanicMock {
         token_id: u256,
         data: Span<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 }
@@ -211,7 +211,7 @@ mod CamelERC721ReceiverPanicMock {
         tokenId: u256,
         data: Span<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 }

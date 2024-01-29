@@ -10,7 +10,7 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/account/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -156,7 +156,7 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 [[AccountComponent-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction[`Declare` transaction].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -164,7 +164,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[AccountComponent-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
@@ -469,7 +469,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/presets/account.cairo[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::Account;

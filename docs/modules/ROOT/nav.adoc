@@ -6,7 +6,7 @@
 ** xref:components.adoc[Components]
 ** xref:presets.adoc[Presets]
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
-** xref:guides/deployment.adoc[Counterfactual deployments]
+** xref:guides/deployment.adoc[Counterfactual Deployments]
 // ** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
@@ -37,4 +37,5 @@
 
 ** xref:utilities.adoc[Utilities]
 
+* xref:backwards-compatibility.adoc[Backwards Compatibility]
 * xref:contracts::index.adoc[Contracts for Solidity]

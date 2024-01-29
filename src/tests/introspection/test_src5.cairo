@@ -12,42 +12,37 @@ fn COMPONENT_STATE() -> ComponentState {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_default_behavior() {
     let state = COMPONENT_STATE();
-    let supports_default_interface = state.supports_interface(ISRC5_ID);
-    assert(supports_default_interface, 'Should support base interface');
+    let supports_isrc5 = state.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_not_registered_interface() {
     let state = COMPONENT_STATE();
-    let supports_unregistered_interface = state.supports_interface(OTHER_ID);
-    assert(!supports_unregistered_interface, 'Should not support unregistered');
+    let does_not_support_unregistered_interface = !state.supports_interface(OTHER_ID);
+    assert!(does_not_support_unregistered_interface);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_register_interface() {
     let mut state = COMPONENT_STATE();
     state.register_interface(OTHER_ID);
     let supports_new_interface = state.supports_interface(OTHER_ID);
-    assert(supports_new_interface, 'Should support new interface');
+    assert!(supports_new_interface);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_deregister_interface() {
     let mut state = COMPONENT_STATE();
     state.register_interface(OTHER_ID);
     state.deregister_interface(OTHER_ID);
-    let supports_old_interface = state.supports_interface(OTHER_ID);
-    assert(!supports_old_interface, 'Should not support interface');
+    let does_not_support_old_interface = !state.supports_interface(OTHER_ID);
+    assert!(does_not_support_old_interface);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('SRC5: invalid id',))]
 fn test_deregister_default_interface() {
     let mut state = COMPONENT_STATE();

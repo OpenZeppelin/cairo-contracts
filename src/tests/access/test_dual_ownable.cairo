@@ -8,6 +8,7 @@ use openzeppelin::tests::mocks::ownable_mocks::{
     CamelOwnableMock, CamelOwnablePanicMock, SnakeOwnableMock, SnakeOwnablePanicMock
 };
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing::set_contract_address;
@@ -53,16 +54,18 @@ fn setup_ownable_panic() -> (DualCaseOwnable, DualCaseOwnable) {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_owner() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.owner() == OWNER(), 'Should return OWNER');
-    assert(camel_dispatcher.owner() == OWNER(), 'Should return OWNER');
+
+    let snake_owner = snake_dispatcher.owner();
+    assert_eq!(snake_owner, OWNER());
+
+    let camel_owner = camel_dispatcher.owner();
+    assert_eq!(camel_owner, OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_owner() {
     let dispatcher = setup_non_ownable();
@@ -70,8 +73,7 @@ fn test_dual_no_owner() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_owner_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.owner();
@@ -82,16 +84,16 @@ fn test_dual_owner_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transfer_ownership() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
-    assert(target.owner() == NEW_OWNER(), 'Should be new owner');
+
+    let current_owner = target.owner();
+    assert_eq!(current_owner, NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_ownership() {
     let dispatcher = setup_non_ownable();
@@ -99,24 +101,23 @@ fn test_dual_no_transfer_ownership() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_ownership_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.transfer_ownership(NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_renounce_ownership() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
     dispatcher.renounce_ownership();
-    assert(target.owner().is_zero(), 'Should be zero');
+
+    let current_owner = target.owner();
+    assert!(current_owner.is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_ownership() {
     let dispatcher = setup_non_ownable();
@@ -124,8 +125,7 @@ fn test_dual_no_renounce_ownership() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounce_ownership_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.renounce_ownership();
@@ -136,34 +136,34 @@ fn test_dual_renounce_ownership_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transferOwnership() {
     let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.transfer_ownership(NEW_OWNER());
-    assert(dispatcher.owner() == NEW_OWNER(), 'Should be new owner');
+
+    let current_owner = dispatcher.owner();
+    assert_eq!(current_owner, NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_transferOwnership_exists_and_panics() {
     let (_, dispatcher) = setup_ownable_panic();
     dispatcher.transfer_ownership(NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_renounceOwnership() {
     let (dispatcher, _) = setup_camel();
     set_contract_address(OWNER());
     dispatcher.renounce_ownership();
-    assert(dispatcher.owner().is_zero(), 'Should be zero');
+
+    let current_owner = dispatcher.owner();
+    assert!(current_owner.is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_renounceOwnership_exists_and_panics() {
     let (_, dispatcher) = setup_ownable_panic();
     dispatcher.renounce_ownership();

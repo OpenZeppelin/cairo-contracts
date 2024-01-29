@@ -77,7 +77,7 @@ mod SnakeSRC5PanicMock {
 
     #[external(v0)]
     fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }
@@ -89,7 +89,7 @@ mod CamelSRC5PanicMock {
 
     #[external(v0)]
     fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }

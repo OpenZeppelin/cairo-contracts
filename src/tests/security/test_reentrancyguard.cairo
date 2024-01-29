@@ -1,9 +1,8 @@
 use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
 use openzeppelin::security::ReentrancyGuardComponent;
-use openzeppelin::tests::mocks::reentrancy_attacker_mock::Attacker;
-use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcher;
-use openzeppelin::tests::mocks::reentrancy_mock::IReentrancyMockDispatcherTrait;
-use openzeppelin::tests::mocks::reentrancy_mock::ReentrancyMock;
+use openzeppelin::tests::mocks::reentrancy_mocks::{
+    Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
+};
 use openzeppelin::tests::utils;
 use starknet::storage::StorageMemberAccessTrait;
 
@@ -24,17 +23,19 @@ fn deploy_mock() -> IReentrancyMockDispatcher {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_reentrancy_guard_start() {
     let mut state = COMPONENT_STATE();
 
-    assert(!state.ReentrancyGuard_entered.read(), 'Should not be entered');
+    let not_entered = !state.ReentrancyGuard_entered.read();
+    assert!(not_entered);
+
     state.start();
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+
+    let entered = state.ReentrancyGuard_entered.read();
+    assert!(entered);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_reentrancy_guard_start_when_started() {
     let mut state = COMPONENT_STATE();
@@ -44,14 +45,18 @@ fn test_reentrancy_guard_start_when_started() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_reentrancy_guard_end() {
     let mut state = COMPONENT_STATE();
 
     state.start();
-    assert(state.ReentrancyGuard_entered.read(), 'Should be entered');
+
+    let entered = state.ReentrancyGuard_entered.read();
+    assert!(entered);
+
     state.end();
-    assert(!state.ReentrancyGuard_entered.read(), 'Should no longer be entered');
+
+    let not_entered = !state.ReentrancyGuard_entered.read();
+    assert!(not_entered);
 }
 
 //
@@ -59,7 +64,6 @@ fn test_reentrancy_guard_end() {
 //
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(
     expected: (
         'ReentrancyGuard: reentrant call',
@@ -79,7 +83,6 @@ fn test_remote_callback() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED'))]
 fn test_local_recursion() {
     let contract = deploy_mock();
@@ -87,7 +90,6 @@ fn test_local_recursion() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(
     expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED')
 )]
@@ -97,9 +99,8 @@ fn test_external_recursion() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_nonreentrant_function_call() {
     let contract = deploy_mock();
     contract.callback();
-    assert(contract.current_count() == 1, 'Call should execute');
+    assert_eq!(contract.current_count(), 1, "Call should execute");
 }

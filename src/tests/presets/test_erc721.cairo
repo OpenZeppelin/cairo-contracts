@@ -96,7 +96,6 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(2000000000)]
 fn test__mint_assets() {
     let mut state = ERC721::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
@@ -104,7 +103,7 @@ fn test__mint_assets() {
 
     state._mint_assets(OWNER(), token_ids, token_uris);
 
-    assert(state.erc721.balance_of(OWNER()) == TOKENS_LEN, 'Should equal IDs length');
+    assert_eq!(state.erc721.balance_of(OWNER()), TOKENS_LEN);
 
     loop {
         if token_ids.len() == 0 {
@@ -114,13 +113,12 @@ fn test__mint_assets() {
         let id = *token_ids.pop_front().unwrap();
         let uri = token_uris.pop_front().unwrap().clone();
 
-        assert(state.erc721.owner_of(id) == OWNER(), 'Should be owned by OWNER');
-        assert(state.erc721.token_uri(id) == uri, 'Should equal correct URI');
+        assert_eq!(state.erc721.owner_of(id), OWNER());
+        assert_eq!(state.erc721.token_uri(id), uri);
     };
 }
 
 #[test]
-#[available_gas(2000000000)]
 #[should_panic(expected: ('Array lengths do not match',))]
 fn test__mint_assets_mismatched_arrays_1() {
     let mut state = ERC721::contract_state_for_testing();
@@ -131,7 +129,6 @@ fn test__mint_assets_mismatched_arrays_1() {
 }
 
 #[test]
-#[available_gas(2000000000)]
 #[should_panic(expected: ('Array lengths do not match',))]
 fn test__mint_assets_mismatched_arrays_2() {
     let mut state = ERC721::contract_state_for_testing();
@@ -146,7 +143,6 @@ fn test__mint_assets_mismatched_arrays_2() {
 //
 
 #[test]
-#[available_gas(2000000000)]
 fn test_constructor() {
     let dispatcher = setup_dispatcher_with_event();
 
@@ -157,23 +153,25 @@ fn test_constructor() {
         if interface_ids.len() == 0 {
             break;
         }
-        assert(dispatcher.supports_interface(id), 'Should support interface');
+        let supports_isrc5 = dispatcher.supports_interface(id);
+        assert!(supports_isrc5);
     };
 
     // Check token balance and owner
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Should equal TOKENS_LEN');
+    assert_eq!(dispatcher.balance_of(OWNER()), TOKENS_LEN);
+
     loop {
         let token = tokens.pop_front().unwrap();
         if tokens.len() == 0 {
             break;
         }
-        assert(dispatcher.owner_of(token) == OWNER(), 'Should be owned by OWNER');
+        let current_owner = dispatcher.owner_of(token);
+        assert_eq!(current_owner, OWNER());
     };
 }
 
 #[test]
-#[available_gas(2000000000)]
 fn test_constructor_events() {
     let dispatcher = setup_dispatcher_with_event();
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
@@ -194,14 +192,12 @@ fn test_constructor_events() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_balance_of() {
     let dispatcher = setup_dispatcher();
-    assert(dispatcher.balance_of(OWNER()) == TOKENS_LEN, 'Should return balance');
+    assert_eq!(dispatcher.balance_of(OWNER()), TOKENS_LEN);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid account', 'ENTRYPOINT_FAILED'))]
 fn test_balance_of_zero() {
     let dispatcher = setup_dispatcher();
@@ -209,14 +205,12 @@ fn test_balance_of_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_owner_of() {
     let dispatcher = setup_dispatcher();
-    assert(dispatcher.owner_of(TOKEN_1) == OWNER(), 'Should return owner');
+    assert_eq!(dispatcher.owner_of(TOKEN_1), OWNER());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_owner_of_non_minted() {
     let dispatcher = setup_dispatcher();
@@ -224,7 +218,6 @@ fn test_owner_of_non_minted() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_token_uri_non_minted() {
     let dispatcher = setup_dispatcher();
@@ -232,20 +225,20 @@ fn test_token_uri_non_minted() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_get_approved() {
     let dispatcher = setup_dispatcher();
     let spender = SPENDER();
     let token_id = TOKEN_1;
 
-    assert(dispatcher.get_approved(token_id) == ZERO(), 'Should return non-approval');
+    let approved = dispatcher.get_approved(token_id);
+    assert!(approved.is_zero());
 
     dispatcher.approve(spender, token_id);
-    assert(dispatcher.get_approved(token_id) == spender, 'Should return approval');
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, spender);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_get_approved_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -257,18 +250,17 @@ fn test_get_approved_nonexistent() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_approve_from_owner() {
     let dispatcher = setup_dispatcher();
 
     dispatcher.approve(SPENDER(), TOKEN_1);
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
 
-    assert(dispatcher.get_approved(TOKEN_1) == SPENDER(), 'Spender not approved correctly');
+    let approved = dispatcher.get_approved(TOKEN_1);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_approve_from_operator() {
     let dispatcher = setup_dispatcher();
 
@@ -279,11 +271,11 @@ fn test_approve_from_operator() {
     dispatcher.approve(SPENDER(), TOKEN_1);
     assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
 
-    assert(dispatcher.get_approved(TOKEN_1) == SPENDER(), 'Spender not approved correctly');
+    let approved = dispatcher.get_approved(TOKEN_1);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
 fn test_approve_from_unauthorized() {
     let dispatcher = setup_dispatcher();
@@ -293,7 +285,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner', 'ENTRYPOINT_FAILED'))]
 fn test_approve_to_owner() {
     let dispatcher = setup_dispatcher();
@@ -302,7 +293,6 @@ fn test_approve_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_approve_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -314,25 +304,26 @@ fn test_approve_nonexistent() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_set_approval_for_all() {
     let dispatcher = setup_dispatcher();
 
-    assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_not_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), true);
 
-    assert(dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), false);
 
-    assert(!dispatcher.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
+    let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_not_approved_for_all);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let dispatcher = setup_dispatcher();
@@ -340,7 +331,6 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let dispatcher = setup_dispatcher();
@@ -352,7 +342,6 @@ fn test_set_approval_for_all_owner_equal_operator_false() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_owner() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -364,7 +353,9 @@ fn test_transfer_from_owner() {
     utils::drop_event(dispatcher.contract_address);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
-    assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     dispatcher.transfer_from(owner, recipient, token_id);
     assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -373,7 +364,6 @@ fn test_transfer_from_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_owner() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -385,7 +375,9 @@ fn test_transferFrom_owner() {
     utils::drop_event(dispatcher.contract_address);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
-    assert(dispatcher.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = dispatcher.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     dispatcher.transferFrom(owner, recipient, token_id);
     assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -394,7 +386,6 @@ fn test_transferFrom_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -402,7 +393,6 @@ fn test_transfer_from_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -410,7 +400,6 @@ fn test_transferFrom_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_to_zero() {
     let dispatcher = setup_dispatcher();
@@ -418,7 +407,6 @@ fn test_transfer_from_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_to_zero() {
     let dispatcher = setup_dispatcher();
@@ -426,7 +414,6 @@ fn test_transferFrom_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_to_owner() {
     let dispatcher = setup_dispatcher();
 
@@ -438,7 +425,6 @@ fn test_transfer_from_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_to_owner() {
     let dispatcher = setup_dispatcher();
 
@@ -450,7 +436,6 @@ fn test_transferFrom_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_approved() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -469,7 +454,6 @@ fn test_transfer_from_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_approved() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -488,7 +472,6 @@ fn test_transferFrom_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_approved_for_all() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -508,7 +491,6 @@ fn test_transfer_from_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_approved_for_all() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -528,7 +510,6 @@ fn test_transferFrom_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_unauthorized() {
     let dispatcher = setup_dispatcher();
@@ -537,7 +518,6 @@ fn test_transfer_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_unauthorized() {
     let dispatcher = setup_dispatcher();
@@ -550,7 +530,6 @@ fn test_transferFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account() {
     let dispatcher = setup_dispatcher();
     let account = setup_account();
@@ -566,7 +545,6 @@ fn test_safe_transfer_from_to_account() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account() {
     let dispatcher = setup_dispatcher();
     let account = setup_account();
@@ -582,7 +560,6 @@ fn test_safeTransferFrom_to_account() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account_camel() {
     let dispatcher = setup_dispatcher();
     let account = setup_camel_account();
@@ -598,7 +575,6 @@ fn test_safe_transfer_from_to_account_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account_camel() {
     let dispatcher = setup_dispatcher();
     let account = setup_camel_account();
@@ -614,7 +590,6 @@ fn test_safeTransferFrom_to_account_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -630,7 +605,6 @@ fn test_safe_transfer_from_to_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -646,7 +620,6 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -662,7 +635,6 @@ fn test_safe_transfer_from_to_receiver_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -678,7 +650,6 @@ fn test_safeTransferFrom_to_receiver_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_receiver_failure() {
     let dispatcher = setup_dispatcher();
@@ -690,7 +661,6 @@ fn test_safe_transfer_from_to_receiver_failure() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_receiver_failure() {
     let dispatcher = setup_dispatcher();
@@ -702,7 +672,6 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let dispatcher = setup_dispatcher();
@@ -714,7 +683,6 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let dispatcher = setup_dispatcher();
@@ -726,7 +694,6 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_non_receiver() {
     let dispatcher = setup_dispatcher();
@@ -738,7 +705,6 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_non_receiver() {
     let dispatcher = setup_dispatcher();
@@ -750,7 +716,6 @@ fn test_safeTransferFrom_to_non_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -758,7 +723,6 @@ fn test_safe_transfer_from_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -766,7 +730,6 @@ fn test_safeTransferFrom_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_zero() {
     let dispatcher = setup_dispatcher();
@@ -774,7 +737,6 @@ fn test_safe_transfer_from_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_zero() {
     let dispatcher = setup_dispatcher();
@@ -782,7 +744,6 @@ fn test_safeTransferFrom_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -801,7 +762,6 @@ fn test_safe_transfer_from_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -820,7 +780,6 @@ fn test_safeTransferFrom_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner_camel() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -839,7 +798,6 @@ fn test_safe_transfer_from_to_owner_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner_camel() {
     let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
@@ -858,7 +816,6 @@ fn test_safeTransferFrom_to_owner_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -878,7 +835,6 @@ fn test_safe_transfer_from_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -898,7 +854,6 @@ fn test_safeTransferFrom_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -918,7 +873,6 @@ fn test_safe_transfer_from_approved_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -938,7 +892,6 @@ fn test_safeTransferFrom_approved_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -958,7 +911,6 @@ fn test_safe_transfer_from_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
@@ -978,7 +930,6 @@ fn test_safeTransferFrom_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -998,7 +949,6 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all_camel() {
     let dispatcher = setup_dispatcher();
     let receiver = setup_camel_receiver();
@@ -1018,7 +968,6 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_unauthorized() {
     let dispatcher = setup_dispatcher();
@@ -1027,7 +976,6 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_unauthorized() {
     let dispatcher = setup_dispatcher();
@@ -1045,9 +993,9 @@ fn assert_state_before_transfer(
     recipient: ContractAddress,
     token_id: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == owner, 'Ownership before');
-    assert(dispatcher.balance_of(owner) == TOKENS_LEN, 'Balance of owner before');
-    assert(dispatcher.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert_eq!(dispatcher.owner_of(token_id), owner);
+    assert_eq!(dispatcher.balance_of(owner), TOKENS_LEN);
+    assert!(dispatcher.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_transfer(
@@ -1056,26 +1004,29 @@ fn assert_state_after_transfer(
     recipient: ContractAddress,
     token_id: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == recipient, 'Ownership after');
-    assert(dispatcher.balance_of(owner) == TOKENS_LEN - 1, 'Balance of owner after');
-    assert(dispatcher.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(dispatcher.get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+    let current_owner = dispatcher.owner_of(token_id);
+    assert_eq!(current_owner, recipient);
+    assert_eq!(dispatcher.balance_of(owner), TOKENS_LEN - 1);
+    assert_eq!(dispatcher.balance_of(recipient), 1);
+
+    let approved = dispatcher.get_approved(token_id);
+    assert!(approved.is_zero());
 }
 
 fn assert_state_transfer_to_self(
     dispatcher: ERC721ABIDispatcher, target: ContractAddress, token_id: u256, token_balance: u256
 ) {
-    assert(dispatcher.owner_of(token_id) == target, 'Ownership before');
-    assert(dispatcher.balance_of(target) == token_balance, 'Balance of owner before');
+    assert_eq!(dispatcher.owner_of(token_id), target);
+    assert_eq!(dispatcher.balance_of(target), token_balance);
 }
 
 fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.operator == operator, 'Invalid `operator`');
-    assert(event.approved == approved, 'Invalid `approved`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.operator, operator);
+    assert_eq!(event.approved, approved);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
@@ -1089,9 +1040,9 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Approval>(contract).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.approved == approved, 'Invalid `approved`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.approved, approved);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
@@ -1106,9 +1057,9 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<Transfer>(contract).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.token_id, token_id);
 
     // Check indexed keys
     let mut indexed_keys = array![];

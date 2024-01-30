@@ -1,6 +1,7 @@
 [package]
 name = "openzeppelin"
-version = "0.8.0"
+version = "0.8.1"
+edition = "2023_01"
 cairo-version = "2.5.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
@@ -18,7 +19,7 @@ starknet = "2.5.0"
 [[target.starknet-contract]]
 allowed-libfuncs-list.name = "experimental"
 sierra = true
-casm = false
+casm = true
 
 [tool.fmt]
 sort-module-level-items = true

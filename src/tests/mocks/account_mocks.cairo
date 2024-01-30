@@ -6,6 +6,7 @@ mod DualCaseAccountMock {
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
     impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
@@ -14,9 +15,11 @@ mod DualCaseAccountMock {
     impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
     #[abi(embed_v0)]
     impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -49,13 +52,16 @@ mod SnakeAccountMock {
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
     impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
     impl PublicKeyImpl = AccountComponent::PublicKeyImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -89,14 +95,17 @@ mod CamelAccountMock {
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
     impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
     impl PublicKeyCamelImpl = AccountComponent::PublicKeyCamelImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -148,12 +157,12 @@ mod SnakeAccountPanicMock {
 
     #[external(v0)]
     fn set_public_key(ref self: ContractState, new_public_key: felt252) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn get_public_key(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
@@ -161,13 +170,13 @@ mod SnakeAccountPanicMock {
     fn is_valid_signature(
         self: @ContractState, hash: felt252, signature: Array<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }
@@ -179,24 +188,24 @@ mod CamelAccountPanicMock {
 
     #[external(v0)]
     fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn getPublicKey(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn isValidSignature(self: @ContractState, hash: felt252, signature: Array<felt252>) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }

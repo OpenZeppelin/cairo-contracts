@@ -1,7 +1,7 @@
 use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
 use openzeppelin::security::PausableComponent::{Paused, Unpaused};
 use openzeppelin::security::PausableComponent;
-use openzeppelin::tests::mocks::pausable_mock::PausableMock;
+use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
@@ -19,16 +19,15 @@ fn COMPONENT_STATE() -> ComponentState {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_is_paused() {
     let mut state = COMPONENT_STATE();
-    assert(!state.is_paused(), 'Should not be paused');
+    assert!(!state.is_paused());
 
     state._pause();
-    assert(state.is_paused(), 'Should be paused');
+    assert!(state.is_paused());
 
     state._unpause();
-    assert(!state.is_paused(), 'Should not be paused');
+    assert!(!state.is_paused());
 }
 
 //
@@ -36,7 +35,6 @@ fn test_is_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_paused_when_paused() {
     let mut state = COMPONENT_STATE();
     state._pause();
@@ -44,7 +42,6 @@ fn test_assert_paused_when_paused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_assert_paused_when_not_paused() {
     let state = COMPONENT_STATE();
@@ -56,7 +53,6 @@ fn test_assert_paused_when_not_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_assert_not_paused_when_paused() {
     let mut state = COMPONENT_STATE();
@@ -65,7 +61,6 @@ fn test_assert_not_paused_when_paused() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_assert_not_paused_when_not_paused() {
     let state = COMPONENT_STATE();
     state.assert_not_paused();
@@ -76,7 +71,6 @@ fn test_assert_not_paused_when_not_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_pause_when_unpaused() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(CALLER());
@@ -84,11 +78,10 @@ fn test_pause_when_unpaused() {
     state._pause();
 
     assert_event_paused(CALLER());
-    assert(state.is_paused(), 'Should be paused');
+    assert!(state.is_paused());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: paused',))]
 fn test_pause_when_paused() {
     let mut state = COMPONENT_STATE();
@@ -101,7 +94,6 @@ fn test_pause_when_paused() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_unpause_when_paused() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(CALLER());
@@ -112,15 +104,14 @@ fn test_unpause_when_paused() {
     state._unpause();
 
     assert_event_unpaused(CALLER());
-    assert(!state.is_paused(), 'Should not be paused');
+    assert!(!state.is_paused());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Pausable: not paused',))]
 fn test_unpause_when_unpaused() {
     let mut state = COMPONENT_STATE();
-    assert(!state.is_paused(), 'Should be paused');
+    assert!(!state.is_paused());
     state._unpause();
 }
 
@@ -130,12 +121,12 @@ fn test_unpause_when_unpaused() {
 
 fn assert_event_paused(account: ContractAddress) {
     let event = utils::pop_log::<Paused>(ZERO()).unwrap();
-    assert(event.account == account, 'Invalid `account`');
+    assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_unpaused(account: ContractAddress) {
     let event = utils::pop_log::<Unpaused>(ZERO()).unwrap();
-    assert(event.account == account, 'Invalid `account`');
+    assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }

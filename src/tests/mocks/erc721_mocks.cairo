@@ -4,12 +4,8 @@ mod DualCaseERC721Mock {
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
@@ -22,6 +18,10 @@ mod DualCaseERC721Mock {
     impl ERC721MetadataCamelOnly =
         ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -61,12 +61,8 @@ mod SnakeERC721Mock {
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
@@ -74,6 +70,10 @@ mod SnakeERC721Mock {
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -114,12 +114,8 @@ mod CamelERC721Mock {
     use openzeppelin::token::erc721::ERC721Component;
     use starknet::ContractAddress;
 
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
@@ -128,6 +124,10 @@ mod CamelERC721Mock {
     impl ERC721MetadataCamelOnly =
         ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -194,64 +194,72 @@ mod SnakeERC721PanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn name(self: @ContractState) {
-            panic_with_felt252('Some error');
+        fn name(self: @ContractState) -> ByteArray {
+            panic!("Some error");
+            "3"
         }
 
         #[external(v0)]
-        fn symbol(self: @ContractState) {
-            panic_with_felt252('Some error');
+        fn symbol(self: @ContractState) -> ByteArray {
+            panic!("Some error");
+            "3"
         }
 
         #[external(v0)]
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
 
         #[external(v0)]
-        fn supports_interface(self: @ContractState, interface_id: felt252) {
-            panic_with_felt252('Some error');
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            panic!("Some error");
+            false
         }
 
         #[external(v0)]
-        fn token_uri(self: @ContractState, token_id: u256) {
-            panic_with_felt252('Some error');
+        fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
+            panic!("Some error");
+            3
         }
 
         #[external(v0)]
-        fn balance_of(self: @ContractState, account: ContractAddress) {
-            panic_with_felt252('Some error');
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            panic!("Some error");
+            u256 { low: 3, high: 3 }
         }
 
         #[external(v0)]
-        fn owner_of(self: @ContractState, token_id: u256) {
-            panic_with_felt252('Some error');
+        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
         }
 
         #[external(v0)]
-        fn get_approved(self: @ContractState, token_id: u256) {
-            panic_with_felt252('Some error');
+        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
         }
 
         #[external(v0)]
         fn is_approved_for_all(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) {
-            panic_with_felt252('Some error');
+        ) -> bool {
+            panic!("Some error");
+            false
         }
 
         #[external(v0)]
         fn set_approval_for_all(
             ref self: ContractState, operator: ContractAddress, approved: bool
         ) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
 
         #[external(v0)]
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
 
         #[external(v0)]
@@ -262,7 +270,7 @@ mod SnakeERC721PanicMock {
             token_id: u256,
             data: Span<felt252>
         ) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
     }
 }
@@ -279,47 +287,53 @@ mod CamelERC721PanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) {
-            panic_with_felt252('Some error');
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            panic!("Some error");
+            false
         }
 
         #[external(v0)]
-        fn tokenURI(self: @ContractState, tokenId: u256) {
-            panic_with_felt252('Some error');
+        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
+            panic!("Some error");
+            3
         }
 
         #[external(v0)]
-        fn balanceOf(self: @ContractState, account: ContractAddress) {
-            panic_with_felt252('Some error');
+        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+            panic!("Some error");
+            u256 { low: 3, high: 3 }
         }
 
         #[external(v0)]
-        fn ownerOf(self: @ContractState, tokenId: u256) {
-            panic_with_felt252('Some error');
+        fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
         }
 
         #[external(v0)]
-        fn getApproved(self: @ContractState, tokenId: u256) {
-            panic_with_felt252('Some error');
+        fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
         }
 
         #[external(v0)]
         fn isApprovedForAll(
             self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) {
-            panic_with_felt252('Some error');
+        ) -> bool {
+            panic!("Some error");
+            false
         }
 
         #[external(v0)]
         fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
 
         #[external(v0)]
         fn transferFrom(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
         ) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
 
         #[external(v0)]
@@ -330,7 +344,7 @@ mod CamelERC721PanicMock {
             tokenId: u256,
             data: Span<felt252>
         ) {
-            panic_with_felt252('Some error');
+            panic!("Some error");
         }
     }
 }

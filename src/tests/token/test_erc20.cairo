@@ -36,15 +36,14 @@ fn setup() -> ComponentState {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
 
-    assert(state.name() == NAME(), 'Should be NAME');
-    assert(state.symbol() == SYMBOL(), 'Should be SYMBOL');
-    assert(state.decimals() == DECIMALS, 'Should be DECIMALS');
-    assert(state.total_supply() == 0, 'Should equal 0');
+    assert_eq!(state.name(), NAME());
+    assert_eq!(state.symbol(), SYMBOL());
+    assert_eq!(state.decimals(), DECIMALS);
+    assert_eq!(state.total_supply(), 0);
 }
 
 //
@@ -52,45 +51,41 @@ fn test_initializer() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_total_supply() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), SUPPLY);
-    assert(state.total_supply() == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_totalSupply() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), SUPPLY);
-    assert(state.totalSupply() == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(state.totalSupply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_balance_of() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), SUPPLY);
-    assert(state.balance_of(OWNER()) == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(state.balance_of(OWNER()), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_balanceOf() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), SUPPLY);
-    assert(state.balanceOf(OWNER()) == SUPPLY, 'Should equal SUPPLY');
+    assert_eq!(state.balanceOf(OWNER()), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), VALUE);
 
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE, 'Should equal VALUE');
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE);
 }
 
 //
@@ -98,18 +93,18 @@ fn test_allowance() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_approve() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    assert(state.approve(SPENDER(), VALUE), 'Should return true');
+    assert!(state.approve(SPENDER(), VALUE));
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0',))]
 fn test_approve_from_zero() {
     let mut state = setup();
@@ -117,7 +112,6 @@ fn test_approve_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_approve_to_zero() {
     let mut state = setup();
@@ -126,18 +120,18 @@ fn test_approve_to_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__approve() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state._approve(OWNER(), SPENDER(), VALUE);
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE, 'Spender not approved correctly');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0',))]
 fn test__approve_from_zero() {
     let mut state = setup();
@@ -145,7 +139,6 @@ fn test__approve_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test__approve_to_zero() {
     let mut state = setup();
@@ -158,20 +151,18 @@ fn test__approve_to_zero() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
-    assert(state.transfer(RECIPIENT(), VALUE), 'Should return true');
+    assert!(state.transfer(RECIPIENT(), VALUE));
 
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
-    assert(state.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
-    assert(state.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(state.total_supply() == SUPPLY, 'Total supply should not change');
+    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_not_enough_balance() {
     let mut state = setup();
@@ -182,7 +173,6 @@ fn test_transfer_not_enough_balance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer from 0',))]
 fn test_transfer_from_zero() {
     let mut state = setup();
@@ -190,7 +180,6 @@ fn test_transfer_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transfer_to_zero() {
     let mut state = setup();
@@ -199,20 +188,18 @@ fn test_transfer_to_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__transfer() {
     let mut state = setup();
 
     state._transfer(OWNER(), RECIPIENT(), VALUE);
 
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
-    assert(state.balance_of(RECIPIENT()) == VALUE, 'Should equal amount');
-    assert(state.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(state.total_supply() == SUPPLY, 'Total supply should not change');
+    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
@@ -223,7 +210,6 @@ fn test__transfer_not_enough_balance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer from 0',))]
 fn test__transfer_from_zero() {
     let mut state = setup();
@@ -231,7 +217,6 @@ fn test__transfer_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
@@ -243,7 +228,6 @@ fn test__transfer_to_zero() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_from() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -251,19 +235,20 @@ fn test_transfer_from() {
     utils::drop_event(ZERO());
 
     testing::set_caller_address(SPENDER());
-    assert(state.transfer_from(OWNER(), RECIPIENT(), VALUE), 'Should return true');
+    assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
     assert_event_approval(OWNER(), SPENDER(), 0);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
-    assert(state.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(state.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
-    assert(state.total_supply() == SUPPLY, 'Total supply should not change');
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
+
+    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -272,11 +257,11 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     testing::set_caller_address(SPENDER());
     state.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, BoundedInt::max());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
@@ -289,7 +274,6 @@ fn test_transfer_from_greater_than_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transfer_from_to_zero_address() {
     let mut state = setup();
@@ -301,7 +285,6 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
@@ -309,7 +292,6 @@ fn test_transfer_from_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferFrom() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -317,19 +299,21 @@ fn test_transferFrom() {
     utils::drop_event(ZERO());
 
     testing::set_caller_address(SPENDER());
-    assert(state.transferFrom(OWNER(), RECIPIENT(), VALUE), 'Should return true');
+    assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
     assert_event_approval(OWNER(), SPENDER(), 0);
     assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.balanceOf(RECIPIENT()) == VALUE, 'Should equal VALUE');
-    assert(state.balanceOf(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(state.allowance(OWNER(), SPENDER()) == 0, 'Should equal 0');
-    assert(state.totalSupply() == SUPPLY, 'Total supply should not change');
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
+
+    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+    assert_eq!(state.total_supply(), SUPPLY);
+    assert_eq!(allowance, 0);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -338,11 +322,11 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
     testing::set_caller_address(SPENDER());
     state.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
-    assert(state.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, BoundedInt::max());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
@@ -355,7 +339,6 @@ fn test_transferFrom_greater_than_allowance() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transferFrom_to_zero_address() {
     let mut state = setup();
@@ -367,7 +350,6 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_transferFrom_from_zero_address() {
     let mut state = setup();
@@ -379,21 +361,21 @@ fn test_transferFrom_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_increase_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), VALUE);
     utils::drop_event(ZERO());
 
-    assert(state.increase_allowance(SPENDER(), VALUE), 'Should return true');
+    assert!(state.increase_allowance(SPENDER(), VALUE));
 
     assert_only_event_approval(OWNER(), SPENDER(), VALUE * 2);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should equal VALUE * 2');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE * 2);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_increase_allowance_to_zero_address() {
     let mut state = setup();
@@ -402,7 +384,6 @@ fn test_increase_allowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0',))]
 fn test_increase_allowance_from_zero_address() {
     let mut state = setup();
@@ -410,21 +391,21 @@ fn test_increase_allowance_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_increaseAllowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), VALUE);
     utils::drop_event(ZERO());
 
-    assert(state.increaseAllowance(SPENDER(), VALUE), 'Should return true');
+    assert!(state.increaseAllowance(SPENDER(), VALUE));
 
     assert_only_event_approval(OWNER(), SPENDER(), 2 * VALUE);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE * 2, 'Should equal VALUE * 2');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, VALUE * 2);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_increaseAllowance_to_zero_address() {
     let mut state = setup();
@@ -433,7 +414,6 @@ fn test_increaseAllowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: approve from 0',))]
 fn test_increaseAllowance_from_zero_address() {
     let mut state = setup();
@@ -445,21 +425,21 @@ fn test_increaseAllowance_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_decrease_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), VALUE);
     utils::drop_event(ZERO());
 
-    assert(state.decrease_allowance(SPENDER(), VALUE), 'Should return true');
+    assert!(state.decrease_allowance(SPENDER(), VALUE));
 
     assert_only_event_approval(OWNER(), SPENDER(), 0);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decrease_allowance_to_zero_address() {
     let mut state = setup();
@@ -468,7 +448,6 @@ fn test_decrease_allowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decrease_allowance_from_zero_address() {
     let mut state = setup();
@@ -476,21 +455,21 @@ fn test_decrease_allowance_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_decreaseAllowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), VALUE);
     utils::drop_event(ZERO());
 
-    assert(state.decreaseAllowance(SPENDER(), VALUE), 'Should return true');
+    assert!(state.decreaseAllowance(SPENDER(), VALUE));
 
     assert_only_event_approval(OWNER(), SPENDER(), 0);
-    assert(state.allowance(OWNER(), SPENDER()) == VALUE - VALUE, 'Should be 0');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, 0);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decreaseAllowance_to_zero_address() {
     let mut state = setup();
@@ -499,7 +478,6 @@ fn test_decreaseAllowance_to_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('u256_sub Overflow',))]
 fn test_decreaseAllowance_from_zero_address() {
     let mut state = setup();
@@ -511,7 +489,6 @@ fn test_decreaseAllowance_from_zero_address() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test__spend_allowance_not_unlimited() {
     let mut state = setup();
 
@@ -521,11 +498,12 @@ fn test__spend_allowance_not_unlimited() {
     state._spend_allowance(OWNER(), SPENDER(), VALUE);
 
     assert_only_event_approval(OWNER(), SPENDER(), SUPPLY - VALUE);
-    assert(state.allowance(OWNER(), SPENDER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+
+    let allowance = state.allowance(OWNER(), SPENDER());
+    assert_eq!(allowance, SUPPLY - VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test__spend_allowance_unlimited() {
     let mut state = setup();
     state._approve(OWNER(), SPENDER(), BoundedInt::max());
@@ -533,7 +511,7 @@ fn test__spend_allowance_unlimited() {
     let max_minus_one: u256 = BoundedInt::max() - 1;
     state._spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
-    assert(state.allowance(OWNER(), SPENDER()) == BoundedInt::max(), 'Allowance should not change');
+    assert_eq!(state.allowance(OWNER(), SPENDER()), BoundedInt::max());
 }
 
 //
@@ -541,18 +519,16 @@ fn test__spend_allowance_unlimited() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test__mint() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), OWNER(), VALUE);
-    assert(state.balance_of(OWNER()) == VALUE, 'Should equal VALUE');
-    assert(state.total_supply() == VALUE, 'Should equal VALUE');
+    assert_eq!(state.balance_of(OWNER()), VALUE);
+    assert_eq!(state.total_supply(), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: mint to 0',))]
 fn test__mint_to_zero() {
     let mut state = COMPONENT_STATE();
@@ -564,18 +540,16 @@ fn test__mint_to_zero() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test__burn() {
     let mut state = setup();
     state._burn(OWNER(), VALUE);
 
     assert_only_event_transfer(OWNER(), ZERO(), VALUE);
-    assert(state.total_supply() == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
-    assert(state.balance_of(OWNER()) == SUPPLY - VALUE, 'Should equal SUPPLY - VALUE');
+    assert_eq!(state.total_supply(), SUPPLY - VALUE);
+    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ERC20: burn from 0',))]
 fn test__burn_from_zero() {
     let mut state = setup();
@@ -588,9 +562,9 @@ fn test__burn_from_zero() {
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
     let event = utils::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.spender == spender, 'Invalid `spender`');
-    assert(event.value == value, 'Invalid `value`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.spender, spender);
+    assert_eq!(event.value, value);
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -606,9 +580,9 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
     let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.value == value, 'Invalid `value`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.value, value);
 
     // Check indexed keys
     let mut indexed_keys = array![];

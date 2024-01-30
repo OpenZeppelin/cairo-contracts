@@ -12,28 +12,29 @@ fn STATE() -> DualCaseERC721ReceiverMock::ContractState {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_initializer() {
     let mut state = STATE();
     state.erc721_receiver.initializer();
-    assert(state.src5.supports_interface(IERC721_RECEIVER_ID), 'Missing interface ID');
-    assert(state.src5.supports_interface(ISRC5_ID), 'Missing interface ID');
+
+    let supports_ierc721_receiver = state.src5.supports_interface(IERC721_RECEIVER_ID);
+    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
+
+    assert!(supports_ierc721_receiver);
+    assert!(supports_isrc5);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_on_erc721_received() {
     let mut state = STATE();
-    assert(
-        state
-            .erc721_receiver
-            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
-        'Should return receiver ID'
-    );
-    assert(
-        state
-            .erc721_receiver
-            .onERC721Received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
-        'Should return receiver ID'
-    );
+    let data = array![];
+
+    let on_erc721_received = state
+        .erc721_receiver
+        .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, data.span());
+    assert_eq!(on_erc721_received, IERC721_RECEIVER_ID, "Should return receiver ID");
+
+    let onERC721Received = state
+        .erc721_receiver
+        .onERC721Received(OPERATOR(), OWNER(), TOKEN_ID, data.span());
+    assert_eq!(onERC721Received, IERC721_RECEIVER_ID, "Should return receiver ID");
 }

@@ -31,7 +31,6 @@ fn deploy_v1() -> IUpgradesV1Dispatcher {
 //
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
 fn test_upgrade_with_class_hash_zero() {
     let v1 = deploy_v1();
@@ -39,19 +38,17 @@ fn test_upgrade_with_class_hash_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_upgraded_event() {
     let v1 = deploy_v1();
     v1.upgrade(V2_CLASS_HASH());
 
     let event = utils::pop_log::<Upgraded>(v1.contract_address).unwrap();
-    assert(event.class_hash == V2_CLASS_HASH(), 'Invalid class hash');
+    assert_eq!(event.class_hash, V2_CLASS_HASH());
 
     utils::assert_no_events_left(v1.contract_address);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_new_selector_after_upgrade() {
     let v1 = deploy_v1();
 
@@ -59,11 +56,10 @@ fn test_new_selector_after_upgrade() {
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
 
     v2.set_value2(VALUE);
-    assert(v2.get_value2() == VALUE, 'New selector should be callable');
+    assert_eq!(v2.get_value2(), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_state_persists_after_upgrade() {
     let v1 = deploy_v1();
     v1.set_value(VALUE);
@@ -71,18 +67,16 @@ fn test_state_persists_after_upgrade() {
     v1.upgrade(V2_CLASS_HASH());
     let v2 = IUpgradesV2Dispatcher { contract_address: v1.contract_address };
 
-    assert(v2.get_value() == VALUE, 'Should keep state after upgrade');
+    assert_eq!(v2.get_value(), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_remove_selector_passes_in_v1() {
     let v1 = deploy_v1();
     v1.remove_selector();
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_remove_selector_fails_in_v2() {
     let v1 = deploy_v1();

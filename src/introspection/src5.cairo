@@ -32,15 +32,6 @@ mod SRC5Component {
         }
     }
 
-    #[embeddable_as(SRC5CamelImpl)]
-    impl SRC5Camel<
-        TContractState, +HasComponent<TContractState>
-    > of interface::ISRC5Camel<ComponentState<TContractState>> {
-        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
-            self.supports_interface(interfaceId)
-        }
-    }
-
     #[generate_trait]
     impl InternalImpl<
         TContractState, +HasComponent<TContractState>

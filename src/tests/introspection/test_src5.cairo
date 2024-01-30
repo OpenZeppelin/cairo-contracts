@@ -1,11 +1,11 @@
 use openzeppelin::introspection::interface::{ISRC5_ID, ISRC5};
 use openzeppelin::introspection::src5::SRC5Component::InternalTrait;
 use openzeppelin::introspection::src5::SRC5Component;
-use openzeppelin::tests::mocks::src5_mocks::DualCaseSRC5Mock;
+use openzeppelin::tests::mocks::src5_mocks::SnakeSRC5Mock;
 
 const OTHER_ID: felt252 = 0x12345678;
 
-type ComponentState = SRC5Component::ComponentState<DualCaseSRC5Mock::ContractState>;
+type ComponentState = SRC5Component::ComponentState<SnakeSRC5Mock::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     SRC5Component::component_state_for_testing()

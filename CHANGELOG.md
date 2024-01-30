@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utilities documentation (#825)
 - Documentation for presets (#832)
 - Backwards compatibility notice (#861)
+- Add automatic version bump to CI (#862)
 
 ### Changed
 

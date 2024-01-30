@@ -263,7 +263,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/account/eth_account/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/eth_account/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
@@ -519,7 +519,7 @@ Sets the account `public_key` and registers the interfaces the contract supports
 
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/presets/eth_account.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::EthAccountUpgradeable;

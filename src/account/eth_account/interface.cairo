@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (account/eth_account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (account/eth_account/interface.cairo)
 
 use openzeppelin::account::interface::{ISRC6, ISRC6CamelOnly, IDeclarer, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;

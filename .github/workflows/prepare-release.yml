@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v3
       with:
         token: ${{ secrets.OPENZEPPELIN_ORG_GITHUB_PAT }}

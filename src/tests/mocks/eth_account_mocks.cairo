@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod DualCaseEthAccountMock {
-    use openzeppelin::account::eth_account::EthAccountComponent;
-    use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -45,8 +45,8 @@ mod DualCaseEthAccountMock {
 
 #[starknet::contract]
 mod SnakeEthAccountMock {
-    use openzeppelin::account::eth_account::EthAccountComponent;
-    use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -86,8 +86,8 @@ mod SnakeEthAccountMock {
 
 #[starknet::contract]
 mod CamelEthAccountMock {
-    use openzeppelin::account::eth_account::EthAccountComponent;
-    use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -148,7 +148,7 @@ mod CamelEthAccountMock {
 
 #[starknet::contract]
 mod SnakeEthAccountPanicMock {
-    use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::secp256k1::secp256k1_new_syscall;
 
@@ -183,7 +183,7 @@ mod SnakeEthAccountPanicMock {
 
 #[starknet::contract]
 mod CamelEthAccountPanicMock {
-    use openzeppelin::account::eth_account::interface::EthPublicKey;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::secp256k1::secp256k1_new_syscall;
 

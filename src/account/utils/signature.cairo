@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.8.1 (account/utils/signature.cairo)
 
 use ecdsa::check_ecdsa_signature;
-use openzeppelin::account::eth_account::interface::EthPublicKey;
+use openzeppelin::account::interface::EthPublicKey;
 use openzeppelin::account::utils::secp256k1::Secp256k1PointPartialEq;
 use starknet::eth_signature::Signature;
 use starknet::secp256_trait::{is_signature_entry_valid, recover_public_key};

@@ -1,9 +1,5 @@
-use openzeppelin::account::eth_account::dual_eth_account::{
-    DualCaseEthAccountABI, DualCaseEthAccount
-};
-use openzeppelin::account::eth_account::interface::{
-    EthAccountABIDispatcherTrait, EthAccountABIDispatcher
-};
+use openzeppelin::account::dual_eth_account::{DualCaseEthAccountABI, DualCaseEthAccount};
+use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };

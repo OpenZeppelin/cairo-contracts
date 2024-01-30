@@ -1,12 +1,10 @@
 use core::starknet::secp256_trait::Secp256PointTrait;
-use openzeppelin::account::eth_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::eth_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::eth_account::EthAccountComponent;
-use openzeppelin::account::eth_account::interface::EthPublicKey;
-use openzeppelin::account::eth_account::interface::{
-    EthAccountABIDispatcherTrait, EthAccountABIDispatcher
-};
+use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin::account::EthAccountComponent;
+use openzeppelin::account::interface::EthPublicKey;
+use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde

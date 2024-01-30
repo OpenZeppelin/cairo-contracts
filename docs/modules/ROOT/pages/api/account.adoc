@@ -63,7 +63,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/account/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -263,7 +263,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/eth_account/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/account/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]

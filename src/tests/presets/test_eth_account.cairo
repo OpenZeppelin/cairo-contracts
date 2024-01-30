@@ -1,10 +1,8 @@
 use core::serde::Serde;
 use core::traits::TryInto;
-use openzeppelin::account::eth_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::eth_account::interface::ISRC6_ID;
-use openzeppelin::account::eth_account::interface::{
-    EthAccountABIDispatcherTrait, EthAccountABIDispatcher
-};
+use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin::account::interface::ISRC6_ID;
+use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
 };

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (account/eth_account/dual_eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (account/dual_account.cairo)
 
-use openzeppelin::account::eth_account::interface::EthPublicKey;
-use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -11,23 +9,22 @@ use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 
 #[derive(Copy, Drop)]
-struct DualCaseEthAccount {
+struct DualCaseAccount {
     contract_address: ContractAddress
 }
 
-trait DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey);
-    fn get_public_key(self: @DualCaseEthAccount) -> EthPublicKey;
+trait DualCaseAccountABI {
+    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252);
+    fn get_public_key(self: @DualCaseAccount) -> felt252;
     fn is_valid_signature(
-        self: @DualCaseEthAccount, hash: felt252, signature: Array<felt252>
+        self: @DualCaseAccount, hash: felt252, signature: Array<felt252>
     ) -> felt252;
-    fn supports_interface(self: @DualCaseEthAccount, interface_id: felt252) -> bool;
+    fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool;
 }
 
-impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey) {
-        let mut args = array![];
-        new_public_key.serialize(ref args);
+impl DualCaseAccountImpl of DualCaseAccountABI {
+    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252) {
+        let args = array![new_public_key];
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()
@@ -35,7 +32,7 @@ impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
             .unwrap_syscall();
     }
 
-    fn get_public_key(self: @DualCaseEthAccount) -> EthPublicKey {
+    fn get_public_key(self: @DualCaseAccount) -> felt252 {
         let args = array![];
 
         try_selector_with_fallback(
@@ -45,7 +42,7 @@ impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
     }
 
     fn is_valid_signature(
-        self: @DualCaseEthAccount, hash: felt252, signature: Array<felt252>
+        self: @DualCaseAccount, hash: felt252, signature: Array<felt252>
     ) -> felt252 {
         let mut args = array![hash];
         args.append_serde(signature);
@@ -59,7 +56,7 @@ impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
             .unwrap_and_cast()
     }
 
-    fn supports_interface(self: @DualCaseEthAccount, interface_id: felt252) -> bool {
+    fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool {
         let args = array![interface_id];
 
         try_selector_with_fallback(

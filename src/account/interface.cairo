@@ -127,12 +127,12 @@ trait EthAccountABI<TState> {
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
 
-    // IDeployable
+    // IEthDeployable
     fn __validate_deploy__(
         self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey
     ) -> felt252;
 
-    // IPublicKey
+    // IEthPublicKey
     fn get_public_key(self: @TState) -> EthPublicKey;
     fn set_public_key(ref self: TState, new_public_key: EthPublicKey);
 
@@ -142,7 +142,7 @@ trait EthAccountABI<TState> {
     // ISRC5Camel
     fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 
-    // IPublicKeyCamel
+    // IEthPublicKeyCamel
     fn getPublicKey(self: @TState) -> EthPublicKey;
     fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
 }

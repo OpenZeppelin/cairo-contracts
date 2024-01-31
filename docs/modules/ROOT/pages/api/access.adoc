@@ -112,21 +112,6 @@ NOTE: Renouncing ownership will leave the contract without an owner,
 thereby removing any functionality that is only available to the owner.
 //end::renounce_ownership[]
 
-[#OwnableComponent-camelCase-Support]
-==== camelCase Support
-
-[.contract-item]
-[[OwnableComponent-transferOwnership]]
-==== `[.contract-item-name]#++transferOwnership++#++(ref self: ContractState, newOwner: ContractAddress)++` [.item-kind]#external#
-
-See xref:OwnableComponent-transfer_ownership[transfer_ownership].
-
-[.contract-item]
-[[OwnableComponent-renounceOwnership]]
-==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
-
-See xref:OwnableComponent-renounce_ownership[renounce_ownership].
-
 [#OwnableComponent-Embeddable-Functions-Two-Step]
 ==== Embeddable Functions (Two Step Transfer)
 
@@ -164,6 +149,21 @@ Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted
 [[OwnableComponent-two-step-renounce_ownership]]
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 include::./access.adoc[tag=renounce_ownership]
+
+[#OwnableComponent-camelCase-Support]
+==== camelCase Support
+
+[.contract-item]
+[[OwnableComponent-transferOwnership]]
+==== `[.contract-item-name]#++transferOwnership++#++(ref self: ContractState, newOwner: ContractAddress)++` [.item-kind]#external#
+
+See xref:OwnableComponent-transfer_ownership[transfer_ownership].
+
+[.contract-item]
+[[OwnableComponent-renounceOwnership]]
+==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
+
+See xref:OwnableComponent-renounce_ownership[renounce_ownership].
 
 [#OwnableComponent-camelCase-Support-Two-Step]
 ==== camelCase Support (Two Step Transfer)

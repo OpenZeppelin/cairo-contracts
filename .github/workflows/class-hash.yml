@@ -13,9 +13,21 @@ jobs:
     name: Update class hashes
     runs-on: ubuntu-latest
     steps:
+    - uses: software-mansion/setup-scarb@v1
+      with:
+        scarb-version: "2.4.4"
     - uses: actions/checkout@v3
     - uses: ericnordelo/setup-class-hash@main
       with:
         version: "0.1.0"
     - name: Get class hashes
-      run: class_hash get --json
+      id: get_class_hash
+      run: class_hash get --json > class_hashes.json
+    - uses: ./.github/actions/update-class-hashes
+      with:
+        compiler-version: ${{ steps.setup-scarb.outputs.scarb-version }}
+        json-file: class_hashes.json
+    - name: Auto-commit changes
+      uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
+      with:
+        commit_message: Update class hashes in the docsite

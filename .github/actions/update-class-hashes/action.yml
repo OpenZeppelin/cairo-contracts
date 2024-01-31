@@ -1,0 +1,9 @@
+name: 'Update Class Hashes'
+description: 'Update the class hashes in the docsite'
+inputs:
+  json-file:
+    description: 'The json file containing the class hashes'
+    required: true
+runs:
+  using: "node20"
+  main: "bin/index.js"

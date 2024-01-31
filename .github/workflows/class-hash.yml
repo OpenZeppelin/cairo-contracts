@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ericnordelo/setup-class-hash@v1
+    - uses: ericnordelo/setup-class-hash@main
       with:
         version: "0.1.0"
     - name: Get class hashes

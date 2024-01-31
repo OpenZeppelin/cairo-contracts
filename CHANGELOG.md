@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- EthAccount component and preset (#853)
 - Ownable two-step functionality (#809)
 
 ### Changed
 
-- Bump scarb to v2.4.4 (#864)
+- Bump scarb to v2.4.4 (#853)
 - OwnershipTransferred event args are indexed (#809)
 
 ## 0.8.1 (2024-01-23)
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)
+- Account events indexed keys (#853)
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
 - Add security section to Upgrades docs (#861)

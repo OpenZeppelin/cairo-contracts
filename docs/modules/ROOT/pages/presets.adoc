@@ -1,6 +1,7 @@
-:account: xref:/api/account.adoc#Account[Account.cairo]
-:erc20: xref:/api/erc20.adoc#ERC20[ERC20.cairo]
-:erc721: xref:/api/erc721.adoc#ERC721[ERC721.cairo]
+:account: xref:/api/account.adoc#Account[Account]
+:eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
+:erc20: xref:/api/erc20.adoc#ERC20[ERC20]
+:erc721: xref:/api/erc721.adoc#ERC721[ERC721]
 :sierra-class-hashes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash[Sierra class hashes]
 :starkli: https://book.starkli.rs/introduction[starkli]
 :wizard: https://wizard.openzeppelin.com[Wizard for Cairo]
@@ -23,10 +24,13 @@ List of available presets and their corresponding {sierra-class-hashes}.
 NOTE: Class hashes were computed using {class-hash-cairo-version}.
 
 |===
-| Name | Compiled Class Hash
+| Name | Sierra Class Hash
 
 | `{account}`
 | `{account-class-hash}`
+
+| `{eth-account-upgradeable}`
+| `{eth-account-upgradeable-class-hash}`
 
 | `{erc20}`
 | `{erc20-class-hash}`

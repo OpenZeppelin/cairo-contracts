@@ -23,7 +23,7 @@ jobs:
         globs: |
           *.md
           !PULL_REQUEST_TEMPLATE.md
-    # - name: Cairo lint
-    #   run: scarb fmt --check
-    # - name: Cairo test
-    #   run: scarb test
+    - name: Cairo lint
+      run: scarb fmt --check
+    - name: Cairo test
+      run: scarb test

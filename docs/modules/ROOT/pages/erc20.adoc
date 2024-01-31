@@ -39,10 +39,6 @@ trait ERC20ABI {
     fn symbol() -> felt252;
     fn decimals() -> u8;
 
-    // ISafeAllowance
-    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
-    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
-
     // IERC20Camel
     fn totalSupply() -> u256;
     fn balanceOf(account: ContractAddress) -> u256;

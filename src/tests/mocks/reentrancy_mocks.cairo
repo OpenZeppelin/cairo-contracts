@@ -18,10 +18,10 @@ trait IReentrancyMock<TState> {
 #[starknet::contract]
 mod ReentrancyMock {
     use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
-    use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcher;
-    use openzeppelin::tests::mocks::reentrancy_attacker_mock::IAttackerDispatcherTrait;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
+    use super::IAttackerDispatcher;
+    use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;
     use super::IReentrancyGuardedDispatcherTrait;
 
@@ -92,6 +92,34 @@ mod ReentrancyMock {
             IAttackerDispatcher { contract_address: attacker }.call_sender();
 
             self.reentrancy_guard.end();
+        }
+    }
+}
+
+//
+// Attacker
+//
+
+#[starknet::interface]
+trait IAttacker<TState> {
+    fn call_sender(self: @TState);
+}
+
+#[starknet::contract]
+mod Attacker {
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
+    use super::IReentrancyMockDispatcher;
+    use super::IReentrancyMockDispatcherTrait;
+
+    #[storage]
+    struct Storage {}
+
+    #[external(v0)]
+    impl IAttackerImpl of super::IAttacker<ContractState> {
+        fn call_sender(self: @ContractState) {
+            let caller: ContractAddress = get_caller_address();
+            IReentrancyMockDispatcher { contract_address: caller }.callback();
         }
     }
 }

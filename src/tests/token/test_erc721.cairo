@@ -12,6 +12,7 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
+use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
@@ -70,25 +71,25 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_initialize() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
 
     state.initializer(NAME, SYMBOL);
 
-    assert(state.name() == NAME, 'Name should be NAME');
-    assert(state.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(state.balance_of(OWNER()) == 0, 'Balance should be zero');
+    assert_eq!(state.name(), NAME);
+    assert_eq!(state.symbol(), SYMBOL);
+    assert!(state.balance_of(OWNER()).is_zero());
 
-    assert(mock_state.supports_interface(erc721::interface::IERC721_ID), 'Missing interface ID');
-    assert(
-        mock_state.supports_interface(erc721::interface::IERC721_METADATA_ID),
-        'Missing interface ID'
-    );
-    assert(
-        mock_state.supports_interface(introspection::interface::ISRC5_ID), 'Missing interface ID'
-    );
+    let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    assert!(supports_ierc721);
+
+    let supports_ierc721_metadata = mock_state
+        .supports_interface(erc721::interface::IERC721_METADATA_ID);
+    assert!(supports_ierc721_metadata);
+
+    let supports_isrc5 = mock_state.supports_interface(introspection::interface::ISRC5_ID);
+    assert!(supports_isrc5);
 }
 
 //
@@ -96,14 +97,12 @@ fn test_initialize() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_balance_of() {
     let state = setup();
-    assert(state.balance_of(OWNER()) == 1, 'Should return balance');
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid account',))]
 fn test_balance_of_zero() {
     let state = setup();
@@ -111,14 +110,12 @@ fn test_balance_of_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_owner_of() {
     let state = setup();
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Should return owner');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_owner_of_non_minted() {
     let state = setup();
@@ -126,7 +123,6 @@ fn test_owner_of_non_minted() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_token_uri_non_minted() {
     let state = setup();
@@ -134,19 +130,17 @@ fn test_token_uri_non_minted() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_get_approved() {
     let mut state = setup();
     let spender = SPENDER();
     let token_id = TOKEN_ID;
 
-    assert(state.get_approved(token_id) == ZERO(), 'Should return non-approval');
+    assert_eq!(state.get_approved(token_id), ZERO());
     state._approve(spender, token_id);
-    assert(state.get_approved(token_id) == spender, 'Should return approval');
+    assert_eq!(state.get_approved(token_id), spender);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_get_approved_nonexistent() {
     let state = setup();
@@ -154,27 +148,32 @@ fn test_get_approved_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__exists() {
     let mut state = COMPONENT_STATE();
     let zero = ZERO();
     let token_id = TOKEN_ID;
 
-    assert(!state._exists(token_id), 'Token should not exist');
+    let not_exists = !state._exists(token_id);
+    assert!(not_exists);
+
     let mut owner = state.ERC721_owners.read(token_id);
-    assert(owner == zero, '');
+    assert!(owner.is_zero());
 
     state._mint(RECIPIENT(), token_id);
 
-    assert(state._exists(token_id), 'Token should exist');
+    let exists = state._exists(token_id);
+    assert!(exists);
+
     owner = state.ERC721_owners.read(token_id);
-    assert(owner == RECIPIENT(), 'Invalid owner');
+    assert_eq!(owner, RECIPIENT());
 
     state._burn(token_id);
 
-    assert(!state._exists(token_id), 'Token should not exist');
+    let not_exists = !state._exists(token_id);
+    assert!(not_exists);
+
     owner = state.ERC721_owners.read(token_id);
-    assert(owner == zero, 'Invalid owner');
+    assert!(owner.is_zero());
 }
 
 //
@@ -182,7 +181,6 @@ fn test__exists() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_approve_from_owner() {
     let mut state = setup();
 
@@ -190,11 +188,11 @@ fn test_approve_from_owner() {
     state.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_approve_from_operator() {
     let mut state = setup();
 
@@ -206,11 +204,11 @@ fn test_approve_from_operator() {
     state.approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_approve_from_unauthorized() {
     let mut state = setup();
@@ -220,7 +218,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner',))]
 fn test_approve_to_owner() {
     let mut state = setup();
@@ -230,7 +227,6 @@ fn test_approve_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_approve_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -238,17 +234,16 @@ fn test_approve_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__approve() {
     let mut state = setup();
     state._approve(SPENDER(), TOKEN_ID);
     assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
 
-    assert(state.get_approved(TOKEN_ID) == SPENDER(), 'Spender not approved correctly');
+    let approved = state.get_approved(TOKEN_ID);
+    assert_eq!(approved, SPENDER());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: approval to owner',))]
 fn test__approve_to_owner() {
     let mut state = setup();
@@ -256,7 +251,6 @@ fn test__approve_to_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__approve_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -268,26 +262,27 @@ fn test__approve_nonexistent() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_set_approval_for_all() {
     let mut state = COMPONENT_STATE();
     testing::set_caller_address(OWNER());
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
-    assert(state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
@@ -296,7 +291,6 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
@@ -305,24 +299,26 @@ fn test_set_approval_for_all_owner_equal_operator_false() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), true);
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
-    assert(state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(is_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
-    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
+    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    assert!(not_approved_for_all);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
@@ -330,7 +326,6 @@ fn test__set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: self approval',))]
 fn test__set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
@@ -342,7 +337,6 @@ fn test__set_approval_for_all_owner_equal_operator_false() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_owner() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -353,7 +347,9 @@ fn test_transfer_from_owner() {
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
-    assert(state.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = state.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     testing::set_caller_address(owner);
     state.transfer_from(owner, recipient, token_id);
@@ -363,7 +359,6 @@ fn test_transfer_from_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_owner() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -374,7 +369,9 @@ fn test_transferFrom_owner() {
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
-    assert(state.get_approved(token_id) == OTHER(), 'Approval not implicitly reset');
+
+    let approved = state.get_approved(token_id);
+    assert_eq!(approved, OTHER());
 
     testing::set_caller_address(owner);
     state.transferFrom(owner, recipient, token_id);
@@ -384,7 +381,6 @@ fn test_transferFrom_owner() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -392,7 +388,6 @@ fn test_transfer_from_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -400,7 +395,6 @@ fn test_transferFrom_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transfer_from_to_zero() {
     let mut state = setup();
@@ -409,7 +403,6 @@ fn test_transfer_from_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transferFrom_to_zero() {
     let mut state = setup();
@@ -419,39 +412,36 @@ fn test_transferFrom_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_to_owner() {
     let mut state = setup();
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 
     testing::set_caller_address(OWNER());
     state.transfer_from(OWNER(), OWNER(), TOKEN_ID);
     assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_to_owner() {
     let mut state = setup();
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 
     testing::set_caller_address(OWNER());
     state.transferFrom(OWNER(), OWNER(), TOKEN_ID);
     assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_approved() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -471,7 +461,6 @@ fn test_transfer_from_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_approved() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -491,7 +480,6 @@ fn test_transferFrom_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transfer_from_approved_for_all() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -512,7 +500,6 @@ fn test_transfer_from_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_transferFrom_approved_for_all() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -533,7 +520,6 @@ fn test_transferFrom_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transfer_from_unauthorized() {
     let mut state = setup();
@@ -542,7 +528,6 @@ fn test_transfer_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transferFrom_unauthorized() {
     let mut state = setup();
@@ -555,7 +540,6 @@ fn test_transferFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account() {
     let mut state = setup();
     let account = setup_account();
@@ -572,7 +556,6 @@ fn test_safe_transfer_from_to_account() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account() {
     let mut state = setup();
     let account = setup_account();
@@ -589,7 +572,6 @@ fn test_safeTransferFrom_to_account() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_account_camel() {
     let mut state = setup();
     let account = setup_camel_account();
@@ -606,7 +588,6 @@ fn test_safe_transfer_from_to_account_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_account_camel() {
     let mut state = setup();
     let account = setup_camel_account();
@@ -623,7 +604,6 @@ fn test_safeTransferFrom_to_account_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -640,7 +620,6 @@ fn test_safe_transfer_from_to_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -657,7 +636,6 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -674,7 +652,6 @@ fn test_safe_transfer_from_to_receiver_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -691,7 +668,6 @@ fn test_safeTransferFrom_to_receiver_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure() {
     let mut state = setup();
@@ -704,7 +680,6 @@ fn test_safe_transfer_from_to_receiver_failure() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure() {
     let mut state = setup();
@@ -717,7 +692,6 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let mut state = setup();
@@ -730,7 +704,6 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let mut state = setup();
@@ -743,7 +716,6 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
@@ -756,7 +728,6 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
@@ -769,7 +740,6 @@ fn test_safeTransferFrom_to_non_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safe_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -777,7 +747,6 @@ fn test_safe_transfer_from_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safeTransferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -785,7 +754,6 @@ fn test_safeTransferFrom_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
     let mut state = setup();
@@ -794,7 +762,6 @@ fn test_safe_transfer_from_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safeTransferFrom_to_zero() {
     let mut state = setup();
@@ -803,7 +770,6 @@ fn test_safeTransferFrom_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -812,19 +778,18 @@ fn test_safe_transfer_from_to_owner() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -833,19 +798,18 @@ fn test_safeTransferFrom_to_owner() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -854,19 +818,18 @@ fn test_safe_transfer_from_to_owner_camel() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
@@ -875,19 +838,18 @@ fn test_safeTransferFrom_to_owner_camel() {
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
     assert_event_transfer(owner, owner, token_id);
 
-    assert(state.owner_of(token_id) == owner, 'Ownership after');
-    assert(state.balance_of(owner) == 1, 'Balance of owner after');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -908,7 +870,6 @@ fn test_safe_transfer_from_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -929,7 +890,6 @@ fn test_safeTransferFrom_approved() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -950,7 +910,6 @@ fn test_safe_transfer_from_approved_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -971,7 +930,6 @@ fn test_safeTransferFrom_approved_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -992,7 +950,6 @@ fn test_safe_transfer_from_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all() {
     let mut state = setup();
     let receiver = setup_receiver();
@@ -1013,7 +970,6 @@ fn test_safeTransferFrom_approved_for_all() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safe_transfer_from_approved_for_all_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -1034,7 +990,6 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test_safeTransferFrom_approved_for_all_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
@@ -1055,7 +1010,6 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safe_transfer_from_unauthorized() {
     let mut state = setup();
@@ -1064,7 +1018,6 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safeTransferFrom_unauthorized() {
     let mut state = setup();
@@ -1077,7 +1030,6 @@ fn test_safeTransferFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test__transfer() {
     let mut state = setup();
     let token_id = TOKEN_ID;
@@ -1093,7 +1045,6 @@ fn test__transfer() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__transfer_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -1101,7 +1052,6 @@ fn test__transfer_nonexistent() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
@@ -1109,7 +1059,6 @@ fn test__transfer_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: wrong sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
@@ -1121,7 +1070,6 @@ fn test__transfer_from_invalid_owner() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test__mint() {
     let mut state = COMPONENT_STATE();
     let recipient = RECIPIENT();
@@ -1135,7 +1083,6 @@ fn test__mint() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__mint_to_zero() {
     let mut state = COMPONENT_STATE();
@@ -1143,7 +1090,6 @@ fn test__mint_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__mint_already_exist() {
     let mut state = setup();
@@ -1155,7 +1101,6 @@ fn test__mint_already_exist() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test__safe_mint_to_receiver() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_receiver();
@@ -1169,7 +1114,6 @@ fn test__safe_mint_to_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__safe_mint_to_receiver_camel() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_camel_receiver();
@@ -1183,7 +1127,6 @@ fn test__safe_mint_to_receiver_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__safe_mint_to_account() {
     let mut state = COMPONENT_STATE();
     let account = setup_account();
@@ -1197,7 +1140,6 @@ fn test__safe_mint_to_account() {
 }
 
 #[test]
-#[available_gas(20000000)]
 fn test__safe_mint_to_account_camel() {
     let mut state = COMPONENT_STATE();
     let account = setup_camel_account();
@@ -1211,7 +1153,6 @@ fn test__safe_mint_to_account_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = COMPONENT_STATE();
@@ -1224,7 +1165,6 @@ fn test__safe_mint_to_non_receiver() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure() {
     let mut state = COMPONENT_STATE();
@@ -1237,7 +1177,6 @@ fn test__safe_mint_to_receiver_failure() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure_camel() {
     let mut state = COMPONENT_STATE();
@@ -1250,7 +1189,6 @@ fn test__safe_mint_to_receiver_failure_camel() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__safe_mint_to_zero() {
     let mut state = COMPONENT_STATE();
@@ -1258,7 +1196,6 @@ fn test__safe_mint_to_zero() {
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__safe_mint_already_exist() {
     let mut state = setup();
@@ -1270,27 +1207,25 @@ fn test__safe_mint_already_exist() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test__burn() {
     let mut state = setup();
 
     state._approve(OTHER(), TOKEN_ID);
     utils::drop_event(ZERO());
 
-    assert(state.owner_of(TOKEN_ID) == OWNER(), 'Ownership before');
-    assert(state.balance_of(OWNER()) == 1, 'Balance of owner before');
-    assert(state.get_approved(TOKEN_ID) == OTHER(), 'Approval before');
+    assert_eq!(state.owner_of(TOKEN_ID), OWNER());
+    assert_eq!(state.balance_of(OWNER()), 1);
+    assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
     state._burn(TOKEN_ID);
     assert_event_transfer(OWNER(), ZERO(), TOKEN_ID);
 
-    assert(state.ERC721_owners.read(TOKEN_ID) == ZERO(), 'Ownership after');
-    assert(state.balance_of(OWNER()) == 0, 'Balance of owner after');
-    assert(state.ERC721_token_approvals.read(TOKEN_ID) == ZERO(), 'Approval after');
+    assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
+    assert_eq!(state.balance_of(OWNER()), 0);
+    assert_eq!(state.ERC721_token_approvals.read(TOKEN_ID), ZERO());
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__burn_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -1302,17 +1237,15 @@ fn test__burn_nonexistent() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test__set_token_uri() {
     let mut state = setup();
 
-    assert(state.token_uri(TOKEN_ID) == 0, 'URI should be 0');
+    assert!(state.token_uri(TOKEN_ID).is_zero());
     state._set_token_uri(TOKEN_ID, URI);
-    assert(state.token_uri(TOKEN_ID) == URI, 'URI should be set');
+    assert_eq!(state.token_uri(TOKEN_ID), URI);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__set_token_uri_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -1327,38 +1260,38 @@ fn assert_state_before_transfer(
     owner: ContractAddress, recipient: ContractAddress, token_id: u256
 ) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == owner, 'Ownership before');
-    assert(state.balance_of(owner) == 1, 'Balance of owner before');
-    assert(state.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert_eq!(state.owner_of(token_id), owner);
+    assert_eq!(state.balance_of(owner), 1);
+    assert!(state.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_transfer(owner: ContractAddress, recipient: ContractAddress, token_id: u256) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == recipient, 'Ownership after');
-    assert(state.balance_of(owner) == 0, 'Balance of owner after');
-    assert(state.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(state.get_approved(token_id) == ZERO(), 'Approval not implicitly reset');
+    assert_eq!(state.owner_of(token_id), recipient);
+    assert_eq!(state.balance_of(owner), 0);
+    assert_eq!(state.balance_of(recipient), 1);
+    assert!(state.get_approved(token_id).is_zero());
 }
 
 fn assert_state_before_mint(recipient: ContractAddress) {
     let state = COMPONENT_STATE();
-    assert(state.balance_of(recipient) == 0, 'Balance of recipient before');
+    assert!(state.balance_of(recipient).is_zero());
 }
 
 fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     let state = COMPONENT_STATE();
-    assert(state.owner_of(token_id) == recipient, 'Ownership after');
-    assert(state.balance_of(recipient) == 1, 'Balance of recipient after');
-    assert(state.get_approved(token_id) == ZERO(), 'Approval implicitly set');
+    assert_eq!(state.owner_of(token_id), recipient);
+    assert_eq!(state.balance_of(recipient), 1);
+    assert!(state.get_approved(token_id).is_zero());
 }
 
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.operator == operator, 'Invalid `operator`');
-    assert(event.approved == approved, 'Invalid `approved`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.operator, operator);
+    assert_eq!(event.approved, approved);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
@@ -1370,9 +1303,9 @@ fn assert_event_approval_for_all(
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<Approval>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.approved == approved, 'Invalid `approved`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.owner, owner);
+    assert_eq!(event.approved, approved);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
@@ -1385,9 +1318,9 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.token_id == token_id, 'Invalid `token_id`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.token_id, token_id);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys

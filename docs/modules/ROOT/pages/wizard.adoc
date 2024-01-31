@@ -2,7 +2,7 @@
 :page-notoc:
 
 Not sure where to start? Use the interactive generator below to bootstrap your
-contract and learn about the components offered in OpenZeppelin Cairo Contracts.
+contract and learn about the components offered in OpenZeppelin Contracts for Cairo.
 
 
 NOTE: We strongly recommend checking the xref:components.adoc[Components] section to understand how to extend from our library.

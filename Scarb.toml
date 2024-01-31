@@ -1,7 +1,8 @@
 [package]
 name = "openzeppelin"
-version = "0.8.0"
-cairo-version = "2.3.1"
+version = "0.8.1"
+edition = "2023_01"
+cairo-version = "2.4.4"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -11,14 +12,14 @@ license-file = "LICENSE"
 keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
 
 [dependencies]
-starknet = "2.3.1"
+starknet = "2.4.4"
 
 [lib]
 
 [[target.starknet-contract]]
 allowed-libfuncs-list.name = "experimental"
 sierra = true
-casm = false
+casm = true
 
 [tool.fmt]
 sort-module-level-items = true

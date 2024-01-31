@@ -64,18 +64,15 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_on_erc721_received() {
     let (dispatcher, _) = setup_snake();
-    assert(
-        dispatcher
-            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
-        'Should return interface id'
-    );
+
+    let on_erc721_received = dispatcher
+        .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
+    assert_eq!(on_erc721_received, IERC721_RECEIVER_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_on_erc721_received() {
     let dispatcher = setup_non_erc721_receiver();
@@ -83,8 +80,7 @@ fn test_dual_no_on_erc721_received() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
@@ -95,19 +91,16 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_onERC721Received() {
     let (dispatcher, _) = setup_camel();
-    assert(
-        dispatcher
-            .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true)) == IERC721_RECEIVER_ID,
-        'Should return interface id'
-    );
+
+    let on_erc721_received = dispatcher
+        .on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
+    assert_eq!(on_erc721_received, IERC721_RECEIVER_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));

@@ -1,0 +1,21 @@
+name: Update class hashes
+
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+
+jobs:
+  update_class_hashes:
+    name: Update class hashes
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ericnordelo/setup-class-hash@v1
+      with:
+        sversion: "0.1.0"
+    - name: Get class hashes
+      run: class_hash get --json

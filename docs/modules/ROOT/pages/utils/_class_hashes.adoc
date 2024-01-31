@@ -8,4 +8,4 @@
 :EthAccountUpgradeable-class-hash: 0x3dda9bcfa854795d91d586b1a4275a68ab1ab185b33a5c00ce647c75875b0ff
 
 // Presets page
-:presets-page: xref:presets.adoc[Compiled class hash]
+:presets-page: xref:presets.adoc[Sierra class hash]

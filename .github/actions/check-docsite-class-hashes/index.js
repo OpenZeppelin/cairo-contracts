@@ -35,7 +35,7 @@ https://crates.io/crates/cairo-lang-compiler/${cairoVersion}[cairo ${cairoVersio
     }).join('\n');
 
     const footer = "// Presets page\n\
-:presets-page: xref:presets.adoc[Compiled class hash]";
+:presets-page: xref:presets.adoc[Sierra class hash]";
 
     return `${header}\n\n${hashes}\n\n${footer}\n`;
 }

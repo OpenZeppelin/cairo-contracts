@@ -37,21 +37,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-owner[`++owner(self)++`]
 * xref:OwnableComponent-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-renounce_ownership[`++renounce_ownership(self)++`]
---
 
-[.contract-index]
-.Embeddable Implementations (camelCase)
---
-.OwnableCamelOnlyImpl
-
-* xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
-* xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
---
-
-[.contract-index]
-[[OwnableTwoStepImpl]]
-.Embeddable Implementations (Two Step Transfer)
---
 .OwnableTwoStepImpl
 
 * xref:OwnableComponent-two-step-owner[`++owner(self)++`]
@@ -62,8 +48,13 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [.contract-index]
-.Embeddable Implementations (camelCase Two Step Transfer)
+.Embeddable Implementations (camelCase)
 --
+.OwnableCamelOnlyImpl
+
+* xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
+* xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
+
 .OwnableTwoStepCamelOnlyImpl
 
 * xref:OwnableComponent-two-step-pendingOwner[`++pendingOwner(self)++`]

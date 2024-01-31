@@ -26652,24 +26652,30 @@ async function main() {
   let json = content.split('\n').slice(4).join('\n');
   let hashes = JSON.parse(json);
 
-  let newContent = createHashesFileNewContent(hashes.contracts, compilerVersionInput);
-  await promises_default().writeFile(classHashesFilePath, newContent);
+  let expectedContent = createHashesFileNewContent(hashes.contracts, compilerVersionInput);
+  let foundContent = await promises_default().readFile(classHashesFilePath, 'utf8');
+
+  if (expectedContent !== foundContent) {
+    core.debug(expectedContent);
+    core.debug(foundContent);
+    core.setFailed("Class hashes file is not up to date");
+  }
 }
 
 function createHashesFileNewContent(contracts, cairoVersion) {
-    const header = `// Eric Version\n:class-hash-cairo-version: \
-          https://crates.io/crates/cairo-lang-compiler/${cairoVersion}[cairo ${cairoVersion}]`;
+    const header = `// Version\n:class-hash-cairo-version: \
+https://crates.io/crates/cairo-lang-compiler/${cairoVersion}[cairo ${cairoVersion}]`;
 
     let hashes = "// Class Hashes\n";
     // The slice 13 is to remove the "openzeppelin_" prefix
     hashes += contracts.sort(compareContracts).map(contract => {
-        return `:${contract.name.slice(13)}: ${contract.sierra}`;
+        return `:${contract.name.slice(13)}-class-hash: ${contract.sierra}`;
     }).join('\n');
 
     const footer = "// Presets page\n\
-          :presets-page: xref:presets.adoc[Compiled class hash]";
+:presets-page: xref:presets.adoc[Compiled class hash]";
 
-    return `${header}\n\n${hashes}\n\n${footer}`;
+    return `${header}\n\n${hashes}\n\n${footer}\n`;
 }
 
 function compareContracts( first, second ) {

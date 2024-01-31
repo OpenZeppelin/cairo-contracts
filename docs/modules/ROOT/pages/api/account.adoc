@@ -482,7 +482,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{account-class-hash}
+{Account-class-hash}
 --
 
 [.contract-index]
@@ -534,7 +534,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{eth-account-upgradeable-class-hash}
+{EthAccountUpgradeable-class-hash}
 --
 
 [.contract-index]

@@ -1,4 +1,4 @@
-name: Update class hashes
+name: Check class hashes
 
 on:
   pull_request:
@@ -9,25 +9,22 @@ on:
     - main
 
 jobs:
-  update_class_hashes:
-    name: Update class hashes
+  check_class_hashes:
+    name: Check class hashes
     runs-on: ubuntu-latest
     steps:
     - uses: software-mansion/setup-scarb@v1
+      id: setup_scarb
       with:
         scarb-version: "2.4.4"
     - uses: actions/checkout@v3
-    - uses: ericnordelo/setup-class-hash@main
+    - uses: ericnordelo/setup-class-hash@v1
       with:
         version: "0.1.0"
     - name: Get class hashes
       id: get_class_hash
       run: class_hash get --json > class_hashes.json
-    - uses: ./.github/actions/update-class-hashes
+    - uses: ./.github/actions/check-docsite-class-hashes
       with:
-        compiler-version: ${{ steps.setup-scarb.outputs.scarb-version }}
+        compiler-version: ${{ steps.setup_scarb.outputs.scarb-version }}
         json-file: class_hashes.json
-    - name: Auto-commit changes
-      uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
-      with:
-        commit_message: Update class hashes in the docsite

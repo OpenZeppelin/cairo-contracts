@@ -27,16 +27,16 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 | Name | Sierra Class Hash
 
 | `{account}`
-| `{account-class-hash}`
+| `{Account-class-hash}`
 
 | `{eth-account-upgradeable}`
-| `{eth-account-upgradeable-class-hash}`
+| `{EthAccountUpgradeable-class-hash}`
 
 | `{erc20}`
-| `{erc20-class-hash}`
+| `{ERC20-class-hash}`
 
 | `{erc721}`
-| `{erc721-class-hash}`
+| `{ERC721-class-hash}`
 |===
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a compiled artifact.

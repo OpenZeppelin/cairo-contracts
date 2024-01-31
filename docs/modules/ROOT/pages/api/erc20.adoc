@@ -489,7 +489,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{erc20-class-hash}
+{ERC20-class-hash}
 --
 
 [.contract-index]

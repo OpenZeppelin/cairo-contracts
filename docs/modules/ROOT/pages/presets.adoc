@@ -23,7 +23,7 @@ List of available presets and their corresponding {sierra-class-hashes}.
 NOTE: Class hashes were computed using {class-hash-cairo-version}.
 
 |===
-| Name | Compiled Class Hash
+| Name | Sierra Class Hash
 
 | `{account}`
 | `{account-class-hash}`

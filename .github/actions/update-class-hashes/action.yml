@@ -4,6 +4,8 @@ inputs:
   json-file:
     description: 'The json file containing the class hashes'
     required: true
+  compiler-version:
+    required: true
 runs:
   using: "node20"
   main: "bin/index.js"

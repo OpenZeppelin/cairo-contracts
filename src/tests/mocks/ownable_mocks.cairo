@@ -104,18 +104,18 @@ mod SnakeOwnablePanicMock {
 
     #[external(v0)]
     fn owner(self: @ContractState) -> ContractAddress {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         Zeroable::zero()
     }
 
     #[external(v0)]
     fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn renounce_ownership(ref self: ContractState) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 }
 
@@ -128,17 +128,17 @@ mod CamelOwnablePanicMock {
 
     #[external(v0)]
     fn owner(self: @ContractState) -> ContractAddress {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         Zeroable::zero()
     }
 
     #[external(v0)]
     fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn renounceOwnership(ref self: ContractState) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 }

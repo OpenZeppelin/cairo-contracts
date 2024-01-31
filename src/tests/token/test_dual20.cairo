@@ -55,16 +55,15 @@ fn setup_erc20_panic() -> (DualCaseERC20, DualCaseERC20) {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
+    assert_eq!(snake_dispatcher.name(), NAME);
+
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.name() == NAME, 'Should return name');
-    assert(camel_dispatcher.name() == NAME, 'Should return name');
+    assert_eq!(camel_dispatcher.name(), NAME);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_name() {
     let dispatcher = setup_non_erc20();
@@ -72,24 +71,21 @@ fn test_dual_no_name() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.name();
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.symbol() == SYMBOL, 'Should return symbol');
-    assert(camel_dispatcher.symbol() == SYMBOL, 'Should return symbol');
+    assert_eq!(snake_dispatcher.symbol(), SYMBOL);
+    assert_eq!(camel_dispatcher.symbol(), SYMBOL);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_symbol() {
     let dispatcher = setup_non_erc20();
@@ -97,24 +93,21 @@ fn test_dual_no_symbol() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_symbol_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.symbol();
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_decimals() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert(snake_dispatcher.decimals() == DECIMALS, 'Should return symbol');
-    assert(camel_dispatcher.decimals() == DECIMALS, 'Should return symbol');
+    assert_eq!(snake_dispatcher.decimals(), DECIMALS);
+    assert_eq!(camel_dispatcher.decimals(), DECIMALS);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_decimals() {
     let dispatcher = setup_non_erc20();
@@ -122,29 +115,26 @@ fn test_dual_no_decimals() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_decimals_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.decimals();
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transfer() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    assert(snake_dispatcher.transfer(RECIPIENT(), VALUE), 'Should return true');
-    assert(snake_target.balance_of(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert!(snake_dispatcher.transfer(RECIPIENT(), VALUE));
+    assert_eq!(snake_target.balance_of(RECIPIENT()), VALUE);
 
     let (camel_dispatcher, camel_target) = setup_camel();
     set_contract_address(OWNER());
-    assert(camel_dispatcher.transfer(RECIPIENT(), VALUE), 'Should return true');
-    assert(camel_target.balanceOf(RECIPIENT()) == VALUE, 'Should equal VALUE');
+    assert!(camel_dispatcher.transfer(RECIPIENT(), VALUE));
+    assert_eq!(camel_target.balanceOf(RECIPIENT()), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer() {
     let dispatcher = setup_non_erc20();
@@ -152,29 +142,30 @@ fn test_dual_no_transfer() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer(RECIPIENT(), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_approve() {
     let (snake_dispatcher, snake_target) = setup_snake();
     set_contract_address(OWNER());
-    assert(snake_dispatcher.approve(SPENDER(), VALUE), 'Should return true');
-    assert(snake_target.allowance(OWNER(), SPENDER()) == VALUE, 'Allowance should equal VALUE');
+    assert!(snake_dispatcher.approve(SPENDER(), VALUE));
+
+    let snake_allowance = snake_target.allowance(OWNER(), SPENDER());
+    assert_eq!(snake_allowance, VALUE);
 
     let (camel_dispatcher, camel_target) = setup_camel();
     set_contract_address(OWNER());
-    assert(camel_dispatcher.approve(SPENDER(), VALUE), 'Should return true');
-    assert(camel_target.allowance(OWNER(), SPENDER()) == VALUE, 'Allowance should equal VALUE');
+    assert!(camel_dispatcher.approve(SPENDER(), VALUE));
+
+    let camel_allowance = camel_target.allowance(OWNER(), SPENDER());
+    assert_eq!(camel_allowance, VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_approve() {
     let dispatcher = setup_non_erc20();
@@ -182,8 +173,7 @@ fn test_dual_no_approve() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.approve(SPENDER(), VALUE);
@@ -194,14 +184,12 @@ fn test_dual_approve_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_total_supply() {
     let (dispatcher, _) = setup_snake();
-    assert(dispatcher.total_supply() == SUPPLY, 'Should return balance');
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_total_supply() {
     let dispatcher = setup_non_erc20();
@@ -209,22 +197,19 @@ fn test_dual_no_total_supply() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_total_supply_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.total_supply();
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_balance_of() {
     let (dispatcher, _) = setup_snake();
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should return balance');
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc20();
@@ -232,15 +217,13 @@ fn test_dual_no_balance_of() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
     set_contract_address(OWNER());
@@ -248,11 +231,10 @@ fn test_dual_transfer_from() {
 
     set_contract_address(OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
-    assert(target.balance_of(RECIPIENT()) == VALUE, 'Should transfer VALUE');
+    assert_eq!(target.balance_of(RECIPIENT()), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc20();
@@ -260,8 +242,7 @@ fn test_dual_no_transfer_from() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
@@ -272,37 +253,32 @@ fn test_dual_transfer_from_exists_and_panics() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_totalSupply() {
     let (dispatcher, _) = setup_camel();
-    assert(dispatcher.total_supply() == SUPPLY, 'Should return supply');
+    assert_eq!(dispatcher.total_supply(), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_totalSupply_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.total_supply();
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_balanceOf() {
     let (dispatcher, _) = setup_camel();
-    assert(dispatcher.balance_of(OWNER()) == SUPPLY, 'Should return balance');
+    assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
     set_contract_address(OWNER());
@@ -310,12 +286,11 @@ fn test_dual_transferFrom() {
 
     set_contract_address(OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
-    assert(target.balanceOf(RECIPIENT()) == VALUE, 'Should transfer VALUE');
+    assert_eq!(target.balanceOf(RECIPIENT()), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);

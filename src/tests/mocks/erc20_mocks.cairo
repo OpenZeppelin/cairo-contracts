@@ -90,6 +90,7 @@ mod CamelERC20Mock {
     #[abi(embed_v0)]
     impl SafeAllowanceCamelImpl =
         ERC20Component::SafeAllowanceCamelImpl<ContractState>;
+
     // `ERC20Impl` is not embedded because it would defeat the purpose of the
     // mock. The `ERC20Impl` case-agnostic methods are manually exposed.
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
@@ -151,49 +152,49 @@ mod SnakeERC20Panic {
 
     #[external(v0)]
     fn name(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn symbol(self: @ContractState) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn decimals(self: @ContractState) -> u8 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 
     #[external(v0)]
     fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 
     #[external(v0)]
     fn total_supply(self: @ContractState) -> u256 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
@@ -201,7 +202,7 @@ mod SnakeERC20Panic {
     fn transfer_from(
         ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
     ) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }
@@ -215,13 +216,13 @@ mod CamelERC20Panic {
 
     #[external(v0)]
     fn totalSupply(self: @ContractState) -> u256 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
@@ -229,6 +230,6 @@ mod CamelERC20Panic {
     fn transferFrom(
         ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 }

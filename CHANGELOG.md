@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -13,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump scarb to v2.4.3 (#863)
+- Bump scarb to v2.4.4 (#864)
 
 ## 0.8.1 (2024-01-23)
 
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Utilities documentation (#825)
 - Documentation for presets (#832)
 - Backwards compatibility notice (#861)
+- Add automatic version bump to CI (#862)
 
 ### Changed
 

@@ -1,0 +1,34 @@
+name: Update version on new release branch
+
+on:
+  create:
+
+jobs:
+  update_version:
+    if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-v')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.OPENZEPPELIN_ORG_GITHUB_PAT }}
+
+    - name: Extract current version
+      run: |
+        CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+    - name: Extract new version number
+      run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> $GITHUB_ENV
+
+    - name: Replace version in files
+      run: |
+        echo "Current version: $CURRENT_VERSION"
+        echo "New version: $NEW_VERSION"
+        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" {} +
+
+    - name: Auto-commit changes
+      uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
+      with:
+        commit_message: Bump version to ${{ env.NEW_VERSION }}

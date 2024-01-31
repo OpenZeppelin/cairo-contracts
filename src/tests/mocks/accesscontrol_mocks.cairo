@@ -8,16 +8,19 @@ mod DualCaseAccessControlMock {
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlImpl =
         AccessControlComponent::AccessControlImpl<ContractState>;
     #[abi(embed_v0)]
     impl AccessControlCamelImpl =
         AccessControlComponent::AccessControlCamelImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -53,12 +56,15 @@ mod SnakeAccessControlMock {
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlImpl =
         AccessControlComponent::AccessControlImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -94,13 +100,16 @@ mod CamelAccessControlMock {
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // AccessControl
     #[abi(embed_v0)]
     impl AccessControlCamelImpl =
         AccessControlComponent::AccessControlCamelImpl<ContractState>;
+    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -141,34 +150,34 @@ mod SnakeAccessControlPanicMock {
 
     #[external(v0)]
     fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 
     #[external(v0)]
     fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn renounce_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }
@@ -182,34 +191,34 @@ mod CamelAccessControlPanicMock {
 
     #[external(v0)]
     fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 
     #[external(v0)]
     fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         3
     }
 
     #[external(v0)]
     fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic_with_felt252('Some error');
+        panic!("Some error");
     }
 
     #[external(v0)]
     fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic_with_felt252('Some error');
+        panic!("Some error");
         false
     }
 }

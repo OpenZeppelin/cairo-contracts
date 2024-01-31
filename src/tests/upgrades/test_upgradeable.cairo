@@ -43,10 +43,7 @@ fn test_upgraded_event() {
     let v1 = deploy_v1();
     v1.upgrade(V2_CLASS_HASH());
 
-    let event = utils::pop_log::<Upgraded>(v1.contract_address).unwrap();
-    assert_eq!(event.class_hash, V2_CLASS_HASH());
-
-    utils::assert_no_events_left(v1.contract_address);
+    assert_only_event_upgraded(V2_CLASS_HASH(), v1.contract_address);
 }
 
 #[test]
@@ -84,4 +81,18 @@ fn test_remove_selector_fails_in_v2() {
     v1.upgrade(V2_CLASS_HASH());
     // We use the v1 dispatcher because remove_selector is not in v2 interface
     v1.remove_selector();
+}
+
+//
+// Helpers
+//
+
+fn assert_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
+    let event = utils::pop_log::<Upgraded>(contract).unwrap();
+    assert!(event.class_hash == class_hash);
+}
+
+fn assert_only_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
+    assert_event_upgraded(class_hash, contract);
+    utils::assert_no_events_left(ZERO());
 }

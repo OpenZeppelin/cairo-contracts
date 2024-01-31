@@ -94,20 +94,6 @@ mod OwnableComponent {
         }
     }
 
-    /// Adds camelCase support for `IOwnable`.
-    #[embeddable_as(OwnableCamelOnlyImpl)]
-    impl OwnableCamelOnly<
-        TContractState, +HasComponent<TContractState>
-    > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
-        fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
-            Ownable::transfer_ownership(ref self, newOwner);
-        }
-
-        fn renounceOwnership(ref self: ComponentState<TContractState>) {
-            Ownable::renounce_ownership(ref self);
-        }
-    }
-
     /// Adds support for two step ownership transfer.
     #[embeddable_as(OwnableTwoStepImpl)]
     impl OwnableTwoStep<
@@ -143,6 +129,20 @@ mod OwnableComponent {
         /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
         /// functions anymore. Can only be called by the current owner.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
+            Ownable::renounce_ownership(ref self);
+        }
+    }
+
+    /// Adds camelCase support for `IOwnable`.
+    #[embeddable_as(OwnableCamelOnlyImpl)]
+    impl OwnableCamelOnly<
+        TContractState, +HasComponent<TContractState>
+    > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
+        fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
+            Ownable::transfer_ownership(ref self, newOwner);
+        }
+
+        fn renounceOwnership(ref self: ComponentState<TContractState>) {
             Ownable::renounce_ownership(ref self);
         }
     }

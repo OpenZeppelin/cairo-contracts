@@ -3,7 +3,7 @@
 
 // Class Hashes
 :account-class-hash: 0x07a711d70338e05d7008fdf553207adc791297461fe3464b450fdc5f26f836ae
-:erc20-class-hash: 0x03af5816946625d3d2c94ea451225715784762050eba736f0b0ad9186685bced
+:erc20-class-hash: 0x7c9b5a246fe83b0cd81de65daddb94b3803f94950db99bf2431bbfecf284642
 :erc721-class-hash: 0x045c96d1b24c3dc060680e4bfd4bdc32161aefe8f8939cd4be3954c5d8688d75
 
 // Presets page

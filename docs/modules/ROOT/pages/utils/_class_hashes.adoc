@@ -7,4 +7,4 @@
 :erc721-class-hash: 0x045c96d1b24c3dc060680e4bfd4bdc32161aefe8f8939cd4be3954c5d8688d75
 
 // Presets page
-:presets-page: xref:presets.adoc[Compiled class hash]
+:presets-page: xref:presets.adoc[Sierra class hash]

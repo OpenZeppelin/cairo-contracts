@@ -32,4 +32,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add security section to Upgrades docs (#861)
 
 ### Removed
-- Non-standard `increase_allowance` and `decrease_allowance` functions in ERC20 contract
+- Non-standard `increase_allowance` and `decrease_allowance` functions in ERC20 contract (#881)

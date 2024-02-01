@@ -20,7 +20,6 @@ mod EthAccountUpgradeable {
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     // EthAccount
-    #[abi(embed_v0)]
     impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
     impl SRC6CamelOnlyImpl = EthAccountComponent::SRC6CamelOnlyImpl<ContractState>;
@@ -68,7 +67,7 @@ mod EthAccountUpgradeable {
         self.eth_account.initializer(public_key);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.eth_account.assert_only_self();

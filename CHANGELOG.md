@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump scarb to v2.4.4 (#853)
+  
+### Removed
+
+- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 
@@ -35,7 +39,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
 - Add security section to Upgrades docs (#861)
-  
-### Removed
-
-- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)

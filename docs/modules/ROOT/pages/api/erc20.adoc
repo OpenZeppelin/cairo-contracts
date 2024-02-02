@@ -436,9 +436,7 @@ include::../utils/_class_hashes.adoc[]
 
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++SafeAllowanceImpl++`]
 * xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-camelCase[`++SafeAllowanceCamelImpl++`]
 --
 
 [#ERC20-constructor-section]

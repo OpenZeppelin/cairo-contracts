@@ -5,6 +5,7 @@ mod secp256k1;
 mod signature;
 
 use signature::{is_valid_stark_signature, is_valid_eth_signature};
+use starknet::SyscallResultTrait;
 use starknet::account::Call;
 
 const MIN_TRANSACTION_VERSION: u256 = 1;
@@ -28,5 +29,5 @@ fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
 
 fn execute_single_call(call: Call) -> Span<felt252> {
     let Call{to, selector, calldata } = call;
-    starknet::call_contract_syscall(to, selector, calldata.span()).unwrap()
+    starknet::call_contract_syscall(to, selector, calldata.span()).unwrap_syscall()
 }

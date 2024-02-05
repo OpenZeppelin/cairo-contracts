@@ -5,7 +5,7 @@
 ///
 /// OpenZeppelin's account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
-#[starknet::contract]
+#[starknet::contract(account)]
 mod EthAccountUpgradeable {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;

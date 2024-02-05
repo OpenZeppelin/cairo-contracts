@@ -1,4 +1,4 @@
-#[starknet::contract]
+#[starknet::contract(account)]
 mod DualCaseEthAccountMock {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;
@@ -43,7 +43,7 @@ mod DualCaseEthAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod SnakeEthAccountMock {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;
@@ -84,7 +84,7 @@ mod SnakeEthAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod CamelEthAccountMock {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;

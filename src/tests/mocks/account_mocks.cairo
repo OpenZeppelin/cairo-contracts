@@ -1,4 +1,4 @@
-#[starknet::contract]
+#[starknet::contract(account)]
 mod DualCaseAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -45,7 +45,7 @@ mod DualCaseAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod SnakeAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -88,7 +88,7 @@ mod SnakeAccountMock {
     }
 }
 
-#[starknet::contract]
+#[starknet::contract(account)]
 mod CamelAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;

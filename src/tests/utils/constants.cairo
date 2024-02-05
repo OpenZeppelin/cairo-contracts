@@ -1,7 +1,9 @@
+use openzeppelin::account::interface::EthPublicKey;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::class_hash_const;
 use starknet::contract_address_const;
+use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 
 const NAME: felt252 = 'NAME';
 const SYMBOL: felt252 = 'SYMBOL';
@@ -22,6 +24,14 @@ const MIN_TRANSACTION_VERSION: felt252 = 1;
 const QUERY_OFFSET: felt252 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + MIN_TRANSACTION_VERSION
 const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
+
+fn ETH_PUBKEY() -> EthPublicKey {
+    secp256k1_get_point_from_x_syscall(3, false).unwrap().unwrap()
+}
+
+fn NEW_ETH_PUBKEY() -> EthPublicKey {
+    secp256k1_get_point_from_x_syscall(4, false).unwrap().unwrap()
+}
 
 fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()

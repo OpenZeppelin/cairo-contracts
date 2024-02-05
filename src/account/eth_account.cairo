@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (account/eth_account.cairo)
 
-/// # Account Component
+/// # EthAccount Component
 ///
-/// The Account component enables contracts to behave as accounts.
+/// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
 #[starknet::component]
-mod AccountComponent {
+mod EthAccountComponent {
+    use core::starknet::secp256_trait::Secp256PointTrait;
+    use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::interface;
+    use openzeppelin::account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointStorePacking};
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
-    use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
+    use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
+    use poseidon::poseidon_hash_span;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -19,7 +22,7 @@ mod AccountComponent {
 
     #[storage]
     struct Storage {
-        Account_public_key: felt252
+        EthAccount_public_key: EthPublicKey
     }
 
     #[event]
@@ -42,10 +45,10 @@ mod AccountComponent {
     }
 
     mod Errors {
-        const INVALID_CALLER: felt252 = 'Account: invalid caller';
-        const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
-        const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
-        const UNAUTHORIZED: felt252 = 'Account: unauthorized';
+        const INVALID_CALLER: felt252 = 'EthAccount: invalid caller';
+        const INVALID_SIGNATURE: felt252 = 'EthAccount: invalid signature';
+        const INVALID_TX_VERSION: felt252 = 'EthAccount: invalid tx version';
+        const UNAUTHORIZED: felt252 = 'EthAccount: unauthorized';
     }
 
     #[embeddable_as(SRC6Impl)]
@@ -125,14 +128,14 @@ mod AccountComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IDeployable<ComponentState<TContractState>> {
+    > of interface::IEthDeployable<ComponentState<TContractState>> {
         /// Verifies the validity of the signature for the current transaction.
         /// This function is used by the protocol to verify `deploy_account` transactions.
         fn __validate_deploy__(
             self: @ComponentState<TContractState>,
             class_hash: felt252,
             contract_address_salt: felt252,
-            public_key: felt252
+            public_key: EthPublicKey
         ) -> felt252 {
             self.validate_transaction()
         }
@@ -144,10 +147,10 @@ mod AccountComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IPublicKey<ComponentState<TContractState>> {
+    > of interface::IEthPublicKey<ComponentState<TContractState>> {
         /// Returns the current public key of the account.
-        fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
-            self.Account_public_key.read()
+        fn get_public_key(self: @ComponentState<TContractState>) -> EthPublicKey {
+            self.EthAccount_public_key.read()
         }
 
         /// Sets the public key of the account to `new_public_key`.
@@ -157,9 +160,13 @@ mod AccountComponent {
         /// - The caller must be the contract itself.
         ///
         /// Emits an `OwnerRemoved` event.
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
+        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
             self.assert_only_self();
-            self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
+
+            let current_public_key: EthPublicKey = self.EthAccount_public_key.read();
+            let removed_owner_guid = _get_guid_from_public_key(current_public_key);
+
+            self.emit(OwnerRemoved { removed_owner_guid });
             self._set_public_key(new_public_key);
         }
     }
@@ -175,7 +182,7 @@ mod AccountComponent {
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
-            SRC6::is_valid_signature(self, hash, signature)
+            self.is_valid_signature(hash, signature)
         }
     }
 
@@ -186,13 +193,13 @@ mod AccountComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IPublicKeyCamel<ComponentState<TContractState>> {
-        fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
-            PublicKey::get_public_key(self)
+    > of interface::IEthPublicKeyCamel<ComponentState<TContractState>> {
+        fn getPublicKey(self: @ComponentState<TContractState>) -> EthPublicKey {
+            self.EthAccount_public_key.read()
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            PublicKey::set_public_key(ref self, newPublicKey);
+        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey) {
+            self.set_public_key(newPublicKey);
         }
     }
 
@@ -205,7 +212,7 @@ mod AccountComponent {
     > of InternalTrait<TContractState> {
         /// Initializes the account by setting the initial public key
         /// and registering the ISRC6 interface Id.
-        fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
+        fn initializer(ref self: ComponentState<TContractState>, public_key: EthPublicKey) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
             self._set_public_key(public_key);
@@ -232,9 +239,10 @@ mod AccountComponent {
         /// The usage of this method outside the `set_public_key` function is discouraged.
         ///
         /// Emits an `OwnerAdded` event.
-        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            self.Account_public_key.write(new_public_key);
-            self.emit(OwnerAdded { new_owner_guid: new_public_key });
+        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
+            self.EthAccount_public_key.write(new_public_key);
+            let new_owner_guid = _get_guid_from_public_key(new_public_key);
+            self.emit(OwnerAdded { new_owner_guid });
         }
 
         /// Returns whether the given signature is valid for the given hash
@@ -242,93 +250,13 @@ mod AccountComponent {
         fn _is_valid_signature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
         ) -> bool {
-            let public_key = self.Account_public_key.read();
-            is_valid_stark_signature(hash, public_key, signature)
+            let public_key: EthPublicKey = self.EthAccount_public_key.read();
+            is_valid_eth_signature(hash, public_key, signature)
         }
     }
 
-    #[embeddable_as(AccountABIImpl)]
-    impl AccountABI<
-        TContractState,
-        +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of interface::AccountABI<ComponentState<TContractState>> {
-        // ISRC6
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>
-        ) -> Array<Span<felt252>> {
-            SRC6::__execute__(self, calls)
-        }
-
-        fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
-            SRC6::__validate__(self, calls)
-        }
-
-        fn is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            SRC6::is_valid_signature(self, hash, signature)
-        }
-
-        // ISRC6CamelOnly
-        fn isValidSignature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            SRC6CamelOnly::isValidSignature(self, hash, signature)
-        }
-
-        // IDeclarer
-        fn __validate_declare__(
-            self: @ComponentState<TContractState>, class_hash: felt252
-        ) -> felt252 {
-            Declarer::__validate_declare__(self, class_hash)
-        }
-
-        // IDeployable
-        fn __validate_deploy__(
-            self: @ComponentState<TContractState>,
-            class_hash: felt252,
-            contract_address_salt: felt252,
-            public_key: felt252
-        ) -> felt252 {
-            Deployable::__validate_deploy__(self, class_hash, contract_address_salt, public_key)
-        }
-
-        // IPublicKey
-        fn get_public_key(self: @ComponentState<TContractState>) -> felt252 {
-            PublicKey::get_public_key(self)
-        }
-
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            PublicKey::set_public_key(ref self, new_public_key);
-        }
-
-        // IPublicKeyCamel
-        fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
-            PublicKeyCamel::getPublicKey(self)
-        }
-
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            PublicKeyCamel::setPublicKey(ref self, newPublicKey);
-        }
-
-        // ISRC5
-        fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
-        ) -> bool {
-            // TMP - until `get_dep_component!` supports snapshots
-            let contract = self.get_contract();
-            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
-            src5.supports_interface(interface_id)
-        }
-
-        // ISRC5Camel
-        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
-            // TMP - until `get_dep_component!` supports snapshots
-            let contract = self.get_contract();
-            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
-            src5.supportsInterface(interfaceId)
-        }
+    fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
+        let (x, y) = public_key.get_coordinates().unwrap();
+        poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 }

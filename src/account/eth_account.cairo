@@ -4,7 +4,7 @@
 /// # EthAccount Component
 ///
 /// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
-#[starknet::component(account)]
+#[starknet::component]
 mod EthAccountComponent {
     use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::interface::EthPublicKey;

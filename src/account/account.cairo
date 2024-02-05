@@ -4,7 +4,7 @@
 /// # Account Component
 ///
 /// The Account component enables contracts to behave as accounts.
-#[starknet::component(account)]
+#[starknet::component]
 mod AccountComponent {
     use openzeppelin::account::interface;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};

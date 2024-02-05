@@ -12,6 +12,7 @@ trait IUpgradesV1<TState> {
     fn remove_selector(self: @TState);
 }
 
+#[starknet::interface]
 trait UpgradesV1Trait<TState> {
     fn set_value(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -46,7 +47,7 @@ mod UpgradesV1 {
         self.upgradeable._upgrade(new_class_hash);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradesV1Impl of super::UpgradesV1Trait<ContractState> {
         fn set_value(ref self: ContractState, val: felt252) {
             self.value.write(val);
@@ -69,6 +70,7 @@ trait IUpgradesV2<TState> {
     fn get_value2(self: @TState) -> felt252;
 }
 
+#[starknet::interface]
 trait UpgradesV2Trait<TState> {
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
@@ -105,7 +107,7 @@ mod UpgradesV2 {
         self.upgradeable._upgrade(new_class_hash);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradesV2Impl of super::UpgradesV2Trait<ContractState> {
         fn set_value(ref self: ContractState, val: felt252) {
             self.value.write(val);

@@ -10,8 +10,7 @@ use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID,
-    TOKEN_VALUE, PUBKEY,
+    DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, TOKEN_ID, TOKEN_VALUE, PUBKEY,
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelOnlyImpl;
@@ -31,16 +30,23 @@ use starknet::testing;
 // Setup
 //
 
-fn STATE() -> DualCaseERC1155Mock::ContractState {
+type ComponentState = ERC1155Component::ComponentState<DualCaseERC1155Mock::ContractState>;
+
+fn CONTRACT_STATE() -> DualCaseERC1155Mock::ContractState {
     DualCaseERC1155Mock::contract_state_for_testing()
 }
+fn COMPONENT_STATE() -> ComponentState {
+    ERC1155Component::component_state_for_testing()
+}
 
-fn setup() -> DualCaseERC1155Mock::ContractState {
-    let mut state = STATE();
-    state.erc1155.initializer(NAME, SYMBOL);
-    state.erc1155._mint(OWNER(), TOKEN_ID, TOKEN_VALUE);
+fn setup() -> (ComponentState, ContractAddress) {
+    let mut state = COMPONENT_STATE();
+    state.initializer("NAME", "SYMBOL", "URI");
+
+    let owner = setup_account();
+    state.safe_mint(owner, TOKEN_ID, TOKEN_VALUE, array![].span());
     utils::drop_event(ZERO());
-    state
+    (state, owner)
 }
 
 fn setup_receiver() -> ContractAddress {
@@ -66,14 +72,13 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_initialize() {
-    let mut state = STATE();
-    state.erc1155.initializer(NAME, SYMBOL);
+    let mut state = CONTRACT_STATE();
+    state.erc1155.initializer("NAME", "SYMBOL", "URI");
 
-    assert(state.erc1155.name() == NAME, 'Name should be NAME');
-    assert(state.erc1155.symbol() == SYMBOL, 'Symbol should be SYMBOL');
-    assert(state.erc1155.balance_of(OWNER(), TOKEN_ID) == 0, 'Balance should be zero');
+    assert(state.name() == "NAME", 'Name should be NAME');
+    assert(state.symbol() == "SYMBOL", 'Symbol should be SYMBOL');
+    assert(state.balance_of(OWNER(), TOKEN_ID) == 0, 'Balance should be zero');
 
     assert(state.src5.supports_interface(erc1155::interface::IERC1155_ID), 'Missing interface ID');
     assert(
@@ -90,11 +95,10 @@ fn test_initialize() {
 //
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid account',))]
 fn test_balance_of_zero() {
-    let state = setup();
-    state.erc1155.balance_of(ZERO(), TOKEN_ID);
+    let (state, _) = setup();
+    state.balance_of(ZERO(), TOKEN_ID);
 }
 
 //
@@ -102,122 +106,37 @@ fn test_balance_of_zero() {
 //
 
 #[test]
-#[available_gas(20000000)]
 fn test_set_approval_for_all() {
-    let mut state = STATE();
+    let mut state = CONTRACT_STATE();
     testing::set_caller_address(OWNER());
 
-    assert(!state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
+    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
 
-    state.erc1155.set_approval_for_all(OPERATOR(), true);
+    state.set_approval_for_all(OPERATOR(), true);
     assert_event_approval_for_all(OWNER(), OPERATOR(), true);
 
-    assert(
-        state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
-    );
+    assert(state.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly');
 
-    state.erc1155.set_approval_for_all(OPERATOR(), false);
+    state.set_approval_for_all(OPERATOR(), false);
     assert_event_approval_for_all(OWNER(), OPERATOR(), false);
 
-    assert(
-        !state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly'
-    );
+    assert(!state.is_approved_for_all(OWNER(), OPERATOR()), 'Approval not revoked correctly');
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_true() {
-    let mut state = STATE();
+    let mut state = CONTRACT_STATE();
     testing::set_caller_address(OWNER());
-    state.erc1155.set_approval_for_all(OWNER(), true);
+    state.set_approval_for_all(OWNER(), true);
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: self approval',))]
 fn test_set_approval_for_all_owner_equal_operator_false() {
-    let mut state = STATE();
+    let mut state = CONTRACT_STATE();
     testing::set_caller_address(OWNER());
-    state.erc1155.set_approval_for_all(OWNER(), false);
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test__set_approval_for_all() {
-    let mut state = STATE();
-    assert(!state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Invalid default value');
-
-    state.erc1155._set_approval_for_all(OWNER(), OPERATOR(), true);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), true);
-
-    assert(
-        state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
-    );
-
-    state.erc1155._set_approval_for_all(OWNER(), OPERATOR(), false);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), false);
-
-    assert(
-        !state.erc1155.is_approved_for_all(OWNER(), OPERATOR()), 'Operator not approved correctly'
-    );
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: self approval',))]
-fn test__set_approval_for_all_owner_equal_operator_true() {
-    let mut state = STATE();
-    state.erc1155._set_approval_for_all(OWNER(), OWNER(), true);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: self approval',))]
-fn test__set_approval_for_all_owner_equal_operator_false() {
-    let mut state = STATE();
-    state.erc1155._set_approval_for_all(OWNER(), OWNER(), false);
-}
-
-//
-// transfer_from & transferFrom
-//
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
-fn test_update_balances_from_to_zero() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.erc1155.transfer_from(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
-fn test_update_balancesFrom_to_zero() {
-    let mut state = setup();
-
-    testing::set_caller_address(OWNER());
-    state.erc1155.transferFrom(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: unauthorized caller',))]
-fn test_update_balances_from_unauthorized() {
-    let mut state = setup();
-    testing::set_caller_address(OTHER());
-    state.erc1155.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: unauthorized caller',))]
-fn test_update_balancesFrom_unauthorized() {
-    let mut state = setup();
-    testing::set_caller_address(OTHER());
-    state.erc1155.transferFrom(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE);
+    state.set_approval_for_all(OWNER(), false);
 }
 
 //
@@ -225,201 +144,59 @@ fn test_update_balancesFrom_unauthorized() {
 //
 
 #[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
-fn test_safe_transfer_from_to_receiver_failure() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, receiver, token_id, value, DATA(false));
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
-fn test_safeTransferFrom_to_receiver_failure() {
-    let mut state = setup();
-    let receiver = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(false));
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
-fn test_safeTransferFrom_to_receiver_failure_camel() {
-    let mut state = setup();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-    let owner = OWNER();
-
-    testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, receiver, token_id, value, DATA(false));
-}
-
-#[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
-    let mut state = setup();
+    let (mut state, owner) = setup();
     let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let value = TOKEN_VALUE;
-    let owner = OWNER();
 
     testing::set_caller_address(owner);
-    state.erc1155.safe_transfer_from(owner, recipient, token_id, value, DATA(true));
+    state.safe_transfer_from(owner, recipient, token_id, value, DATA(true));
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
-    let mut state = setup();
+    let (mut state, owner) = setup();
     let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
     let token_id = TOKEN_ID;
     let value = TOKEN_VALUE;
-    let owner = OWNER();
 
     testing::set_caller_address(owner);
-    state.erc1155.safeTransferFrom(owner, recipient, token_id, value, DATA(true));
+    state.safeTransferFrom(owner, recipient, token_id, value, DATA(true));
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.erc1155.safe_transfer_from(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    let (mut state, owner) = setup();
+    testing::set_caller_address(owner);
+    state.safe_transfer_from(owner, ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: invalid receiver',))]
 fn test_safeTransferFrom_to_zero() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.erc1155.safeTransferFrom(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    let (mut state, owner) = setup();
+    testing::set_caller_address(owner);
+    state.safeTransferFrom(owner, ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: unauthorized caller',))]
 fn test_safe_transfer_from_unauthorized() {
-    let mut state = setup();
+    let (mut state, owner) = setup();
     testing::set_caller_address(OTHER());
-    state.erc1155.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    state.safe_transfer_from(owner, RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 #[test]
-#[available_gas(20000000)]
 #[should_panic(expected: ('ERC1155: unauthorized caller',))]
 fn test_safeTransferFrom_unauthorized() {
-    let mut state = setup();
+    let (mut state, owner) = setup();
     testing::set_caller_address(OTHER());
-    state.erc1155.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-//
-// _update_balances
-//
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
-fn test__update_balances_to_zero() {
-    let mut state = setup();
-    state.erc1155._update_balances(OWNER(), ZERO(), TOKEN_ID, TOKEN_VALUE);
-}
-
-//
-// _mint
-//
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
-fn test__mint_to_zero() {
-    let mut state = STATE();
-    state.erc1155._mint(ZERO(), TOKEN_ID, TOKEN_VALUE);
-}
-
-//
-// _safe_mint
-//
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
-fn test__safe_mint_to_non_receiver() {
-    let mut state = STATE();
-    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._safe_mint(recipient, token_id, value, DATA(true));
-    assert_state_after_mint(recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe mint failed',))]
-fn test__safe_mint_to_receiver_failure() {
-    let mut state = STATE();
-    let recipient = setup_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._safe_mint(recipient, token_id, value, DATA(false));
-    assert_state_after_mint(recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: safe mint failed',))]
-fn test__safe_mint_to_receiver_failure_camel() {
-    let mut state = STATE();
-    let recipient = setup_camel_receiver();
-    let token_id = TOKEN_ID;
-    let value = TOKEN_VALUE;
-
-    assert_state_before_mint(recipient, token_id);
-    state.erc1155._safe_mint(recipient, token_id, value, DATA(false));
-    assert_state_after_mint(recipient, token_id, value);
-}
-
-#[test]
-#[available_gas(20000000)]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
-fn test__safe_mint_to_zero() {
-    let mut state = STATE();
-    state.erc1155._safe_mint(ZERO(), TOKEN_ID, TOKEN_VALUE, DATA(true));
-}
-
-//
-// _set_uri
-//
-
-#[test]
-#[available_gas(20000000)]
-fn test__set_uri() {
-    let mut state = setup();
-
-    assert(state.erc1155.uri(TOKEN_ID) == 0, 'URI should be 0');
-    state.erc1155._set_uri(TOKEN_ID, URI);
-    assert(state.erc1155.uri(TOKEN_ID) == URI, 'URI should be set');
+    state.safeTransferFrom(owner, RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 //
@@ -429,36 +206,36 @@ fn test__set_uri() {
 fn assert_state_before_update_balances(
     owner: ContractAddress, recipient: ContractAddress, token_id: u256, value: u256
 ) {
-    let state = STATE();
-    assert(state.erc1155.balance_of(owner, token_id) == value, 'Balance of owner before');
-    assert(state.erc1155.balance_of(recipient, token_id) == 0, 'Balance of recipient before');
+    let state = CONTRACT_STATE();
+    assert(state.balance_of(owner, token_id) == value, 'Balance of owner before');
+    assert(state.balance_of(recipient, token_id) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_update_balances(
     owner: ContractAddress, recipient: ContractAddress, token_id: u256, value: u256
 ) {
-    let state = STATE();
-    assert(state.erc1155.balance_of(owner, token_id) == 0, 'Balance of owner after');
-    assert(state.erc1155.balance_of(recipient, token_id) == value, 'Balance of recipient after');
+    let state = CONTRACT_STATE();
+    assert(state.balance_of(owner, token_id) == 0, 'Balance of owner after');
+    assert(state.balance_of(recipient, token_id) == value, 'Balance of recipient after');
 }
 
 fn assert_state_before_mint(recipient: ContractAddress, token_id: u256) {
-    let state = STATE();
-    assert(state.erc1155.balance_of(recipient, token_id) == 0, 'Balance of recipient before');
+    let state = CONTRACT_STATE();
+    assert(state.balance_of(recipient, token_id) == 0, 'Balance of recipient before');
 }
 
 fn assert_state_after_mint(recipient: ContractAddress, token_id: u256, value: u256) {
-    let state = STATE();
-    assert(state.erc1155.balance_of(recipient, token_id) == value, 'Balance of recipient after');
+    let state = CONTRACT_STATE();
+    assert(state.balance_of(recipient, token_id) == value, 'Balance of recipient after');
 }
 
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
-    assert(event.owner == owner, 'Invalid `owner`');
-    assert(event.operator == operator, 'Invalid `operator`');
-    assert(event.approved == approved, 'Invalid `approved`');
+    assert_eq!(event.account, owner);
+    assert_eq!(event.operator, operator);
+    assert_eq!(event.approved, approved);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
@@ -468,14 +245,14 @@ fn assert_event_approval_for_all(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_update_balances(
+fn assert_event_transfer_single(
     from: ContractAddress, to: ContractAddress, token_id: u256, value: u256
 ) {
     let event = utils::pop_log::<TransferSingle>(ZERO()).unwrap();
-    assert(event.from == from, 'Invalid `from`');
-    assert(event.to == to, 'Invalid `to`');
-    assert(event.id == token_id, 'Invalid `token_id`');
-    assert(event.value == value, 'Invalid `value`');
+    assert_eq!(event.from, from);
+    assert_eq!(event.to, to);
+    assert_eq!(event.id, token_id);
+    assert_eq!(event.value, value);
     utils::assert_no_events_left(ZERO());
 
     // Check indexed keys

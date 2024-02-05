@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc1155/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (token/erc1155/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -24,9 +24,6 @@ trait IERC1155<TState> {
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(
-        ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256
-    );
     fn safe_batch_transfer_from(
         ref self: TState,
         from: ContractAddress,
@@ -34,13 +31,6 @@ trait IERC1155<TState> {
         token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    );
-    fn batch_transfer_from(
-        ref self: TState,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>,
     );
     fn is_approved_for_all(
         self: @TState, owner: ContractAddress, operator: ContractAddress
@@ -50,9 +40,9 @@ trait IERC1155<TState> {
 
 #[starknet::interface]
 trait IERC1155Metadata<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 #[starknet::interface]
@@ -69,9 +59,6 @@ trait IERC1155CamelOnly<TState> {
         value: u256,
         data: Span<felt252>
     );
-    fn transferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, value: u256
-    );
     fn safeBatchTransferFrom(
         ref self: TState,
         from: ContractAddress,
@@ -79,13 +66,6 @@ trait IERC1155CamelOnly<TState> {
         tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    );
-    fn batchTransferFrom(
-        ref self: TState,
-        from: ContractAddress,
-        to: ContractAddress,
-        tokenIds: Span<u256>,
-        values: Span<u256>,
     );
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -110,9 +90,6 @@ trait ERC1155ABI<TState> {
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(
-        ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256, value: u256
-    );
     fn safe_batch_transfer_from(
         ref self: TState,
         from: ContractAddress,
@@ -120,13 +97,6 @@ trait ERC1155ABI<TState> {
         token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    );
-    fn batch_transfer_from(
-        ref self: TState,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>
     );
     fn is_approved_for_all(
         self: @TState, owner: ContractAddress, operator: ContractAddress
@@ -137,9 +107,9 @@ trait ERC1155ABI<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
     // IERC1155Metadata
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn uri(self: @TState, token_id: u256) -> ByteArray;
 
     // IERC1155CamelOnly
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
@@ -154,9 +124,6 @@ trait ERC1155ABI<TState> {
         value: u256,
         data: Span<felt252>
     );
-    fn transferFrom(
-        ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256, value: u256
-    );
     fn safeBatchTransferFrom(
         ref self: TState,
         from: ContractAddress,
@@ -164,13 +131,6 @@ trait ERC1155ABI<TState> {
         tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    );
-    fn batchTransferFrom(
-        ref self: TState,
-        from: ContractAddress,
-        to: ContractAddress,
-        tokenIds: Span<u256>,
-        values: Span<u256>
     );
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -202,6 +162,7 @@ trait IERC1155Receiver<TState> {
         data: Span<felt252>
     ) -> felt252;
 }
+
 #[starknet::interface]
 trait IERC1155ReceiverCamel<TState> {
     fn onERC1155Received(

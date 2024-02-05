@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (token/erc1155/erc1155.cairo)
 
-/// # IERC1155 Component
+/// # ERC1155 Component
 ///
-/// The IERC1155 component provides implementations for both the IIERC1155 interface
-/// and the IIERC1155Metadata interface.
+/// The ERC1155 component provides an implementation of the basic standard multi-token.
+/// See https://eips.ethereum.org/EIPS/eip-1155.
 #[starknet::component]
 mod ERC1155Component {
     use openzeppelin::account;
@@ -20,11 +20,11 @@ mod ERC1155Component {
 
     #[storage]
     struct Storage {
-        ERC1155_name: felt252,
-        ERC1155_symbol: felt252,
+        ERC1155_name: ByteArray,
+        ERC1155_symbol: ByteArray,
         ERC1155_balances: LegacyMap<(u256, ContractAddress), u256>,
         ERC1155_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        ERC1155_uri: LegacyMap<u256, felt252>,
+        ERC1155_uri: ByteArray,
     }
 
     #[event]
@@ -32,13 +32,14 @@ mod ERC1155Component {
     enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
-        ApprovalForAll: ApprovalForAll,
-        URI: URI,
+        ApprovalForAll: ApprovalForAll
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
     #[derive(Drop, starknet::Event)]
     struct TransferSingle {
+        #[key]
+        operator: ContractAddress,
         #[key]
         from: ContractAddress,
         #[key]
@@ -52,39 +53,31 @@ mod ERC1155Component {
     #[derive(Drop, starknet::Event)]
     struct TransferBatch {
         #[key]
-        operator: starknet::ContractAddress,
+        operator: ContractAddress,
         #[key]
-        from: starknet::ContractAddress,
+        from: ContractAddress,
         #[key]
-        to: starknet::ContractAddress,
+        to: ContractAddress,
         #[key]
         ids: Span<u256>,
         values: Span<u256>,
     }
 
-    /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
+    /// Emitted when `account` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         #[key]
-        owner: ContractAddress,
+        account: ContractAddress,
         #[key]
         operator: ContractAddress,
         approved: bool
     }
 
-    /// Emitted when the `URI` is updated for a token `id`.
-    /// all of its assets.
-    #[derive(Drop, starknet::Event)]
-    struct URI {
-        value: felt252,
-        #[key]
-        id: u256,
-    }
-
     mod Errors {
         const INVALID_TOKEN_ID: felt252 = 'ERC1155: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC1155: invalid account';
+        const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized caller';
         const APPROVAL_TO_OWNER: felt252 = 'ERC1155: approval to owner';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
@@ -93,7 +86,7 @@ mod ERC1155Component {
         const WRONG_SENDER: felt252 = 'ERC1155: wrong sender';
         const SAFE_MINT_FAILED: felt252 = 'ERC1155: safe mint failed';
         const SAFE_TRANSFER_FAILED: felt252 = 'ERC1155: safe transfer failed';
-        const INVALID_LEN_ACCOUNTS_IDS: felt252 = 'ERC1155: no equal array length';
+        const INVALID_ARRAY_LEN: felt252 = 'ERC1155: no equal array length';
         const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: invalid array length';
         const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
     }
@@ -109,49 +102,33 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
-        /// Returns the number of value of NFT owned by `account`.
-        /// Retrieves the balance of a specific ERC1155 token for a given account.
-        ///
-        /// Parameters:
-        /// - account: The address of the account to check the balance for.
-        /// - token_id: The ID of the ERC1155 token.
-        ///
-        /// Returns:
-        /// - The balance of the specified ERC1155 token for the given account.
+        /// Returns the number of NFTs owned by `account` from a specific token ID.
         fn balance_of(
             self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
         ) -> u256 {
-            assert(!account.is_zero(), Errors::INVALID_ACCOUNT);
+            assert(account.is_non_zero(), Errors::INVALID_ACCOUNT);
             self.ERC1155_balances.read((token_id, account))
         }
 
 
-        /// Retrieves the batch balances of multiple accounts for a given set of token IDs.
+        /// Returns a span of u256 values representing the batch balances of the
+        /// accounts for the specified token IDs.
         ///
-        /// # Arguments
+        /// Requirements:
         ///
-        /// - `accounts`: A span of contract addresses representing the accounts to retrieve balances for.
-        /// - `token_ids`: A span of u256 values representing the token IDs to retrieve balances for.
-        ///
-        /// # Returns
-        ///
-        /// A span of u256 values representing the batch balances of the accounts for the specified token IDs.
-        ///
-        /// # Panics
-        ///
-        /// This function will panic if the length of `accounts` is not equal to the length of `token_ids`.
+        /// - `token_ids` and `accounts` must have the same length.
         fn balance_of_batch(
             self: @ComponentState<TContractState>,
             accounts: Span<ContractAddress>,
             token_ids: Span<u256>
         ) -> Span<u256> {
-            assert(accounts.len() == token_ids.len(), Errors::INVALID_LEN_ACCOUNTS_IDS);
+            assert(accounts.len() == token_ids.len(), Errors::INVALID_ARRAY_LEN);
 
             let mut batch_balances = array![];
             let mut index = 0;
             loop {
                 if index == token_ids.len() {
-                    break batch_balances.clone();
+                    break;
                 }
                 batch_balances.append(self.balance_of(*accounts.at(index), *token_ids.at(index)));
                 index += 1;
@@ -164,15 +141,20 @@ mod ERC1155Component {
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
+        /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
+        /// to an untrusted contract, when invoking `on_ERC1155_received` on the receiver.
+        /// Ensure to follow the checks-effects-interactions pattern and consider employing
+        /// reentrancy guards when interacting with untrusted contracts.
+        ///
         /// Requirements:
         ///
         /// - Caller is either approved or the `token_id` owner.
-        /// - `to` is not the zero address.
         /// - `from` is not the zero address.
-        /// - `token_id` exists.
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        /// - `to` is not the zero address.
+        /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_received`
+        /// and return the acceptance magic value.
         ///
-        /// Emits a `Transfer` event.
+        /// Emits a `TransferSingle` event.
         fn safe_transfer_from(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -181,31 +163,25 @@ mod ERC1155Component {
             value: u256,
             data: Span<felt252>
         ) {
-            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
-            self._safe_update_balances(from, to, token_id, value, data);
+            let token_ids = array![token_id].span();
+            let values = array![value].span();
+            self.safe_batch_transfer_from(from, to, token_ids, values, data)
         }
 
-        /// Transfers ownership of `token_id` from `from` to `to`.
+        /// Batched version of `safeTransferFrom`.
+        ///
+        /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
+        /// to an untrusted contract, when invoking `on_ERC1155_batch_received` on the receiver.
+        /// Ensure to follow the checks-effects-interactions pattern and consider employing
+        /// reentrancy guards when interacting with untrusted contracts.
         ///
         /// Requirements:
         ///
-        /// - Caller is either approved or the `token_id` owner.
-        /// - `to` is not the zero address.
-        /// - `from` is not the zero address.
-        /// - `token_id` exists.
+        /// - `token_ids` and `values` must have the same length.
+        /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_batch_received`
+        /// and return the acceptance magic value.
         ///
-        /// Emits a `Transfer` event.
-        fn transfer_from(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            value: u256
-        ) {
-            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
-            self._update_balances(from, to, token_id, value);
-        }
-
+        /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of the array arguments.
         fn safe_batch_transfer_from(
             ref self: ComponentState<TContractState>,
             from: starknet::ContractAddress,
@@ -214,46 +190,42 @@ mod ERC1155Component {
             values: Span<u256>,
             data: Span<felt252>
         ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
             assert(from.is_non_zero(), Errors::WRONG_SENDER);
-            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
+            assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
 
-            self._safe_batch_transfer_from(from, to, token_ids, values, data);
-        }
+            let operator = get_caller_address();
+            if from != operator {
+                assert(self.is_approved_for_all(from, operator), Errors::UNAUTHORIZED);
+            }
 
-        fn batch_transfer_from(
-            ref self: ComponentState<TContractState>,
-            from: starknet::ContractAddress,
-            to: starknet::ContractAddress,
-            token_ids: Span<u256>,
-            values: Span<u256>
-        ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-            assert(from.is_non_zero(), Errors::WRONG_SENDER);
-            assert(self.is_approved_for_all(get_caller_address(), from), Errors::UNAUTHORIZED);
-
-            self._batch_transfer_from(from, to, token_ids, values);
+            self.update_with_acceptance_check(from, to, token_ids, values, data);
         }
 
         /// Enable or disable approval for `operator` to manage all of the
-        /// caller s assets.
+        /// callers assets.
         ///
         /// Requirements:
         ///
         /// - `operator` cannot be the caller.
+        /// - `operator` cannot be the zero address.
         ///
-        /// Emits an `Approval` event.
+        /// Emits an `ApprovalForAll` event.
         fn set_approval_for_all(
             ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
         ) {
-            self._set_approval_for_all(get_caller_address(), operator, approved)
+            let owner = get_caller_address();
+            assert(owner != operator, Errors::SELF_APPROVAL);
+            assert(operator.is_non_zero(), Errors::INVALID_OPERATOR);
+
+            self.ERC1155_operator_approvals.write((owner, operator), approved);
+            self.emit(ApprovalForAll { account: owner, operator, approved });
         }
 
         /// Query if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
-            self.ERC1155_operator_approvals.read((owner, operator)) || owner == operator
+            self.ERC1155_operator_approvals.read((owner, operator))
         }
     }
 
@@ -265,22 +237,23 @@ mod ERC1155Component {
         +Drop<TContractState>
     > of interface::IERC1155Metadata<ComponentState<TContractState>> {
         /// Returns the NFT Collection name.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC1155_name.read()
         }
 
         /// Returns the NFT Collection symbol.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC1155_symbol.read()
         }
-        /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-        /// If the URI is not set for the `token_id`, the return value will be `0`.
+
+        /// This implementation returns the same URI for *all* token types. It relies
+        /// on the token type ID substitution mechanism defined in the EIP:
+        /// https://eips.ethereum.org/EIPS/eip-1155#metadata.
         ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
-        fn uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
-            self.ERC1155_uri.read(token_id)
+        /// Clients calling this function must replace the `\{id\}` substring with the
+        /// actual token type ID.
+        fn uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
+            self.ERC1155_uri.read()
         }
     }
 
@@ -317,16 +290,6 @@ mod ERC1155Component {
             self.safe_transfer_from(from, to, tokenId, value, data)
         }
 
-        fn transferFrom(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            tokenId: u256,
-            value: u256
-        ) {
-            self.transfer_from(from, to, tokenId, value)
-        }
-
         fn safeBatchTransferFrom(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -336,16 +299,6 @@ mod ERC1155Component {
             data: Span<felt252>
         ) {
             self.safe_batch_transfer_from(from, to, tokenIds, values, data)
-        }
-
-        fn batchTransferFrom(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            tokenIds: Span<u256>,
-            values: Span<u256>
-        ) {
-            self.batch_transfer_from(from, to, tokenIds, values)
         }
 
         fn setApprovalForAll(
@@ -374,341 +327,186 @@ mod ERC1155Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(
+            ref self: ComponentState<TContractState>,
+            name: ByteArray,
+            symbol: ByteArray,
+            uri: ByteArray
+        ) {
             self.ERC1155_name.write(name);
             self.ERC1155_symbol.write(symbol);
+            self.ERC1155_uri.write(uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
             src5_component.register_interface(interface::IERC1155_METADATA_ID);
         }
 
-        /// Enables or disables approval for `operator` to manage
-        /// all of the `owner` assets.
+        /// Transfers a `value` amount of tokens of type `id` from `from` to `to`.
+        /// Will mint (or burn) if `from` (or `to`) is the zero address.
         ///
         /// Requirements:
         ///
-        /// - `operator` cannot be the caller.
+        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        /// - `token_ids` and `values` must have the same length.
         ///
-        /// Emits an `Approval` event.
-        fn _set_approval_for_all(
-            ref self: ComponentState<TContractState>,
-            owner: ContractAddress,
-            operator: ContractAddress,
-            approved: bool
-        ) {
-            assert(owner != operator, Errors::SELF_APPROVAL);
-            self.ERC1155_operator_approvals.write((owner, operator), approved);
-            self.emit(ApprovalForAll { owner, operator, approved });
-        }
-
-        fn _safe_batch_transfer_from(
+        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
+        ///
+        /// NOTE: The ERC-1155 acceptance check is not performed in this function.
+        /// See `update_with_acceptance_check` instead.
+        fn update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut values: Span<u256>,
+            token_ids: Span<u256>,
+            values: Span<u256>
+        ) {
+            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LEN);
+
+            let mut index = 0;
+            loop {
+                if index == token_ids.len() {
+                    break;
+                }
+                let token_id = *token_ids.at(index);
+                let value = *values.at(index);
+                if from.is_non_zero() {
+                    let from_balance = self.ERC1155_balances.read((token_id, from));
+                    assert(from_balance >= value, Errors::INSUFFICIENT_BALANCE);
+                    self.ERC1155_balances.write((token_id, from), from_balance - value);
+                }
+                if to.is_non_zero() {
+                    let current = self.ERC1155_balances.read((token_id, to));
+                    self.ERC1155_balances.write((token_id, to), current + value);
+                }
+                index += 1;
+            };
+
+            let operator = get_caller_address();
+            if token_ids.len() == 1 {
+                self
+                    .emit(
+                        TransferSingle {
+                            operator, from, to, id: *token_ids.at(0), value: *values.at(0)
+                        }
+                    );
+            } else {
+                self.emit(TransferBatch { operator, from, to, ids: token_ids, values });
+            }
+        }
+
+        /// Version of `update` that performs the token acceptance check by calling
+        /// `IERC1155Receiver-onERC1155Received` or `IERC1155Receiver-onERC1155BatchReceived` if
+        /// the receiver is not reconized as an account.
+        fn update_with_acceptance_check(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>,
             data: Span<felt252>
         ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
-
-            loop {
-                if token_ids.len() == 0 {
-                    break ();
-                }
-                let token_id = *token_ids.pop_front().unwrap();
-                let value = *values.pop_front().unwrap();
-
-                self._safe_update_balances(from, to, token_id, value, data);
-            };
-
-            self
-                .emit(
-                    TransferBatch {
-                        operator: get_caller_address(), from, to, ids: token_ids, values
-                    }
-                );
+            self.update(from, to, token_ids, values);
+            if token_ids.len() == 1 {
+                _check_on_ERC1155_received(from, to, *token_ids.at(0), *values.at(0), data);
+            } else {
+                _check_on_ERC1155_batch_received(from, to, token_ids, values, data);
+            }
         }
 
-        fn _batch_transfer_from(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut values: Span<u256>
-        ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
-
-            loop {
-                if token_ids.len() == 0 {
-                    break ();
-                }
-                let token_id = *token_ids.pop_front().unwrap();
-                let value = *values.pop_front().unwrap();
-
-                self._update_balances(from, to, token_id, value);
-            };
-
-            self
-                .emit(
-                    TransferBatch {
-                        operator: get_caller_address(), from, to, ids: token_ids, values
-                    }
-                );
-        }
-
-        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
-        ///
-        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
+        /// Creates a `value` amount of tokens of type `token_id`, and assigns them to `to`.
         ///
         /// Requirements:
         ///
         /// - `to` cannot be the zero address.
-        /// - `from` must be the token owner.
-        /// - `token_id` exists.
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        /// - If `to` refers to a smart contract, it must implement `IERC1155Receiver::on_ERC1155_received`
+        /// and return the acceptance magic value.
         ///
-        /// Emits a `Transfer` event.
-        fn _safe_update_balances(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            value: u256,
-            data: Span<felt252>
-        ) {
-            self._update_balances(from, to, token_id, value);
-            assert(
-                _check_on_ERC1155_received(from, to, token_id, value, data),
-                Errors::SAFE_TRANSFER_FAILED
-            );
-        }
-
-        /// Transfers `value`  from `from` to `to` of the `token_id`.
-        ///
-        /// Internal function without access restriction.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is not the zero address.
-        /// - `from` is the token owner.
-        /// - `token_id` exists.
-        /// - `value` exists.        
-        ///
-        /// Emits a `Transfer` event.
-        fn _update_balances(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            value: u256
-        ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-            assert(from.is_non_zero(), Errors::WRONG_SENDER);
-            assert(
-                self.ERC1155_balances.read((token_id, from)) >= value, Errors::INSUFFICIENT_BALANCE
-            );
-
-            self
-                .ERC1155_balances
-                .write((token_id, from), self.ERC1155_balances.read((token_id, from)) - value);
-            self
-                .ERC1155_balances
-                .write((token_id, to), self.ERC1155_balances.read((token_id, to)) + value);
-
-            self.emit(TransferSingle { from, to, id: token_id, value });
-        }
-
-        fn _batch_burn(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut values: Span<u256>
-        ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
-
-            loop {
-                if token_ids.len() == 0 {
-                    break ();
-                }
-                let token_id = *token_ids.pop_front().unwrap();
-                let value = *values.pop_front().unwrap();
-
-                self._burn(from, token_id, value);
-            };
-
-            self
-                .emit(
-                    TransferBatch {
-                        operator: get_caller_address(),
-                        from,
-                        to: Zeroable::zero(),
-                        ids: token_ids,
-                        values
-                    }
-                );
-        }
-
-        /// Destroys `value`. The approval is cleared when the token is burned.
-        ///
-        /// This internal function does not check if the caller is authorized
-        /// to operate on the token.
-        ///
-        /// Requirements:
-        ///
-        /// - `value` >= balances.
-        ///
-        /// Emits a `Transfer` event.
-        fn _burn(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            token_id: u256,
-            value: u256
-        ) {
-            assert(
-                self.ERC1155_balances.read((token_id, from)) >= value, Errors::INSUFFICIENT_BALANCE
-            );
-
-            self._update_balances(from, Zeroable::zero(), token_id, value);
-
-            self.emit(TransferSingle { from, to: Zeroable::zero(), id: token_id, value });
-        }
-
-        /// batch Mints `values` and transfers it to `to`.
-        ///
-        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
-        ///
-        /// Emits a `Transfer` event.
-        fn _batch_mint(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut values: Span<u256>
-        ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
-
-            loop {
-                if token_ids.len() == 0 {
-                    break ();
-                }
-                let token_id = *token_ids.pop_front().unwrap();
-                let value = *values.pop_front().unwrap();
-
-                self._mint(to, token_id, value);
-            };
-
-            self
-                .emit(
-                    TransferBatch {
-                        operator: get_caller_address(),
-                        from: Zeroable::zero(),
-                        to,
-                        ids: token_ids,
-                        values
-                    }
-                );
-        }
-
-        /// Mints `values` and transfers it to `to`.
-        /// Internal function without access restriction.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is not the zero address.
-        ///
-        /// Emits a `Transfer` event.
-        fn _mint(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            token_id: u256,
-            value: u256
-        ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-
-            self
-                .ERC1155_balances
-                .write((token_id, to), self.ERC1155_balances.read((token_id, to)) + value);
-
-            self.emit(TransferSingle { from: Zeroable::zero(), to, id: token_id, value });
-        }
-
-        /// Safe batch Mints `values` and transfers it to `to`.
-        ///
-        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
-        ///
-        /// Emits a `Transfer` event.
-        fn _safe_batch_mint(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut values: Span<u256>,
-            data: Span<felt252>
-        ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
-
-            loop {
-                if token_ids.len() == 0 {
-                    break ();
-                }
-                let token_id = *token_ids.pop_front().unwrap();
-                let value = *values.pop_front().unwrap();
-
-                self._safe_mint(to, token_id, value, data);
-            };
-
-            self
-                .emit(
-                    TransferBatch {
-                        operator: get_caller_address(),
-                        from: Zeroable::zero(),
-                        to,
-                        ids: token_ids,
-                        values
-                    }
-                );
-        }
-
-        /// Mints `value` if `to` is either an account or `IERC1155Receiver`.
-        ///
-        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
-        ///
-        /// Emits a `Transfer` event.
-        fn _safe_mint(
+        /// Emits a `TransferSingle` event.
+        fn safe_mint(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
             value: u256,
             data: Span<felt252>
         ) {
-            self._mint(to, token_id, value);
-            assert(
-                _check_on_ERC1155_received(Zeroable::zero(), to, token_id, value, data),
-                Errors::SAFE_MINT_FAILED
-            );
+            assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
+
+            let token_ids = array![token_id].span();
+            let values = array![value].span();
+            self.update_with_acceptance_check(Zeroable::zero(), to, token_ids, values, data);
         }
 
-        /// Sets the `uri` of `token_id`.
-        fn _set_uri(ref self: ComponentState<TContractState>, token_id: u256, uri: felt252) {
-            self.ERC1155_uri.write(token_id, uri);
+        /// Batched version of `safe_mint`.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` cannot be the zero address.
+        /// - `token_ids` and `values` must have the same length.
+        /// - If `to` refers to a smart contract, it must implement `IERC1155Receiver::on_ERC1155_batch_received`
+        /// and return the acceptance magic value.
+        ///
+        /// Emits a `TransferBatch` event.
+        fn safe_batch_mint(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>,
+            data: Span<felt252>
+        ) {
+            assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
+            self.update_with_acceptance_check(Zeroable::zero(), to, token_ids, values, data);
+        }
 
-            self.emit(URI { value: uri, id: token_id });
+        /// Destroys a `value` amount of tokens of type `token_id` from `from`.
+        ///
+        /// Requirements:
+        ///
+        /// - `from` cannot be the zero address.
+        /// - `from` must have at least `value` amount of tokens of type `token_id`.
+        ///
+        /// Emits a `TransferSingle` event.
+        fn burn(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            token_id: u256,
+            value: u256
+        ) {
+            assert(from.is_non_zero(), Errors::INVALID_RECEIVER);
+
+            let token_ids = array![token_id].span();
+            let values = array![value].span();
+            self
+                .update_with_acceptance_check(
+                    from, Zeroable::zero(), token_ids, values, array![].span()
+                );
+        }
+
+        /// Batched version of `burn`.
+        ///
+        /// Requirements:
+        ///
+        /// - `from` cannot be the zero address.
+        /// - `from` must have at least `value` amount of tokens of type `token_id`.
+        /// - `token_ids` and `values` must have the same length.
+        ///
+        /// Emits a `TransferBatch` event.
+        fn batch_burn(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>
+        ) {
+            assert(from.is_non_zero(), Errors::INVALID_RECEIVER);
+            self
+                .update_with_acceptance_check(
+                    from, Zeroable::zero(), token_ids, values, array![].span()
+                );
         }
     }
 
-    /// Checks if `to` either is an account contract or has registered support
-    /// for the `IERC1155Receiver` interface through SRC5. The transaction will
+    /// Checks if `to` either is an account contract or accepts the token by the
+    /// implementation of `IERC1155Receiver::on_ERC1155_received`. The transaction will
     /// fail if both cases are false.
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
@@ -724,8 +522,8 @@ mod ERC1155Component {
         }
     }
 
-    /// Checks if `to` either is an account contract or has registered support
-    /// for the `IERC1155Receiver` interface through SRC5. The transaction will
+    /// Checks if `to` either is an account contract or accepts the token by the
+    /// implementation of `IERC1155Receiver-on_ERC1155_batch_received`. The transaction will
     /// fail if both cases are false.
     fn _check_on_ERC1155_batch_received(
         from: ContractAddress,

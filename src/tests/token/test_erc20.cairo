@@ -3,7 +3,6 @@ use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
@@ -512,7 +511,6 @@ fn test__spend_allowance_unlimited() {
     let max_minus_one: u256 = BoundedInt::max() - 1;
     state._spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
-    let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(state.allowance(OWNER(), SPENDER()), BoundedInt::max());
 }
 

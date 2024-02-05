@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc1155/dual1155_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (token/erc1155/dual1155_receiver.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;

@@ -40,7 +40,6 @@ fn test_pack_big_secp256k1_points() {
 #[test]
 fn test_unpack_big_secp256k1_points() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     // Check point 1
 
@@ -60,12 +59,12 @@ fn test_unpack_big_secp256k1_points() {
     let (x, y) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap();
 
     assert_eq!(x, expected_x);
+    assert_eq!(y, expected_y);
 }
 
 #[test]
 fn test_secp256k1_serialization() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     let mut serialized_point = array![];
     let mut expected_serialization = array![];
@@ -88,7 +87,6 @@ fn test_secp256k1_serialization() {
 #[test]
 fn test_secp256k1_deserialization() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     // Check point 1
 

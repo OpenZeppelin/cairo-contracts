@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.0 (token/erc1155/dual1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.8.1 (token/erc1155/dual1155.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -16,9 +16,9 @@ struct DualCaseERC1155 {
 
 trait DualCaseERC1155Trait {
     fn supports_interface(self: @DualCaseERC1155, interface_id: felt252) -> bool;
-    fn name(self: @DualCaseERC1155) -> felt252;
-    fn symbol(self: @DualCaseERC1155) -> felt252;
-    fn uri(self: @DualCaseERC1155, token_uri: u256) -> felt252;
+    fn name(self: @DualCaseERC1155) -> ByteArray;
+    fn symbol(self: @DualCaseERC1155) -> ByteArray;
+    fn uri(self: @DualCaseERC1155, token_uri: u256) -> ByteArray;
     fn balance_of(self: @DualCaseERC1155, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
         self: @DualCaseERC1155, accounts: Span<ContractAddress>, token_ids: Span<u256>
@@ -31,13 +31,6 @@ trait DualCaseERC1155Trait {
         value: u256,
         data: Span<felt252>
     );
-    fn transfer_from(
-        self: @DualCaseERC1155,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256,
-        value: u256
-    );
     fn safe_batch_transfer_from(
         self: @DualCaseERC1155,
         from: ContractAddress,
@@ -45,13 +38,6 @@ trait DualCaseERC1155Trait {
         token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    );
-    fn batch_transfer_from(
-        self: @DualCaseERC1155,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>,
     );
     fn is_approved_for_all(
         self: @DualCaseERC1155, owner: ContractAddress, operator: ContractAddress
@@ -73,17 +59,17 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             .unwrap_and_cast()
     }
 
-    fn name(self: @DualCaseERC1155) -> felt252 {
+    fn name(self: @DualCaseERC1155) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::name, array![].span())
             .unwrap_and_cast()
     }
 
-    fn symbol(self: @DualCaseERC1155) -> felt252 {
+    fn symbol(self: @DualCaseERC1155) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 
-    fn uri(self: @DualCaseERC1155, token_uri: u256) -> felt252 {
+    fn uri(self: @DualCaseERC1155, token_uri: u256) -> ByteArray {
         let mut args = array![];
         args.append_serde(token_uri);
 
@@ -144,25 +130,6 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             .unwrap_syscall();
     }
 
-    fn transfer_from(
-        self: @DualCaseERC1155,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_id: u256,
-        value: u256
-    ) {
-        let mut args = array![];
-        args.append_serde(from);
-        args.append_serde(to);
-        args.append_serde(token_id);
-        args.append_serde(value);
-
-        try_selector_with_fallback(
-            *self.contract_address, selectors::transfer_from, selectors::transferFrom, args.span()
-        )
-            .unwrap_syscall();
-    }
-
     fn safe_batch_transfer_from(
         self: @DualCaseERC1155,
         from: ContractAddress,
@@ -182,28 +149,6 @@ impl DualCaseERC1155Impl of DualCaseERC1155Trait {
             *self.contract_address,
             selectors::safe_batch_transfer_from,
             selectors::safeBatchTransferFrom,
-            args.span()
-        )
-            .unwrap_syscall();
-    }
-
-    fn batch_transfer_from(
-        self: @DualCaseERC1155,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>,
-    ) {
-        let mut args = array![];
-        args.append_serde(from);
-        args.append_serde(to);
-        args.append_serde(token_ids);
-        args.append_serde(values);
-
-        try_selector_with_fallback(
-            *self.contract_address,
-            selectors::batch_transfer_from,
-            selectors::batchTransferFrom,
             args.span()
         )
             .unwrap_syscall();

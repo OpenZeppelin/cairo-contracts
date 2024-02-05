@@ -21,23 +21,8 @@ mod EthAccountUpgradeable {
 
     // EthAccount
     #[abi(embed_v0)]
-    impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = EthAccountComponent::SRC6CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl PublicKeyImpl = EthAccountComponent::PublicKeyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl PublicKeyCamelImpl =
-        EthAccountComponent::PublicKeyCamelImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl DeclarerImpl = EthAccountComponent::DeclarerImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl DeployableImpl = EthAccountComponent::DeployableImpl<ContractState>;
+    impl EthAccountABIImpl = EthAccountComponent::EthAccountABIImpl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;

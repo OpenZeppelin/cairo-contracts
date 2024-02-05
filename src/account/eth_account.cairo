@@ -13,6 +13,7 @@ mod EthAccountComponent {
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
     use poseidon::poseidon_hash_span;
     use starknet::account::Call;
@@ -182,7 +183,7 @@ mod EthAccountComponent {
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
         ) -> felt252 {
-            self.is_valid_signature(hash, signature)
+            SRC6::is_valid_signature(self, hash, signature)
         }
     }
 
@@ -199,7 +200,7 @@ mod EthAccountComponent {
         }
 
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey) {
-            self.set_public_key(newPublicKey);
+            PublicKey::set_public_key(ref self, newPublicKey);
         }
     }
 
@@ -258,5 +259,90 @@ mod EthAccountComponent {
     fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
         let (x, y) = public_key.get_coordinates().unwrap();
         poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
+    }
+
+    #[embeddable_as(EthAccountABIImpl)]
+    impl EthAccountABI<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::EthAccountABI<ComponentState<TContractState>> {
+        // ISRC6
+        fn __execute__(
+            self: @ComponentState<TContractState>, calls: Array<Call>
+        ) -> Array<Span<felt252>> {
+            SRC6::__execute__(self, calls)
+        }
+
+        fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
+            SRC6::__validate__(self, calls)
+        }
+
+        fn is_valid_signature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6::is_valid_signature(self, hash, signature)
+        }
+
+        // ISRC6CamelOnly
+        fn isValidSignature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>
+        ) -> felt252 {
+            SRC6CamelOnly::isValidSignature(self, hash, signature)
+        }
+
+        // IDeclarer
+        fn __validate_declare__(
+            self: @ComponentState<TContractState>, class_hash: felt252
+        ) -> felt252 {
+            Declarer::__validate_declare__(self, class_hash)
+        }
+
+        // IDeployable
+        fn __validate_deploy__(
+            self: @ComponentState<TContractState>,
+            class_hash: felt252,
+            contract_address_salt: felt252,
+            public_key: EthPublicKey
+        ) -> felt252 {
+            Deployable::__validate_deploy__(self, class_hash, contract_address_salt, public_key)
+        }
+
+        // IPublicKey
+        fn get_public_key(self: @ComponentState<TContractState>) -> EthPublicKey {
+            PublicKey::get_public_key(self)
+        }
+
+        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
+            PublicKey::set_public_key(ref self, new_public_key);
+        }
+
+        // IPublicKeyCamel
+        fn getPublicKey(self: @ComponentState<TContractState>) -> EthPublicKey {
+            PublicKeyCamel::getPublicKey(self)
+        }
+
+        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey) {
+            PublicKeyCamel::setPublicKey(ref self, newPublicKey);
+        }
+
+        // ISRC5
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supports_interface(interface_id)
+        }
+
+        // ISRC5Camel
+        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
+            // TMP - until `get_dep_component!` supports snapshots
+            let contract = self.get_contract();
+            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            src5.supportsInterface(interfaceId)
+        }
     }
 }

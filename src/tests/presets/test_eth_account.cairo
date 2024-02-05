@@ -96,15 +96,15 @@ fn test_constructor() {
 
     assert_only_event_owner_added(ZERO(), public_key);
     assert(
-        EthAccountUpgradeable::PublicKeyImpl::get_public_key(@state) == public_key,
+        EthAccountUpgradeable::EthAccountABIImpl::get_public_key(@state) == public_key,
         'Should return public_key'
     );
     assert(
-        EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC5_ID),
+        EthAccountUpgradeable::EthAccountABIImpl::supports_interface(@state, ISRC5_ID),
         'Should implement ISRC5'
     );
     assert(
-        EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC6_ID),
+        EthAccountUpgradeable::EthAccountABIImpl::supports_interface(@state, ISRC6_ID),
         'Should implement ISRC6'
     );
 }

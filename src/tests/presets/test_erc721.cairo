@@ -1016,7 +1016,7 @@ fn assert_state_transfer_to_self(
 fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
+    let event = utils::pop_log::<ApprovalForAll>(contract, selector!("ApprovalForAll")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.operator, operator);
     assert_eq!(event.approved, approved);
@@ -1032,7 +1032,7 @@ fn assert_event_approval_for_all(
 fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
-    let event = utils::pop_log::<Approval>(contract).unwrap();
+    let event = utils::pop_log::<Approval>(contract, selector!("Approval")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.approved, approved);
     assert_eq!(event.token_id, token_id);
@@ -1049,7 +1049,7 @@ fn assert_event_approval(
 fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
-    let event = utils::pop_log::<Transfer>(contract).unwrap();
+    let event = utils::pop_log::<Transfer>(contract, selector!("Transfer")).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.token_id, token_id);

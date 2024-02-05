@@ -1288,7 +1288,7 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
+    let event = utils::pop_log::<ApprovalForAll>(ZERO(), selector!("ApprovalForAll")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.operator, operator);
     assert_eq!(event.approved, approved);
@@ -1302,7 +1302,7 @@ fn assert_event_approval_for_all(
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
+    let event = utils::pop_log::<Approval>(ZERO(), selector!("Approval")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.approved, approved);
     assert_eq!(event.token_id, token_id);
@@ -1317,7 +1317,7 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
+    let event = utils::pop_log::<Transfer>(ZERO(), selector!("Transfer")).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.token_id, token_id);

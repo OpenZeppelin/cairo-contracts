@@ -88,7 +88,7 @@ fn test_remove_selector_fails_in_v2() {
 //
 
 fn assert_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
-    let event = utils::pop_log::<Upgraded>(contract).unwrap();
+    let event = utils::pop_log::<Upgraded>(contract, selector!("Upgraded")).unwrap();
     assert!(event.class_hash == class_hash);
 }
 

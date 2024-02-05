@@ -121,13 +121,13 @@ fn test_unpause_when_unpaused() {
 //
 
 fn assert_event_paused(account: ContractAddress) {
-    let event = utils::pop_log::<Paused>(ZERO()).unwrap();
+    let event = utils::pop_log::<Paused>(ZERO(), selector!("Paused")).unwrap();
     assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_unpaused(account: ContractAddress) {
-    let event = utils::pop_log::<Unpaused>(ZERO()).unwrap();
+    let event = utils::pop_log::<Unpaused>(ZERO(), selector!("Unpaused")).unwrap();
     assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }

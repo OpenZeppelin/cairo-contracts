@@ -427,7 +427,7 @@ fn test_decreaseAllowance_from_zero_address() {
 fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
-    let event = utils::pop_log::<Approval>(contract).unwrap();
+    let event = utils::pop_log::<Approval>(contract, selector!("Approval")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.spender, spender);
     assert_eq!(event.value, value);
@@ -449,7 +449,7 @@ fn assert_only_event_approval(
 fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
-    let event = utils::pop_log::<Transfer>(contract).unwrap();
+    let event = utils::pop_log::<Transfer>(contract, selector!("Transfer")).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.value, value);

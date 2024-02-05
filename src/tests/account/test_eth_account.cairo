@@ -584,7 +584,7 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(contract, selector!("OwnerAdded")).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert_eq!(event.new_owner_guid, guid);
 
@@ -599,7 +599,7 @@ fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPubli
 }
 
 fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(contract, selector!("OwnerRemoved")).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert_eq!(event.removed_owner_guid, guid);
 

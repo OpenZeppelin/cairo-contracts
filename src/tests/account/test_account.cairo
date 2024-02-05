@@ -539,7 +539,7 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(contract, selector!("OwnerRemoved")).unwrap();
     assert_eq!(event.removed_owner_guid, removed_owner_guid);
 
     // Check indexed keys
@@ -548,7 +548,7 @@ fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: fel
 }
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(contract, selector!("OwnerAdded")).unwrap();
     assert_eq!(event.new_owner_guid, new_owner_guid);
 
     // Check indexed keys

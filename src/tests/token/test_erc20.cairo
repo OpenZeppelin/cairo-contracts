@@ -563,7 +563,7 @@ fn test__burn_from_zero() {
 //
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
+    let event = utils::pop_log::<Approval>(ZERO(), selector!("Approval")).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.spender, spender);
     assert_eq!(event.value, value);
@@ -581,7 +581,7 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
+    let event = utils::pop_log::<Transfer>(ZERO(), selector!("Transfer")).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.value, value);

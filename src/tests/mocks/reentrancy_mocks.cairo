@@ -45,7 +45,7 @@ mod ReentrancyMock {
         ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl IReentrancyMockImpl of super::IReentrancyMock<ContractState> {
         fn count(ref self: ContractState) {
             self.counter.write(self.counter.read() + 1);
@@ -115,7 +115,7 @@ mod Attacker {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl IAttackerImpl of super::IAttacker<ContractState> {
         fn call_sender(self: @ContractState) {
             let caller: ContractAddress = get_caller_address();

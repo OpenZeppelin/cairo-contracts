@@ -68,7 +68,7 @@ mod EthAccountUpgradeable {
         self.eth_account.initializer(public_key);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.eth_account.assert_only_self();

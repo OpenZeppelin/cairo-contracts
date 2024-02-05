@@ -127,13 +127,15 @@ mod CamelEthAccountMock {
         self.eth_account.initializer(publicKey);
     }
 
-    #[external(v0)]
     #[generate_trait]
+    #[abi(per_item)]
     impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
         fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
             self.eth_account.__execute__(calls)
         }
 
+        #[external(v0)]
         fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
             self.eth_account.__validate__(calls)
         }

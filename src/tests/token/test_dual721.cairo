@@ -5,7 +5,6 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
 use openzeppelin::token::erc721::interface::IERC721_ID;
@@ -169,7 +168,7 @@ fn test_dual_balance_of_exists_and_panics() {
 
 #[test]
 fn test_dual_owner_of() {
-    let (dispatcher, target) = setup_snake();
+    let (dispatcher, _) = setup_snake();
     assert_eq!(dispatcher.owner_of(TOKEN_ID), OWNER());
 }
 
@@ -302,7 +301,7 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 
 #[test]
 fn test_dual_token_uri() {
-    let (dispatcher, target) = setup_snake();
+    let (dispatcher, _) = setup_snake();
     assert_eq!(dispatcher.token_uri(TOKEN_ID), URI);
 }
 
@@ -360,7 +359,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 
 #[test]
 fn test_dual_ownerOf() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     let current_owner = dispatcher.owner_of(TOKEN_ID);
     assert_eq!(current_owner, OWNER());
 }
@@ -459,7 +458,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 
 #[test]
 fn test_dual_tokenURI() {
-    let (dispatcher, target) = setup_camel();
+    let (dispatcher, _) = setup_camel();
     let token_uri = dispatcher.token_uri(TOKEN_ID);
     assert_eq!(token_uri, URI);
 }

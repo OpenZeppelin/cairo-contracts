@@ -8,7 +8,6 @@ use openzeppelin::tests::mocks::ownable_mocks::{
     CamelOwnableMock, CamelOwnablePanicMock, SnakeOwnableMock, SnakeOwnablePanicMock
 };
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing::set_contract_address;

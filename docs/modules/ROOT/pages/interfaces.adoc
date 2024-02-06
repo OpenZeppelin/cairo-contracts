@@ -45,7 +45,7 @@ trait IERC20<TState> {
 
 === ABI traits
 
-They describe a contract's complete interface.
+They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes functions from different traits such as `IERC20` and `IERC20Camel`.
 
 ```javascript
 #[starknet::interface]

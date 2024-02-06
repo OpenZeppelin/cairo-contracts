@@ -18,7 +18,7 @@ See the {custom-decimals} guide.
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
-The interface includes the `IERC20` standard interface.
+The interface includes the `IERC20` standard interface as well as `IERC20Camel` for backwards compatibility.
 To support older token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
 
 [,javascript]

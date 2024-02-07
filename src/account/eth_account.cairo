@@ -15,11 +15,11 @@ mod EthAccountComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use poseidon::poseidon_hash_span;
+    use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
-    use starknet::SyscallResultTrait;
 
     #[storage]
     struct Storage {

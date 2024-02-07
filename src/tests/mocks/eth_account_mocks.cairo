@@ -152,8 +152,8 @@ mod CamelEthAccountMock {
 mod SnakeEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use starknet::secp256k1::secp256k1_new_syscall;
     use starknet::SyscallResultTrait;
+    use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
     struct Storage {}
@@ -188,8 +188,8 @@ mod SnakeEthAccountPanicMock {
 mod CamelEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use starknet::secp256k1::secp256k1_new_syscall;
     use starknet::SyscallResultTrait;
+    use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
     struct Storage {}

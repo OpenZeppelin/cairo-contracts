@@ -153,6 +153,7 @@ mod SnakeEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::secp256k1::secp256k1_new_syscall;
+    use starknet::SyscallResultTrait;
 
     #[storage]
     struct Storage {}
@@ -165,7 +166,7 @@ mod SnakeEthAccountPanicMock {
     #[external(v0)]
     fn get_public_key(self: @ContractState) -> EthPublicKey {
         panic!("Some error");
-        secp256k1_new_syscall(3, 3).unwrap().unwrap()
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
     }
 
     #[external(v0)]
@@ -188,6 +189,7 @@ mod CamelEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::secp256k1::secp256k1_new_syscall;
+    use starknet::SyscallResultTrait;
 
     #[storage]
     struct Storage {}
@@ -200,7 +202,7 @@ mod CamelEthAccountPanicMock {
     #[external(v0)]
     fn getPublicKey(self: @ContractState) -> EthPublicKey {
         panic!("Some error");
-        secp256k1_new_syscall(3, 3).unwrap().unwrap()
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
     }
 
     #[external(v0)]

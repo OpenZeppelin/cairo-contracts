@@ -19,6 +19,7 @@ mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+    use starknet::SyscallResultTrait;
 
     #[storage]
     struct Storage {
@@ -256,7 +257,7 @@ mod EthAccountComponent {
     }
 
     fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-        let (x, y) = public_key.get_coordinates().unwrap();
+        let (x, y) = public_key.get_coordinates().unwrap_syscall();
         poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 }

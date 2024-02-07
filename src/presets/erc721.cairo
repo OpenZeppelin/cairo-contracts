@@ -51,6 +51,9 @@ mod ERC721 {
         const UNEQUAL_ARRAYS: felt252 = 'Array lengths do not match';
     }
 
+    /// Sets the token `name` and `symbol`.
+    /// Mints the `token_ids` tokens to `recipient` and sets
+    /// each token's URI.
     #[constructor]
     fn constructor(
         ref self: ContractState,
@@ -66,6 +69,13 @@ mod ERC721 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
+        /// Mints `token_ids` to `recipient`.
+        /// Sets the token URI from `token_uris` to the corresponding
+        /// token ID of `token_ids`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_ids` must be equal in length to `token_uris`.
         fn _mint_assets(
             ref self: ContractState,
             recipient: ContractAddress,

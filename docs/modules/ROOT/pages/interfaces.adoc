@@ -45,7 +45,7 @@ trait IERC20<TState> {
 
 === ABI traits
 
-They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes non-standard functions like `increase_allowance`.
+They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes functions from different traits such as `IERC20` and `IERC20Camel`.
 
 ```javascript
 #[starknet::interface]
@@ -61,10 +61,6 @@ trait ERC20ABI<TState> {
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
-    fn increase_allowance(ref self: TState, spender: ContractAddress, added_value: u256) -> bool;
-    fn decrease_allowance(
-        ref self: TState, spender: ContractAddress, subtracted_value: u256
-    ) -> bool;
 }
 ```
 

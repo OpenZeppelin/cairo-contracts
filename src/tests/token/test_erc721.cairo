@@ -1238,7 +1238,7 @@ fn test__burn_nonexistent() {
 fn test__set_token_uri() {
     let mut state = setup();
 
-    assert!(state.token_uri(TOKEN_ID) == "");
+    assert!(state.token_uri(TOKEN_ID).len().is_zero());
     state._set_token_uri(TOKEN_ID, URI());
     assert_eq!(state.token_uri(TOKEN_ID), URI());
 }

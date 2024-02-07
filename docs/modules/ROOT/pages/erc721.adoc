@@ -76,7 +76,7 @@ See the {introspection} docs.
 The difference between both functions consists of accepting `data` as an argument.
 `safe_transfer_from` by default accepts the `data` argument.
 If `data` is not used, simply pass an empty array.
-* `safe_transfer_from` is implemented such that the optional `data` argument is a span of felts.
+* `safe_transfer_from`'s optional `data` argument is interpreted as `Span<felt252>`.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).
@@ -264,5 +264,5 @@ mod MyTokenReceiver {
 
 :erc721uri-storage: https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#ERC721URIStorage[ERC721URIStorage]
 
-Token URIs were previously stored as single field elements prior to Cairo v0.2.5; however, they are now stored as ``ByteArray``s.
+Token URIs were previously stored as single field elements prior to Cairo v0.2.5; however, they are now stored as `ByteArray`.
 This design is similar to {erc721uri-storage}.

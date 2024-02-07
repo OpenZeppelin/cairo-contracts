@@ -13,7 +13,7 @@ use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
 use openzeppelin::tests::utils::constants::{
-    ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
+    ETH_PUBKEY, NEW_ETH_PUBKEY, NAME, SYMBOL, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
@@ -108,8 +108,8 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispat
 }
 
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let name = 0;
-    let symbol = 0;
+    let name = NAME();
+    let symbol = SYMBOL();
     let mut calldata = array![];
 
     calldata.append_serde(name);

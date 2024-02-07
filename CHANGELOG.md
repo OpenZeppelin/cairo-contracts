@@ -8,9 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- EthAccount component and preset (#853)
+
 ### Changed
 
-- Bump scarb to v2.4.4 (#864)
+- Bump scarb to v2.4.4 (#853)
+- Bump scarb to v2.5.3 (#898)
+- Integrate ByteArray into ERC20 and ERC721 (#857)
+
+### Removed
+
+- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 
@@ -27,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use ComponentState in tests (#836)
 - Docsite navbar (#838)
-- Integrate ByteArray into ERC20 and ERC721 (#857)
+- Account events indexed keys (#853)
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
 - Bump scarb to v2.5.0 (#857)

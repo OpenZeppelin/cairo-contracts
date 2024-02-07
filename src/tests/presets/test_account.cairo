@@ -1,13 +1,17 @@
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::Account;
+use openzeppelin::tests::account::test_account::{
+    assert_only_event_owner_added, assert_event_owner_removed
+};
 use openzeppelin::tests::account::test_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
 use openzeppelin::tests::utils::constants::{
-    PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, RECIPIENT, MIN_TRANSACTION_VERSION
+    PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
@@ -15,7 +19,6 @@ use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::account::Call;
-use starknet::contract_address_const;
 use starknet::testing;
 
 fn CLASS_HASH() -> felt252 {
@@ -27,7 +30,7 @@ fn CLASS_HASH() -> felt252 {
 //
 
 fn setup_dispatcher() -> AccountABIDispatcher {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     let target = utils::deploy(CLASS_HASH(), calldata);
     utils::drop_event(target);
 
@@ -60,7 +63,7 @@ fn test_constructor() {
     let mut state = Account::contract_state_for_testing();
     Account::constructor(ref state, PUBKEY);
 
-    assert_only_event_owner_added(PUBKEY, ZERO());
+    assert_only_event_owner_added(ZERO(), PUBKEY);
 
     let public_key = Account::PublicKeyImpl::get_public_key(@state);
     assert_eq!(public_key, PUBKEY);
@@ -86,8 +89,8 @@ fn test_public_key_setter_and_getter() {
     let public_key = dispatcher.get_public_key();
     assert_eq!(public_key, NEW_PUBKEY);
 
-    assert_event_owner_removed(PUBKEY, dispatcher.contract_address);
-    assert_only_event_owner_added(NEW_PUBKEY, dispatcher.contract_address);
+    assert_event_owner_removed(dispatcher.contract_address, PUBKEY);
+    assert_only_event_owner_added(dispatcher.contract_address, NEW_PUBKEY);
 }
 
 #[test]
@@ -100,8 +103,8 @@ fn test_public_key_setter_and_getter_camel() {
     let public_key = dispatcher.getPublicKey();
     assert_eq!(public_key, NEW_PUBKEY);
 
-    assert_event_owner_removed(PUBKEY, dispatcher.contract_address);
-    assert_only_event_owner_added(NEW_PUBKEY, dispatcher.contract_address);
+    assert_event_owner_removed(dispatcher.contract_address, PUBKEY);
+    assert_only_event_owner_added(dispatcher.contract_address, NEW_PUBKEY);
 }
 
 #[test]
@@ -367,8 +370,8 @@ fn test_validate_invalid() {
 fn test_multicall() {
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = contract_address_const::<0x123>();
-    let recipient2 = contract_address_const::<0x456>();
+    let recipient1 = RECIPIENT();
+    let recipient2 = OTHER();
     let mut calls = array![];
 
     // Craft call1
@@ -424,29 +427,9 @@ fn test_multicall_zero_calls() {
 fn test_account_called_from_contract() {
     let account = setup_dispatcher();
     let calls = array![];
-    let caller = contract_address_const::<0x123>();
 
     testing::set_contract_address(account.contract_address);
-    testing::set_caller_address(caller);
+    testing::set_caller_address(CALLER());
 
     account.__execute__(calls);
-}
-
-//
-// Helpers
-//
-
-fn assert_event_owner_removed(removed_owner_guid: felt252, contract: ContractAddress) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
-    assert_eq!(event.removed_owner_guid, removed_owner_guid);
-}
-
-fn assert_event_owner_added(new_owner_guid: felt252, contract: ContractAddress) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
-    assert_eq!(event.new_owner_guid, new_owner_guid);
-}
-
-fn assert_only_event_owner_added(new_owner_guid: felt252, contract: ContractAddress) {
-    assert_event_owner_added(new_owner_guid, contract);
-    utils::assert_no_events_left(contract);
 }

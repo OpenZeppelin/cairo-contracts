@@ -165,40 +165,6 @@ mod ERC20Component {
         }
     }
 
-    #[embeddable_as(SafeAllowanceImpl)]
-    impl SafeAllowance<
-        TContractState, +HasComponent<TContractState>
-    > of interface::ISafeAllowance<ComponentState<TContractState>> {
-        /// Increases the allowance granted from the caller to `spender` by `added_value`.
-        ///
-        /// Requirements:
-        ///
-        /// - `spender` is not the zero address.
-        ///
-        /// Emits an `Approval` event indicating the updated allowance.
-        fn increase_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
-        ) -> bool {
-            self._increase_allowance(spender, added_value)
-        }
-
-        /// Decreases the allowance granted from the caller to `spender` by `subtracted_value`.
-        ///
-        /// Requirements:
-        ///
-        /// - `spender` is not the zero address.
-        /// - `spender` must have at least an allowance of `subtracted_value`.
-        ///
-        /// Emits an `Approval` event indicating the updated allowance.
-        fn decrease_allowance(
-            ref self: ComponentState<TContractState>,
-            spender: ContractAddress,
-            subtracted_value: u256
-        ) -> bool {
-            self._decrease_allowance(spender, subtracted_value)
-        }
-    }
-
     /// Adds camelCase support for `IERC20`.
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
@@ -219,26 +185,6 @@ mod ERC20Component {
             amount: u256
         ) -> bool {
             self.transfer_from(sender, recipient, amount)
-        }
-    }
-
-    /// Adds camelCase support for `ISafeAllowance`.
-    #[embeddable_as(SafeAllowanceCamelImpl)]
-    impl SafeAllowanceCamel<
-        TContractState, +HasComponent<TContractState>
-    > of interface::ISafeAllowanceCamel<ComponentState<TContractState>> {
-        fn increaseAllowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, addedValue: u256
-        ) -> bool {
-            self._increase_allowance(spender, addedValue)
-        }
-
-        fn decreaseAllowance(
-            ref self: ComponentState<TContractState>,
-            spender: ContractAddress,
-            subtractedValue: u256
-        ) -> bool {
-            self._decrease_allowance(spender, subtractedValue)
         }
     }
 
@@ -331,41 +277,6 @@ mod ERC20Component {
             self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
             self.ERC20_balances.write(account, self.ERC20_balances.read(account) - amount);
             self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
-        }
-
-        /// Internal method for the external `increase_allowance`.
-        /// Emits an `Approval` event indicating the updated allowance.
-        fn _increase_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, added_value: u256
-        ) -> bool {
-            let caller = get_caller_address();
-            self
-                ._approve(
-                    caller, spender, self.ERC20_allowances.read((caller, spender)) + added_value
-                );
-            true
-        }
-
-        /// Internal method for the external `decrease_allowance`.
-        ///
-        /// Requirements:
-        ///
-        /// - `spender` must have at least an allowance of `subtracted_value` from caller.
-        ///
-        /// Emits an `Approval` event indicating the updated allowance.
-        fn _decrease_allowance(
-            ref self: ComponentState<TContractState>,
-            spender: ContractAddress,
-            subtracted_value: u256
-        ) -> bool {
-            let caller = get_caller_address();
-            self
-                ._approve(
-                    caller,
-                    spender,
-                    self.ERC20_allowances.read((caller, spender)) - subtracted_value
-                );
-            true
         }
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.

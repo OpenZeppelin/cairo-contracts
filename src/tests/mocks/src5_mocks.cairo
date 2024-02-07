@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod SnakeSRC5Mock {
+mod SRC5Mock {
     use openzeppelin::introspection::src5::SRC5Component;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -22,7 +22,7 @@ mod SnakeSRC5Mock {
 }
 
 #[starknet::contract]
-mod SnakeSRC5PanicMock {
+mod SRC5PanicMock {
     #[storage]
     struct Storage {}
 

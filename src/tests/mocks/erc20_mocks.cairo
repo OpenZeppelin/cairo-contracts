@@ -121,9 +121,7 @@ mod CamelERC20Mock {
     }
 
     #[external(v0)]
-    fn allowance(
-        self: @ContractState, owner: ContractAddress, spender: ContractAddress
-    ) -> u256 {
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
         self.erc20.allowance(owner, spender)
     }
 

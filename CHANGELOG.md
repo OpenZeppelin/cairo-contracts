@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.9.0 (2024-02-08)
+
 ### Added
 
 - EthAccount component and preset (#853)
@@ -40,4 +42,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
 - Add security section to Upgrades docs (#861)
-  

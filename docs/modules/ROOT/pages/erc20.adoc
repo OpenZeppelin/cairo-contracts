@@ -18,7 +18,7 @@ See the {custom-decimals} guide.
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
-The interface includes the `IERC20` standard interface as well as non-standard functions like `increase_allowance`.
+The interface includes the `IERC20` standard interface as well as `IERC20Camel` for backwards compatibility.
 To support older token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
 
 [,javascript]
@@ -39,20 +39,12 @@ trait ERC20ABI {
     fn symbol() -> felt252;
     fn decimals() -> u8;
 
-    // ISafeAllowance
-    fn increase_allowance(spender: ContractAddress, added_value: u256) -> bool;
-    fn decrease_allowance(spender: ContractAddress, subtracted_value: u256) -> bool;
-
     // IERC20Camel
     fn totalSupply() -> u256;
     fn balanceOf(account: ContractAddress) -> u256;
     fn transferFrom(
         sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
-
-    // ISafeAllowanceCamel
-    fn increaseAllowance(spender: ContractAddress, addedValue: u256) -> bool;
-    fn decreaseAllowance(spender: ContractAddress, subtractedValue: u256) -> bool;
 }
 ----
 

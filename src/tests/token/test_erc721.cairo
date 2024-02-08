@@ -12,7 +12,6 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
@@ -150,7 +149,6 @@ fn test_get_approved_nonexistent() {
 #[test]
 fn test__exists() {
     let mut state = COMPONENT_STATE();
-    let zero = ZERO();
     let token_id = TOKEN_ID;
 
     let not_exists = !state._exists(token_id);

@@ -183,10 +183,6 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-name[`++name(self)++`]
 * xref:#ERC20Component-symbol[`++symbol(self)++`]
 * xref:#ERC20Component-decimals[`++decimals(self)++`]
-
-.SafeAllowanceImpl
-* xref:#ERC20Component-increase_allowance[`++increase_allowance(self, spender, added_value)++`]
-* xref:#ERC20Component-decrease_allowance[`++decrease_allowance(self, spender, subtracted_value)++`]
 --
 
 [.contract-index#ERC20Component-Embeddable-Impls-camelCase]
@@ -196,10 +192,6 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20Component-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20Component-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
-
-.SafeAllowanceCamelImpl
-* xref:#ERC20Component-increaseAllowance[`++increaseAllowance(self, spender, addedValue)++`]
-* xref:#ERC20Component-decreaseAllowance[`++decreaseAllowance(self, spender, subtractedValue)++`]
 --
 
 [.contract-index]
@@ -211,8 +203,6 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-_approve[`++_approve(self, owner, spender, amount)++`]
 * xref:#ERC20Component-_mint[`++_mint(self, recipient, amount)++`]
 * xref:#ERC20Component-_burn[`++_burn(self, account, amount)++`]
-* xref:#ERC20Component-_increase_allowance[`++_increase_allowance(self, spender, added_value)++`]
-* xref:#ERC20Component-_decrease_allowance[`++_decrease_allowance(self, spender, subtracted_value)++`]
 * xref:#ERC20Component-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
 --
 
@@ -296,33 +286,6 @@ See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
 
 See <<IERC20Metadata-decimals,IERC20Metadata::decimals>>.
 
-[.contract-item]
-[[ERC20Component-increase_allowance]]
-==== `[.contract-item-name]#++increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256) → bool++` [.item-kind]#external#
-
-Increases the allowance granted from the caller to `spender` by `added_value`
-Returns `true` on success, reverts otherwise.
-
-Emits an <<ERC20Component-Approval,Approval>> event.
-
-Requirements:
-
-- `spender` cannot be the zero address.
-
-[.contract-item]
-[[ERC20Component-decrease_allowance]]
-==== `[.contract-item-name]#++decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256) → bool++` [.item-kind]#external#
-
-Decreases the allowance granted from the caller to `spender` by `subtracted_value`
-Returns `true` on success.
-
-Emits an <<ERC20Component-Approval,Approval>> event.
-
-Requirements:
-
-- `spender` cannot be the zero address.
-- `spender` must have allowance for the caller of at least `subtracted_value`.
-
 [#ERC20Component-camelCase-support]
 ==== camelCase Support
 
@@ -347,22 +310,6 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 ==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress) → bool++` [.item-kind]#external#
 
 See <<IERC20-transfer_from,IERC20::transfer_from>>.
-
-Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
-
-[.contract-item]
-[[ERC20Component-increaseAllowance]]
-==== `[.contract-item-name]#++increaseAllowance++#++(ref self: ContractState, spender: ContractAddress, addedValue: u256) → bool++` [.item-kind]#external#
-
-See <<ERC20Component-increase_allowance,increase_allowance>>.
-
-Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
-
-[.contract-item]
-[[ERC20Component-decreaseAllowance]]
-==== `[.contract-item-name]#++decreaseAllowance++#++(ref self: ContractState, spender: ContractAddress, subtractedValue: u256) → bool++` [.item-kind]#external#
-
-See <<ERC20Component-decrease_allowance,decrease_allowance>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
@@ -432,22 +379,6 @@ Requirements:
 - `account` cannot be the zero address.
 
 [.contract-item]
-[[ERC20Component-_increase_allowance]]
-==== `[.contract-item-name]#++_increase_allowance++#++(ref self: ContractState, spender: ContractAddress, added_value: u256)++` [.item-kind]#internal#
-
-Increases the allowance granted from the caller to `spender` by `added_value`
-
-Emits an <<ERC20Component-Approval,Approval>> event.
-
-[.contract-item]
-[[ERC20Component-_decrease_allowance]]
-==== `[.contract-item-name]#++_decrease_allowance++#++(ref self: ContractState, spender: ContractAddress, subtracted_value: u256)++` [.item-kind]#internal#
-
-Decreases the allowance granted from the caller to `spender` by `subtracted_value`
-
-Emits an <<ERC20Component-Approval,Approval>> event.
-
-[.contract-item]
 [[ERC20Component-_spend_allowance]]
 ==== `[.contract-item-name]#++_spend_allowance++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
@@ -505,9 +436,7 @@ include::../utils/_class_hashes.adoc[]
 
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++SafeAllowanceImpl++`]
 * xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-camelCase[`++SafeAllowanceCamelImpl++`]
 --
 
 [#ERC20-constructor-section]

@@ -11,7 +11,6 @@ use openzeppelin::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 use starknet::testing;

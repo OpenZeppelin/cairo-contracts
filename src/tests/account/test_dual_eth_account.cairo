@@ -143,7 +143,7 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 
 #[test]
 fn test_dual_supports_interface() {
-    let (snake_dispatcher, target) = setup_snake();
+    let (snake_dispatcher, _) = setup_snake();
     assert!(snake_dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
 }
 

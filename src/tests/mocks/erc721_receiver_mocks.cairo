@@ -15,10 +15,6 @@ mod DualCaseERC721ReceiverMock {
         ERC721ReceiverComponent::ERC721ReceiverABIImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -40,32 +36,6 @@ mod DualCaseERC721ReceiverMock {
     fn constructor(ref self: ContractState) {
         self.erc721_receiver.initializer();
     }
-
-    #[external(v0)]
-    fn on_erc721_received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
-        } else {
-            0
-        }
-    }
-
-    #[external(v0)]
-    fn onERC721Received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        self.on_erc721_received(operator, from, tokenId, data)
-    }
 }
 
 #[starknet::contract]
@@ -80,10 +50,6 @@ mod SnakeERC721ReceiverMock {
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -135,10 +101,6 @@ mod CamelERC721ReceiverMock {
     // ERC721Receiver
     impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {

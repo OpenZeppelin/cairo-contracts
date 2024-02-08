@@ -46,8 +46,6 @@ mod SnakeERC20Mock {
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
@@ -87,9 +85,6 @@ mod CamelERC20Mock {
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl SafeAllowanceCamelImpl =
-        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
 
     // `ERC20Impl` is not embedded because it would defeat the purpose of the
     // mock. The `ERC20Impl` case-agnostic methods are manually exposed.

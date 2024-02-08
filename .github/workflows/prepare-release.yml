@@ -3,6 +3,9 @@ name: Update version on new release branch
 on:
   create:
 
+env:
+  SCARB_VERSION: 2.5.3
+
 jobs:
   update_version:
     if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-v')
@@ -32,7 +35,7 @@ jobs:
       uses: software-mansion/setup-scarb@v1
       id: setup_scarb
       with:
-        scarb-version: "2.5.3"
+        scarb-version: ${{ env.SCARB_VERSION }}
 
     - name: Setup class_hash
       uses: ericnordelo/setup-class-hash@v1
@@ -41,7 +44,7 @@ jobs:
 
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v2.5.3
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v${{ env.SCARB_VERSION }}
         > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes

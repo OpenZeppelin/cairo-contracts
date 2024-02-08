@@ -8,8 +8,7 @@
 #[starknet::component]
 mod ERC721Component {
     use openzeppelin::account;
-    use openzeppelin::introspection::interface::ISRC5Dispatcher;
-    use openzeppelin::introspection::interface::ISRC5DispatcherTrait;
+    use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
@@ -532,15 +531,15 @@ mod ERC721Component {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (ISRC5Dispatcher { contract_address: to }
-            .supports_interface(interface::IERC721_RECEIVER_ID)) {
+        let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
+
+        if (src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID)) {
             DualCaseERC721Receiver { contract_address: to }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == interface::IERC721_RECEIVER_ID
         } else {
-            ISRC5Dispatcher { contract_address: to }
-                .supports_interface(account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

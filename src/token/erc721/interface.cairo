@@ -105,9 +105,6 @@ trait ERC721ABI<TState> {
     fn getApproved(self: @TState, tokenId: u256) -> ContractAddress;
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
 
-    // ISRC5Camel
-    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
-
     // IERC721MetadataCamelOnly
     fn tokenURI(self: @TState, tokenId: u256) -> felt252;
 }

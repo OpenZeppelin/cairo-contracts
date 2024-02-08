@@ -533,7 +533,7 @@ mod ERC721Component {
     ) -> bool {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
-        if (src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID)) {
+        if src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID) {
             DualCaseERC721Receiver { contract_address: to }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data

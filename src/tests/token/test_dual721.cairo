@@ -469,17 +469,3 @@ fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.token_uri(TOKEN_ID);
 }
-
-#[test]
-fn test_dual_supportsInterface() {
-    let (dispatcher, _) = setup_camel();
-    let supports_ierc721 = dispatcher.supports_interface(IERC721_ID);
-    assert!(supports_ierc721);
-}
-
-#[test]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
-fn test_dual_supportsInterface_exists_and_panics() {
-    let (_, dispatcher) = setup_erc721_panic();
-    dispatcher.supports_interface(IERC721_ID);
-}

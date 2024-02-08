@@ -136,6 +136,12 @@ mod CamelERC20Mock {
     }
 }
 
+/// Although these modules are designed to panic, functions
+/// still need a valid return value. We chose:
+///
+/// 3 for felt252, u8, and u256
+/// zero for ContractAddress
+/// false for bool
 #[starknet::contract]
 mod SnakeERC20Panic {
     use starknet::ContractAddress;

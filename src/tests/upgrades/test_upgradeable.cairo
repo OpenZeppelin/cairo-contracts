@@ -5,7 +5,6 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
     IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait, UpgradesV2
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
-use openzeppelin::tests::utils::debug::DebugClassHash;
 use openzeppelin::tests::utils;
 use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
 use starknet::ClassHash;

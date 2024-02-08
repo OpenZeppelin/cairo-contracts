@@ -1,4 +1,4 @@
-name: Update version on new release branch
+name: Update version and presets page on new release branch
 
 on:
   create:

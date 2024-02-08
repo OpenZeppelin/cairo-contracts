@@ -40,5 +40,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Account events indexed keys (#853)
 - Support higher tx versions in Account (#858)
 - Bump scarb to v2.4.1 (#858)
-- Bump scarb to v2.5.0 (#857)
 - Add security section to Upgrades docs (#861)

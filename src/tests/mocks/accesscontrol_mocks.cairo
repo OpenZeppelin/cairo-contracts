@@ -148,37 +148,41 @@ mod SnakeAccessControlPanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-        panic!("Some error");
-        false
-    }
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn has_role(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
+            panic!("Some error");
+            false
+        }
 
-    #[external(v0)]
-    fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
-        panic!("Some error");
-        3
-    }
+        #[external(v0)]
+        fn get_role_admin(self: @ContractState, role: felt252) -> felt252 {
+            panic!("Some error");
+            3
+        }
 
-    #[external(v0)]
-    fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn grant_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn revoke_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn renounce_role(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn renounce_role(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic!("Some error");
-        false
+        #[external(v0)]
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            panic!("Some error");
+            false
+        }
     }
 }
 
@@ -189,36 +193,40 @@ mod CamelAccessControlPanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
-        panic!("Some error");
-        false
-    }
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn hasRole(self: @ContractState, role: felt252, account: ContractAddress) -> bool {
+            panic!("Some error");
+            false
+        }
 
-    #[external(v0)]
-    fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
-        panic!("Some error");
-        3
-    }
+        #[external(v0)]
+        fn getRoleAdmin(self: @ContractState, role: felt252) -> felt252 {
+            panic!("Some error");
+            3
+        }
 
-    #[external(v0)]
-    fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn grantRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn revokeRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic!("Some error");
-        false
+        #[external(v0)]
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            panic!("Some error");
+            false
+        }
     }
 }

@@ -26,7 +26,8 @@ jobs:
       run: |
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
-        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" {} +
+        SCAPED_CURRENT_VERSION=$(echo $CURRENT_VERSION | sed 's/\./\\./g')
+        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/$SCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0

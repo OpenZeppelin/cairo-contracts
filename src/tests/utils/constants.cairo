@@ -1,6 +1,7 @@
 use openzeppelin::account::interface::EthPublicKey;
 use starknet::ClassHash;
 use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 use starknet::class_hash_const;
 use starknet::contract_address_const;
 use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
@@ -35,11 +36,11 @@ fn URI() -> ByteArray {
 }
 
 fn ETH_PUBKEY() -> EthPublicKey {
-    secp256k1_get_point_from_x_syscall(3, false).unwrap().unwrap()
+    secp256k1_get_point_from_x_syscall(3, false).unwrap_syscall().unwrap()
 }
 
 fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    secp256k1_get_point_from_x_syscall(4, false).unwrap().unwrap()
+    secp256k1_get_point_from_x_syscall(4, false).unwrap_syscall().unwrap()
 }
 
 fn ADMIN() -> ContractAddress {

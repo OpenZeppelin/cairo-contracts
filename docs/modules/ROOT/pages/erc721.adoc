@@ -74,9 +74,8 @@ The hardcoded values derive from Starknet's selector calculations.
 See the {introspection} docs.
 * `safe_transfer_from` can only be expressed as a single function in Cairo as opposed to the two functions declared in EIP721, because function overloading is currently not possible in Cairo.
 The difference between both functions consists of accepting `data` as an argument.
-`safe_transfer_from` by default accepts the `data` argument.
+`safe_transfer_from` by default accepts the `data` argument which is interpreted as `Span<felt252>`.
 If `data` is not used, simply pass an empty array.
-* `safe_transfer_from`'s optional `data` argument is interpreted as `Span<felt252>`.
 * ERC721 utilizes {src5-api} to declare and query interface support on Starknet as opposed to Ethereum's {eip165}.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).

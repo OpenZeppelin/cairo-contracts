@@ -29,7 +29,8 @@ jobs:
       run: |
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
-        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" {} +
+        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
+          -not -path './RELEASING.md' -exec sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" {} +
 
     - name: Setup scarb
       uses: software-mansion/setup-scarb@v1
@@ -38,14 +39,14 @@ jobs:
         scarb-version: ${{ env.SCARB_VERSION }}
 
     - name: Setup class_hash
-      uses: ericnordelo/setup-class-hash@v1
+      uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
       with:
         version: "0.1.0"
 
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v${{ env.SCARB_VERSION }}
-        > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v${{ env.SCARB_VERSION }} \
+          > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0

@@ -1,6 +1,7 @@
 import sys
 import json
 
+
 def main():
     # Required compiler version argument
     cmp_version = sys.argv[1]
@@ -24,11 +25,12 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
     footer = """// Presets page
 :presets-page: xref:presets.adoc[Sierra class hash]"""
 
-    return f"{header}\n\n{hashes}\n\n{footer}\n"
+    return f"{header}\n{hashes}\n{footer}\n"
 
 
 def normalize_len(sierra_hash):
     return "0x" + "0" * (66 - len(sierra_hash)) + sierra_hash[2:]
+
 
 if __name__ == '__main__':
     main()

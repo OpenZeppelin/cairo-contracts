@@ -221,5 +221,4 @@ mod CamelAccessControlPanicMock {
         panic!("Some error");
         false
     }
-
 }

@@ -202,9 +202,7 @@ mod CamelEthAccountPanicMock {
     }
 
     #[external(v0)]
-    fn isValidSignature(
-        self: @ContractState, hash: felt252, signature: Array<felt252>
-    ) -> felt252 {
+    fn isValidSignature(self: @ContractState, hash: felt252, signature: Array<felt252>) -> felt252 {
         panic!("Some error");
         3
     }

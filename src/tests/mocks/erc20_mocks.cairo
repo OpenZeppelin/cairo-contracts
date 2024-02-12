@@ -121,9 +121,7 @@ mod CamelERC20Mock {
     }
 
     #[external(v0)]
-    fn allowance(
-        self: @ContractState, owner: ContractAddress, spender: ContractAddress
-    ) -> u256 {
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
         self.erc20.allowance(owner, spender)
     }
 
@@ -170,9 +168,7 @@ mod SnakeERC20Panic {
     }
 
     #[external(v0)]
-    fn allowance(
-        self: @ContractState, owner: ContractAddress, spender: ContractAddress
-    ) -> u256 {
+    fn allowance(self: @ContractState, owner: ContractAddress, spender: ContractAddress) -> u256 {
         panic!("Some error");
         3
     }
@@ -231,10 +227,7 @@ mod CamelERC20Panic {
 
     #[external(v0)]
     fn transferFrom(
-        ref self: ContractState,
-        sender: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256
+        ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) {
         panic!("Some error");
     }

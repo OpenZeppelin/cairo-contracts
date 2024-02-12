@@ -154,33 +154,29 @@ mod SnakeEthAccountPanicMock {
     #[storage]
     struct Storage {}
 
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn set_public_key(ref self: ContractState, new_public_key: EthPublicKey) {
-            panic!("Some error");
-        }
+    #[external(v0)]
+    fn set_public_key(ref self: ContractState, new_public_key: EthPublicKey) {
+        panic!("Some error");
+    }
 
-        #[external(v0)]
-        fn get_public_key(self: @ContractState) -> EthPublicKey {
-            panic!("Some error");
-            secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
-        }
+    #[external(v0)]
+    fn get_public_key(self: @ContractState) -> EthPublicKey {
+        panic!("Some error");
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
+    }
 
-        #[external(v0)]
-        fn is_valid_signature(
-            self: @ContractState, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn is_valid_signature(
+        self: @ContractState, hash: felt252, signature: Array<felt252>
+    ) -> felt252 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            panic!("Some error");
-            false
-        }
+    #[external(v0)]
+    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+        panic!("Some error");
+        false
     }
 }
 
@@ -194,32 +190,28 @@ mod CamelEthAccountPanicMock {
     #[storage]
     struct Storage {}
 
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn setPublicKey(ref self: ContractState, newPublicKey: EthPublicKey) {
-            panic!("Some error");
-        }
+    #[external(v0)]
+    fn setPublicKey(ref self: ContractState, newPublicKey: EthPublicKey) {
+        panic!("Some error");
+    }
 
-        #[external(v0)]
-        fn getPublicKey(self: @ContractState) -> EthPublicKey {
-            panic!("Some error");
-            secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
-        }
+    #[external(v0)]
+    fn getPublicKey(self: @ContractState) -> EthPublicKey {
+        panic!("Some error");
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
+    }
 
-        #[external(v0)]
-        fn isValidSignature(
-            self: @ContractState, hash: felt252, signature: Array<felt252>
-        ) -> felt252 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn isValidSignature(
+        self: @ContractState, hash: felt252, signature: Array<felt252>
+    ) -> felt252 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            panic!("Some error");
-            false
-        }
+    #[external(v0)]
+    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+        panic!("Some error");
+        false
     }
 }

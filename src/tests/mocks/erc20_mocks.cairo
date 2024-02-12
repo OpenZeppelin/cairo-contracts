@@ -120,25 +120,21 @@ mod CamelERC20Mock {
         self.erc20._mint(recipient, initial_supply);
     }
 
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> u256 {
-            self.erc20.allowance(owner, spender)
-        }
+    #[external(v0)]
+    fn allowance(
+        self: @ContractState, owner: ContractAddress, spender: ContractAddress
+    ) -> u256 {
+        self.erc20.allowance(owner, spender)
+    }
 
-        #[external(v0)]
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
-            self.erc20.transfer(recipient, amount)
-        }
+    #[external(v0)]
+    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        self.erc20.transfer(recipient, amount)
+    }
 
-        #[external(v0)]
-        fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
-            self.erc20.approve(spender, amount)
-        }
+    #[external(v0)]
+    fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+        self.erc20.approve(spender, amount)
     }
 }
 
@@ -155,66 +151,62 @@ mod SnakeERC20Panic {
     #[storage]
     struct Storage {}
 
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn name(self: @ContractState) -> ByteArray {
-            panic!("Some error");
-            "3"
-        }
+    #[external(v0)]
+    fn name(self: @ContractState) -> ByteArray {
+        panic!("Some error");
+        "3"
+    }
 
-        #[external(v0)]
-        fn symbol(self: @ContractState) -> ByteArray {
-            panic!("Some error");
-            "3"
-        }
+    #[external(v0)]
+    fn symbol(self: @ContractState) -> ByteArray {
+        panic!("Some error");
+        "3"
+    }
 
-        #[external(v0)]
-        fn decimals(self: @ContractState) -> u8 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn decimals(self: @ContractState) -> u8 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> u256 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn allowance(
+        self: @ContractState, owner: ContractAddress, spender: ContractAddress
+    ) -> u256 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
-            panic!("Some error");
-            false
-        }
+    #[external(v0)]
+    fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        panic!("Some error");
+        false
+    }
 
-        #[external(v0)]
-        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) -> bool {
-            panic!("Some error");
-            false
-        }
+    #[external(v0)]
+    fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) -> bool {
+        panic!("Some error");
+        false
+    }
 
-        #[external(v0)]
-        fn total_supply(self: @ContractState) -> u256 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn total_supply(self: @ContractState) -> u256 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn transfer_from(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
-        ) -> bool {
-            panic!("Some error");
-            false
-        }
+    #[external(v0)]
+    fn transfer_from(
+        ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256
+    ) -> bool {
+        panic!("Some error");
+        false
     }
 }
 
@@ -225,29 +217,25 @@ mod CamelERC20Panic {
     #[storage]
     struct Storage {}
 
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn totalSupply(self: @ContractState) -> u256 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn totalSupply(self: @ContractState) -> u256 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
-            panic!("Some error");
-            3
-        }
+    #[external(v0)]
+    fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
+        panic!("Some error");
+        3
+    }
 
-        #[external(v0)]
-        fn transferFrom(
-            ref self: ContractState,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {
-            panic!("Some error");
-        }
+    #[external(v0)]
+    fn transferFrom(
+        ref self: ContractState,
+        sender: ContractAddress,
+        recipient: ContractAddress,
+        amount: u256
+    ) {
+        panic!("Some error");
     }
 }

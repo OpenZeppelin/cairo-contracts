@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (access/ownable/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (access/ownable/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -24,6 +24,22 @@ trait OwnableABI<TState> {
     fn renounce_ownership(ref self: TState);
 
     // IOwnableCamelOnly
+    fn transferOwnership(ref self: TState, newOwner: ContractAddress);
+    fn renounceOwnership(ref self: TState);
+}
+
+trait IOwnableTwoStep<TState> {
+    fn owner(self: @TState) -> ContractAddress;
+    fn pending_owner(self: @TState) -> ContractAddress;
+    fn accept_ownership(ref self: TState);
+    fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
+    fn renounce_ownership(ref self: TState);
+}
+
+#[starknet::interface]
+trait IOwnableTwoStepCamelOnly<TState> {
+    fn pendingOwner(self: @TState) -> ContractAddress;
+    fn acceptOwnership(ref self: TState);
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);
 }

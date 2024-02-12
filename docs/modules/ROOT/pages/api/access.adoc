@@ -18,7 +18,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::access::ownable::OwnableComponent;
@@ -37,6 +37,14 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-owner[`++owner(self)++`]
 * xref:OwnableComponent-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-renounce_ownership[`++renounce_ownership(self)++`]
+
+.OwnableTwoStepImpl
+
+* xref:OwnableComponent-two-step-owner[`++owner(self)++`]
+* xref:OwnableComponent-two-step-pending_owner[`++pending_owner(self)++`]
+* xref:OwnableComponent-two-step-accept_ownership[`++accept_ownership(self)++`]
+* xref:OwnableComponent-two-step-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
+* xref:OwnableComponent-two-step-renounce_ownership[`++renounce_ownership(self)++`]
 --
 
 [.contract-index#OwnableComponent-Embeddable-Impls-camelCase]
@@ -46,6 +54,13 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 
 * xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
 * xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
+
+.OwnableTwoStepCamelOnlyImpl
+
+* xref:OwnableComponent-two-step-pendingOwner[`++pendingOwner(self)++`]
+* xref:OwnableComponent-two-step-acceptOwnership[`++acceptOwnership(self)++`]
+* xref:OwnableComponent-two-step-transferOwnership[`++transferOwnership(self, new_owner)++`]
+* xref:OwnableComponent-two-step-renounceOwnership[`++renounceOwnership(self)++`]
 --
 
 [.contract-index#OwnableComponent-ABI-Impl]
@@ -65,12 +80,15 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 
 * xref:OwnableComponent-initializer[`++initializer(self, owner)++`]
 * xref:OwnableComponent-assert_only_owner[`++assert_only_owner(self)++`]
+* xref:OwnableComponent-_accept_ownership[`++_accept_ownership(self)++`]
+* xref:OwnableComponent-_propose_owner[`++_propose_owner(self, new_owner)++`]
 * xref:OwnableComponent-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 --
 
 [.contract-index]
 .Events
 --
+* xref:OwnableComponent-OwnershipTransferStarted[`++OwnershipTransferStarted(previous_owner, new_owner)++`]
 * xref:OwnableComponent-OwnershipTransferred[`++OwnershipTransferred(previous_owner, new_owner)++`]
 --
 
@@ -80,8 +98,9 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 [.contract-item]
 [[OwnableComponent-owner]]
 ==== `[.contract-item-name]#++owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
-
+// tag::owner[]
 Returns the address of the current owner.
+// end::owner[]
 
 [.contract-item]
 [[OwnableComponent-transfer_ownership]]
@@ -95,12 +114,51 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 [.contract-item]
 [[OwnableComponent-renounce_ownership]]
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
-
+// tag::renounce_ownership[]
 Leaves the contract without owner. It will not be possible to call
 `assert_only_owner` functions anymore. Can only be called by the current owner.
 
 NOTE: Renouncing ownership will leave the contract without an owner,
 thereby removing any functionality that is only available to the owner.
+//end::renounce_ownership[]
+
+[#OwnableComponent-Embeddable-Functions-Two-Step]
+==== Embeddable Functions (Two Step Transfer)
+
+[.contract-item]
+[[OwnableComponent-two-step-owner]]
+==== `[.contract-item-name]#++owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+include::./access.adoc[tag=owner]
+
+[.contract-item]
+[[OwnableComponent-two-step-pending_owner]]
+==== `[.contract-item-name]#++pending_owner++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the pending owner.
+
+[.contract-item]
+[[OwnableComponent-two-step-accept_ownership]]
+==== `[.contract-item-name]#++accept_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
+
+Transfers ownership of the contract to the pending owner.
+Can only be called by the pending owner.
+Resets pending owner to zero address.
+
+Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
+
+[.contract-item]
+[[OwnableComponent-two-step-transfer_ownership]]
+==== `[.contract-item-name]#++transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#external#
+
+Starts the two step ownership transfer process, by setting the pending owner.
+Can only be called by the current owner.
+
+Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
+
+[.contract-item]
+[[OwnableComponent-two-step-renounce_ownership]]
+==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
+include::./access.adoc[tag=renounce_ownership]
 
 [#OwnableComponent-camelCase-Support]
 ==== camelCase Support
@@ -116,6 +174,33 @@ See xref:OwnableComponent-transfer_ownership[transfer_ownership].
 ==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 See xref:OwnableComponent-renounce_ownership[renounce_ownership].
+
+[#OwnableComponent-camelCase-Support-Two-Step]
+==== camelCase Support (Two Step Transfer)
+
+[.contract-item]
+[[OwnableComponent-two-step-pendingOwner]]
+==== `[.contract-item-name]#++pendingOwner++#++(self: @ContractState)++` [.item-kind]#external#
+
+See xref:OwnableComponent-two-step-pending_owner[pending_owner].
+
+[.contract-item]
+[[OwnableComponent-two-step-acceptOwnership]]
+==== `[.contract-item-name]#++acceptOwnership++#++(self: @ContractState)++` [.item-kind]#external#
+
+See xref:OwnableComponent-two-step-accept_ownership[accept_ownership].
+
+[.contract-item]
+[[OwnableComponent-two-step-transferOwnership]]
+==== `[.contract-item-name]#++transferOwnership++#++(self: @ContractState)++` [.item-kind]#external#
+
+See xref:OwnableComponent-two-step-transfer_ownership[transfer_ownership].
+
+[.contract-item]
+[[OwnableComponent-two-step-renounceOwnership]]
+==== `[.contract-item-name]#++renounceOwnership++#++(self: @ContractState)++` [.item-kind]#external#
+
+See xref:OwnableComponent-two-step-renounce_ownership[renounce_ownership].
 
 [#OwnableComponent-Internal-Functions]
 ==== Internal Functions
@@ -135,6 +220,28 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 Panics if called by any account other than the owner.
 
 [.contract-item]
+[[OwnableComponent-_accept_ownership]]
+==== `[.contract-item-name]#++_accept_ownership++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Transfers ownership to the pending owner. Resets pending owner to zero address.
+Calls xref:OwnableComponent-_transfer_ownership[_transfer_ownership].
+
+Internal function without access restriction.
+
+[.contract-item]
+[[OwnableComponent-_transfer_ownership]]
+
+[.contract-item]
+[[OwnableComponent-_propose_owner]]
+==== `[.contract-item-name]#++_propose_owner++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
+
+Sets a new pending owner in a two step transfer.
+
+Internal function without access restriction.
+
+Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
+
+[.contract-item]
 [[OwnableComponent-_transfer_ownership]]
 ==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
 
@@ -147,6 +254,12 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 ==== Events
 
 [.contract-item]
+[[OwnableComponent-OwnershipTransferStarted]]
+==== `[.contract-item-name]#++OwnershipTransferStarted++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
+
+Emitted when the pending owner is updated.
+
+[.contract-item]
 [[OwnableComponent-OwnershipTransferred]]
 ==== `[.contract-item-name]#++OwnershipTransferred++#++(previous_owner: ContractAddress, new_owner: ContractAddress)++` [.item-kind]#event#
 
@@ -154,7 +267,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -287,7 +400,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]

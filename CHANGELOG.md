@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ownable two-step functionality (#809)
+
+### Changed
+
+- OwnershipTransferred event args are indexed (#809)
+
+## 0.9.0 (2024-02-08)
+
+### Added
+
 - ABI implementations (mixins) in components (#863)
 - EthAccount component and preset (#853)
 

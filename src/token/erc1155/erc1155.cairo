@@ -20,8 +20,6 @@ mod ERC1155Component {
 
     #[storage]
     struct Storage {
-        ERC1155_name: ByteArray,
-        ERC1155_symbol: ByteArray,
         ERC1155_balances: LegacyMap<(u256, ContractAddress), u256>,
         ERC1155_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         ERC1155_uri: ByteArray,
@@ -32,7 +30,8 @@ mod ERC1155Component {
     enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
-        ApprovalForAll: ApprovalForAll
+        ApprovalForAll: ApprovalForAll,
+        URI: URI
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
@@ -44,12 +43,11 @@ mod ERC1155Component {
         from: ContractAddress,
         #[key]
         to: ContractAddress,
-        #[key]
         id: u256,
         value: u256
     }
 
-    /// Emitted when `values` are transferred from `from` to `to` for `id`.
+    /// Emitted when `values` are transferred from `from` to `to` for `ids`.
     #[derive(Drop, starknet::Event)]
     struct TransferBatch {
         #[key]
@@ -58,7 +56,6 @@ mod ERC1155Component {
         from: ContractAddress,
         #[key]
         to: ContractAddress,
-        #[key]
         ids: Span<u256>,
         values: Span<u256>,
     }
@@ -74,20 +71,26 @@ mod ERC1155Component {
         approved: bool
     }
 
+    /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
+    ///
+    /// If an `URI` event was emitted for `id`, the standard
+    /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[guarantees] that `value` will equal the value
+    /// returned by `IERC1155MetadataURI::uri`.
+    #[derive(Drop, starknet::Event)]
+    struct URI {
+        #[key]
+        id: u256,
+        value: ByteArray
+    }
+
     mod Errors {
-        const INVALID_TOKEN_ID: felt252 = 'ERC1155: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC1155: invalid account';
         const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized caller';
-        const APPROVAL_TO_OWNER: felt252 = 'ERC1155: approval to owner';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';
-        const ALREADY_MINTED: felt252 = 'ERC1155: token already minted';
-        const WRONG_SENDER: felt252 = 'ERC1155: wrong sender';
-        const SAFE_MINT_FAILED: felt252 = 'ERC1155: safe mint failed';
-        const SAFE_TRANSFER_FAILED: felt252 = 'ERC1155: safe transfer failed';
-        const INVALID_ARRAY_LEN: felt252 = 'ERC1155: no equal array length';
-        const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: invalid array length';
+        const INVALID_SENDER: felt252 = 'ERC1155: wrong sender';
+        const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: no equal array length';
         const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
     }
 
@@ -102,17 +105,16 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
-        /// Returns the number of NFTs owned by `account` from a specific token ID.
+        /// Returns the number of NFTs owned by `account` for a specific `token_id`.
         fn balance_of(
             self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
         ) -> u256 {
-            assert(account.is_non_zero(), Errors::INVALID_ACCOUNT);
             self.ERC1155_balances.read((token_id, account))
         }
 
 
         /// Returns a span of u256 values representing the batch balances of the
-        /// accounts for the specified token IDs.
+        /// `accounts` for the specified `token_ids`.
         ///
         /// Requirements:
         ///
@@ -122,7 +124,7 @@ mod ERC1155Component {
             accounts: Span<ContractAddress>,
             token_ids: Span<u256>
         ) -> Span<u256> {
-            assert(accounts.len() == token_ids.len(), Errors::INVALID_ARRAY_LEN);
+            assert(accounts.len() == token_ids.len(), Errors::INVALID_ARRAY_LENGTH);
 
             let mut batch_balances = array![];
             let mut index = 0;
@@ -139,7 +141,7 @@ mod ERC1155Component {
 
         /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
         ///
-        /// `data` is additional data, it has no specified format and it is sent in call to `to`.
+        /// `data` is additional data, it has no specified format and it is passed to `to`.
         ///
         /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
         /// to an untrusted contract, when invoking `on_ERC1155_received` on the receiver.
@@ -152,7 +154,7 @@ mod ERC1155Component {
         /// - `from` is not the zero address.
         /// - `to` is not the zero address.
         /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_received`
-        /// and return the acceptance magic value.
+        ///   and return the required magic value.
         ///
         /// Emits a `TransferSingle` event.
         fn safe_transfer_from(
@@ -177,9 +179,12 @@ mod ERC1155Component {
         ///
         /// Requirements:
         ///
+        /// - Caller is either approved or the `token_id` owner.
+        /// - `from` is not the zero address.
+        /// - `to` is not the zero address.
         /// - `token_ids` and `values` must have the same length.
         /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_batch_received`
-        /// and return the acceptance magic value.
+        ///   and return the acceptance magic value.
         ///
         /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of the array arguments.
         fn safe_batch_transfer_from(
@@ -190,7 +195,7 @@ mod ERC1155Component {
             values: Span<u256>,
             data: Span<felt252>
         ) {
-            assert(from.is_non_zero(), Errors::WRONG_SENDER);
+            assert(from.is_non_zero(), Errors::INVALID_SENDER);
             assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
 
             let operator = get_caller_address();
@@ -229,23 +234,13 @@ mod ERC1155Component {
         }
     }
 
-    #[embeddable_as(ERC1155MetadataImpl)]
-    impl ERC1155Metadata<
+    #[embeddable_as(ERC1155MetadataURIImpl)]
+    impl ERC1155MetadataURI<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC1155Metadata<ComponentState<TContractState>> {
-        /// Returns the NFT Collection name.
-        fn name(self: @ComponentState<TContractState>) -> ByteArray {
-            self.ERC1155_name.read()
-        }
-
-        /// Returns the NFT Collection symbol.
-        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
-            self.ERC1155_symbol.read()
-        }
-
+    > of interface::IERC1155MetadataURI<ComponentState<TContractState>> {
         /// This implementation returns the same URI for *all* token types. It relies
         /// on the token type ID substitution mechanism defined in the EIP:
         /// https://eips.ethereum.org/EIPS/eip-1155#metadata.
@@ -258,13 +253,13 @@ mod ERC1155Component {
     }
 
     /// Adds camelCase support for `IERC1155`.
-    #[embeddable_as(ERC1155CamelOnlyImpl)]
-    impl ERC1155CamelOnly<
+    #[embeddable_as(ERC1155CamelImpl)]
+    impl ERC1155Camel<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC1155CamelOnly<ComponentState<TContractState>> {
+    > of interface::IERC1155Camel<ComponentState<TContractState>> {
         fn balanceOf(
             self: @ComponentState<TContractState>, account: ContractAddress, tokenId: u256
         ) -> u256 {
@@ -325,16 +320,9 @@ mod ERC1155Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token name and symbol.
+        /// Initializes the contract by setting the token uri.
         /// This should only be used inside the contract's constructor.
-        fn initializer(
-            ref self: ComponentState<TContractState>,
-            name: ByteArray,
-            symbol: ByteArray,
-            uri: ByteArray
-        ) {
-            self.ERC1155_name.write(name);
-            self.ERC1155_symbol.write(symbol);
+        fn initializer(ref self: ComponentState<TContractState>, uri: ByteArray) {
             self.ERC1155_uri.write(uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
@@ -347,7 +335,6 @@ mod ERC1155Component {
         ///
         /// Requirements:
         ///
-        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
         /// - `token_ids` and `values` must have the same length.
         ///
         /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
@@ -361,7 +348,7 @@ mod ERC1155Component {
             token_ids: Span<u256>,
             values: Span<u256>
         ) {
-            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LEN);
+            assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
 
             let mut index = 0;
             loop {
@@ -376,8 +363,8 @@ mod ERC1155Component {
                     self.ERC1155_balances.write((token_id, from), from_balance - value);
                 }
                 if to.is_non_zero() {
-                    let current = self.ERC1155_balances.read((token_id, to));
-                    self.ERC1155_balances.write((token_id, to), current + value);
+                    let to_balance = self.ERC1155_balances.read((token_id, to));
+                    self.ERC1155_balances.write((token_id, to), to_balance + value);
                 }
                 index += 1;
             };
@@ -398,6 +385,11 @@ mod ERC1155Component {
         /// Version of `update` that performs the token acceptance check by calling
         /// `IERC1155Receiver-onERC1155Received` or `IERC1155Receiver-onERC1155BatchReceived` if
         /// the receiver is not reconized as an account.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
+        /// - `token_ids` and `values` must have the same length.
         fn update_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -423,7 +415,7 @@ mod ERC1155Component {
         /// and return the acceptance magic value.
         ///
         /// Emits a `TransferSingle` event.
-        fn safe_mint(
+        fn mint_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
@@ -437,7 +429,7 @@ mod ERC1155Component {
             self.update_with_acceptance_check(Zeroable::zero(), to, token_ids, values, data);
         }
 
-        /// Batched version of `safe_mint`.
+        /// Batched version of `mint_with_acceptance_check`.
         ///
         /// Requirements:
         ///
@@ -447,7 +439,7 @@ mod ERC1155Component {
         /// and return the acceptance magic value.
         ///
         /// Emits a `TransferBatch` event.
-        fn safe_batch_mint(
+        fn batch_mint_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_ids: Span<u256>,
@@ -505,13 +497,12 @@ mod ERC1155Component {
         }
     }
 
-    /// Checks if `to` either is an account contract or accepts the token by the
-    /// implementation of `IERC1155Receiver::on_ERC1155_received`. The transaction will
-    /// fail if both cases are false.
+    /// Checks if `to` either accepts the token either by implementing `IERC1155Receiver`
+    /// or if it's an account contract (supporting ISRC6). The transaction will fail if both are false.
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
-    ) -> bool {
-        if (DualCaseSRC5 { contract_address: to }
+    ) {
+        let accepted = if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC1155_RECEIVER_ID)) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_received(
@@ -519,20 +510,20 @@ mod ERC1155Component {
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
-        }
+        };
+        assert(accepted, Errors::INVALID_RECEIVER);
     }
 
-    /// Checks if `to` either is an account contract or accepts the token by the
-    /// implementation of `IERC1155Receiver-on_ERC1155_batch_received`. The transaction will
-    /// fail if both cases are false.
+    /// Checks if `to` either accepts the token either by implementing `IERC1155Receiver`
+    /// or if it's an account contract (supporting ISRC6). The transaction will fail if both are false.
     fn _check_on_ERC1155_batch_received(
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    ) -> bool {
-        if (DualCaseSRC5 { contract_address: to }
+    ) {
+        let accepted = if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC1155_RECEIVER_ID)) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_batch_received(
@@ -540,6 +531,7 @@ mod ERC1155Component {
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
-        }
+        };
+        assert(accepted, Errors::INVALID_RECEIVER);
     }
 }

@@ -1,7 +1,6 @@
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155Mock, SnakeERC1155Mock};
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155PanicMock, SnakeERC1155PanicMock};
 
-use openzeppelin::tests::mocks::erc1155_receiver_mocks::DualCaseERC1155ReceiverMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID, TOKEN_VALUE
@@ -10,7 +9,7 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
 use openzeppelin::token::erc1155::interface::IERC1155_ID;
 use openzeppelin::token::erc1155::interface::{
-    IERC1155CamelOnlyDispatcher, IERC1155CamelOnlyDispatcherTrait
+    IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait
 };
 use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
@@ -23,12 +22,8 @@ use starknet::testing::set_contract_address;
 //
 
 fn setup_snake() -> (DualCaseERC1155, IERC1155Dispatcher) {
-    let name: ByteArray = "NAME";
-    let symbol: ByteArray = "SYMBOL";
     let uri: ByteArray = "URI";
     let mut calldata = array![];
-    calldata.append_serde(name);
-    calldata.append_serde(symbol);
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(TOKEN_VALUE);
@@ -38,7 +33,7 @@ fn setup_snake() -> (DualCaseERC1155, IERC1155Dispatcher) {
     (DualCaseERC1155 { contract_address: target }, IERC1155Dispatcher { contract_address: target })
 }
 
-fn setup_camel() -> (DualCaseERC1155, IERC1155CamelOnlyDispatcher) {
+fn setup_camel() -> (DualCaseERC1155, IERC1155CamelDispatcher) {
     let name: ByteArray = "NAME";
     let symbol: ByteArray = "SYMBOL";
     let uri: ByteArray = "URI";
@@ -52,7 +47,7 @@ fn setup_camel() -> (DualCaseERC1155, IERC1155CamelOnlyDispatcher) {
     let target = utils::deploy(CamelERC1155Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155 { contract_address: target },
-        IERC1155CamelOnlyDispatcher { contract_address: target }
+        IERC1155CamelDispatcher { contract_address: target }
     )
 }
 
@@ -69,42 +64,6 @@ fn setup_erc1155_panic() -> (DualCaseERC1155, DualCaseERC1155) {
         DualCaseERC1155 { contract_address: snake_target },
         DualCaseERC1155 { contract_address: camel_target }
     )
-}
-
-fn setup_receiver() -> ContractAddress {
-    utils::deploy(DualCaseERC1155ReceiverMock::TEST_CLASS_HASH, array![])
-}
-
-//
-// Tests
-//
-
-#[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
-fn test_dual_no_name() {
-    let dispatcher = setup_non_erc1155();
-    dispatcher.name();
-}
-
-#[test]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
-fn test_dual_name_exists_and_panics() {
-    let (dispatcher, _) = setup_erc1155_panic();
-    dispatcher.name();
-}
-
-#[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
-fn test_dual_no_symbol() {
-    let dispatcher = setup_non_erc1155();
-    dispatcher.symbol();
-}
-
-#[test]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
-fn test_dual_symbol_exists_and_panics() {
-    let (dispatcher, _) = setup_erc1155_panic();
-    dispatcher.symbol();
 }
 
 //

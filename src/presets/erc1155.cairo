@@ -5,6 +5,9 @@
 ///
 /// The ERC1155 contract offers a batch-mint mechanism that
 /// can only be executed once upon contract construction.
+///
+/// For more complex or custom contracts, use Wizard for Cairo
+/// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
 mod ERC1155 {
     use openzeppelin::introspection::src5::SRC5Component;
@@ -18,9 +21,10 @@ mod ERC1155 {
     #[abi(embed_v0)]
     impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC1155MetadataImpl = ERC1155Component::ERC1155MetadataImpl<ContractState>;
+    impl ERC1155MetadataURIImpl =
+        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC1155CamelOnly = ERC1155Component::ERC1155CamelOnlyImpl<ContractState>;
+    impl ERC1155Camel = ERC1155Component::ERC1155CamelImpl<ContractState>;
     impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
 
     // SRC5
@@ -44,19 +48,25 @@ mod ERC1155 {
         SRC5Event: SRC5Component::Event
     }
 
-    /// Sets the token `name`, `symbol` and `URI`.
+    /// Sets the `token_uri`.
     /// Mints the `values` for `token_ids` tokens to `recipient`.
+    ///
+    /// Requirements:
+    ///
+    /// - `to` is either an account contract (supporting ISRC6) or
+    ///    supports the `IERC1155Receiver` interface.
+    /// - `token_ids` and `values` must have the same length.
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
         token_uri: ByteArray,
         recipient: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>
     ) {
-        self.erc1155.initializer(name, symbol, token_uri);
-        self.erc1155.safe_batch_mint(recipient, token_ids, values, array![].span());
+        self.erc1155.initializer(token_uri);
+        self
+            .erc1155
+            .batch_mint_with_acceptance_check(recipient, token_ids, values, array![].span());
     }
 }

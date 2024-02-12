@@ -13,9 +13,9 @@ use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, TOKEN_ID, TOKEN_VALUE, PUBKEY,
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelOnlyImpl;
+use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelImpl;
 use openzeppelin::token::erc1155::ERC1155Component::{
-    ERC1155Impl, ERC1155MetadataImpl, InternalImpl
+    ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl
 };
 use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin::token::erc1155::ERC1155Component;
@@ -41,16 +41,12 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn setup() -> (ComponentState, ContractAddress) {
     let mut state = COMPONENT_STATE();
-    state.initializer("NAME", "SYMBOL", "URI");
+    state.initializer("URI");
 
     let owner = setup_account();
-    state.safe_mint(owner, TOKEN_ID, TOKEN_VALUE, array![].span());
+    state.mint_with_acceptance_check(owner, TOKEN_ID, TOKEN_VALUE, array![].span());
     utils::drop_event(ZERO());
     (state, owner)
-}
-
-fn setup_receiver() -> ContractAddress {
-    utils::deploy(SnakeERC1155ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
 fn setup_camel_receiver() -> ContractAddress {
@@ -74,10 +70,8 @@ fn setup_camel_account() -> ContractAddress {
 #[test]
 fn test_initialize() {
     let mut state = CONTRACT_STATE();
-    state.erc1155.initializer("NAME", "SYMBOL", "URI");
+    state.erc1155.initializer("URI");
 
-    assert(state.name() == "NAME", 'Name should be NAME');
-    assert(state.symbol() == "SYMBOL", 'Symbol should be SYMBOL');
     assert(state.balance_of(OWNER(), TOKEN_ID) == 0, 'Balance should be zero');
 
     assert(state.src5.supports_interface(erc1155::interface::IERC1155_ID), 'Missing interface ID');
@@ -88,17 +82,6 @@ fn test_initialize() {
     assert(
         state.src5.supports_interface(introspection::interface::ISRC5_ID), 'Missing interface ID'
     );
-}
-
-//
-// Getters
-//
-
-#[test]
-#[should_panic(expected: ('ERC1155: invalid account',))]
-fn test_balance_of_zero() {
-    let (state, _) = setup();
-    state.balance_of(ZERO(), TOKEN_ID);
 }
 
 //

@@ -7,19 +7,20 @@ mod DualCaseERC1155Mock {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     // ERC1155
     #[abi(embed_v0)]
     impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC1155MetadataImpl = ERC1155Component::ERC1155MetadataImpl<ContractState>;
+    impl ERC1155MetadataURIImpl =
+        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721CamelOnly = ERC1155Component::ERC1155CamelOnlyImpl<ContractState>;
+    impl ERC721Camel = ERC1155Component::ERC1155CamelImpl<ContractState>;
 
     impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -41,14 +42,12 @@ mod DualCaseERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
         value: u256,
         uri: ByteArray
     ) {
-        self.erc1155.initializer(name, symbol, uri);
+        self.erc1155.initializer(uri);
 
         // mint
         let token_ids = array![token_id].span();
@@ -66,17 +65,18 @@ mod SnakeERC1155Mock {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
 
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     // ERC1155
     #[abi(embed_v0)]
     impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC1155MetadataImpl = ERC1155Component::ERC1155MetadataImpl<ContractState>;
+    impl ERC1155MetadataURIImpl =
+        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
 
     impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -98,14 +98,12 @@ mod SnakeERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
         value: u256,
         uri: ByteArray
     ) {
-        self.erc1155.initializer(name, symbol, uri);
+        self.erc1155.initializer(uri);
 
         // mint
         let token_ids = array![token_id].span();
@@ -117,22 +115,22 @@ mod SnakeERC1155Mock {
 #[starknet::contract]
 mod CamelERC1155Mock {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataImpl};
+    use openzeppelin::token::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl};
     use openzeppelin::token::erc1155::ERC1155Component;
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
 
+    // ERC1155
+    #[abi(embed_v0)]
+    impl ERC1155Camel = ERC1155Component::ERC1155CamelImpl<ContractState>;
+
+    impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
+
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
-    // ERC1155
-    #[abi(embed_v0)]
-    impl ERC1155CamelOnly = ERC1155Component::ERC1155CamelOnlyImpl<ContractState>;
-
-    impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -154,35 +152,17 @@ mod CamelERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
         value: u256,
         uri: ByteArray
     ) {
-        self.erc1155.initializer(name, symbol, uri);
+        self.erc1155.initializer(uri);
 
         // mint
         let token_ids = array![token_id].span();
         let values = array![value].span();
         self.erc1155.update(Zeroable::zero(), recipient, token_ids, values);
-    }
-
-    /// The following external methods are included because they are case-agnostic
-    /// and this contract should not embed the snake_case impl.
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn name(self: @ContractState) -> ByteArray {
-            self.erc1155.name()
-        }
-
-        #[external(v0)]
-        fn symbol(self: @ContractState) -> ByteArray {
-            self.erc1155.symbol()
-        }
     }
 }
 
@@ -197,18 +177,6 @@ mod SnakeERC1155PanicMock {
     #[abi(per_item)]
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn name(self: @ContractState) -> ByteArray {
-            panic!("Some error");
-            "3"
-        }
-
-        #[external(v0)]
-        fn symbol(self: @ContractState) -> ByteArray {
-            panic!("Some error");
-            "3"
-        }
-
         #[external(v0)]
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
             panic!("Some error");

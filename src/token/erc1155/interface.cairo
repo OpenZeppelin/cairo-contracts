@@ -39,14 +39,12 @@ trait IERC1155<TState> {
 }
 
 #[starknet::interface]
-trait IERC1155Metadata<TState> {
-    fn name(self: @TState) -> ByteArray;
-    fn symbol(self: @TState) -> ByteArray;
+trait IERC1155MetadataURI<TState> {
     fn uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 #[starknet::interface]
-trait IERC1155CamelOnly<TState> {
+trait IERC1155Camel<TState> {
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
         self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>
@@ -106,12 +104,10 @@ trait ERC1155ABI<TState> {
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
-    // IERC1155Metadata
-    fn name(self: @TState) -> ByteArray;
-    fn symbol(self: @TState) -> ByteArray;
+    // IERC1155MetadataURI
     fn uri(self: @TState, token_id: u256) -> ByteArray;
 
-    // IERC1155CamelOnly
+    // IERC1155Camel
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
         self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>

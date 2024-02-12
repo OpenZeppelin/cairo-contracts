@@ -8,13 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Added
-
-- Ownable two-step functionality (#809)
-
 ### Changed
 
-- OwnershipTransferred event args are indexed (#809)
+- Change unwrap to unwrap_syscall (#901)
+- ABI implementations (mixins) in components (#863)
 
 ## 0.9.0 (2024-02-08)
 

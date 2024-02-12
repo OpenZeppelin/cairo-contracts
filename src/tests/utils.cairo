@@ -1,13 +1,14 @@
 mod constants;
 
 use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 use starknet::testing;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     let (address, _) = starknet::deploy_syscall(
         contract_class_hash.try_into().unwrap(), 0, calldata.span(), false
     )
-        .unwrap();
+        .unwrap_syscall();
     address
 }
 

@@ -22,6 +22,7 @@ use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::eth_signature::Signature;
 use starknet::secp256k1::secp256k1_new_syscall;
@@ -609,6 +610,6 @@ fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKe
 }
 
 fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-    let (x, y) = public_key.get_coordinates().unwrap();
+    let (x, y) = public_key.get_coordinates().unwrap_syscall();
     poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
 }

@@ -602,7 +602,7 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.8.1/src/presets/erc721.cairo[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC721;

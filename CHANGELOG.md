@@ -8,15 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Change unwrap to unwrap_syscall (#901)
+- Integrate ByteArray into ERC20 and ERC721 (#857)
+
+## 0.9.0 (2024-02-08)
+
 ### Added
 
 - EthAccount component and preset (#853)
+- Ownable two-step functionality (#809)
 
 ### Changed
 
 - Bump scarb to v2.4.4 (#853)
 - Bump scarb to v2.5.3 (#898)
-- Integrate ByteArray into ERC20 and ERC721 (#857)
+- OwnershipTransferred event args are indexed (#809)
 
 ### Removed
 

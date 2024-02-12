@@ -148,6 +148,7 @@ mod CamelEthAccountMock {
 mod SnakeEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use starknet::SyscallResultTrait;
     use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
@@ -161,11 +162,11 @@ mod SnakeEthAccountPanicMock {
             panic!("Some error");
         }
 
-        #[external(v0)]
-        fn get_public_key(self: @ContractState) -> EthPublicKey {
-            panic!("Some error");
-            secp256k1_new_syscall(3, 3).unwrap().unwrap()
-        }
+    #[external(v0)]
+    fn get_public_key(self: @ContractState) -> EthPublicKey {
+        panic!("Some error");
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
+    }
 
         #[external(v0)]
         fn is_valid_signature(
@@ -187,6 +188,7 @@ mod SnakeEthAccountPanicMock {
 mod CamelEthAccountPanicMock {
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use starknet::SyscallResultTrait;
     use starknet::secp256k1::secp256k1_new_syscall;
 
     #[storage]
@@ -200,11 +202,11 @@ mod CamelEthAccountPanicMock {
             panic!("Some error");
         }
 
-        #[external(v0)]
-        fn getPublicKey(self: @ContractState) -> EthPublicKey {
-            panic!("Some error");
-            secp256k1_new_syscall(3, 3).unwrap().unwrap()
-        }
+    #[external(v0)]
+    fn getPublicKey(self: @ContractState) -> EthPublicKey {
+        panic!("Some error");
+        secp256k1_new_syscall(3, 3).unwrap_syscall().unwrap()
+    }
 
         #[external(v0)]
         fn isValidSignature(

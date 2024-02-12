@@ -28,6 +28,7 @@ trait OwnableABI<TState> {
     fn renounceOwnership(ref self: TState);
 }
 
+#[starknet::interface]
 trait IOwnableTwoStep<TState> {
     fn owner(self: @TState) -> ContractAddress;
     fn pending_owner(self: @TState) -> ContractAddress;

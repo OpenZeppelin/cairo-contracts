@@ -175,6 +175,7 @@ mod CamelERC721Mock {
             self.erc721.name()
         }
 
+        #[external(v0)]
         fn symbol(self: @ContractState) -> felt252 {
             self.erc721.symbol()
         }

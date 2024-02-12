@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (account/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (account/utils/signature.cairo)
 
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::interface::EthPublicKey;
@@ -8,6 +8,11 @@ use starknet::eth_signature::Signature;
 use starknet::secp256_trait::{is_signature_entry_valid, recover_public_key};
 use starknet::secp256k1::Secp256k1Point;
 
+/// This function assumes the `s` component of the signature to be positive 
+/// for efficiency reasons. It is not recommended to use it other than for
+/// validating account signatures over transaction hashes since otherwise
+/// it's not protected against signature malleability.
+/// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
 fn is_valid_stark_signature(
     msg_hash: felt252, public_key: felt252, signature: Span<felt252>
 ) -> bool {
@@ -20,6 +25,11 @@ fn is_valid_stark_signature(
     }
 }
 
+/// This function assumes the `s` component of the signature to be positive 
+/// for efficiency reasons. It is not recommended to use it other than for
+/// validating account signatures over transaction hashes since otherwise
+/// it's not protected against signature malleability.
+/// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
 fn is_valid_eth_signature(
     msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
 ) -> bool {

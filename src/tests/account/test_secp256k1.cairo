@@ -53,10 +53,10 @@ fn test_unpack_big_secp256k1_points() {
 
     // Check point 2
 
-    let (expected_x, expected_y) = big_point_2.get_coordinates().unwrap();
+    let (expected_x, _) = big_point_2.get_coordinates().unwrap();
 
     let (xlow, xhigh_and_parity) = StorePacking::pack(big_point_2);
-    let (x, y) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap();
+    let (x, _) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap();
 
     assert_eq!(x, expected_x);
     assert_eq!(y, expected_y);

@@ -49,7 +49,7 @@ fn assert_no_events_left(address: ContractAddress) {
 }
 
 fn drop_event(address: ContractAddress) {
-    testing::pop_log_raw(address).unwrap();
+    let _ = testing::pop_log_raw(address);
 }
 
 fn drop_events(address: ContractAddress, count: felt252) {

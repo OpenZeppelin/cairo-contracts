@@ -46,11 +46,7 @@ mod DualCaseERC1155ReceiverMock {
         value: u256,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
     }
 
     #[external(v0)]
@@ -62,11 +58,7 @@ mod DualCaseERC1155ReceiverMock {
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
     }
 }
 
@@ -120,11 +112,7 @@ mod SnakeERC1155ReceiverMock {
         value: u256,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
     }
 
     #[external(v0)]
@@ -136,11 +124,7 @@ mod SnakeERC1155ReceiverMock {
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
     }
 }
 
@@ -195,11 +179,7 @@ mod CamelERC1155ReceiverMock {
         value: u256,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.onERC1155Received(operator, from, tokenId, value, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.onERC1155Received(operator, from, tokenId, value, data)
     }
 
     #[external(v0)]
@@ -211,11 +191,7 @@ mod CamelERC1155ReceiverMock {
         values: Span<u256>,
         data: Span<felt252>
     ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc1155_receiver.onERC1155BatchReceived(operator, from, tokenIds, values, data)
-        } else {
-            0
-        }
+        self.erc1155_receiver.onERC1155BatchReceived(operator, from, tokenIds, values, data)
     }
 }
 

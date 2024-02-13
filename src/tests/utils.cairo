@@ -11,6 +11,16 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
     address
 }
 
+fn deploy_with_salt(
+    contract_class_hash: felt252, calldata: Array<felt252>, salt: felt252
+) -> ContractAddress {
+    let (address, _) = starknet::deploy_syscall(
+        contract_class_hash.try_into().unwrap(), salt, calldata.span(), false
+    )
+        .unwrap();
+    address
+}
+
 /// Pop the earliest unpopped logged event for the contract as the requested type
 /// and checks there's no more keys or data left on the event, preventing unaccounted params.
 ///

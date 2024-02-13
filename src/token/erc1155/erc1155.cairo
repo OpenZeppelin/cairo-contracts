@@ -86,10 +86,10 @@ mod ERC1155Component {
     mod Errors {
         const INVALID_ACCOUNT: felt252 = 'ERC1155: invalid account';
         const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
-        const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized caller';
+        const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';
-        const INVALID_SENDER: felt252 = 'ERC1155: wrong sender';
+        const INVALID_SENDER: felt252 = 'ERC1155: invalid sender';
         const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: no equal array length';
         const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
     }
@@ -327,7 +327,7 @@ mod ERC1155Component {
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
-            src5_component.register_interface(interface::IERC1155_METADATA_ID);
+            src5_component.register_interface(interface::IERC1155_METADATA_URI_ID);
         }
 
         /// Transfers a `value` amount of tokens of type `id` from `from` to `to`.
@@ -464,14 +464,11 @@ mod ERC1155Component {
             token_id: u256,
             value: u256
         ) {
-            assert(from.is_non_zero(), Errors::INVALID_RECEIVER);
+            assert(from.is_non_zero(), Errors::INVALID_SENDER);
 
             let token_ids = array![token_id].span();
             let values = array![value].span();
-            self
-                .update_with_acceptance_check(
-                    from, Zeroable::zero(), token_ids, values, array![].span()
-                );
+            self.update(from, Zeroable::zero(), token_ids, values);
         }
 
         /// Batched version of `burn`.
@@ -489,11 +486,8 @@ mod ERC1155Component {
             token_ids: Span<u256>,
             values: Span<u256>
         ) {
-            assert(from.is_non_zero(), Errors::INVALID_RECEIVER);
-            self
-                .update_with_acceptance_check(
-                    from, Zeroable::zero(), token_ids, values, array![].span()
-                );
+            assert(from.is_non_zero(), Errors::INVALID_SENDER);
+            self.update(from, Zeroable::zero(), token_ids, values);
         }
     }
 
@@ -511,6 +505,7 @@ mod ERC1155Component {
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         };
+
         assert(accepted, Errors::INVALID_RECEIVER);
     }
 

@@ -3,7 +3,7 @@
 :fungible-tokens: https://docs.openzeppelin.com/contracts/4.x/tokens#different-kinds-of-tokens[fungible tokens]
 :eip20: https://eips.ethereum.org/EIPS/eip-20[EIP-20]
 :version: https://github.com/OpenZeppelin/cairo-contracts/releases/tag/v0.7.0[Contracts v0.7.0]
-:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
+:custom-decimals: xref:./erc20.adoc#customizing-decimals[Customizing decimals]
 
 The ERC20 token standard is a specification for {fungible-tokens}, a type of token where all the units are exactly equal to each other.
 `token::erc20::ERC20Component` provides an approximation of {eip20} in Cairo for Starknet.
@@ -14,8 +14,8 @@ See the {custom-decimals} guide.
 
 == Interface
 
-:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
-:erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
+:dual-interfaces: xref:./interfaces.adoc#dual-interfaces[Dual interfaces]
+:erc20-supply: xref:./guides/erc20-supply.adoc[Creating ERC20 Supply]
 
 The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
 The interface includes the `IERC20` standard interface as well as `IERC20Camel` for backwards compatibility.
@@ -52,7 +52,7 @@ trait ERC20ABI {
 
 :cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]
 :solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
-:dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
+:dual-interface: xref:./interfaces.adoc#dual-interfaces[dual interface]
 
 Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC20 token standard.
 Some notable differences, however, can still be found, such as:
@@ -64,7 +64,7 @@ Some notable differences, however, can still be found, such as:
 
 == Usage
 
-:erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
+:erc20-supply: xref:./guides/erc20-supply.adoc[Creating ERC20 Supply]
 
 Using Contracts for Cairo, constructing an ERC20 contract requires setting up the constructor and instantiating the token implementation.
 Here's what that looks like:

@@ -6,7 +6,11 @@ mod DualCaseERC20Mock {
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
-    impl ERC20ABIImpl = ERC20Component::ERC20ABIImpl<ContractState>;
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]

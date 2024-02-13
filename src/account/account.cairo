@@ -188,7 +188,7 @@ mod AccountComponent {
         +Drop<TContractState>
     > of interface::IPublicKeyCamel<ComponentState<TContractState>> {
         fn getPublicKey(self: @ComponentState<TContractState>) -> felt252 {
-            PublicKey::get_public_key(self)
+            self.Account_public_key.read()
         }
 
         fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {

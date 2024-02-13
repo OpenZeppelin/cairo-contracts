@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Change unwrap to unwrap_syscall (#901)
+
+## 0.9.0 (2024-02-08)
+
 ### Added
 
 - EthAccount component and preset (#853)

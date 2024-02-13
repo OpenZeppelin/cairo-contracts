@@ -14,8 +14,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.OPENZEPPELIN_ORG_GITHUB_PAT }}
 
     - name: Extract current version
       run: |
@@ -29,8 +27,9 @@ jobs:
       run: |
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
+        ESCAPED_CURRENT_VERSION=$(echo $CURRENT_VERSION | sed 's/\./\\./g')
         find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
-          -not -path './RELEASING.md' -exec sed -i "s/$CURRENT_VERSION/$NEW_VERSION/g" {} +
+          -not -path './RELEASING.md' -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
     - name: Setup scarb
       uses: software-mansion/setup-scarb@v1

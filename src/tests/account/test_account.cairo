@@ -245,7 +245,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(recipient);
     calldata.append_serde(amount);
     let call = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata.span()
     };
     let mut calls = array![];
     calls.append(call);
@@ -334,7 +334,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
     };
 
     // Craft call2
@@ -343,7 +343,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2.span()
     };
 
     // Bundle calls and exeute
@@ -539,7 +539,7 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerRemoved>(contract, selector!("OwnerRemoved")).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     assert_eq!(event.removed_owner_guid, removed_owner_guid);
 
     // Check indexed keys
@@ -548,7 +548,7 @@ fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: fel
 }
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerAdded>(contract, selector!("OwnerAdded")).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     assert_eq!(event.new_owner_guid, new_owner_guid);
 
     // Check indexed keys

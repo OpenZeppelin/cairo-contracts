@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (presets/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (presets/erc20.cairo)
 
 /// # ERC20 Preset
 ///
@@ -18,12 +18,7 @@ mod ERC20 {
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl SafeAllowanceImpl = ERC20Component::SafeAllowanceImpl<ContractState>;
-    #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl SafeAllowanceCamelImpl =
-        ERC20Component::SafeAllowanceCamelImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]

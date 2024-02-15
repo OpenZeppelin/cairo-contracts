@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (presets/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (presets/account.cairo)
 
 /// # Account Preset
 ///
 /// OpenZeppelin's basic account which can change its public key and declare, deploy, or call contracts.
-#[starknet::contract]
+#[starknet::contract(account)]
 mod Account {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;

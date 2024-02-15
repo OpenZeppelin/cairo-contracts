@@ -1,14 +1,14 @@
 mod constants;
-mod debug;
 
 use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 use starknet::testing;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     let (address, _) = starknet::deploy_syscall(
         contract_class_hash.try_into().unwrap(), 0, calldata.span(), false
     )
-        .unwrap();
+        .unwrap_syscall();
     address
 }
 
@@ -20,14 +20,11 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 ///
 /// This method doesn't currently work for components events that are not flattened
 /// because an extra key is added, pushing the event ID key to the second position.
-fn pop_log<T, +Drop<T>, +starknet::Event<T>>(
-    address: ContractAddress, event_id: felt252
-) -> Option<T> {
+fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option<T> {
     let (mut keys, mut data) = testing::pop_log_raw(address)?;
 
     // Remove the event ID from the keys
-    let popped_id = keys.pop_front().unwrap();
-    assert_eq!(event_id, *popped_id);
+    let _ = keys.pop_front();
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
     assert!(data.is_empty(), "Event has extra data");
@@ -52,7 +49,7 @@ fn assert_no_events_left(address: ContractAddress) {
 }
 
 fn drop_event(address: ContractAddress) {
-    testing::pop_log_raw(address);
+    let _ = testing::pop_log_raw(address);
 }
 
 fn drop_events(address: ContractAddress, count: felt252) {

@@ -1,8 +1,8 @@
 [package]
 name = "openzeppelin"
-version = "0.8.1"
+version = "0.9.0"
 edition = "2023_01"
-cairo-version = "2.4.4"
+cairo-version = "2.5.3"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -12,7 +12,7 @@ license-file = "LICENSE"
 keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
 
 [dependencies]
-starknet = "2.4.4"
+starknet = "2.5.3"
 
 [lib]
 

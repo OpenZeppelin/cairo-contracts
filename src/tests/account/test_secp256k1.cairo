@@ -40,24 +40,23 @@ fn test_pack_big_secp256k1_points() {
 #[test]
 fn test_unpack_big_secp256k1_points() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     // Check point 1
 
-    let (expected_x, expected_y) = big_point_1.get_coordinates().unwrap();
+    let (expected_x, expected_y) = big_point_1.get_coordinates().unwrap_syscall();
 
     let (xlow, xhigh_and_parity) = StorePacking::pack(big_point_1);
-    let (x, y) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap();
+    let (x, y) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap_syscall();
 
     assert_eq!(x, expected_x);
     assert_eq!(y, expected_y);
 
     // Check point 2
 
-    let (expected_x, expected_y) = big_point_2.get_coordinates().unwrap();
+    let (expected_x, _) = big_point_2.get_coordinates().unwrap_syscall();
 
     let (xlow, xhigh_and_parity) = StorePacking::pack(big_point_2);
-    let (x, y) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap();
+    let (x, _) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap_syscall();
 
     assert_eq!(x, expected_x);
 }
@@ -65,7 +64,6 @@ fn test_unpack_big_secp256k1_points() {
 #[test]
 fn test_secp256k1_serialization() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     let mut serialized_point = array![];
     let mut expected_serialization = array![];
@@ -73,14 +71,14 @@ fn test_secp256k1_serialization() {
     // Check point 1
 
     big_point_1.serialize(ref serialized_point);
-    big_point_1.get_coordinates().unwrap().serialize(ref expected_serialization);
+    big_point_1.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
 
     assert!(serialized_point == expected_serialization);
 
     // Check point 2
 
     big_point_2.serialize(ref serialized_point);
-    big_point_2.get_coordinates().unwrap().serialize(ref expected_serialization);
+    big_point_2.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
 
     assert!(serialized_point == expected_serialization);
 }
@@ -88,13 +86,12 @@ fn test_secp256k1_serialization() {
 #[test]
 fn test_secp256k1_deserialization() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
 
     // Check point 1
 
     let mut expected_serialization = array![];
 
-    big_point_1.get_coordinates().unwrap().serialize(ref expected_serialization);
+    big_point_1.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
     let mut expected_serialization = expected_serialization.span();
     let deserialized_point = Secp256k1PointSerde::deserialize(ref expected_serialization).unwrap();
 
@@ -104,7 +101,7 @@ fn test_secp256k1_deserialization() {
 
     let mut expected_serialization = array![];
 
-    big_point_2.get_coordinates().unwrap().serialize(ref expected_serialization);
+    big_point_2.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
     let mut expected_serialization = expected_serialization.span();
     let deserialized_point = Secp256k1PointSerde::deserialize(ref expected_serialization).unwrap();
 

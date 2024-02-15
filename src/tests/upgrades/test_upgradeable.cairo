@@ -5,7 +5,6 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
     IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait, UpgradesV2
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
-use openzeppelin::tests::utils::debug::DebugClassHash;
 use openzeppelin::tests::utils;
 use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
 use starknet::ClassHash;
@@ -88,7 +87,7 @@ fn test_remove_selector_fails_in_v2() {
 //
 
 fn assert_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
-    let event = utils::pop_log::<Upgraded>(contract, selector!("Upgraded")).unwrap();
+    let event = utils::pop_log::<Upgraded>(contract).unwrap();
     assert!(event.class_hash == class_hash);
 }
 

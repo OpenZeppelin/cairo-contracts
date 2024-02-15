@@ -3,12 +3,10 @@ use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin::token::erc20::ERC20Component::{SafeAllowanceImpl, SafeAllowanceCamelImpl};
 use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
@@ -358,134 +356,6 @@ fn test_transferFrom_from_zero_address() {
 }
 
 //
-// increase_allowance & increaseAllowance
-//
-
-#[test]
-fn test_increase_allowance() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
-
-    assert!(state.increase_allowance(SPENDER(), VALUE));
-
-    assert_only_event_approval(OWNER(), SPENDER(), VALUE * 2);
-
-    let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, VALUE * 2);
-}
-
-#[test]
-#[should_panic(expected: ('ERC20: approve to 0',))]
-fn test_increase_allowance_to_zero_address() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.increase_allowance(ZERO(), VALUE);
-}
-
-#[test]
-#[should_panic(expected: ('ERC20: approve from 0',))]
-fn test_increase_allowance_from_zero_address() {
-    let mut state = setup();
-    state.increase_allowance(SPENDER(), VALUE);
-}
-
-#[test]
-fn test_increaseAllowance() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
-
-    assert!(state.increaseAllowance(SPENDER(), VALUE));
-
-    assert_only_event_approval(OWNER(), SPENDER(), 2 * VALUE);
-
-    let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, VALUE * 2);
-}
-
-#[test]
-#[should_panic(expected: ('ERC20: approve to 0',))]
-fn test_increaseAllowance_to_zero_address() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.increaseAllowance(ZERO(), VALUE);
-}
-
-#[test]
-#[should_panic(expected: ('ERC20: approve from 0',))]
-fn test_increaseAllowance_from_zero_address() {
-    let mut state = setup();
-    state.increaseAllowance(SPENDER(), VALUE);
-}
-
-//
-// decrease_allowance & decreaseAllowance
-//
-
-#[test]
-fn test_decrease_allowance() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
-
-    assert!(state.decrease_allowance(SPENDER(), VALUE));
-
-    assert_only_event_approval(OWNER(), SPENDER(), 0);
-
-    let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, 0);
-}
-
-#[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
-fn test_decrease_allowance_to_zero_address() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.decrease_allowance(ZERO(), VALUE);
-}
-
-#[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
-fn test_decrease_allowance_from_zero_address() {
-    let mut state = setup();
-    state.decrease_allowance(SPENDER(), VALUE);
-}
-
-#[test]
-fn test_decreaseAllowance() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
-
-    assert!(state.decreaseAllowance(SPENDER(), VALUE));
-
-    assert_only_event_approval(OWNER(), SPENDER(), 0);
-
-    let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, 0);
-}
-
-#[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
-fn test_decreaseAllowance_to_zero_address() {
-    let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.decreaseAllowance(ZERO(), VALUE);
-}
-
-#[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
-fn test_decreaseAllowance_from_zero_address() {
-    let mut state = setup();
-    state.decreaseAllowance(SPENDER(), VALUE);
-}
-
-//
 // _spend_allowance
 //
 
@@ -513,7 +383,7 @@ fn test__spend_allowance_unlimited() {
     state._spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
     let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(state.allowance(OWNER(), SPENDER()), BoundedInt::max());
+    assert_eq!(allowance, BoundedInt::max());
 }
 
 //
@@ -563,7 +433,7 @@ fn test__burn_from_zero() {
 //
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Approval>(ZERO(), selector!("Approval")).unwrap();
+    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.spender, spender);
     assert_eq!(event.value, value);
@@ -581,7 +451,7 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO(), selector!("Transfer")).unwrap();
+    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.value, value);

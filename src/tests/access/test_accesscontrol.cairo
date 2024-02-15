@@ -11,7 +11,6 @@ use openzeppelin::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -449,7 +448,7 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = utils::pop_log::<RoleRevoked>(ZERO(), selector!("RoleRevoked")).unwrap();
+    let event = utils::pop_log::<RoleRevoked>(ZERO()).unwrap();
     assert_eq!(event.role, role);
     assert_eq!(event.account, account);
     assert_eq!(event.sender, sender);
@@ -457,7 +456,7 @@ fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: Co
 }
 
 fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = utils::pop_log::<RoleGranted>(ZERO(), selector!("RoleGranted")).unwrap();
+    let event = utils::pop_log::<RoleGranted>(ZERO()).unwrap();
     assert_eq!(event.role, role);
     assert_eq!(event.account, account);
     assert_eq!(event.sender, sender);
@@ -467,7 +466,7 @@ fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: Co
 fn assert_event_role_admin_changed(
     role: felt252, previous_admin_role: felt252, new_admin_role: felt252
 ) {
-    let event = utils::pop_log::<RoleAdminChanged>(ZERO(), selector!("RoleAdminChanged")).unwrap();
+    let event = utils::pop_log::<RoleAdminChanged>(ZERO()).unwrap();
     assert_eq!(event.role, role);
     assert_eq!(event.previous_admin_role, previous_admin_role);
     assert_eq!(event.new_admin_role, new_admin_role);

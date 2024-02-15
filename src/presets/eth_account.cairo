@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
 /// OpenZeppelin's account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
-#[starknet::contract]
+#[starknet::contract(account)]
 mod EthAccountUpgradeable {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;
@@ -68,7 +68,7 @@ mod EthAccountUpgradeable {
         self.eth_account.initializer(public_key);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.eth_account.assert_only_self();

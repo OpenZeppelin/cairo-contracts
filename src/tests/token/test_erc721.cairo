@@ -12,7 +12,6 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
 };
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
@@ -150,7 +149,6 @@ fn test_get_approved_nonexistent() {
 #[test]
 fn test__exists() {
     let mut state = COMPONENT_STATE();
-    let zero = ZERO();
     let token_id = TOKEN_ID;
 
     let not_exists = !state._exists(token_id);
@@ -1288,7 +1286,7 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
 fn assert_event_approval_for_all(
     owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(ZERO(), selector!("ApprovalForAll")).unwrap();
+    let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.operator, operator);
     assert_eq!(event.approved, approved);
@@ -1302,7 +1300,7 @@ fn assert_event_approval_for_all(
 }
 
 fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<Approval>(ZERO(), selector!("Approval")).unwrap();
+    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
     assert_eq!(event.owner, owner);
     assert_eq!(event.approved, approved);
     assert_eq!(event.token_id, token_id);
@@ -1317,7 +1315,7 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO(), selector!("Transfer")).unwrap();
+    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
     assert_eq!(event.token_id, token_id);

@@ -3,7 +3,6 @@ use openzeppelin::security::PausableComponent::{Paused, Unpaused};
 use openzeppelin::security::PausableComponent;
 use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
 use openzeppelin::tests::utils::constants::{CALLER, ZERO};
-use openzeppelin::tests::utils::debug::DebugContractAddress;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -121,13 +120,13 @@ fn test_unpause_when_unpaused() {
 //
 
 fn assert_event_paused(account: ContractAddress) {
-    let event = utils::pop_log::<Paused>(ZERO(), selector!("Paused")).unwrap();
+    let event = utils::pop_log::<Paused>(ZERO()).unwrap();
     assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_unpaused(account: ContractAddress) {
-    let event = utils::pop_log::<Unpaused>(ZERO(), selector!("Unpaused")).unwrap();
+    let event = utils::pop_log::<Unpaused>(ZERO()).unwrap();
     assert_eq!(event.account, account);
     utils::assert_no_events_left(ZERO());
 }

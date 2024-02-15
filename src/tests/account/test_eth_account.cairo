@@ -22,6 +22,7 @@ use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
+use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::eth_signature::Signature;
 use starknet::secp256k1::secp256k1_new_syscall;
@@ -276,7 +277,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(recipient);
     calldata.append_serde(amount);
     let call = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata.span()
     };
     let mut calls = array![];
     calls.append(call);
@@ -349,7 +350,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
     };
 
     // Craft call2
@@ -358,7 +359,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2
+        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2.span()
     };
 
     // Bundle calls and exeute
@@ -584,7 +585,7 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerAdded>(contract, selector!("OwnerAdded")).unwrap();
+    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert_eq!(event.new_owner_guid, guid);
 
@@ -599,7 +600,7 @@ fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPubli
 }
 
 fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerRemoved>(contract, selector!("OwnerRemoved")).unwrap();
+    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
     let guid = get_guid_from_public_key(public_key);
     assert_eq!(event.removed_owner_guid, guid);
 
@@ -609,6 +610,6 @@ fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKe
 }
 
 fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-    let (x, y) = public_key.get_coordinates().unwrap();
+    let (x, y) = public_key.get_coordinates().unwrap_syscall();
     poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
 }

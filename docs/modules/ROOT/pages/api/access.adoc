@@ -63,11 +63,11 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-two-step-renounceOwnership[`++renounceOwnership(self)++`]
 --
 
-[.contract-index#OwnableComponent-ABI-Impl]
-.Embeddable ABI Implementation
+[.contract-index#OwnableComponent-Mixin-Impl]
+.Embeddable Mixin Implementation
 
 --
-.OwnableABIImpl
+.OwnableMixinImpl
 
 * xref:#OwnableComponent-Embeddable-Impls[`++OwnableImpl++`]
 * xref:#OwnableComponent-Embeddable-Impls-camelCase[`++OwnableCamelOnlyImpl++`]
@@ -471,11 +471,11 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-renounceRole[`++renounceRole(self, role, account)++`]
 --
 
-[.contract-index#AccessControl-ABI-Impl]
-.Embeddable ABI Implementation
+[.contract-index#AccessControl-Mixin-Impl]
+.Embeddable Mixin Implementation
 
 --
-.AccessControlABIImpl
+.AccessControlMixinImpl
 
 * xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlImpl++`]
 * xref:#AccessControlComponent-Embeddable-Impls-camelCase[`++AccessControlCamelImpl++`]

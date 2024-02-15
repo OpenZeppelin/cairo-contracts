@@ -194,16 +194,14 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
 --
 
-[.contract-index#ERC20Component-Embeddable-ABI-Impl]
-.Embeddable ABI implementation
+[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
+.Embeddable Mixin implementation
 
 --
-.ERC20ABIImpl
+.ERC20MixinImpl
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++SafeAllowanceImpl++`]
 * xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-camelCase[`++SafeAllowanceCamelImpl++`]
 --
 
 [.contract-index]
@@ -444,7 +442,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Embedded Implementations
 --
-.ERC20ABIImpl
+.ERC20MixinImpl
 
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
 * xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]

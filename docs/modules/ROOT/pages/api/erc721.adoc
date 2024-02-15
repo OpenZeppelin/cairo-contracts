@@ -225,11 +225,11 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
 --
 
-[.contract-index#ERC721Component-Embeddable-ABI-Impl]
-.Embeddable ABI implementation
+[.contract-index#ERC721Component-Embeddable-Mixin-Impl]
+.Embeddable Mixin implementation
 
 --
-.ERC721ABIImpl
+.ERC721MixinImpl
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
 * xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnlyImpl++`]
@@ -639,7 +639,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Embedded Implementations
 --
-.ERC721ABIImpl
+.ERC721MixinImpl
 
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]

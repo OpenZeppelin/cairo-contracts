@@ -112,11 +112,11 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
 --
 
-[.contract-index#AccountComponent-Embeddable-ABI-Impl]
-.Embeddable ABI Implementation
+[.contract-index#AccountComponent-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
 
 --
-.AccountABIImpl
+.AccountMixinImpl
 
 * xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
 * xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
@@ -327,6 +327,21 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 
 * xref:#EthAccountComponent-getPublicKey[`++getPublicKey(self)++`]
 * xref:#EthAccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+--
+
+[.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
+
+--
+.EthAccountMixinImpl
+
+* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
 [.contract-index]

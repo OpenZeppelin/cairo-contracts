@@ -21,7 +21,7 @@ mod EthAccountUpgradeable {
 
     // EthAccount
     #[abi(embed_v0)]
-    impl EthAccountABIImpl = EthAccountComponent::EthAccountABIImpl<ContractState>;
+    impl EthAccountABIImpl = EthAccountComponent::EthAccountMixinImpl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     // Upgradeable

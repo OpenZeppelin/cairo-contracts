@@ -6,7 +6,7 @@ mod DualCaseOwnableMock {
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableABIImpl = OwnableComponent::OwnableABIImpl<ContractState>;
+    impl OwnableABIImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]

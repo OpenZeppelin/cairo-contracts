@@ -262,8 +262,8 @@ mod EthAccountComponent {
         poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 
-    #[embeddable_as(EthAccountABIImpl)]
-    impl EthAccountABI<
+    #[embeddable_as(EthAccountMixinImpl)]
+    impl EthAccountMixin<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

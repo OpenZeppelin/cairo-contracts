@@ -229,8 +229,8 @@ mod OwnableComponent {
         }
     }
 
-    #[embeddable_as(OwnableABIImpl)]
-    impl OwnableABI<
+    #[embeddable_as(OwnableMixinImpl)]
+    impl OwnableMixin<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of interface::OwnableABI<ComponentState<TContractState>> {
         // IOwnable

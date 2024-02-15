@@ -247,8 +247,8 @@ mod AccountComponent {
         }
     }
 
-    #[embeddable_as(AccountABIImpl)]
-    impl AccountABI<
+    #[embeddable_as(AccountMixinImpl)]
+    impl AccountMixin<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

@@ -14,7 +14,7 @@ mod Account {
 
     // Account
     #[abi(embed_v0)]
-    impl AccountABIImpl = AccountComponent::AccountABIImpl<ContractState>;
+    impl AccountABIImpl = AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     #[storage]

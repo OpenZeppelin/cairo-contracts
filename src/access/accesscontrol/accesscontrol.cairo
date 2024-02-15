@@ -236,8 +236,8 @@ mod AccessControlComponent {
         }
     }
 
-    #[embeddable_as(AccessControlABIImpl)]
-    impl AccessControlABI<
+    #[embeddable_as(AccessControlMixinImpl)]
+    impl AccessControlMixin<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

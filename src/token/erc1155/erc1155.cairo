@@ -165,7 +165,6 @@ mod ERC1155Component {
             value: u256,
             data: Span<felt252>
         ) {
-            println!("ericcvsd");
             let token_ids = array![token_id].span();
             let values = array![value].span();
             self.safe_batch_transfer_from(from, to, token_ids, values, data)

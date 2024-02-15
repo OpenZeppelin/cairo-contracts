@@ -1,4 +1,3 @@
-use core::array::ArrayTrait;
 use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
     CamelERC1155ReceiverMock, CamelERC1155ReceiverPanicMock, SnakeERC1155ReceiverMock,
     SnakeERC1155ReceiverPanicMock
@@ -63,20 +62,14 @@ fn setup_erc1155_receiver_panic() -> (DualCaseERC1155Receiver, DualCaseERC1155Re
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_on_erc1155_received() {
     let (dispatcher, _) = setup_snake();
-    assert(
-        dispatcher
-            .on_erc1155_received(
-                OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)
-            ) == IERC1155_RECEIVER_ID,
-        'Should return interface id'
-    );
+    let result = dispatcher
+        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    assert_eq!(result, IERC1155_RECEIVER_ID,);
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_on_erc1155_received() {
     let dispatcher = setup_non_erc1155_receiver();
@@ -84,66 +77,81 @@ fn test_dual_no_on_erc1155_received() {
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_on_erc1155_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_receiver_panic();
     dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_on_erc1155_batch_received() {
     let (dispatcher, _) = setup_snake();
-    let token_ids = array![TOKEN_ID, TOKEN_ID];
-    let values = array![TOKEN_VALUE, TOKEN_VALUE];
-    assert(
-        dispatcher
-            .on_erc1155_batch_received(
-                OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)
-            ) == IERC1155_RECEIVER_ID,
-        'Should return interface id'
-    );
+    let (token_ids, values) = get_ids_and_values();
+
+    let result = dispatcher
+        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+    assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+fn test_dual_no_on_erc1155_batch_received() {
+    let dispatcher = setup_non_erc1155_receiver();
+    let (token_ids, values) = get_ids_and_values();
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+}
+
+#[test]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+fn test_dual_on_erc1155_batch_received_exists_and_panics() {
+    let (dispatcher, _) = setup_erc1155_receiver_panic();
+    let (token_ids, values) = get_ids_and_values();
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+}
 
 //
 // camelCase target
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_onERC1155Received() {
     let (dispatcher, _) = setup_camel();
-    assert(
-        dispatcher
-            .on_erc1155_received(
-                OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true)
-            ) == IERC1155_RECEIVER_ID,
-        'Should return interface id'
-    );
+    let result = dispatcher
+        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('Some error', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_onERC1155Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_receiver_panic();
     dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_dual_onERC1155BatchReceived() {
     let (dispatcher, _) = setup_camel();
-    let token_ids = array![TOKEN_ID, TOKEN_ID];
-    let values = array![TOKEN_VALUE, TOKEN_VALUE];
-    assert(
-        dispatcher
-            .on_erc1155_batch_received(
-                OPERATOR(), OWNER(), token_ids.span(), values.span(), DATA(true)
-            ) == IERC1155_RECEIVER_ID,
-        'Should return interface id'
-    );
+    let (token_ids, values) = get_ids_and_values();
+
+    let result = dispatcher
+        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+    assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
+#[test]
+#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+fn test_dual_onERC1155BatchReceived_exists_and_panics() {
+    let (_, dispatcher) = setup_erc1155_receiver_panic();
+    let (token_ids, values) = get_ids_and_values();
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+}
+
+//
+// Helpers
+//
+
+fn get_ids_and_values() -> (Span<u256>, Span<u256>) {
+    let token_ids = array![TOKEN_ID, TOKEN_ID].span();
+    let values = array![TOKEN_VALUE, TOKEN_VALUE].span();
+    (token_ids, values)
+}

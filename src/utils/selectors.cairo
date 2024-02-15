@@ -62,15 +62,13 @@ const onERC721Received: felt252 = selector!("onERC721Received");
 //
 
 // The following ERC1155 selectors are already defined in ERC721 above:
-// balance_of, balanceOf, transfer_from, transferFrom, approve, set_approval_for_all,
+// balance_of, balanceOf, set_approval_for_all,
 // setApprovalForAll, safe_transfer_from, safeTransferFrom
 const uri: felt252 = selector!("uri");
 const balance_of_batch: felt252 = selector!("balance_of_batch");
 const balanceOfBatch: felt252 = selector!("balanceOfBatch");
 const safe_batch_transfer_from: felt252 = selector!("safe_batch_transfer_from");
 const safeBatchTransferFrom: felt252 = selector!("safeBatchTransferFrom");
-const batch_transfer_from: felt252 = selector!("batch_transfer_from");
-const batchTransferFrom: felt252 = selector!("batchTransferFrom");
 
 //
 // ERC1155Receiver

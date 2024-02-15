@@ -96,7 +96,9 @@ fn test_dual_name_exists_and_panics() {
 #[test]
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
+    let (camel_dispatcher, _) = setup_camel();
     assert_eq!(snake_dispatcher.symbol(), SYMBOL);
+    assert_eq!(camel_dispatcher.symbol(), SYMBOL);
 }
 
 #[test]

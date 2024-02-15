@@ -73,18 +73,17 @@ mod ERC1155Component {
 
     /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
     ///
-    /// If an `URI` event was emitted for `id`, the standard
-    /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[guarantees] that `value` will equal the value
+    /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the value
     /// returned by `IERC1155MetadataURI::uri`.
+    /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
     #[derive(Drop, starknet::Event)]
     struct URI {
+        value: ByteArray,
         #[key]
-        id: u256,
-        value: ByteArray
+        id: u256
     }
 
     mod Errors {
-        const INVALID_ACCOUNT: felt252 = 'ERC1155: invalid account';
         const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
@@ -92,6 +91,7 @@ mod ERC1155Component {
         const INVALID_SENDER: felt252 = 'ERC1155: invalid sender';
         const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: no equal array length';
         const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
+        const SAFE_TRANSFER_FAILED: felt252 = 'ERC1155: safe transfer failed';
     }
 
     //
@@ -165,6 +165,7 @@ mod ERC1155Component {
             value: u256,
             data: Span<felt252>
         ) {
+            println!("ericcvsd");
             let token_ids = array![token_id].span();
             let values = array![value].span();
             self.safe_batch_transfer_from(from, to, token_ids, values, data)
@@ -212,7 +213,6 @@ mod ERC1155Component {
         /// Requirements:
         ///
         /// - `operator` cannot be the caller.
-        /// - `operator` cannot be the zero address.
         ///
         /// Emits an `ApprovalForAll` event.
         fn set_approval_for_all(
@@ -220,7 +220,6 @@ mod ERC1155Component {
         ) {
             let owner = get_caller_address();
             assert(owner != operator, Errors::SELF_APPROVAL);
-            assert(operator.is_non_zero(), Errors::INVALID_OPERATOR);
 
             self.ERC1155_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { account: owner, operator, approved });
@@ -323,7 +322,7 @@ mod ERC1155Component {
         /// Initializes the contract by setting the token uri.
         /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, uri: ByteArray) {
-            self.ERC1155_uri.write(uri);
+            self.set_uri(uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
@@ -339,7 +338,7 @@ mod ERC1155Component {
         ///
         /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
         ///
-        /// NOTE: The ERC-1155 acceptance check is not performed in this function.
+        /// NOTE: The ERC1155 acceptance check is not performed in this function.
         /// See `update_with_acceptance_check` instead.
         fn update(
             ref self: ComponentState<TContractState>,
@@ -368,7 +367,6 @@ mod ERC1155Component {
                 }
                 index += 1;
             };
-
             let operator = get_caller_address();
             if token_ids.len() == 1 {
                 self
@@ -384,7 +382,7 @@ mod ERC1155Component {
 
         /// Version of `update` that performs the token acceptance check by calling
         /// `IERC1155Receiver-onERC1155Received` or `IERC1155Receiver-onERC1155BatchReceived` if
-        /// the receiver is not reconized as an account.
+        /// the receiver is not recognized as an account.
         ///
         /// Requirements:
         ///
@@ -489,10 +487,30 @@ mod ERC1155Component {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
             self.update(from, Zeroable::zero(), token_ids, values);
         }
+
+        /// Sets a new URI for all token types, by relying on the token type ID
+        /// substitution mechanism defined in the ERC1155 standard.
+        /// See https://eips.ethereum.org/EIPS/eip-1155#metadata.
+        ///
+        /// By this mechanism, any occurrence of the `\{id\}` substring in either the
+        /// URI or any of the values in the JSON file at said URI will be replaced by
+        /// clients with the token type ID.
+        ///
+        /// For example, the `https://token-cdn-domain/\{id\}.json` URI would be
+        /// interpreted by clients as
+        /// `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
+        /// for token type ID 0x4cce0.
+        ///
+        /// Because these URIs cannot be meaningfully represented by the `URI` event,
+        /// this function emits no events.
+        fn set_uri(ref self: ComponentState<TContractState>, uri: ByteArray) {
+            self.ERC1155_uri.write(uri);
+        }
     }
 
-    /// Checks if `to` either accepts the token either by implementing `IERC1155Receiver`
-    /// or if it's an account contract (supporting ISRC6). The transaction will fail if both are false.
+    /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
+    /// or if it's an account contract (supporting ISRC6).
+    /// The transaction will fail if both are false.
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
     ) {
@@ -506,11 +524,12 @@ mod ERC1155Component {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         };
 
-        assert(accepted, Errors::INVALID_RECEIVER);
+        assert(accepted, Errors::SAFE_TRANSFER_FAILED);
     }
 
-    /// Checks if `to` either accepts the token either by implementing `IERC1155Receiver`
-    /// or if it's an account contract (supporting ISRC6). The transaction will fail if both are false.
+    /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
+    /// or if it's an account contract (supporting ISRC6).
+    /// The transaction will fail if both are false.
     fn _check_on_ERC1155_batch_received(
         from: ContractAddress,
         to: ContractAddress,
@@ -527,6 +546,6 @@ mod ERC1155Component {
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
         };
-        assert(accepted, Errors::INVALID_RECEIVER);
+        assert(accepted, Errors::SAFE_TRANSFER_FAILED);
     }
 }

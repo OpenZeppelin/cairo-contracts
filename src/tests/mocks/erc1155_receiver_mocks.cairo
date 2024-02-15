@@ -211,7 +211,20 @@ mod SnakeERC1155ReceiverPanicMock {
         value: u256,
         data: Span<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
+        3
+    }
+
+    #[external(v0)]
+    fn on_erc1155_batch_received(
+        self: @ContractState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenIds: Span<u256>,
+        values: Span<u256>,
+        data: Span<felt252>
+    ) -> felt252 {
+        panic!("Some error");
         3
     }
 }
@@ -232,7 +245,20 @@ mod CamelERC1155ReceiverPanicMock {
         value: u256,
         data: Span<felt252>
     ) -> felt252 {
-        panic_with_felt252('Some error');
+        panic!("Some error");
+        3
+    }
+
+    #[external(v0)]
+    fn onERC1155BatchReceived(
+        self: @ContractState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenIds: Span<u256>,
+        values: Span<u256>,
+        data: Span<felt252>
+    ) -> felt252 {
+        panic!("Some error");
         3
     }
 }

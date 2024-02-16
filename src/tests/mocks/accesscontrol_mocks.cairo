@@ -215,10 +215,4 @@ mod CamelAccessControlPanicMock {
     fn renounceRole(ref self: ContractState, role: felt252, account: ContractAddress) {
         panic!("Some error");
     }
-
-    #[external(v0)]
-    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic!("Some error");
-        false
-    }
 }

@@ -5,6 +5,7 @@ use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
+use starknet::call_contract_syscall;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 
@@ -59,12 +60,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool {
         let args = array![interface_id];
 
-        try_selector_with_fallback(
-            *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
-            args.span()
-        )
+        call_contract_syscall(*self.contract_address, selectors::supports_interface, args.span())
             .unwrap_and_cast()
     }
 }

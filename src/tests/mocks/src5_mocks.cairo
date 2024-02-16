@@ -20,15 +20,3 @@ mod SRC5Mock {
         SRC5Event: SRC5Component::Event
     }
 }
-
-#[starknet::contract]
-mod SRC5PanicMock {
-    #[storage]
-    struct Storage {}
-
-    #[external(v0)]
-    fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-        panic!("Some error");
-        false
-    }
-}

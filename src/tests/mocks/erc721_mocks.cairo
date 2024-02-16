@@ -293,12 +293,6 @@ mod CamelERC721PanicMock {
     #[abi(per_item)]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            panic!("Some error");
-            false
-        }
-
-        #[external(v0)]
         fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             panic!("Some error");
             3

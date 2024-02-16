@@ -80,4 +80,3 @@ const getPublicKey: felt252 = selector!("getPublicKey");
 const is_valid_signature: felt252 = selector!("is_valid_signature");
 const isValidSignature: felt252 = selector!("isValidSignature");
 const supports_interface: felt252 = selector!("supports_interface");
-const supportsInterface: felt252 = selector!("supportsInterface");

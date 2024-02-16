@@ -205,10 +205,4 @@ mod CamelAccountPanicMock {
         panic!("Some error");
         3
     }
-
-    #[external(v0)]
-    fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-        panic!("Some error");
-        false
-    }
 }

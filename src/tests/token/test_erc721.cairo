@@ -1318,7 +1318,6 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
     let event = testing::pop_log::<ERC721Component::Event>(ZERO()).unwrap();
-    //let event = utils::pop_log::<ERC721Component::Event>(ZERO()).unwrap();
     let expected = ERC721Component::Event::Transfer(
         Transfer { from: from, to: to, token_id: token_id }
     );

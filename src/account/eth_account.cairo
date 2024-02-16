@@ -266,7 +266,8 @@ mod EthAccountComponent {
     impl EthAccountMixin<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        //+SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::EthAccountABI<ComponentState<TContractState>> {
         // ISRC6
@@ -333,8 +334,9 @@ mod EthAccountComponent {
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
             // TMP - until `get_dep_component!` supports snapshots
-            let contract = self.get_contract();
-            let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            //let contract = self.get_contract();
+            //let src5 = SRC5Component::HasComponent::<TContractState>::get_component(contract);
+            let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
         }
     }

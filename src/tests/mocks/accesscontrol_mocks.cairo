@@ -10,7 +10,7 @@ mod DualCaseAccessControlMock {
 
     // AccessControl
     #[abi(embed_v0)]
-    impl AccessControlABIImpl =
+    impl AccessControlMixinImpl =
         AccessControlComponent::AccessControlMixinImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 

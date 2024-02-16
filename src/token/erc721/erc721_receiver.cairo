@@ -78,13 +78,13 @@ mod ERC721ReceiverComponent {
         }
     }
 
-    #[embeddable_as(ERC721ReceiverABIImpl)]
-    impl ERC721ReceiverABI<
+    #[embeddable_as(ERC721ReceiverAMixinmpl)]
+    impl ERC721ReceiverMixin<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::ERC721ReceiverABI<ComponentState<TContractState>> {
+    > of interface::ERC721ReceiverMixin<ComponentState<TContractState>> {
         // IERC721Receiver
         fn on_erc721_received(
             self: @ComponentState<TContractState>,

@@ -475,11 +475,11 @@ fn test_safeBatchTransferFrom_approved_operator() {
     assert_only_event_approval_for_all(contract, owner, operator, true);
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
-// testing::set_contract_address(operator);
-// dispatcher.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-// assert_only_event_transfer_batch(contract, operator, owner, recipient, token_ids, values);
+    testing::set_contract_address(operator);
+    dispatcher.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_batch(contract, operator, owner, recipient, token_ids, values);
 
-// assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
+    assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
 }
 
 #[test]

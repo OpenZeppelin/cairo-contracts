@@ -89,9 +89,7 @@ fn test_remove_selector_fails_in_v2() {
 
 fn assert_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
     let event = utils::pop_log::<UpgradeableComponent::Event>(contract).unwrap();
-    let expected = UpgradeableComponent::Event::Upgraded(Upgraded {
-        class_hash: class_hash
-    });
+    let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash: class_hash });
     assert!(event == expected);
 }
 

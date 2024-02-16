@@ -343,10 +343,9 @@ fn assert_event_ownership_transfer_started(
     previous_owner: ContractAddress, new_owner: ContractAddress
 ) {
     let event = utils::pop_log::<OwnableComponent::Event>(ZERO()).unwrap();
-    let expected = OwnableComponent::Event::OwnershipTransferStarted(OwnershipTransferStarted {
-        previous_owner: previous_owner,
-        new_owner: new_owner
-    });
+    let expected = OwnableComponent::Event::OwnershipTransferStarted(
+        OwnershipTransferStarted { previous_owner: previous_owner, new_owner: new_owner }
+    );
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 

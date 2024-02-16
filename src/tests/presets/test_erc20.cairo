@@ -4,10 +4,10 @@ use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
+use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::token::erc20::interface::ERC20ABI;
 use openzeppelin::token::erc20::interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
@@ -299,11 +299,9 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Approval(Approval {
-        owner: owner,
-        spender: spender,
-        value: value
-    });
+    let expected = ERC20Component::Event::Approval(
+        Approval { owner: owner, spender: spender, value: value }
+    );
     assert!(event == expected);
 
     // Check indexed keys
@@ -324,11 +322,7 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Transfer(Transfer {
-        from: from,
-        to: to,
-        value: value
-    });
+    let expected = ERC20Component::Event::Transfer(Transfer { from: from, to: to, value: value });
     assert!(event == expected);
 
     // Check indexed keys

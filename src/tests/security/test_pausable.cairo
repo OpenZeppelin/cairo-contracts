@@ -121,18 +121,14 @@ fn test_unpause_when_unpaused() {
 
 fn assert_event_paused(account: ContractAddress) {
     let event = utils::pop_log::<PausableComponent::Event>(ZERO()).unwrap();
-    let expected = PausableComponent::Event::Paused(Paused {
-        account: account
-    });
+    let expected = PausableComponent::Event::Paused(Paused { account: account });
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_unpaused(account: ContractAddress) {
     let event = utils::pop_log::<PausableComponent::Event>(ZERO()).unwrap();
-    let expected = PausableComponent::Event::Unpaused(Unpaused {
-        account: account
-    });
+    let expected = PausableComponent::Event::Unpaused(Unpaused { account: account });
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 }

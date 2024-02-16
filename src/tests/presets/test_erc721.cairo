@@ -12,11 +12,11 @@ use openzeppelin::tests::utils::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl};
+use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::ERC721ABI;
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
@@ -1017,11 +1017,9 @@ fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::ApprovalForAll(ApprovalForAll {
-        owner: owner,
-        operator: operator,
-        approved: approved,
-    });
+    let expected = ERC721Component::Event::ApprovalForAll(
+        ApprovalForAll { owner: owner, operator: operator, approved: approved, }
+    );
     assert!(event == expected);
     utils::assert_no_events_left(contract);
 
@@ -1036,11 +1034,9 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Approval(Approval {
-        owner: owner,
-        approved: approved,
-        token_id: token_id
-    });
+    let expected = ERC721Component::Event::Approval(
+        Approval { owner: owner, approved: approved, token_id: token_id }
+    );
     assert!(event == expected);
     utils::assert_no_events_left(contract);
 
@@ -1056,11 +1052,9 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
     let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Transfer(Transfer {
-        from: from,
-        to: to,
-        token_id: token_id
-    });
+    let expected = ERC721Component::Event::Transfer(
+        Transfer { from: from, to: to, token_id: token_id }
+    );
     assert!(event == expected);
 
     // Check indexed keys

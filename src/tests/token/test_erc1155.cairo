@@ -55,6 +55,10 @@ fn setup_receiver() -> ContractAddress {
     utils::deploy(SnakeERC1155ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
+fn setup_camel_receiver() -> ContractAddress {
+    utils::deploy(CamelERC1155ReceiverMock::TEST_CLASS_HASH, array![])
+}
+
 fn setup_account() -> ContractAddress {
     let mut calldata = array![PUBKEY];
     utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata)
@@ -171,7 +175,21 @@ fn test_safe_transfer_from_owner_to_receiver() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+
+    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
+}
+
+#[test]
+fn test_safe_transfer_from_owner_to_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
+
+    state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -185,7 +203,21 @@ fn test_safeTransferFrom_owner_to_receiver() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+
+    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
+}
+
+#[test]
+fn test_safeTransferFrom_owner_to_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
+
+    state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -199,7 +231,7 @@ fn test_safe_transfer_from_owner_to_account() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -213,7 +245,7 @@ fn test_safeTransferFrom_owner_to_account() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -226,13 +258,13 @@ fn test_safe_transfer_from_approved_operator() {
 
     testing::set_caller_address(owner);
     state.set_approval_for_all(operator, true);
-    assert_only_event_approval_for_all(owner, operator, true);
+    assert_only_event_approval_for_all(ZERO(), owner, operator, true);
 
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     testing::set_caller_address(operator);
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(operator, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), operator, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -245,13 +277,13 @@ fn test_safeTransferFrom_approved_operator() {
 
     testing::set_caller_address(owner);
     state.set_approval_for_all(operator, true);
-    assert_only_event_approval_for_all(owner, operator, true);
+    assert_only_event_approval_for_all(ZERO(), owner, operator, true);
 
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     testing::set_caller_address(operator);
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(operator, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), operator, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -362,7 +394,22 @@ fn test_safe_batch_transfer_from_owner_to_receiver() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
+
+    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
+}
+
+#[test]
+fn test_safe_batch_transfer_from_owner_to_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    let (token_ids, values) = get_ids_and_values();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
+
+    state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -377,7 +424,22 @@ fn test_safeBatchTransferFrom_owner_to_receiver() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
+
+    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
+}
+
+#[test]
+fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    let (token_ids, values) = get_ids_and_values();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
+
+    state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -392,7 +454,7 @@ fn test_safe_batch_transfer_from_owner_to_account() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -407,7 +469,7 @@ fn test_safeBatchTransferFrom_owner_to_account() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -422,13 +484,13 @@ fn test_safe_batch_transfer_from_approved_operator() {
 
     testing::set_caller_address(owner);
     state.set_approval_for_all(operator, true);
-    assert_only_event_approval_for_all(owner, operator, true);
+    assert_only_event_approval_for_all(ZERO(), owner, operator, true);
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     testing::set_caller_address(operator);
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(operator, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), operator, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -442,13 +504,13 @@ fn test_safeBatchTransferFrom_approved_operator() {
 
     testing::set_caller_address(owner);
     state.set_approval_for_all(operator, true);
-    assert_only_event_approval_for_all(owner, operator, true);
+    assert_only_event_approval_for_all(ZERO(), owner, operator, true);
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     testing::set_caller_address(operator);
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(operator, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), operator, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -570,13 +632,13 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
     assert!(not_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), true);
-    assert_only_event_approval_for_all(OWNER(), OPERATOR(), true);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), false);
-    assert_only_event_approval_for_all(OWNER(), OPERATOR(), false);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -611,13 +673,13 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
     assert!(not_approved_for_all);
 
     state.setApprovalForAll(OPERATOR(), true);
-    assert_only_event_approval_for_all(OWNER(), OPERATOR(), true);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.isApprovedForAll(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state.setApprovalForAll(OPERATOR(), false);
-    assert_only_event_approval_for_all(OWNER(), OPERATOR(), false);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.isApprovedForAll(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -654,7 +716,7 @@ fn test_update_single_from_non_zero_to_non_zero() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.update(owner, recipient, token_ids, values);
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -669,7 +731,7 @@ fn test_update_batch_from_non_zero_to_non_zero() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.update(owner, recipient, token_ids, values);
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -684,7 +746,7 @@ fn test_update_from_non_zero_to_zero() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.update(owner, recipient, token_ids, values);
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_to_zero_batch(owner, recipient, token_ids);
 }
@@ -700,7 +762,7 @@ fn test_update_from_zero_to_non_zero() {
     assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
 
     state.update(sender, recipient, token_ids, values);
-    assert_only_event_transfer_batch(owner, sender, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, sender, recipient, token_ids, values);
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
 }
@@ -754,7 +816,23 @@ fn test_update_wac_single_from_non_zero_to_non_zero() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+
+    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
+}
+
+#[test]
+fn test_update_wac_single_from_non_zero_to_non_zero_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    let token_ids = array![TOKEN_ID].span();
+    let values = array![TOKEN_VALUE].span();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
+
+    state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -770,7 +848,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero_account() {
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_single(owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
 }
@@ -785,7 +863,22 @@ fn test_update_wac_batch_from_non_zero_to_non_zero() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
+
+    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
+}
+
+#[test]
+fn test_update_wac_batch_from_non_zero_to_non_zero_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    let (token_ids, values) = get_ids_and_values();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
+
+    state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -800,7 +893,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, owner, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
 }
@@ -827,7 +920,23 @@ fn test_update_wac_from_zero_to_non_zero() {
     assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
 
     state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, sender, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, sender, recipient, token_ids, values);
+
+    assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
+}
+
+#[test]
+fn test_update_wac_from_zero_to_non_zero_camel_receiver() {
+    let (mut state, owner) = setup();
+    let recipient = setup_camel_receiver();
+    let sender = ZERO();
+    let (token_ids, values) = get_ids_and_values();
+    testing::set_caller_address(owner);
+
+    assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
+
+    state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
+    assert_only_event_transfer_batch(ZERO(), owner, sender, recipient, token_ids, values);
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
 }
@@ -843,7 +952,7 @@ fn test_update_wac_from_zero_to_non_zero_account() {
     assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
 
     state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(owner, sender, recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, sender, recipient, token_ids, values);
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
 }
@@ -918,7 +1027,7 @@ fn test_mint_wac_to_receiver() {
     assert!(balance_of_recipient.is_zero());
 
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE);
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
     assert_eq!(balance_of_recipient, TOKEN_VALUE);
@@ -934,7 +1043,7 @@ fn test_mint_wac_to_account() {
     assert!(balance_of_recipient.is_zero());
 
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    assert_only_event_transfer_single(OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE);
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
     assert_eq!(balance_of_recipient, TOKEN_VALUE);
@@ -975,7 +1084,7 @@ fn test_batch_mint_wac_to_receiver() {
     assert!(balance_of_recipient_token_2_before.is_zero());
 
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(OTHER(), ZERO(), recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), OTHER(), ZERO(), recipient, token_ids, values);
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
     assert_eq!(balance_of_recipient_token_1_after, TOKEN_VALUE);
@@ -996,7 +1105,7 @@ fn test_batch_mint_wac_to_account() {
     assert!(balance_of_recipient_token_2_before.is_zero());
 
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
-    assert_only_event_transfer_batch(OTHER(), ZERO(), recipient, token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), OTHER(), ZERO(), recipient, token_ids, values);
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
     assert_eq!(balance_of_recipient_token_1_after, TOKEN_VALUE);
@@ -1037,7 +1146,7 @@ fn test_burn() {
     assert_eq!(balance_of_owner, TOKEN_VALUE);
 
     state.burn(owner, TOKEN_ID, TOKEN_VALUE);
-    assert_only_event_transfer_single(owner, owner, ZERO(), TOKEN_ID, TOKEN_VALUE);
+    assert_only_event_transfer_single(ZERO(), owner, owner, ZERO(), TOKEN_ID, TOKEN_VALUE);
 
     let balance_of_owner = state.balance_of(owner, TOKEN_ID);
     assert!(balance_of_owner.is_zero());
@@ -1063,7 +1172,7 @@ fn test_batch_burn() {
     assert_eq!(balance_of_owner_token_2_before, TOKEN_VALUE_2);
 
     state.batch_burn(owner, token_ids, values);
-    assert_only_event_transfer_batch(owner, owner, ZERO(), token_ids, values);
+    assert_only_event_transfer_batch(ZERO(), owner, owner, ZERO(), token_ids, values);
 
     let balance_of_owner_token_1_after = state.balance_of(owner, TOKEN_ID);
     assert!(balance_of_owner_token_1_after.is_zero());
@@ -1190,9 +1299,9 @@ fn assert_state_after_transfer_from_zero_batch(
 }
 
 fn assert_event_approval_for_all(
-    owner: ContractAddress, operator: ContractAddress, approved: bool
+    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(ZERO()).unwrap();
+    let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
     assert_eq!(event.account, owner);
     assert_eq!(event.operator, operator);
     assert_eq!(event.approved, approved);
@@ -1205,13 +1314,14 @@ fn assert_event_approval_for_all(
 }
 
 fn assert_event_transfer_single(
+    contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
     to: ContractAddress,
     token_id: u256,
     value: u256
 ) {
-    let event = utils::pop_log::<TransferSingle>(ZERO()).unwrap();
+    let event = utils::pop_log::<TransferSingle>(contract).unwrap();
     assert_eq!(event.operator, operator);
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
@@ -1227,13 +1337,14 @@ fn assert_event_transfer_single(
 }
 
 fn assert_event_transfer_batch(
+    contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
     to: ContractAddress,
     token_ids: Span<u256>,
     values: Span<u256>
 ) {
-    let event = utils::pop_log::<TransferBatch>(ZERO()).unwrap();
+    let event = utils::pop_log::<TransferBatch>(contract).unwrap();
     assert_eq!(event.operator, operator);
     assert_eq!(event.from, from);
     assert_eq!(event.to, to);
@@ -1249,32 +1360,34 @@ fn assert_event_transfer_batch(
 }
 
 fn assert_only_event_transfer_single(
+    contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
     to: ContractAddress,
     token_id: u256,
     value: u256
 ) {
-    assert_event_transfer_single(operator, from, to, token_id, value);
-    utils::assert_no_events_left(ZERO());
+    assert_event_transfer_single(contract, operator, from, to, token_id, value);
+    utils::assert_no_events_left(contract);
 }
 
 fn assert_only_event_transfer_batch(
+    contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
     to: ContractAddress,
     token_ids: Span<u256>,
     values: Span<u256>
 ) {
-    assert_event_transfer_batch(operator, from, to, token_ids, values);
-    utils::assert_no_events_left(ZERO());
+    assert_event_transfer_batch(contract, operator, from, to, token_ids, values);
+    utils::assert_no_events_left(contract);
 }
 
 fn assert_only_event_approval_for_all(
-    owner: ContractAddress, operator: ContractAddress, approved: bool
+    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    assert_event_approval_for_all(owner, operator, approved);
-    utils::assert_no_events_left(ZERO());
+    assert_event_approval_for_all(contract, owner, operator, approved);
+    utils::assert_no_events_left(contract);
 }
 
 fn get_ids_and_values() -> (Span<u256>, Span<u256>) {

@@ -145,8 +145,8 @@ fn test_constructor() {
         if interface_ids.len() == 0 {
             break;
         }
-        let supports_isrc5 = dispatcher.supports_interface(id);
-        assert!(supports_isrc5);
+        let supports_interface = dispatcher.supports_interface(id);
+        assert!(supports_interface);
     };
 
     // Check token balance and owner

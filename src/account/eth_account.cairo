@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.8.1 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.9.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -15,6 +15,7 @@ mod EthAccountComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use poseidon::poseidon_hash_span;
+    use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -256,7 +257,7 @@ mod EthAccountComponent {
     }
 
     fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-        let (x, y) = public_key.get_coordinates().unwrap();
+        let (x, y) = public_key.get_coordinates().unwrap_syscall();
         poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 }

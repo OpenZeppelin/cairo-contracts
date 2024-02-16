@@ -226,7 +226,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 --
 
 [.contract-index#ERC721Component-Embeddable-Mixin-Impl]
-.Embeddable Mixin implementation
+.Embeddable Mixin
 
 --
 .ERC721MixinImpl

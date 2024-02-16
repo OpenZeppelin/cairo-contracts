@@ -4,7 +4,7 @@
 // Class Hashes
 :account-class-hash: 0x01148c31dfa5c4708a4e9cf1eb0fd3d4d8ad9ccf09d0232cd6b56bee64a7de9d
 :eth-account-upgradeable-class-hash: 0x023e416842ca96b1f7067693892ed00881d97a4b0d9a4c793b75cb887944d98d
-:erc20-class-hash: 0x07c9b5a246fe83b0cd81de65daddb94b3803f94950db99bf2431bbfecf284642
+:erc20-class-hash: 0x7d94f28156c0dc3bfd9a07ca79b15b8da2b5b32093db79000fcd0f6f625d213
 :erc721-class-hash: 0x028cac62e55ba073d12c2e9119165ea437bd56e4313e37c6def96cf5ca6a76cf
 
 // Presets page

@@ -44,3 +44,19 @@ trait IOwnableTwoStepCamelOnly<TState> {
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);
 }
+
+#[starknet::interface]
+trait OwnableTwoStepABI<TState> {
+    // IOwnableTwoStep
+    fn owner(self: @TState) -> ContractAddress;
+    fn pending_owner(self: @TState) -> ContractAddress;
+    fn accept_ownership(ref self: TState);
+    fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
+    fn renounce_ownership(ref self: TState);
+
+    // IOwnableTwoStepCamelOnly
+    fn pendingOwner(self: @TState) -> ContractAddress;
+    fn acceptOwnership(ref self: TState);
+    fn transferOwnership(ref self: TState, newOwner: ContractAddress);
+    fn renounceOwnership(ref self: TState);
+}

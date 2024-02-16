@@ -475,12 +475,11 @@ fn test_safeBatchTransferFrom_approved_operator() {
     assert_only_event_approval_for_all(contract, owner, operator, true);
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
+// testing::set_contract_address(operator);
+// dispatcher.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
+// assert_only_event_transfer_batch(contract, operator, owner, recipient, token_ids, values);
 
-    // testing::set_contract_address(operator);
-    // dispatcher.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    // assert_only_event_transfer_batch(contract, operator, owner, recipient, token_ids, values);
-
-    // assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
+// assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
 }
 
 #[test]
@@ -666,21 +665,31 @@ fn test_setApprovalForAll_owner_equal_operator_false() {
 //
 
 fn assert_state_before_transfer_single(
-    dispatcher: ERC1155ABIDispatcher, sender: ContractAddress, recipient: ContractAddress, token_id: u256
+    dispatcher: ERC1155ABIDispatcher,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    token_id: u256
 ) {
     assert_eq!(dispatcher.balance_of(sender, token_id), TOKEN_VALUE);
     assert!(dispatcher.balance_of(recipient, token_id).is_zero());
 }
 
 fn assert_state_after_transfer_single(
-    dispatcher: ERC1155ABIDispatcher, sender: ContractAddress, recipient: ContractAddress, token_id: u256
+    dispatcher: ERC1155ABIDispatcher,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    token_id: u256
 ) {
     assert!(dispatcher.balance_of(sender, token_id).is_zero());
     assert_eq!(dispatcher.balance_of(recipient, token_id), TOKEN_VALUE);
 }
 
 fn assert_state_before_transfer_batch(
-    dispatcher: ERC1155ABIDispatcher, sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>
+    dispatcher: ERC1155ABIDispatcher,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    token_ids: Span<u256>,
+    values: Span<u256>
 ) {
     let mut index = 0;
     loop {
@@ -697,7 +706,11 @@ fn assert_state_before_transfer_batch(
 }
 
 fn assert_state_after_transfer_batch(
-    dispatcher: ERC1155ABIDispatcher, sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>
+    dispatcher: ERC1155ABIDispatcher,
+    sender: ContractAddress,
+    recipient: ContractAddress,
+    token_ids: Span<u256>,
+    values: Span<u256>
 ) {
     let mut index = 0;
     loop {

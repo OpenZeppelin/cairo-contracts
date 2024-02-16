@@ -145,7 +145,7 @@ fn test_balanceOfBatch_invalid_inputs() {
 //
 
 #[test]
-fn test_safe_transfer_from_owner_to_receiver() {
+fn test_safe_transfer_from_to_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
@@ -159,7 +159,7 @@ fn test_safe_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-fn test_safe_transfer_from_owner_to_camel_receiver() {
+fn test_safe_transfer_from_to_camel_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_camel_receiver();
@@ -173,7 +173,7 @@ fn test_safe_transfer_from_owner_to_camel_receiver() {
 }
 
 #[test]
-fn test_safeTransferFrom_owner_to_receiver() {
+fn test_safeTransferFrom_to_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
@@ -187,7 +187,7 @@ fn test_safeTransferFrom_owner_to_receiver() {
 }
 
 #[test]
-fn test_safeTransferFrom_owner_to_camel_receiver() {
+fn test_safeTransferFrom_to_camel_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_camel_receiver();
@@ -201,7 +201,7 @@ fn test_safeTransferFrom_owner_to_camel_receiver() {
 }
 
 #[test]
-fn test_safe_transfer_from_owner_to_account() {
+fn test_safe_transfer_from_to_account() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_account_with_salt(1);
@@ -215,7 +215,7 @@ fn test_safe_transfer_from_owner_to_account() {
 }
 
 #[test]
-fn test_safeTransferFrom_owner_to_account() {
+fn test_safeTransferFrom_to_account() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_account_with_salt(1);
@@ -353,7 +353,7 @@ fn test_safeTransferFrom_non_account_non_receiver() {
 //
 
 #[test]
-fn test_safe_batch_transfer_from_owner_to_receiver() {
+fn test_safe_batch_transfer_from_to_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
@@ -368,7 +368,7 @@ fn test_safe_batch_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-fn test_safe_batch_transfer_from_owner_to_camel_receiver() {
+fn test_safe_batch_transfer_from_to_camel_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_camel_receiver();
@@ -383,7 +383,7 @@ fn test_safe_batch_transfer_from_owner_to_camel_receiver() {
 }
 
 #[test]
-fn test_safeBatchTransferFrom_owner_to_receiver() {
+fn test_safeBatchTransferFrom_to_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
@@ -398,7 +398,7 @@ fn test_safeBatchTransferFrom_owner_to_receiver() {
 }
 
 #[test]
-fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
+fn test_safeBatchTransferFrom_to_camel_receiver() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_camel_receiver();
@@ -413,7 +413,7 @@ fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
 }
 
 #[test]
-fn test_safe_batch_transfer_from_owner_to_account() {
+fn test_safe_batch_transfer_from_to_account() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_account_with_salt(1);
@@ -428,7 +428,7 @@ fn test_safe_batch_transfer_from_owner_to_account() {
 }
 
 #[test]
-fn test_safeBatchTransferFrom_owner_to_account() {
+fn test_safeBatchTransferFrom_to_account() {
     let (dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_account_with_salt(1);

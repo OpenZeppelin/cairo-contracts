@@ -5,9 +5,9 @@ use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
-use starknet::call_contract_syscall;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
+use starknet::call_contract_syscall;
 
 #[derive(Copy, Drop)]
 struct DualCaseAccount {

@@ -151,7 +151,8 @@ mod DualCaseTwoStepOwnableMock {
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableTwoSteMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableTwoSteMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]

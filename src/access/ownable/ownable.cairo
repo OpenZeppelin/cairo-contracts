@@ -16,7 +16,7 @@
 #[starknet::component]
 mod OwnableComponent {
     use openzeppelin::access::ownable::interface::IOwnableTwoStep;
-use openzeppelin::access::ownable::interface;
+    use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 
@@ -276,7 +276,9 @@ use openzeppelin::access::ownable::interface;
             OwnableTwoStep::accept_ownership(ref self);
         }
 
-        fn transfer_ownership(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {
+        fn transfer_ownership(
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+        ) {
             OwnableTwoStep::transfer_ownership(ref self, new_owner);
         }
 

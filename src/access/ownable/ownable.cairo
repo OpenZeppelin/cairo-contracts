@@ -26,13 +26,13 @@ mod OwnableComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         OwnershipTransferred: OwnershipTransferred,
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferred {
         #[key]
         previous_owner: ContractAddress,
@@ -40,7 +40,7 @@ mod OwnableComponent {
         new_owner: ContractAddress,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferStarted {
         #[key]
         previous_owner: ContractAddress,

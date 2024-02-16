@@ -12,19 +12,10 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
     address
 }
 
-/// Pop the earliest unpopped logged event for the contract as the requested type
-/// and checks there's no more keys or data left on the event, preventing unaccounted params.
-///
-/// This function also removes the first key from the event, to match the event
-/// structure key params without the event ID.
-///
-/// This method doesn't currently work for components events that are not flattened
-/// because an extra key is added, pushing the event ID key to the second position.
+/// Pop the earliest unpopped logged event enum for the contract and checks
+/// there's no more keys or data left on the event, preventing unaccounted params.
 fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option<T> {
     let (mut keys, mut data) = testing::pop_log_raw(address)?;
-
-    // Remove the event ID from the keys
-    let _ = keys.pop_front();
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
     assert!(data.is_empty(), "Event has extra data");
@@ -34,6 +25,9 @@ fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option
 
 /// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 ///
+/// This function removes the first key, which is the event ID, from the event
+/// so that only the event struct keys are checked.
+///
 /// `expected_keys` must include all indexed event keys for `event` in the order
 /// that they're defined.
 fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys: Span<felt252>) {
@@ -41,6 +35,7 @@ fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys
     let mut data = array![];
 
     event.append_keys_and_data(ref keys, ref data);
+    let _ = keys.pop_front();
     assert!(expected_keys == keys.span());
 }
 

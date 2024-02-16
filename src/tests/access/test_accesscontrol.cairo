@@ -448,27 +448,36 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = utils::pop_log::<RoleRevoked>(ZERO()).unwrap();
-    assert_eq!(event.role, role);
-    assert_eq!(event.account, account);
-    assert_eq!(event.sender, sender);
+    let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
+    let expected = AccessControlComponent::Event::RoleRevoked(RoleRevoked {
+        role: role,
+        account: account,
+        sender: sender
+    });
+    assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
-    let event = utils::pop_log::<RoleGranted>(ZERO()).unwrap();
-    assert_eq!(event.role, role);
-    assert_eq!(event.account, account);
-    assert_eq!(event.sender, sender);
+    let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
+    let expected = AccessControlComponent::Event::RoleGranted(RoleGranted {
+        role: role,
+        account: account,
+        sender: sender
+    });
+    assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 }
 
 fn assert_event_role_admin_changed(
     role: felt252, previous_admin_role: felt252, new_admin_role: felt252
 ) {
-    let event = utils::pop_log::<RoleAdminChanged>(ZERO()).unwrap();
-    assert_eq!(event.role, role);
-    assert_eq!(event.previous_admin_role, previous_admin_role);
-    assert_eq!(event.new_admin_role, new_admin_role);
+    let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
+    let expected = AccessControlComponent::Event::RoleAdminChanged(RoleAdminChanged {
+        role: role,
+        previous_admin_role: previous_admin_role,
+        new_admin_role: new_admin_role
+    });
+    assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 }

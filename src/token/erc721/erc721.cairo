@@ -30,7 +30,7 @@ mod ERC721Component {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
@@ -38,7 +38,7 @@ mod ERC721Component {
     }
 
     /// Emitted when `token_id` token is transferred from `from` to `to`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Transfer {
         #[key]
         from: ContractAddress,
@@ -49,7 +49,7 @@ mod ERC721Component {
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Approval {
         #[key]
         owner: ContractAddress,
@@ -61,7 +61,7 @@ mod ERC721Component {
 
     /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct ApprovalForAll {
         #[key]
         owner: ContractAddress,

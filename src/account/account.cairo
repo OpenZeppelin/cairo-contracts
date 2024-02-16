@@ -22,19 +22,19 @@ mod AccountComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnerAdded {
         #[key]
         new_owner_guid: felt252
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnerRemoved {
         #[key]
         removed_owner_guid: felt252

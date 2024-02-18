@@ -17,16 +17,19 @@
 > Some contracts or features are not ready to be deployed.
 > Check the **Unsupported** section below.
 
-### Prepare the environment
+## Prepare the Environment
 
-Simply [install Cairo and scarb](https://docs.swmansion.com/scarb/download).
+To properly set up your development environment for Cairo and scarb, ensure both are installed by following the detailed installation guides provided below. This is a prerequisite for proceeding with your project setup.
+
+- **Install Cairo**: Follow the [Cairo installation instructions](https://docs.cairo-lang.org/docs/quickstart).
+- **Install scarb**: For scarb installation, refer to the [scarb documentation](https://docs.swmansion.com/scarb/download).
 
 ### Set up your project
 
 Create a new project and `cd` into it.
 
 ```bash
-scarb new my_project && cd my_project
+$ scarb new my_project && cd my_project
 ```
 
 The contents of `my_project` should look like this:
@@ -39,7 +42,7 @@ Scarb.toml src
 
 ### Install the library
 
-Edit `scarb.toml` and add:
+To include OpenZeppelin Contracts in your project, edit your `Scarb.toml` to add the following dependency:
 
 ```toml
 [dependencies]
@@ -104,7 +107,7 @@ mod MyToken {
 }
 ```
 
-### Unsupported
+### Unsupported features
 
 [`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.9.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
@@ -134,7 +137,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 ### Tooling
 
-- [Scarb](https://docs.swmansion.com/scarb)
+- [Scarb](https://docs.swmansion.com/scarb), a powerful tool for Cairo development
 
 ## Development
 
@@ -147,7 +150,7 @@ OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are ma
 Clone the repository:
 
 ```bash
-git clone git@github.com:OpenZeppelin/cairo-contracts.git
+$ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 ```
 
 `cd` into it and build:
@@ -164,7 +167,7 @@ Finished release target(s) in 16 seconds
 ### Run tests
 
 ```bash
-scarb test
+$ scarb test
 ```
 
 ## Security

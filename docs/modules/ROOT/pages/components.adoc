@@ -148,10 +148,48 @@ See {erc20-component} as an example which includes:
 
 === Mixins
 
-While separating components into granular implementations offers flexibility, integrating components with many implementations can appear crowded especially when the contract will use all of the component's implementations.
+While separating components into granular implementations offers flexibility,
+integrating components with many implementations can appear crowded especially when the contract will use all of the component's implementations.
 To simplify this process, applicable components offer a mixin implementation.
 Component mixins allow contracts to embed all of a component's implementations through the use of a single implementation.
-Here's an example of an account contract that embeds the `AccountMixinImpl`:
+Compare the following code blocks to see the benefit of using a mixin when creating an account contract:
+
+==== Account without mixin
+
+[,javascript]
+----
+component!(path: AccountComponent, storage: account, event: AccountEvent);
+component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+#[abi(embed_v0)]
+impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
+#[abi(embed_v0)]
+impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
+#[abi(embed_v0)]
+impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
+#[abi(embed_v0)]
+impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
+impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+#[abi(embed_v0)]
+impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+----
+
+==== Account with mixin
+
+[,javascript]
+----
+component!(path: AccountComponent, storage: account, event: AccountEvent);
+component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+#[abi(embed_v0)]
+impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+----
+
+The rest of the setup for the contract, however, does not change.
+This means that component dependencies must still be included in the `Storage` struct and `Event` enum.
+Here's a full example of an account contract that embeds the `AccountMixinImpl`:
 
 [,javascript]
 ----

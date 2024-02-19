@@ -24,7 +24,7 @@ fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option
     let (mut keys, mut data) = testing::pop_log_raw(address)?;
 
     // Remove the event ID from the keys
-    keys.pop_front();
+    let _ = keys.pop_front();
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
     assert!(data.is_empty(), "Event has extra data");
@@ -49,7 +49,7 @@ fn assert_no_events_left(address: ContractAddress) {
 }
 
 fn drop_event(address: ContractAddress) {
-    testing::pop_log_raw(address);
+    let _ = testing::pop_log_raw(address);
 }
 
 fn drop_events(address: ContractAddress, count: felt252) {

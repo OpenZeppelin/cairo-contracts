@@ -39,30 +39,34 @@ mod DualCaseERC721ReceiverMock {
         self.erc721_receiver.initializer();
     }
 
-    #[external(v0)]
-    fn on_erc721_received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
-        } else {
-            0
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn on_erc721_received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            if *data.at(0) == super::SUCCESS {
+                self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
+            } else {
+                0
+            }
         }
-    }
 
-    #[external(v0)]
-    fn onERC721Received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        self.on_erc721_received(operator, from, tokenId, data)
+        #[external(v0)]
+        fn onERC721Received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            ExternalTrait::on_erc721_received(self, operator, from, tokenId, data)
+        }
     }
 }
 
@@ -105,18 +109,22 @@ mod SnakeERC721ReceiverMock {
         self.erc721_receiver.initializer();
     }
 
-    #[external(v0)]
-    fn on_erc721_received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
-        } else {
-            0
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn on_erc721_received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            if *data.at(0) == super::SUCCESS {
+                self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
+            } else {
+                0
+            }
         }
     }
 }
@@ -160,18 +168,22 @@ mod CamelERC721ReceiverMock {
         self.erc721_receiver.initializer();
     }
 
-    #[external(v0)]
-    fn onERC721Received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        if *data.at(0) == super::SUCCESS {
-            self.erc721_receiver.onERC721Received(operator, from, tokenId, data)
-        } else {
-            0
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn onERC721Received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            if *data.at(0) == super::SUCCESS {
+                self.erc721_receiver.onERC721Received(operator, from, tokenId, data)
+            } else {
+                0
+            }
         }
     }
 }
@@ -183,16 +195,20 @@ mod SnakeERC721ReceiverPanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn on_erc721_received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        token_id: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        panic!("Some error");
-        3
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn on_erc721_received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            panic!("Some error");
+            3
+        }
     }
 }
 
@@ -203,16 +219,20 @@ mod CamelERC721ReceiverPanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn onERC721Received(
-        self: @ContractState,
-        operator: ContractAddress,
-        from: ContractAddress,
-        tokenId: u256,
-        data: Span<felt252>
-    ) -> felt252 {
-        panic!("Some error");
-        3
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn onERC721Received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            panic!("Some error");
+            3
+        }
     }
 }
 

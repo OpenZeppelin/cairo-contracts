@@ -182,10 +182,10 @@ fn test_isValidSignature_bad_sig() {
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
     let supports_isrc5 = dispatcher.supports_interface(ISRC5_ID);
-    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
-    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
     assert!(supports_isrc5);
+    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
+    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
     assert!(doesnt_support_0x123);
 }
 

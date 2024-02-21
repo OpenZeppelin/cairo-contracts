@@ -18,10 +18,6 @@ const L2_ADDRESS_UPPER_BOUND: felt252 =
     0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
 const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 
-fn UDC_CLASS_HASH() -> felt252 {
-    UniversalDeployer::TEST_CLASS_HASH
-}
-
 fn ERC20_CLASS_HASH() -> ClassHash {
     DualCaseERC20Mock::TEST_CLASS_HASH.try_into().unwrap()
 }
@@ -37,7 +33,7 @@ fn ERC20_CALLDATA() -> Span<felt252> {
 
 fn deploy_udc() -> IUniversalDeployerDispatcher {
     let calldata = array![];
-    let address = utils::deploy(UDC_CLASS_HASH(), calldata);
+    let address = utils::deploy(UniversalDeployer::TEST_CLASS_HASH, calldata);
 
     IUniversalDeployerDispatcher { contract_address: address }
 }

@@ -1302,7 +1302,7 @@ fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
-    assert_eq!(event.account, owner);
+    assert_eq!(event.owner, owner);
     assert_eq!(event.operator, operator);
     assert_eq!(event.approved, approved);
 

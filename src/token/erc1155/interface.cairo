@@ -129,9 +129,6 @@ trait ERC1155ABI<TState> {
     );
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
-
-    // ISRC5Camel
-    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }
 
 //

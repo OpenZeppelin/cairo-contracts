@@ -168,8 +168,18 @@ use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
+[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
+
+--
+.ERC20MixinImpl
+* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
+* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
+--
+
 [.contract-index#ERC20Component-Embeddable-Impls]
-.Embeddable implementations
+.Embeddable Implementations
 --
 .ERC20Impl
 * xref:#ERC20Component-total_supply[`++total_supply(self)++`]
@@ -183,25 +193,11 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-name[`++name(self)++`]
 * xref:#ERC20Component-symbol[`++symbol(self)++`]
 * xref:#ERC20Component-decimals[`++decimals(self)++`]
---
 
-[.contract-index#ERC20Component-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
 .ERC20CamelOnlyImpl
 * xref:#ERC20Component-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20Component-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20Component-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
---
-
-[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
-.Embeddable Mixin implementation
-
---
-.ERC20MixinImpl
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
 --
 
 [.contract-index]
@@ -224,7 +220,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 --
 
 [#ERC20Component-Embeddable-functions]
-==== Embeddable functions
+==== Embeddable Functions
 
 [.contract-item]
 [[ERC20Component-total_supply]]

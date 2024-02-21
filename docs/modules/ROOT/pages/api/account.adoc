@@ -76,6 +76,21 @@ Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {star
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
+[.contract-index#AccountComponent-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
+
+--
+.AccountMixinImpl
+
+* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
@@ -97,11 +112,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
---
 
-[.contract-index#AccountComponent-Embeddable-Impls-camelCase]
-.Embeddable Implementations (camelCase)
---
 .SRC6CamelOnlyImpl
 
 * xref:#AccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
@@ -110,21 +121,9 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 * xref:#AccountComponent-getPublicKey[`++getPublicKey(self)++`]
 * xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
---
 
-[.contract-index#AccountComponent-Embeddable-Mixin-Impl]
-.Embeddable Mixin Implementation
-
---
-.AccountMixinImpl
-
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
@@ -293,6 +292,21 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
+[.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
+
+--
+.EthAccountMixinImpl
+
+* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#EthAccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
@@ -314,11 +328,7 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 
 * xref:#EthAccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#EthAccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
---
 
-[.contract-index#EthAccountComponent-Embeddable-Impls-camelCase]
-.Embeddable Implementations (camelCase)
---
 .SRC6CamelOnlyImpl
 
 * xref:#EthAccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
@@ -327,21 +337,9 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 
 * xref:#EthAccountComponent-getPublicKey[`++getPublicKey(self)++`]
 * xref:#EthAccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
---
 
-[.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
-.Embeddable Mixin Implementation
-
---
-.EthAccountMixinImpl
-
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]

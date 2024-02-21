@@ -190,10 +190,22 @@ ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721M
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
+[.contract-index#ERC721Component-Embeddable-Mixin-Impl]
+.Embeddable Mixin Implementation
+
+--
+.ERC721MixinImpl
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
+* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnlyImpl++`]
+* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnlyImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#ERC721Component-Embeddable-Impls]
 .Embeddable Implementations
 --
-.IERC721Impl
+.ERC721Impl
 * xref:#IERC721-balance_of[`++balance_of(self, account)++`]
 * xref:#IERC721-owner_of[`++owner_of(self, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(self, from, to, token_id, data)++`]
@@ -203,15 +215,11 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
 
-.IERC721MetadataImpl
+.ERC721MetadataImpl
 * xref:#IERC721Metadata-name[`++name(self)++`]
 * xref:#IERC721Metadata-symbol[`++symbol(self)++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
---
 
-[.contract-index#ERC721Component-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
 .ER721CamelOnlyImpl
 * xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
@@ -223,18 +231,9 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 .ERC721MetadataCamelOnlyImpl
 * xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
---
 
-[.contract-index#ERC721Component-Embeddable-Mixin-Impl]
-.Embeddable Mixin
-
---
-.ERC721MixinImpl
-* xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
-* xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnlyImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnlyImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
@@ -264,7 +263,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
 
-==== Embeddable functions
+==== Embeddable Functions
 
 [.contract-item]
 [[ERC721-balance_of]]

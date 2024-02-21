@@ -292,9 +292,6 @@ See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
 
 See <<IERC20Metadata-decimals,IERC20Metadata::decimals>>.
 
-[#ERC20Component-camelCase-support]
-==== camelCase Support
-
 [.contract-item]
 [[ERC20Component-totalSupply]]
 ==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#external#

@@ -364,8 +364,6 @@ See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
 
 See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
-==== camelCase Support
-
 [.contract-item]
 [[ERC721-balanceOf]]
 ==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) -> u256++` [.item-kind]#external#

@@ -161,9 +161,6 @@ Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 include::./access.adoc[tag=renounce_ownership]
 
-[#OwnableComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[OwnableComponent-transferOwnership]]
 ==== `[.contract-item-name]#++transferOwnership++#++(ref self: ContractState, newOwner: ContractAddress)++` [.item-kind]#external#
@@ -175,9 +172,6 @@ See xref:OwnableComponent-transfer_ownership[transfer_ownership].
 ==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 See xref:OwnableComponent-renounce_ownership[renounce_ownership].
-
-[#OwnableComponent-camelCase-Support-Two-Step]
-==== camelCase Support (Two Step Transfer)
 
 [.contract-item]
 [[OwnableComponent-two-step-pendingOwner]]
@@ -571,9 +565,6 @@ May emit a {RoleRevoked} event.
 ==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
 
 See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
-
-[#AccessControlComponent-camelCase-Support]
-==== camelCase Support
 
 [.contract-item]
 [[AccessControlComponent-hasRole]]

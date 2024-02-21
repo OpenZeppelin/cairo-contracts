@@ -197,9 +197,6 @@ Sets a new public key for the account. Only accessible by the account calling it
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
-[#AccountComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[AccountComponent-isValidSignature]]
 ==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
@@ -412,9 +409,6 @@ Returns the current public key of the account.
 Sets a new public key for the account. Only accesible by the account calling itself through `\\__execute__`.
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
-
-[#EthAccountComponent-camelCase-Support]
-==== camelCase Support
 
 [.contract-item]
 [[EthAccountComponent-isValidSignature]]

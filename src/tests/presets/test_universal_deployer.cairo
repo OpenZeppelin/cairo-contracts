@@ -92,7 +92,7 @@ fn test_deploy_unique() {
 //
 
 /// See https://github.com/starkware-libs/cairo-lang/blob/v0.13.0/src/starkware/cairo/common/hash_state.py
-fn compute_hash_on_elements(mut data: Span::<felt252>) -> felt252 {
+fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     let data_len: usize = data.len();
     let mut hash = 0;
     loop {
@@ -111,7 +111,7 @@ fn compute_hash_on_elements(mut data: Span::<felt252>) -> felt252 {
 fn calculate_contract_address_from_hash(
     salt: felt252,
     class_hash: ClassHash,
-    constructor_calldata: Span::<felt252>,
+    constructor_calldata: Span<felt252>,
     deployer_address: ContractAddress
 ) -> ContractAddress {
     let constructor_calldata_hash = compute_hash_on_elements(constructor_calldata);

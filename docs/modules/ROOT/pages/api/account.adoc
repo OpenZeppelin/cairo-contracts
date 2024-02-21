@@ -86,8 +86,8 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
 * xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
 * xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
@@ -299,8 +299,8 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 * xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
 * xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
 * xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
@@ -522,8 +522,8 @@ include::../utils/_class_hashes.adoc[]
 * xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
 * xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
 * xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
 
 .SRC5Component
 
@@ -574,8 +574,8 @@ include::../utils/_class_hashes.adoc[]
 * xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
 * xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
 * xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
 
 .SRC5Component
 

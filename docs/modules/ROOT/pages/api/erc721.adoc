@@ -197,8 +197,8 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 .ERC721MixinImpl
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnlyImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnlyImpl++`]
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721CamelOnlyImpl++`]
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataCamelOnlyImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
@@ -640,8 +640,8 @@ include::../utils/_class_hashes.adoc[]
 
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
 * xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnly++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnly++`]
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721CamelOnly++`]
+* xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataCamelOnly++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 

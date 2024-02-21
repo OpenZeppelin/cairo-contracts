@@ -446,7 +446,7 @@ accounts that have been granted it.
 .AccessControlMixinImpl
 
 * xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlImpl++`]
-* xref:#AccessControlComponent-Embeddable-Impls-camelCase[`++AccessControlCamelImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 

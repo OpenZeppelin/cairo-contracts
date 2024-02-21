@@ -30,7 +30,8 @@
 **** xref:/api/erc20.adoc[API Reference]
 *** xref:erc721.adoc[ERC721]
 **** xref:/api/erc721.adoc[API Reference]
-// *** xref:erc1155.adoc[ERC1155]
+*** xref:erc1155.adoc[ERC1155]
+**** xref:/api/erc1155.adoc[API Reference]
 
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]

@@ -65,7 +65,7 @@ mod ERC1155Component {
     #[derive(Drop, starknet::Event)]
     struct ApprovalForAll {
         #[key]
-        account: ContractAddress,
+        owner: ContractAddress,
         #[key]
         operator: ContractAddress,
         approved: bool
@@ -113,7 +113,7 @@ mod ERC1155Component {
         }
 
 
-        /// Returns a span of u256 values representing the batch balances of the
+        /// Returns a Span of u256 values representing the batch balances of the
         /// `accounts` for the specified `token_ids`.
         ///
         /// Requirements:
@@ -170,7 +170,7 @@ mod ERC1155Component {
             self.safe_batch_transfer_from(from, to, token_ids, values, data)
         }
 
-        /// Batched version of `safeTransferFrom`.
+        /// Batched version of `safe_transfer_from`.
         ///
         /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
         /// to an untrusted contract, when invoking `on_ERC1155_batch_received` on the receiver.
@@ -221,7 +221,7 @@ mod ERC1155Component {
             assert(owner != operator, Errors::SELF_APPROVAL);
 
             self.ERC1155_operator_approvals.write((owner, operator), approved);
-            self.emit(ApprovalForAll { account: owner, operator, approved });
+            self.emit(ApprovalForAll { owner, operator, approved });
         }
 
         /// Query if `operator` is an authorized operator for `owner`.
@@ -318,7 +318,7 @@ mod ERC1155Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token uri.
+        /// Initializes the contract by setting the token uri and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, uri: ByteArray) {
             self.set_uri(uri);
@@ -380,13 +380,15 @@ mod ERC1155Component {
         }
 
         /// Version of `update` that performs the token acceptance check by calling
-        /// `IERC1155Receiver-onERC1155Received` or `IERC1155Receiver-onERC1155BatchReceived` if
+        /// `IERC1155Receiver::onERC1155Received` or `IERC1155Receiver::onERC1155BatchReceived` if
         /// the receiver is not recognized as an account.
         ///
         /// Requirements:
         ///
         /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
         /// - `token_ids` and `values` must have the same length.
+        ///
+        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
         fn update_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,

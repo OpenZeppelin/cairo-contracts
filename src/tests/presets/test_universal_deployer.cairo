@@ -7,6 +7,7 @@ use openzeppelin::presets::universal_deployer::{
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
 use openzeppelin::tests::utils;
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ClassHash;
 use starknet::ContractAddress;
@@ -44,12 +45,14 @@ fn test_deploy_not_unique() {
     let unique = false;
     testing::set_contract_address(CALLER());
 
+    // Check address
     let expected_addr = calculate_contract_address_from_hash(
         SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), Zeroable::zero()
     );
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, unique, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
+    // Check event
     let event = utils::pop_log::<ContractDeployed>(udc.contract_address).unwrap();
     assert_eq!(event.address, deployed_addr);
     assert_eq!(event.deployer, CALLER());
@@ -58,6 +61,11 @@ fn test_deploy_not_unique() {
     assert_eq!(event.calldata, ERC20_CALLDATA());
     assert_eq!(event.salt, SALT);
     utils::assert_no_events_left(udc.contract_address);
+
+    // Check deployment
+    let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
+    let total_supply = erc20.total_supply();
+    assert_eq!(total_supply, SUPPLY);
 }
 
 #[test]
@@ -66,6 +74,7 @@ fn test_deploy_unique() {
     let unique = true;
     testing::set_contract_address(CALLER());
 
+    // Check address
     let hashed_salt = pedersen(CALLER().into(), SALT);
     let expected_addr = calculate_contract_address_from_hash(
         hashed_salt, ERC20_CLASS_HASH(), ERC20_CALLDATA(), udc.contract_address
@@ -73,6 +82,7 @@ fn test_deploy_unique() {
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, unique, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
+    // Check event
     let event = utils::pop_log::<ContractDeployed>(udc.contract_address).unwrap();
     assert_eq!(event.address, deployed_addr);
     assert_eq!(event.deployer, CALLER());
@@ -81,6 +91,11 @@ fn test_deploy_unique() {
     assert_eq!(event.calldata, ERC20_CALLDATA());
     assert_eq!(event.salt, SALT);
     utils::assert_no_events_left(udc.contract_address);
+
+    // Check deployment
+    let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
+    let total_supply = erc20.total_supply();
+    assert_eq!(total_supply, SUPPLY);
 }
 
 //

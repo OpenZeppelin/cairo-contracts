@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - EthAccount component and preset (#853)
 - Ownable two-step functionality (#809)
+- UDC contract (#919)
 
 ### Changed
 

@@ -3,9 +3,6 @@ name: Update version and presets page on new release branch
 on:
   create:
 
-env:
-  SCARB_VERSION: 2.5.3
-
 jobs:
   update_version:
     if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-v')
@@ -15,10 +12,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Extract current version
+    - name: Extract current version and scarb version
       run: |
         CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
+        SCARB_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
         echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
 
     - name: Extract new version number
       run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> $GITHUB_ENV
@@ -44,7 +43,7 @@ jobs:
 
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v${{ env.SCARB_VERSION }} \
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v$SCARB_VERSION \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes

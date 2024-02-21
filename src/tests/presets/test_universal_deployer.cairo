@@ -94,9 +94,9 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     loop {
         match data.pop_front() {
             Option::Some(elem) => { hash = pedersen(hash, *elem); },
-            Option::None(_) => {
+            Option::None => {
                 hash = pedersen(hash, data_len.into());
-                break ();
+                break;
             },
         };
     };

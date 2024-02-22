@@ -1,6 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = Account
 
@@ -77,46 +78,52 @@ Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {star
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
 [.contract-index#AccountComponent-Embeddable-Mixin-Impl]
-.Embeddable Mixin Implementation
+.{mixin-impl}
 
 --
 .AccountMixinImpl
 
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#AccountComponent-Embeddable-Impls-SRC6Impl]
 .SRC6Impl
 
 * xref:#AccountComponent-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#AccountComponent-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#AccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-DeclarerImpl]
 .DeclarerImpl
 
 * xref:#AccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-DeployableImpl]
 .DeployableImpl
 
 * xref:#AccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-PublicKeyImpl]
 .PublicKeyImpl
 
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
 .SRC6CamelOnlyImpl
 
 * xref:#AccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl]
 .PublicKeyCamelImpl
 
 * xref:#AccountComponent-getPublicKey[`++getPublicKey(self)++`]
@@ -290,46 +297,52 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
 [.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
-.Embeddable Mixin Implementation
+.{mixin-impl}
 
 --
 .EthAccountMixinImpl
 
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
 [.contract-index#EthAccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#EthAccountComponent-Embeddable-Impls-SRC6Impl]
 .SRC6Impl
 
 * xref:#EthAccountComponent-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#EthAccountComponent-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#EthAccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-DeclarerImpl]
 .DeclarerImpl
 
 * xref:#EthAccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-DeployableImpl]
 .DeployableImpl
 
 * xref:#EthAccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-PublicKeyImpl]
 .PublicKeyImpl
 
 * xref:#EthAccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#EthAccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
 .SRC6CamelOnlyImpl
 
 * xref:#EthAccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl]
 .PublicKeyCamelImpl
 
 * xref:#EthAccountComponent-getPublicKey[`++getPublicKey(self)++`]
@@ -518,12 +531,12 @@ include::../utils/_class_hashes.adoc[]
 --
 .AccountComponent
 
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
 
 .SRC5Component
 
@@ -570,12 +583,12 @@ include::../utils/_class_hashes.adoc[]
 --
 .EthAccountComponent
 
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyCamelImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
 
 .SRC5Component
 

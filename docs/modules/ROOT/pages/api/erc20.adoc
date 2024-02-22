@@ -3,6 +3,7 @@
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
+:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC20
 
@@ -169,18 +170,19 @@ use openzeppelin::token::erc20::ERC20Component;
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
 [.contract-index#ERC20Component-Embeddable-Mixin-Impl]
-.Embeddable Mixin Implementation
+.{mixin-impl}
 
 --
 .ERC20MixinImpl
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20CamelOnlyImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20Impl[`++ERC20Impl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20MetadataImpl[`++ERC20MetadataImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl[`++ERC20CamelOnlyImpl++`]
 --
 
 [.contract-index#ERC20Component-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20Impl]
 .ERC20Impl
 * xref:#ERC20Component-total_supply[`++total_supply(self)++`]
 * xref:#ERC20Component-balance_of[`++balance_of(self, account)++`]
@@ -189,11 +191,13 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20Component-approve[`++approve(self, spender, amount)++`]
 
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20MetadataImpl]
 .ERC20MetadataImpl
 * xref:#ERC20Component-name[`++name(self)++`]
 * xref:#ERC20Component-symbol[`++symbol(self)++`]
 * xref:#ERC20Component-decimals[`++decimals(self)++`]
 
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl]
 .ERC20CamelOnlyImpl
 * xref:#ERC20Component-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20Component-balanceOf[`++balanceOf(self, account)++`]
@@ -437,9 +441,9 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC20MixinImpl
 
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20CamelOnlyImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20Impl[`++ERC20Impl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20MetadataImpl[`++ERC20MetadataImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl[`++ERC20CamelOnlyImpl++`]
 --
 
 [#ERC20-constructor-section]

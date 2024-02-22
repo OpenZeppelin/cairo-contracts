@@ -510,7 +510,6 @@ mod ERC1155Component {
 
     /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
     /// or if it's an account contract (supporting ISRC6).
-    /// The transaction will fail if both are false.
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
     ) -> bool {

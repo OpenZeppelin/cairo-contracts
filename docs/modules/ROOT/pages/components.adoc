@@ -148,10 +148,10 @@ See {erc20-component} as an example which includes:
 
 === Mixins
 
+Mixins are impls made of a combination of smaller, more specific impls.
 While separating components into granular implementations offers flexibility,
-integrating components with many implementations can appear crowded especially when the contract will use all of the component's implementations.
-To simplify this process, applicable components offer a mixin implementation.
-Component mixins allow contracts to embed all of a component's implementations through the use of a single implementation.
+integrating components with many implementations can appear crowded especially if the contract uses all of them.
+Mixins simplify this by allowing contracts to embed groups of implementations with a single directive.
 
 Compare the following code blocks to see the benefit of using a mixin when creating an account contract:
 

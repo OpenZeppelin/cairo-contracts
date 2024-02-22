@@ -7,6 +7,7 @@
 #[starknet::component]
 mod AccountComponent {
     use openzeppelin::account::interface;
+    use openzeppelin::account::utils::add_owner::AddOwner;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
@@ -156,8 +157,12 @@ mod AccountComponent {
         /// - The caller must be the contract itself.
         ///
         /// Emits an `OwnerRemoved` event.
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
+        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252, signature: Span<felt252>) {
             self.assert_only_self();
+
+            let hash = AddOwner::build_hash(new_public_key);
+            assert(self._is_valid_signature(hash, signature), Errors::INVALID_SIGNATURE);
+
             self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
             self._set_public_key(new_public_key);
         }
@@ -190,8 +195,8 @@ mod AccountComponent {
             self.Account_public_key.read()
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            self.set_public_key(newPublicKey);
+        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252, signature: Span<felt252>) {
+            self.set_public_key(newPublicKey, signature);
         }
     }
 

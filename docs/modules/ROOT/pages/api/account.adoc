@@ -531,16 +531,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .AccountComponent
 
-* xref:#AccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
-* xref:#AccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
 --
 
 [#Account-constructor-section]
@@ -583,16 +574,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .EthAccountComponent
 
-* xref:#EthAccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#EthAccountComponent-Embeddable-Mixin-Impl[`++EthAccountMixinImpl++`]
 --
 
 [.contract-index]

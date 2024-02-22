@@ -441,9 +441,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC20MixinImpl
 
-* xref:#ERC20Component-Embeddable-Impls-ERC20Impl[`++ERC20Impl++`]
-* xref:#ERC20Component-Embeddable-Impls-ERC20MetadataImpl[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl[`++ERC20CamelOnlyImpl++`]
+* xref:#ERC20Component-Embeddable-Mixin-Impl[`++ERC20MixinImpl++`]
 --
 
 [#ERC20-constructor-section]

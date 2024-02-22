@@ -643,11 +643,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC721MixinImpl
 
-* xref:#ERC721Component-Embeddable-Impls-ERC721Impl[`++ERC721Impl++`]
-* xref:#ERC721Component-Embeddable-Impls-ERC721MetadataImpl[`++ERC721MetadataImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-ERC721CamelOnlyImpl[`++ERC721CamelOnlyImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-ERC721MetadataCamelOnlyImpl[`++ERC721MetadataCamelOnlyImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#ERC721Component-Embeddable-Mixin-Impl[`++ERC721MixinImpl++`]
 --
 
 [#ERC721-constructor-section]

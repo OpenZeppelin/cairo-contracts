@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 
 const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
 const IERC721_METADATA_ID: felt252 =
-    0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd;
+    0xabbcd595a567dce909050a1038e055daccb3c42af06f0add544fa90ee91f25;
 const IERC721_RECEIVER_ID: felt252 =
     0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 

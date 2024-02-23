@@ -13,6 +13,7 @@ mod ERC20 {
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // ERC20Mixin
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;

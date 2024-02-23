@@ -8,7 +8,7 @@ mod DualCaseAccessControlMock {
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // AccessControl
+    // AccessControlMixin
     #[abi(embed_v0)]
     impl AccessControlMixinImpl =
         AccessControlComponent::AccessControlMixinImpl<ContractState>;

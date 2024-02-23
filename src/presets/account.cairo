@@ -12,7 +12,7 @@ mod Account {
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // Account
+    // AccountMixin
     #[abi(embed_v0)]
     impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;

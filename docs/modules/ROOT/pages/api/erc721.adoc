@@ -615,7 +615,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{erc721-class-hash}
+{ERC721-class-hash}
 --
 
 [.contract-index]

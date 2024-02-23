@@ -225,7 +225,7 @@ mod ERC721Component {
             self.ERC721_symbol.read()
         }
 
-        /// Returns the Uniform Resource Identifier (URI) for `token_id` token.
+        /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set, the return value will be an empty ByteArray.
         ///
         /// Requirements:

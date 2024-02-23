@@ -2,6 +2,7 @@ mod account;
 mod erc20;
 mod erc721;
 mod eth_account;
+mod multisig_account;
 
 use account::Account;
 use erc20::ERC20;

@@ -146,3 +146,20 @@ trait EthAccountABI<TState> {
     fn getPublicKey(self: @TState) -> EthPublicKey;
     fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
 }
+
+//
+// Multisig Account
+//
+
+#[starknet::interface]
+trait IPublicKeys<TState> {
+    fn get_public_keys(self: @TState) -> Span<felt252>;
+    fn add_public_key(ref self: TState, new_public_key: felt252);
+    fn remove_public_key(ref self: TState, public_key: felt252);
+}
+
+#[starknet::interface]
+trait IPublicKeysCamel<TState> {
+    fn getPublicKeys(self: @TState) -> Span<felt252>;
+    fn addPublicKey(ref self: TState, newPublicKey: felt252);
+}

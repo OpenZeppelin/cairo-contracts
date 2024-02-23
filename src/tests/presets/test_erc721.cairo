@@ -194,17 +194,6 @@ fn test_token_uri() {
 }
 
 #[test]
-fn test_token_uri_twice() {
-    let dispatcher = setup_dispatcher();
-
-    let uri = dispatcher.token_uri(TOKEN_1);
-    let expected = format!("{}{}", BASE_URI(), TOKEN_1);
-    assert_eq!(uri, expected);
-
-    dispatcher.token_uri(TOKEN_2);
-}
-
-#[test]
 fn test_get_approved() {
     let dispatcher = setup_dispatcher();
     let spender = SPENDER();

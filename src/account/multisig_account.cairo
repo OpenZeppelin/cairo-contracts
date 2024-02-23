@@ -195,9 +195,6 @@ mod MultisigAccountComponent {
                 i += 1;
             }
         }
-    //       account_public_keys: LegacyMap<usize, felt252>,
-    //      number_of_signers: usize,
-    //      threshold: usize,
     }
 
     /// Adds camelCase support for `ISRC6`.

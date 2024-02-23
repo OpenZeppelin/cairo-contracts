@@ -179,6 +179,8 @@ mod MultisigAccountComponent {
         /// Removes a public key of the multisig account.
         fn remove_public_key(ref self: ComponentState<TContractState>, public_key: felt252) {
             self.assert_only_self();
+            // Check missing to make sure the public_key passed as argument is indeed a public key of this account
+            self.emit(SignerRemoved { removed_signer_public_key: public_key });
 
             let mut i = 0;
             while i != self.number_of_signers.read() {

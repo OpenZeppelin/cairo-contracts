@@ -228,6 +228,10 @@ mod MultisigAccountComponent {
         fn addPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
             self.add_public_key(newPublicKey);
         }
+
+        fn removePublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
+            self.remove_public_key(newPublicKey);
+        }
     }
 
     #[generate_trait]

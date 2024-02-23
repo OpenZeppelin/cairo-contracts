@@ -162,4 +162,5 @@ trait IPublicKeys<TState> {
 trait IPublicKeysCamel<TState> {
     fn getPublicKeys(self: @TState) -> Span<felt252>;
     fn addPublicKey(ref self: TState, newPublicKey: felt252);
+    fn removePublicKey(ref self: TState, newPublicKey: felt252);
 }

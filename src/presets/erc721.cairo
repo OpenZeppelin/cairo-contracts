@@ -47,52 +47,36 @@ mod ERC721 {
         SRC5Event: SRC5Component::Event
     }
 
-    mod Errors {
-        const UNEQUAL_ARRAYS: felt252 = 'Array lengths do not match';
-    }
-
     /// Sets the token `name` and `symbol`.
     /// Mints the `token_ids` tokens to `recipient` and sets
-    /// each token's URI.
+    /// the base URI.
     #[constructor]
     fn constructor(
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
         recipient: ContractAddress,
-        token_ids: Span<u256>,
-        token_uris: Span<ByteArray>
+        base_uri: ByteArray,
+        token_ids: Span<u256>
     ) {
         self.erc721.initializer(name, symbol);
-        self._mint_assets(recipient, token_ids, token_uris);
+        self.erc721._set_base_uri(base_uri);
+        self._mint_assets(recipient, token_ids);
     }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         /// Mints `token_ids` to `recipient`.
-        /// Sets the token URI from `token_uris` to the corresponding
-        /// token ID of `token_ids`.
-        ///
-        /// Requirements:
-        ///
-        /// - `token_ids` must be equal in length to `token_uris`.
         fn _mint_assets(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            mut token_ids: Span<u256>,
-            mut token_uris: Span<ByteArray>
+            ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>
         ) {
-            assert(token_ids.len() == token_uris.len(), Errors::UNEQUAL_ARRAYS);
-
             loop {
                 if token_ids.len() == 0 {
                     break;
                 }
                 let id = *token_ids.pop_front().unwrap();
-                let uri = token_uris.pop_front().unwrap().clone();
 
                 self.erc721._mint(recipient, id);
-                self.erc721._set_token_uri(id, uri);
             }
         }
     }

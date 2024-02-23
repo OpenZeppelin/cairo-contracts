@@ -3,7 +3,7 @@ use openzeppelin::tests::mocks::erc721_mocks::{CamelERC721PanicMock, SnakeERC721
 use openzeppelin::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID
+    DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, BASE_URI, TOKEN_ID
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
@@ -27,7 +27,7 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     calldata.append_serde(SYMBOL());
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
-    calldata.append_serde(URI());
+    calldata.append_serde(BASE_URI());
     set_contract_address(OWNER());
     let target = utils::deploy(SnakeERC721Mock::TEST_CLASS_HASH, calldata);
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
@@ -39,7 +39,7 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     calldata.append_serde(SYMBOL());
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
-    calldata.append_serde(URI());
+    calldata.append_serde(BASE_URI());
     set_contract_address(OWNER());
     let target = utils::deploy(CamelERC721Mock::TEST_CLASS_HASH, calldata);
     (
@@ -302,7 +302,9 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 #[test]
 fn test_dual_token_uri() {
     let (dispatcher, _) = setup_snake();
-    assert_eq!(dispatcher.token_uri(TOKEN_ID), URI());
+    let uri = dispatcher.token_uri(TOKEN_ID);
+    let expected = format!("{}{}", BASE_URI(), TOKEN_ID);
+    assert_eq!(uri, expected);
 }
 
 #[test]
@@ -459,8 +461,9 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 #[test]
 fn test_dual_tokenURI() {
     let (dispatcher, _) = setup_camel();
-    let token_uri = dispatcher.token_uri(TOKEN_ID);
-    assert_eq!(token_uri, URI());
+    let uri = dispatcher.token_uri(TOKEN_ID);
+    let expected = format!("{}{}", BASE_URI(), TOKEN_ID);
+    assert_eq!(uri, expected);
 }
 
 #[test]

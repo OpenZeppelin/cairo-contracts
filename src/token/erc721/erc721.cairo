@@ -26,7 +26,7 @@ mod ERC721Component {
         ERC721_balances: LegacyMap<ContractAddress, u256>,
         ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
         ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        ERC721_token_uri: LegacyMap<u256, ByteArray>,
+        ERC721_base_uri: ByteArray
     }
 
     #[event]
@@ -225,15 +225,20 @@ mod ERC721Component {
             self.ERC721_symbol.read()
         }
 
-        /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-        /// If the URI is not set for the `token_id`, the return value will be `0`.
+        /// Returns the Uniform Resource Identifier (URI) for `token_id` token.
+        /// If the URI is not set, the return value will be an empty ByteArray.
         ///
         /// Requirements:
         ///
         /// - `token_id` exists.
         fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self.ERC721_token_uri.read(token_id)
+            let base_uri = self._base_uri();
+            if base_uri.len() == 0 {
+                return "";
+            } else {
+                return format!("{}{}", base_uri, token_id);
+            }
         }
     }
 
@@ -514,16 +519,18 @@ mod ERC721Component {
             );
         }
 
-        /// Sets the `token_uri` of `token_id`.
+        /// Sets the base URI.
+        fn _set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.ERC721_base_uri.write(base_uri);
+        }
+
+        /// Base URI for computing `token_uri`.
+        /// If set, the resulting URI for each token will be the concatenation of `_base_uri`
+        /// and the token ID.
         ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
-        fn _set_token_uri(
-            ref self: ComponentState<TContractState>, token_id: u256, token_uri: ByteArray
-        ) {
-            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self.ERC721_token_uri.write(token_id, token_uri)
+        /// The Base URI is an empty ByteArray by default.
+        fn _base_uri(self: @ComponentState<TContractState>) -> ByteArray {
+            self.ERC721_base_uri.read()
         }
     }
 

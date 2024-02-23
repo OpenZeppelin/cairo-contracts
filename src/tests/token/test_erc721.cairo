@@ -10,7 +10,8 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, URI, TOKEN_ID, PUBKEY,
+    DATA, ZERO, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID, PUBKEY,
+    BASE_URI, BASE_URI_2
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
@@ -43,6 +44,7 @@ fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
     state._mint(OWNER(), TOKEN_ID);
+    state._set_base_uri(BASE_URI());
     utils::drop_event(ZERO());
     state
 }
@@ -119,6 +121,25 @@ fn test_owner_of() {
 fn test_owner_of_non_minted() {
     let state = setup();
     state.owner_of(u256_from_felt252(7));
+}
+
+#[test]
+fn test_token_uri() {
+    let state = setup();
+
+    let uri = state.token_uri(TOKEN_ID);
+    let expected = format!("{}{}", BASE_URI(), TOKEN_ID);
+    assert_eq!(uri, expected);
+}
+
+#[test]
+fn test_token_uri_not_set() {
+    let mut state = COMPONENT_STATE();
+
+    state._mint(OWNER(), TOKEN_ID);
+    let uri = state.token_uri(TOKEN_ID);
+    let expected: ByteArray = "";
+    assert_eq!(uri, expected);
 }
 
 #[test]
@@ -1231,23 +1252,36 @@ fn test__burn_nonexistent() {
 }
 
 //
-// _set_token_uri
+// _set_base_uri & _base_uri
 //
 
 #[test]
-fn test__set_token_uri() {
-    let mut state = setup();
+fn test__base_uri_not_set() {
+    let mut state = COMPONENT_STATE();
 
-    assert!(state.token_uri(TOKEN_ID).len().is_zero());
-    state._set_token_uri(TOKEN_ID, URI());
-    assert_eq!(state.token_uri(TOKEN_ID), URI());
+    let base_uri = state._base_uri();
+    assert_eq!(base_uri, "");
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
-fn test__set_token_uri_nonexistent() {
+fn test__base_uri() {
+    let mut state = setup();
+
+    let base_uri = state._base_uri();
+    assert_eq!(base_uri, BASE_URI());
+}
+
+#[test]
+fn test__set_base_uri() {
     let mut state = COMPONENT_STATE();
-    state._set_token_uri(TOKEN_ID, URI());
+
+    state._set_base_uri(BASE_URI());
+    let base_uri = state._base_uri();
+    assert_eq!(base_uri, BASE_URI());
+
+    state._set_base_uri(BASE_URI_2());
+    let base_uri_2 = state._base_uri();
+    assert_eq!(base_uri_2, BASE_URI_2());
 }
 
 //

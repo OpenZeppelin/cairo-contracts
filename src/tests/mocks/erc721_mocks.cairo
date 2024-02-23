@@ -51,7 +51,7 @@ mod DualCaseERC721Mock {
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
+        self.erc721._set_base_uri(uri);
     }
 }
 
@@ -103,7 +103,7 @@ mod SnakeERC721Mock {
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
+        self.erc721._set_base_uri(uri);
     }
 }
 
@@ -157,7 +157,7 @@ mod CamelERC721Mock {
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
+        self.erc721._set_base_uri(uri);
     }
 
     /// The following external methods are included because they are case-agnostic

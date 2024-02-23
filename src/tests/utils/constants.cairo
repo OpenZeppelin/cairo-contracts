@@ -31,8 +31,12 @@ fn SYMBOL() -> ByteArray {
     "SYMBOL"
 }
 
-fn URI() -> ByteArray {
-    "URI"
+fn BASE_URI() -> ByteArray {
+    "https://api.example.com/v1/"
+}
+
+fn BASE_URI_2() -> ByteArray {
+    "https://api.example.com/v2/"
 }
 
 fn ETH_PUBKEY() -> EthPublicKey {

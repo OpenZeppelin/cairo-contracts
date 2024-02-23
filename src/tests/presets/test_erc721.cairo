@@ -9,7 +9,7 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL, BASE_URI
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
@@ -32,19 +32,6 @@ const NONEXISTENT: u256 = 9898;
 
 const TOKENS_LEN: u256 = 3;
 
-// Token URIs
-fn URI_1() -> ByteArray {
-    "URI_1"
-}
-
-fn URI_2() -> ByteArray {
-    "URI_2"
-}
-
-fn URI_3() -> ByteArray {
-    "URI_3"
-}
-
 //
 // Setup
 //
@@ -52,7 +39,6 @@ fn URI_3() -> ByteArray {
 fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
     let mut calldata = array![];
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    let mut token_uris = array![URI_1(), URI_2(), URI_3()];
 
     // Set caller as `OWNER`
     testing::set_contract_address(OWNER());
@@ -60,8 +46,8 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
     calldata.append_serde(OWNER());
+    calldata.append_serde(BASE_URI());
     calldata.append_serde(token_ids);
-    calldata.append_serde(token_uris);
 
     let address = utils::deploy(ERC721::TEST_CLASS_HASH, calldata);
     ERC721ABIDispatcher { contract_address: address }
@@ -99,43 +85,17 @@ fn setup_camel_account() -> ContractAddress {
 fn test__mint_assets() {
     let mut state = ERC721::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
-    let mut token_uris = array![URI_1(), URI_2(), URI_3()].span();
 
-    state._mint_assets(OWNER(), token_ids, token_uris);
-
+    state._mint_assets(OWNER(), token_ids);
     assert_eq!(state.erc721.balance_of(OWNER()), TOKENS_LEN);
 
     loop {
         if token_ids.len() == 0 {
             break;
         }
-
         let id = *token_ids.pop_front().unwrap();
-        let uri = token_uris.pop_front().unwrap().clone();
-
         assert_eq!(state.erc721.owner_of(id), OWNER());
-        assert_eq!(state.erc721.token_uri(id), uri);
     };
-}
-
-#[test]
-#[should_panic(expected: ('Array lengths do not match',))]
-fn test__mint_assets_mismatched_arrays_1() {
-    let mut state = ERC721::contract_state_for_testing();
-
-    let token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
-    let short_uris = array![URI_1(), URI_2()].span();
-    state._mint_assets(OWNER(), token_ids, short_uris);
-}
-
-#[test]
-#[should_panic(expected: ('Array lengths do not match',))]
-fn test__mint_assets_mismatched_arrays_2() {
-    let mut state = ERC721::contract_state_for_testing();
-
-    let short_ids = array![TOKEN_1, TOKEN_2].span();
-    let token_uris = array![URI_1(), URI_2(), URI_3()].span();
-    state._mint_assets(OWNER(), short_ids, token_uris);
 }
 
 //
@@ -222,6 +182,26 @@ fn test_owner_of_non_minted() {
 fn test_token_uri_non_minted() {
     let dispatcher = setup_dispatcher();
     dispatcher.token_uri(7);
+}
+
+#[test]
+fn test_token_uri() {
+    let dispatcher = setup_dispatcher();
+
+    let uri = dispatcher.token_uri(TOKEN_1);
+    let expected = format!("{}{}", BASE_URI(), TOKEN_1);
+    assert_eq!(uri, expected);
+}
+
+#[test]
+fn test_token_uri_twice() {
+    let dispatcher = setup_dispatcher();
+
+    let uri = dispatcher.token_uri(TOKEN_1);
+    let expected = format!("{}{}", BASE_URI(), TOKEN_1);
+    assert_eq!(uri, expected);
+
+    dispatcher.token_uri(TOKEN_2);
 }
 
 #[test]

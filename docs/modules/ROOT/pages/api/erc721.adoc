@@ -240,7 +240,8 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#ERC721-_burn[`++_burn(self, token_id)++`]
 * xref:#ERC721-_safe_mint[`++_safe_mint(self, to, token_id, data)++`]
 * xref:#ERC721-_safe_transfer[`++_safe_transfer(self, from, to, token_id, data)++`]
-* xref:#ERC721-_set_token_uri[`++_set_token_uri(self, token_id, token_uri)++`]
+* xref:#ERC721-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
+* xref:#ERC721-_base_uri[`++_base_uri(self)++`]
 --
 
 [.contract-index]
@@ -538,14 +539,19 @@ Requirements:
 - `to` either is an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
 
 [.contract-item]
-[[ERC721-_set_token_uri]]
-==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
+[[ERC721-_set_base_uri]]
+==== `[.contract-item-name]#++_set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
 
-Internal function that sets the `token_uri` of `token_id`.
+Internal function that sets the `base_uri`.
 
-Requirements:
+[.contract-item]
+[[ERC721-_base_uri]]
+==== `[.contract-item-name]#++_base_uri++#++(self: @ContractState) -> ByteArray++` [.item-kind]#internal#
 
-- `token_id` exists.
+Base URI for computing <<IERC721Metadata-token_uri, token_uri>>.
+
+If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+Returns an empty `ByteArray` if not set.
 
 ==== Events
 
@@ -621,7 +627,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Constructor
 --
-* xref:#ERC721-constructor[`++constructor(self, name, symbol, recipient, token_ids, token_uris)++`]
+* xref:#ERC721-constructor[`++constructor(self, name, symbol, recipient, token_ids, base_uri)++`]
 --
 
 [.contract-index]
@@ -644,8 +650,8 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[ERC721-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, token_uris: Span<ByteArray>)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, base_uri: ByteArray)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol`.
 
-Mints `token_ids` tokens with each corresponding URI from `token_uris` to `recipient`.
+Mints `token_ids` tokens to `recipient` and set the `base_uri`.

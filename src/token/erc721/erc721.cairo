@@ -525,10 +525,9 @@ mod ERC721Component {
         }
 
         /// Base URI for computing `token_uri`.
-        /// If set, the resulting URI for each token will be the concatenation of `_base_uri`
-        /// and the token ID.
         ///
-        /// The Base URI is an empty ByteArray by default.
+        /// If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+        /// Returns an empty `ByteArray` if not set.
         fn _base_uri(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_base_uri.read()
         }

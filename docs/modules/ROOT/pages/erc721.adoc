@@ -140,25 +140,11 @@ mod MyNFT {
         let name = "MyNFT";
         let symbol = "NFT";
         let token_id = 1;
-        let token_uri = "NFT_URI";
+        let base_uri = "https://api.example.com/v1/";
 
         self.erc721.initializer(name, symbol);
-        self._mint_with_uri(recipient, token_id, token_uri);
-    }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn _mint_with_uri(
-            ref self: ContractState,
-            recipient: ContractAddress,
-            token_id: u256,
-            token_uri: ByteArray
-        ) {
-            // Initialize the ERC721 storage
-            self.erc721._mint(recipient, token_id);
-            // Mint the NFT to recipient and set the token's URI
-            self.erc721._set_token_uri(token_id, token_uri);
-        }
+        self._mint(recipient, token_id);
+        self._set_base_uri(base_uri);
     }
 }
 ----
@@ -261,7 +247,9 @@ mod MyTokenReceiver {
 
 === Storing ERC721 URIs
 
-:erc721uri-storage: https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#ERC721URIStorage[ERC721URIStorage]
+:solidity-impl: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/token/ERC721/ERC721.sol#L85-L93[Solidity implementation]
+:token-uri: xref:/api/erc721.adoc#IERC721Metadata-token_uri[token_uri]
 
-Token URIs were previously stored as single field elements prior to Cairo v0.2.5; however, they are now stored as `ByteArray`.
-This design is similar to {erc721uri-storage}.
+Token URIs were previously stored as single field elements prior to Cairo v0.2.5.
+ERC721Component now stores only the base URI as a `ByteArray` and the full token URI is returned as the `ByteArray` concatenation of the base URI and the token ID through the {token-uri} method.
+This design mirrors OpenZeppelin's default {solidity-impl} for ERC721.

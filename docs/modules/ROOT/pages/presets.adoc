@@ -40,7 +40,7 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 | `{erc721-class-hash}`
 
 | `{udc}`
-| `{udc-class-hash}`
+| `{UniversalDeployer-class-hash}`
 |===
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a Sierra artifact.

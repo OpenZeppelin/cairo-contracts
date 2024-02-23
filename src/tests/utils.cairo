@@ -28,17 +28,16 @@ fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option
 
 /// Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 ///
-/// This function removes the first key, which is the event ID, from the event
-/// so that only the event struct keys are checked.
-///
 /// `expected_keys` must include all indexed event keys for `event` in the order
 /// that they're defined.
+///
+/// If the event is not flattened, the first key will be the event member name
+/// e.g. selector!("EnumMemberName").
 fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys: Span<felt252>) {
     let mut keys = array![];
     let mut data = array![];
 
     event.append_keys_and_data(ref keys, ref data);
-    let _ = keys.pop_front();
     assert!(expected_keys == keys.span());
 }
 

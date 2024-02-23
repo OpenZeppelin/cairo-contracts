@@ -350,6 +350,7 @@ fn assert_event_ownership_transfer_started(
     utils::assert_no_events_left(ZERO());
 
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnershipTransferStarted"));
     indexed_keys.append_serde(previous_owner);
     indexed_keys.append_serde(new_owner);
     utils::assert_indexed_keys(event, indexed_keys.span());

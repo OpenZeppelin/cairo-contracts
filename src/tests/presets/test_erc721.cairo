@@ -1025,6 +1025,7 @@ fn assert_event_approval_for_all(
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("ApprovalForAll"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(operator);
     utils::assert_indexed_keys(event, indexed_keys.span());
@@ -1042,6 +1043,7 @@ fn assert_event_approval(
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Approval"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(approved);
     indexed_keys.append_serde(token_id);
@@ -1059,6 +1061,7 @@ fn assert_event_transfer(
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Transfer"));
     indexed_keys.append_serde(from);
     indexed_keys.append_serde(to);
     indexed_keys.append_serde(token_id);

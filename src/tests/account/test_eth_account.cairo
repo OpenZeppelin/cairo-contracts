@@ -591,7 +591,9 @@ fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey)
     assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerAdded"));
+    indexed_keys.append_serde(guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
@@ -609,7 +611,9 @@ fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKe
     assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerRemoved"));
+    indexed_keys.append_serde(guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 

@@ -224,6 +224,7 @@ fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner
     utils::assert_no_events_left(ZERO());
 
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnershipTransferred"));
     indexed_keys.append_serde(previous_owner);
     indexed_keys.append_serde(new_owner);
     utils::assert_indexed_keys(event, indexed_keys.span());

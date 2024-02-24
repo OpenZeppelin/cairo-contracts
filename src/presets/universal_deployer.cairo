@@ -1,20 +1,18 @@
-use starknet::ClassHash;
-use starknet::ContractAddress;
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.9.0 (presets/universal_deployer.cairo)
 
-#[starknet::interface]
-trait IUniversalDeployer<TState> {
-    fn deploy_contract(
-        ref self: TState,
-        class_hash: ClassHash,
-        salt: felt252,
-        unique: bool,
-        calldata: Span<felt252>
-    ) -> ContractAddress;
-}
-
+/// # UniversalDeployer Preset
+///
+/// The Universal Deployer Contract is a singleton smart contract that wraps `deploy_syscall`
+/// to expose it to any contract that doesn't implement it, such as account contracts.
+///
+/// This contract is already deployed at 0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf
+/// on mainnet, testnets, and starknet-devnet.
+/// This address may change in the future.
 #[starknet::contract]
 mod UniversalDeployer {
     use core::pedersen::pedersen;
+    use openzeppelin::utils::universal_deployer::interface;
     use starknet::ClassHash;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
@@ -40,7 +38,7 @@ mod UniversalDeployer {
     }
 
     #[abi(embed_v0)]
-    impl UniversalDeployerImpl of super::IUniversalDeployer<ContractState> {
+    impl UniversalDeployerImpl of interface::IUniversalDeployer<ContractState> {
         fn deploy_contract(
             ref self: ContractState,
             class_hash: ClassHash,

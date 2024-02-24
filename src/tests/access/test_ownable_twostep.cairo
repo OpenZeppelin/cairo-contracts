@@ -34,17 +34,16 @@ fn setup() -> ComponentState {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_initializer_owner_pending_owner() {
     let mut state = COMPONENT_STATE();
-    assert(state.Ownable_owner.read() == ZERO(), 'Owner should be ZERO');
-    assert(state.Ownable_pending_owner.read() == ZERO(), 'Pending owner should be ZERO');
+    assert!(state.Ownable_owner.read().is_zero());
+    assert!(state.Ownable_pending_owner.read().is_zero());
     state.initializer(OWNER());
 
     assert_event_ownership_transferred(ZERO(), OWNER());
 
-    assert(state.Ownable_owner.read() == OWNER(), 'Owner should be set');
-    assert(state.Ownable_pending_owner.read() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.Ownable_owner.read(), OWNER());
+    assert!(state.Ownable_pending_owner.read().is_zero());
 }
 
 //
@@ -52,7 +51,6 @@ fn test_initializer_owner_pending_owner() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test__accept_ownership() {
     let mut state = setup();
     state.Ownable_pending_owner.write(OTHER());
@@ -60,8 +58,8 @@ fn test__accept_ownership() {
     state._accept_ownership();
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-    assert(state.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OTHER());
+    assert!(state.pending_owner().is_zero());
 }
 
 //
@@ -69,52 +67,48 @@ fn test__accept_ownership() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test__propose_owner() {
     let mut state = setup();
 
     state._propose_owner(OTHER());
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == OTHER(), 'Pending owner should be OTHER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), OTHER());
 }
 
 // transfer_ownership & transferOwnership
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_ownership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transfer_ownership(OTHER());
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == OTHER(), 'Pending owner should be OTHER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), OTHER());
 
     // Transferring to yet another owner while pending is set should work
     state.transfer_ownership(NEW_OWNER());
 
     assert_event_ownership_transfer_started(OWNER(), NEW_OWNER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == NEW_OWNER(), 'Pending should be NEW_OWNER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transfer_ownership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transfer_ownership(ZERO());
 
     assert_event_ownership_transfer_started(OWNER(), ZERO());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), ZERO());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_transfer_ownership_from_zero() {
     let mut state = setup();
@@ -122,7 +116,6 @@ fn test_transfer_ownership_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transfer_ownership_from_nonowner() {
     let mut state = setup();
@@ -131,38 +124,35 @@ fn test_transfer_ownership_from_nonowner() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferOwnership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transferOwnership(OTHER());
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pendingOwner() == OTHER(), 'Pending owner should be OTHER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pendingOwner(), OTHER());
 
     // Transferring to yet another owner while pending is set should work
     state.transferOwnership(NEW_OWNER());
 
     assert_event_ownership_transfer_started(OWNER(), NEW_OWNER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pendingOwner() == NEW_OWNER(), 'Pending should be NEW_OWNER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pendingOwner(), NEW_OWNER());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_transferOwnership_to_zero() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transferOwnership(ZERO());
 
     assert_event_ownership_transfer_started(OWNER(), ZERO());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pendingOwner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OWNER());
+    assert!(state.pendingOwner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_transferOwnership_from_zero() {
     let mut state = setup();
@@ -170,7 +160,6 @@ fn test_transferOwnership_from_zero() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transferOwnership_from_nonowner() {
     let mut state = setup();
@@ -183,7 +172,6 @@ fn test_transferOwnership_from_nonowner() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_accept_ownership() {
     let mut state = setup();
     state.Ownable_pending_owner.write(OTHER());
@@ -192,12 +180,11 @@ fn test_accept_ownership() {
     state.accept_ownership();
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-    assert(state.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OTHER());
+    assert!(state.pending_owner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the pending owner',))]
 fn test_accept_ownership_from_nonpending() {
     let mut state = setup();
@@ -207,7 +194,6 @@ fn test_accept_ownership_from_nonpending() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_acceptOwnership() {
     let mut state = setup();
     state.Ownable_pending_owner.write(OTHER());
@@ -216,12 +202,11 @@ fn test_acceptOwnership() {
     state.acceptOwnership();
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-    assert(state.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.pendingOwner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OTHER());
+    assert!(state.pendingOwner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the pending owner',))]
 fn test_acceptOwnership_from_nonpending() {
     let mut state = setup();
@@ -235,7 +220,6 @@ fn test_acceptOwnership_from_nonpending() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_renounce_ownership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -243,11 +227,10 @@ fn test_renounce_ownership() {
 
     assert_event_ownership_transferred(OWNER(), ZERO());
 
-    assert(state.owner() == ZERO(), 'Should renounce ownership');
+    assert!(state.owner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounce_ownership_from_zero_address() {
     let mut state = setup();
@@ -255,7 +238,6 @@ fn test_renounce_ownership_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounce_ownership_from_nonowner() {
     let mut state = setup();
@@ -264,7 +246,6 @@ fn test_renounce_ownership_from_nonowner() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_renounceOwnership() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -272,11 +253,10 @@ fn test_renounceOwnership() {
 
     assert_event_ownership_transferred(OWNER(), ZERO());
 
-    assert(state.owner() == ZERO(), 'Should renounce ownership');
+    assert!(state.owner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounceOwnership_from_zero_address() {
     let mut state = setup();
@@ -284,7 +264,6 @@ fn test_renounceOwnership_from_zero_address() {
 }
 
 #[test]
-#[available_gas(2000000)]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
@@ -293,46 +272,44 @@ fn test_renounceOwnership_from_nonowner() {
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_full_two_step_transfer() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transfer_ownership(OTHER());
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == OTHER(), 'Pending owner should be OTHER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), OTHER());
 
     testing::set_caller_address(OTHER());
     state.accept_ownership();
 
     assert_event_ownership_transferred(OWNER(), OTHER());
-    assert(state.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OTHER());
+    assert!(state.pending_owner().is_zero());
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_pending_accept_after_owner_renounce() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
     state.transfer_ownership(OTHER());
 
     assert_event_ownership_transfer_started(OWNER(), OTHER());
-    assert(state.owner() == OWNER(), 'Owner should be OWNER');
-    assert(state.pending_owner() == OTHER(), 'Pending owner should be OTHER');
+    assert_eq!(state.owner(), OWNER());
+    assert_eq!(state.pending_owner(), OTHER());
 
     state.renounce_ownership();
 
     assert_event_ownership_transferred(OWNER(), ZERO());
-    assert(state.owner() == ZERO(), 'Should renounce ownership');
+    assert!(state.owner().is_zero());
 
     testing::set_caller_address(OTHER());
     state.accept_ownership();
 
     assert_event_ownership_transferred(ZERO(), OTHER());
-    assert(state.owner() == OTHER(), 'Owner should be OTHER');
-    assert(state.pending_owner() == ZERO(), 'Pending owner should be ZERO');
+    assert_eq!(state.owner(), OTHER());
+    assert!(state.pending_owner().is_zero());
 }
 
 //

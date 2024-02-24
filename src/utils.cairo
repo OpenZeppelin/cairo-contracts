@@ -3,6 +3,7 @@
 
 mod selectors;
 mod serde;
+mod universal_deployer;
 mod unwrap_and_cast;
 
 use starknet::ContractAddress;

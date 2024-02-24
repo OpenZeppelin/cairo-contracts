@@ -29,12 +29,12 @@ while the end of a sprint marks the time to release whatever work has been finis
 i.e. “[the release train departs](https://github.com/OpenZeppelin/cairo-contracts/blob/main/RELEASING.md)”.
 
 - We design milestones to take ~25 working days so we can tackle them in a single sprint
-  1. 5 working days times 3 weeks/cycle per 3 devs
-    - ⇒ 45 workdays/sprint
-  2. we estimate we spend roughly ~1/3 or our time doing reviews
-    - ⇒ 30 workdays/sprint
-  3. we apply a 1/6 reduction to account for vacations, sickness, distractions, support, etc.
-    - **⇒ 25 workdays/sprint**
+    1. 5 working days times 3 weeks/cycle per 3 devs
+        - ⇒ 45 workdays/sprint
+    2. we estimate we spend roughly ~1/3 or our time doing reviews
+        - ⇒ 30 workdays/sprint
+    3. we apply a 1/6 reduction to account for vacations, sickness, distractions, support, etc.
+        - **⇒ 25 workdays/sprint**
 - To do so, we categorize issues by size based on a rough estimate of how many working days we expect it to take
   - 🦔 tiny: ~0.5 days
   - 🐇 small: ~2.5 days

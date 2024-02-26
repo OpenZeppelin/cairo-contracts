@@ -64,13 +64,13 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-two-step-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-two-step-renounce_ownership[`++renounce_ownership(self)++`]
 
-[.sub-index2#OwnableComponent-Embeddable-Impls-OwnableCamelOnlyImpl]
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableCamelOnlyImpl]
 .OwnableCamelOnlyImpl
 
 * xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
 * xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
 
-[.sub-index2#OwnableComponent-Embeddable-Impls-OwnableTwoStepCamelOnlyImpl]
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableTwoStepCamelOnlyImpl]
 .OwnableTwoStepCamelOnlyImpl
 
 * xref:OwnableComponent-two-step-pendingOwner[`++pendingOwner(self)++`]
@@ -451,14 +451,15 @@ accounts that have been granted it.
 --
 .AccessControlMixinImpl
 
-* xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlImpl++`]
-* xref:#AccessControlComponent-Embeddable-Impls[`++AccessControlCamelImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlImpl[`++AccessControlImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl[`++AccessControlCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
 [.contract-index#AccessControlComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlImpl]
 .AccessControlImpl
 
 * xref:#AccessControlComponent-has_role[`++has_role(self, role, account)++`]
@@ -467,6 +468,7 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-revoke_role[`++revoke_role(self, role, account)++`]
 * xref:#AccessControlComponent-renounce_role[`++renounce_role(self, role, account)++`]
 
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl]
 .AccessControlCamelImpl
 
 * xref:#AccessControlComponent-hasRole[`++hasRole(self, role, account)++`]

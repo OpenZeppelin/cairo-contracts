@@ -111,7 +111,7 @@ Emitted when a batch of `values` amount of `ids` tokens are transferred from `fr
 [[IERC1155-ApprovalForAll]]
 ==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#event#
 
-Emitted when `owner` enables or disables `operator` to manage the `token_id` token.
+Emitted when `owner` enables or disables `operator` to manage all of the owner's assets.
 
 [.contract-item]
 [[IERC1155-URI]]

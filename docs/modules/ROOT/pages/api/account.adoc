@@ -153,7 +153,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 --
 
 [#AccountComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[AccountComponent-__execute__]]
@@ -223,7 +223,7 @@ See xref:AccountComponent-get_public_key[get_public_key].
 See xref:AccountComponent-set_public_key[set_public_key].
 
 [#AccountComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[AccountComponent-initializer]]
@@ -372,7 +372,7 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 --
 
 [#EthAccountComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[EthAccountComponent-__execute__]]
@@ -442,7 +442,7 @@ See xref:EthAccountComponent-get_public_key[get_public_key].
 See xref:EthAccountComponent-set_public_key[set_public_key].
 
 [#EthAccountComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[EthAccountComponent-initializer]]
@@ -593,7 +593,7 @@ include::../utils/_class_hashes.adoc[]
 Sets the account `public_key` and registers the interfaces the contract supports.
 
 [#EthAccountUpgradeable-external-functions]
-==== External Functions
+==== External functions
 
 [.contract-item]
 [[EthAccountUpgradeable-upgrade]]

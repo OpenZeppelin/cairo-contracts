@@ -224,7 +224,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 --
 
 [#ERC20Component-Embeddable-functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[ERC20Component-total_supply]]

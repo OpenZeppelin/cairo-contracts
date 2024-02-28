@@ -99,7 +99,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [#OwnableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[OwnableComponent-owner]]
@@ -129,7 +129,7 @@ thereby removing any functionality that is only available to the owner.
 //end::renounce_ownership[]
 
 [#OwnableComponent-Embeddable-Functions-Two-Step]
-==== Embeddable Functions (Two Step Transfer)
+==== Embeddable functions (two step transfer)
 
 [.contract-item]
 [[OwnableComponent-two-step-owner]]
@@ -203,7 +203,7 @@ See xref:OwnableComponent-two-step-transfer_ownership[transfer_ownership].
 See xref:OwnableComponent-two-step-renounce_ownership[renounce_ownership].
 
 [#OwnableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[OwnableComponent-initializer]]
@@ -503,7 +503,7 @@ accounts that have been granted it.
 --
 
 [#AccessControlComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[AccessControlComponent-has_role]]
@@ -605,7 +605,7 @@ See xref:AccessControlComponent-revoke_role[revoke_role].
 See xref:AccessControlComponent-renounce_role[renounce_role].
 
 [#AccessControlComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[AccessControlComponent-initializer]]

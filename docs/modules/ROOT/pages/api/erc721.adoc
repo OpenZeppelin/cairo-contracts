@@ -242,7 +242,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 --
 
 [.contract-index]
-.Internal Functions
+.Internal functions
 --
 .InternalImpl
 * xref:#ERC721-initializer[`++initializer(self, name_, symbol_)++`]
@@ -268,7 +268,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#IERC721-Transfer[`++Transfer(from, to, token_id)++`]
 --
 
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[ERC721-balance_of]]

@@ -459,7 +459,7 @@ fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: Co
 fn assert_event_role_granted(role: felt252, account: ContractAddress, sender: ContractAddress) {
     let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
     let expected = AccessControlComponent::Event::RoleGranted(
-        RoleGranted { role: role, account: account, sender: sender }
+        RoleGranted { role, account, sender }
     );
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());
@@ -470,9 +470,7 @@ fn assert_event_role_admin_changed(
 ) {
     let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
     let expected = AccessControlComponent::Event::RoleAdminChanged(
-        RoleAdminChanged {
-            role: role, previous_admin_role: previous_admin_role, new_admin_role: new_admin_role
-        }
+        RoleAdminChanged { role, previous_admin_role, new_admin_role }
     );
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());

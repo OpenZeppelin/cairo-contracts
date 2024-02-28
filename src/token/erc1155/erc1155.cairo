@@ -84,7 +84,6 @@ mod ERC1155Component {
     }
 
     mod Errors {
-        const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';

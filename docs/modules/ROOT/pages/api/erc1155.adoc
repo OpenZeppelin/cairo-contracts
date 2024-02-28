@@ -165,6 +165,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 [.contract-index#ERC1155Component-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#ERC1155Component-Embeddable-Impls-ERC1155Impl]
 .ERC1155Impl
 * xref:#ERC1155Component-balance_of[`++balance_of(self, account, token_id)++`]
 * xref:#ERC1155Component-balance_of_batch[`++balance_of_batch(self, accounts, token_ids)++`]
@@ -173,6 +174,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#ERC1155Component-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
 * xref:#ERC1155Component-set_approval_for_all[`++set_approval_for_all(self, operator, approved)++`]
 
+[.sub-index#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl]
 .ERC1155MetadataURIImpl
 * xref:#ERC1155Component-uri[`++uri(self, token_id)++`]
 --
@@ -180,6 +182,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 [.contract-index#ERC1155Component-Embeddable-Impls-camelCase]
 .Embeddable implementations (camelCase)
 --
+[.sub-index#ERC1155Component-Embeddable-Impls-ER1155CamelImpl]
 .ER1155CamelImpl
 * xref:#ERC1155Component-balanceOf[`++balanceOf(self, account, tokenId)++`]
 * xref:#ERC1155Component-balanceOfBatch[`++balanceOfBatch(self, accounts, tokenIds)++`]
@@ -635,13 +638,13 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC1155Component
 
-* xref:#ERC1155Component-Embeddable-Impls[`++ERC1155Impl++`]
-* xref:#ERC1155Component-Embeddable-Impls[`++ERC1155MetadataURIImpl++`]
-* xref:#ERC1155Component-Embeddable-Impls-camelCase[`++ERC1155Camel++`]
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ERC1155CamelImpl++`]
 
 .SRC5Component
 
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
 --
 
 [#ERC1155-constructor-section]

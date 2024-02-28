@@ -56,8 +56,8 @@ mod ERC721 {
         name: ByteArray,
         symbol: ByteArray,
         recipient: ContractAddress,
-        base_uri: ByteArray,
-        token_ids: Span<u256>
+        token_ids: Span<u256>,
+        base_uri: ByteArray
     ) {
         self.erc721.initializer(name, symbol);
         self.erc721._set_base_uri(base_uri);

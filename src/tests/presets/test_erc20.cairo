@@ -299,9 +299,7 @@ fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Approval(
-        Approval { owner: owner, spender: spender, value: value }
-    );
+    let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
     assert!(event == expected);
 
     // Check indexed keys
@@ -323,7 +321,7 @@ fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Transfer(Transfer { from: from, to: to, value: value });
+    let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
     assert!(event == expected);
 
     // Check indexed keys

@@ -654,4 +654,4 @@ include::../utils/_class_hashes.adoc[]
 
 Sets the `name` and `symbol`.
 
-Mints `token_ids` tokens to `recipient` and set the `base_uri`.
+Mints `token_ids` tokens to `recipient` and sets the `base_uri`.

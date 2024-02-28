@@ -143,8 +143,8 @@ mod MyNFT {
         let base_uri = "https://api.example.com/v1/";
 
         self.erc721.initializer(name, symbol);
-        self._mint(recipient, token_id);
         self._set_base_uri(base_uri);
+        self._mint(recipient, token_id);
     }
 }
 ----

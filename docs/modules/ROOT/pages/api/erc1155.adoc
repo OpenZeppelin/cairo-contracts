@@ -457,9 +457,9 @@ By this mechanism, any occurrence of the `\{id\}` substring in either the
 URI or any of the values in the JSON file at said URI will be replaced by
 clients with the token type ID.
 
-For example, the `https://token-cdn-domain/\{id\}.json` URI would be
+For example, the pass:[<code>https://token-cdn-domain/\{id\}.json</code>] URI would be
 interpreted by clients as
-`https://token-cdn-domain/000000000000...000000000000004cce0.json`
+pass:[<code>https://token-cdn-domain/000000000000...000000000000004cce0.json</code>]
 for token type ID 0x4cce0.
 
 Because these URIs cannot be meaningfully represented by the `URI` event,
@@ -552,7 +552,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#ERC1155ReceiverComponent-on_erc1155_batch_received[`++on_erc1155_batch_received(self, operator, from, token_ids, values, data)++`]
 --
 
-[.contract-index#ERC1155Component-Embeddable-Impls-camelCase]
+[.contract-index#ERC1155ReceiverComponent-Embeddable-Impls-camelCase]
 .Embeddable implementations (camelCase)
 --
 .ERC1155ReceiverCamelImpl
@@ -564,7 +564,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 .Internal Functions
 --
 .InternalImpl
-* xref:#ERC1155Component-initializer[`++initializer(self)++`]
+* xref:#ERC1155ReceiverComponent-initializer[`++initializer(self)++`]
 --
 
 ==== Embeddable functions
@@ -621,7 +621,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{erc1155-class-hash}
+{ERC1155-class-hash}
 --
 
 [.contract-index]

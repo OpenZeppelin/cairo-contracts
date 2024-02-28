@@ -177,7 +177,7 @@ mod MyERC1155 {
 :safe_transfer_from: xref:/api/erc1155.adoc#IERC1155-safe_transfer_from[safe_transfer_from]
 :balance_of_batch: xref:/api/erc1155.adoc#IERC1155-balance_of_batch[balance_of_batch]
 :safe_batch_transfer_from: xref:/api/erc1155.adoc#IERC1155-safe_batch_transfer_from[safe_batch_transfer_from]
-:batch_mint_with_acceptance_check: xref:/api/erc1155.adoc#IERC1155-batch_mint_with_acceptance_check[batch_mint_with_acceptance_check]
+:batch_mint_with_acceptance_check: xref:/api/erc1155.adoc#ERC1155Component-batch_mint_with_acceptance_check[batch_mint_with_acceptance_check]
 
 Because all state is held in a single contract, it is possible to operate over multiple tokens in a single transaction very efficiently. The standard provides two functions, {balance_of_batch} and {safe_batch_transfer_from}, that make querying multiple balances and transferring multiple tokens simpler and less gas-intensive. We also have {safe_transfer_from} for non-batch operations.
 

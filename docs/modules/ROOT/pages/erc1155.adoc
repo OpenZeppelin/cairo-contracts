@@ -223,7 +223,7 @@ trait IERC1155Receiver {
 ----
 
 Implementing the `IERC1155Receiver` interface exposes the {on_erc1155_received} and {on_erc1155_batch_received} methods.
-When {safe_transfer_from} and {safe_batch_transfer_from} are called, they invoke the recipient contract's `on_erc1155_received` or `on_erc1155_batch_received `methods respectively which *must* return the {receiver-id}.
+When {safe_transfer_from} and {safe_batch_transfer_from} are called, they invoke the recipient contract's `on_erc1155_received` or `on_erc1155_batch_received` methods respectively which *must* return the {receiver-id}.
 Otherwise, the transaction will fail.
 
 TIP: For information on how to calculate interface IDs, see {computing-interface-id}.

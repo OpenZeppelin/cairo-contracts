@@ -450,7 +450,7 @@ fn test_default_admin_role_is_its_own_admin() {
 fn assert_event_role_revoked(role: felt252, account: ContractAddress, sender: ContractAddress) {
     let event = utils::pop_log::<AccessControlComponent::Event>(ZERO()).unwrap();
     let expected = AccessControlComponent::Event::RoleRevoked(
-        RoleRevoked { role: role, account: account, sender: sender }
+        RoleRevoked { role, account, sender }
     );
     assert!(event == expected);
     utils::assert_no_events_left(ZERO());

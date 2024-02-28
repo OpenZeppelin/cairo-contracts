@@ -15,7 +15,7 @@ fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAdd
 /// Pop the earliest unpopped logged event enum for the contract and checks
 /// there's no more keys or data left on the event, preventing unaccounted params.
 ///
-/// NOTE: If the event enum contains two `flat` events with the same structure (member types),
+/// CAUTION: If the event enum contains two `flat` events with the same structure (member types),
 /// this function will always match the first event, even when the second one is emitted.
 fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option<T> {
     let (mut keys, mut data) = testing::pop_log_raw(address)?;

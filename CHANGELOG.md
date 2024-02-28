@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Change unwrap to unwrap_syscall (#901)
 - Integrate ByteArray into ERC20 and ERC721 (#857)
+- IERC721Metadata interface ID (#857)
 
 ## 0.9.0 (2024-02-08)
 

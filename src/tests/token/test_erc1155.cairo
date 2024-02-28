@@ -1,8 +1,7 @@
 use core::starknet::storage::StorageMemberAccessTrait;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::account_mocks::{SnakeAccountMock, CamelAccountMock};
+use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
     CamelERC1155ReceiverMock, SnakeERC1155ReceiverMock

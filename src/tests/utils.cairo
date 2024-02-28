@@ -18,7 +18,7 @@ fn deploy_with_salt(
     let (address, _) = starknet::deploy_syscall(
         contract_class_hash.try_into().unwrap(), salt, calldata.span(), false
     )
-        .unwrap();
+        .unwrap_syscall();
     address
 }
 

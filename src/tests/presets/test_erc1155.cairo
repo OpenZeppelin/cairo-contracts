@@ -9,8 +9,7 @@ use openzeppelin::tests::token::test_erc1155::{
 };
 use openzeppelin::tests::token::test_erc1155::{get_ids_and_values, get_ids_and_split_values};
 use openzeppelin::tests::utils::constants::{
-    EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
-    TOKEN_VALUE_2
+    EMPTY_DATA, ZERO, OWNER, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::interface::{ERC1155ABIDispatcher, ERC1155ABIDispatcherTrait};

@@ -3,7 +3,7 @@ use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
     SnakeERC1155ReceiverPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils::constants::{DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
+use openzeppelin::tests::utils::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::dual1155_receiver::{
     DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait
@@ -65,7 +65,7 @@ fn setup_erc1155_receiver_panic() -> (DualCaseERC1155Receiver, DualCaseERC1155Re
 fn test_dual_on_erc1155_received() {
     let (dispatcher, _) = setup_snake();
     let result = dispatcher
-        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     assert_eq!(result, IERC1155_RECEIVER_ID,);
 }
 
@@ -73,14 +73,14 @@ fn test_dual_on_erc1155_received() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_on_erc1155_received() {
     let dispatcher = setup_non_erc1155_receiver();
-    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_on_erc1155_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_receiver_panic();
-    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn test_dual_on_erc1155_batch_received() {
     let (token_ids, values) = get_ids_and_values();
 
     let result = dispatcher
-        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, EMPTY_DATA());
     assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
@@ -98,7 +98,7 @@ fn test_dual_on_erc1155_batch_received() {
 fn test_dual_no_on_erc1155_batch_received() {
     let dispatcher = setup_non_erc1155_receiver();
     let (token_ids, values) = get_ids_and_values();
-    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -106,7 +106,7 @@ fn test_dual_no_on_erc1155_batch_received() {
 fn test_dual_on_erc1155_batch_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_receiver_panic();
     let (token_ids, values) = get_ids_and_values();
-    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, EMPTY_DATA());
 }
 
 //
@@ -117,7 +117,7 @@ fn test_dual_on_erc1155_batch_received_exists_and_panics() {
 fn test_dual_onERC1155Received() {
     let (dispatcher, _) = setup_camel();
     let result = dispatcher
-        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+        .on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
@@ -125,7 +125,7 @@ fn test_dual_onERC1155Received() {
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_onERC1155Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_receiver_panic();
-    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -134,7 +134,7 @@ fn test_dual_onERC1155BatchReceived() {
     let (token_ids, values) = get_ids_and_values();
 
     let result = dispatcher
-        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+        .on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, EMPTY_DATA());
     assert_eq!(result, IERC1155_RECEIVER_ID);
 }
 
@@ -143,7 +143,7 @@ fn test_dual_onERC1155BatchReceived() {
 fn test_dual_onERC1155BatchReceived_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_receiver_panic();
     let (token_ids, values) = get_ids_and_values();
-    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, DATA(true));
+    dispatcher.on_erc1155_batch_received(OPERATOR(), OWNER(), token_ids, values, EMPTY_DATA());
 }
 
 //

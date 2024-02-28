@@ -84,7 +84,6 @@ mod ERC1155Component {
     }
 
     mod Errors {
-        const INVALID_OPERATOR: felt252 = 'ERC1155: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
         const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';
@@ -398,11 +397,12 @@ mod ERC1155Component {
             data: Span<felt252>
         ) {
             self.update(from, to, token_ids, values);
-            if token_ids.len() == 1 {
-                _check_on_ERC1155_received(from, to, *token_ids.at(0), *values.at(0), data);
+            let accepted = if token_ids.len() == 1 {
+                _check_on_ERC1155_received(from, to, *token_ids.at(0), *values.at(0), data)
             } else {
-                _check_on_ERC1155_batch_received(from, to, token_ids, values, data);
-            }
+                _check_on_ERC1155_batch_received(from, to, token_ids, values, data)
+            };
+            assert(accepted, Errors::SAFE_TRANSFER_FAILED);
         }
 
         /// Creates a `value` amount of tokens of type `token_id`, and assigns them to `to`.
@@ -511,11 +511,10 @@ mod ERC1155Component {
 
     /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
     /// or if it's an account contract (supporting ISRC6).
-    /// The transaction will fail if both are false.
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
-    ) {
-        let accepted = if (DualCaseSRC5 { contract_address: to }
+    ) -> bool {
+        if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC1155_RECEIVER_ID)) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_received(
@@ -523,22 +522,19 @@ mod ERC1155Component {
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
-        };
-
-        assert(accepted, Errors::SAFE_TRANSFER_FAILED);
+        }
     }
 
     /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
     /// or if it's an account contract (supporting ISRC6).
-    /// The transaction will fail if both are false.
     fn _check_on_ERC1155_batch_received(
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
-    ) {
-        let accepted = if (DualCaseSRC5 { contract_address: to }
+    ) -> bool {
+        if (DualCaseSRC5 { contract_address: to }
             .supports_interface(interface::IERC1155_RECEIVER_ID)) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_batch_received(
@@ -546,7 +542,6 @@ mod ERC1155Component {
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
-        };
-        assert(accepted, Errors::SAFE_TRANSFER_FAILED);
+        }
     }
 }

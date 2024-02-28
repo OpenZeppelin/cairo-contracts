@@ -3,7 +3,7 @@ use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155PanicMock, SnakeERC1
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::token::test_erc1155::{setup_account, setup_receiver};
 use openzeppelin::tests::utils::constants::{
-    DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
+    EMPTY_DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
@@ -149,7 +149,7 @@ fn test_dual_safe_transfer_from() {
     let (dispatcher, target, owner) = setup_snake();
     let receiver = setup_receiver();
     testing::set_contract_address(owner);
-    dispatcher.safe_transfer_from(owner, receiver, TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.safe_transfer_from(owner, receiver, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     assert_eq!(target.balance_of(receiver, TOKEN_ID), TOKEN_VALUE);
 }
 
@@ -157,14 +157,14 @@ fn test_dual_safe_transfer_from() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc1155();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn test_dual_safe_batch_transfer_from() {
     let receiver = setup_receiver();
     testing::set_contract_address(owner);
 
-    dispatcher.safe_batch_transfer_from(owner, receiver, token_ids, values, DATA(true));
+    dispatcher.safe_batch_transfer_from(owner, receiver, token_ids, values, EMPTY_DATA());
     assert_eq!(target.balance_of(receiver, TOKEN_ID), TOKEN_VALUE);
     assert!(target.balance_of(receiver, TOKEN_ID_2).is_zero());
 }
@@ -186,7 +186,7 @@ fn test_dual_no_safe_batch_transfer_from() {
     let dispatcher = setup_non_erc1155();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE, 0].span();
-    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, DATA(true));
+    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -195,7 +195,7 @@ fn test_dual_safe_batch_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE, 0].span();
-    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, DATA(true));
+    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -308,7 +308,7 @@ fn test_dual_safeTransferFrom() {
     let (dispatcher, target, owner) = setup_camel();
     let receiver = setup_receiver();
     testing::set_contract_address(owner);
-    dispatcher.safe_transfer_from(owner, receiver, TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.safe_transfer_from(owner, receiver, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     assert_eq!(target.balanceOf(receiver, TOKEN_ID), TOKEN_VALUE);
 }
 
@@ -316,7 +316,7 @@ fn test_dual_safeTransferFrom() {
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
-    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, DATA(true));
+    dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -327,7 +327,7 @@ fn test_dual_safeBatchTransferFrom() {
     let receiver = setup_receiver();
     testing::set_contract_address(owner);
 
-    dispatcher.safe_batch_transfer_from(owner, receiver, token_ids, values, DATA(true));
+    dispatcher.safe_batch_transfer_from(owner, receiver, token_ids, values, EMPTY_DATA());
     assert_eq!(target.balanceOf(receiver, TOKEN_ID), TOKEN_VALUE);
     assert!(target.balanceOf(receiver, TOKEN_ID_2).is_zero());
 }
@@ -338,7 +338,7 @@ fn test_dual_safeBatchTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE, 0].span();
-    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, DATA(true));
+    dispatcher.safe_batch_transfer_from(OWNER(), RECIPIENT(), token_ids, values, EMPTY_DATA());
 }
 
 #[test]

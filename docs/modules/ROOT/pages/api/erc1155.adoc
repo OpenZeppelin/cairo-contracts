@@ -573,17 +573,13 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 [[ERC1155ReceiverComponent-on_erc1155_received]]
 ==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-Called whenever the implementing contract receives `value` through
-a safe transfer. This function must return the `IERC1155Receiver` interface id
-to confirm the token transfer.
+Returns the `IERC1155Receiver` interface ID.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-on_erc1155_batch_received]]
 ==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-Called whenever the implementing contract receives `values` through
-a safe batch transfer. This function must return the `IERC1155Receiver` interface id
-to confirm the token transfer.
+Returns the `IERC1155Receiver` interface ID.
 
 ==== camelCase Support
 
@@ -606,7 +602,7 @@ See <<ERC1155ReceiverComponent-on_erc1155_batch_received,ERC1155ReceiverComponen
 [[ERC1155ReceiverComponent-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Registers the `IERC1155Receiver` interface id as supported through introspection.
+Registers the `IERC1155Receiver` interface ID as supported through introspection.
 
 == Presets
 

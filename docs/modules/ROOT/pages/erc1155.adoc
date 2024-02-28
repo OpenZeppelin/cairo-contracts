@@ -1,5 +1,5 @@
 :eip-1155: https://eips.ethereum.org/EIPS/eip-1155[EIP-1155]
-:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[Fungibility Agnostic]
+:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[Fungibility-agnostic]
 
 = ERC1155
 
@@ -10,11 +10,18 @@ The ERC1155 library implements an approximation of {eip-1155} in Cairo for Stark
 
 :balance_of-api: xref:api/erc1155.adoc#ERC1155-balance_of[balance_of]
 
-The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This is why its {balance_of-api} function differs from ERC20’s and ERC777’s: it has an additional id argument for the identifier of the token that you want to query the balance of.
+The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This
+is why its {balance_of-api} function differs from ERC20’s and ERC777’s: it has an additional ID argument for the
+identifier of the token that you want to query the balance of.
 
-This is similar to how ERC721 does things, but in that standard a token id has no concept of balance: each token is non-fungible and exists or doesn’t. The ERC721 balance_of function refers to how many different tokens an account has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token id, and non-fungible tokens are implemented by simply minting a single one of them.
+This is similar to how ERC721 does things, but in that standard a token ID has no concept of balance: each token is
+non-fungible and exists or doesn’t. The ERC721 balance_of function refers to how many different tokens an account has,
+not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token ID, and
+non-fungible tokens are implemented by simply minting a single one of them.
 
-This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment costs and complexity.
+This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new
+contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment
+costs and complexity.
 
 
 == Interface
@@ -92,20 +99,19 @@ trait ERC1155ABI<TState> {
 
 === ERC1155 Compatibility
 
-Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard 
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard
 using `u256` instead of `felt252`. But some differences can still be found, such as:
 
-* It implements an `uri()` function that returns the same URI for *all* token types. It relies on the token type ID substitution mechanism https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP]. Clients calling this function must replace the `\{id\}` substring with the actual token type ID.
-* `safe_transfer_from` and `safe_batch_transfer_from` are specified such that the optional `data` argument should be of type `Span<felt252>` simulating bytes.
+* `safe_transfer_from` and `safe_batch_transfer_from` are specified such that the optional `data` argument should be of type `Span<felt252>`.
 * `IERC1155Receiver` compliant contracts must return a hardcoded `felt252` representing the SRC5 interface
 ID of `IERC1155Receiver`.
-* `IERC1155Receiver` compliant contracts must support SRC5 by registering the `IERC1155Receiver` interface id in its constructor and exposing the `supports_interface` method.
+* `IERC1155Receiver` compliant contracts must support SRC5 by registering the `IERC1155Receiver` interface ID in its constructor and exposing the `supports_interface` method.
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC1155 transfers.
 
 == Usage
 
 Using Contracts for Cairo, constructing an ERC1155 contract requires integrating both `ERC1155Component` and `SRC5Component`.
-The contract should also set up the constructor to initialize the token's uri and interface support.
+The contract should also set up the constructor to initialize the token's URI and interface support.
 Here's an example of a basic contract:
 
 [,javascript]
@@ -150,14 +156,6 @@ mod MyERC1155 {
         SRC5Event: SRC5Component::Event
     }
 
-    /// Sets the `token_uri`.
-    /// Mints the `values` for `token_ids` tokens to `recipient`.
-    ///
-    /// Requirements:
-    ///
-    /// - `to` is either an account contract (supporting ISRC6) or
-    ///    supports the `IERC1155Receiver` interface.
-    /// - `token_ids` and `values` must have the same length.
     #[constructor]
     fn constructor(
         ref self: ContractState,

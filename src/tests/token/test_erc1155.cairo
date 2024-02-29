@@ -1301,7 +1301,9 @@ fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
-    let expected = ERC1155Component::Event::ApprovalForAll(ApprovalForAll { owner, operator, approved });
+    let expected = ERC1155Component::Event::ApprovalForAll(
+        ApprovalForAll { owner, operator, approved }
+    );
     assert!(event == expected);
 
     // Check indexed keys
@@ -1322,7 +1324,9 @@ fn assert_event_transfer_single(
 ) {
     let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
     let id = token_id;
-    let expected = ERC1155Component::Event::TransferSingle(TransferSingle { operator, from, to, id, value });
+    let expected = ERC1155Component::Event::TransferSingle(
+        TransferSingle { operator, from, to, id, value }
+    );
     assert!(event == expected);
 
     // Check indexed keys
@@ -1344,7 +1348,9 @@ fn assert_event_transfer_batch(
 ) {
     let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
     let ids = token_ids;
-    let expected = ERC1155Component::Event::TransferBatch(TransferBatch { operator, from, to, ids, values });
+    let expected = ERC1155Component::Event::TransferBatch(
+        TransferBatch { operator, from, to, ids, values }
+    );
     assert!(event == expected);
 
     // Check indexed keys

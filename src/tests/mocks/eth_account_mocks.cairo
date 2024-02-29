@@ -127,8 +127,8 @@ mod CamelEthAccountMock {
         self.eth_account.initializer(publicKey);
     }
 
-    #[generate_trait]
     #[abi(per_item)]
+    #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {

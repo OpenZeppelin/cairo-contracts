@@ -162,8 +162,8 @@ mod CamelERC721Mock {
 
     /// The following external methods are included because they are case-agnostic
     /// and this contract should not embed the snake_case impl.
-    #[generate_trait]
     #[abi(per_item)]
+    #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn approve(ref self: ContractState, to: ContractAddress, tokenId: u256) {
@@ -196,8 +196,8 @@ mod SnakeERC721PanicMock {
     #[storage]
     struct Storage {}
 
-    #[generate_trait]
     #[abi(per_item)]
+    #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn name(self: @ContractState) -> felt252 {
@@ -289,8 +289,8 @@ mod CamelERC721PanicMock {
     #[storage]
     struct Storage {}
 
-    #[generate_trait]
     #[abi(per_item)]
+    #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {

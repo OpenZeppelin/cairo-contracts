@@ -59,6 +59,7 @@ fn test_unpack_big_secp256k1_points() {
     let (x, _) = StorePacking::unpack((xlow, xhigh_and_parity)).get_coordinates().unwrap_syscall();
 
     assert_eq!(x, expected_x);
+    assert_eq!(y, expected_y);
 }
 
 #[test]

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- ERC1155 component and preset (#896)
+
 ### Changed
 
 - Change unwrap to unwrap_syscall (#901)

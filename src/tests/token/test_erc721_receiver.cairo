@@ -17,9 +17,9 @@ fn test_initializer() {
     state.erc721_receiver.initializer();
 
     let supports_ierc721_receiver = state.src5.supports_interface(IERC721_RECEIVER_ID);
-    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
-
     assert!(supports_ierc721_receiver);
+
+    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
 }
 

@@ -215,4 +215,3 @@ mod CamelERC721ReceiverPanicMock {
         3
     }
 }
-

@@ -8,9 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- ERC1155 component and preset (#896)
+
 ### Changed
 
 - Change unwrap to unwrap_syscall (#901)
+- ABI implementations (mixins) in components (#863)
 
 ## 0.9.0 (2024-02-08)
 

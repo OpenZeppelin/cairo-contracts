@@ -12,10 +12,7 @@ use openzeppelin::tests::utils::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721ComponentInternalTrait;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
-use openzeppelin::token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
-use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, ERC721MetadataCamelOnlyImpl};
 use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::ERC721ABI;
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
@@ -146,8 +143,8 @@ fn test_constructor() {
         if interface_ids.len() == 0 {
             break;
         }
-        let supports_isrc5 = dispatcher.supports_interface(id);
-        assert!(supports_isrc5);
+        let supports_interface = dispatcher.supports_interface(id);
+        assert!(supports_interface);
     };
 
     // Check token balance and owner

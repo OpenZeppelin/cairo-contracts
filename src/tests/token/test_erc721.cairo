@@ -42,9 +42,8 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
     state._mint(OWNER(), TOKEN_ID);
-    state._set_base_uri(BASE_URI());
     utils::drop_event(ZERO());
     state
 }
@@ -76,10 +75,11 @@ fn test_initialize() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
 
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
 
     assert_eq!(state.name(), NAME());
     assert_eq!(state.symbol(), SYMBOL());
+    assert_eq!(state._base_uri(), BASE_URI());
     assert!(state.balance_of(OWNER()).is_zero());
 
     let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
@@ -793,7 +793,7 @@ fn test_safe_transfer_from_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
@@ -813,7 +813,7 @@ fn test_safeTransferFrom_to_owner() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
@@ -833,7 +833,7 @@ fn test_safe_transfer_from_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 
@@ -853,7 +853,7 @@ fn test_safeTransferFrom_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
-    state.initializer(NAME(), SYMBOL());
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
     state._mint(owner, token_id);
     utils::drop_event(ZERO());
 

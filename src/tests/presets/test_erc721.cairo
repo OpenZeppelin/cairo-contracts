@@ -45,9 +45,9 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
 
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
+    calldata.append_serde(BASE_URI());
     calldata.append_serde(OWNER());
     calldata.append_serde(token_ids);
-    calldata.append_serde(BASE_URI());
 
     let address = utils::deploy(ERC721::TEST_CLASS_HASH, calldata);
     ERC721ABIDispatcher { contract_address: address }

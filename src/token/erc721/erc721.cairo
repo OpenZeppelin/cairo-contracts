@@ -318,13 +318,14 @@ mod ERC721Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token name and symbol.
+        /// Initializes the contract by setting the token name, symbol, and base URI.
         /// This should only be used inside the contract's constructor.
         fn initializer(
-            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray, base_uri: ByteArray
         ) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
+            self._set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC721_ID);

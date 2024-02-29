@@ -55,12 +55,11 @@ mod ERC721 {
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
         token_ids: Span<u256>,
-        base_uri: ByteArray
     ) {
-        self.erc721.initializer(name, symbol);
-        self.erc721._set_base_uri(base_uri);
+        self.erc721.initializer(name, symbol, base_uri);
         self._mint_assets(recipient, token_ids);
     }
 

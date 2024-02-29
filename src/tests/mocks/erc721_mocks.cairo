@@ -45,13 +45,12 @@ mod DualCaseERC721Mock {
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: ByteArray
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_base_uri(uri);
     }
 }
 
@@ -97,13 +96,12 @@ mod SnakeERC721Mock {
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: ByteArray
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_base_uri(uri);
     }
 }
 
@@ -151,13 +149,12 @@ mod CamelERC721Mock {
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: ByteArray
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_base_uri(uri);
     }
 
     /// The following external methods are included because they are case-agnostic

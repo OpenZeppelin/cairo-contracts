@@ -229,7 +229,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 .Internal Functions
 --
 .InternalImpl
-* xref:#ERC721Component-initializer[`++initializer(self, name, symbol)++`]
+* xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
 * xref:#ERC721Component-_owner_of[`++_owner_of(self, token_id)++`]
 * xref:#ERC721Component-_exists[`++_exists(self, token_id)++`]
 * xref:#ERC721Component-_is_approved_or_owner[`++_is_approved_or_owner(self, spender, token_id)++`]
@@ -412,7 +412,7 @@ See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
 
 [.contract-item]
 [[ERC721Component-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray)++` [.item-kind]#internal#
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside the contract's constructor.

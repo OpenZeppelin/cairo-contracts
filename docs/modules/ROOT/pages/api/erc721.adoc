@@ -369,7 +369,7 @@ See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
 ==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> ByteArray++` [.item-kind]#external#
 
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+If a base URI is set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
 For example, the base URI pass:[<code>https://token-cdn-domain/</code>] would be returned as pass:[<code>https://token-cdn-domain/123</code>] for token ID `123`.
 
 If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.

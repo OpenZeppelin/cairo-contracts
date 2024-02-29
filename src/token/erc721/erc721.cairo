@@ -321,7 +321,10 @@ mod ERC721Component {
         /// Initializes the contract by setting the token name, symbol, and base URI.
         /// This should only be used inside the contract's constructor.
         fn initializer(
-            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray, base_uri: ByteArray
+            ref self: ComponentState<TContractState>,
+            name: ByteArray,
+            symbol: ByteArray,
+            base_uri: ByteArray
         ) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);

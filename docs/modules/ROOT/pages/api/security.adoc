@@ -33,7 +33,7 @@ Component enabling one-time initialization for contracts.
 --
 
 [#InitializableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[InitializableComponent-is_initialized]]
@@ -42,7 +42,7 @@ Component enabling one-time initialization for contracts.
 Returns whether the contract has been initialized.
 
 [#InitializableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[InitializableComponent-initialize]]
@@ -96,7 +96,7 @@ Component to implement an emergency stop mechanism.
 --
 
 [#PausableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[PausableComponent-is_paused]]
@@ -105,7 +105,7 @@ Component to implement an emergency stop mechanism.
 Returns whether the contract is currently paused.
 
 [#PausableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[PausableComponent-assert_not_paused]]
@@ -181,7 +181,7 @@ Component to help prevent reentrant calls.
 --
 
 [#ReentrancyGuardComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[ReentrancyGuardComponent-start]]

@@ -45,7 +45,7 @@ fn setup() -> ComponentState {
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     state.initializer();
-    let supports_iaccesscontrol = CONTRACT_STATE().supports_interface(IACCESSCONTROL_ID);
+    let supports_iaccesscontrol = CONTRACT_STATE().src5.supports_interface(IACCESSCONTROL_ID);
     assert!(supports_iaccesscontrol);
 }
 

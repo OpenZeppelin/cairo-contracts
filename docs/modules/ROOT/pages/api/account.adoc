@@ -1,6 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = Account
 
@@ -76,40 +77,60 @@ Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {star
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
+[.contract-index#AccountComponent-Embeddable-Mixin-Impl]
+.{mixin-impl}
+
+--
+.AccountMixinImpl
+
+* xref:#AccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#AccountComponent-Embeddable-Impls-SRC6Impl]
 .SRC6Impl
 
 * xref:#AccountComponent-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#AccountComponent-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#AccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-DeclarerImpl]
 .DeclarerImpl
 
 * xref:#AccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-DeployableImpl]
 .DeployableImpl
 
 * xref:#AccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-PublicKeyImpl]
 .PublicKeyImpl
 
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
---
 
-[.contract-index#AccountComponent-Embeddable-Impls-camelCase]
-.Embeddable Implementations (camelCase)
---
+[.sub-index#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
 .SRC6CamelOnlyImpl
 
 * xref:#AccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
 
+[.sub-index#AccountComponent-Embeddable-Impls-PublicKeyCamelImpl]
 .PublicKeyCamelImpl
 
 * xref:#AccountComponent-getPublicKey[`++getPublicKey(self)++`]
 * xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
@@ -132,7 +153,7 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 --
 
 [#AccountComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[AccountComponent-__execute__]]
@@ -183,9 +204,6 @@ Sets a new public key for the account. Only accessible by the account calling it
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
-[#AccountComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[AccountComponent-isValidSignature]]
 ==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
@@ -205,7 +223,7 @@ See xref:AccountComponent-get_public_key[get_public_key].
 See xref:AccountComponent-set_public_key[set_public_key].
 
 [#AccountComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[AccountComponent-initializer]]
@@ -278,40 +296,60 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
+[.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
+.{mixin-impl}
+
+--
+.EthAccountMixinImpl
+
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#EthAccountComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#EthAccountComponent-Embeddable-Impls-SRC6Impl]
 .SRC6Impl
 
 * xref:#EthAccountComponent-\\__execute__[`++__execute__(self, calls)++`]
 * xref:#EthAccountComponent-\\__validate__[`++__validate__(self, calls)++`]
 * xref:#EthAccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-DeclarerImpl]
 .DeclarerImpl
 
 * xref:#EthAccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-DeployableImpl]
 .DeployableImpl
 
 * xref:#EthAccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-PublicKeyImpl]
 .PublicKeyImpl
 
 * xref:#EthAccountComponent-get_public_key[`++get_public_key(self)++`]
 * xref:#EthAccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
---
 
-[.contract-index#EthAccountComponent-Embeddable-Impls-camelCase]
-.Embeddable Implementations (camelCase)
---
+[.sub-index#EthAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
 .SRC6CamelOnlyImpl
 
 * xref:#EthAccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
 
+[.sub-index#EthAccountComponent-Embeddable-Impls-PublicKeyCamelImpl]
 .PublicKeyCamelImpl
 
 * xref:#EthAccountComponent-getPublicKey[`++getPublicKey(self)++`]
 * xref:#EthAccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
@@ -334,7 +372,7 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 --
 
 [#EthAccountComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[EthAccountComponent-__execute__]]
@@ -385,9 +423,6 @@ Sets a new public key for the account. Only accesible by the account calling its
 
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
 
-[#EthAccountComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[EthAccountComponent-isValidSignature]]
 ==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
@@ -407,7 +442,7 @@ See xref:EthAccountComponent-get_public_key[get_public_key].
 See xref:EthAccountComponent-set_public_key[set_public_key].
 
 [#EthAccountComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[EthAccountComponent-initializer]]
@@ -482,7 +517,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{account-class-hash}
+{Account-class-hash}
 --
 
 [.contract-index]
@@ -496,16 +531,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .AccountComponent
 
-* xref:#AccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#AccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#AccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
 --
 
 [#Account-constructor-section]
@@ -534,7 +560,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{eth-account-upgradeable-class-hash}
+{EthAccountUpgradeable-class-hash}
 --
 
 [.contract-index]
@@ -548,16 +574,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .EthAccountComponent
 
-* xref:#EthAccountComponent-Embeddable-Impls[`++SRC6Impl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++PublicKeyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeclarerImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls[`++DeployableImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++SRC6CamelOnlyImpl++`]
-* xref:#EthAccountComponent-Embeddable-Impls-camelCase[`++PublicKeyCamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#EthAccountComponent-Embeddable-Mixin-Impl[`++EthAccountMixinImpl++`]
 --
 
 [.contract-index]
@@ -576,7 +593,7 @@ include::../utils/_class_hashes.adoc[]
 Sets the account `public_key` and registers the interfaces the contract supports.
 
 [#EthAccountUpgradeable-external-functions]
-==== External Functions
+==== External functions
 
 [.contract-item]
 [[EthAccountUpgradeable-upgrade]]

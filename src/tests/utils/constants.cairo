@@ -12,6 +12,9 @@ const VALUE: u256 = 300;
 const ROLE: felt252 = 'ROLE';
 const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 const TOKEN_ID: u256 = 21;
+const TOKEN_ID_2: u256 = 121;
+const TOKEN_VALUE: u256 = 42;
+const TOKEN_VALUE_2: u256 = 142;
 const PUBKEY: felt252 = 'PUBKEY';
 const NEW_PUBKEY: felt252 = 'NEW_PUBKEY';
 const SALT: felt252 = 'SALT';
@@ -103,4 +106,8 @@ fn DATA(success: bool) -> Span<felt252> {
         data.append(FAILURE);
     }
     data.span()
+}
+
+fn EMPTY_DATA() -> Span<felt252> {
+    array![].span()
 }

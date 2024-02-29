@@ -4,6 +4,7 @@
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :_set_role_admin: xref:#AccessControlComponent-_set_role_admin[_set_role_admin]
+:mixin-impls: xref:components.adoc#mixins[Embeddable Mixin Implementations]
 
 = Access Control
 
@@ -29,15 +30,32 @@ use openzeppelin::access::ownable::OwnableComponent;
 
 This module includes the internal `assert_only_owner` to restrict a function to be used only by the owner.
 
-[.contract-index]
+[.contract-index#OwnableComponent-Mixin-Impl]
+.{mixin-impls}
+
+--
+.OwnableMixinImpl
+
+* xref:#OwnableComponent-Embeddable-Impls-OwnableImpl[`++OwnableImpl++`]
+* xref:#OwnableComponent-Embeddable-Impls-OwnableCamelOnlyImpl[`++OwnableCamelOnlyImpl++`]
+
+.OwnableTwoStepMixinImpl
+
+* xref:#OwnableComponent-Embeddable-Impls-OwnableTwoStepImpl[`++OwnableTwoStepImpl++`]
+* xref:#OwnableComponent-Embeddable-Impls-OwnableTwoStepCamelOnlyImpl[`++OwnableTwoStepCamelOnlyImpl++`]
+--
+
+[.contract-index#OwnableComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableImpl]
 .OwnableImpl
 
 * xref:OwnableComponent-owner[`++owner(self)++`]
 * xref:OwnableComponent-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-renounce_ownership[`++renounce_ownership(self)++`]
 
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableTwoStepImpl]
 .OwnableTwoStepImpl
 
 * xref:OwnableComponent-two-step-owner[`++owner(self)++`]
@@ -45,16 +63,14 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-two-step-accept_ownership[`++accept_ownership(self)++`]
 * xref:OwnableComponent-two-step-transfer_ownership[`++transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-two-step-renounce_ownership[`++renounce_ownership(self)++`]
---
 
-[.contract-index]
-.Embeddable Implementations (camelCase)
---
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableCamelOnlyImpl]
 .OwnableCamelOnlyImpl
 
 * xref:OwnableComponent-transferOwnership[`++transferOwnership(self, newOwner)++`]
 * xref:OwnableComponent-renounceOwnership[`++renounceOwnership(self)++`]
 
+[.sub-index#OwnableComponent-Embeddable-Impls-OwnableTwoStepCamelOnlyImpl]
 .OwnableTwoStepCamelOnlyImpl
 
 * xref:OwnableComponent-two-step-pendingOwner[`++pendingOwner(self)++`]
@@ -83,7 +99,7 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 --
 
 [#OwnableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[OwnableComponent-owner]]
@@ -113,7 +129,7 @@ thereby removing any functionality that is only available to the owner.
 //end::renounce_ownership[]
 
 [#OwnableComponent-Embeddable-Functions-Two-Step]
-==== Embeddable Functions (Two Step Transfer)
+==== Embeddable functions (two step transfer)
 
 [.contract-item]
 [[OwnableComponent-two-step-owner]]
@@ -150,9 +166,6 @@ Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted
 ==== `[.contract-item-name]#++renounce_ownership++#++(ref self: ContractState)++` [.item-kind]#external#
 include::./access.adoc[tag=renounce_ownership]
 
-[#OwnableComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[OwnableComponent-transferOwnership]]
 ==== `[.contract-item-name]#++transferOwnership++#++(ref self: ContractState, newOwner: ContractAddress)++` [.item-kind]#external#
@@ -164,9 +177,6 @@ See xref:OwnableComponent-transfer_ownership[transfer_ownership].
 ==== `[.contract-item-name]#++renounceOwnership++#++(ref self: ContractState)++` [.item-kind]#external#
 
 See xref:OwnableComponent-renounce_ownership[renounce_ownership].
-
-[#OwnableComponent-camelCase-Support-Two-Step]
-==== camelCase Support (Two Step Transfer)
 
 [.contract-item]
 [[OwnableComponent-two-step-pendingOwner]]
@@ -193,7 +203,7 @@ See xref:OwnableComponent-two-step-transfer_ownership[transfer_ownership].
 See xref:OwnableComponent-two-step-renounce_ownership[renounce_ownership].
 
 [#OwnableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[OwnableComponent-initializer]]
@@ -395,6 +405,7 @@ Emitted when `account` is revoked `role`.
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
 :revoke_role: xref:#AccessControlComponent-revoke_role[revoke_role]
+:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 ```javascript
 use openzeppelin::access::accesscontrol::AccessControlComponent;
@@ -434,9 +445,21 @@ WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
 grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
-[.contract-index]
+[.contract-index#AccessControl-Mixin-Impl]
+.{mixin-impl}
+
+--
+.AccessControlMixinImpl
+
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlImpl[`++AccessControlImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl[`++AccessControlCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#AccessControlComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlImpl]
 .AccessControlImpl
 
 * xref:#AccessControlComponent-has_role[`++has_role(self, role, account)++`]
@@ -445,13 +468,7 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-revoke_role[`++revoke_role(self, role, account)++`]
 * xref:#AccessControlComponent-renounce_role[`++renounce_role(self, role, account)++`]
 
-.SRC5Impl
-* xref:#AccessControlComponent-supports_interface[`++supports_interface(self, interface_id: felt252)++`]
---
-
-[.contract-index]
-.Embeddable Implementations (camelCase)
---
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl]
 .AccessControlCamelImpl
 
 * xref:#AccessControlComponent-hasRole[`++hasRole(self, role, account)++`]
@@ -459,6 +476,9 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-grantRole[`++grantRole(self, role, account)++`]
 * xref:#AccessControlComponent-revokeRole[`++revokeRole(self, role, account)++`]
 * xref:#AccessControlComponent-renounceRole[`++renounceRole(self, role, account)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
@@ -483,7 +503,7 @@ accounts that have been granted it.
 --
 
 [#AccessControlComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[AccessControlComponent-has_role]]
@@ -554,9 +574,6 @@ May emit a {RoleRevoked} event.
 
 See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
 
-[#AccessControlComponent-camelCase-Support]
-==== camelCase Support
-
 [.contract-item]
 [[AccessControlComponent-hasRole]]
 ==== `[.contract-item-name]#++hasRole++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
@@ -588,7 +605,7 @@ See xref:AccessControlComponent-revoke_role[revoke_role].
 See xref:AccessControlComponent-renounce_role[renounce_role].
 
 [#AccessControlComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[AccessControlComponent-initializer]]

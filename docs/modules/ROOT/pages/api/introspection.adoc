@@ -70,7 +70,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 --
 
 [#SRC5Component-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[SRC5Component-supports_interface]]
@@ -79,7 +79,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 See xref:ISRC5-supports_interface[`ISRC5::supports_interface`].
 
 [#SRC5Component-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[SRC5Component-register_interface]]

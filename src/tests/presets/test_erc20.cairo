@@ -5,9 +5,6 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
-use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin::token::erc20::interface::ERC20ABI;
 use openzeppelin::token::erc20::interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;

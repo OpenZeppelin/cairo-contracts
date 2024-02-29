@@ -65,13 +65,13 @@ fn test_constructor() {
 
     assert_only_event_owner_added(ZERO(), PUBKEY);
 
-    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    let public_key = Account::AccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, PUBKEY);
 
-    let supports_isrc5 = Account::SRC5Impl::supports_interface(@state, ISRC5_ID);
+    let supports_isrc5 = Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
     assert!(supports_isrc5);
 
-    let supports_isrc6 = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
+    let supports_isrc6 = Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc6);
 }
 

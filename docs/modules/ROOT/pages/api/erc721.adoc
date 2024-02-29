@@ -3,6 +3,7 @@
 :receiving-tokens: xref:/erc721.adoc#receiving_tokens[Receiving Tokens]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC721
 
@@ -190,10 +191,23 @@ ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721M
 
 NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
 
+[.contract-index#ERC721Component-Embeddable-Mixin-Impl]
+.{mixin-impl}
+
+--
+.ERC721MixinImpl
+* xref:#ERC721Component-Embeddable-Impls-ERC721Impl[`++ERC721Impl++`]
+* xref:#ERC721Component-Embeddable-Impls-ERC721MetadataImpl[`++ERC721MetadataImpl++`]
+* xref:#ERC721Component-Embeddable-Impls-ERC721CamelOnlyImpl[`++ERC721CamelOnlyImpl++`]
+* xref:#ERC721Component-Embeddable-Impls-ERC721MetadataCamelOnlyImpl[`++ERC721MetadataCamelOnlyImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#ERC721Component-Embeddable-Impls]
 .Embeddable Implementations
 --
-.IERC721Impl
+[.sub-index#ERC721Component-Embeddable-Impls-ERC721Impl]
+.ERC721Impl
 * xref:#IERC721-balance_of[`++balance_of(self, account)++`]
 * xref:#IERC721-owner_of[`++owner_of(self, token_id)++`]
 * xref:#IERC721-safe_transfer_from[`++safe_transfer_from(self, from, to, token_id, data)++`]
@@ -203,16 +217,14 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#IERC721-get_approved[`++get_approved(self, token_id)++`]
 * xref:#IERC721-is_approved_for_all[`++is_approved_for_all(self, owner, operator)++`]
 
-.IERC721MetadataImpl
+[.sub-index#ERC721Component-Embeddable-Impls-ERC721MetadataImpl]
+.ERC721MetadataImpl
 * xref:#IERC721Metadata-name[`++name(self)++`]
 * xref:#IERC721Metadata-symbol[`++symbol(self)++`]
 * xref:#IERC721Metadata-token_uri[`++token_uri(self, token_id)++`]
---
 
-[.contract-index#ERC721Component-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
-.ER721CamelOnlyImpl
+[.sub-index#ERC721Component-Embeddable-Impls-ERC721CamelOnlyImpl]
+.ERC721CamelOnlyImpl
 * xref:#ERC721-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC721-ownerOf[`++ownerOf(self, tokenId)++`]
 * xref:#ERC721-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, data)++`]
@@ -221,12 +233,16 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 * xref:#ERC721-getApproved[`++getApproved(self, tokenId)++`]
 * xref:#ERC721-isApprovedForAll[`++isApprovedForAll(self, owner, operator)++`]
 
+[.sub-index#ERC721Component-Embeddable-Impls-ERC721MetadataCamelOnlyImpl]
 .ERC721MetadataCamelOnlyImpl
 * xref:#ERC721-tokenURI[`++tokenURI(self, tokenId)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
 
 [.contract-index]
-.Internal Functions
+.Internal functions
 --
 .InternalImpl
 * xref:#ERC721-initializer[`++initializer(self, name_, symbol_)++`]
@@ -352,8 +368,6 @@ See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
 ==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id: u256) -> felt252++` [.item-kind]#external#
 
 See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
-
-==== camelCase Support
 
 [.contract-item]
 [[ERC721-balanceOf]]
@@ -627,16 +641,9 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Embedded Implementations
 --
-.ERC721Component
+.ERC721MixinImpl
 
-* xref:#ERC721Component-Embeddable-Impls[`++ERC721Impl++`]
-* xref:#ERC721Component-Embeddable-Impls[`++ERC721MetadataImpl++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721CamelOnly++`]
-* xref:#ERC721Component-Embeddable-Impls-camelCase[`++ERC721MetadataCamelOnly++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:#ERC721Component-Embeddable-Mixin-Impl[`++ERC721MixinImpl++`]
 --
 
 [#ERC721-constructor-section]

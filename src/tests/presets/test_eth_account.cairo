@@ -95,13 +95,17 @@ fn test_constructor() {
 
     assert_only_event_owner_added(ZERO(), ETH_PUBKEY());
 
-    let public_key = EthAccountUpgradeable::PublicKeyImpl::get_public_key(@state);
+    let public_key = EthAccountUpgradeable::EthAccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, ETH_PUBKEY());
 
-    let supports_isrc5 = EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC5_ID);
+    let supports_isrc5 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
+        @state, ISRC5_ID
+    );
     assert!(supports_isrc5);
 
-    let supports_isrc6 = EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC6_ID);
+    let supports_isrc6 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
+        @state, ISRC6_ID
+    );
     assert!(supports_isrc6);
 }
 

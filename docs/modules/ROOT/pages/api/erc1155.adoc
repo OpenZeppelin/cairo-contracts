@@ -59,7 +59,7 @@ Returns the amount of `token_id` owned by `account`.
 [[IERC1155-balance_of_batch]]
 ==== `[.contract-item-name]#++balance_of_batch++#++(accounts: Span<ContractAddress>, token_ids: Span<u256>) → Span<u256>++` [.item-kind]#external#
 
-Returns a list of balances from `accounts` and `token_ids` corresponding indexes.
+Returns a list of balances derived from the `accounts` and `token_ids` pairs.
 
 [.contract-item]
 [[IERC1155-safe_transfer_from]]

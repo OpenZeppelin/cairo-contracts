@@ -12,14 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC1155 component and preset (#896)
 - Mixin implementations in components (#863)
-  - `AccessControlComponent::AccessControlMixinImpl`
-  - `OwnableComponent::OwnableMixinImpl`
-  - `OwnableComponent::OwnableTwoStepMixinImpl`
-  - `AccountComponent::AccountMixinImpl`
-  - `EthAccountComponent::EthAccountMixinImpl`
-  - `ERC20Component::ERC20MixinImpl`
-  - `ERC721Component::ERC721MixinImpl`
-  - `ERC721Receiver::ERC721ReceiverMixinImpl`
 - ERC721Component functions and Storage member
   - `InternalTrait::_set_base_uri` and `InternalTrait::_base_uri` to handle ByteArrays (#857)
   - `ERC721_base_uri` Storage member to store the base URI (#857)

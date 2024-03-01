@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC721Component function and Storage member
   - `InternalTrait::_set_token_uri` because individual token URIs are no longer stored (#857)
-  - `ERC721_token_uri` Storage member because individual token URIs are longer stored (#857)
+  - `ERC721_token_uri` Storage member because individual token URIs are no longer stored (#857)
 
 ## 0.9.0 (2024-02-08)
 

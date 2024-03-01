@@ -104,7 +104,7 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
-        /// Returns the number of NFTs owned by `account` for a specific `token_id`.
+        /// Returns the amount of `token_id` owned by `account`.
         fn balance_of(
             self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
         ) -> u256 {
@@ -112,8 +112,7 @@ mod ERC1155Component {
         }
 
 
-        /// Returns a Span of u256 values representing the batch balances of the
-        /// `accounts` for the specified `token_ids`.
+        /// Returns a list of balances derived from the `accounts` and `token_ids` pairs.
         ///
         /// Requirements:
         ///

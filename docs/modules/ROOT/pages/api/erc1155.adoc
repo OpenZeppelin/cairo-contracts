@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :eip1155: https://eips.ethereum.org/EIPS/eip-1155[EIP1155]
 :eip1155-metadata: https://eips.ethereum.org/EIPS/eip-1155#metadata
-:receiving-tokens: xref:/erc1155.adoc#receiving_tokens[Receiving Tokens]
+:receiving-tokens: xref:/erc1155.adoc#receiving_tokens[Receiving tokens]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = ERC1155
@@ -385,7 +385,7 @@ See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check
 
 Version of `update` that performs the token acceptance check by calling
 `onERC1155Received` or `onERC1155BatchReceived` in the receiver if
-the latter is not recognized as an account.
+the latter implements `IERC1155Receiver`, and checks if it is an account otherwise.
 
 Requirements:
 
@@ -529,14 +529,14 @@ Interface for contracts that support receiving token transfers from `ERC1155` co
 [[IERC1155Receiver-on_erc1155_received]]
 ==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementor
+This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementer
 via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` from `from`.
 
 [.contract-item]
 [[IERC1155Receiver-on_erc1155_batch_received]]
 ==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementor
+This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementer
 via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`.
 
 [.contract]

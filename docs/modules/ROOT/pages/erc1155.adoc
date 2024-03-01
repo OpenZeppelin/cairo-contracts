@@ -62,7 +62,7 @@ trait ERC1155ABI {
     fn is_approved_for_all(
         owner: ContractAddress, operator: ContractAddress
     ) -> bool;
-    fn set_approval_for_all( operator: ContractAddress, approved: bool);
+    fn set_approval_for_all(operator: ContractAddress, approved: bool);
 
     // IERC1155MetadataURI
     fn uri(token_id: u256) -> ByteArray;

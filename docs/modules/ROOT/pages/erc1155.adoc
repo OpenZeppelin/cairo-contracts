@@ -8,15 +8,15 @@ The ERC1155 library implements an approximation of {eip-1155} in Cairo for Stark
 
 == Multi Token Standard
 
-:balance_of-api: xref:api/erc1155.adoc#ERC1155-balance_of[balance_of]
+:balance_of-api: xref:api/erc1155.adoc#IERC1155-balance_of[balance_of]
 
 The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This
 is why its {balance_of-api} function differs from ERC20’s and ERC777’s: it has an additional ID argument for the
 identifier of the token that you want to query the balance of.
 
 This is similar to how ERC721 does things, but in that standard a token ID has no concept of balance: each token is
-non-fungible and exists or doesn’t. The ERC721 balance_of function refers to how many different tokens an account has,
-not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token ID, and
+non-fungible and exists or doesn’t. The ERC721 {balance_of-api} function refers to how many different tokens an account
+has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token ID, and
 non-fungible tokens are implemented by simply minting a single one of them.
 
 This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new

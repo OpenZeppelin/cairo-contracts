@@ -1,5 +1,5 @@
 :eip-1155: https://eips.ethereum.org/EIPS/eip-1155[EIP-1155]
-:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[Fungibility-agnostic]
+:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[fungibility-agnostic]
 
 = ERC1155
 
@@ -23,29 +23,29 @@ This approach leads to massive gas savings for projects that require multiple to
 contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment
 costs and complexity.
 
-
 == Interface
 
 :compatibility: xref:/erc1155.adoc#erc1155_compatibility[ERC1155 Compatibility]
+:isrc5-interface: xref:/api/introspection.adoc#ISRC5[ISRC5]
 :ierc1155-interface: xref:/api/erc1155.adoc#IERC1155[IERC1155]
 :ierc1155metadata-interface: xref:/api/erc1155.adoc#IERC1155MetadataURI[IERC1155MetadataURI]
+:erc1155-component: xref:/api/erc1155.adoc#ERC1155Component[ERC1155Component]
 :dual-interfaces: xref:interfaces.adoc#dual_interfaces[Dual interfaces]
 
-The following interface represents the full ABI of the Contracts for Cairo `ERC1155Component`.
-The interface includes the {ierc1155-interface} standard interface and the optional {ierc1155metadata-interface} interface.
+The following interface represents the full ABI of the Contracts for Cairo {erc1155-component}.
+The interface includes the {ierc1155-interface} standard interface and the optional {ierc1155metadata-interface} interface together with {ierc1155-interface}.
+
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
 [,javascript]
 ----
-#[starknet::interface]
-trait ERC1155ABI<TState> {
+trait ERC1155ABI {
     // IERC1155
-    fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
+    fn balance_of(account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
-        self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>
+        accounts: Span<ContractAddress>, token_ids: Span<u256>
     ) -> Span<u256>;
     fn safe_transfer_from(
-        ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
@@ -53,7 +53,6 @@ trait ERC1155ABI<TState> {
         data: Span<felt252>
     );
     fn safe_batch_transfer_from(
-        ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
@@ -61,23 +60,22 @@ trait ERC1155ABI<TState> {
         data: Span<felt252>
     );
     fn is_approved_for_all(
-        self: @TState, owner: ContractAddress, operator: ContractAddress
+        owner: ContractAddress, operator: ContractAddress
     ) -> bool;
-    fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
-
-    // ISRC5
-    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+    fn set_approval_for_all( operator: ContractAddress, approved: bool);
 
     // IERC1155MetadataURI
-    fn uri(self: @TState, token_id: u256) -> ByteArray;
+    fn uri(token_id: u256) -> ByteArray;
+
+    // ISRC5
+    fn supports_interface(interface_id: felt252) -> bool;
 
     // IERC1155Camel
-    fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
+    fn balanceOf(account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
-        self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>
+        accounts: Span<ContractAddress>, tokenIds: Span<u256>
     ) -> Span<u256>;
     fn safeTransferFrom(
-        ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
         tokenId: u256,
@@ -85,27 +83,24 @@ trait ERC1155ABI<TState> {
         data: Span<felt252>
     );
     fn safeBatchTransferFrom(
-        ref self: TState,
         from: ContractAddress,
         to: ContractAddress,
         tokenIds: Span<u256>,
         values: Span<u256>,
         data: Span<felt252>
     );
-    fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
-    fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
+    fn isApprovedForAll(owner: ContractAddress, operator: ContractAddress) -> bool;
+    fn setApprovalForAll(operator: ContractAddress, approved: bool);
 }
 ----
 
 === ERC1155 Compatibility
 
-Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard
-using `u256` instead of `felt252`. But some differences can still be found, such as:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard but some differences can still be found, such as:
 
-* `safe_transfer_from` and `safe_batch_transfer_from` are specified such that the optional `data` argument should be of type `Span<felt252>`.
-* `IERC1155Receiver` compliant contracts must return a hardcoded `felt252` representing the SRC5 interface
-ID of `IERC1155Receiver`.
-* `IERC1155Receiver` compliant contracts must support SRC5 by registering the `IERC1155Receiver` interface ID in its constructor and exposing the `supports_interface` method.
+* `safe_transfer_from` and `safe_batch_transfer_from`'s optional `data` argument is implemented as `Span<felt252>`.
+* `IERC1155Receiver` compliant contracts must implement SRC5 and register the `IERC1155Receiver` interface ID.
+* `IERC1155Receiver::on_erc1155_received` must return that interface ID on success.
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC1155 transfers.
 
 == Usage
@@ -184,7 +179,8 @@ Because all state is held in a single contract, it is possible to operate over m
 In the spirit of the standard, we’ve also included batch operations in the non-standard functions, such as
 {batch_mint_with_acceptance_check}.
 
-WARNING: Usage of {safe_transfer_from} and {safe_batch_transfer_from} prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
+WARNING: While {safe_transfer_from} and {safe_batch_transfer_from} prevent loss by checking the receiver can handle the
+tokens, this yields execution to the receiver which can result in a xref:security.adoc#reentrancy_guard[reentrant call].
 
 === Receiving tokens
 

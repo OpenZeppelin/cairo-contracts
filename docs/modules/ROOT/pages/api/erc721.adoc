@@ -6,6 +6,8 @@
 
 = ERC721
 
+include::../utils/_common.adoc[]
+
 Reference of interfaces, presets, and utilities related to ERC721 contracts.
 
 TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
@@ -188,7 +190,7 @@ use openzeppelin::token::erc721::ERC721Component;
 
 ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721Metadata>>.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#ERC721Component-Embeddable-Impls]
 .Embeddable Implementations

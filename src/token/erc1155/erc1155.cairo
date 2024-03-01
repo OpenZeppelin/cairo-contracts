@@ -317,10 +317,11 @@ mod ERC1155Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token uri and registering the supported interfaces.
+        /// Initializes the contract by setting `uri` as the base URI for all tokens,
+        /// and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, uri: ByteArray) {
-            self.set_uri(uri);
+        fn initializer(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
@@ -504,8 +505,8 @@ mod ERC1155Component {
         ///
         /// Because these URIs cannot be meaningfully represented by the `URI` event,
         /// this function emits no events.
-        fn set_uri(ref self: ComponentState<TContractState>, uri: ByteArray) {
-            self.ERC1155_uri.write(uri);
+        fn set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.ERC1155_uri.write(base_uri);
         }
     }
 

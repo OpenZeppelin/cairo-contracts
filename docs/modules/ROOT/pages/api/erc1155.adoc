@@ -1,9 +1,11 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:eip1155: https://eips.ethereum.org/EIPS/eip-1155[EIP1155]
+:eip1155: https://eips.ethereum.org/EIPS/eip-1155#metadata[EIP1155]
 :receiving-tokens: xref:/erc1155.adoc#receiving_tokens[Receiving Tokens]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = ERC1155
+
+include::../utils/_common.adoc[]
 
 Reference of interfaces, presets, and utilities related to ERC1155 contracts.
 
@@ -65,8 +67,8 @@ Returns a list of balances derived from the `accounts` and `token_ids` pairs.
 [[IERC1155-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256,  value: u256, data: Span<felt252>)++` [.item-kind]#external#
 
-Transfers `value` of `token_id` from `from` to `to`, checking first that `to` is aware of the ERC1155 protocol to prevent tokens being locked forever.
-For information regarding how contracts communicate their awareness of the ERC1155 protocol, see {receiving-tokens}.
+Transfers `value` of `token_id` from `from` to `to`, checking first that `to` is able to handle ERC1155 tokens to
+prevent getting them locked forever. For more information on how this is checked, see {receiving-tokens}.
 
 Emits a <<IERC1155-TransferSingle,TransferSingle>> event.
 
@@ -74,8 +76,9 @@ Emits a <<IERC1155-TransferSingle,TransferSingle>> event.
 [[IERC1155-safe_batch_transfer_from]]
 ==== `[.contract-item-name]#++safe_batch_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#external#
 
-Transfer `values` of `token_ids` (matched by index) from `from` to `to`, checking first that `to` is aware of the ERC1155 protocol to prevent tokens being locked forever.
-For information regarding how contracts communicate their awareness of the ERC1155 protocol, see {receiving-tokens}.
+Transfer `values` of `token_ids` (matched by index) from `from` to `to`, checking first that `to` is able to handle
+ERC1155 tokens to prevent getting them locked forever.
+For more information on how this is checked, see {receiving-tokens}.
 
 Emits a <<IERC1155-TransferBatch,TransferBatch>> event.
 
@@ -160,7 +163,7 @@ use openzeppelin::token::erc1155::ERC1155Component;
 
 ERC1155 component implementing <<IERC1155,IERC1155>> and <<IERC1155MetadataURI,IERC1155MetadataURI>>.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#ERC1155Component-Embeddable-Impls]
 .Embeddable Implementations
@@ -196,14 +199,14 @@ NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a
 .Internal Functions
 --
 .InternalImpl
-* xref:#ERC1155Component-initializer[`++initializer(self, uri)++`]
+* xref:#ERC1155Component-initializer[`++initializer(self, base_uri)++`]
 * xref:#ERC1155Component-update[`++update(self, from, to, token_ids, values)++`]
 * xref:#ERC1155Component-update_with_acceptance_check[`++update_with_acceptance_check(self, from, to, token_ids, values, data)++`]
 * xref:#ERC1155Component-mint_with_acceptance_check[`++mint_with_acceptance_check(self, to, token_id, value, data)++`]
 * xref:#ERC1155Component-batch_mint_with_acceptance_check[`++batch_mint_with_acceptance_check(self, to, token_ids, values, data)++`]
 * xref:#ERC1155Component-burn[`++burn(self, from, token_id, value)++`]
 * xref:#ERC1155Component-batch_burn[`++batch_burn(self, from, token_ids, values)++`]
-* xref:#ERC1155Component-set_uri[`++set_uri(self, uri)++`]
+* xref:#ERC1155Component-set_base_uri[`++set_base_uri(self, base_uri)++`]
 --
 
 [.contract-index]
@@ -305,8 +308,8 @@ Queries if `operator` is an authorized operator for `owner`.
 ==== `[.contract-item-name]#++uri++#++(self: @ContractState, token_id: u256) -> ByteArray++` [.item-kind]#external#
 
 This implementation returns the same URI for *all* token types. It relies
-on the token type ID substitution mechanism defined in the EIP:
-https://eips.ethereum.org/EIPS/eip-1155#metadata.
+on the token type ID substitution mechanism
+https://eips.ethereum.org/EIPS/eip-1155#metadata[specified in the EIP].
 
 Clients calling this function must replace the `\{id\}` substring with the
 actual token type ID.
@@ -353,9 +356,9 @@ See <<ERC1155Component-set_approval_for_all,ERC1155Component::set_approval_for_a
 
 [.contract-item]
 [[ERC1155Component-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, uri: ByteArray)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
 
-Initializes the contract by setting the token uri as `uri`, and registering the supported interfaces.
+Initializes the contract by setting the token's base URI as `base_uri`, and registering the supported interfaces.
 This should only be used inside the contract's constructor.
 
 [.contract-item]
@@ -380,8 +383,8 @@ See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check
 ==== `[.contract-item-name]#++update_with_acceptance_check++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#internal#
 
 Version of `update` that performs the token acceptance check by calling
-`IERC1155Receiver::onERC1155Received` or `IERC1155Receiver::onERC1155BatchReceived` if
-the receiver is not recognized as an account.
+`onERC1155Received` or `onERC1155BatchReceived` in the receiver if
+the latter is not recognized as an account.
 
 Requirements:
 
@@ -448,13 +451,12 @@ Requirements:
 Emits a <<ERC1155Component-TransferBatch,TransferBatch>> event.
 
 [.contract-item]
-[[ERC1155Component-set_uri]]
-==== `[.contract-item-name]#++set_uri++#++(ref self: ContractState, uri: ByteArray)++` [.item-kind]#internal#
+[[ERC1155Component-set_base_uri]]
+==== `[.contract-item-name]#++set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
 
 Sets a new URI for all token types, by relying on the token type ID
-substitution mechanism defined in the ERC1155 standard.
-
-See https://eips.ethereum.org/EIPS/eip-1155#metadata.
+substitution mechanism
+https://eips.ethereum.org/EIPS/eip-1155#metadata[specified in the EIP].
 
 By this mechanism, any occurrence of the `\{id\}` substring in either the
 URI or any of the values in the JSON file at said URI will be replaced by
@@ -463,7 +465,7 @@ clients with the token type ID.
 For example, the pass:[<code>https://token-cdn-domain/\{id\}.json</code>] URI would be
 interpreted by clients as
 pass:[<code>https://token-cdn-domain/000000000000...000000000000004cce0.json</code>]
-for token type ID 0x4cce0.
+for token type ID `0x4cce0`.
 
 Because these URIs cannot be meaningfully represented by the `URI` event,
 this function emits no events.
@@ -526,13 +528,15 @@ Interface for contracts that support receiving token transfers from `ERC1155` co
 [[IERC1155Receiver-on_erc1155_received]]
 ==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-Whenever an IERC1155 `token_id` token is transferred to this non-account contract via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` from `from`, this function is called.
+This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementor
+via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` from `from`.
 
 [.contract-item]
 [[IERC1155Receiver-on_erc1155_batch_received]]
 ==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-Whenever an IERC1155 `token_id` token is transferred to this non-account contract via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`, this function is called.
+This function is called whenever an IERC1155 `token_id` token is transferred to this IERC1155Receiver implementor
+via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`.
 
 [.contract]
 [[ERC1155ReceiverComponent]]
@@ -545,7 +549,7 @@ use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
 
 ERC1155Receiver component implementing <<IERC1155Receiver,IERC1155Receiver>>.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#ERC1155ReceiverComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -630,7 +634,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Constructor
 --
-* xref:#ERC1155-constructor[`++constructor(self, token_uri, recipient, token_ids, values)++`]
+* xref:#ERC1155-constructor[`++constructor(self, base_uri, recipient, token_ids, values)++`]
 --
 
 [.contract-index]
@@ -652,9 +656,9 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[ERC1155-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, token_uri: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, base_uri: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#constructor#
 
-Sets the `token_uri` and registers the supported interfaces.
+Sets the `base_uri` for all tokens and registers the supported interfaces.
 Mints the `values` for `token_ids` tokens to `recipient`.
 
 Requirements:

@@ -1,0 +1,2 @@
+// Notes
+:src5-component-required-note: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.

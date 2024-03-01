@@ -8,6 +8,8 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 == Core
 
+include::../utils/_common.adoc[]
+
 [.contract]
 [[ISRC6]]
 === `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/account/interface.cairo[{github-icon},role=heading-link]
@@ -74,7 +76,7 @@ use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#AccountComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -274,7 +276,7 @@ use openzeppelin::account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 

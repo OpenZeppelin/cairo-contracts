@@ -317,7 +317,7 @@ mod ERC1155Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting `uri` as the base URI for all tokens,
+        /// Initializes the contract by setting the `base_uri` for all tokens,
         /// and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>, base_uri: ByteArray) {

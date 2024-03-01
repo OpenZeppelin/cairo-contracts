@@ -33,7 +33,7 @@ costs and complexity.
 :dual-interfaces: xref:interfaces.adoc#dual_interfaces[Dual interfaces]
 
 The following interface represents the full ABI of the Contracts for Cairo {erc1155-component}.
-The interface includes the {ierc1155-interface} standard interface and the optional {ierc1155metadata-interface} interface together with {ierc1155-interface}.
+The interface includes the {ierc1155-interface} standard interface and the optional {ierc1155metadata-interface} interface together with {isrc5-interface}.
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
@@ -98,7 +98,7 @@ trait ERC1155ABI {
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard but some differences can still be found, such as:
 
-* `safe_transfer_from` and `safe_batch_transfer_from`'s optional `data` argument is implemented as `Span<felt252>`.
+* `safe_transfer_from` and `safe_batch_transfer_from` 's optional `data` argument is implemented as `Span<felt252>`.
 * `IERC1155Receiver` compliant contracts must implement SRC5 and register the `IERC1155Receiver` interface ID.
 * `IERC1155Receiver::on_erc1155_received` must return that interface ID on success.
 In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC1155 transfers.

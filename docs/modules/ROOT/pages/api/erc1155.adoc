@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:eip1155: https://eips.ethereum.org/EIPS/eip-1155#metadata[EIP1155]
+:eip1155: https://eips.ethereum.org/EIPS/eip-1155[EIP1155]
+:eip1155-metadata: https://eips.ethereum.org/EIPS/eip-1155#metadata
 :receiving-tokens: xref:/erc1155.adoc#receiving_tokens[Receiving Tokens]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
@@ -130,7 +131,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 ```javascript
 use openzeppelin::token::erc1155::interface::IERC1155MetadataURI;
 ```
-Interface for the optional metadata function in {eip1155}.
+Interface for the optional metadata function in {eip1155-metadata}[EIP1155].
 
 [.contract-index]
 .{inner-src5}
@@ -309,7 +310,7 @@ Queries if `operator` is an authorized operator for `owner`.
 
 This implementation returns the same URI for *all* token types. It relies
 on the token type ID substitution mechanism
-https://eips.ethereum.org/EIPS/eip-1155#metadata[specified in the EIP].
+{eip1155-metadata}[specified in the EIP].
 
 Clients calling this function must replace the `\{id\}` substring with the
 actual token type ID.
@@ -456,7 +457,7 @@ Emits a <<ERC1155Component-TransferBatch,TransferBatch>> event.
 
 Sets a new URI for all token types, by relying on the token type ID
 substitution mechanism
-https://eips.ethereum.org/EIPS/eip-1155#metadata[specified in the EIP].
+{eip1155-metadata}[specified in the EIP].
 
 By this mechanism, any occurrence of the `\{id\}` substring in either the
 URI or any of the values in the JSON file at said URI will be replaced by

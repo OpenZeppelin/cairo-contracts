@@ -41,12 +41,12 @@ mod DualCaseERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
+        base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256,
-        uri: ByteArray
+        value: u256
     ) {
-        self.erc1155.initializer(uri);
+        self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
     }
 }
@@ -92,12 +92,12 @@ mod SnakeERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
+        base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256,
-        uri: ByteArray
+        value: u256
     ) {
-        self.erc1155.initializer(uri);
+        self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
     }
 }
@@ -143,12 +143,12 @@ mod CamelERC1155Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
+        base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256,
-        uri: ByteArray
+        value: u256
     ) {
-        self.erc1155.initializer(uri);
+        self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
     }
 }

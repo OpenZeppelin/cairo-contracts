@@ -104,7 +104,7 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
-        /// Returns the amount of `token_id` owned by `account`.
+        /// Returns the amount of `token_id` tokens owned by `account`.
         fn balance_of(
             self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
         ) -> u256 {
@@ -137,7 +137,7 @@ mod ERC1155Component {
             batch_balances.span()
         }
 
-        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
+        /// Transfers ownership of `value` amount of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is passed to `to`.
         ///
@@ -204,7 +204,7 @@ mod ERC1155Component {
             self.update_with_acceptance_check(from, to, token_ids, values, data);
         }
 
-        /// Enable or disable approval for `operator` to manage all of the
+        /// Enables or disables approval for `operator` to manage all of the
         /// callers assets.
         ///
         /// Requirements:
@@ -222,7 +222,7 @@ mod ERC1155Component {
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
-        /// Query if `operator` is an authorized operator for `owner`.
+        /// Queries if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {

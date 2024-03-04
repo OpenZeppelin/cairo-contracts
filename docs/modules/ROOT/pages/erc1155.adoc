@@ -9,13 +9,14 @@ The ERC1155 library implements an approximation of {eip-1155} in Cairo for Stark
 == Multi Token Standard
 
 :balance_of-api: xref:api/erc1155.adoc#IERC1155-balance_of[balance_of]
+:erc721-balance_of-api: xref:api/erc721.adoc#IERC721-balance_of[balance_of]
 
 The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This
 is why its {balance_of-api} function differs from ERC20’s and ERC777’s: it has an additional ID argument for the
 identifier of the token that you want to query the balance of.
 
 This is similar to how ERC721 does things, but in that standard a token ID has no concept of balance: each token is
-non-fungible and exists or doesn’t. The ERC721 {balance_of-api} function refers to how many different tokens an account
+non-fungible and exists or doesn’t. The ERC721 {erc721-balance_of-api} function refers to how many different tokens an account
 has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token ID, and
 non-fungible tokens are implemented by simply minting a single one of them.
 
@@ -98,10 +99,9 @@ trait ERC1155ABI {
 
 Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC1155 standard but some differences can still be found, such as:
 
-* `safe_transfer_from` and `safe_batch_transfer_from` 's optional `data` argument is implemented as `Span<felt252>`.
+* The optional `data` argument in both `safe_transfer_from` and `safe_batch_transfer_from` is implemented as `Span<felt252>`.
 * `IERC1155Receiver` compliant contracts must implement SRC5 and register the `IERC1155Receiver` interface ID.
 * `IERC1155Receiver::on_erc1155_received` must return that interface ID on success.
-In doing so, recipient contracts (both accounts and non-accounts) can be verified that they support ERC1155 transfers.
 
 == Usage
 

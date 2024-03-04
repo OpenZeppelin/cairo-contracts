@@ -3,9 +3,10 @@
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC20
+
+include::../utils/_common.adoc[]
 
 Reference of interfaces and utilities related to ERC20 contracts.
 
@@ -170,7 +171,7 @@ use openzeppelin::token::erc20::ERC20Component;
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
 [.contract-index#ERC20Component-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .ERC20MixinImpl

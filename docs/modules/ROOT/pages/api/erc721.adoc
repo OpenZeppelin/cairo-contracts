@@ -3,7 +3,6 @@
 :receiving-tokens: xref:/erc721.adoc#receiving_tokens[Receiving Tokens]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC721
 
@@ -194,7 +193,7 @@ ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721M
 NOTE: {src5-component-required-note}
 
 [.contract-index#ERC721Component-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .ERC721MixinImpl

@@ -1,7 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = Account
 
@@ -80,7 +79,7 @@ Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {star
 NOTE: {src5-component-required-note}
 
 [.contract-index#AccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .AccountMixinImpl
@@ -299,7 +298,7 @@ NOTE: {src5-component-required-note}
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
 [.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .EthAccountMixinImpl

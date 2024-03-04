@@ -17,8 +17,8 @@ use starknet::testing;
 fn setup_dispatcher_with_event() -> ERC20ABIDispatcher {
     let mut calldata = array![];
 
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
 
@@ -40,8 +40,8 @@ fn setup_dispatcher() -> ERC20ABIDispatcher {
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
-    assert_eq!(dispatcher.name(), NAME);
-    assert_eq!(dispatcher.symbol(), SYMBOL);
+    assert_eq!(dispatcher.name(), NAME());
+    assert_eq!(dispatcher.symbol(), SYMBOL());
     assert_eq!(dispatcher.decimals(), DECIMALS);
     assert_eq!(dispatcher.total_supply(), SUPPLY);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);

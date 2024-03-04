@@ -21,13 +21,13 @@ mod ERC721Component {
 
     #[storage]
     struct Storage {
-        ERC721_name: felt252,
-        ERC721_symbol: felt252,
+        ERC721_name: ByteArray,
+        ERC721_symbol: ByteArray,
         ERC721_owners: LegacyMap<u256, ContractAddress>,
         ERC721_balances: LegacyMap<ContractAddress, u256>,
         ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
         ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        ERC721_token_uri: LegacyMap<u256, felt252>,
+        ERC721_base_uri: ByteArray
     }
 
     #[event]
@@ -218,24 +218,29 @@ mod ERC721Component {
         +Drop<TContractState>
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_name.read()
         }
 
         /// Returns the NFT symbol.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_symbol.read()
         }
 
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-        /// If the URI is not set for the `token_id`, the return value will be `0`.
+        /// If the URI is not set, the return value will be an empty ByteArray.
         ///
         /// Requirements:
         ///
         /// - `token_id` exists.
-        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
+        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
             assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self.ERC721_token_uri.read(token_id)
+            let base_uri = self._base_uri();
+            if base_uri.len() == 0 {
+                return "";
+            } else {
+                return format!("{}{}", base_uri, token_id);
+            }
         }
     }
 
@@ -299,7 +304,7 @@ mod ERC721Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
-        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
             ERC721Metadata::token_uri(self, tokenId)
         }
     }
@@ -315,11 +320,17 @@ mod ERC721Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token name and symbol.
+        /// Initializes the contract by setting the token name, symbol, and base URI.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(
+            ref self: ComponentState<TContractState>,
+            name: ByteArray,
+            symbol: ByteArray,
+            base_uri: ByteArray
+        ) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
+            self._set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC721_ID);
@@ -516,16 +527,17 @@ mod ERC721Component {
             );
         }
 
-        /// Sets the `token_uri` of `token_id`.
+        /// Sets the base URI.
+        fn _set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.ERC721_base_uri.write(base_uri);
+        }
+
+        /// Base URI for computing `token_uri`.
         ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
-        fn _set_token_uri(
-            ref self: ComponentState<TContractState>, token_id: u256, token_uri: felt252
-        ) {
-            assert(self._exists(token_id), Errors::INVALID_TOKEN_ID);
-            self.ERC721_token_uri.write(token_id, token_uri)
+        /// If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+        /// Returns an empty `ByteArray` if not set.
+        fn _base_uri(self: @ComponentState<TContractState>) -> ByteArray {
+            self.ERC721_base_uri.read()
         }
     }
 
@@ -602,15 +614,15 @@ mod ERC721Component {
         }
 
         // IERC721Metadata
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             ERC721Metadata::name(self)
         }
 
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             ERC721Metadata::symbol(self)
         }
 
-        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> felt252 {
+        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
             ERC721Metadata::token_uri(self, token_id)
         }
 
@@ -659,7 +671,7 @@ mod ERC721Component {
         }
 
         // IERC721MetadataCamelOnly
-        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> felt252 {
+        fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
             ERC721MetadataCamelOnly::tokenURI(self, tokenId)
         }
 

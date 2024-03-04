@@ -15,8 +15,8 @@ struct DualCaseERC20 {
 }
 
 trait DualCaseERC20Trait {
-    fn name(self: @DualCaseERC20) -> felt252;
-    fn symbol(self: @DualCaseERC20) -> felt252;
+    fn name(self: @DualCaseERC20) -> ByteArray;
+    fn symbol(self: @DualCaseERC20) -> ByteArray;
     fn decimals(self: @DualCaseERC20) -> u8;
     fn total_supply(self: @DualCaseERC20) -> u256;
     fn balance_of(self: @DualCaseERC20, account: ContractAddress) -> u256;
@@ -29,13 +29,13 @@ trait DualCaseERC20Trait {
 }
 
 impl DualCaseERC20Impl of DualCaseERC20Trait {
-    fn name(self: @DualCaseERC20) -> felt252 {
+    fn name(self: @DualCaseERC20) -> ByteArray {
         let args = array![];
         call_contract_syscall(*self.contract_address, selectors::name, args.span())
             .unwrap_and_cast()
     }
 
-    fn symbol(self: @DualCaseERC20) -> felt252 {
+    fn symbol(self: @DualCaseERC20) -> ByteArray {
         let args = array![];
         call_contract_syscall(*self.contract_address, selectors::symbol, args.span())
             .unwrap_and_cast()

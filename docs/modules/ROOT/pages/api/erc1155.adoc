@@ -537,7 +537,7 @@ via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` f
 [[IERC1155Receiver-on_erc1155_batch_received]]
 ==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
-This function is called whenever an ERC1155 `token_id` token is transferred to this `IERC1155Receiver` implementer
+This function is called whenever multiple ERC1155 `token_ids` tokens are transferred to this `IERC1155Receiver` implementer
 via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`.
 
 [.contract]

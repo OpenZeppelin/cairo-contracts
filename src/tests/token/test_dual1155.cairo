@@ -24,10 +24,10 @@ fn setup_snake() -> (DualCaseERC1155, IERC1155Dispatcher, ContractAddress) {
     let base_uri: ByteArray = "URI";
     let owner = setup_account();
     let mut calldata = array![];
+    calldata.append_serde(base_uri);
     calldata.append_serde(owner);
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(TOKEN_VALUE);
-    calldata.append_serde(base_uri);
     let target = utils::deploy(SnakeERC1155Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155 { contract_address: target },
@@ -40,10 +40,10 @@ fn setup_camel() -> (DualCaseERC1155, IERC1155CamelDispatcher, ContractAddress) 
     let base_uri: ByteArray = "URI";
     let owner = setup_account();
     let mut calldata = array![];
+    calldata.append_serde(base_uri);
     calldata.append_serde(owner);
     calldata.append_serde(TOKEN_ID);
     calldata.append_serde(TOKEN_VALUE);
-    calldata.append_serde(base_uri);
     let target = utils::deploy(CamelERC1155Mock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155 { contract_address: target },

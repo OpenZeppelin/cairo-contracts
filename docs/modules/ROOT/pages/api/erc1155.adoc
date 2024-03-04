@@ -78,7 +78,7 @@ Emits a <<IERC1155-TransferSingle,TransferSingle>> event.
 [[IERC1155-safe_batch_transfer_from]]
 ==== `[.contract-item-name]#++safe_batch_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#external#
 
-Transfers ownership of `values` and `token_ids` pairs from `from` if `to` is either an account or `IERC1155Receiver`.
+Transfers ownership of `token_ids` and `values` pairs from `from` if `to` is either `IERC1155Receiver` or an account.
 
 `data` is additional data, it has no specified format and it is passed to `to`.
 

@@ -68,7 +68,7 @@ Returns a list of balances derived from the `accounts` and `token_ids` pairs.
 [[IERC1155-safe_transfer_from]]
 ==== `[.contract-item-name]#++safe_transfer_from++#++(from: ContractAddress, to: ContractAddress, token_id: u256,  value: u256, data: Span<felt252>)++` [.item-kind]#external#
 
-Transfers ownership of `value` amount of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
+Transfers ownership of `value` amount of `token_id` from `from` if `to` is either `IERC1155Receiver` or an account.
 
 `data` is additional data, it has no specified format and it is passed to `to`.
 

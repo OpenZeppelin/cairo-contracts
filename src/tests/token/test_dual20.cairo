@@ -17,8 +17,8 @@ use starknet::testing::set_contract_address;
 
 fn setup_snake() -> (DualCaseERC20, IERC20Dispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
     let target = utils::deploy(SnakeERC20Mock::TEST_CLASS_HASH, calldata);
@@ -27,8 +27,8 @@ fn setup_snake() -> (DualCaseERC20, IERC20Dispatcher) {
 
 fn setup_camel() -> (DualCaseERC20, IERC20CamelDispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(SUPPLY);
     calldata.append_serde(OWNER());
     let target = utils::deploy(CamelERC20Mock::TEST_CLASS_HASH, calldata);
@@ -57,10 +57,10 @@ fn setup_erc20_panic() -> (DualCaseERC20, DualCaseERC20) {
 #[test]
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
-    assert_eq!(snake_dispatcher.name(), NAME);
+    assert_eq!(snake_dispatcher.name(), NAME());
 
     let (camel_dispatcher, _) = setup_camel();
-    assert_eq!(camel_dispatcher.name(), NAME);
+    assert_eq!(camel_dispatcher.name(), NAME());
 }
 
 #[test]
@@ -81,8 +81,8 @@ fn test_dual_name_exists_and_panics() {
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
-    assert_eq!(snake_dispatcher.symbol(), SYMBOL);
-    assert_eq!(camel_dispatcher.symbol(), SYMBOL);
+    assert_eq!(snake_dispatcher.symbol(), SYMBOL());
+    assert_eq!(camel_dispatcher.symbol(), SYMBOL());
 }
 
 #[test]

@@ -24,7 +24,7 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME, SYMBOL);
+    state.initializer(NAME(), SYMBOL());
     state._mint(OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
@@ -37,10 +37,10 @@ fn setup() -> ComponentState {
 #[test]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME, SYMBOL);
+    state.initializer(NAME(), SYMBOL());
 
-    assert_eq!(state.name(), NAME);
-    assert_eq!(state.symbol(), SYMBOL);
+    assert_eq!(state.name(), NAME());
+    assert_eq!(state.symbol(), SYMBOL());
     assert_eq!(state.decimals(), DECIMALS);
     assert_eq!(state.total_supply(), 0);
 }

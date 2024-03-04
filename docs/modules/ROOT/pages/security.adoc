@@ -105,28 +105,28 @@ mod MyPausableContract {
         self.ownable.initializer(owner);
     }
 
-    #[generate_trait]
     #[external(v0)]
-    impl ExternalImpl of ExternalTrait {
-        fn pause(ref self: ContractState) {
-            self.ownable.assert_only_owner();
-            self.pausable._pause();
-        }
+    fn pause(ref self: ContractState) {
+        self.ownable.assert_only_owner();
+        self.pausable._pause();
+    }
 
-        fn unpause(ref self: ContractState) {
-            self.ownable.assert_only_owner();
-            self.pausable._unpause();
-        }
+    #[external(v0)]
+    fn unpause(ref self: ContractState) {
+        self.ownable.assert_only_owner();
+        self.pausable._unpause();
+    }
 
-        fn when_not_paused(ref self: ContractState) {
-            self.pausable.assert_not_paused();
-            // Do something
-        }
+    #[external(v0)]
+    fn when_not_paused(ref self: ContractState) {
+        self.pausable.assert_not_paused();
+        // Do something
+    }
 
-        fn when_paused(ref self: ContractState) {
-            self.pausable.assert_paused();
-            // Do something
-        }
+    #[external(v0)]
+    fn when_paused(ref self: ContractState) {
+        self.pausable.assert_paused();
+        // Do something
     }
 }
 ----
@@ -167,24 +167,22 @@ mod MyReentrancyContract {
         ReentrancyGuardEvent: ReentrancyGuardComponent::Event
     }
 
-    #[generate_trait]
     #[external(v0)]
-    impl ExternalImpl of ExternalTrait {
-        fn protected_function(ref self: ContractState) {
-            self.reentrancy_guard.start();
+    fn protected_function(ref self: ContractState) {
+        self.reentrancy_guard.start();
 
-            // Do something
+        // Do something
 
-            self.reentrancy_guard.end();
-        }
+        self.reentrancy_guard.end();
+    }
 
-        fn another_protected_function(ref self: ContractState) {
-            self.reentrancy_guard.start();
+    #[external(v0)]
+    fn another_protected_function(ref self: ContractState) {
+        self.reentrancy_guard.start();
 
-            // Do something
+        // Do something
 
-            self.reentrancy_guard.end();
-        }
+        self.reentrancy_guard.end();
     }
 }
 ----

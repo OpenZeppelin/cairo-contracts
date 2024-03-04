@@ -386,7 +386,7 @@ See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check
 
 Version of `update` that performs the token acceptance check by calling
 `onERC1155Received` or `onERC1155BatchReceived` in the receiver if
-the latter implements `IERC1155Receiver`, and checks if it is an account otherwise.
+it implements `IERC1155Receiver`, otherwise by checking if it is an account.
 
 Requirements:
 

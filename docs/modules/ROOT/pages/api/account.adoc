@@ -1,13 +1,14 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = Account
 
 Reference of interfaces, presets, and utilities related to account contracts.
 
 == Core
+
+include::../utils/_common.adoc[]
 
 [.contract]
 [[ISRC6]]
@@ -75,10 +76,10 @@ use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#AccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .AccountMixinImpl
@@ -292,12 +293,12 @@ use openzeppelin::account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
 [.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .EthAccountMixinImpl

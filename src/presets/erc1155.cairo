@@ -48,7 +48,7 @@ mod ERC1155 {
         SRC5Event: SRC5Component::Event
     }
 
-    /// Sets the `token_uri`.
+    /// Sets the `base_uri` for all tokens.
     /// Mints the `values` for `token_ids` tokens to `recipient`.
     ///
     /// Requirements:
@@ -59,12 +59,12 @@ mod ERC1155 {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        token_uri: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>
     ) {
-        self.erc1155.initializer(token_uri);
+        self.erc1155.initializer(base_uri);
         self
             .erc1155
             .batch_mint_with_acceptance_check(recipient, token_ids, values, array![].span());

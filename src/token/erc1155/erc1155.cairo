@@ -104,7 +104,7 @@ mod ERC1155Component {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
-        /// Returns the number of NFTs owned by `account` for a specific `token_id`.
+        /// Returns the amount of `token_id` tokens owned by `account`.
         fn balance_of(
             self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
         ) -> u256 {
@@ -112,8 +112,7 @@ mod ERC1155Component {
         }
 
 
-        /// Returns a span of u256 values representing the batch balances of the
-        /// `accounts` for the specified `token_ids`.
+        /// Returns a list of balances derived from the `accounts` and `token_ids` pairs.
         ///
         /// Requirements:
         ///
@@ -138,7 +137,7 @@ mod ERC1155Component {
             batch_balances.span()
         }
 
-        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
+        /// Transfers ownership of `value` amount of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is passed to `to`.
         ///
@@ -169,7 +168,7 @@ mod ERC1155Component {
             self.safe_batch_transfer_from(from, to, token_ids, values, data)
         }
 
-        /// Batched version of `safeTransferFrom`.
+        /// Batched version of `safe_transfer_from`.
         ///
         /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
         /// to an untrusted contract, when invoking `on_ERC1155_batch_received` on the receiver.
@@ -205,7 +204,7 @@ mod ERC1155Component {
             self.update_with_acceptance_check(from, to, token_ids, values, data);
         }
 
-        /// Enable or disable approval for `operator` to manage all of the
+        /// Enables or disables approval for `operator` to manage all of the
         /// callers assets.
         ///
         /// Requirements:
@@ -223,7 +222,7 @@ mod ERC1155Component {
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
-        /// Query if `operator` is an authorized operator for `owner`.
+        /// Queries if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
             self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
         ) -> bool {
@@ -317,10 +316,11 @@ mod ERC1155Component {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token uri.
+        /// Initializes the contract by setting the `base_uri` for all tokens,
+        /// and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, uri: ByteArray) {
-            self.set_uri(uri);
+        fn initializer(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
@@ -379,13 +379,15 @@ mod ERC1155Component {
         }
 
         /// Version of `update` that performs the token acceptance check by calling
-        /// `IERC1155Receiver-onERC1155Received` or `IERC1155Receiver-onERC1155BatchReceived` if
+        /// `IERC1155Receiver::onERC1155Received` or `IERC1155Receiver::onERC1155BatchReceived` if
         /// the receiver is not recognized as an account.
         ///
         /// Requirements:
         ///
         /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
         /// - `token_ids` and `values` must have the same length.
+        ///
+        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
         fn update_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -502,8 +504,8 @@ mod ERC1155Component {
         ///
         /// Because these URIs cannot be meaningfully represented by the `URI` event,
         /// this function emits no events.
-        fn set_uri(ref self: ComponentState<TContractState>, uri: ByteArray) {
-            self.ERC1155_uri.write(uri);
+        fn set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.ERC1155_uri.write(base_uri);
         }
     }
 

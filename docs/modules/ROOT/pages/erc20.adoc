@@ -15,11 +15,15 @@ See the {custom-decimals} guide.
 == Interface
 
 :dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
+:ierc20-interface: xref:/api/erc20.adoc#IERC20[IERC20]
+:ierc20metadata-interface: xref:/api/erc20.adoc#IERC20Metadata[IERC20Metadata]
+:erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
 :erc20-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
 
-The following interface represents the full ABI of the Contracts for Cairo `ERC20` component.
-The interface includes the `IERC20` standard interface as well as `IERC20Camel` for backwards compatibility.
-To support older token deployments, as mentioned in {dual-interfaces}, the `ERC20` component also includes an implementation of the interface written in camelCase.
+The following interface represents the full ABI of the Contracts for Cairo {erc20-component}.
+The interface includes the {ierc20-interface} standard interface as well as the optional {ierc20metadata-interface}.
+
+To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
 
 [,javascript]
 ----

@@ -9,17 +9,19 @@ The ERC721 token standard is a specification for {token-types}, or more colloqui
 == Interface
 
 :compatibility: xref:/erc721.adoc#erc721_compatibility[ERC721 Compatibility]
-:ierc721-interface: xref:/erc721.adoc#ierc721[IERC721]
-:ierc721metadata-interface: xref:/erc721.adoc#ierc721metadata[IERC721Metadata]
+:ierc721-interface: xref:/api/erc721.adoc#IERC721[IERC721]
+:ierc721metadata-interface: xref:/api/erc721.adoc#IERC721Metadata[IERC721Metadata]
+:erc721-component: xref:/api/erc721.adoc#ERC721Component[ERC721Component]
 :dual-interfaces: xref:interfaces.adoc#dual_interfaces[Dual interfaces]
 
-The following interface represents the full ABI of the Contracts for Cairo `ERC721Component`.
-The interface includes the <<IERC721,IERC721>> standard interface and the optional <<IERC721Metadata,IERC721Metadata>> interface.
+The following interface represents the full ABI of the Contracts for Cairo {erc721-component}.
+The interface includes the {ierc721-interface} standard interface and the optional {ierc721metadata-interface} interface.
+
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
 [,javascript]
 ----
-trait IERC721ABI {
+trait ERC721ABI {
     // IERC721
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;

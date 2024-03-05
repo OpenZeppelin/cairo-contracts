@@ -55,6 +55,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 [.contract-index#SRC5Component-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#SRC5Component-Embeddable-Impls-SRC5Impl]
 .SRC5Impl
 
 * xref:#SRC5Component-supports_interface[`++supports_interface(self, interface_id)++`]

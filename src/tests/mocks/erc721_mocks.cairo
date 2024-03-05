@@ -43,15 +43,14 @@ mod DualCaseERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: felt252
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
     }
 }
 
@@ -95,15 +94,14 @@ mod SnakeERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: felt252
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
     }
 }
 
@@ -149,15 +147,14 @@ mod CamelERC721Mock {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256,
-        uri: felt252
+        token_id: u256
     ) {
-        self.erc721.initializer(name, symbol);
+        self.erc721.initializer(name, symbol, base_uri);
         self.erc721._mint(recipient, token_id);
-        self.erc721._set_token_uri(token_id, uri);
     }
 
     /// The following external methods are included because they are case-agnostic
@@ -171,12 +168,12 @@ mod CamelERC721Mock {
         }
 
         #[external(v0)]
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> ByteArray {
             self.erc721.name()
         }
 
         #[external(v0)]
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> ByteArray {
             self.erc721.symbol()
         }
     }
@@ -200,15 +197,15 @@ mod SnakeERC721PanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> ByteArray {
             panic!("Some error");
-            3
+            "3"
         }
 
         #[external(v0)]
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> ByteArray {
             panic!("Some error");
-            3
+            "3"
         }
 
         #[external(v0)]

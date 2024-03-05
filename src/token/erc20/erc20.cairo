@@ -18,8 +18,8 @@ mod ERC20Component {
 
     #[storage]
     struct Storage {
-        ERC20_name: felt252,
-        ERC20_symbol: felt252,
+        ERC20_name: ByteArray,
+        ERC20_symbol: ByteArray,
         ERC20_total_supply: u256,
         ERC20_balances: LegacyMap<ContractAddress, u256>,
         ERC20_allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
@@ -150,12 +150,12 @@ mod ERC20Component {
         TContractState, +HasComponent<TContractState>
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC20_name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC20_symbol.read()
         }
 
@@ -198,7 +198,9 @@ mod ERC20Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+        ) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
         }
@@ -339,11 +341,11 @@ mod ERC20Component {
         }
 
         // IERC20Metadata
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             ERC20Metadata::name(self)
         }
 
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             ERC20Metadata::symbol(self)
         }
 

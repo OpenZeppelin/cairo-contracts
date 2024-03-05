@@ -6,14 +6,11 @@ use starknet::class_hash_const;
 use starknet::contract_address_const;
 use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 
-const NAME: felt252 = 'NAME';
-const SYMBOL: felt252 = 'SYMBOL';
 const DECIMALS: u8 = 18_u8;
 const SUPPLY: u256 = 2000;
 const VALUE: u256 = 300;
 const ROLE: felt252 = 'ROLE';
 const OTHER_ROLE: felt252 = 'OTHER_ROLE';
-const URI: felt252 = 'URI';
 const TOKEN_ID: u256 = 21;
 const TOKEN_ID_2: u256 = 121;
 const TOKEN_VALUE: u256 = 42;
@@ -28,6 +25,22 @@ const MIN_TRANSACTION_VERSION: felt252 = 1;
 const QUERY_OFFSET: felt252 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + MIN_TRANSACTION_VERSION
 const QUERY_VERSION: felt252 = 0x100000000000000000000000000000001;
+
+fn NAME() -> ByteArray {
+    "NAME"
+}
+
+fn SYMBOL() -> ByteArray {
+    "SYMBOL"
+}
+
+fn BASE_URI() -> ByteArray {
+    "https://api.example.com/v1/"
+}
+
+fn BASE_URI_2() -> ByteArray {
+    "https://api.example.com/v2/"
+}
 
 fn ETH_PUBKEY() -> EthPublicKey {
     secp256k1_get_point_from_x_syscall(3, false).unwrap_syscall().unwrap()

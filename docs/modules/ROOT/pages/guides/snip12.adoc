@@ -1,0 +1,60 @@
+:snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
+:eip712: https://eips.ethereum.org/EIPS/eip-712[EIP712]
+:erc20: xref:/api/erc20.adoc#ERC20[ERC20]
+:erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]
+
+= SNIP12 and Typed Messages
+
+Similar to {eip712}, {snip12} is a standard for secure off-chain signature verification on Starknet.
+It provides a way to hash and sign generic typed structs rather than just strings. When building decentralized
+applications, usually you might need to sign a message with complex data. The purpose of singature verification
+is then to ensure that the received message was indeed signed by the expected signer, and it hasen't been tampered with.
+
+OpenZeppelin Contracts for Cairo provides a set of utilities to make the implementation of this standard
+as easy as posible, and in this guide we will walk you through the process of generating the typed messages hashes with
+these utilties for on-chain signature verification. For that, let's build an example with a custom {erc20} contract
+adding an extra `transfer_with_signature` method.
+
+NOTE: This is an educational example, and it is not intended to be used in production environments.
+
+== CustomERC20
+
+Let's start with a basic ERC20 contract leveraging the {erc20-component}.
+
+[,javascript]
+----
+#[starknet::contract]
+mod CustomERC20 {
+    use openzeppelin::token::erc20::ERC20Component;
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer('MyToken', 'MTK');
+        self.erc20._mint(recipient, initial_supply);
+    }
+}
+----

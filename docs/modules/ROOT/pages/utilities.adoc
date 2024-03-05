@@ -27,6 +27,7 @@ Module containing core utilities of the library.
 * xref:#utils-UnwrapAndCast[`++UnwrapAndCast++`]
 
 .Inner modules
+* xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
@@ -94,6 +95,13 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 ==== Inner modules
 
 [.contract-item]
+[[utils-cryptography]]
+==== `[.contract-item-name]#++cryptography++#` [.item-kind]#module#
+
+See xref:#cryptography[`openzeppelin::utils::cryptography`].
+
+
+[.contract-item]
 [[utils-selectors]]
 ==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
 
@@ -104,6 +112,37 @@ See xref:#selectors[`openzeppelin::utils::selectors`].
 ==== `[.contract-item-name]#++serde++#` [.item-kind]#module#
 
 See xref:#serde[`openzeppelin::utils::serde`].
+
+[.contract]
+[[cryptography]]
+=== `++cryptography++`
+
+:snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
+
+```javascript
+use openzeppelin::utils::cryptography;
+```
+
+Module containing utilities related to cryptography.
+
+[.contract-index]
+.Members
+--
+.Inner modules
+* xref:#cryptography-snip12[`++snip12++`]
+--
+
+[#cryptography-Inner modules]
+==== Inner modules
+
+[.contract-item]
+[[cryptography-snip12]]
+==== `[.contract-item-name]#++snip12++#` [.item-kind]#module#
+
+Supports on-chain generation of message hashes compliant with {snip12}.
+
+NOTE: For a full walkthrough on how to use this module, see the
+xref:/guides/snip12.adoc[SNIP12 and Typed Messages] guide.
 
 [.contract]
 [[selectors]]

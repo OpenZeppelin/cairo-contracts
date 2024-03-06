@@ -65,13 +65,13 @@ fn test_constructor() {
 
     assert_only_event_owner_added(ZERO(), PUBKEY);
 
-    let public_key = Account::PublicKeyImpl::get_public_key(@state);
+    let public_key = Account::AccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, PUBKEY);
 
-    let supports_isrc5 = Account::SRC5Impl::supports_interface(@state, ISRC5_ID);
+    let supports_isrc5 = Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
     assert!(supports_isrc5);
 
-    let supports_isrc6 = Account::SRC5Impl::supports_interface(@state, ISRC6_ID);
+    let supports_isrc6 = Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc6);
 }
 
@@ -182,10 +182,10 @@ fn test_isValidSignature_bad_sig() {
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
     let supports_isrc5 = dispatcher.supports_interface(ISRC5_ID);
-    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
-    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
     assert!(supports_isrc5);
+    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
+    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
     assert!(doesnt_support_0x123);
 }
 

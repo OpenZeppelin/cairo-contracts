@@ -19,20 +19,20 @@ mod PausableComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Paused: Paused,
         Unpaused: Unpaused,
     }
 
     /// Emitted when the pause is triggered by `account`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Paused {
         account: ContractAddress
     }
 
     /// Emitted when the pause is lifted by `account`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Unpaused {
         account: ContractAddress
     }

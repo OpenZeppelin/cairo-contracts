@@ -6,10 +6,7 @@ mod DualCaseOwnableMock {
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl OwnableCamelOnlyImpl =
-        OwnableComponent::OwnableCamelOnlyImpl<ContractState>;
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
@@ -91,9 +88,13 @@ mod CamelOwnableMock {
         self.ownable.initializer(owner);
     }
 
-    #[external(v0)]
-    fn owner(self: @ContractState) -> ContractAddress {
-        self.ownable.Ownable_owner.read()
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn owner(self: @ContractState) -> ContractAddress {
+            self.ownable.Ownable_owner.read()
+        }
     }
 }
 
@@ -105,20 +106,24 @@ mod SnakeOwnablePanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn owner(self: @ContractState) -> ContractAddress {
-        panic!("Some error");
-        Zeroable::zero()
-    }
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn owner(self: @ContractState) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn renounce_ownership(ref self: ContractState) {
-        panic!("Some error");
+        #[external(v0)]
+        fn renounce_ownership(ref self: ContractState) {
+            panic!("Some error");
+        }
     }
 }
 
@@ -129,20 +134,24 @@ mod CamelOwnablePanicMock {
     #[storage]
     struct Storage {}
 
-    #[external(v0)]
-    fn owner(self: @ContractState) -> ContractAddress {
-        panic!("Some error");
-        Zeroable::zero()
-    }
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn owner(self: @ContractState) -> ContractAddress {
+            panic!("Some error");
+            Zeroable::zero()
+        }
 
-    #[external(v0)]
-    fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
-        panic!("Some error");
-    }
+        #[external(v0)]
+        fn transferOwnership(ref self: ContractState, newOwner: ContractAddress) {
+            panic!("Some error");
+        }
 
-    #[external(v0)]
-    fn renounceOwnership(ref self: ContractState) {
-        panic!("Some error");
+        #[external(v0)]
+        fn renounceOwnership(ref self: ContractState) {
+            panic!("Some error");
+        }
     }
 }
 
@@ -154,10 +163,8 @@ mod DualCaseTwoStepOwnableMock {
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableTwoStepImpl = OwnableComponent::OwnableTwoStepImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl OwnableTwoStepCamelOnlyImpl =
-        OwnableComponent::OwnableTwoStepCamelOnlyImpl<ContractState>;
+    impl OwnableTwoStepMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]

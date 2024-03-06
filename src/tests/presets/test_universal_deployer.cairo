@@ -25,8 +25,8 @@ fn ERC20_CLASS_HASH() -> ClassHash {
 
 fn ERC20_CALLDATA() -> Span<felt252> {
     let mut calldata = array![];
-    calldata.append_serde(NAME);
-    calldata.append_serde(SYMBOL);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(SUPPLY);
     calldata.append_serde(RECIPIENT());
     calldata.span()
@@ -53,13 +53,18 @@ fn test_deploy_not_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    let event = utils::pop_log::<ContractDeployed>(udc.contract_address).unwrap();
-    assert_eq!(event.address, deployed_addr);
-    assert_eq!(event.deployer, CALLER());
-    assert_eq!(event.unique, unique);
-    assert_eq!(event.class_hash, ERC20_CLASS_HASH());
-    assert_eq!(event.calldata, ERC20_CALLDATA());
-    assert_eq!(event.salt, SALT);
+    let event = utils::pop_log::<UniversalDeployer::Event>(udc.contract_address).unwrap();
+    let expected = UniversalDeployer::Event::ContractDeployed(
+        ContractDeployed {
+            address: deployed_addr,
+            deployer: CALLER(),
+            unique: unique,
+            class_hash: ERC20_CLASS_HASH(),
+            calldata: ERC20_CALLDATA(),
+            salt: SALT
+        }
+    );
+    assert!(event == expected);
     utils::assert_no_events_left(udc.contract_address);
 
     // Check deployment
@@ -83,13 +88,18 @@ fn test_deploy_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    let event = utils::pop_log::<ContractDeployed>(udc.contract_address).unwrap();
-    assert_eq!(event.address, deployed_addr);
-    assert_eq!(event.deployer, CALLER());
-    assert_eq!(event.unique, unique);
-    assert_eq!(event.class_hash, ERC20_CLASS_HASH());
-    assert_eq!(event.calldata, ERC20_CALLDATA());
-    assert_eq!(event.salt, SALT);
+    let event = utils::pop_log::<UniversalDeployer::Event>(udc.contract_address).unwrap();
+    let expected = UniversalDeployer::Event::ContractDeployed(
+        ContractDeployed {
+            address: deployed_addr,
+            deployer: CALLER(),
+            unique: unique,
+            class_hash: ERC20_CLASS_HASH(),
+            calldata: ERC20_CALLDATA(),
+            salt: SALT
+        }
+    );
+    assert!(event == expected);
     utils::assert_no_events_left(udc.contract_address);
 
     // Check deployment

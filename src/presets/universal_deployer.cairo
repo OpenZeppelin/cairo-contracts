@@ -22,12 +22,12 @@ mod UniversalDeployer {
     struct Storage {}
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         ContractDeployed: ContractDeployed
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct ContractDeployed {
         address: ContractAddress,
         deployer: ContractAddress,

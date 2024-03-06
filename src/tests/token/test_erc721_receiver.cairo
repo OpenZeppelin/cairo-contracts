@@ -1,7 +1,7 @@
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
-use openzeppelin::tests::utils::constants::{OWNER, OPERATOR, TOKEN_ID};
+use openzeppelin::tests::utils::constants::{OWNER, OPERATOR, TOKEN_ID, DATA};
 use openzeppelin::token::erc721::ERC721ReceiverComponent::{
     ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
 };
@@ -17,9 +17,9 @@ fn test_initializer() {
     state.erc721_receiver.initializer();
 
     let supports_ierc721_receiver = state.src5.supports_interface(IERC721_RECEIVER_ID);
-    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
-
     assert!(supports_ierc721_receiver);
+
+    let supports_isrc5 = state.src5.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
 }
 

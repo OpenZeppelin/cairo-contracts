@@ -6,6 +6,8 @@
 
 = ERC20
 
+include::../utils/_common.adoc[]
+
 Reference of interfaces and utilities related to ERC20 contracts.
 
 TIP: For an overview of ERC20, read our {erc20-guide}.
@@ -134,13 +136,13 @@ Interface for the optional metadata functions in {eip20}.
 
 [.contract-item]
 [[IERC20Metadata-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++() → ByteArray++` [.item-kind]#external#
 
 Returns the name of the token.
 
 [.contract-item]
 [[IERC20Metadata-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++() → ByteArray++` [.item-kind]#external#
 
 Returns the ticker symbol of the token.
 
@@ -168,9 +170,20 @@ use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
-[.contract-index#ERC20Component-Embeddable-Impls]
-.Embeddable implementations
+[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
 --
+.ERC20MixinImpl
+* xref:#ERC20Component-Embeddable-Impls-ERC20Impl[`++ERC20Impl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20MetadataImpl[`++ERC20MetadataImpl++`]
+* xref:#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl[`++ERC20CamelOnlyImpl++`]
+--
+
+[.contract-index#ERC20Component-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20Impl]
 .ERC20Impl
 * xref:#ERC20Component-total_supply[`++total_supply(self)++`]
 * xref:#ERC20Component-balance_of[`++balance_of(self, account)++`]
@@ -179,15 +192,13 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
 * xref:#ERC20Component-approve[`++approve(self, spender, amount)++`]
 
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20MetadataImpl]
 .ERC20MetadataImpl
 * xref:#ERC20Component-name[`++name(self)++`]
 * xref:#ERC20Component-symbol[`++symbol(self)++`]
 * xref:#ERC20Component-decimals[`++decimals(self)++`]
---
 
-[.contract-index#ERC20Component-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20CamelOnlyImpl]
 .ERC20CamelOnlyImpl
 * xref:#ERC20Component-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20Component-balanceOf[`++balanceOf(self, account)++`]
@@ -270,13 +281,13 @@ Requirements:
 
 [.contract-item]
 [[ERC20Component-name]]
-==== `[.contract-item-name]#++name++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++name++#++() → ByteArray++` [.item-kind]#external#
 
 See <<IERC20Metadata-name,IERC20Metadata::name>>.
 
 [.contract-item]
 [[ERC20Component-symbol]]
-==== `[.contract-item-name]#++symbol++#++() → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++symbol++#++() → ByteArray++` [.item-kind]#external#
 
 See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
 
@@ -285,9 +296,6 @@ See <<IERC20Metadata-symbol,IERC20Metadata::symbol>>.
 ==== `[.contract-item-name]#++decimals++#++() → u8++` [.item-kind]#external#
 
 See <<IERC20Metadata-decimals,IERC20Metadata::decimals>>.
-
-[#ERC20Component-camelCase-support]
-==== camelCase Support
 
 [.contract-item]
 [[ERC20Component-totalSupply]]
@@ -318,7 +326,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 
 [.contract-item]
 [[ERC20Component-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: felt252, symbol: felt252)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray)++` [.item-kind]#internal#
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside of the contract's constructor.
@@ -420,7 +428,7 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{erc20-class-hash}
+{ERC20-class-hash}
 --
 
 [.contract-index]
@@ -432,11 +440,9 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .Embedded Implementations
 --
-.ERC20Component
+.ERC20MixinImpl
 
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20Impl++`]
-* xref:#ERC20Component-Embeddable-Impls[`++ERC20MetadataImpl++`]
-* xref:#ERC20Component-Embeddable-Impls-camelCase[`++ERC20CamelOnlyImpl++`]
+* xref:#ERC20Component-Embeddable-Mixin-Impl[`++ERC20MixinImpl++`]
 --
 
 [#ERC20-constructor-section]
@@ -444,6 +450,6 @@ include::../utils/_class_hashes.adoc[]
 
 [.contract-item]
 [[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: felt252, symbol: felt252, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol` and mints `fixed_supply` tokens to `recipient`.

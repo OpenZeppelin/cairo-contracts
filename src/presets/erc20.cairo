@@ -13,12 +13,9 @@ mod ERC20 {
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // ERC20Mixin
     #[abi(embed_v0)]
-    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
@@ -39,8 +36,8 @@ mod ERC20 {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: ByteArray,
+        symbol: ByteArray,
         fixed_supply: u256,
         recipient: ContractAddress
     ) {

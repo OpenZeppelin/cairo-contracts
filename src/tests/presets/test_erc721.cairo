@@ -13,6 +13,7 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::ERC721ABI;
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
 use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
@@ -989,14 +990,16 @@ fn assert_state_transfer_to_self(
 fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
-    assert_eq!(event.owner, owner);
-    assert_eq!(event.operator, operator);
-    assert_eq!(event.approved, approved);
+    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
+    let expected = ERC721Component::Event::ApprovalForAll(
+        ApprovalForAll { owner, operator, approved, }
+    );
+    assert!(event == expected);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("ApprovalForAll"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(operator);
     utils::assert_indexed_keys(event, indexed_keys.span());
@@ -1005,14 +1008,14 @@ fn assert_event_approval_for_all(
 fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
 ) {
-    let event = utils::pop_log::<Approval>(contract).unwrap();
-    assert_eq!(event.owner, owner);
-    assert_eq!(event.approved, approved);
-    assert_eq!(event.token_id, token_id);
+    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
+    let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
+    assert!(event == expected);
     utils::assert_no_events_left(contract);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Approval"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(approved);
     indexed_keys.append_serde(token_id);
@@ -1022,13 +1025,13 @@ fn assert_event_approval(
 fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
 ) {
-    let event = utils::pop_log::<Transfer>(contract).unwrap();
-    assert_eq!(event.from, from);
-    assert_eq!(event.to, to);
-    assert_eq!(event.token_id, token_id);
+    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
+    let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Transfer"));
     indexed_keys.append_serde(from);
     indexed_keys.append_serde(to);
     indexed_keys.append_serde(token_id);

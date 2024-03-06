@@ -26,7 +26,7 @@ mod ERC1155Component {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
@@ -35,7 +35,7 @@ mod ERC1155Component {
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct TransferSingle {
         #[key]
         operator: ContractAddress,
@@ -48,7 +48,7 @@ mod ERC1155Component {
     }
 
     /// Emitted when `values` are transferred from `from` to `to` for `ids`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct TransferBatch {
         #[key]
         operator: ContractAddress,
@@ -62,7 +62,7 @@ mod ERC1155Component {
 
     /// Emitted when `account` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct ApprovalForAll {
         #[key]
         owner: ContractAddress,
@@ -76,7 +76,7 @@ mod ERC1155Component {
     /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the value
     /// returned by `IERC1155MetadataURI::uri`.
     /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct URI {
         value: ByteArray,
         #[key]

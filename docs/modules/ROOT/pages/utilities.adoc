@@ -224,9 +224,6 @@ fn deploy_test_contract() -> ContractAddress {
 Pops the earliest unpopped logged event for the contract as the requested type
 and checks that there's no more keys or data left on the event, preventing unaccounted params.
 
-This function also removes the first key from the event, to match the event structure key params without
-the event ID.
-
 Required traits for `T`:
 
 - `Drop`
@@ -247,6 +244,9 @@ Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 
 `expected_keys` must include all indexed event keys for `event` in the order
 that they're defined.
+
+NOTE: If the event is not flattened, the first key will be the event member name
+e.g. selector!("EnumMemberName").
 
 Required traits for `T`:
 

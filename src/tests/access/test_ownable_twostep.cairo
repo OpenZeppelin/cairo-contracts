@@ -319,12 +319,15 @@ fn test_pending_accept_after_owner_renounce() {
 fn assert_event_ownership_transfer_started(
     previous_owner: ContractAddress, new_owner: ContractAddress
 ) {
-    let event = utils::pop_log::<OwnershipTransferStarted>(ZERO()).unwrap();
-    assert_eq!(event.previous_owner, previous_owner);
-    assert_eq!(event.new_owner, new_owner);
+    let event = utils::pop_log::<OwnableComponent::Event>(ZERO()).unwrap();
+    let expected = OwnableComponent::Event::OwnershipTransferStarted(
+        OwnershipTransferStarted { previous_owner, new_owner }
+    );
+    assert!(event == expected);
     utils::assert_no_events_left(ZERO());
 
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnershipTransferStarted"));
     indexed_keys.append_serde(previous_owner);
     indexed_keys.append_serde(new_owner);
     utils::assert_indexed_keys(event, indexed_keys.span());

@@ -585,12 +585,15 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
-    let guid = get_guid_from_public_key(public_key);
-    assert_eq!(event.new_owner_guid, guid);
+    let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
+    let new_owner_guid = get_guid_from_public_key(public_key);
+    let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+    assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerAdded"));
+    indexed_keys.append_serde(new_owner_guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
@@ -600,12 +603,15 @@ fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPubli
 }
 
 fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
-    let guid = get_guid_from_public_key(public_key);
-    assert_eq!(event.removed_owner_guid, guid);
+    let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
+    let removed_owner_guid = get_guid_from_public_key(public_key);
+    let expected = EthAccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });
+    assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerRemoved"));
+    indexed_keys.append_serde(removed_owner_guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 

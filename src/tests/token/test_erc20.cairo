@@ -433,13 +433,13 @@ fn test__burn_from_zero() {
 //
 
 fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Approval>(ZERO()).unwrap();
-    assert_eq!(event.owner, owner);
-    assert_eq!(event.spender, spender);
-    assert_eq!(event.value, value);
+    let event = utils::pop_log::<ERC20Component::Event>(ZERO()).unwrap();
+    let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Approval"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(spender);
     utils::assert_indexed_keys(event, indexed_keys.span())
@@ -451,13 +451,13 @@ fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, 
 }
 
 fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    let event = utils::pop_log::<Transfer>(ZERO()).unwrap();
-    assert_eq!(event.from, from);
-    assert_eq!(event.to, to);
-    assert_eq!(event.value, value);
+    let event = utils::pop_log::<ERC20Component::Event>(ZERO()).unwrap();
+    let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Transfer"));
     indexed_keys.append_serde(from);
     indexed_keys.append_serde(to);
     utils::assert_indexed_keys(event, indexed_keys.span());

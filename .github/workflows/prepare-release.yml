@@ -43,7 +43,7 @@ jobs:
 
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py v$SCARB_VERSION \
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py $SCARB_VERSION \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes

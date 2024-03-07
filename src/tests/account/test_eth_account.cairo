@@ -9,6 +9,7 @@ use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
+use openzeppelin::account::utils::signature::Signature;
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
@@ -24,7 +25,6 @@ use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
-use starknet::eth_signature::Signature;
 use starknet::secp256k1::secp256k1_new_syscall;
 use starknet::testing;
 
@@ -50,7 +50,6 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
         signature: Signature {
             r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
             s: 0x6719fef30c11c74add873e4da0e1234deb69eae6a6bd4daa44b816dc199f3e86,
-            y_parity: true
         }
     }
 }

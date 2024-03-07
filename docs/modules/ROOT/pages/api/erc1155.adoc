@@ -167,6 +167,17 @@ ERC1155 component implementing <<IERC1155,IERC1155>> and <<IERC1155MetadataURI,I
 
 NOTE: {src5-component-required-note}
 
+[.contract-index#ERC1155Component-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
+--
+.ERC721MixinImpl
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ER1155CamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
 [.contract-index#ERC1155Component-Embeddable-Impls]
 .Embeddable Implementations
 --
@@ -644,13 +655,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC1155Component
 
-* xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
-* xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
-* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ERC1155CamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
+* xref:#ERC1155Component-Embeddable-Mixin-Impl[`++ERC1155MixinImpl++`]
 --
 
 [#ERC1155-constructor-section]

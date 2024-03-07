@@ -17,19 +17,10 @@ mod ERC1155 {
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // ERC1155
+    // ERC1155 Mixin
     #[abi(embed_v0)]
-    impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC1155MetadataURIImpl =
-        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC1155Camel = ERC1155Component::ERC1155CamelImpl<ContractState>;
+    impl ERC1155MixinImpl = ERC1155Component::ERC1155MixinImpl<ContractState>;
     impl ERC1155InternalImpl = ERC1155Component::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {

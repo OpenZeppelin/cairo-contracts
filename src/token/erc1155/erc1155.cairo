@@ -600,7 +600,7 @@ mod ERC1155Component {
         fn set_approval_for_all(
             ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
         ) {
-            ERC1155::set_approval_for_all(ref self, operator, approved)
+            ERC1155::set_approval_for_all(ref self, operator, approved);
         }
 
         // ISRC5

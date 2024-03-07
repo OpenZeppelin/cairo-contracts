@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `InternalTrait::initializer` accepts an additional `base_uri` ByteArray parameter (#857)
   - IERC721Metadata SRC5 interface ID. This is changed because of the ByteArray integration (#857)
 - EthAccount
-  - Parity is not required anymore as part of the signature (#)
+  - Expected signature format changed from `(r, s, y)` to `(r, s)` (#940)
 
 ### Removed
 

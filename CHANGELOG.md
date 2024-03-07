@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC1155 component and preset (#896)
-- Mixin implementations in components (#863)
+- Mixin implementations in components (#863) (#941)
 - ERC721Component functions and Storage member
   - `InternalTrait::_set_base_uri` and `InternalTrait::_base_uri` to handle ByteArrays (#857)
   - `ERC721_base_uri` Storage member to store the base URI (#857)

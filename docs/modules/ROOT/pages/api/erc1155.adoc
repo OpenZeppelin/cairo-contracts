@@ -175,7 +175,7 @@ NOTE: {src5-component-required-note}
 * xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
 * xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
 * xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ER1155CamelImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
 --
 
 [.contract-index#ERC1155Component-Embeddable-Impls]

@@ -8,7 +8,7 @@ use starknet::secp256_trait;
 use starknet::secp256k1::Secp256k1Point;
 
 #[derive(Copy, Drop, Serde)]
-pub struct Signature {
+pub struct EthSignature {
     pub r: u256,
     pub s: u256,
 }
@@ -39,7 +39,7 @@ fn is_valid_eth_signature(
     msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
 ) -> bool {
     let mut signature = signature;
-    let signature: Signature = Serde::deserialize(ref signature)
+    let signature: EthSignature = Serde::deserialize(ref signature)
         .expect('Signature: Invalid format.');
 
     secp256_trait::is_valid_signature(msg_hash.into(), signature.r, signature.s, public_key)

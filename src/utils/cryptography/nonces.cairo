@@ -38,7 +38,7 @@ mod NoncesComponent {
             nonce
         }
 
-        /// Same as `_use_nonce` but checking that `nonce` is the next valid for `owner`.
+        /// Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
         fn use_checked_nonce(
             ref self: ComponentState<TContractState>, owner: ContractAddress, nonce: felt252
         ) -> felt252 {

@@ -11,11 +11,11 @@ applications, usually you might need to sign a message with complex data. The pu
 is then to ensure that the received message was indeed signed by the expected signer, and it hasen't been tampered with.
 
 OpenZeppelin Contracts for Cairo provides a set of utilities to make the implementation of this standard
-as easy as posible, and in this guide we will walk you through the process of generating the typed messages hashes with
+as easy as possible, and in this guide we will walk you through the process of generating the typed messages hashes with
 these utilties for on-chain signature verification. For that, let's build an example with a custom {erc20} contract
 adding an extra `transfer_with_signature` method.
 
-NOTE: This is an educational example, and it is not intended to be used in production environments.
+WARNING: This is an educational example, and it is not intended to be used in production environments.
 
 == CustomERC20
 
@@ -151,7 +151,7 @@ impl StructHashImpl of StructHash<Message> {
 === 4. Implement the `SNIP12Metadata` trait to provide a dapp name and version.
 
 This implementation determines the values of the domain separator. Only the `name` and `version` fields are required
-because the `chain_id` is obtained on-chain, and the `revision` is hardcoded to `'1'`.
+because the `chain_id` is obtained on-chain, and the `revision` is hardcoded to `1`.
 
 [,javascript]
 ----
@@ -222,44 +222,96 @@ fn get_hash(
 }
 ----
 
+TIP: The expected parameter for the `get_message_hash` function is the address of account that signed the message.
+
 == Full Implementation
+
+:dualcase_dispatchers: xref:/interfaces#dualcase_dispatchers
+:nonces: xref:/utilities#NoncesComponent
 
 Finally, the full implementation of the `CustomERC20` contract looks like this:
 
+NOTE: We are using the {dualcase_dispatchers}[`DualCaseAccount`] to verify the signature,
+and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
+
 [,javascript]
 ----
+use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
+
+use core::hash::HashStateExTrait;
+use hash::{HashStateTrait, Hash};
+use poseidon::PoseidonTrait;
+use starknet::ContractAddress;
+
+const MESSAGE_TYPE_HASH: felt252 =
+    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+
+#[derive(Copy, Drop, Hash)]
+struct Message {
+    recipient: ContractAddress,
+    amount: u256,
+    nonce: felt252,
+    expiry: u64
+}
+
+impl StructHashImpl of StructHash<Message> {
+    fn hash_struct(self: @Message) -> felt252 {
+        let hash_state = PoseidonTrait::new();
+        hash_state.update_with(MESSAGE_TYPE_HASH).update_with(*self).finalize()
+    }
+}
+
 #[starknet::contract]
 mod CustomERC20 {
+    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
     use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
 
+    use super::{Message, OffchainMessageHashImpl, SNIP12Metadata};
+
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
+    #[abi(embed_v0)]
+    impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
+    impl InternalImpl = NoncesComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        erc20: ERC20Component::Storage,
+        #[substorage(v0)]
+        nonces: NoncesComponent::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        initial_supply: u256,
-        recipient: ContractAddress
-    ) {
+    fn constructor(ref self: ContractState, initial_supply: u256, recipient: ContractAddress) {
         self.erc20.initializer("MyToken", "MTK");
         self.erc20._mint(recipient, initial_supply);
+    }
+
+    /// Required for hash computation.
+    impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            'CustomERC20'
+        }
+        fn version() -> felt252 {
+            'v1'
+        }
     }
 
     #[external(v0)]
@@ -271,7 +323,26 @@ mod CustomERC20 {
         expiry: u64,
         signature: Array<felt252>
     ) {
-        (...)
+        assert(starknet::get_block_timestamp() <= expiry, 'Expired signature');
+        let owner = starknet::get_caller_address();
+
+        // Check and increase nonce
+        self.nonces.use_checked_nonce(owner, nonce);
+
+        // Build hash for calling `is_valid_signature`
+        let message = Message { recipient, amount, nonce, expiry };
+        let hash = message.get_message_hash(owner);
+
+        let is_valid_signature_felt = DualCaseAccount { contract_address: owner }
+            .is_valid_signature(hash, signature);
+
+        // Check either 'VALID' or True for backwards compatibility
+        let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+            || is_valid_signature_felt == 1;
+        assert(is_valid_signature, 'Invalid signature');
+
+        // Transfer tokens
+        self.erc20._transfer(owner, recipient, amount);
     }
 }
 ----

@@ -9,7 +9,7 @@ use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
-use openzeppelin::account::utils::signature::Signature;
+use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
@@ -33,7 +33,7 @@ struct SignedTransactionData {
     private_key: u256,
     public_key: EthPublicKey,
     transaction_hash: felt252,
-    signature: Signature
+    signature: EthSignature
 }
 
 /// This signature was computed using ethers.js.
@@ -47,7 +47,7 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
             .unwrap()
             .unwrap(),
         transaction_hash: 0x008f882c63d0396d216d57529fe29ad5e70b6cd51b47bd2458b0a4ccb2ba0957,
-        signature: Signature {
+        signature: EthSignature {
             r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
             s: 0x6719fef30c11c74add873e4da0e1234deb69eae6a6bd4daa44b816dc199f3e86,
         }

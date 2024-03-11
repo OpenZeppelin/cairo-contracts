@@ -56,18 +56,7 @@ mod UniversalDeployer {
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)
                 .unwrap_syscall();
 
-            self
-                .emit(
-                    ContractDeployed {
-                        address,
-                        deployer,
-                        unique,
-                        class_hash,
-                        calldata,
-                        salt
-                    }
-                );
-
+            self.emit(ContractDeployed { address, deployer, unique, class_hash, calldata, salt });
             return address;
         }
     }

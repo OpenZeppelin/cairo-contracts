@@ -154,14 +154,7 @@ fn assert_event_contract_deployed(
 ) {
     let event = utils::pop_log::<UniversalDeployer::Event>(contract).unwrap();
     let expected = UniversalDeployer::Event::ContractDeployed(
-        ContractDeployed {
-            address,
-            deployer,
-            unique,
-            class_hash,
-            calldata,
-            salt
-        }
+        ContractDeployed { address, deployer, unique, class_hash, calldata, salt }
     );
     assert!(event == expected);
     utils::assert_no_events_left(contract);

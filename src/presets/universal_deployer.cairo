@@ -50,7 +50,7 @@ mod UniversalDeployer {
 
             // Defaults for non-unique deployment
             let mut _salt: felt252 = salt;
-            let mut from_zero: bool = true;
+            let from_zero: bool = !unique;
 
             if unique {
                 _salt = pedersen(deployer.into(), salt);

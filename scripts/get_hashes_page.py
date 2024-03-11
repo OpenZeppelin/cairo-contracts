@@ -18,6 +18,7 @@ def generate_doc_file(cmp_version, contracts):
 https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
 """
     hashes = "// Class Hashes\n"
+    contracts['contracts'].sort(key=lambda x: x['name'])
     for contract in contracts['contracts']:
         # The [13:] is to remove the "openzeppelin_" prefix from the contract name
         hashes += f":{contract['name'][13:]}-class-hash: {normalize_len(contract['sierra'])}\n"

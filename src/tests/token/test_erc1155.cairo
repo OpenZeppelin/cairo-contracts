@@ -1300,13 +1300,15 @@ fn assert_state_after_transfer_from_zero_batch(
 fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ApprovalForAll>(contract).unwrap();
-    assert_eq!(event.owner, owner);
-    assert_eq!(event.operator, operator);
-    assert_eq!(event.approved, approved);
+    let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
+    let expected = ERC1155Component::Event::ApprovalForAll(
+        ApprovalForAll { owner, operator, approved }
+    );
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("ApprovalForAll"));
     indexed_keys.append_serde(owner);
     indexed_keys.append_serde(operator);
     utils::assert_indexed_keys(event, indexed_keys.span());
@@ -1320,15 +1322,16 @@ fn assert_event_transfer_single(
     token_id: u256,
     value: u256
 ) {
-    let event = utils::pop_log::<TransferSingle>(contract).unwrap();
-    assert_eq!(event.operator, operator);
-    assert_eq!(event.from, from);
-    assert_eq!(event.to, to);
-    assert_eq!(event.id, token_id);
-    assert_eq!(event.value, value);
+    let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
+    let id = token_id;
+    let expected = ERC1155Component::Event::TransferSingle(
+        TransferSingle { operator, from, to, id, value }
+    );
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("TransferSingle"));
     indexed_keys.append_serde(operator);
     indexed_keys.append_serde(from);
     indexed_keys.append_serde(to);
@@ -1343,15 +1346,16 @@ fn assert_event_transfer_batch(
     token_ids: Span<u256>,
     values: Span<u256>
 ) {
-    let event = utils::pop_log::<TransferBatch>(contract).unwrap();
-    assert_eq!(event.operator, operator);
-    assert_eq!(event.from, from);
-    assert_eq!(event.to, to);
-    assert_eq!(event.ids, token_ids);
-    assert_eq!(event.values, values);
+    let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
+    let ids = token_ids;
+    let expected = ERC1155Component::Event::TransferBatch(
+        TransferBatch { operator, from, to, ids, values }
+    );
+    assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("TransferBatch"));
     indexed_keys.append_serde(operator);
     indexed_keys.append_serde(from);
     indexed_keys.append_serde(to);

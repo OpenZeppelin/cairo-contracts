@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -21,7 +21,7 @@ mod AccessControlComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         RoleGranted: RoleGranted,
         RoleRevoked: RoleRevoked,
@@ -32,7 +32,7 @@ mod AccessControlComponent {
     ///
     /// `sender` is the account that originated the contract call, an admin role
     /// bearer (except if `_grant_role` is called during initialization from the constructor).
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct RoleGranted {
         role: felt252,
         account: ContractAddress,
@@ -44,7 +44,7 @@ mod AccessControlComponent {
     /// `sender` is the account that originated the contract call:
     ///   - If using `revoke_role`, it is the admin role bearer.
     ///   - If using `renounce_role`, it is the role bearer (i.e. `account`).
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct RoleRevoked {
         role: felt252,
         account: ContractAddress,
@@ -55,7 +55,7 @@ mod AccessControlComponent {
     ///
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
     /// {RoleAdminChanged} not being emitted signaling this.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct RoleAdminChanged {
         role: felt252,
         previous_admin_role: felt252,

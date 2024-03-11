@@ -4,9 +4,10 @@
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :_set_role_admin: xref:#AccessControlComponent-_set_role_admin[_set_role_admin]
-:mixin-impls: xref:components.adoc#mixins[Embeddable Mixin Implementations]
 
 = Access Control
+
+include::../utils/_common.adoc[]
 
 This directory provides ways to restrict who can access the functions of a contract or when they can do it.
 
@@ -19,7 +20,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::access::ownable::OwnableComponent;
@@ -267,7 +268,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -400,12 +401,11 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
 :revoke_role: xref:#AccessControlComponent-revoke_role[revoke_role]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 ```javascript
 use openzeppelin::access::accesscontrol::AccessControlComponent;
@@ -446,7 +446,7 @@ grant and revoke this role. Extra precautions should be taken to secure
 accounts that have been granted it.
 
 [.contract-index#AccessControl-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .AccessControlMixinImpl

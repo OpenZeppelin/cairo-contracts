@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (upgrades/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
@@ -13,13 +13,13 @@ mod UpgradeableComponent {
     struct Storage {}
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Upgraded: Upgraded
     }
 
     /// Emitted when the contract is upgraded.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Upgraded {
         class_hash: ClassHash
     }

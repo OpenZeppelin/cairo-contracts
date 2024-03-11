@@ -1,7 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = Account
 
@@ -9,9 +8,11 @@ Reference of interfaces, presets, and utilities related to account contracts.
 
 == Core
 
+include::../utils/_common.adoc[]
+
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/account/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::account::interface::ISRC6;
@@ -64,7 +65,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/account/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -75,10 +76,10 @@ use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#AccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .AccountMixinImpl
@@ -281,7 +282,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
@@ -292,12 +293,12 @@ use openzeppelin::account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
 [.contract-index#EthAccountComponent-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .EthAccountMixinImpl
@@ -504,7 +505,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/presets/account.cairo[{github-icon},role=heading-link]
+=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::Account;
@@ -545,7 +546,7 @@ Sets the account `public_key` and registers the interfaces the contract supports
 
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::EthAccountUpgradeable;

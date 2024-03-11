@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (access/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -27,13 +27,13 @@ mod OwnableComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         OwnershipTransferred: OwnershipTransferred,
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferred {
         #[key]
         previous_owner: ContractAddress,
@@ -41,7 +41,7 @@ mod OwnableComponent {
         new_owner: ContractAddress,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferStarted {
         #[key]
         previous_owner: ContractAddress,

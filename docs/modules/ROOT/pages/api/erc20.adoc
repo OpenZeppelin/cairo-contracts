@@ -3,9 +3,10 @@
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC20
+
+include::../utils/_common.adoc[]
 
 Reference of interfaces and utilities related to ERC20 contracts.
 
@@ -15,7 +16,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -113,7 +114,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -161,7 +162,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -170,7 +171,7 @@ use openzeppelin::token::erc20::ERC20Component;
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
 [.contract-index#ERC20Component-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .ERC20MixinImpl
@@ -414,7 +415,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC20;

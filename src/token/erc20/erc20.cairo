@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (token/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -7,7 +7,7 @@
 /// non-standard implementations that can be used to create an ERC20 contract. This
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
-/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.9.0/guides/erc20-supply)
+/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.10.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 mod ERC20Component {
@@ -26,14 +26,14 @@ mod ERC20Component {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Transfer {
         #[key]
         from: ContractAddress,
@@ -44,7 +44,7 @@ mod ERC20Component {
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to `approve`. `value` is the new allowance.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Approval {
         #[key]
         owner: ContractAddress,

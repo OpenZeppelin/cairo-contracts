@@ -3,9 +3,10 @@
 :receiving-tokens: xref:/erc721.adoc#receiving_tokens[Receiving Tokens]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:mixin-impl: xref:components.adoc#mixins[Embeddable Mixin Implementation]
 
 = ERC721
+
+include::../utils/_common.adoc[]
 
 Reference of interfaces, presets, and utilities related to ERC721 contracts.
 
@@ -15,7 +16,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -98,7 +99,7 @@ Emits an <<IERC721-Approval,Approval>> event.
 
 Enable or disable approval for `operator` to manage all of the caller's assets.
 
-Emits an <<IERC721-Approval,Approval>> event.
+Emits an <<IERC721-ApprovalForAll,ApprovalForAll>> event.
 
 [.contract-item]
 [[IERC721-get_approved]]
@@ -124,7 +125,7 @@ Emitted when `owner` enables `approved` to manage the `token_id` token.
 [[IERC721-ApprovalForAll]]
 ==== `[.contract-item-name]#++ApprovalForAll++#++(owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#event#
 
-Emitted when `owner` enables `approved` to manage the `token_id` token.
+Emitted when `owner` enables or disables `operator` to manage the `token_id` token.
 
 [.contract-item]
 [[IERC721-Transfer]]
@@ -134,7 +135,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -180,7 +181,7 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 
 [.contract]
 [[ERC721Component]]
-=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -189,10 +190,10 @@ use openzeppelin::token::erc721::ERC721Component;
 
 ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721Metadata>>.
 
-NOTE: Implementing xref:api/introspection.adoc#SRC5Component[SRC5Component] is a requirement for this component to be implemented.
+NOTE: {src5-component-required-note}
 
 [.contract-index#ERC721Component-Embeddable-Mixin-Impl]
-.{mixin-impl}
+.{mixin-impls}
 
 --
 .ERC721MixinImpl
@@ -590,7 +591,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/cairo-2/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -623,7 +624,7 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC721;

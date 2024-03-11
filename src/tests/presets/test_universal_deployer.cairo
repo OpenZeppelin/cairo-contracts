@@ -53,19 +53,15 @@ fn test_deploy_not_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    let event = utils::pop_log::<UniversalDeployer::Event>(udc.contract_address).unwrap();
-    let expected = UniversalDeployer::Event::ContractDeployed(
-        ContractDeployed {
-            address: deployed_addr,
-            deployer: CALLER(),
-            unique: unique,
-            class_hash: ERC20_CLASS_HASH(),
-            calldata: ERC20_CALLDATA(),
-            salt: SALT
-        }
+    assert_event_contract_deployed(
+        udc.contract_address,
+        deployed_addr,
+        CALLER(),
+        unique,
+        ERC20_CLASS_HASH(),
+        ERC20_CALLDATA(),
+        SALT
     );
-    assert!(event == expected);
-    utils::assert_no_events_left(udc.contract_address);
 
     // Check deployment
     let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
@@ -88,19 +84,15 @@ fn test_deploy_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    let event = utils::pop_log::<UniversalDeployer::Event>(udc.contract_address).unwrap();
-    let expected = UniversalDeployer::Event::ContractDeployed(
-        ContractDeployed {
-            address: deployed_addr,
-            deployer: CALLER(),
-            unique: unique,
-            class_hash: ERC20_CLASS_HASH(),
-            calldata: ERC20_CALLDATA(),
-            salt: SALT
-        }
+    assert_event_contract_deployed(
+        udc.contract_address,
+        deployed_addr,
+        CALLER(),
+        unique,
+        ERC20_CLASS_HASH(),
+        ERC20_CALLDATA(),
+        SALT
     );
-    assert!(event == expected);
-    utils::assert_no_events_left(udc.contract_address);
 
     // Check deployment
     let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
@@ -149,4 +141,28 @@ fn calculate_contract_address_from_hash(
     let u256_addr: u256 = raw_address.into() % L2_ADDRESS_UPPER_BOUND.into();
     let felt_addr = u256_addr.try_into().unwrap();
     starknet::contract_address_try_from_felt252(felt_addr).unwrap()
+}
+
+fn assert_event_contract_deployed(
+    contract: ContractAddress,
+    address: ContractAddress,
+    deployer: ContractAddress,
+    unique: bool,
+    class_hash: ClassHash,
+    calldata: Span<felt252>,
+    salt: felt252
+) {
+    let event = utils::pop_log::<UniversalDeployer::Event>(contract).unwrap();
+    let expected = UniversalDeployer::Event::ContractDeployed(
+        ContractDeployed {
+            address,
+            deployer,
+            unique,
+            class_hash,
+            calldata,
+            salt
+        }
+    );
+    assert!(event == expected);
+    utils::assert_no_events_left(contract);
 }

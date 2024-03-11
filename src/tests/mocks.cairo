@@ -11,5 +11,6 @@ mod non_implementing_mock;
 mod ownable_mocks;
 mod pausable_mocks;
 mod reentrancy_mocks;
+mod snip12_mocks;
 mod src5_mocks;
 mod upgrades_mocks;

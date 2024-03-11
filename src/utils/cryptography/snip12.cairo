@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (utils/cryptography/snip12.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (utils/cryptography/snip12.cairo)
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
 use poseidon::PoseidonTrait;
-use starknet::{get_caller_address, get_tx_info};
+use starknet::{ContractAddress, get_tx_info};
 
 // selector!(
 //   "\"StarknetDomain\"(
@@ -30,7 +30,7 @@ trait StructHash<T> {
 }
 
 trait OffchainMessageHash<T> {
-    fn get_message_hash(self: @T) -> felt252;
+    fn get_message_hash(self: @T, caller: ContractAddress) -> felt252;
 }
 
 impl StructHashStarknetDomainImpl of StructHash<StarknetDomain> {
@@ -51,18 +51,17 @@ trait SNIP12Metadata {
 impl OffchainMessageHashImpl<
     T, +StructHash<T>, impl metadata: SNIP12Metadata
 > of OffchainMessageHash<T> {
-    fn get_message_hash(self: @T) -> felt252 {
-        // TODO: chainId must be a shortstring?
+    fn get_message_hash(self: @T, caller: ContractAddress) -> felt252 {
         let domain = StarknetDomain {
             name: metadata::name(),
             version: metadata::version(),
             chain_id: get_tx_info().unbox().chain_id,
-            revision: '1'
+            revision: 1
         };
         let mut state = PoseidonTrait::new();
         state = state.update_with('StarkNet Message');
         state = state.update_with(domain.hash_struct());
-        state = state.update_with(get_caller_address());
+        state = state.update_with(caller);
         state = state.update_with(self.hash_struct());
         state.finalize()
     }

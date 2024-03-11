@@ -81,7 +81,7 @@ To generate the hash of the message, we need to follow these steps:
 
 === 1. Define the message struct.
 
-In this particular example, the message struct will look like this:
+In this particular example, the message struct looks like this:
 
 [,javascript]
 ----
@@ -127,8 +127,10 @@ use openzeppelin::utils::snip12::StructHash;
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
 use poseidon::PoseidonTrait;
+use starknet::ContractAddress;
 
-const MESSAGE_TYPE_HASH = 0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+const MESSAGE_TYPE_HASH: felt252 =
+    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {
@@ -168,8 +170,8 @@ a message hash needs to be generated, and this is an unecessary overhead.
 
 === 5. Use the `OffchainMessageHashImpl` implementation to generate the hash.
 
-The final step is to use the `OffchainMessageHashImpl` implementation to generate the hash of the message. The
-implementation is already available as a utility. This is the full of a `get_hash` function:
+The final step is to use the `OffchainMessageHashImpl` implementation to generate the hash of the message
+using the `get_message_hash` function. The implementation is already available as a utility.
 
 [,javascript]
 ----
@@ -178,8 +180,10 @@ use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHas
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
 use poseidon::PoseidonTrait;
+use starknet::ContractAddress;
 
-const MESSAGE_TYPE_HASH = 0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+const MESSAGE_TYPE_HASH: felt252 =
+    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {
@@ -202,6 +206,7 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 }
 
 fn get_hash(
+    account: ContractAddress,
     recipient: ContractAddress,
     amount: u256,
     nonce: felt252,
@@ -213,13 +218,13 @@ fn get_hash(
         nonce,
         expiry
     };
-    message.get_message_hash()
+    message.get_message_hash(account)
 }
 ----
 
 == Full Implementation
 
-Finally, the full implementation of the `CustomERC20` contract will look like this:
+Finally, the full implementation of the `CustomERC20` contract looks like this:
 
 [,javascript]
 ----

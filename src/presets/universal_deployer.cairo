@@ -59,12 +59,12 @@ mod UniversalDeployer {
             self
                 .emit(
                     ContractDeployed {
-                        address: address,
-                        deployer: deployer,
-                        unique: unique,
-                        class_hash: class_hash,
-                        calldata: calldata,
-                        salt: salt
+                        address,
+                        deployer,
+                        unique,
+                        class_hash,
+                        calldata,
+                        salt
                     }
                 );
 

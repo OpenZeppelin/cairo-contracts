@@ -47,14 +47,10 @@ mod UniversalDeployer {
             calldata: Span<felt252>
         ) -> ContractAddress {
             let deployer: ContractAddress = get_caller_address();
-
-            // Defaults for non-unique deployment
-            let mut _salt: felt252 = salt;
             let from_zero: bool = !unique;
-
+            let mut _salt: felt252 = salt;
             if unique {
                 _salt = pedersen(deployer.into(), salt);
-                from_zero = false;
             }
 
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)

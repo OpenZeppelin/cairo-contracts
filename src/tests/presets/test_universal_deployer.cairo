@@ -53,7 +53,7 @@ fn test_deploy_not_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    assert_event_contract_deployed(
+    assert_only_event_contract_deployed(
         udc.contract_address,
         deployed_addr,
         CALLER(),
@@ -84,7 +84,7 @@ fn test_deploy_unique() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    assert_event_contract_deployed(
+    assert_only_event_contract_deployed(
         udc.contract_address,
         deployed_addr,
         CALLER(),

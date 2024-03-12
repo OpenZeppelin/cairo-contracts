@@ -143,7 +143,7 @@ fn calculate_contract_address_from_hash(
     starknet::contract_address_try_from_felt252(felt_addr).unwrap()
 }
 
-fn assert_event_contract_deployed(
+fn assert_only_event_contract_deployed(
     contract: ContractAddress,
     address: ContractAddress,
     deployer: ContractAddress,

@@ -128,7 +128,9 @@ mod ERC1155ReceiverComponent {
             values: Span<u256>,
             data: Span<felt252>
         ) -> felt252 {
-            ERC1155Receiver::on_erc1155_batch_received(self, operator, from, token_ids, values, data)
+            ERC1155Receiver::on_erc1155_batch_received(
+                self, operator, from, token_ids, values, data
+            )
         }
 
         // IERC1155Camel
@@ -151,7 +153,9 @@ mod ERC1155ReceiverComponent {
             values: Span<u256>,
             data: Span<felt252>
         ) -> felt252 {
-            ERC1155ReceiverCamel::onERC1155BatchReceived(self, operator, from, tokenIds, values, data)
+            ERC1155ReceiverCamel::onERC1155BatchReceived(
+                self, operator, from, tokenIds, values, data
+            )
         }
 
         // ISRC5

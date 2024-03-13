@@ -20,7 +20,7 @@ jobs:
         echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
     - uses: software-mansion/setup-scarb@v1
       with:
-        scarb-version: $SCARB_VERSION
+        scarb-version: ${{ env.SCARB_VERSION }}
     - name: Markdown lint
       uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
       with:

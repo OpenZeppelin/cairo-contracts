@@ -176,7 +176,7 @@ trait IERC1155ReceiverCamel<TState> {
 }
 
 #[starknet::interface]
-trait IERC1155ReceiverMixin<TState> {
+trait ERC1155ReceiverMixin<TState> {
     // IERC1155Receiver
     fn on_erc1155_received(
         self: @TState,

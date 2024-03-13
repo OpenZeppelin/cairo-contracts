@@ -107,7 +107,7 @@ mod ERC1155ReceiverComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC1155ReceiverMixin<ComponentState<TContractState>> {
+    > of interface::ERC1155ReceiverMixin<ComponentState<TContractState>> {
         // IERC1155
         fn on_erc1155_received(
             self: @ComponentState<TContractState>,

@@ -589,6 +589,8 @@ See <<IERC721-ApprovalForAll,IERC721::ApprovalForAll>>.
 
 See <<IERC721-Transfer,IERC721::Transfer>>.
 
+== Receiver
+
 [.contract]
 [[IERC721Receiver]]
 === `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
@@ -619,6 +621,77 @@ Interface for contracts that support receiving `safe_transfer_from` transfers.
 ==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
+
+[.contract]
+[[ERC721ReceiverComponent]]
+=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```javascript
+use openzeppelin::token::erc721::ERC721ReceiverComponent;
+```
+
+ERC721Receiver component implementing <<IERC721Receiver,IERC721Receiver>>.
+
+NOTE: {src5-component-required-note}
+
+
+[.contract-index#ERC721ReceiverComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
+--
+.ERC20MixinImpl
+* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl[`++ERC721ReceiverImpl++`]
+* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl[`++ERC721ReceiverCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#ERC721ReceiverComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl]
+.ERC721ReceiverImpl
+* xref:#ERC721ReceiverComponent-on_erc721_received[`++on_erc721_received(self, operator, from, token_id, data)++`]
+--
+
+[.contract-index#ERC721ReceiverComponent-Embeddable-Impls-camelCase]
+.Embeddable implementations (camelCase)
+--
+[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl]
+.ERC721ReceiverCamelImpl
+* xref:#ERC721ReceiverComponent-onERC721Received[`++onERC721Received(self, operator, from, tokenId, data)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+* xref:#ERC721ReceiverComponent-initializer[`++initializer(self)++`]
+--
+
+==== Embeddable functions
+
+[.contract-item]
+[[ERC721ReceiverComponent-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+Returns the `IERC721Receiver` interface ID.
+
+==== camelCase Support
+
+[.contract-item]
+[[ERC721ReceiverComponent-onERC721Received]]
+==== `[.contract-item-name]#++onERC721Received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+See <<ERC721ReceiverComponent-on_erc721_received,ERC721ReceiverComponent::on_erc721_received>>.
+
+==== Internal functions
+
+[.contract-item]
+[[ERC721ReceiverComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Registers the `IERC721Receiver` interface ID as supported through introspection.
 
 == Presets
 

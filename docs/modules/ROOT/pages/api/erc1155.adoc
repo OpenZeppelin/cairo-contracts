@@ -558,6 +558,15 @@ ERC1155Receiver component implementing <<IERC1155Receiver,IERC1155Receiver>>.
 
 NOTE: {src5-component-required-note}
 
+[.contract-index#ERC1155ReceiverComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+--
+.ERC1155MixinImpl
+* xref:#ERC1155ReceiverComponent-Embeddable-Impls-ERC1155ReceiverImpl[`++ERC1155ReceiverImpl++`]
+* xref:#ERC1155ReceiverComponent-Embeddable-Impls-ERC1155ReceiverCamelImpl[`++ERC1155ReceiverCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
+--
+
 [.contract-index#ERC1155ReceiverComponent-Embeddable-Impls]
 .Embeddable Implementations
 --

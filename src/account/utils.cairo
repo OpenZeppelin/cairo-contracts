@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (account/utils.cairo)
 
 mod secp256k1;
 mod signature;
@@ -28,6 +28,6 @@ fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
 }
 
 fn execute_single_call(call: Call) -> Span<felt252> {
-    let Call{to, selector, calldata } = call;
+    let Call { to, selector, calldata } = call;
     starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall()
 }

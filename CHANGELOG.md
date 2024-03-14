@@ -10,12 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- UDC preset contract (#919)
+
+### Changed
+
+- Bump scarb to v2.6.3 (#946)
+
+## 0.10.0 (2024-03-07)
+
+### Added
+
 - ERC1155 component and preset (#896)
 - Mixin implementations in components (#863)
 - ERC721Component functions and Storage member
   - `InternalTrait::_set_base_uri` and `InternalTrait::_base_uri` to handle ByteArrays (#857)
   - `ERC721_base_uri` Storage member to store the base URI (#857)
-- UDC preset contract (#919)
 
 ### Changed
 

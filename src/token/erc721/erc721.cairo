@@ -10,7 +10,7 @@ mod ERC721Component {
     use openzeppelin::account;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
+    use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait

@@ -2,11 +2,10 @@
 :class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.5.3[cairo 2.5.3]
 
 // Class Hashes
-:Account-class-hash: 0x004ca5c0b1af6115858708bd1fabd2e9bb306012b31a741acbf69b8a9f35d688
-:ERC20-class-hash: 0x03b6024fbaf5276e4aa0b4632b80caa6228dbf7b3fe2a0d6144aacb5eb14f1a0
+:Account-class-hash: 0x01148c31dfa5c4708a4e9cf1eb0fd3d4d8ad9ccf09d0232cd6b56bee64a7de9d
+:ERC20-class-hash: 0x07d94f28156c0dc3bfd9a07ca79b15b8da2b5b32093db79000fcd0f6f625d213
 :ERC721-class-hash: 0x028cac62e55ba073d12c2e9119165ea437bd56e4313e37c6def96cf5ca6a76cf
-:ERC1155-class-hash: 0x0518be7d9fa527c78d6929bf9e638e9c98b6077722e27e9546cc4342e830386e
-:EthAccountUpgradeable-class-hash: 0x0359eceac190c19d22e2831f3bd2ecde9f1b1d034d0790e5dd6b3c91651bda97
+:EthAccountUpgradeable-class-hash: 0x0580fe510cf07255540abda6f9d29aa07cb8944db444bca59e1573904c269844
 
 // Presets page
 :presets-page: xref:presets.adoc[Sierra class hash]

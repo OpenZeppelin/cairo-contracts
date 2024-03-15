@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (access/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -15,6 +15,7 @@
 /// finalize the transfer.
 #[starknet::component]
 mod OwnableComponent {
+    use openzeppelin::access::ownable::interface::IOwnableTwoStep;
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
@@ -26,13 +27,13 @@ mod OwnableComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         OwnershipTransferred: OwnershipTransferred,
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferred {
         #[key]
         previous_owner: ContractAddress,
@@ -40,7 +41,7 @@ mod OwnableComponent {
         new_owner: ContractAddress,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct OwnershipTransferStarted {
         #[key]
         previous_owner: ContractAddress,
@@ -226,6 +227,80 @@ mod OwnableComponent {
                 .emit(
                     OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
                 );
+        }
+    }
+
+    #[embeddable_as(OwnableMixinImpl)]
+    impl OwnableMixin<
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+    > of interface::OwnableABI<ComponentState<TContractState>> {
+        // IOwnable
+        fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
+            Ownable::owner(self)
+        }
+
+        fn transfer_ownership(
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+        ) {
+            Ownable::transfer_ownership(ref self, new_owner);
+        }
+
+        fn renounce_ownership(ref self: ComponentState<TContractState>) {
+            Ownable::renounce_ownership(ref self);
+        }
+
+        // IOwnableCamelOnly
+        fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
+            OwnableCamelOnly::transferOwnership(ref self, newOwner);
+        }
+
+        fn renounceOwnership(ref self: ComponentState<TContractState>) {
+            OwnableCamelOnly::renounceOwnership(ref self);
+        }
+    }
+
+    #[embeddable_as(OwnableTwoStepMixinImpl)]
+    impl OwnableTwoStepMixin<
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+    > of interface::OwnableTwoStepABI<ComponentState<TContractState>> {
+        // IOwnableTwoStep
+        fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
+            OwnableTwoStep::owner(self)
+        }
+
+        fn pending_owner(self: @ComponentState<TContractState>) -> ContractAddress {
+            OwnableTwoStep::pending_owner(self)
+        }
+
+        fn accept_ownership(ref self: ComponentState<TContractState>) {
+            OwnableTwoStep::accept_ownership(ref self);
+        }
+
+        fn transfer_ownership(
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+        ) {
+            OwnableTwoStep::transfer_ownership(ref self, new_owner);
+        }
+
+        fn renounce_ownership(ref self: ComponentState<TContractState>) {
+            OwnableTwoStep::renounce_ownership(ref self);
+        }
+
+        // IOwnableTwoStepCamelOnly
+        fn pendingOwner(self: @ComponentState<TContractState>) -> ContractAddress {
+            OwnableTwoStepCamelOnly::pendingOwner(self)
+        }
+
+        fn acceptOwnership(ref self: ComponentState<TContractState>) {
+            OwnableTwoStepCamelOnly::acceptOwnership(ref self);
+        }
+
+        fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
+            OwnableTwoStepCamelOnly::transferOwnership(ref self, newOwner);
+        }
+
+        fn renounceOwnership(ref self: ComponentState<TContractState>) {
+            OwnableTwoStepCamelOnly::renounceOwnership(ref self);
         }
     }
 }

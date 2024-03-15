@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (security/pausable.cairo)
 
 /// # Pausable Component
 ///
@@ -19,20 +19,20 @@ mod PausableComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Paused: Paused,
         Unpaused: Unpaused,
     }
 
     /// Emitted when the pause is triggered by `account`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Paused {
         account: ContractAddress
     }
 
     /// Emitted when the pause is lifted by `account`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Unpaused {
         account: ContractAddress
     }

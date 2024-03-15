@@ -8,7 +8,8 @@ use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
-    PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    NAME, SYMBOL, PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
@@ -89,12 +90,10 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
 }
 
 fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let name = 0;
-    let symbol = 0;
     let mut calldata = array![];
 
-    calldata.append_serde(name);
-    calldata.append_serde(symbol);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
@@ -539,20 +538,26 @@ fn test__set_public_key() {
 //
 
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerRemoved>(contract).unwrap();
-    assert_eq!(event.removed_owner_guid, removed_owner_guid);
+    let event = utils::pop_log::<AccountComponent::Event>(contract).unwrap();
+    let expected = AccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });
+    assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![removed_owner_guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerRemoved"));
+    indexed_keys.append_serde(removed_owner_guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
-    let event = utils::pop_log::<OwnerAdded>(contract).unwrap();
-    assert_eq!(event.new_owner_guid, new_owner_guid);
+    let event = utils::pop_log::<AccountComponent::Event>(contract).unwrap();
+    let expected = AccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+    assert!(event == expected);
 
     // Check indexed keys
-    let indexed_keys = array![new_owner_guid];
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("OwnerAdded"));
+    indexed_keys.append_serde(new_owner_guid);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 

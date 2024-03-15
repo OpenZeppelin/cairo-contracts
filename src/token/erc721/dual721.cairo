@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (token/erc721/dual721.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (token/erc721/dual721.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -15,9 +15,9 @@ struct DualCaseERC721 {
 }
 
 trait DualCaseERC721Trait {
-    fn name(self: @DualCaseERC721) -> felt252;
-    fn symbol(self: @DualCaseERC721) -> felt252;
-    fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252;
+    fn name(self: @DualCaseERC721) -> ByteArray;
+    fn symbol(self: @DualCaseERC721) -> ByteArray;
+    fn token_uri(self: @DualCaseERC721, token_id: u256) -> ByteArray;
     fn balance_of(self: @DualCaseERC721, account: ContractAddress) -> u256;
     fn owner_of(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
     fn get_approved(self: @DualCaseERC721, token_id: u256) -> ContractAddress;
@@ -40,17 +40,17 @@ trait DualCaseERC721Trait {
 }
 
 impl DualCaseERC721Impl of DualCaseERC721Trait {
-    fn name(self: @DualCaseERC721) -> felt252 {
+    fn name(self: @DualCaseERC721) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::name, array![].span())
             .unwrap_and_cast()
     }
 
-    fn symbol(self: @DualCaseERC721) -> felt252 {
+    fn symbol(self: @DualCaseERC721) -> ByteArray {
         call_contract_syscall(*self.contract_address, selectors::symbol, array![].span())
             .unwrap_and_cast()
     }
 
-    fn token_uri(self: @DualCaseERC721, token_id: u256) -> felt252 {
+    fn token_uri(self: @DualCaseERC721, token_id: u256) -> ByteArray {
         let mut args = array![];
         args.append_serde(token_id);
 

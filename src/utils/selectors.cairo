@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (utils/selectors.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (utils/selectors.cairo)
 
 //
 // AccessControl
@@ -56,6 +56,28 @@ const safeTransferFrom: felt252 = selector!("safeTransferFrom");
 
 const on_erc721_received: felt252 = selector!("on_erc721_received");
 const onERC721Received: felt252 = selector!("onERC721Received");
+
+//
+// ERC1155
+//
+
+// The following ERC1155 selectors are already defined in ERC721 above:
+// balance_of, balanceOf, set_approval_for_all,
+// setApprovalForAll, safe_transfer_from, safeTransferFrom
+const uri: felt252 = selector!("uri");
+const balance_of_batch: felt252 = selector!("balance_of_batch");
+const balanceOfBatch: felt252 = selector!("balanceOfBatch");
+const safe_batch_transfer_from: felt252 = selector!("safe_batch_transfer_from");
+const safeBatchTransferFrom: felt252 = selector!("safeBatchTransferFrom");
+
+//
+// ERC1155Receiver
+//
+
+const on_erc1155_received: felt252 = selector!("on_erc1155_received");
+const onERC1155Received: felt252 = selector!("onERC1155Received");
+const on_erc1155_batch_received: felt252 = selector!("on_erc1155_batch_received");
+const onERC1155BatchReceived: felt252 = selector!("onERC1155BatchReceived");
 
 //
 // ERC20

@@ -10,7 +10,7 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::introspection::interface::ISRC5;
@@ -44,7 +44,7 @@ on how to compute this ID.
 
 [.contract]
 [[SRC5Component]]
-=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/introspection/src5.cairo[{github-icon},role=heading-link]
+=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/introspection/src5.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::introspection::src5::SRC5Component;
@@ -55,6 +55,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 [.contract-index#SRC5Component-Embeddable-Impls]
 .Embeddable Implementations
 --
+[.sub-index#SRC5Component-Embeddable-Impls-SRC5Impl]
 .SRC5Impl
 
 * xref:#SRC5Component-supports_interface[`++supports_interface(self, interface_id)++`]
@@ -70,7 +71,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 --
 
 [#SRC5Component-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[SRC5Component-supports_interface]]
@@ -79,7 +80,7 @@ SRC5 component extending xref:ISRC5[`ISRC5`].
 See xref:ISRC5-supports_interface[`ISRC5::supports_interface`].
 
 [#SRC5Component-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[SRC5Component-register_interface]]

@@ -113,7 +113,7 @@ See xref:#serde[`openzeppelin::utils::serde`].
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0-beta.0/src/utils/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/utils/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.
@@ -224,9 +224,6 @@ fn deploy_test_contract() -> ContractAddress {
 Pops the earliest unpopped logged event for the contract as the requested type
 and checks that there's no more keys or data left on the event, preventing unaccounted params.
 
-This function also removes the first key from the event, to match the event structure key params without
-the event ID.
-
 Required traits for `T`:
 
 - `Drop`
@@ -247,6 +244,9 @@ Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 
 `expected_keys` must include all indexed event keys for `event` in the order
 that they're defined.
+
+NOTE: If the event is not flattened, the first key will be the event member name
+e.g. selector!("EnumMemberName").
 
 Required traits for `T`:
 
@@ -284,7 +284,7 @@ See xref:#constants[`openzeppelin::tests::utils::constants`].
 use openzeppelin::tests::utils::constants;
 ```
 
-:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0-beta.0/src/tests/utils/constants.cairo[constants.cairo]
+:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/tests/utils/constants.cairo[constants.cairo]
 
 Module containing constants that are repeatedly used among tests.
 To see the full list, see {constants}.

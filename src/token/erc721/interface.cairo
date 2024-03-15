@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (token/erc721/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (token/erc721/interface.cairo)
 
 use starknet::ContractAddress;
 
 const IERC721_ID: felt252 = 0x33eb2f84c309543403fd69f0d0f363781ef06ef6faeb0131ff16ea3175bd943;
 const IERC721_METADATA_ID: felt252 =
-    0x6069a70848f907fa57668ba1875164eb4dcee693952468581406d131081bbd;
+    0xabbcd595a567dce909050a1038e055daccb3c42af06f0add544fa90ee91f25;
 const IERC721_RECEIVER_ID: felt252 =
     0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
 
@@ -31,9 +31,9 @@ trait IERC721<TState> {
 
 #[starknet::interface]
 trait IERC721Metadata<TState> {
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn token_uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 #[starknet::interface]
@@ -55,7 +55,7 @@ trait IERC721CamelOnly<TState> {
 
 #[starknet::interface]
 trait IERC721MetadataCamelOnly<TState> {
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+    fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
 }
 
 //
@@ -86,9 +86,9 @@ trait ERC721ABI<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 
     // IERC721Metadata
-    fn name(self: @TState) -> felt252;
-    fn symbol(self: @TState) -> felt252;
-    fn token_uri(self: @TState, token_id: u256) -> felt252;
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
+    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
 
     // IERC721CamelOnly
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
@@ -106,7 +106,7 @@ trait ERC721ABI<TState> {
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
 
     // IERC721MetadataCamelOnly
-    fn tokenURI(self: @TState, tokenId: u256) -> felt252;
+    fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
 }
 
 //
@@ -133,4 +133,28 @@ trait IERC721ReceiverCamel<TState> {
         tokenId: u256,
         data: Span<felt252>
     ) -> felt252;
+}
+
+#[starknet::interface]
+trait ERC721ReceiverMixin<TState> {
+    // IERC721Receiver
+    fn on_erc721_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>
+    ) -> felt252;
+
+    // IERC721ReceiverCamel
+    fn onERC721Received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenId: u256,
+        data: Span<felt252>
+    ) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }

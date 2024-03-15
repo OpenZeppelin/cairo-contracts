@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
@@ -19,25 +19,11 @@ mod EthAccountUpgradeable {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    // EthAccount
+    // EthAccountMixin
     #[abi(embed_v0)]
-    impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = EthAccountComponent::SRC6CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl PublicKeyImpl = EthAccountComponent::PublicKeyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl PublicKeyCamelImpl =
-        EthAccountComponent::PublicKeyCamelImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl DeclarerImpl = EthAccountComponent::DeclarerImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl DeployableImpl = EthAccountComponent::DeployableImpl<ContractState>;
+    impl EthAccountMixinImpl =
+        EthAccountComponent::EthAccountMixinImpl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;

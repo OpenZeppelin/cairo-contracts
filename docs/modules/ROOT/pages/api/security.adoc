@@ -8,7 +8,7 @@ Reference of components, interfaces and utilities found in the library's `securi
 
 [.contract]
 [[InitializableComponent]]
-=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/security/initializable.cairo[{github-icon},role=heading-link]
+=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/security/initializable.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::security::InitializableComponent;
@@ -33,7 +33,7 @@ Component enabling one-time initialization for contracts.
 --
 
 [#InitializableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[InitializableComponent-is_initialized]]
@@ -42,7 +42,7 @@ Component enabling one-time initialization for contracts.
 Returns whether the contract has been initialized.
 
 [#InitializableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[InitializableComponent-initialize]]
@@ -58,7 +58,7 @@ Requirements:
 
 [.contract]
 [[PausableComponent]]
-=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/security/pausable.cairo[{github-icon},role=heading-link]
+=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/security/pausable.cairo[{github-icon},role=heading-link]
 
 :Paused: xref:PausableComponent-Paused[Paused]
 :Unpaused: xref:PausableComponent-Unpaused[Unpaused]
@@ -96,7 +96,7 @@ Component to implement an emergency stop mechanism.
 --
 
 [#PausableComponent-Embeddable-Functions]
-==== Embeddable Functions
+==== Embeddable functions
 
 [.contract-item]
 [[PausableComponent-is_paused]]
@@ -105,7 +105,7 @@ Component to implement an emergency stop mechanism.
 Returns whether the contract is currently paused.
 
 [#PausableComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[PausableComponent-assert_not_paused]]
@@ -163,7 +163,7 @@ Emitted when the contract is unpaused by `account`.
 
 [.contract]
 [[ReentrancyGuardComponent]]
-=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.9.0/src/security/reentrancyguard.cairo[{github-icon},role=heading-link]
+=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/security/reentrancyguard.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::security::ReentrancyGuardComponent;
@@ -181,7 +181,7 @@ Component to help prevent reentrant calls.
 --
 
 [#ReentrancyGuardComponent-Internal-Functions]
-==== Internal Functions
+==== Internal functions
 
 [.contract-item]
 [[ReentrancyGuardComponent-start]]

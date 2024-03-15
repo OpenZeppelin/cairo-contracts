@@ -90,23 +90,23 @@ fn setup_upgradeable() -> IUpgradeableDispatcher {
 #[test]
 fn test_constructor() {
     let mut state = EthAccountUpgradeable::contract_state_for_testing();
-    let public_key = ETH_PUBKEY();
 
-    EthAccountUpgradeable::constructor(ref state, public_key);
+    EthAccountUpgradeable::constructor(ref state, ETH_PUBKEY());
 
-    assert_only_event_owner_added(ZERO(), public_key);
-    assert(
-        EthAccountUpgradeable::PublicKeyImpl::get_public_key(@state) == public_key,
-        'Should return public_key'
+    assert_only_event_owner_added(ZERO(), ETH_PUBKEY());
+
+    let public_key = EthAccountUpgradeable::EthAccountMixinImpl::get_public_key(@state);
+    assert_eq!(public_key, ETH_PUBKEY());
+
+    let supports_isrc5 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
+        @state, ISRC5_ID
     );
-    assert(
-        EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC5_ID),
-        'Should implement ISRC5'
+    assert!(supports_isrc5);
+
+    let supports_isrc6 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
+        @state, ISRC6_ID
     );
-    assert(
-        EthAccountUpgradeable::SRC5Impl::supports_interface(@state, ISRC6_ID),
-        'Should implement ISRC6'
-    );
+    assert!(supports_isrc6);
 }
 
 //
@@ -121,7 +121,7 @@ fn test_public_key_setter_and_getter() {
     testing::set_contract_address(dispatcher.contract_address);
 
     dispatcher.set_public_key(new_public_key);
-    assert(dispatcher.get_public_key() == new_public_key, 'Should return new_public_key');
+    assert_eq!(dispatcher.get_public_key(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
     assert_only_event_owner_added(dispatcher.contract_address, new_public_key);
@@ -135,7 +135,7 @@ fn test_public_key_setter_and_getter_camel() {
     testing::set_contract_address(dispatcher.contract_address);
 
     dispatcher.setPublicKey(new_public_key);
-    assert(dispatcher.getPublicKey() == new_public_key, 'Should return new_public_key');
+    assert_eq!(dispatcher.getPublicKey(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
     assert_only_event_owner_added(dispatcher.contract_address, new_public_key);
@@ -178,7 +178,7 @@ fn test_is_valid_signature() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
     let is_valid = dispatcher.is_valid_signature(hash, signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -186,7 +186,7 @@ fn test_is_valid_signature_bad_sig() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
     let is_valid = dispatcher.is_valid_signature(hash + 1, signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 #[test]
@@ -194,7 +194,7 @@ fn test_isValidSignature() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
     let is_valid = dispatcher.isValidSignature(hash, signature);
-    assert(is_valid == starknet::VALIDATED, 'Should accept valid signature');
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -202,7 +202,7 @@ fn test_isValidSignature_bad_sig() {
     let (dispatcher, hash, signature) = is_valid_sig_dispatcher();
 
     let is_valid = dispatcher.isValidSignature(hash + 1, signature);
-    assert(is_valid == 0, 'Should reject invalid signature');
+    assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 
 //
@@ -212,9 +212,13 @@ fn test_isValidSignature_bad_sig() {
 #[test]
 fn test_supports_interface() {
     let dispatcher = setup_dispatcher();
-    assert(dispatcher.supports_interface(ISRC5_ID), 'Should implement ISRC5');
-    assert(dispatcher.supports_interface(ISRC6_ID), 'Should implement ISRC6');
-    assert(!dispatcher.supports_interface(0x123), 'Should not implement 0x123');
+
+    let supports_isrc5 = dispatcher.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
+    let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
+    assert!(supports_isrc6);
+    let doesnt_support_0x123 = !dispatcher.supports_interface(0x123);
+    assert!(doesnt_support_0x123);
 }
 
 //
@@ -228,10 +232,8 @@ fn test_validate_deploy() {
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    assert(
-        account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -272,10 +274,8 @@ fn test_validate_declare() {
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    assert(
-        account.__validate_declare__(CLASS_HASH()) == starknet::VALIDATED,
-        'Should validate correctly'
-    );
+    let is_valid = account.__validate_declare__(CLASS_HASH());
+    assert_eq!(is_valid, starknet::VALIDATED,);
 }
 
 #[test]
@@ -333,12 +333,12 @@ fn test_execute_with_version(version: Option<felt252>) {
 
     let ret = account.__execute__(calls);
 
-    assert(erc20.balance_of(account.contract_address) == 800, 'Should have remainder');
-    assert(erc20.balance_of(RECIPIENT()) == amount, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
+    assert_eq!(erc20.balance_of(RECIPIENT()), amount, "Should have transferred");
 
     let mut call_serialized_retval = *ret.at(0);
     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert(call_retval.unwrap(), 'Should have succeeded');
+    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -362,7 +362,8 @@ fn test_validate() {
     let calls = array![];
     let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
 
-    assert(account.__validate__(calls) == starknet::VALIDATED, 'Should validate correctly');
+    let is_valid = account.__validate__(calls);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -404,16 +405,16 @@ fn test_multicall() {
     calls.append(call2);
     let ret = account.__execute__(calls);
 
-    assert(erc20.balance_of(account.contract_address) == 200, 'Should have remainder');
-    assert(erc20.balance_of(recipient1) == 300, 'Should have transferred');
-    assert(erc20.balance_of(recipient2) == 500, 'Should have transferred');
+    assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
+    assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred");
+    assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred");
 
     let mut call1_serialized_retval = *ret.at(0);
     let mut call2_serialized_retval = *ret.at(1);
     let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
     let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert(call1_retval.unwrap(), 'Should have succeeded');
-    assert(call2_retval.unwrap(), 'Should have succeeded');
+    assert!(call1_retval.unwrap());
+    assert!(call2_retval.unwrap());
 }
 
 #[test]
@@ -423,7 +424,7 @@ fn test_multicall_zero_calls() {
 
     let ret = account.__execute__(calls);
 
-    assert(ret.len() == 0, 'Should have an empty response');
+    assert!(ret.len().is_zero(), "Should have an empty response");
 }
 
 #[test]

@@ -1,4 +1,4 @@
-name: Update version on new release branch
+name: Update version and presets page on new release branch
 
 on:
   create:
@@ -12,10 +12,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Extract current version
+    - name: Extract current versions
       run: |
         CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
+        SCARB_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
         echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
 
     - name: Extract new version number
       run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> $GITHUB_ENV
@@ -25,7 +27,24 @@ jobs:
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
         ESCAPED_CURRENT_VERSION=$(echo $CURRENT_VERSION | sed 's/\./\\./g')
-        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' -not -path './RELEASING.md' -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
+        find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
+          -not -path './RELEASING.md' -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
+
+    - name: Setup scarb
+      uses: software-mansion/setup-scarb@v1
+      id: setup_scarb
+      with:
+        scarb-version: ${{ env.SCARB_VERSION }}
+
+    - name: Setup class_hash
+      uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
+      with:
+        version: "0.1.0"
+
+    - name: Update presets page
+      run: |
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py $SCARB_VERSION \
+          > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0

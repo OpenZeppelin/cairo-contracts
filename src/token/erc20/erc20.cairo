@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (token/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -7,7 +7,7 @@
 /// non-standard implementations that can be used to create an ERC20 contract. This
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
-/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.9.0/guides/erc20-supply)
+/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.10.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 mod ERC20Component {
@@ -18,22 +18,22 @@ mod ERC20Component {
 
     #[storage]
     struct Storage {
-        ERC20_name: felt252,
-        ERC20_symbol: felt252,
+        ERC20_name: ByteArray,
+        ERC20_symbol: ByteArray,
         ERC20_total_supply: u256,
         ERC20_balances: LegacyMap<ContractAddress, u256>,
         ERC20_allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Transfer {
         #[key]
         from: ContractAddress,
@@ -44,7 +44,7 @@ mod ERC20Component {
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to `approve`. `value` is the new allowance.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct Approval {
         #[key]
         owner: ContractAddress,
@@ -150,12 +150,12 @@ mod ERC20Component {
         TContractState, +HasComponent<TContractState>
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
-        fn name(self: @ComponentState<TContractState>) -> felt252 {
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC20_name.read()
         }
 
         /// Returns the ticker symbol of the token, usually a shorter version of the name.
-        fn symbol(self: @ComponentState<TContractState>) -> felt252 {
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC20_symbol.read()
         }
 
@@ -198,7 +198,9 @@ mod ERC20Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(ref self: ComponentState<TContractState>, name: felt252, symbol: felt252) {
+        fn initializer(
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+        ) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
         }
@@ -295,6 +297,78 @@ mod ERC20Component {
             if current_allowance != BoundedInt::max() {
                 self._approve(owner, spender, current_allowance - amount);
             }
+        }
+    }
+
+    #[embeddable_as(ERC20MixinImpl)]
+    impl ERC20Mixin<
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+    > of interface::ERC20ABI<ComponentState<TContractState>> {
+        // IERC20
+        fn total_supply(self: @ComponentState<TContractState>) -> u256 {
+            ERC20::total_supply(self)
+        }
+
+        fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
+            ERC20::balance_of(self, account)
+        }
+
+        fn allowance(
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+        ) -> u256 {
+            ERC20::allowance(self, owner, spender)
+        }
+
+        fn transfer(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) -> bool {
+            ERC20::transfer(ref self, recipient, amount)
+        }
+
+        fn transfer_from(
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) -> bool {
+            ERC20::transfer_from(ref self, sender, recipient, amount)
+        }
+
+        fn approve(
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+        ) -> bool {
+            ERC20::approve(ref self, spender, amount)
+        }
+
+        // IERC20Metadata
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
+            ERC20Metadata::name(self)
+        }
+
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
+            ERC20Metadata::symbol(self)
+        }
+
+        fn decimals(self: @ComponentState<TContractState>) -> u8 {
+            ERC20Metadata::decimals(self)
+        }
+
+        // IERC20CamelOnly
+        fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
+            ERC20CamelOnly::totalSupply(self)
+        }
+
+        fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
+            ERC20CamelOnly::balanceOf(self, account)
+        }
+
+        fn transferFrom(
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) -> bool {
+            ERC20CamelOnly::transferFrom(ref self, sender, recipient, amount)
         }
     }
 }

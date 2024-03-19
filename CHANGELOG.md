@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- SNIP12 utilities for on-chain typed messages hash generation (#935)
+- Nonces component utility (#935)
+
 ### Changed
 
 - Bump scarb to v2.6.3 (#946)

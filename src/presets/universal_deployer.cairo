@@ -11,8 +11,8 @@
 #[starknet::contract]
 mod UniversalDeployer {
     use hash::{HashStateTrait, HashStateExTrait};
-    use poseidon::PoseidonTrait;
     use openzeppelin::utils::universal_deployer::interface;
+    use poseidon::PoseidonTrait;
     use starknet::ClassHash;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
@@ -58,7 +58,10 @@ mod UniversalDeployer {
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)
                 .unwrap_syscall();
 
-            self.emit(ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt });
+            self
+                .emit(
+                    ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt }
+                );
             return address;
         }
     }

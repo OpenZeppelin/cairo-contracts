@@ -1,6 +1,5 @@
 use core::pedersen::pedersen;
 use hash::{HashStateTrait, HashStateExTrait};
-use poseidon::PoseidonTrait;
 use openzeppelin::presets::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin::presets::universal_deployer::UniversalDeployer;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
@@ -11,6 +10,7 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::universal_deployer::interface::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
+use poseidon::PoseidonTrait;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::testing;
@@ -87,7 +87,8 @@ fn test_deploy_not_from_zero() {
     let expected_addr = calculate_contract_address_from_hash(
         hashed_salt, ERC20_CLASS_HASH(), ERC20_CALLDATA(), udc.contract_address
     );
-    let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, not_from_zero, ERC20_CALLDATA());
+    let deployed_addr = udc
+        .deploy_contract(ERC20_CLASS_HASH(), SALT, not_from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event

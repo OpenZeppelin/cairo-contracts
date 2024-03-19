@@ -4,10 +4,6 @@
 /// # UniversalDeployerContract Preset
 ///
 /// The Universal Deployer Contract is a standardized generic factory of Starknet contracts.
-///
-/// This contract is already deployed at 0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf
-/// on mainnet, testnets, and starknet-devnet.
-/// This address may change in the future.
 #[starknet::contract]
 mod UniversalDeployer {
     use hash::{HashStateTrait, HashStateExTrait};

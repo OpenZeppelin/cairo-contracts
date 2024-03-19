@@ -201,21 +201,6 @@ fn test_dual_renounce_role_exists_and_panics() {
 //
 
 #[test]
-fn test_dual_supportsInterface() {
-    let (dispatcher, _) = setup_camel();
-
-    let supports_iaccesscontrol = dispatcher.supports_interface(IACCESSCONTROL_ID);
-    assert!(supports_iaccesscontrol);
-}
-
-#[test]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
-fn test_dual_supportsInterface_exists_and_panics() {
-    let (_, dispatcher) = setup_accesscontrol_panic();
-    dispatcher.supports_interface(IACCESSCONTROL_ID);
-}
-
-#[test]
 fn test_dual_hasRole() {
     let (dispatcher, _) = setup_camel();
 

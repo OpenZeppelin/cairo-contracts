@@ -168,12 +168,7 @@ impl DualCaseERC721Impl of DualCaseERC721Trait {
         let mut args = array![];
         args.append_serde(interface_id);
 
-        try_selector_with_fallback(
-            *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
-            args.span()
-        )
+        call_contract_syscall(*self.contract_address, selectors::supports_interface, args.span())
             .unwrap_and_cast()
     }
 }

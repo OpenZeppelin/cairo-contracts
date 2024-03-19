@@ -182,11 +182,7 @@ NOTE: {src5-component-required-note}
 [.sub-index#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl]
 .ERC1155MetadataURIImpl
 * xref:#ERC1155Component-uri[`++uri(self, token_id)++`]
---
 
-[.contract-index#ERC1155Component-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
 [.sub-index#ERC1155Component-Embeddable-Impls-ER1155CamelImpl]
 .ER1155CamelImpl
 * xref:#ERC1155Component-balanceOf[`++balanceOf(self, account, tokenId)++`]
@@ -315,8 +311,6 @@ on the token type ID substitution mechanism
 
 Clients calling this function must replace the `\{id\}` substring with the
 actual token type ID.
-
-==== camelCase Support
 
 [.contract-item]
 [[ERC1155Component-balanceOf]]
@@ -559,11 +553,7 @@ NOTE: {src5-component-required-note}
 .ERC1155ReceiverImpl
 * xref:#ERC1155ReceiverComponent-on_erc1155_received[`++on_erc1155_received(self, operator, from, token_id, value, data)++`]
 * xref:#ERC1155ReceiverComponent-on_erc1155_batch_received[`++on_erc1155_batch_received(self, operator, from, token_ids, values, data)++`]
---
 
-[.contract-index#ERC1155ReceiverComponent-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
 .ERC1155ReceiverCamelImpl
 * xref:#ERC1155ReceiverComponent-onERC1155Received[`++onERC1155Received(self, operator, from, tokenId, value, data)++`]
 * xref:#ERC1155ReceiverComponent-onERC1155BatchReceived[`++onERC1155BatchReceived(self, operator, from, tokenIds, values, data)++`]
@@ -589,8 +579,6 @@ Returns the `IERC1155Receiver` interface ID.
 ==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC1155Receiver` interface ID.
-
-==== camelCase Support
 
 [.contract-item]
 [[ERC1155ReceiverComponent-onERC1155Received]]

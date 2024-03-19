@@ -635,12 +635,11 @@ ERC721Receiver component implementing <<IERC721Receiver,IERC721Receiver>>.
 
 NOTE: {src5-component-required-note}
 
-
 [.contract-index#ERC721ReceiverComponent-Embeddable-Mixin-Impl]
 .{mixin-impls}
 
 --
-.ERC20MixinImpl
+.ERCReceiverMixinImpl
 * xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl[`++ERC721ReceiverImpl++`]
 * xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl[`++ERC721ReceiverCamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
@@ -652,11 +651,7 @@ NOTE: {src5-component-required-note}
 [.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl]
 .ERC721ReceiverImpl
 * xref:#ERC721ReceiverComponent-on_erc721_received[`++on_erc721_received(self, operator, from, token_id, data)++`]
---
 
-[.contract-index#ERC721ReceiverComponent-Embeddable-Impls-camelCase]
-.Embeddable implementations (camelCase)
---
 [.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl]
 .ERC721ReceiverCamelImpl
 * xref:#ERC721ReceiverComponent-onERC721Received[`++onERC721Received(self, operator, from, tokenId, data)++`]
@@ -676,8 +671,6 @@ NOTE: {src5-component-required-note}
 ==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC721Receiver` interface ID.
-
-==== camelCase Support
 
 [.contract-item]
 [[ERC721ReceiverComponent-onERC721Received]]

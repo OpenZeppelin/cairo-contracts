@@ -51,7 +51,6 @@ mod UniversalDeployer {
             let mut _salt: felt252 = salt;
             if unique {
                 _salt = poseidon::poseidon_hash_span(array![deployer.into(), salt].span());
-
             }
 
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)

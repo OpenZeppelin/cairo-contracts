@@ -164,7 +164,7 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 ----
 
 NOTE: These params could be set in the contract constructor, but then two storage reads would be executed every time
-a message hash needs to be generated, and this is an unecessary overhead.
+a message hash needs to be generated, and this is unnecessary overhead.
 
 [,javascript]
 

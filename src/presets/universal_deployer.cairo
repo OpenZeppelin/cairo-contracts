@@ -11,7 +11,7 @@
 /// This address may change in the future.
 #[starknet::contract]
 mod UniversalDeployer {
-    use core::pedersen::pedersen;
+    use core::poseidon;
     use openzeppelin::utils::universal_deployer::interface;
     use starknet::ClassHash;
     use starknet::ContractAddress;
@@ -50,7 +50,8 @@ mod UniversalDeployer {
             let from_zero: bool = !unique;
             let mut _salt: felt252 = salt;
             if unique {
-                _salt = pedersen(deployer.into(), salt);
+                _salt = poseidon::poseidon_hash_span(array![deployer.into(), salt].span());
+
             }
 
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)

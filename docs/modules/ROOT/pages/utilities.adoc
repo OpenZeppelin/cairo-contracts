@@ -140,13 +140,73 @@ Module containing utilities related to cryptography.
 [[cryptography-nonces]]
 ==== `[.contract-item-name]#++nonces++#` [.item-kind]#module#
 
-See xref:#nonces[`openzeppelin::utils::cryptography::nonces::NoncesComponent`].
+See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComponent`].
 
 [.contract-item]
 [[cryptography-snip12]]
 ==== `[.contract-item-name]#++snip12++#` [.item-kind]#module#
 
 See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
+
+
+[.contract]
+[[selectors]]
+=== `++selectors++`
+
+```javascript
+use openzeppelin::utils::selectors;
+```
+
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/utils/selectors.cairo[selectors.cairo]
+
+Module containing constants matching multiple selectors used through the library.
+To see the full list of selectors, see {selectors}.
+
+[.contract]
+[[serde]]
+=== `++serde++`
+
+```javascript
+use openzeppelin::utils::serde;
+```
+
+Module containing utilities related to serialization and deserialization of Cairo data structures.
+
+[.contract-index]
+.Members
+--
+.Traits
+* xref:#serde-SerializedAppend[`++SerializedAppend++`]
+--
+
+[#serde-Traits]
+==== Traits
+
+[.contract-item]
+[[serde-SerializedAppend]]
+==== `[.contract-item-name]#++SerializedAppend++#` [.item-kind]#trait#
+
+Importing this trait allows the ability to append a serialized representation of a Cairo data structure already
+implementing the `Serde` trait to a `felt252` buffer.
+
+Usage example:
+
+```javascript
+use openzeppelin::utils::serde::SerializedAppend;
+use starknet::ContractAddress;
+
+fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
+    let mut calldata = array![];
+    calldata.append_serde(recipient);
+    calldata.append_serde(amount);
+    calldata
+}
+```
+
+Note that the `append_serde` method is automatically available for arrays of felts, and it accepts any data structure
+that implements the `Serde` trait.
+
+== Cryptography
 
 [.contract]
 [[NoncesComponent]]
@@ -157,7 +217,6 @@ use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 ```
 
 Simple component for managing nonces.
-
 
 [.contract-index#NoncesComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -217,65 +276,7 @@ Supports on-chain generation of message hashes compliant with {snip12}.
 NOTE: For a full walkthrough on how to use this module, see the
 xref:/guides/snip12.adoc[SNIP12 and Typed Messages] guide.
 
-[.contract]
-[[selectors]]
-=== `++selectors++`
-
-```javascript
-use openzeppelin::utils::selectors;
-```
-
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/utils/selectors.cairo[selectors.cairo]
-
-Module containing constants matching multiple selectors used through the library.
-To see the full list of selectors, see {selectors}.
-
-[.contract]
-[[serde]]
-=== `++serde++`
-
-```javascript
-use openzeppelin::utils::serde;
-```
-
-Module containing utilities related to serialization and deserialization of Cairo data structures.
-
-[.contract-index]
-.Members
---
-.Traits
-* xref:#serde-SerializedAppend[`++SerializedAppend++`]
---
-
-[#serde-Traits]
-==== Traits
-
-[.contract-item]
-[[serde-SerializedAppend]]
-==== `[.contract-item-name]#++SerializedAppend++#` [.item-kind]#trait#
-
-Importing this trait allows the ability to append a serialized representation of a Cairo data structure already
-implementing the `Serde` trait to a `felt252` buffer.
-
-Usage example:
-
-```javascript
-use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
-
-fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
-    let mut calldata = array![];
-    calldata.append_serde(recipient);
-    calldata.append_serde(amount);
-    calldata
-}
-```
-
-Note that the `append_serde` method is automatically available for arrays of felts, and it accepts any data structure
-that implements the `Serde` trait.
-
 == Test utilities
-
 
 [.contract]
 [[testutils]]

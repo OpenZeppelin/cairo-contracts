@@ -1,10 +1,10 @@
-use openzeppelin::tests::mocks::snip12_mocks::SNIP12Mock;
+use openzeppelin::tests::mocks::nonces_mocks::NoncesMock;
 use openzeppelin::tests::utils::constants::OWNER;
 use openzeppelin::utils::cryptography::interface::INonces;
 use openzeppelin::utils::cryptography::nonces::NoncesComponent::InternalTrait;
 use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 
-type ComponentState = NoncesComponent::ComponentState<SNIP12Mock::ContractState>;
+type ComponentState = NoncesComponent::ComponentState<NoncesMock::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     NoncesComponent::component_state_for_testing()

@@ -7,7 +7,7 @@
 
 Similar to {eip712}, {snip12} is a standard for secure off-chain signature verification on Starknet.
 It provides a way to hash and sign generic typed structs rather than just strings. When building decentralized
-applications, usually you might need to sign a message with complex data. The purpose of singature verification
+applications, usually you might need to sign a message with complex data. The purpose of signature verification
 is then to ensure that the received message was indeed signed by the expected signer, and it hasen't been tampered with.
 
 OpenZeppelin Contracts for Cairo provides a set of utilities to make the implementation of this standard

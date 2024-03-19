@@ -8,7 +8,7 @@
 #[starknet::component]
 mod ERC1155Component {
     use openzeppelin::account;
-    use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
+    use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::dual1155_receiver::{
@@ -514,14 +514,15 @@ mod ERC1155Component {
     fn _check_on_ERC1155_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
     ) -> bool {
-        if (DualCaseSRC5 { contract_address: to }
-            .supports_interface(interface::IERC1155_RECEIVER_ID)) {
+        let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
+
+        if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_received(
                     get_caller_address(), from, token_id, value, data
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
-            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(account::interface::ISRC6_ID)
         }
     }
 
@@ -534,14 +535,15 @@ mod ERC1155Component {
         values: Span<u256>,
         data: Span<felt252>
     ) -> bool {
-        if (DualCaseSRC5 { contract_address: to }
-            .supports_interface(interface::IERC1155_RECEIVER_ID)) {
+        let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
+
+        if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
             DualCaseERC1155Receiver { contract_address: to }
                 .on_erc1155_batch_received(
                     get_caller_address(), from, token_ids, values, data
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
-            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(account::interface::ISRC6_ID)
         }
     }
 }

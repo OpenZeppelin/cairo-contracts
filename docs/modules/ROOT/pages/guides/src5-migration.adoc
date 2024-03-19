@@ -45,8 +45,6 @@ mod MigratingContract {
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC5CamelOnlyImpl = SRC5Component::SRC5CamelImpl<ContractState>;
     impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     // Initializable

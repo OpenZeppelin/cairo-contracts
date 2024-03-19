@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.10.0 (presets/universal_deployer.cairo)
 
-/// # UniversalDeployer Preset
+/// # UniversalDeployerContract Preset
 ///
 /// The Universal Deployer Contract is a singleton smart contract that wraps `deploy_syscall`
 /// to expose it to any contract that doesn't implement it, such as account contracts.

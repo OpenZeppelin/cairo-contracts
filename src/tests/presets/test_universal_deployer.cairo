@@ -1,5 +1,6 @@
 use core::pedersen::pedersen;
-use core::poseidon;
+use hash::{HashStateTrait, HashStateExTrait};
+use poseidon::PoseidonTrait;
 use openzeppelin::presets::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin::presets::universal_deployer::UniversalDeployer;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
@@ -41,16 +42,16 @@ fn deploy_udc() -> IUniversalDeployerDispatcher {
 }
 
 #[test]
-fn test_deploy_not_unique() {
+fn test_deploy_from_zero() {
     let udc = deploy_udc();
-    let unique = false;
+    let from_zero = true;
     testing::set_contract_address(CALLER());
 
     // Check address
     let expected_addr = calculate_contract_address_from_hash(
         SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), Zeroable::zero()
     );
-    let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, unique, ERC20_CALLDATA());
+    let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
@@ -58,7 +59,7 @@ fn test_deploy_not_unique() {
         udc.contract_address,
         deployed_addr,
         CALLER(),
-        unique,
+        from_zero,
         ERC20_CLASS_HASH(),
         ERC20_CALLDATA(),
         SALT
@@ -71,17 +72,22 @@ fn test_deploy_not_unique() {
 }
 
 #[test]
-fn test_deploy_unique() {
+fn test_deploy_not_from_zero() {
     let udc = deploy_udc();
-    let unique = true;
+    let not_from_zero = false;
     testing::set_contract_address(CALLER());
 
+    // Hash salt
+    let mut state = PoseidonTrait::new();
+    state = state.update_with(CALLER());
+    state = state.update_with(SALT);
+    let hashed_salt = state.finalize();
+
     // Check address
-    let hashed_salt = poseidon::poseidon_hash_span(array![CALLER().into(), SALT].span());
     let expected_addr = calculate_contract_address_from_hash(
         hashed_salt, ERC20_CLASS_HASH(), ERC20_CALLDATA(), udc.contract_address
     );
-    let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, unique, ERC20_CALLDATA());
+    let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, not_from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
@@ -89,7 +95,7 @@ fn test_deploy_unique() {
         udc.contract_address,
         deployed_addr,
         CALLER(),
-        unique,
+        not_from_zero,
         ERC20_CLASS_HASH(),
         ERC20_CALLDATA(),
         SALT
@@ -148,14 +154,14 @@ fn assert_only_event_contract_deployed(
     contract: ContractAddress,
     address: ContractAddress,
     deployer: ContractAddress,
-    unique: bool,
+    from_zero: bool,
     class_hash: ClassHash,
     calldata: Span<felt252>,
     salt: felt252
 ) {
     let event = utils::pop_log::<UniversalDeployer::Event>(contract).unwrap();
     let expected = UniversalDeployer::Event::ContractDeployed(
-        ContractDeployed { address, deployer, unique, class_hash, calldata, salt }
+        ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt }
     );
     assert!(event == expected);
     utils::assert_no_events_left(contract);

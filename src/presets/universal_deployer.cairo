@@ -10,7 +10,8 @@
 /// This address may change in the future.
 #[starknet::contract]
 mod UniversalDeployer {
-    use core::poseidon;
+    use hash::{HashStateTrait, HashStateExTrait};
+    use poseidon::PoseidonTrait;
     use openzeppelin::utils::universal_deployer::interface;
     use starknet::ClassHash;
     use starknet::ContractAddress;
@@ -48,7 +49,10 @@ mod UniversalDeployer {
             let deployer: ContractAddress = get_caller_address();
             let mut _salt: felt252 = salt;
             if !from_zero {
-                _salt = poseidon::poseidon_hash_span(array![deployer.into(), salt].span());
+                let mut state = PoseidonTrait::new();
+                state = state.update_with(deployer);
+                state = state.update_with(salt);
+                _salt = state.finalize();
             }
 
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)

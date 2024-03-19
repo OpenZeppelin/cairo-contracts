@@ -10,7 +10,7 @@ trait IUniversalDeployer<TState> {
         ref self: TState,
         class_hash: ClassHash,
         salt: felt252,
-        unique: bool,
+        from_zero: bool,
         calldata: Span<felt252>
     ) -> ContractAddress;
 }

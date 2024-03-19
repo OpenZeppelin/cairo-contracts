@@ -215,17 +215,3 @@ fn test_dual_isValidSignature_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.is_valid_signature(hash, signature);
 }
-
-#[test]
-fn test_dual_supportsInterface() {
-    let (camel_dispatcher, _) = setup_camel();
-    let supports_isrc5 = camel_dispatcher.supports_interface(ISRC5_ID);
-    assert!(supports_isrc5);
-}
-
-#[test]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
-fn test_dual_supportsInterface_exists_and_panics() {
-    let (_, dispatcher) = setup_account_panic();
-    dispatcher.supports_interface(ISRC5_ID);
-}

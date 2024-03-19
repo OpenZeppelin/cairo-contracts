@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (utils/selectors.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (utils/selectors.cairo)
 
 //
 // AccessControl
@@ -102,4 +102,3 @@ const getPublicKey: felt252 = selector!("getPublicKey");
 const is_valid_signature: felt252 = selector!("is_valid_signature");
 const isValidSignature: felt252 = selector!("isValidSignature");
 const supports_interface: felt252 = selector!("supports_interface");
-const supportsInterface: felt252 = selector!("supportsInterface");

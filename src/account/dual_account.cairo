@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (account/dual_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (account/dual_account.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -7,6 +7,7 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
+use starknet::call_contract_syscall;
 
 #[derive(Copy, Drop)]
 struct DualCaseAccount {
@@ -59,12 +60,7 @@ impl DualCaseAccountImpl of DualCaseAccountABI {
     fn supports_interface(self: @DualCaseAccount, interface_id: felt252) -> bool {
         let args = array![interface_id];
 
-        try_selector_with_fallback(
-            *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
-            args.span()
-        )
+        call_contract_syscall(*self.contract_address, selectors::supports_interface, args.span())
             .unwrap_and_cast()
     }
 }

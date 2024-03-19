@@ -6,7 +6,7 @@ use openzeppelin::access::accesscontrol::AccessControlComponent;
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::{IAccessControl, IAccessControlCamel};
-use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
+use openzeppelin::introspection::interface::ISRC5;
 use openzeppelin::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO

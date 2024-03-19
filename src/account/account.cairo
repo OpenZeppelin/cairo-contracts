@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (account/account.cairo)
 
 /// # Account Component
 ///
@@ -10,7 +10,7 @@ mod AccountComponent {
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
+    use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::get_caller_address;

@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Bump scarb to v2.6.3 (#946)
+
+## 0.10.0 (2024-03-07)
+
 ### Added
 
 - ERC1155 component and preset (#896)
@@ -50,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+
+### Removed
+
+- DualCase SRC5 (#882)
 
 ## 0.8.1 (2024-01-23)
 

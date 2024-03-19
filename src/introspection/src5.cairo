@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (introspection/src5.cairo)
 
 /// # SRC5 Component
 ///
@@ -29,15 +29,6 @@ mod SRC5Component {
                 return true;
             }
             self.SRC5_supported_interfaces.read(interface_id)
-        }
-    }
-
-    #[embeddable_as(SRC5CamelImpl)]
-    impl SRC5Camel<
-        TContractState, +HasComponent<TContractState>
-    > of interface::ISRC5Camel<ComponentState<TContractState>> {
-        fn supportsInterface(self: @ComponentState<TContractState>, interfaceId: felt252) -> bool {
-            self.supports_interface(interfaceId)
         }
     }
 

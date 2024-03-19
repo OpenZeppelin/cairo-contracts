@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.9.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.10.0 (token/erc721/erc721.cairo)
 
 /// # ERC721 Component
 ///
@@ -8,9 +8,9 @@
 #[starknet::component]
 mod ERC721Component {
     use openzeppelin::account;
-    use openzeppelin::introspection::dual_src5::{DualCaseSRC5, DualCaseSRC5Trait};
+    use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
+    use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
@@ -546,14 +546,15 @@ mod ERC721Component {
     fn _check_on_erc721_received(
         from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
     ) -> bool {
-        if (DualCaseSRC5 { contract_address: to }
-            .supports_interface(interface::IERC721_RECEIVER_ID)) {
+        let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
+
+        if src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID) {
             DualCaseERC721Receiver { contract_address: to }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == interface::IERC721_RECEIVER_ID
         } else {
-            DualCaseSRC5 { contract_address: to }.supports_interface(account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(account::interface::ISRC6_ID)
         }
     }
 

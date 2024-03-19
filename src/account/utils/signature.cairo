@@ -3,9 +3,7 @@
 
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::interface::EthPublicKey;
-use openzeppelin::account::utils::secp256k1::Secp256k1PointPartialEq;
 use starknet::secp256_trait;
-use starknet::secp256k1::Secp256k1Point;
 
 #[derive(Copy, Drop, Serde)]
 pub struct EthSignature {
@@ -13,7 +11,7 @@ pub struct EthSignature {
     pub s: u256,
 }
 
-/// This function assumes the `s` component of the signature to be positive 
+/// This function assumes the `s` component of the signature to be positive
 /// for efficiency reasons. It is not recommended to use it other than for
 /// validating account signatures over transaction hashes since otherwise
 /// it's not protected against signature malleability.

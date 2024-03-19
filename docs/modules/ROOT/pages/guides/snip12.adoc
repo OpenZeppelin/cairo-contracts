@@ -113,7 +113,7 @@ which is the same as:
 let message_type_hash = 0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
 ----
 
-Note that in practice is better to compute the type hash off-chain and hardcode it in the contract, since is a constant value.
+Note that in practice it's better to compute the type hash off-chain and hardcode it in the contract, since it is a constant value.
 
 === 3. Implement the `StructHash` trait for the struct.
 

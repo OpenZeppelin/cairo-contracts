@@ -590,25 +590,25 @@ NOTE: {src5-component-required-note}
 
 [.contract-item]
 [[ERC1155ReceiverComponent-on_erc1155_received]]
-==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc1155_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC1155Receiver` interface ID.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-on_erc1155_batch_received]]
-==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc1155_batch_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC1155Receiver` interface ID.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-onERC1155Received]]
-==== `[.contract-item-name]#++onERC1155Received++#++(operator: ContractAddress, from: ContractAddress, tokenId: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++onERC1155Received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, tokenId: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 See <<ERC1155ReceiverComponent-on_erc1155_received,ERC1155ReceiverComponent::on_erc1155_received>>.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-onERC1155BatchReceived]]
-==== `[.contract-item-name]#++onERC1155BatchReceived++#++(operator: ContractAddress, from: ContractAddress, tokenIds: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++onERC1155BatchReceived++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, tokenIds: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 See <<ERC1155ReceiverComponent-on_erc1155_batch_received,ERC1155ReceiverComponent::on_erc1155_batch_received>>.
 

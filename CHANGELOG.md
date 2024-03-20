@@ -59,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
+### Removed
+
+- DualCase SRC5 (#882)
+
 ## 0.8.1 (2024-01-23)
 
 ### Added

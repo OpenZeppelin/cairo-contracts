@@ -112,7 +112,6 @@ fn test_deploy_not_from_zero() {
 // Helpers
 //
 
-/// See https://github.com/starkware-libs/cairo-lang/blob/v0.13.0/src/starkware/cairo/common/hash_state.py
 fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     let data_len: usize = data.len();
     let mut hash = 0;
@@ -128,7 +127,7 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     hash
 }
 
-/// See https://github.com/starkware-libs/cairo-lang/blob/v0.13.0/src/starkware/starknet/core/os/contract_address/contract_address.py
+/// See https://github.com/starkware-libs/cairo/blob/v2.6.3/crates/cairo-lang-runner/src/casm_run/contract_address.rs#L38-L57
 fn calculate_contract_address_from_hash(
     salt: felt252,
     class_hash: ClassHash,

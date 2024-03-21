@@ -668,7 +668,7 @@ NOTE: {src5-component-required-note}
 
 [.contract-item]
 [[ERC721ReceiverComponent-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc721_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC721Receiver` interface ID.
 

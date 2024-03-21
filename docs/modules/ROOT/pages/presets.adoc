@@ -48,6 +48,8 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 == Presets Usage
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
+:install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets[presets directory]
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.
@@ -61,8 +63,8 @@ starkli deploy {ERC20-class-hash} \
 ----
 
 If a class hash has yet to be declared, copy/paste the preset contract code and declare it locally.
-Start by {setup_project} and installing the OpenZeppelin Contracts for Cairo library.
-Copy the target preset contract from the library's presets directory and paste it in the new project's `src/lib.cairo`.
+Start by {setup_project} and {install_lib}.
+Copy the target preset contract from the {presets_dir} and paste it in the new project's `src/lib.cairo`.
 Next, compile the contract.
 
 [,bash]
@@ -74,6 +76,6 @@ Finally, declare the preset.
 
 [,bash]
 ----
-starkli declare target/dev/my_project_ERC20.contract_class.json \
+starkli declare target/dev/my_project_<PRESET_CONTRACT>.contract_class.json \
   --network="sepolia"
 ----

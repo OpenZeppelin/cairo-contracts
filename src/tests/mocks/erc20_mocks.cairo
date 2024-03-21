@@ -1,7 +1,26 @@
+use openzeppelin::token::erc20::ERC20Component;
+use starknet::ContractAddress;
+
+impl ERC20VotesHooksImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
+    fn _before_update(
+        ref self: ERC20Component::ComponentState<TContractState>,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        amount: u256
+    ) {}
+
+    fn _after_update(
+        ref self: ERC20Component::ComponentState<TContractState>,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        amount: u256
+    ) {}
+}
+
 #[starknet::contract]
 mod DualCaseERC20Mock {
-    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
+    use super::{ERC20Component, ERC20VotesHooksImpl};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
@@ -41,8 +60,8 @@ mod DualCaseERC20Mock {
 
 #[starknet::contract]
 mod SnakeERC20Mock {
-    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
+    use super::{ERC20Component, ERC20VotesHooksImpl};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
@@ -80,8 +99,8 @@ mod SnakeERC20Mock {
 
 #[starknet::contract]
 mod CamelERC20Mock {
-    use openzeppelin::token::erc20::ERC20Component;
     use starknet::ContractAddress;
+    use super::{ERC20Component, ERC20VotesHooksImpl};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 

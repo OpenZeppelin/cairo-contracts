@@ -31,6 +31,22 @@ mod ERC20 {
         ERC20Event: ERC20Component::Event
     }
 
+    impl ERC20VotesHooksImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
+        fn _before_update(
+            ref self: ERC20Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {}
+
+        fn _after_update(
+            ref self: ERC20Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {}
+    }
+
     /// Sets the token `name` and `symbol`.
     /// Mints `fixed_supply` tokens to `recipient`.
     #[constructor]

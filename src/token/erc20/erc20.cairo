@@ -63,12 +63,32 @@ mod ERC20Component {
     }
 
     //
+    // Hooks
+    //
+
+    trait ERC20HooksTrait<TContractState> {
+        fn _before_update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        );
+
+        fn _after_update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        );
+    }
+
+    //
     // External
     //
 
     #[embeddable_as(ERC20Impl)]
     impl ERC20<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of interface::IERC20<ComponentState<TContractState>> {
         /// Returns the value of tokens in existence.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -147,7 +167,7 @@ mod ERC20Component {
 
     #[embeddable_as(ERC20MetadataImpl)]
     impl ERC20Metadata<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
@@ -168,14 +188,14 @@ mod ERC20Component {
     /// Adds camelCase support for `IERC20`.
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of interface::IERC20CamelOnly<ComponentState<TContractState>> {
         fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
-            self.total_supply()
+            ERC20::total_supply(self)
         }
 
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
-            self.balance_of(account)
+            ERC20::balance_of(self, account)
         }
 
         fn transferFrom(
@@ -184,7 +204,7 @@ mod ERC20Component {
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            self.transfer_from(sender, recipient, amount)
+            ERC20::transfer_from(ref self, sender, recipient, amount)
         }
     }
 
@@ -194,7 +214,7 @@ mod ERC20Component {
 
     #[generate_trait]
     impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's constructor.
@@ -222,9 +242,7 @@ mod ERC20Component {
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.ERC20_balances.write(sender, self.ERC20_balances.read(sender) - amount);
-            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
-            self.emit(Transfer { from: sender, to: recipient, value: amount });
+            self._update(sender, recipient, amount);
         }
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
@@ -259,9 +277,7 @@ mod ERC20Component {
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
-            self.ERC20_balances.write(recipient, self.ERC20_balances.read(recipient) + amount);
-            self.emit(Transfer { from: Zeroable::zero(), to: recipient, value: amount });
+            self._update(Zeroable::zero(), recipient, amount);
         }
 
         /// Destroys `amount` of tokens from `account`.
@@ -274,9 +290,7 @@ mod ERC20Component {
         /// Emits a `Transfer` event with `to` set to the zero address.
         fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
-            self.ERC20_balances.write(account, self.ERC20_balances.read(account) - amount);
-            self.emit(Transfer { from: account, to: Zeroable::zero(), value: amount });
+            self._update(account, Zeroable::zero(), amount);
         }
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
@@ -298,11 +312,39 @@ mod ERC20Component {
                 self._approve(owner, spender, current_allowance - amount);
             }
         }
+
+        /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+        fn _update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            amount: u256
+        ) {
+            Hooks::_before_update(ref self, from, to, amount);
+
+            let zero_address = Zeroable::zero();
+            if (from == zero_address) {
+                self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
+            } else {
+                self.ERC20_balances.write(from, self.ERC20_balances.read(from) - amount);
+            }
+
+            if (to == zero_address) {
+                self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
+            } else {
+                self.ERC20_balances.write(to, self.ERC20_balances.read(to) + amount);
+            }
+
+            self.emit(Transfer { from, to, value: amount });
+
+            Hooks::_after_update(ref self, from, to, amount);
+        }
     }
 
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of interface::ERC20ABI<ComponentState<TContractState>> {
         // IERC20
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {

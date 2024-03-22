@@ -55,7 +55,7 @@ fn test_constructor() {
 
 #[test]
 fn test_total_supply() {
-    let mut dispatcher = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     assert_eq!(dispatcher.total_supply(), SUPPLY);
     assert_eq!(dispatcher.totalSupply(), SUPPLY);
@@ -63,7 +63,7 @@ fn test_total_supply() {
 
 #[test]
 fn test_balance_of() {
-    let mut dispatcher = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
     assert_eq!(dispatcher.balanceOf(OWNER()), SUPPLY);

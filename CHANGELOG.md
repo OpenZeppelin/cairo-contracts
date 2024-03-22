@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- before_update and after_update hooks to ERC20Component (#951)
+- ERC20Votes component and preset (#951)
+- SNIP12 utilities for on-chain typed messages hash generation (#935)
+- Nonces component utility (#935)
 - ERC721ReceiverComponent documentation (#945)
 
 ### Changed

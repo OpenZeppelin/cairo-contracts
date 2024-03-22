@@ -74,7 +74,7 @@ fn test_deploy_from_zero() {
 #[test]
 fn test_deploy_not_from_zero() {
     let udc = deploy_udc();
-    let not_from_zero = false;
+    let from_zero = false;
     testing::set_contract_address(CALLER());
 
     // Hash salt
@@ -88,7 +88,7 @@ fn test_deploy_not_from_zero() {
         hashed_salt, ERC20_CLASS_HASH(), ERC20_CALLDATA(), udc.contract_address
     );
     let deployed_addr = udc
-        .deploy_contract(ERC20_CLASS_HASH(), SALT, not_from_zero, ERC20_CALLDATA());
+        .deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event

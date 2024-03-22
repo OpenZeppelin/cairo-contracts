@@ -45,10 +45,8 @@ mod UniversalDeployer {
             let deployer: ContractAddress = get_caller_address();
             let mut _salt: felt252 = salt;
             if !from_zero {
-                let mut state = PoseidonTrait::new();
-                state = state.update_with(deployer);
-                state = state.update_with(salt);
-                _salt = state.finalize();
+                let mut hash_state = PoseidonTrait::new();
+                _salt = hash_state.update_with(deployer).update_with(salt).finalize();
             }
 
             let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)

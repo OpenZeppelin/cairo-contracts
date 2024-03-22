@@ -7,6 +7,7 @@
 :ERC721-class-hash: 0x060a1eeded2f1633b2ee71b6ee3de0d4466198d4097f23c6ad62b6f11e8f9775
 :ERC1155-class-hash: 0x0518be7d9fa527c78d6929bf9e638e9c98b6077722e27e9546cc4342e830386e
 :EthAccountUpgradeable-class-hash: 0x0359eceac190c19d22e2831f3bd2ecde9f1b1d034d0790e5dd6b3c91651bda97
+:UniversalDeployer-class-hash: 0x059d5025ffd1b8a0172ed2b87ec3aa14475c0eeb32c5a78f35eba5db29404c47
 
 // Presets page
 :presets-page: xref:presets.adoc[Sierra class hash]

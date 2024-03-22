@@ -46,11 +46,10 @@ fn setup_dispatcher() -> ERC20VotesABIDispatcher {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_constructor() {
     let mut dispatcher = setup_dispatcher_with_event();
 
-    assert_only_event_transfer(ZERO(), OWNER(), SUPPLY);
+    assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), SUPPLY);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
     assert_eq!(dispatcher.total_supply(), SUPPLY);
     assert_eq!(dispatcher.name(), NAME());
@@ -63,7 +62,6 @@ fn test_constructor() {
 //
 
 #[test]
-#[available_gas(2000000)]
 fn test_total_supply() {
     let dispatcher = setup_dispatcher();
     assert_eq!(dispatcher.total_supply(), SUPPLY);
@@ -73,16 +71,15 @@ fn test_total_supply() {
 fn test_balance_of() {
     let dispatcher = setup_dispatcher();
 
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.transfer(RECIPIENT(), SUPPLY);
     assert_eq!(dispatcher.balance_of(RECIPIENT()), SUPPLY);
 }
 
 #[test]
-#[available_gas(2000000)]
 fn test_allowance() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
 
     assert_eq!(dispatcher.allowance(OWNER(), SPENDER()), VALUE);
@@ -95,27 +92,25 @@ fn test_allowance() {
 #[test]
 fn test_approve() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     assert!(dispatcher.approve(SPENDER(), VALUE));
-    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
+    assert_only_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), VALUE);
 
     assert_eq!(dispatcher.allowance(OWNER(), SPENDER()), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve from 0',))]
+#[should_panic(expected: ('ERC20: approve from 0', 'ENTRYPOINT_FAILED'))]
 fn test_approve_from_zero() {
     let dispatcher = setup_dispatcher();
     dispatcher.approve(SPENDER(), VALUE);
 }
 
 #[test]
-#[available_gas(2000000)]
-#[should_panic(expected: ('ERC20: approve to 0',))]
+#[should_panic(expected: ('ERC20: approve to 0', 'ENTRYPOINT_FAILED'))]
 fn test_approve_to_zero() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(Zeroable::zero(), VALUE);
 }
 
@@ -126,9 +121,9 @@ fn test_approve_to_zero() {
 #[test]
 fn test_transfer() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     assert!(dispatcher.transfer(RECIPIENT(), VALUE));
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
     assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
@@ -142,15 +137,15 @@ fn test_transfer() {
 #[test]
 fn test_transfer_from() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
     utils::drop_event(ZERO());
 
-    testing::set_caller_address(SPENDER());
+    testing::set_contract_address(SPENDER());
     assert!(dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
 
     assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
@@ -161,10 +156,10 @@ fn test_transfer_from() {
 #[test]
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), BoundedInt::max());
 
-    testing::set_caller_address(SPENDER());
+    testing::set_contract_address(SPENDER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
     assert_eq!(
@@ -173,30 +168,30 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_greater_than_allowance() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    testing::set_contract_address(SPENDER());
     let allowance_plus_one = VALUE + 1;
     dispatcher.transfer_from(OWNER(), RECIPIENT(), allowance_plus_one);
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer to 0',))]
+#[should_panic(expected: ('ERC20: transfer to 0', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_to_zero_address() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    testing::set_contract_address(SPENDER());
     dispatcher.transfer_from(OWNER(), Zeroable::zero(), VALUE);
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let dispatcher = setup_dispatcher();
     dispatcher.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);
@@ -210,7 +205,7 @@ fn test_transfer_from_from_zero_address() {
 fn test_get_votes() {
     let mut dispatcher = setup_dispatcher();
 
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.delegate(OWNER());
 
     assert_eq!(dispatcher.get_votes(OWNER()), SUPPLY);
@@ -219,7 +214,7 @@ fn test_get_votes() {
 #[test]
 fn test_get_past_votes() {
     let mut dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.delegate(OWNER());
     let amount = 100;
 
@@ -235,7 +230,7 @@ fn test_get_past_votes() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: ('Votes: future Lookup', 'ENTRYPOINT_FAILED'))]
 fn test_get_past_votes_future_lookup() {
     let dispatcher = setup_dispatcher();
 
@@ -247,7 +242,7 @@ fn test_get_past_votes_future_lookup() {
 #[test]
 fn test_get_past_total_supply() {
     let mut dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.delegate(OWNER());
     let amount = 100;
 
@@ -261,7 +256,7 @@ fn test_get_past_total_supply() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: ('Votes: future Lookup', 'ENTRYPOINT_FAILED'))]
 fn test_get_past_total_supply_future_lookup() {
     let dispatcher = setup_dispatcher();
 
@@ -277,7 +272,7 @@ fn test_get_past_total_supply_future_lookup() {
 #[test]
 fn test_delegate() {
     let mut dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
 
     // Delegate from zero
     dispatcher.delegate(OWNER());
@@ -311,7 +306,7 @@ fn test_delegate() {
 #[test]
 fn test_delegates() {
     let mut dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
 
     dispatcher.delegate(OWNER());
     assert_eq!(dispatcher.delegates(OWNER()), OWNER());
@@ -327,7 +322,7 @@ fn test_delegates() {
 #[test]
 fn test_num_checkpoints() {
     let mut dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.delegate(OWNER());
 
     let amount = 100;
@@ -353,7 +348,7 @@ fn test_num_checkpoints() {
 #[test]
 fn test_checkpoints() {
     let dispatcher = setup_dispatcher();
-    testing::set_caller_address(OWNER());
+    testing::set_contract_address(OWNER());
     dispatcher.delegate(OWNER());
 
     let amount = 100;
@@ -370,7 +365,7 @@ fn test_checkpoints() {
 }
 
 #[test]
-#[should_panic(expected: ('Array overflow',))]
+#[should_panic(expected: ('Array overflow', 'ENTRYPOINT_FAILED'))]
 fn test_checkpoints_array_overflow() {
     let dispatcher = setup_dispatcher();
 

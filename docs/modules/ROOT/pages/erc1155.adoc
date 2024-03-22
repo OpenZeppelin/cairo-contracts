@@ -271,7 +271,7 @@ mod MyTokenReceiver {
 
     #[constructor]
     fn constructor(ref self: ContractState) {
-        self.erc721_receiver.initializer();
+        self.erc1155_receiver.initializer();
     }
 }
 ----

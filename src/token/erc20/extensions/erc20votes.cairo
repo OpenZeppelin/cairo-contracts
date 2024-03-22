@@ -34,20 +34,20 @@ mod ERC20VotesComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         DelegateChanged: DelegateChanged,
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateChanged {
         delegator: ContractAddress,
         from_delegate: ContractAddress,
         to_delegate: ContractAddress
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateVotesChanged {
         delegate: ContractAddress,
         previous_votes: u256,
@@ -239,9 +239,11 @@ mod ERC20VotesComponent {
 // Offchain message hash generation helpers.
 //
 
-// sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u64\")")
+// sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
+//
+// Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.
 const DELEGATION_TYPE_HASH: felt252 =
-    0x293f93755a12b882d61f0894977a89cba2ef56fdea65b6cd6f4f075f51fabe9;
+    0x241244ac7acec849adc6df9848262c651eb035a3add56e7f6c7bcda6649e837;
 
 #[derive(Copy, Drop, Hash)]
 struct Delegation {

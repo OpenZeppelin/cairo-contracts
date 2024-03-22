@@ -1,15 +1,10 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.10.0 (presets/erc20_votes.cairo)
-
-/// ERC20 with the ERC20Votes extension.
 #[starknet::contract]
-mod ERC20Votes {
+mod DualCaseERC20VotesMock {
     use openzeppelin::token::erc20::ERC20Component;
     use openzeppelin::token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
     use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
     use openzeppelin::utils::cryptography::nonces::NoncesComponent;
     use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
-    use openzeppelin::utils::structs::checkpoint::Checkpoint;
     use starknet::ContractAddress;
 
     component!(path: ERC20VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
@@ -102,21 +97,5 @@ mod ERC20Votes {
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20._mint(recipient, fixed_supply);
-    }
-
-    #[abi(per_item)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
-        /// Get number of checkpoints for `account`.
-        #[external(v0)]
-        fn num_checkpoints(self: @ContractState, account: ContractAddress) -> u32 {
-            self.erc20_votes.num_checkpoints(account)
-        }
-
-        /// Get the `pos`-th checkpoint for `account`.
-        #[external(v0)]
-        fn checkpoints(self: @ContractState, account: ContractAddress, pos: u32) -> Checkpoint {
-            self.erc20_votes.checkpoints(account, pos)
-        }
     }
 }

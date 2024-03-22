@@ -88,7 +88,7 @@ mod ERC20Component {
 
     #[embeddable_as(ERC20Impl)]
     impl ERC20<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
     > of interface::IERC20<ComponentState<TContractState>> {
         /// Returns the value of tokens in existence.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -167,7 +167,7 @@ mod ERC20Component {
 
     #[embeddable_as(ERC20MetadataImpl)]
     impl ERC20Metadata<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
@@ -188,7 +188,7 @@ mod ERC20Component {
     /// Adds camelCase support for `IERC20`.
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
     > of interface::IERC20CamelOnly<ComponentState<TContractState>> {
         fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
             ERC20::total_supply(self)
@@ -344,7 +344,7 @@ mod ERC20Component {
 
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
     > of interface::ERC20ABI<ComponentState<TContractState>> {
         // IERC20
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {

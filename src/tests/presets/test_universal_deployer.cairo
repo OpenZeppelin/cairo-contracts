@@ -79,9 +79,7 @@ fn test_deploy_not_from_zero() {
 
     // Hash salt
     let mut state = PoseidonTrait::new();
-    state = state.update_with(CALLER());
-    state = state.update_with(SALT);
-    let hashed_salt = state.finalize();
+    let hashed_salt = state.update_with(CALLER()).update_with(SALT).finalize();
 
     // Check address
     let expected_addr = calculate_contract_address_from_hash(

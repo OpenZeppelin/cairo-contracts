@@ -72,14 +72,14 @@ mod ERC20Votes {
         +NoncesComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ERC20Component::ERC20HooksTrait<TContractState> {
-        fn _before_update(
+        fn before_update(
             ref self: ERC20Component::ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) {}
 
-        fn _after_update(
+        fn after_update(
             ref self: ERC20Component::ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,

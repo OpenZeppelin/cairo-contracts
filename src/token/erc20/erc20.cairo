@@ -67,14 +67,14 @@ mod ERC20Component {
     //
 
     trait ERC20HooksTrait<TContractState> {
-        fn _before_update(
+        fn before_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         );
 
-        fn _after_update(
+        fn after_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
@@ -321,7 +321,7 @@ mod ERC20Component {
             to: ContractAddress,
             amount: u256
         ) {
-            Hooks::_before_update(ref self, from, to, amount);
+            Hooks::before_update(ref self, from, to, amount);
 
             let zero_address = Zeroable::zero();
             if (from == zero_address) {
@@ -338,7 +338,7 @@ mod ERC20Component {
 
             self.emit(Transfer { from, to, value: amount });
 
-            Hooks::_after_update(ref self, from, to, amount);
+            Hooks::after_update(ref self, from, to, amount);
         }
     }
 

@@ -12,7 +12,7 @@ mod ERC1155ReceiverComponent {
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
-    use openzeppelin::token::erc1155::interface;
+    use openzeppelin::token::erc1155::interface::{IERC1155Receiver, IERC1155ReceiverCamel, ERC1155ReceiverABI};
     use starknet::ContractAddress;
 
     #[storage]
@@ -28,7 +28,7 @@ mod ERC1155ReceiverComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC1155Receiver<ComponentState<TContractState>> {
+    > of IERC1155Receiver<ComponentState<TContractState>> {
         /// Called whenever the implementing contract receives `value` through
         /// a safe transfer. This function must return `IERC1155_RECEIVER_ID`
         /// to confirm the token transfer.
@@ -62,7 +62,7 @@ mod ERC1155ReceiverComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IERC1155ReceiverCamel<ComponentState<TContractState>> {
+    > of IERC1155ReceiverCamel<ComponentState<TContractState>> {
         fn onERC1155Received(
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
@@ -107,7 +107,7 @@ mod ERC1155ReceiverComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::ERC1155ReceiverMixin<ComponentState<TContractState>> {
+    > of ERC1155ReceiverABI<ComponentState<TContractState>> {
         // IERC1155
         fn on_erc1155_received(
             self: @ComponentState<TContractState>,

@@ -95,7 +95,7 @@ fn test_deploy_not_from_zero() {
         udc.contract_address,
         deployed_addr,
         CALLER(),
-        not_from_zero,
+        from_zero,
         ERC20_CLASS_HASH(),
         ERC20_CALLDATA(),
         SALT

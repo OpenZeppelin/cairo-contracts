@@ -145,7 +145,7 @@ mod MyNFT {
         let token_id = 1;
 
         self.erc721.initializer(name, symbol, base_uri);
-        self._mint(recipient, token_id);
+        self.erc721._mint(recipient, token_id);
     }
 }
 ----

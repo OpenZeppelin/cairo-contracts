@@ -19,7 +19,7 @@ and as generic as possible, there's no support for custom or complex contracts s
 TIP: For contract customization and combination of modules you can use {wizard}, our code-generation tool.
 
 
-## Available presets
+== Available presets
 
 List of available presets and their corresponding {sierra-class-hashes}.
 
@@ -48,3 +48,81 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 |===
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a Sierra artifact.
+
+== Usage
+
+:setup_project: xref:index.adoc#set_up_your_project[setting up a project]
+:install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets[presets directory]
+
+These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
+Simply deploy the preset class hash and add the appropriate constructor arguments.
+Deploying the ERC20 preset with {starkli}, for example, will look like this:
+
+[,bash, subs="verbatim,attributes"]
+----
+starkli deploy {ERC20-class-hash} \
+  <CONSTRUCTOR_ARGS> \
+  --network="sepolia"
+----
+
+If a class hash has yet to be declared, copy/paste the preset contract code and declare it locally.
+Start by {setup_project} and {install_lib}.
+Copy the target preset contract from the {presets_dir} and paste it in the new project's `src/lib.cairo` like this:
+
+[,javascript]
+----
+// src/lib.cairo
+
+#[starknet::contract]
+mod ERC20 {
+    use openzeppelin::token::erc20::ERC20Component;
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        fixed_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, fixed_supply);
+    }
+}
+----
+
+Next, compile the contract.
+
+[,bash]
+----
+scarb build
+----
+
+Finally, declare the preset.
+
+[,bash]
+----
+starkli declare target/dev/my_project_ERC20.contract_class.json \
+  --network="sepolia"
+----

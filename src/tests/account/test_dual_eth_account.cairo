@@ -12,7 +12,6 @@ use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::eth_signature::Signature;
 use starknet::testing;
 
 //

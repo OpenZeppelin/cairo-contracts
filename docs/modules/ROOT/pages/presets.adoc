@@ -45,7 +45,7 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a Sierra artifact.
 
-== Presets Usage
+== Usage
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
 :install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]

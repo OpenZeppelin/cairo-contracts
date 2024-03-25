@@ -6,7 +6,7 @@ use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
     CamelERC1155ReceiverMock, SnakeERC1155ReceiverMock
 };
-use openzeppelin::tests::mocks::src5_mocks::DualCaseSRC5Mock;
+use openzeppelin::tests::mocks::src5_mocks::SRC5Mock;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2, PUBKEY
@@ -69,7 +69,7 @@ fn setup_account_with_salt(salt: felt252) -> ContractAddress {
 }
 
 fn setup_src5() -> ContractAddress {
-    utils::deploy(DualCaseSRC5Mock::TEST_CLASS_HASH, array![])
+    utils::deploy(SRC5Mock::TEST_CLASS_HASH, array![])
 }
 
 //

@@ -174,3 +174,45 @@ trait IERC1155ReceiverCamel<TState> {
         data: Span<felt252>
     ) -> felt252;
 }
+
+#[starknet::interface]
+trait ERC1155ReceiverABI<TState> {
+    // IERC1155Receiver
+    fn on_erc1155_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        value: u256,
+        data: Span<felt252>
+    ) -> felt252;
+    fn on_erc1155_batch_received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>,
+        data: Span<felt252>
+    ) -> felt252;
+
+    // IERC1155ReceiverCamel
+    fn onERC1155Received(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenId: u256,
+        value: u256,
+        data: Span<felt252>
+    ) -> felt252;
+    fn onERC1155BatchReceived(
+        self: @TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        tokenIds: Span<u256>,
+        values: Span<u256>,
+        data: Span<felt252>
+    ) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+}

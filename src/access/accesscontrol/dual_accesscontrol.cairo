@@ -7,6 +7,7 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
+use starknet::call_contract_syscall;
 
 #[derive(Copy, Drop)]
 struct DualCaseAccessControl {
@@ -81,12 +82,7 @@ impl DualCaseAccessControlImpl of DualCaseAccessControlTrait {
         let mut args = array![];
         args.append_serde(interface_id);
 
-        try_selector_with_fallback(
-            *self.contract_address,
-            selectors::supports_interface,
-            selectors::supportsInterface,
-            args.span()
-        )
+        call_contract_syscall(*self.contract_address, selectors::supports_interface, args.span())
             .unwrap_and_cast()
     }
 }

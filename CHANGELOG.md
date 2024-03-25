@@ -11,10 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Presets Usage guide (#949)
+- UDC preset contract (#919)
+- ERC1155Component and ERC1155ReceiverComponent mixins (#941)
+- ERC721ReceiverComponent documentation (#945)
 
 ### Changed
 
 - Bump scarb to v2.6.3 (#946)
+
+### Fixed
+
+- ERC721ReceiverComponent mixin embeddable implementation name (#945)
 
 ## 0.10.0 (2024-03-07)
 
@@ -58,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+
+### Removed
+
+- DualCase SRC5 (#882)
 
 ## 0.8.1 (2024-01-23)
 

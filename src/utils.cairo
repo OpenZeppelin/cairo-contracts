@@ -12,8 +12,8 @@ use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::PoseidonTrait;
 use starknet::ClassHash;
 use starknet::ContractAddress;
-use starknet::{SyscallResult, SyscallResultTrait};
 use starknet::call_contract_syscall;
+use starknet::{SyscallResult, SyscallResultTrait};
 use unwrap_and_cast::UnwrapAndCast;
 
 fn try_selector_with_fallback(

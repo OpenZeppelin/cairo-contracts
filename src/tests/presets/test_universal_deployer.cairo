@@ -1,5 +1,3 @@
-use core::pedersen::pedersen;
-use hash::{HashStateTrait, HashStateExTrait};
 use openzeppelin::presets::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin::presets::universal_deployer::UniversalDeployer;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
@@ -10,16 +8,11 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::universal_deployer::interface::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
-use poseidon::PoseidonTrait;
+use openzeppelin::utils::{calculate_address_from_zero, calculate_address_not_from_zero};
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::testing;
 
-
-// 2**251 - 256
-const L2_ADDRESS_UPPER_BOUND: felt252 =
-    0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
-const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 
 fn ERC20_CLASS_HASH() -> ClassHash {
     DualCaseERC20Mock::TEST_CLASS_HASH.try_into().unwrap()
@@ -48,9 +41,7 @@ fn test_deploy_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = calculate_contract_address_from_hash(
-        SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), Zeroable::zero()
-    );
+    let expected_addr = calculate_address_from_zero(SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA());
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
@@ -77,13 +68,9 @@ fn test_deploy_not_from_zero() {
     let from_zero = false;
     testing::set_contract_address(CALLER());
 
-    // Hash salt
-    let mut state = PoseidonTrait::new();
-    let hashed_salt = state.update_with(CALLER()).update_with(SALT).finalize();
-
     // Check address
-    let expected_addr = calculate_contract_address_from_hash(
-        hashed_salt, ERC20_CLASS_HASH(), ERC20_CALLDATA(), udc.contract_address
+    let expected_addr = calculate_address_not_from_zero(
+        SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), CALLER(), udc.contract_address
     );
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
@@ -106,46 +93,8 @@ fn test_deploy_not_from_zero() {
 }
 
 //
-// Helpers
+// Helper
 //
-
-fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
-    let data_len: usize = data.len();
-    let mut hash = 0;
-    loop {
-        match data.pop_front() {
-            Option::Some(elem) => { hash = pedersen(hash, *elem); },
-            Option::None => {
-                hash = pedersen(hash, data_len.into());
-                break;
-            },
-        };
-    };
-    hash
-}
-
-/// See https://github.com/starkware-libs/cairo/blob/v2.6.3/crates/cairo-lang-runner/src/casm_run/contract_address.rs#L38-L57
-fn calculate_contract_address_from_hash(
-    salt: felt252,
-    class_hash: ClassHash,
-    constructor_calldata: Span<felt252>,
-    deployer_address: ContractAddress
-) -> ContractAddress {
-    let constructor_calldata_hash = compute_hash_on_elements(constructor_calldata);
-
-    let mut data = array![];
-    data.append_serde(CONTRACT_ADDRESS_PREFIX);
-    data.append_serde(deployer_address);
-    data.append_serde(salt);
-    data.append_serde(class_hash);
-    data.append_serde(constructor_calldata_hash);
-    let raw_address = compute_hash_on_elements(data.span());
-
-    // Felt modulo is discouraged, hence the conversion to u256
-    let u256_addr: u256 = raw_address.into() % L2_ADDRESS_UPPER_BOUND.into();
-    let felt_addr = u256_addr.try_into().unwrap();
-    starknet::contract_address_try_from_felt252(felt_addr).unwrap()
-}
 
 fn assert_only_event_contract_deployed(
     contract: ContractAddress,

@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UDC preset contract (#919)
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
-- UDC docs (#)
-- Util functions to precompute addresses (#)
+- UDC docs (#954)
+- Util functions to precompute addresses (#954)
 
 ### Changed
 

@@ -12,6 +12,7 @@ use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
 use openzeppelin::token::erc20::extensions::erc20votes::{Delegation, OffchainMessageHash};
+use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::structs::checkpoint::{Trace, TraceTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
@@ -164,30 +165,30 @@ fn test_delegate() {
     // Delegate from zero
     state.delegate(OWNER());
 
-    assert_event_delegate_changed(OWNER(), ZERO(), OWNER());
-    assert_only_event_delegate_votes_changed(OWNER(), 0, SUPPLY);
+    assert_event_delegate_changed(ZERO(), OWNER(), ZERO(), OWNER());
+    assert_only_event_delegate_votes_changed(ZERO(), OWNER(), 0, SUPPLY);
     assert_eq!(state.get_votes(OWNER()), SUPPLY);
 
     // Delegate from non-zero to non-zero
     state.delegate(RECIPIENT());
 
-    assert_event_delegate_changed(OWNER(), OWNER(), RECIPIENT());
-    assert_event_delegate_votes_changed(OWNER(), SUPPLY, 0);
-    assert_only_event_delegate_votes_changed(RECIPIENT(), 0, SUPPLY);
+    assert_event_delegate_changed(ZERO(), OWNER(), OWNER(), RECIPIENT());
+    assert_event_delegate_votes_changed(ZERO(), OWNER(), SUPPLY, 0);
+    assert_only_event_delegate_votes_changed(ZERO(), RECIPIENT(), 0, SUPPLY);
     assert!(state.get_votes(OWNER()).is_zero());
     assert_eq!(state.get_votes(RECIPIENT()), SUPPLY);
 
     // Delegate to zero
     state.delegate(ZERO());
 
-    assert_event_delegate_changed(OWNER(), RECIPIENT(), ZERO());
-    assert_event_delegate_votes_changed(RECIPIENT(), SUPPLY, 0);
+    assert_event_delegate_changed(ZERO(), OWNER(), RECIPIENT(), ZERO());
+    assert_event_delegate_votes_changed(ZERO(), RECIPIENT(), SUPPLY, 0);
     assert!(state.get_votes(RECIPIENT()).is_zero());
 
     // Delegate from zero to zero
     state.delegate(ZERO());
 
-    assert_only_event_delegate_changed(OWNER(), ZERO(), ZERO());
+    assert_only_event_delegate_changed(ZERO(), OWNER(), ZERO(), ZERO());
 }
 
 #[test]
@@ -256,7 +257,7 @@ fn test_delegate_by_sig() {
     testing::set_block_timestamp('ts1');
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, signature);
 
-    assert_only_event_delegate_changed(delegator, ZERO(), delegatee);
+    assert_only_event_delegate_changed(ZERO(), delegator, ZERO(), delegatee);
 }
 
 #[test]
@@ -348,35 +349,55 @@ fn test_get_voting_units() {
 //
 
 fn assert_event_delegate_changed(
-    delegator: ContractAddress, from_delegate: ContractAddress, to_delegate: ContractAddress
+    contract: ContractAddress,
+    delegator: ContractAddress,
+    from_delegate: ContractAddress,
+    to_delegate: ContractAddress
 ) {
-    let event = utils::pop_log::<ERC20VotesComponent::Event>(ZERO()).unwrap();
+    let event = utils::pop_log::<ERC20VotesComponent::Event>(contract).unwrap();
     let expected = ERC20VotesComponent::Event::DelegateChanged(
         DelegateChanged { delegator, from_delegate, to_delegate }
     );
     assert!(event == expected);
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("DelegateChanged"));
+    indexed_keys.append_serde(delegator);
+    indexed_keys.append_serde(from_delegate);
+    indexed_keys.append_serde(to_delegate);
+    utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
 fn assert_only_event_delegate_changed(
-    delegator: ContractAddress, from_delegate: ContractAddress, to_delegate: ContractAddress
+    contract: ContractAddress,
+    delegator: ContractAddress,
+    from_delegate: ContractAddress,
+    to_delegate: ContractAddress
 ) {
-    assert_event_delegate_changed(delegator, from_delegate, to_delegate);
-    utils::assert_no_events_left(ZERO());
+    assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
+    utils::assert_no_events_left(contract);
 }
 
 fn assert_event_delegate_votes_changed(
-    delegate: ContractAddress, previous_votes: u256, new_votes: u256
+    contract: ContractAddress, delegate: ContractAddress, previous_votes: u256, new_votes: u256
 ) {
-    let event = utils::pop_log::<ERC20VotesComponent::Event>(ZERO()).unwrap();
+    let event = utils::pop_log::<ERC20VotesComponent::Event>(contract).unwrap();
     let expected = ERC20VotesComponent::Event::DelegateVotesChanged(
         DelegateVotesChanged { delegate, previous_votes, new_votes }
     );
     assert!(event == expected);
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("DelegateVotesChanged"));
+    indexed_keys.append_serde(delegate);
+    utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
 fn assert_only_event_delegate_votes_changed(
-    delegate: ContractAddress, previous_votes: u256, new_votes: u256
+    contract: ContractAddress, delegate: ContractAddress, previous_votes: u256, new_votes: u256
 ) {
-    assert_event_delegate_votes_changed(delegate, previous_votes, new_votes);
-    utils::assert_no_events_left(ZERO());
+    assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
+    utils::assert_no_events_left(contract);
 }

@@ -42,13 +42,17 @@ mod ERC20VotesComponent {
 
     #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateChanged {
+        #[key]
         delegator: ContractAddress,
+        #[key]
         from_delegate: ContractAddress,
+        #[key]
         to_delegate: ContractAddress
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateVotesChanged {
+        #[key]
         delegate: ContractAddress,
         previous_votes: u256,
         new_votes: u256

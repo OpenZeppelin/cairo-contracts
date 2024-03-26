@@ -137,15 +137,17 @@ fn test_transfer() {
 #[test]
 fn test_transfer_from() {
     let dispatcher = setup_dispatcher();
+    let dispatcher_address = dispatcher.contract_address;
+
     testing::set_contract_address(OWNER());
     dispatcher.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
+    utils::drop_event(dispatcher_address);
 
     testing::set_contract_address(SPENDER());
     assert!(dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(dispatcher_address, OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(dispatcher_address, OWNER(), RECIPIENT(), VALUE);
 
     assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
@@ -272,35 +274,36 @@ fn test_get_past_total_supply_future_lookup() {
 #[test]
 fn test_delegate() {
     let mut dispatcher = setup_dispatcher();
+    let dispatcher_address = dispatcher.contract_address;
     testing::set_contract_address(OWNER());
 
     // Delegate from zero
     dispatcher.delegate(OWNER());
 
-    assert_event_delegate_changed(OWNER(), ZERO(), OWNER());
-    assert_only_event_delegate_votes_changed(OWNER(), 0, SUPPLY);
+    assert_event_delegate_changed(dispatcher_address, OWNER(), ZERO(), OWNER());
+    assert_only_event_delegate_votes_changed(dispatcher_address, OWNER(), 0, SUPPLY);
     assert_eq!(dispatcher.get_votes(OWNER()), SUPPLY);
 
     // Delegate from non-zero to non-zero
     dispatcher.delegate(RECIPIENT());
 
-    assert_event_delegate_changed(OWNER(), OWNER(), RECIPIENT());
-    assert_event_delegate_votes_changed(OWNER(), SUPPLY, 0);
-    assert_only_event_delegate_votes_changed(RECIPIENT(), 0, SUPPLY);
+    assert_event_delegate_changed(dispatcher_address, OWNER(), OWNER(), RECIPIENT());
+    assert_event_delegate_votes_changed(dispatcher_address, OWNER(), SUPPLY, 0);
+    assert_only_event_delegate_votes_changed(dispatcher_address, RECIPIENT(), 0, SUPPLY);
     assert!(dispatcher.get_votes(OWNER()).is_zero());
     assert_eq!(dispatcher.get_votes(RECIPIENT()), SUPPLY);
 
     // Delegate to zero
     dispatcher.delegate(ZERO());
 
-    assert_event_delegate_changed(OWNER(), RECIPIENT(), ZERO());
-    assert_event_delegate_votes_changed(RECIPIENT(), SUPPLY, 0);
+    assert_event_delegate_changed(dispatcher_address, OWNER(), RECIPIENT(), ZERO());
+    assert_event_delegate_votes_changed(dispatcher_address, RECIPIENT(), SUPPLY, 0);
     assert!(dispatcher.get_votes(RECIPIENT()).is_zero());
 
     // Delegate from zero to zero
     dispatcher.delegate(ZERO());
 
-    assert_only_event_delegate_changed(OWNER(), ZERO(), ZERO());
+    assert_only_event_delegate_changed(dispatcher_address, OWNER(), ZERO(), ZERO());
 }
 
 #[test]

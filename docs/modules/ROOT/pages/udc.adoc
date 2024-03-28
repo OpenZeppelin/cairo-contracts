@@ -12,7 +12,6 @@ The Universal Deployer Contract (UDC) is a singleton smart contract that wraps t
 
 Since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a {contract-deployed} event.
 
-For more information see the {interface-proposal}.
 For details on the motivation and the decision making process, see the {udc-proposal}.
 
 == UDC contract address

@@ -8,7 +8,7 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::universal_deployer::interface::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
-use openzeppelin::utils::{calculate_address_from_zero, calculate_address_not_from_zero};
+use openzeppelin::utils::universal_deployer::{calculate_address_from_zero, calculate_address_not_from_zero};
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::testing;

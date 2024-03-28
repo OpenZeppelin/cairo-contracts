@@ -1,6 +1,6 @@
 mod interface;
 
-use core::pedersen::pedersen;
+use core::pedersen::PedersenTrait;
 use hash::{HashStateTrait, HashStateExTrait};
 use interface::IUniversalDeployer;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -38,13 +38,14 @@ fn calculate_address_not_from_zero(
 }
 
 fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
-    let data_len: usize = data.len();
+    let data_len = data.len();
+    let mut state = PedersenTrait::new(0);
     let mut hash = 0;
     loop {
         match data.pop_front() {
-            Option::Some(elem) => { hash = pedersen(hash, *elem); },
-            Option::None => {
-                hash = pedersen(hash, data_len.into());
+            Option::Some(elem) => { state = state.update_with(*elem); },
+            _ => {
+                hash = state.update_with(data_len).finalize();
                 break;
             },
         };

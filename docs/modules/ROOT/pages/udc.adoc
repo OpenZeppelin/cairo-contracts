@@ -5,20 +5,21 @@
 :interface-proposal: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[proposal for the standard deployer interface]
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :previous-udc-docs: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc[previous UDC docs]
+:deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
+:contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 
-And since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a `ContractDeployed` event.
+And since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a {contract-deployed} event.
 
 For more information see the {interface-proposal}.
 For details on the motivation and the decision making process, see the {udc-proposal}.
 
 == UDC contract address
 
-*This iteration of the UDC has not yet been deployed.*
+The UDC address is deployed at address `0xFIX-ME` in ADD-NETWORKS-WHEN-DEPLOYED.
 
-The first iteration of the UDC is deployed at address `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in Mainnet, Goerli testnet, Sepolia testnet, and starknet-devnet.
-See the {previous-udc-docs} for more information.
+NOTE: The first iteration of the UDC is deployed at address `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in Mainnet, Goerli testnet, Sepolia testnet, and starknet-devnet. See the {previous-udc-docs} for more information.
 
 == Interface
 
@@ -92,7 +93,7 @@ By making deployments dependent upon the origin address, users can reserve a who
 
 Only the owner of the origin address can deploy to those addresses.
 
-Achieving this type of deployment necessitates that the origin sets `from_zero` to `false` in the `deploy_contract` call.
+Achieving this type of deployment necessitates that the origin sets `from_zero` to `false` in the {deploy_contract} call.
 Under the hood, the function call leverages the origin's address and creates a hashchain by hashing the origin's address with the given salt.
 
 To deploy a unique contract address pass:
@@ -116,6 +117,8 @@ let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span())
 
 == Version changes
 
+:pedersen: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#pedersen_hash[Pedersen]
+:poseidon: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#poseidon_hash[Poseidon]
 :origin-dependent-deployments: xref:origin_dependent[origin-dependent deployments]
 :previous-udc-api: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc#api_specification[previous Universal Deployer API]
 
@@ -123,8 +126,8 @@ NOTE: See the {previous-udc-api} for the initial spec.
 
 The latest iteration of the UDC includes some notable changes to the API which include:
 
-* `deployContract` method is replaced with the snake_case `deploy_contract`.
-* Pedersen hashing algorithm is replaced with the Poseidon hashing algorithm for computing the salt on {origin-dependent-deployments}.
+* `deployContract` method is replaced with the snake_case {deploy_contract}.
+* {pedersen} hashing algorithm is replaced with the {poseidon} hashing algorithm for computing the salt on {origin-dependent-deployments}.
 * `unique` parameter is replaced with `from_zero` in both the `deploy_contract` method and `ContractDeployed` event.
 
 WARNING: Origin-dependent deployments previously meant that the `unique` argument would be `true`.
@@ -133,6 +136,9 @@ It's especially important to keep this in mind when dealing with `ContractDeploy
 
 == Precomputing contract addresses
 
+:calculate_address_from_zero: xref:/utilities.adoc#universal_deployer-calculate_contract_address_from_zero[calculate_address_from_zero]
+:calculate_address_not_from_zero: xref:/utilities.adoc#universal_deployer-calculate_contract_address_not_from_zero[calculate_address_not_from_zero]
+
 This library offers utility functions written in Cairo to precompute contract addresses.
-They include `calculate_address_from_zero` and `calculate_address_not_from_zero` to return origin-independent and origin-dependent contract addresses respectively.
+They include {calculate_address_from_zero} and {calculate_address_not_from_zero} to return origin-independent and origin-dependent contract addresses respectively.
 Check out the API docs for more information.

@@ -95,7 +95,7 @@ fn test_deploy_not_from_zero() {
 }
 
 //
-// Helper
+// Helpers
 //
 
 fn assert_only_event_contract_deployed(

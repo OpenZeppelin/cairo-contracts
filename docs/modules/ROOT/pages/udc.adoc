@@ -1,7 +1,7 @@
 = Universal Deployer Contract
 
 :deploy-syscall: xref:architecture_and_concepts:Smart_Contracts/system-calls-cairo1.adoc#deploy[deploy syscall]
-:deployer-interface: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[standard deployer interface]
+:deployer-interface: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[Standard Deployer Interface]
 :interface-proposal: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[proposal for the standard deployer interface]
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :previous-udc-docs: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc[previous UDC docs]
@@ -10,7 +10,7 @@
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 
-And since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a {contract-deployed} event.
+Since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a {contract-deployed} event.
 
 For more information see the {interface-proposal}.
 For details on the motivation and the decision making process, see the {udc-proposal}.
@@ -43,16 +43,7 @@ Here's an implementation example in Cairo:
 
 [,javascript]
 ----
-#[starknet::interface]
-trait IUniversalDeployer<TContractState> {
-    fn deploy_contract(
-        ref self: TContractState,
-        class_hash: ClassHash,
-        salt: felt252,
-        from_zero: bool,
-        calldata: Span<felt252>
-    ) -> ContractAddress;
-}
+use openzeppelin::utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
 const UDC_ADDRESS: felt252 = 0x123456789;
 
@@ -94,7 +85,7 @@ By making deployments dependent upon the origin address, users can reserve a who
 Only the owner of the origin address can deploy to those addresses.
 
 Achieving this type of deployment necessitates that the origin sets `from_zero` to `false` in the {deploy_contract} call.
-Under the hood, the function call leverages the origin's address and creates a hashchain by hashing the origin's address with the given salt.
+Under the hood, the function passes a modified salt to the `deploy_syscall`, which is the hash of the origin's address with the given salt.
 
 To deploy a unique contract address pass:
 

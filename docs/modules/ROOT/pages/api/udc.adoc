@@ -2,7 +2,7 @@
 
 = Universal Deployer
 
-Reference of the Universal Deployer Contract (UDC) interface and preset contract.
+Reference of the Universal Deployer Contract (UDC) interface and preset.
 
 == Core
 

@@ -1,8 +1,8 @@
 mod interface;
-use interface::IUniversalDeployer;
 
 use core::pedersen::pedersen;
 use hash::{HashStateTrait, HashStateExTrait};
+use interface::IUniversalDeployer;
 use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::PoseidonTrait;
 use starknet::ClassHash;

@@ -29,6 +29,7 @@ Module containing core utilities of the library.
 .Inner modules
 * xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
+* xref:#utils-universal_deployer[`++universal_deployer++`]
 --
 
 [#utils-Functions]
@@ -162,8 +163,76 @@ fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
 Note that the `append_serde` method is automatically available for arrays of felts, and it accepts any data structure
 that implements the `Serde` trait.
 
-== Test utilities
+[.contract]
+[[utils-universal_deployer]]
+=== `++universal_deployer++`
 
+:udc-doc: xref:/udc.adoc[Universal Deployer Contract]
+
+```javascript
+use openzeppelin::utils::universal_deployer;
+```
+Module containing the Universal Deployer interface and utility functions for calculating contract addresses through the {udc-doc} (UDC).
+
+[.contract-index]
+.Members
+--
+.Interface
+* xref:#universal_deployer-IUniversalDeployer[`++IUniversalDeployer++`]
+
+.Functions
+* xref:universal_deployer-calculate_contract_address_from_zero[`++calculate_contract_address_from_zero++`]
+* xref:universal_deployer-calculate_contract_address_not_from_zero[`++calculate_contract_address_not_from_zero++`]
+* xref:universal_deployer-compute_hash_on_elements[`++compute_hash_on_elements++`]
+* xref:universal_deployer-_calculate_contract_address_from_hash[`++_calculate_contract_address_from_hash++`]
+--
+
+[#universal_deployer-Interface]
+==== Interface
+
+:udc-api: xref:/api/udc.adoc[Universal Deployer API]
+:cairo-calculate-fn: link:https://github.com/starkware-libs/cairo/blob/v2.6.3/crates/cairo-lang-runner/src/casm_run/contract_address.rs#L38-L57[calculate_contract_address]
+
+[.contract-item]
+[[universal_deployer-IUniversalDeployer]]
+==== `[.contract-item-name]#++IUniversalDeployer++#` [.item-kind]#interface#
+
+Interface for the Universal Deployer Contract (UDC).
+
+See the {udc-api} page for the specification.
+
+[#universal_deployer-Functions]
+==== Functions
+
+:udc-deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[UniversalDeployer::deploy_contract]
+
+[.contract-item]
+[[universal_deployer-calculate_contract_address_from_zero]]
+==== `[.contract-item-name]#++calculate_contract_address_from_zero++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>) → ContractAddress++` [.item-kind]#function#
+
+Returns the calculated address for origin-independent deployments (when `from_zero` is `true` in {udc-deploy_contract}).
+
+[.contract-item]
+[[universal_deployer-calculate_contract_address_not_from_zero]]
+==== `[.contract-item-name]#++calculate_contract_address_not_from_zero++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, caller_address: ContractAddress, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+
+Returns the calculated address for origin-dependent deployments (when the `from_zero` argument is `false` in {udc-deploy_contract}).
+
+This function hashes the `salt` with `caller_address` and passes the hashed salt to xref:universal_deployer-_calculate_contract_address_from_hash[_calculate_contract_address_from_hash].
+
+[.contract-item]
+[[universal_deployer-compute_hash_on_elements]]
+==== `[.contract-item-name]#++compute_hash_on_elements++#++(mut data: Span<felt252>) → felt252++` [.item-kind]#function#
+
+Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
+
+[.contract-item]
+[[universal_deployer-_calculate_contract_address_from_hash]]
+==== `[.contract-item-name]#++_calculate_contract_address_from_hash++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+
+Creates a Pedersen hash chain that mirrors `{cairo-calculate-fn}` written in Rust.
+
+== Test utilities
 
 [.contract]
 [[testutils]]

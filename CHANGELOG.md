@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SNIP12 utilities for on-chain typed messages hash generation (#935)
+- Nonces component utility (#935)
 - Presets Usage guide (#949)
 - UDC preset contract (#919)
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)

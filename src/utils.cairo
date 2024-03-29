@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.10.0 (utils.cairo)
 
+mod cryptography;
 mod selectors;
 mod serde;
 mod universal_deployer;
 mod unwrap_and_cast;
 
+use cryptography::nonces;
+use cryptography::snip12;
 use starknet::ContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;

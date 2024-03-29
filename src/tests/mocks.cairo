@@ -8,6 +8,7 @@ mod erc721_receiver_mocks;
 mod eth_account_mocks;
 mod initializable_mocks;
 mod non_implementing_mock;
+mod nonces_mocks;
 mod ownable_mocks;
 mod pausable_mocks;
 mod reentrancy_mocks;

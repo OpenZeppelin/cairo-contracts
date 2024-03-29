@@ -13,48 +13,10 @@ const L2_ADDRESS_UPPER_BOUND: felt252 =
     0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
 const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 
-/// Return the contract address for an origin-independent deployment.
-fn calculate_address_from_zero(
-    salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
-) -> ContractAddress {
-    _calculate_contract_address_from_hash(salt, class_hash, constructor_calldata, Zeroable::zero())
-}
-
-/// Return the contract address for an origin-dependent deployment.
-fn calculate_address_not_from_zero(
-    salt: felt252,
-    class_hash: ClassHash,
-    constructor_calldata: Span<felt252>,
-    caller_address: ContractAddress,
-    deployer_address: ContractAddress
-) -> ContractAddress {
-    // Hash salt
-    let mut state = PoseidonTrait::new();
-    let hashed_salt = state.update_with(caller_address).update_with(salt).finalize();
-
-    _calculate_contract_address_from_hash(
-        hashed_salt, class_hash, constructor_calldata, deployer_address
-    )
-}
-
-fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
-    let data_len = data.len();
-    let mut state = PedersenTrait::new(0);
-    let mut hash = 0;
-    loop {
-        match data.pop_front() {
-            Option::Some(elem) => { state = state.update_with(*elem); },
-            _ => {
-                hash = state.update_with(data_len).finalize();
-                break;
-            },
-        };
-    };
-    hash
-}
-
-/// See https://github.com/starkware-libs/cairo/blob/v2.6.3/crates/cairo-lang-runner/src/casm_run/contract_address.rs#L38-L57
-fn _calculate_contract_address_from_hash(
+/// Return the contract address from a `deploy_syscall`.
+/// `deployer_address` should be the zero address if the deployment is origin-independent (deployed from zero).
+/// For more information, see https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
+fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
@@ -76,3 +38,42 @@ fn _calculate_contract_address_from_hash(
     starknet::contract_address_try_from_felt252(felt_addr).unwrap()
 }
 
+/// Return the contract address for an origin-independent deployment from the UDC.
+fn udc_calculate_contract_address_from_zero(
+    salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
+) -> ContractAddress {
+    calculate_contract_address_from_deploy_syscall(salt, class_hash, constructor_calldata, Zeroable::zero())
+}
+
+/// Return the contract address for an origin-dependent deployment from the UDC.
+fn udc_calculate_contract_address_not_from_zero(
+    salt: felt252,
+    class_hash: ClassHash,
+    constructor_calldata: Span<felt252>,
+    caller_address: ContractAddress,
+    deployer_address: ContractAddress
+) -> ContractAddress {
+    // Hash salt
+    let mut state = PoseidonTrait::new();
+    let hashed_salt = state.update_with(caller_address).update_with(salt).finalize();
+
+    calculate_contract_address_from_deploy_syscall(
+        hashed_salt, class_hash, constructor_calldata, deployer_address
+    )
+}
+
+fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
+    let data_len = data.len();
+    let mut state = PedersenTrait::new(0);
+    let mut hash = 0;
+    loop {
+        match data.pop_front() {
+            Option::Some(elem) => { state = state.update_with(*elem); },
+            _ => {
+                hash = state.update_with(data_len).finalize();
+                break;
+            },
+        };
+    };
+    hash
+}

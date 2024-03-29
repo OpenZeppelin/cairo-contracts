@@ -9,7 +9,7 @@ use openzeppelin::utils::universal_deployer::interface::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
 use openzeppelin::utils::universal_deployer::{
-    calculate_address_from_zero, calculate_address_not_from_zero
+    udc_calculate_contract_address_from_zero, udc_calculate_contract_address_not_from_zero
 };
 use starknet::ClassHash;
 use starknet::ContractAddress;
@@ -43,7 +43,7 @@ fn test_deploy_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = calculate_address_from_zero(SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA());
+    let expected_addr = udc_calculate_contract_address_from_zero(SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA());
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 
@@ -71,7 +71,7 @@ fn test_deploy_not_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = calculate_address_not_from_zero(
+    let expected_addr = udc_calculate_contract_address_not_from_zero(
         SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), CALLER(), udc.contract_address
     );
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());

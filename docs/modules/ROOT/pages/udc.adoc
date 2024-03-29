@@ -35,7 +35,9 @@ trait IUniversalDeployer {
 
 == Deploying a contract with the UDC
 
-First, declare the target contract (if it's not already declared).
+:declare: link:https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction[declare]
+
+First, {declare} the target contract (if it's not already declared).
 Next, call the UDC's `deploy_contract` method.
 Here's an implementation example in Cairo:
 

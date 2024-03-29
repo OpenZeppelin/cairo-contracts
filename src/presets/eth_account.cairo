@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.10.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.11.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///

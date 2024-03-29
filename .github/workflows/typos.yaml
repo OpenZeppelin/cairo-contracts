@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   check-for-typos:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4

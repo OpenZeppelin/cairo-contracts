@@ -7,6 +7,8 @@
 ** xref:presets.adoc[Presets]
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
 ** xref:guides/deployment.adoc[Counterfactual Deployments]
+** xref:guides/snip12.adoc[SNIP12 and Typed Messages]
+// ** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
 

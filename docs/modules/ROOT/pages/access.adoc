@@ -502,7 +502,7 @@ trait IAccessControl {
     /// Returns whether the account has the role or not.
     fn has_role(role: felt252, account: ContractAddress) -> bool;
 
-    /// Returns the adming role that controls `role`.
+    /// Returns the admin role that controls `role`.
     fn get_role_admin(role: felt252) -> felt252;
 
     /// Grants `role` to `account`.

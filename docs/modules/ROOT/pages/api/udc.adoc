@@ -80,7 +80,8 @@ include::../utils/_class_hashes.adoc[]
 
 Deploys a contract through the Universal Deployer Contract.
 
-When `from_zero` is `false`, the deployment type is {origin-dependent}.
+When `from_zero` is `false`, `salt` is hashed with the caller address and the modified salt is passed to the inner `deploy_syscall`. This type of deployment is {origin-dependent}.
+
 When `from_zero` is `true`, the deployment type is {origin-independent}.
 
 Emits an <<IUniversalDeployer-ContractDeployed,ContractDeployed>> event.

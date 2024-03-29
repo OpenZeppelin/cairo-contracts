@@ -78,7 +78,7 @@ mod ERC721ReceiverComponent {
         }
     }
 
-    #[embeddable_as(ERC721ReceiverAMixinmpl)]
+    #[embeddable_as(ERC721ReceiverMixinImpl)]
     impl ERC721ReceiverMixin<
         TContractState,
         +HasComponent<TContractState>,

@@ -3,7 +3,6 @@
 :deploy-syscall: xref:architecture_and_concepts:Smart_Contracts/system-calls-cairo1.adoc#deploy[deploy syscall]
 :deployer-interface: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[Standard Deployer Interface]
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
-:previous-udc-docs: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc[previous UDC docs]
 :deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
 :contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
@@ -16,8 +15,6 @@ For details on the motivation and the decision making process, see the {udc-prop
 == UDC contract address
 
 The UDC address is deployed at address `0xFIX-ME` in ADD-NETWORKS-WHEN-DEPLOYED.
-
-NOTE: The first iteration of the UDC is deployed at address `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in Mainnet, Goerli testnet, Sepolia testnet, and starknet-devnet. See the {previous-udc-docs} for more information.
 
 == Interface
 

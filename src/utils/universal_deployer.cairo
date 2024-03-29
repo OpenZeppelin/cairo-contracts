@@ -42,7 +42,9 @@ fn calculate_contract_address_from_deploy_syscall(
 fn udc_calculate_contract_address_from_zero(
     salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
 ) -> ContractAddress {
-    calculate_contract_address_from_deploy_syscall(salt, class_hash, constructor_calldata, Zeroable::zero())
+    calculate_contract_address_from_deploy_syscall(
+        salt, class_hash, constructor_calldata, Zeroable::zero()
+    )
 }
 
 /// Return the contract address for an origin-dependent deployment from the UDC.

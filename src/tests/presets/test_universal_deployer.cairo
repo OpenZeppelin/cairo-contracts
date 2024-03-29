@@ -43,7 +43,9 @@ fn test_deploy_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = udc_calculate_contract_address_from_zero(SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA());
+    let expected_addr = udc_calculate_contract_address_from_zero(
+        SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA()
+    );
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
     assert_eq!(expected_addr, deployed_addr);
 

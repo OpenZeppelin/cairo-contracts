@@ -5,7 +5,7 @@ use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, 
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::universal_deployer::interface::{
+use openzeppelin::utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
 use openzeppelin::utils::universal_deployer::{

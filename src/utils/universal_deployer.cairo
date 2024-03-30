@@ -38,7 +38,24 @@ fn calculate_contract_address_from_deploy_syscall(
     starknet::contract_address_try_from_felt252(felt_addr).unwrap()
 }
 
+fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
+    let data_len = data.len();
+    let mut state = PedersenTrait::new(0);
+    let mut hash = 0;
+    loop {
+        match data.pop_front() {
+            Option::Some(elem) => { state = state.update_with(*elem); },
+            _ => {
+                hash = state.update_with(data_len).finalize();
+                break;
+            },
+        };
+    };
+    hash
+}
+
 /// Return the contract address for an origin-independent deployment from the UDC.
+/// This follows the same logic as `deploy_syscall` when deploying from zero.
 fn udc_calculate_contract_address_from_zero(
     salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
 ) -> ContractAddress {
@@ -62,20 +79,4 @@ fn udc_calculate_contract_address_not_from_zero(
     calculate_contract_address_from_deploy_syscall(
         hashed_salt, class_hash, constructor_calldata, deployer_address
     )
-}
-
-fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
-    let data_len = data.len();
-    let mut state = PedersenTrait::new(0);
-    let mut hash = 0;
-    loop {
-        match data.pop_front() {
-            Option::Some(elem) => { state = state.update_with(*elem); },
-            _ => {
-                hash = state.update_with(data_len).finalize();
-                break;
-            },
-        };
-    };
-    hash
 }

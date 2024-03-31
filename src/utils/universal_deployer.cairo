@@ -13,7 +13,7 @@ const L2_ADDRESS_UPPER_BOUND: felt252 =
     0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
 const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 
-/// Return the contract address from a `deploy_syscall`.
+/// Returns the contract address from a `deploy_syscall`.
 /// `deployer_address` should be the zero address if the deployment is origin-independent (deployed from zero).
 /// For more information, see https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
 fn calculate_contract_address_from_deploy_syscall(
@@ -54,7 +54,7 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     hash
 }
 
-/// Return the contract address for an origin-independent deployment from the UDC.
+/// Returns the contract address for an origin-independent deployment from the UDC.
 /// This follows the same logic as `deploy_syscall` when deploying from zero.
 fn udc_calculate_contract_address_from_zero(
     salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
@@ -64,7 +64,8 @@ fn udc_calculate_contract_address_from_zero(
     )
 }
 
-/// Return the contract address for an origin-dependent deployment from the UDC.
+/// Returns the contract address for an origin-dependent deployment from the UDC.
+/// The inner `deploy_syscall` receives the hash of `salt` and `caller_address` as the salt argument.
 fn udc_calculate_contract_address_not_from_zero(
     salt: felt252,
     class_hash: ClassHash,

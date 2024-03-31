@@ -4,13 +4,13 @@ use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin::utils::deployments::{
+    udc_calculate_contract_address_from_zero, udc_calculate_contract_address_not_from_zero
+};
 use openzeppelin::utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::deployments::{
-    udc_calculate_contract_address_from_zero, udc_calculate_contract_address_not_from_zero
-};
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::testing;

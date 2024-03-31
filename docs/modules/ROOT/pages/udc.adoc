@@ -125,9 +125,9 @@ It's especially important to keep this in mind when dealing with `ContractDeploy
 
 == Precomputing contract addresses
 
-:calculate_address_from_zero: xref:/utilities.adoc#universal_deployer-calculate_contract_address_from_zero[calculate_address_from_zero]
-:calculate_address_not_from_zero: xref:/utilities.adoc#universal_deployer-calculate_contract_address_not_from_zero[calculate_address_not_from_zero]
+:calculate_contract_address_from_deploy_syscall: xref:/utilities.adoc#universal_deployer-calculate_contract_address_from_deploy_syscall[calculate_contract_address_from_deploy_syscall]
+:utils-api: xref:/utilities.adoc#universal_deployer[Utilities API]
 
 This library offers utility functions written in Cairo to precompute contract addresses.
-They include {calculate_address_from_zero} and {calculate_address_not_from_zero} to return origin-independent and origin-dependent contract addresses respectively.
-Check out the API docs for more information.
+They include the generic {calculate_contract_address_from_deploy_syscall} as well as UDC-specific calculations.
+Check out the {utils-api} for more information.

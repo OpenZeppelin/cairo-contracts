@@ -114,6 +114,12 @@ See xref:#selectors[`openzeppelin::utils::selectors`].
 
 See xref:#serde[`openzeppelin::utils::serde`].
 
+[.contract-item]
+[[utils-universal_deployer]]
+==== `[.contract-item-name]#++universal_deployer++#` [.item-kind]#module#
+
+See xref:#universal_deployer[`openzeppelin::utils::universal_deployer`].
+
 [.contract]
 [[cryptography]]
 === `++cryptography++`
@@ -206,6 +212,61 @@ fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
 
 Note that the `append_serde` method is automatically available for arrays of felts, and it accepts any data structure
 that implements the `Serde` trait.
+
+[.contract]
+[[universal_deployer]]
+=== `++universal_deployer++`
+
+:deploy_syscall: link:thing.com[deploy_syscall]
+:udc-doc: xref:/udc.adoc[Universal Deployer Contract]
+
+```javascript
+use openzeppelin::utils::universal_deployer;
+```
+
+Module containing utility functions for calculating contract addresses through {deploy_syscall} and the {udc-doc} (UDC).
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:universal_deployer-calculate_contract_address_from_deploy_syscall[`++calculate_contract_address_from_deploy_syscall(salt, class_hash, constructor_calldata, deployer_address)++`]
+* xref:universal_deployer-compute_hash_on_elements[`++compute_hash_on_elements(data)++`]
+* xref:universal_deployer-udc_calculate_contract_address_from_zero[`++udc_calculate_contract_address_from_zero(salt, class_hash, constructor_calldata)++`]
+* xref:universal_deployer-udc_calculate_contract_address_not_from_zero[`++udc_calculate_contract_address_not_from_zero(salt, class_hash, constructor_calldata, caller_address, deployer_address)++`]
+--
+
+[#universal_deployer-Functions]
+==== Functions
+
+:deploy_syscall: link:thing.com[deploy_syscall]
+:udc-deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[UniversalDeployer::deploy_contract]
+
+[.contract-item]
+[[universal_deployer-calculate_contract_address_from_deploy_syscall]]
+==== `[.contract-item-name]#++calculate_contract_address_from_deploy_syscall++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+
+Returns the contract address when passing the given arguments to {deploy_syscall}.
+
+[.contract-item]
+[[universal_deployer-compute_hash_on_elements]]
+==== `[.contract-item-name]#++compute_hash_on_elements++#++(mut data: Span<felt252>) → felt252++` [.item-kind]#function#
+
+Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
+
+[.contract-item]
+[[universal_deployer-udc_calculate_contract_address_from_zero]]
+==== `[.contract-item-name]#++udc_calculate_contract_address_from_zero++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>) → ContractAddress++` [.item-kind]#function#
+
+Returns the calculated address for origin-independent deployments (when `from_zero` is `true` in {udc-deploy_contract}).
+
+[.contract-item]
+[[universal_deployer-udc_calculate_contract_address_not_from_zero]]
+==== `[.contract-item-name]#++udc_calculate_contract_address_not_from_zero++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, caller_address: ContractAddress, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+
+Returns the calculated address for origin-dependent deployments (when the `from_zero` argument is `false` in {udc-deploy_contract}).
+
+This function hashes the `salt` with `caller_address` and passes the hashed salt to to the inner `deploy_syscall` as the salt argument.
 
 == Cryptography
 

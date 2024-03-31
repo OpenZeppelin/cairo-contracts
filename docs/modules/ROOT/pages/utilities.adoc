@@ -239,7 +239,7 @@ Module containing utility functions for calculating contract addresses through {
 [#universal_deployer-Functions]
 ==== Functions
 
-:deploy_syscall: link:thing.com[deploy_syscall]
+:deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 :udc-deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[UniversalDeployer::deploy_contract]
 
 [.contract-item]
@@ -266,7 +266,7 @@ Returns the calculated address for origin-independent deployments (when `from_ze
 
 Returns the calculated address for origin-dependent deployments (when the `from_zero` argument is `false` in {udc-deploy_contract}).
 
-This function hashes the `salt` with `caller_address` and passes the hashed salt to to the inner `deploy_syscall` as the salt argument.
+This function hashes the `salt` with `caller_address` and passes the hashed salt to to the inner {deploy_syscall} as the `contract_address_salt` argument.
 
 == Cryptography
 

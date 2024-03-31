@@ -11,7 +11,7 @@ Reference of the Universal Deployer Contract (UDC) interface and preset.
 === `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/utils/universal_deployer/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::utils::universal_deployer::interface::IUniversalDeployer;
+use openzeppelin::utils::interfaces::IUniversalDeployer;
 ```
 
 [.contract-index]

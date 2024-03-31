@@ -42,7 +42,7 @@ Here's an implementation example in Cairo:
 ----
 use openzeppelin::utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
-const UDC_ADDRESS: felt252 = 0x123456789;
+const UDC_ADDRESS: felt252 = 0xFIX-ME;
 
 fn deploy() -> ContractAddress {
     let dispatcher = IUniversalDeployerDispatcher {
@@ -109,6 +109,7 @@ let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span())
 :poseidon: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#poseidon_hash[Poseidon]
 :origin-dependent-deployments: xref:origin_dependent[origin-dependent deployments]
 :previous-udc-api: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc#api_specification[previous Universal Deployer API]
+:contract-deployed-event: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
 NOTE: See the {previous-udc-api} for the initial spec.
 
@@ -116,7 +117,7 @@ The latest iteration of the UDC includes some notable changes to the API which i
 
 * `deployContract` method is replaced with the snake_case {deploy_contract}.
 * {pedersen} hashing algorithm is replaced with the {poseidon} hashing algorithm for computing the salt on {origin-dependent-deployments}.
-* `unique` parameter is replaced with `from_zero` in both the `deploy_contract` method and `ContractDeployed` event.
+* `unique` parameter is replaced with `from_zero` in both the `deploy_contract` method and {contract-deployed-event} event.
 
 WARNING: Origin-dependent deployments previously meant that the `unique` argument would be `true`.
 Origin-dependent deployments from the new UDC iteration, however, requires that `from_zero` is `false`.

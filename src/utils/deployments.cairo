@@ -38,6 +38,7 @@ fn calculate_contract_address_from_deploy_syscall(
     starknet::contract_address_try_from_felt252(felt_addr).unwrap()
 }
 
+/// Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
 fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     let data_len = data.len();
     let mut state = PedersenTrait::new(0);

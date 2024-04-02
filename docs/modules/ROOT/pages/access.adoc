@@ -1,4 +1,4 @@
-:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/access/ownable/ownable.cairo[Ownable]
+:ownable-cairo: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/access/ownable/ownable.cairo[Ownable]
 :sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
 
 = Access
@@ -502,7 +502,7 @@ trait IAccessControl {
     /// Returns whether the account has the role or not.
     fn has_role(role: felt252, account: ContractAddress) -> bool;
 
-    /// Returns the adming role that controls `role`.
+    /// Returns the admin role that controls `role`.
     fn get_role_admin(role: felt252) -> felt252;
 
     /// Grants `role` to `account`.

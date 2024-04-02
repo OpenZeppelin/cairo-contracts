@@ -11,9 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - before_update and after_update hooks to ERC20Component (#951)
+- INSUFFICIENT_BALANCE and INSUFFICIENT_ALLOWANCE errors to ERC20Component (#951)
 - ERC20Votes component and preset (#951)
+
+## 0.11.0 (2024-03-29)
+
+### Added
+
 - SNIP12 utilities for on-chain typed messages hash generation (#935)
 - Nonces component utility (#935)
+- Presets Usage guide (#949)
+- UDC preset contract (#919)
+- ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
 
 ### Changed
@@ -23,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - ERC721ReceiverComponent mixin embeddable implementation name (#945)
+
+### Removed
+
+- DualCase SRC5 (#882, #952)
 
 ## 0.10.0 (2024-03-07)
 
@@ -66,10 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
-
-### Removed
-
-- DualCase SRC5 (#882)
 
 ## 0.8.1 (2024-01-23)
 

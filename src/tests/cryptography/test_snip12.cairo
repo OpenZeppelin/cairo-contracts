@@ -2,8 +2,7 @@ use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
 use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT};
 use openzeppelin::utils::cryptography::snip12::{
-    STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHash,
-    OffchainMessageHashImpl, SNIP12Metadata
+    STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHashImpl, SNIP12Metadata
 };
 use poseidon::PoseidonTrait;
 use poseidon::poseidon_hash_span;

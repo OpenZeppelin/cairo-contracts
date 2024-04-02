@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.10.0 (utils/structs/storage_array.cairo)
+// OpenZeppelin Contracts for Cairo v0.11.0 (utils/structs/storage_array.cairo)
 
 use array::ArrayTrait;
 use poseidon::poseidon_hash_span;

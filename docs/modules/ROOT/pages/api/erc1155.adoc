@@ -16,7 +16,7 @@ TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -126,7 +126,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -156,7 +156,7 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 [.contract]
 [[ERC1155Component]]
-=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc1155/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -166,6 +166,17 @@ use openzeppelin::token::erc1155::ERC1155Component;
 ERC1155 component implementing <<IERC1155,IERC1155>> and <<IERC1155MetadataURI,IERC1155MetadataURI>>.
 
 NOTE: {src5-component-required-note}
+
+[.contract-index#ERC1155Component-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
+--
+.ERC1155MixinImpl
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ER1155CamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
+--
 
 [.contract-index#ERC1155Component-Embeddable-Impls]
 .Embeddable Implementations
@@ -496,7 +507,7 @@ See <<IERC1155-URI,IERC1155::URI>>.
 
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -536,7 +547,7 @@ via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by 
 
 [.contract]
 [[ERC1155ReceiverComponent]]
-=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/token/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```javascript
@@ -546,6 +557,15 @@ use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
 ERC1155Receiver component implementing <<IERC1155Receiver,IERC1155Receiver>>.
 
 NOTE: {src5-component-required-note}
+
+[.contract-index#ERC1155ReceiverComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+--
+.ERC1155MixinImpl
+* xref:#ERC1155ReceiverComponent-Embeddable-Impls-ERC1155ReceiverImpl[`++ERC1155ReceiverImpl++`]
+* xref:#ERC1155ReceiverComponent-Embeddable-Impls-ERC1155ReceiverCamelImpl[`++ERC1155ReceiverCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
+--
 
 [.contract-index#ERC1155ReceiverComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -570,25 +590,25 @@ NOTE: {src5-component-required-note}
 
 [.contract-item]
 [[ERC1155ReceiverComponent-on_erc1155_received]]
-==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc1155_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC1155Receiver` interface ID.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-on_erc1155_batch_received]]
-==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++on_erc1155_batch_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 Returns the `IERC1155Receiver` interface ID.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-onERC1155Received]]
-==== `[.contract-item-name]#++onERC1155Received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++onERC1155Received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, tokenId: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 See <<ERC1155ReceiverComponent-on_erc1155_received,ERC1155ReceiverComponent::on_erc1155_received>>.
 
 [.contract-item]
 [[ERC1155ReceiverComponent-onERC1155BatchReceived]]
-==== `[.contract-item-name]#++onERC1155BatchReceived++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++onERC1155BatchReceived++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, tokenIds: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
 
 See <<ERC1155ReceiverComponent-on_erc1155_batch_received,ERC1155ReceiverComponent::on_erc1155_batch_received>>.
 
@@ -604,7 +624,7 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 
 [.contract]
 [[ERC1155]]
-=== `++ERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC1155;
@@ -631,13 +651,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC1155Component
 
-* xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
-* xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
-* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ERC1155CamelImpl++`]
-
-.SRC5Component
-
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
+* xref:#ERC1155Component-Embeddable-Mixin-Impl[`++ERC1155MixinImpl++`]
 --
 
 [#ERC1155-constructor-section]

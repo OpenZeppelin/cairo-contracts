@@ -60,6 +60,8 @@ mod ERC20Component {
         const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
         const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
         const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
+        const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
+        const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
     }
 
     //
@@ -309,6 +311,7 @@ mod ERC20Component {
         ) {
             let current_allowance = self.ERC20_allowances.read((owner, spender));
             if current_allowance != BoundedInt::max() {
+                assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
                 self._approve(owner, spender, current_allowance - amount);
             }
         }
@@ -327,13 +330,17 @@ mod ERC20Component {
             if (from == zero_address) {
                 self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
             } else {
-                self.ERC20_balances.write(from, self.ERC20_balances.read(from) - amount);
+                let from_balance = self.ERC20_balances.read(from);
+                assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);
+                self.ERC20_balances.write(from, from_balance - amount);
             }
 
             if (to == zero_address) {
-                self.ERC20_total_supply.write(self.ERC20_total_supply.read() - amount);
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply - amount);
             } else {
-                self.ERC20_balances.write(to, self.ERC20_balances.read(to) + amount);
+                let to_balance = self.ERC20_balances.read(to);
+                self.ERC20_balances.write(to, to_balance + amount);
             }
 
             self.emit(Transfer { from, to, value: amount });

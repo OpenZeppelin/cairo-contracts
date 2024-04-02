@@ -170,7 +170,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: Insufficient allowance', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_greater_than_allowance() {
     let dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -193,7 +193,7 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: Insufficient allowance', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let dispatcher = setup_dispatcher();
     dispatcher.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);

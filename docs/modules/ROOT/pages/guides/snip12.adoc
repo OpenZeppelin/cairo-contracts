@@ -12,8 +12,8 @@ is then to ensure that the received message was indeed signed by the expected si
 
 OpenZeppelin Contracts for Cairo provides a set of utilities to make the implementation of this standard
 as easy as possible, and in this guide we will walk you through the process of generating the hashes of typed messages
-using these utilties for on-chain signature verification. For that, let's build an example with a custom {erc20}
-contract adding an extra `transfer_with_signature` method.
+using these utilities for on-chain signature verification. For that, let's build an example with a custom {erc20} contract
+adding an extra `transfer_with_signature` method.
 
 WARNING: This is an educational example, and it is not intended to be used in production environments.
 

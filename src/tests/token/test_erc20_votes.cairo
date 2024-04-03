@@ -237,9 +237,6 @@ fn test_delegate_by_sig() {
     let account = setup_account();
     testing::set_chain_id('SN_TEST');
 
-    let f: felt252 = account.into();
-    println!("Account: {}", f);
-
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = account;
@@ -258,6 +255,7 @@ fn test_delegate_by_sig() {
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, signature);
 
     assert_only_event_delegate_changed(ZERO(), delegator, ZERO(), delegatee);
+    assert_eq!(state.delegates(account), delegatee);
 }
 
 #[test]

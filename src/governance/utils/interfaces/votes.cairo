@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-/// Common interface for {Votes}-enabled contracts.
+/// Common interface for Votes-enabled contracts.
 #[starknet::interface]
 trait IVotes<TState> {
     /// Returns the current amount of votes that `account` has.

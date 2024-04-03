@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.11.0 (utils/structs/storage_array.cairo)
 
-use array::ArrayTrait;
-use poseidon::poseidon_hash_span;
+use hash::{HashStateExTrait, HashStateTrait};
+use poseidon::PoseidonTrait;
 use starknet::{
     StorageBaseAddress, Store, SyscallResultTrait, SyscallResult, storage_address_from_base,
     storage_base_address_from_felt252, storage_read_syscall, storage_write_syscall
@@ -62,9 +62,9 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
     fn read_at(self: @StorageArray<T>, index: usize) -> T {
         // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(*self.base).into();
-        let element_address = poseidon_hash_span(
-            array![storage_address_felt + index.into()].span()
-        );
+
+        let mut state = PoseidonTrait::new();
+        let element_address = state.update_with(storage_address_felt + index.into()).finalize();
 
         // Read the element from storage
         TStore::read(*self.address_domain, storage_base_address_from_felt252(element_address))
@@ -74,9 +74,9 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
     fn write_at(ref self: StorageArray<T>, index: usize, value: T) {
         // Get the storage address of the element
         let storage_address_felt: felt252 = storage_address_from_base(self.base).into();
-        let element_address = poseidon_hash_span(
-            array![storage_address_felt + index.into()].span()
-        );
+
+        let mut state = PoseidonTrait::new();
+        let element_address = state.update_with(storage_address_felt + index.into()).finalize();
 
         // Write the element to storage
         TStore::write(

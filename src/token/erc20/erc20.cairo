@@ -328,7 +328,8 @@ mod ERC20Component {
 
             let zero_address = Zeroable::zero();
             if (from == zero_address) {
-                self.ERC20_total_supply.write(self.ERC20_total_supply.read() + amount);
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply + amount);
             } else {
                 let from_balance = self.ERC20_balances.read(from);
                 assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);

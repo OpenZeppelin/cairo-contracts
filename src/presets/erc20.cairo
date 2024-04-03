@@ -31,7 +31,7 @@ mod ERC20 {
         ERC20Event: ERC20Component::Event
     }
 
-    impl ERC20VotesHooksImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
+    impl ERC20HooksImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
         fn before_update(
             ref self: ERC20Component::ComponentState<TContractState>,
             from: ContractAddress,

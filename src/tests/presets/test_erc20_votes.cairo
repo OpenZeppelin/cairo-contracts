@@ -15,7 +15,6 @@ use openzeppelin::token::erc20::interface::{ERC20VotesABIDispatcher, ERC20VotesA
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::structs::checkpoint::Checkpoint;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 use starknet::testing;
 
 //

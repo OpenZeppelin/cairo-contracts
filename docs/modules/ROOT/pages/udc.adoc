@@ -14,7 +14,7 @@ For details on the motivation and the decision making process, see the {udc-prop
 
 == UDC contract address
 
-The UDC address is deployed at address `0xFIX-ME` in ADD-NETWORKS-WHEN-DEPLOYED.
+The UDC address is deployed at address `0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221` in Mainnet and Sepolia testnet.
 
 == Interface
 
@@ -42,7 +42,7 @@ Here's an implementation example in Cairo:
 ----
 use openzeppelin::utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
-const UDC_ADDRESS: felt252 = 0xFIX-ME;
+const UDC_ADDRESS: felt252 = 0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221;
 
 fn deploy() -> ContractAddress {
     let dispatcher = IUniversalDeployerDispatcher {

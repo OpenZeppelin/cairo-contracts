@@ -1,5 +1,5 @@
-mod erc20upgradeable;
+mod erc20;
 
-use erc20upgradeable::IERC20Upgradeable;
-use erc20upgradeable::{IERC20UpgradeableDispatcher, IERC20UpgradeableDispatcherTrait};
+use erc20::IERC20Upgradeable;
+use erc20::{IERC20UpgradeableDispatcher, IERC20UpgradeableDispatcherTrait};
 

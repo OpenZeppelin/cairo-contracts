@@ -469,7 +469,7 @@ fn test_upgraded_event() {
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    assert_only_event_upgraded(v2_class_hash, v1.contract_address);
+    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
 }
 
 #[test]

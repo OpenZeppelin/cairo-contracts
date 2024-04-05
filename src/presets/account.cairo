@@ -5,7 +5,7 @@
 ///
 /// OpenZeppelin's basic account which can change its public key and declare, deploy, or call contracts.
 #[starknet::contract(account)]
-mod Account {
+mod AccountUpgradeable {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::upgrades::UpgradeableComponent;

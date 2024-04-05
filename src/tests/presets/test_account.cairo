@@ -2,7 +2,7 @@ use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::presets::Account;
+use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::tests::account::test_account::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
@@ -25,7 +25,7 @@ use starknet::account::Call;
 use starknet::testing;
 
 fn CLASS_HASH() -> felt252 {
-    Account::TEST_CLASS_HASH
+    AccountUpgradeable::TEST_CLASS_HASH
 }
 
 fn V2_CLASS_HASH() -> ClassHash {
@@ -77,18 +77,18 @@ fn setup_upgradeable() -> IUpgradeableDispatcher {
 
 #[test]
 fn test_constructor() {
-    let mut state = Account::contract_state_for_testing();
-    Account::constructor(ref state, PUBKEY);
+    let mut state = AccountUpgradeable::contract_state_for_testing();
+    AccountUpgradeable::constructor(ref state, PUBKEY);
 
     assert_only_event_owner_added(ZERO(), PUBKEY);
 
-    let public_key = Account::AccountMixinImpl::get_public_key(@state);
+    let public_key = AccountUpgradeable::AccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, PUBKEY);
 
-    let supports_isrc5 = Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
+    let supports_isrc5 = AccountUpgradeable::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
     assert!(supports_isrc5);
 
-    let supports_isrc6 = Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
+    let supports_isrc6 = AccountUpgradeable::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc6);
 }
 
@@ -479,7 +479,7 @@ fn test_upgraded_event() {
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    assert_only_event_upgraded(v2_class_hash, v1.contract_address);
+    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
 }
 
 #[test]
@@ -502,8 +502,6 @@ fn test_state_persists_after_upgrade() {
 
     set_contract_and_caller(v1.contract_address);
     let dispatcher = AccountABIDispatcher { contract_address: v1.contract_address };
-
-    //let (point, _) = get_points();
 
     dispatcher.set_public_key(PUBKEY);
 

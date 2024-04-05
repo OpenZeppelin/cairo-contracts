@@ -1,7 +1,7 @@
 use openzeppelin::account::interface::EthPublicKey;
 use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-use starknet::{ContractAddress, ClassHash};
 use starknet::account::Call;
+use starknet::{ContractAddress, ClassHash};
 
 #[starknet::interface]
 trait IEthAccountUpgradeable<TState> {

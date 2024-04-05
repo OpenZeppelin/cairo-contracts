@@ -5,9 +5,11 @@ use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
 };
-use openzeppelin::presets::interfaces::{IEthAccountUpgradeableDispatcher, IEthAccountUpgradeableDispatcherTrait};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
+use openzeppelin::presets::interfaces::{
+    IEthAccountUpgradeableDispatcher, IEthAccountUpgradeableDispatcherTrait
+};
 use openzeppelin::tests::account::test_eth_account::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
@@ -52,7 +54,9 @@ fn setup_dispatcher() -> IEthAccountUpgradeableDispatcher {
     IEthAccountUpgradeableDispatcher { contract_address: target }
 }
 
-fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> IEthAccountUpgradeableDispatcher {
+fn setup_dispatcher_with_data(
+    data: Option<@SignedTransactionData>
+) -> IEthAccountUpgradeableDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];

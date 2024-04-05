@@ -432,7 +432,9 @@ fn test__burn_from_zero() {
 // Helpers
 //
 
-fn assert_event_approval(contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256) {
+fn assert_event_approval(
+    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
+) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
     let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
     assert!(event == expected);
@@ -445,12 +447,16 @@ fn assert_event_approval(contract: ContractAddress, owner: ContractAddress, spen
     utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
-fn assert_only_event_approval(contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256) {
+fn assert_only_event_approval(
+    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
+) {
     assert_event_approval(contract, owner, spender, value);
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256) {
+fn assert_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
     let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
     assert!(event == expected);
@@ -463,7 +469,9 @@ fn assert_event_transfer(contract: ContractAddress, from: ContractAddress, to: C
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256) {
+fn assert_only_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
     assert_event_transfer(contract, from, to, value);
     utils::assert_no_events_left(contract);
 }

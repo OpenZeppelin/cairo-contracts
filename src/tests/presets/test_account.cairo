@@ -1,16 +1,18 @@
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::presets::interfaces::{IAccountUpgradeableDispatcher, IAccountUpgradeableDispatcherTrait};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::AccountUpgradeable;
+use openzeppelin::presets::interfaces::{
+    IAccountUpgradeableDispatcher, IAccountUpgradeableDispatcherTrait
+};
 use openzeppelin::tests::account::test_account::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
-use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::tests::account::test_account::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
+use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
+use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
@@ -19,9 +21,9 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::{ContractAddress, ClassHash};
 use starknet::account::Call;
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 fn CLASS_HASH() -> felt252 {
     AccountUpgradeable::TEST_CLASS_HASH
@@ -43,7 +45,9 @@ fn setup_dispatcher() -> IAccountUpgradeableDispatcher {
     IAccountUpgradeableDispatcher { contract_address: target }
 }
 
-fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> IAccountUpgradeableDispatcher {
+fn setup_dispatcher_with_data(
+    data: Option<@SignedTransactionData>
+) -> IAccountUpgradeableDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];

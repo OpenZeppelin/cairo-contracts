@@ -1,22 +1,24 @@
 use integer::BoundedInt;
+use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::presets::ERC20Upgradeable;
-use openzeppelin::presets::interfaces::{IERC20UpgradeableDispatcher, IERC20UpgradeableDispatcherTrait};
-use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
-use openzeppelin::tests::utils::constants::{
-    ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
+use openzeppelin::presets::interfaces::{
+    IERC20UpgradeableDispatcher, IERC20UpgradeableDispatcherTrait
 };
 use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
 use openzeppelin::tests::token::test_erc20::{assert_event_approval, assert_only_event_approval};
 use openzeppelin::tests::token::test_erc20::{assert_event_transfer, assert_only_event_transfer};
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::utils::constants::{
+    ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
+};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::{ContractAddress, ClassHash};
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 fn V2_CLASS_HASH() -> ClassHash {
     SnakeERC20Mock::TEST_CLASS_HASH.try_into().unwrap()

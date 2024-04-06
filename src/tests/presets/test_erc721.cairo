@@ -2,6 +2,9 @@ use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
 use openzeppelin::presets::ERC721Upgradeable;
+use openzeppelin::presets::interfaces::{
+    IERC721UpgradeableDispatcher, IERC721UpgradeableDispatcherTrait
+};
 use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
@@ -9,20 +12,20 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL, BASE_URI
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
+    BASE_URI
 };
 use openzeppelin::tests::utils;
-use openzeppelin::presets::interfaces::{IERC721UpgradeableDispatcher, IERC721UpgradeableDispatcherTrait};
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::{ContractAddress, ClassHash};
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 
 // Token IDs
@@ -1184,7 +1187,10 @@ fn assert_state_after_transfer(
 }
 
 fn assert_state_transfer_to_self(
-    dispatcher: IERC721UpgradeableDispatcher, target: ContractAddress, token_id: u256, token_balance: u256
+    dispatcher: IERC721UpgradeableDispatcher,
+    target: ContractAddress,
+    token_id: u256,
+    token_balance: u256
 ) {
     assert_eq!(dispatcher.owner_of(token_id), target);
     assert_eq!(dispatcher.balance_of(target), token_balance);

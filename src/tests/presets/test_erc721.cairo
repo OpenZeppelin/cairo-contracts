@@ -21,7 +21,8 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
+use openzeppelin::token::erc721::interface::{IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait};
+use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing;
@@ -1132,7 +1133,7 @@ fn test_v2_missing_camel_selector() {
     testing::set_contract_address(OWNER());
     v1.upgrade(v2_class_hash);
 
-    let dispatcher = ERC721ABIDispatcher { contract_address: v1.contract_address };
+    let dispatcher = IERC721CamelOnlyDispatcher { contract_address: v1.contract_address };
     dispatcher.ownerOf(TOKEN_1);
 }
 
@@ -1151,7 +1152,7 @@ fn test_state_persists_after_upgrade() {
     v1.upgrade(v2_class_hash);
 
     // Check RECIPIENT balance v2
-    let v2 = ERC721ABIDispatcher { contract_address: v1.contract_address };
+    let v2 = IERC721Dispatcher { contract_address: v1.contract_address };
     let snake_balance = v2.balance_of(RECIPIENT());
     assert_eq!(snake_balance, camel_balance);
 }

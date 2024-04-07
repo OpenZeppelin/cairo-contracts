@@ -1,27 +1,32 @@
 use openzeppelin::introspection;
 use openzeppelin::presets::ERC1155Upgradeable;
+use openzeppelin::presets::interfaces::{
+    IERC1155UpgradeableDispatcher, IERC1155UpgradeableDispatcherTrait
+};
+use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::mocks::erc1155_mocks::SnakeERC1155Mock;
 use openzeppelin::tests::token::test_erc1155::{
     assert_only_event_transfer_single, assert_only_event_transfer_batch,
     assert_only_event_approval_for_all
 };
-use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::token::test_erc1155::{
     setup_account, setup_receiver, setup_camel_receiver, setup_account_with_salt, setup_src5
 };
 use openzeppelin::tests::token::test_erc1155::{get_ids_and_values, get_ids_and_split_values};
+use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
+    EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
+    TOKEN_VALUE, TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
+use openzeppelin::token::erc1155::interface::{
+    IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait
+};
 use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
-use openzeppelin::token::erc1155::interface::{IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait};
-use openzeppelin::tests::mocks::erc1155_mocks::SnakeERC1155Mock;
-use openzeppelin::presets::interfaces::{IERC1155UpgradeableDispatcher, IERC1155UpgradeableDispatcherTrait};
 use openzeppelin::token::erc1155;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::{ContractAddress, ClassHash};
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 fn V2_CLASS_HASH() -> ClassHash {
     SnakeERC1155Mock::TEST_CLASS_HASH.try_into().unwrap()

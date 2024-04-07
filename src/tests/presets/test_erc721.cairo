@@ -21,7 +21,9 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::{IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait};
+use openzeppelin::token::erc721::interface::{
+    IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
+};
 use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::utils::serde::SerializedAppend;

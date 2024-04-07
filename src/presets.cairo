@@ -7,7 +7,7 @@ mod interfaces;
 mod universal_deployer;
 
 use account::AccountUpgradeable;
-use erc1155::ERC1155;
+use erc1155::ERC1155Upgradeable;
 use erc20::ERC20Upgradeable;
 use erc721::ERC721Upgradeable;
 use eth_account::EthAccountUpgradeable;

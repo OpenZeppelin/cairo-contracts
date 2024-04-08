@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Presets include upgradeable functionality (#)
+- ERC20, ERC721, and ERC1155 presets include Ownable functionality (#)
+
 ## 0.11.0 (2024-03-29)
 
 ### Added

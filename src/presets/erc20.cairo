@@ -8,7 +8,7 @@
 /// set in the constructor.
 #[starknet::contract]
 mod ERC20 {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -29,22 +29,6 @@ mod ERC20 {
     enum Event {
         #[flat]
         ERC20Event: ERC20Component::Event
-    }
-
-    impl ERC20HooksImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
-        fn before_update(
-            ref self: ERC20Component::ComponentState<TContractState>,
-            from: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {}
-
-        fn after_update(
-            ref self: ERC20Component::ComponentState<TContractState>,
-            from: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {}
     }
 
     /// Sets the token `name` and `symbol`.

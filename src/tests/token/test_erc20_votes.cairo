@@ -11,7 +11,7 @@ use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
 };
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
-use openzeppelin::token::erc20::extensions::erc20votes::{Delegation, OffchainMessageHash};
+use openzeppelin::token::erc20::extensions::erc20_votes::{Delegation, OffchainMessageHash};
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::structs::checkpoint::{Trace, TraceTrait};
 use starknet::ContractAddress;

@@ -61,6 +61,20 @@ mod ERC20Votes {
         }
     }
 
+    /// Sets the token `name` and `symbol`.
+    /// Mints `fixed_supply` tokens to `recipient`.
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        fixed_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20._mint(recipient, fixed_supply);
+    }
+
     //
     // Hooks
     //
@@ -88,20 +102,6 @@ mod ERC20Votes {
             let mut erc20_votes_component = get_dep_component_mut!(ref self, ERC20Votes);
             erc20_votes_component.transfer_voting_units(from, recipient, amount);
         }
-    }
-
-    /// Sets the token `name` and `symbol`.
-    /// Mints `fixed_supply` tokens to `recipient`.
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
-        fixed_supply: u256,
-        recipient: ContractAddress
-    ) {
-        self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
     }
 
     #[abi(per_item)]

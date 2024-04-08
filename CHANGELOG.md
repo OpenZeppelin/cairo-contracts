@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Allow testing utilities to be importable (#)
-- Utilities documentation (#)
-- Parameter name in `tests::utils::drop_events` (`count` -> `n_events`) (#)
+- Allow testing utilities to be importable (#963)
+- Utilities documentation (#963)
+- Parameter name in `tests::utils::drop_events` (`count` -> `n_events`) (#963)
 
 ## 0.11.0 (2024-03-29)
 

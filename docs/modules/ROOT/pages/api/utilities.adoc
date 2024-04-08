@@ -222,7 +222,7 @@ Simple component for managing nonces.
 .Embeddable Implementations
 --
 [.sub-index#NoncesComponent-Embeddable-Impls-NoncesImpl]
-.SRC5Impl
+.NoncesImpl
 
 * xref:#NoncesComponent-nonces[`++nonces(self, owner)++`]
 --

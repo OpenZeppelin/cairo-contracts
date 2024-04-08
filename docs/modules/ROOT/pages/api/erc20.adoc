@@ -73,7 +73,7 @@ This value changes when <<IERC20-approve,approve>> or <<IERC20-transfer_from,tra
 Moves `amount` tokens from the caller's token balance to `to`.
 Returns `true` on success, reverts otherwise.
 
-Emits a <<ERC20-Transfer,Transfer>> event.
+Emits a <<IERC20-Transfer,Transfer>> event.
 
 [.contract-item]
 [[IERC20-transfer_from]]
@@ -83,7 +83,7 @@ Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism
 `amount` is then deducted from the caller's allowance.
 Returns `true` on success, reverts otherwise.
 
-Emits a <<ERC20-Transfer,Transfer>> event.
+Emits a <<IERC20-Transfer,Transfer>> event.
 
 [.contract-item]
 [[IERC20-approve]]
@@ -170,9 +170,19 @@ use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
-[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
-.{mixin-impls}
+NOTE: See xref:#ERC20Component-Hooks[Hooks] to understand how are hooks used.
 
+[.contract-index]
+.Hooks
+--
+[.sub-index#ERC20Component-ERC20HooksTrait]
+.ERC20HooksTrait
+* xref:#ERC20Component-before_update[`++before_update(self, from, recipient, amount)++`]
+* xref:#ERC20Component-after_update[`++after_update(self, from, recipient, amount)++`]
+--
+
+[.contract-index#ERC20Component-Embeddable-MixinImpl]
+.{mixin-impls}
 --
 .ERC20MixinImpl
 * xref:#ERC20Component-Embeddable-Impls-ERC20Impl[`++ERC20Impl++`]
@@ -215,6 +225,7 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-_mint[`++_mint(self, recipient, amount)++`]
 * xref:#ERC20Component-_burn[`++_burn(self, account, amount)++`]
 * xref:#ERC20Component-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
+* xref:#ERC20Component-_update[`++_update(self, from, to, amount)++`]
 --
 
 [.contract-index]
@@ -223,6 +234,29 @@ ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>
 * xref:#ERC20Component-Transfer[`++Transfer(from, to, value)++`]
 * xref:#ERC20Component-Approval[`++Approval(owner, spender, value)++`]
 --
+
+[#ERC20Component-Hooks]
+==== Hooks
+
+Hooks are functions which implementations can extend the functionality of the component source code. Every contract
+using ERC20Component is expected to provide an implementation of the ERC20HooksTrait. For basic token contracts, an
+empty implementation with no logic must be provided.
+
+TIP: You can use `openzeppelin::token::erc20::ERC20HooksEmptyImpl` which is already available as part of the library
+for this purpose.
+
+[.contract-item]
+[[ERC20Component-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#hook#
+
+Function executed at the beginning of the xref:#ERC20Component-_update[_update] function prior to any other logic.
+
+[.contract-item]
+[[ERC20Component-after_update]]
+==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#hook#
+
+Function executed at the end of the xref:#ERC20Component-_update[_update] function.
+
 
 [#ERC20Component-Embeddable-functions]
 ==== Embeddable functions
@@ -396,6 +430,18 @@ This internal function does not update the allowance value in the case of infini
 
 Possibly emits an <<ERC20Component-Approval,Approval>> event.
 
+[.contract-item]
+[[ERC20Component-_update]]
+==== `[.contract-item-name]#++_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+
+This function can be extended using the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
+
+Emits a <<ERC20Component-Transfer,Transfer>> event.
+
 [#ERC20Component-Events]
 ==== Events
 
@@ -410,6 +456,196 @@ See <<IERC20-Transfer,IERC20::Transfer>>.
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
 See <<IERC20-Approval,IERC20::Approval>>.
+
+== Extensions
+
+[.contract]
+[[ERC20VotesComponent]]
+=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
+
+```javascript
+use openzeppelin::token::extensions::ERC20VotesComponent;
+```
+
+:DelegateChanged: xref:ERC20VotesComponent-DelegateChanged[DelegateChanged]
+:DelegateVotesChanged: xref:ERC20VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
+
+Extension of ERC20 to support voting and delegation.
+
+NOTE: Implementing xref:#ERC20Component[ERC20Component] is a requirement for this component to be implemented.
+
+WARNING: To track voting units, this extension requires that the
+xref:#ERC20VotesComponent-transfer_voting_units[transfer_voting_units] function is called after every transfer,
+mint, or burn operation. For this, the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait] must be used.
+
+
+This extension keeps a history (checkpoints) of each account’s vote power. Vote power can be delegated either by calling
+the xref:#ERC20VotesComponent-delegate[delegate] function directly, or by providing a signature to be used with
+xref:#ERC20VotesComponent-delegate_by_sig[delegate_by_sig]. Voting power can be queried through the public accessors
+xref:#ERC20VotesComponent-get_votes[get_votes] and xref:#ERC20VotesComponent-get_past_votes[get_past_votes].
+
+By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
+
+[.contract-index#ERC20VotesComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC20VotesComponent-Embeddable-Impls-ERC20VotesImpl]
+.ERC20VotesImpl
+* xref:#ERC20VotesComponent-get_votes[`++get_votes(self, account)++`]
+* xref:#ERC20VotesComponent-get_past_votes[`++get_past_votes(self, account, timepoint)++`]
+* xref:#ERC20VotesComponent-get_past_total_supply[`++get_past_total_supply(self, timepoint)++`]
+* xref:#ERC20VotesComponent-delegates[`++delegates(self, account)++`]
+* xref:#ERC20VotesComponent-delegate[`++delegate(self, delegatee)++`]
+* xref:#ERC20VotesComponent-delegate_by_sig[`++delegate_by_sig(self, delegator, delegatee, nonce, expiry, signature)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#ERC20VotesComponent-get_total_supply[`++get_total_supply(self)++`]
+* xref:#ERC20VotesComponent-_delegate[`++_delegate(self, account, delegatee)++`]
+* xref:#ERC20VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
+* xref:#ERC20VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
+* xref:#ERC20VotesComponent-checkpoints[`++checkpoints(self, account, pos)++`]
+* xref:#ERC20VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#ERC20VotesComponent-DelegateChanged[`++DelegateChanged([key] delegator, [key] from_delegate, [key] to_delegate)++`]
+* xref:#ERC20VotesComponent-DelegateVotesChanged[`++DelegateVotesChanged([key] delegate, previous_votes, new_votes)++`]
+--
+
+[#ERC20VotesComponent-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC20VotesComponent-get_votes]]
+==== `[.contract-item-name]#++get_votes++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the current amount of votes that `account` has.
+
+[.contract-item]
+[[ERC20VotesComponent-get_past_votes]]
+==== `[.contract-item-name]#++get_past_votes++#++(self: @ContractState, account: ContractAddress, timepoint: u64) → u256++` [.item-kind]#external#
+
+Returns the amount of votes that `account` had at a specific moment in the past.
+
+[.contract-item]
+[[ERC20VotesComponent-get_past_total_supply]]
+==== `[.contract-item-name]#++get_past_total_supply++#++(self: @ContractState, timepoint: u64) → u256++` [.item-kind]#external#
+
+Returns the total supply of votes available at a specific moment in the past.
+
+NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
+Votes that have not been delegated are still part of total supply, even though they would not participate in a
+vote.
+
+[.contract-item]
+[[ERC20VotesComponent-delegates]]
+==== `[.contract-item-name]#++delegates++#++(self: @ContractState, account: ContractAddress) → ContractAddress++` [.item-kind]#external#
+
+Returns the delegate that `account` has chosen.
+
+[.contract-item]
+[[ERC20VotesComponent-delegate]]
+==== `[.contract-item-name]#++delegate++#++(ref self: ContractState, delegatee: ContractAddress)++` [.item-kind]#external#
+
+Delegates votes from the sender to `delegatee`.
+
+Emits a {DelegateChanged} event.
+
+May emit one or two {DelegateVotesChanged} events.
+
+[.contract-item]
+[[ERC20VotesComponent-delegate_by_sig]]
+==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ContractState, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>)++` [.item-kind]#external#
+
+Delegates votes from the sender to `delegatee` through a SNIP12 message signature validation.
+
+Requirements:
+
+- `expiry` must not be in the past.
+- `nonce` must match the account's current nonce.
+- `delegator` must implement `SRC6::is_valid_signature`.
+- `signature` should be valid for the message hash.
+
+Emits a {DelegateChanged} event.
+
+May emit one or two {DelegateVotesChanged} events.
+
+[#ERC20VotesComponent-Internal-functions]
+==== Internal functions
+
+[.contract-item]
+[[ERC20VotesComponent-get_total_supply]]
+==== `[.contract-item-name]#++get_total_supply++#++(self: @ContractState) → u256++` [.item-kind]#internal#
+
+Returns the current total supply of votes.
+
+[.contract-item]
+[[ERC20VotesComponent-_delegate]]
+==== `[.contract-item-name]#++_delegate++#++(ref self: ContractState, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
+
+Delegates all of `account`'s voting units to `delegatee`.
+
+Emits a {DelegateChanged} event.
+
+May emit one or two {DelegateVotesChanged} events.
+
+[.contract-item]
+[[ERC20VotesComponent-move_delegate_votes]]
+==== `[.contract-item-name]#++move_delegate_votes++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Moves delegated votes from one delegate to another.
+
+May emit one or two {DelegateVotesChanged} events.
+
+[.contract-item]
+[[ERC20VotesComponent-transfer_voting_units]]
+==== `[.contract-item-name]#++transfer_voting_units++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Transfers, mints, or burns voting units.
+
+To register a mint, `from` should be zero. To register a burn, `to`
+should be zero. Total supply of voting units will be adjusted with mints and burns.
+
+May emit one or two {DelegateVotesChanged} events.
+
+[.contract-item]
+[[ERC20VotesComponent-num_checkpoints]]
+==== `[.contract-item-name]#++num_checkpoints++#++(self: @ContractState, account: ContractAddress) → u32++` [.item-kind]#internal#
+
+Returns the number of checkpoints for `account`.
+
+[.contract-item]
+[[ERC20VotesComponent-checkpoints]]
+==== `[.contract-item-name]#++checkpoints++#++(self: @ContractState, account: ContractAddress, pos: u32) → Checkpoint++` [.item-kind]#internal#
+
+Returns the `pos`-th checkpoint for `account`.
+
+[.contract-item]
+[[ERC20VotesComponent-get_voting_units]]
+==== `[.contract-item-name]#++get_voting_units++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#internal#
+
+Returns the voting units of an `account`.
+
+[#ERC20VotesComponent-Events]
+==== Events
+
+[.contract-item]
+[[ERC20VotesComponent-DelegateChanged]]
+==== `[.contract-item-name]#++DelegateChanged++#++([key] delegator: ContractAddress, [key] from_delegate: ContractAddress, [key] to_delegate: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
+
+[.contract-item]
+[[ERC20VotesComponent-DelegateVotesChanged]]
+==== `[.contract-item-name]#++DelegateVotesChanged++#++([key] delegate: ContractAddress, previous_votes: u256, new_votes: u256)++` [.item-kind]#event#
+
+Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 
 == Presets
 
@@ -442,7 +678,7 @@ include::../utils/_class_hashes.adoc[]
 --
 .ERC20MixinImpl
 
-* xref:#ERC20Component-Embeddable-Mixin-Impl[`++ERC20MixinImpl++`]
+* xref:#ERC20Component-Embeddable-MixinImpl[`++ERC20MixinImpl++`]
 --
 
 [#ERC20-constructor-section]

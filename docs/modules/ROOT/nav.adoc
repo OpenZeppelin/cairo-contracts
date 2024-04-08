@@ -37,7 +37,8 @@
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
-** xref:utilities.adoc[Utilities]
+** xref:/api/governance.adoc[Governance]
+** xref:/api/utilities.adoc[Utilities]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
 * xref:contracts::index.adoc[Contracts for Solidity]

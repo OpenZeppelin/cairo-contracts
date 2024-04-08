@@ -8,7 +8,7 @@ use openzeppelin::tests::token::test_erc20_votes::{
     assert_event_delegate_votes_changed, assert_only_event_delegate_votes_changed
 };
 use openzeppelin::tests::utils::constants::{
-    DAPP_NAME, DAPP_VERSION, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
+    NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, ZERO, OWNER, SPENDER, RECIPIENT
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{ERC20VotesABIDispatcher, ERC20VotesABIDispatcherTrait};

@@ -334,7 +334,7 @@ fn deploy_test_contract() -> ContractAddress {
 
 [.contract-item]
 [[testutils-deploy_with_salt]]
-==== `[.contract-item-name]#++deploy_with_salt++#++(contract_class_hash: felt252, calldata: Array<felt252>salt: felt252) → ContractAddress++` [.item-kind]#function#
+==== `[.contract-item-name]#++deploy_with_salt++#++(contract_class_hash: felt252, calldata: Array<felt252>, salt: felt252) → ContractAddress++` [.item-kind]#function#
 
 :deploy: xref:testutils-deploy[utils::deploy]
 

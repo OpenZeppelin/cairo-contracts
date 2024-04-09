@@ -3,7 +3,7 @@
 
 /// # Account Preset
 ///
-/// OpenZeppelin's basic account which can change its public key and declare, deploy, or call contracts.
+/// OpenZeppelin's upgradeable account which can change its public key and declare, deploy, or call contracts.
 #[starknet::contract(account)]
 mod AccountUpgradeable {
     use openzeppelin::account::AccountComponent;

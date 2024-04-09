@@ -732,9 +732,7 @@ include::../utils/_class_hashes.adoc[]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, base_uri: ByteArray, owner: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol`.
-
 Mints `token_ids` tokens to `recipient` and sets the `base_uri`.
-
 Assigns `owner` as the contract owner with permissions to upgrade.
 
 [#ERC721Upgradeable-external-functions]

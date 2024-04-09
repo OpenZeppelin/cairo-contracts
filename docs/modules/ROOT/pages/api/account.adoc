@@ -511,7 +511,7 @@ Emitted when a `public_key` is removed.
 use openzeppelin::presets::AccountUpgradeable;
 ```
 
-Basic account contract leveraging xref:#AccountComponent[AccountComponent].
+Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
 
 include::../utils/_class_hashes.adoc[]
 
@@ -567,7 +567,7 @@ Upgrades the contract to a new implementation given by `new_class_hash`.
 use openzeppelin::presets::EthAccountUpgradeable;
 ```
 
-Account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
+Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 

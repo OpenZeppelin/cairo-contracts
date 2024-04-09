@@ -623,27 +623,27 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 == Presets
 
 [.contract]
-[[ERC1155]]
-=== `++ERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
+[[ERC1155Upgradeable]]
+=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
 
 ```javascript
 use openzeppelin::presets::ERC1155;
 ```
 
-Basic ERC1155 contract leveraging xref:#ERC1155Component[ERC1155Component].
+Upgradeable ERC1155 contract leveraging xref:#ERC1155Component[ERC1155Component].
 
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
 .{presets-page}
 --
-{ERC1155-class-hash}
+{ERC1155Upgradeable-class-hash}
 --
 
 [.contract-index]
 .Constructor
 --
-* xref:#ERC1155-constructor[`++constructor(self, base_uri, recipient, token_ids, values)++`]
+* xref:#ERC1155Upgradeable-constructor[`++constructor(self, base_uri, recipient, token_ids, values, owner)++`]
 --
 
 [.contract-index]
@@ -652,20 +652,34 @@ include::../utils/_class_hashes.adoc[]
 .ERC1155Component
 
 * xref:#ERC1155Component-Embeddable-Mixin-Impl[`++ERC1155MixinImpl++`]
+
+.OwnableMixinImpl
+
+* xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
-[#ERC1155-constructor-section]
+[#ERC1155Upgradeable-constructor-section]
 ==== Constructor
 
 [.contract-item]
-[[ERC1155-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, base_uri: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#constructor#
+[[ERC1155Upgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, base_uri: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>, owner: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `base_uri` for all tokens and registers the supported interfaces.
 Mints the `values` for `token_ids` tokens to `recipient`.
+Assigns `owner` as the contract owner with permissions to upgrade.
 
 Requirements:
 
 - `to` is either an account contract (supporting ISRC6) or
    supports the `IERC1155Receiver` interface.
 - `token_ids` and `values` must have the same length.
+
+[#ERC721Upgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[ERC1155Upgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.

@@ -1,5 +1,4 @@
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
 use openzeppelin::presets::ERC721Upgradeable;
 use openzeppelin::presets::interfaces::{

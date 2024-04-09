@@ -675,7 +675,7 @@ Requirements:
    supports the `IERC1155Receiver` interface.
 - `token_ids` and `values` must have the same length.
 
-[#ERC721Upgradeable-external-functions]
+[#ERC1155Upgradeable-external-functions]
 ==== External functions
 
 [.contract-item]

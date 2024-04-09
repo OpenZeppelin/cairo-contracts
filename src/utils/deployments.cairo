@@ -55,30 +55,35 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     hash
 }
 
-/// Returns the contract address for an origin-independent deployment from the UDC.
-/// This follows the same logic as `deploy_syscall` when deploying from zero.
-fn udc_calculate_contract_address_from_zero(
-    salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>,
-) -> ContractAddress {
-    calculate_contract_address_from_deploy_syscall(
-        salt, class_hash, constructor_calldata, Zeroable::zero()
-    )
+#[derive(Drop)]
+struct DeployerInfo {
+    caller_address: ContractAddress,
+    udc_address: ContractAddress
 }
 
-/// Returns the contract address for an origin-dependent deployment from the UDC.
-/// The inner `deploy_syscall` receives the hash of `salt` and `caller_address` as the salt argument.
-fn udc_calculate_contract_address_not_from_zero(
+/// Returns the calculated contract address for contracts deployed through the UDC.
+/// Origin-independent deployments (deployed from zero) should pass `Option::None` as `deployer_info`.
+fn udc_calculate_contract_address(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
-    caller_address: ContractAddress,
-    udc_address: ContractAddress
+    deployer_info: Option<DeployerInfo>
 ) -> ContractAddress {
-    // Hash salt
-    let mut state = PoseidonTrait::new();
-    let hashed_salt = state.update_with(caller_address).update_with(salt).finalize();
-
-    calculate_contract_address_from_deploy_syscall(
-        hashed_salt, class_hash, constructor_calldata, udc_address
-    )
+    match deployer_info {
+        Option::Some(deployer_info) => {
+            let mut state = PoseidonTrait::new();
+            let hashed_salt = state
+                .update_with(deployer_info.caller_address)
+                .update_with(salt)
+                .finalize();
+            return calculate_contract_address_from_deploy_syscall(
+                hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address
+            );
+        },
+        Option::None => {
+            return calculate_contract_address_from_deploy_syscall(
+                salt, class_hash, constructor_calldata, Zeroable::zero()
+            );
+        },
+    }
 }

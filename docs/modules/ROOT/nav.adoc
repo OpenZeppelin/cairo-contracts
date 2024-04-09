@@ -34,12 +34,13 @@
 *** xref:erc1155.adoc[ERC1155]
 **** xref:/api/erc1155.adoc[API Reference]
 
+** xref:udc.adoc[Universal Deployer Contract]
+*** xref:/api/udc.adoc[API Reference]
+
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
 ** xref:utilities.adoc[Utilities]
-*** xref:udc.adoc[Universal Deployer Contract]
-**** xref:/api/udc.adoc[API Reference]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
 * xref:contracts::index.adoc[Contracts for Solidity]

@@ -1341,7 +1341,9 @@ fn assert_only_event_approval_for_all(
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_approval(contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256) {
+fn assert_event_approval(
+    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
+) {
     let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
     let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
     assert!(event == expected);
@@ -1362,7 +1364,9 @@ fn assert_only_event_approval(
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256) {
+fn assert_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
+) {
     let event = testing::pop_log::<ERC721Component::Event>(contract).unwrap();
     let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
     assert!(event == expected);
@@ -1376,7 +1380,9 @@ fn assert_event_transfer(contract: ContractAddress, from: ContractAddress, to: C
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256) {
+fn assert_only_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
+) {
     assert_event_transfer(contract, from, to, token_id);
     utils::assert_no_events_left(contract);
 }

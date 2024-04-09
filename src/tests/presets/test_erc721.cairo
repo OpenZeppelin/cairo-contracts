@@ -11,15 +11,16 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::token::test_erc721::{
+    assert_event_transfer, assert_only_event_transfer, assert_event_approval,
+    assert_event_approval_for_all
+};
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
     BASE_URI
 };
 use openzeppelin::tests::utils;
-use openzeppelin::tests::token::test_erc721::{
-    assert_event_approval, assert_event_approval_for_all, assert_event_transfer, assert_only_event_transfer
-};
 use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::{

@@ -457,6 +457,7 @@ include::../utils/_class_hashes.adoc[]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, fixed_supply: u256, recipient: ContractAddress, owner: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol` and mints `fixed_supply` tokens to `recipient`.
+
 Assigns `owner` as the contract owner with permissions to upgrade.
 
 [#ERC20Upgradeable-external-functions]

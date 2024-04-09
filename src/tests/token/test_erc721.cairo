@@ -205,7 +205,7 @@ fn test_approve_from_owner() {
 
     testing::set_caller_address(OWNER());
     state.approve(SPENDER(), TOKEN_ID);
-    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -221,7 +221,7 @@ fn test_approve_from_operator() {
 
     testing::set_caller_address(OPERATOR());
     state.approve(SPENDER(), TOKEN_ID);
-    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -256,7 +256,7 @@ fn test_approve_nonexistent() {
 fn test__approve() {
     let mut state = setup();
     state._approve(SPENDER(), TOKEN_ID);
-    assert_event_approval(OWNER(), SPENDER(), TOKEN_ID);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -289,13 +289,13 @@ fn test_set_approval_for_all() {
     assert!(not_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), true);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), true);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), false);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), false);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -325,13 +325,13 @@ fn test__set_approval_for_all() {
     assert!(not_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), true);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), true);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), false);
-    assert_event_approval_for_all(OWNER(), OPERATOR(), false);
+    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -372,7 +372,7 @@ fn test_transfer_from_owner() {
 
     testing::set_caller_address(owner);
     state.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -394,7 +394,7 @@ fn test_transferFrom_owner() {
 
     testing::set_caller_address(owner);
     state.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -439,7 +439,7 @@ fn test_transfer_from_to_owner() {
 
     testing::set_caller_address(OWNER());
     state.transfer_from(OWNER(), OWNER(), TOKEN_ID);
-    assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
+    assert_only_event_transfer(ZERO(), OWNER(), OWNER(), TOKEN_ID);
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
@@ -454,7 +454,7 @@ fn test_transferFrom_to_owner() {
 
     testing::set_caller_address(OWNER());
     state.transferFrom(OWNER(), OWNER(), TOKEN_ID);
-    assert_event_transfer(OWNER(), OWNER(), TOKEN_ID);
+    assert_only_event_transfer(ZERO(), OWNER(), OWNER(), TOKEN_ID);
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
@@ -474,7 +474,7 @@ fn test_transfer_from_approved() {
 
     testing::set_caller_address(OPERATOR());
     state.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -493,7 +493,7 @@ fn test_transferFrom_approved() {
 
     testing::set_caller_address(OPERATOR());
     state.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -513,7 +513,7 @@ fn test_transfer_from_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     state.transfer_from(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -533,7 +533,7 @@ fn test_transferFrom_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     state.transferFrom(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -569,7 +569,7 @@ fn test_safe_transfer_from_to_account() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_event_transfer(owner, account, token_id);
+    assert_only_event_transfer(ZERO(), owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -585,7 +585,7 @@ fn test_safeTransferFrom_to_account() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_event_transfer(owner, account, token_id);
+    assert_only_event_transfer(ZERO(), owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -601,7 +601,7 @@ fn test_safe_transfer_from_to_account_camel() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_event_transfer(owner, account, token_id);
+    assert_only_event_transfer(ZERO(), owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -617,7 +617,7 @@ fn test_safeTransferFrom_to_account_camel() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_event_transfer(owner, account, token_id);
+    assert_only_event_transfer(ZERO(), owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -633,7 +633,7 @@ fn test_safe_transfer_from_to_receiver() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -649,7 +649,7 @@ fn test_safeTransferFrom_to_receiver() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -665,7 +665,7 @@ fn test_safe_transfer_from_to_receiver_camel() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -681,7 +681,7 @@ fn test_safeTransferFrom_to_receiver_camel() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -802,7 +802,7 @@ fn test_safe_transfer_from_to_owner() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
-    assert_event_transfer(owner, owner, token_id);
+    assert_only_event_transfer(ZERO(), owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -822,7 +822,7 @@ fn test_safeTransferFrom_to_owner() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
-    assert_event_transfer(owner, owner, token_id);
+    assert_only_event_transfer(ZERO(), owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -842,7 +842,7 @@ fn test_safe_transfer_from_to_owner_camel() {
 
     testing::set_caller_address(owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
-    assert_event_transfer(owner, owner, token_id);
+    assert_only_event_transfer(ZERO(), owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -862,7 +862,7 @@ fn test_safeTransferFrom_to_owner_camel() {
 
     testing::set_caller_address(owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
-    assert_event_transfer(owner, owner, token_id);
+    assert_only_event_transfer(ZERO(), owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -883,7 +883,7 @@ fn test_safe_transfer_from_approved() {
 
     testing::set_caller_address(OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -903,7 +903,7 @@ fn test_safeTransferFrom_approved() {
 
     testing::set_caller_address(OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -923,7 +923,7 @@ fn test_safe_transfer_from_approved_camel() {
 
     testing::set_caller_address(OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -943,7 +943,7 @@ fn test_safeTransferFrom_approved_camel() {
 
     testing::set_caller_address(OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -963,7 +963,7 @@ fn test_safe_transfer_from_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -983,7 +983,7 @@ fn test_safeTransferFrom_approved_for_all() {
 
     testing::set_caller_address(OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -1003,7 +1003,7 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 
     testing::set_caller_address(OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -1023,7 +1023,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
     testing::set_caller_address(OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_event_transfer(owner, receiver, token_id);
+    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -1058,7 +1058,7 @@ fn test__transfer() {
     assert_state_before_transfer(owner, recipient, token_id);
 
     state._transfer(owner, recipient, token_id);
-    assert_event_transfer(owner, recipient, token_id);
+    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -1096,7 +1096,7 @@ fn test__mint() {
 
     assert_state_before_mint(recipient);
     state._mint(recipient, TOKEN_ID);
-    assert_event_transfer(ZERO(), recipient, token_id);
+    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
@@ -1127,7 +1127,7 @@ fn test__safe_mint_to_receiver() {
 
     assert_state_before_mint(recipient);
     state._safe_mint(recipient, token_id, DATA(true));
-    assert_event_transfer(ZERO(), recipient, token_id);
+    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
@@ -1140,7 +1140,7 @@ fn test__safe_mint_to_receiver_camel() {
 
     assert_state_before_mint(recipient);
     state._safe_mint(recipient, token_id, DATA(true));
-    assert_event_transfer(ZERO(), recipient, token_id);
+    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
@@ -1153,7 +1153,7 @@ fn test__safe_mint_to_account() {
 
     assert_state_before_mint(account);
     state._safe_mint(account, token_id, DATA(true));
-    assert_event_transfer(ZERO(), account, token_id);
+    assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
 }
@@ -1166,7 +1166,7 @@ fn test__safe_mint_to_account_camel() {
 
     assert_state_before_mint(account);
     state._safe_mint(account, token_id, DATA(true));
-    assert_event_transfer(ZERO(), account, token_id);
+    assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
 }
@@ -1237,7 +1237,7 @@ fn test__burn() {
     assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
     state._burn(TOKEN_ID);
-    assert_event_transfer(OWNER(), ZERO(), TOKEN_ID);
+    assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
 
     assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
     assert_eq!(state.balance_of(OWNER()), 0);
@@ -1318,14 +1318,13 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
 }
 
 fn assert_event_approval_for_all(
-    owner: ContractAddress, operator: ContractAddress, approved: bool
+    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
-    let event = utils::pop_log::<ERC721Component::Event>(ZERO()).unwrap();
+    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
     let expected = ERC721Component::Event::ApprovalForAll(
         ApprovalForAll { owner, operator, approved }
     );
     assert!(event == expected);
-    utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -1335,11 +1334,17 @@ fn assert_event_approval_for_all(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<ERC721Component::Event>(ZERO()).unwrap();
+fn assert_only_event_approval_for_all(
+    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
+) {
+    assert_event_approval_for_all(contract, owner, operator, approved);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_approval(contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256) {
+    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
     let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
     assert!(event == expected);
-    utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -1350,11 +1355,17 @@ fn assert_event_approval(owner: ContractAddress, approved: ContractAddress, toke
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-    let event = testing::pop_log::<ERC721Component::Event>(ZERO()).unwrap();
+fn assert_only_event_approval(
+    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
+) {
+    assert_event_approval(contract, owner, approved, token_id);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256) {
+    let event = testing::pop_log::<ERC721Component::Event>(contract).unwrap();
     let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
     assert!(event == expected);
-    utils::assert_no_events_left(ZERO());
 
     // Check indexed keys
     let mut indexed_keys = array![];
@@ -1363,4 +1374,9 @@ fn assert_event_transfer(from: ContractAddress, to: ContractAddress, token_id: u
     indexed_keys.append_serde(to);
     indexed_keys.append_serde(token_id);
     utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_only_event_transfer(contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256) {
+    assert_event_transfer(contract, from, to, token_id);
+    utils::assert_no_events_left(contract);
 }

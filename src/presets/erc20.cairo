@@ -3,9 +3,12 @@
 
 /// # ERC20 Preset
 ///
-/// The ERC20 contract offers basic functionality and provides a
+/// The upgradeable ERC20 contract offers basic functionality and provides a
 /// fixed-supply mechanism for token distribution. The fixed supply is
 /// set in the constructor.
+///
+/// For more complex or custom contracts, use Wizard for Cairo
+/// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
 mod ERC20Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;

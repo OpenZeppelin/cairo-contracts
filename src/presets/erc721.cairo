@@ -3,7 +3,7 @@
 
 /// # ERC721 Preset
 ///
-/// The ERC721 contract offers a batch-mint mechanism that
+/// The upgradeable ERC721 contract offers a batch-mint mechanism that
 /// can only be executed once upon contract construction.
 #[starknet::contract]
 mod ERC721Upgradeable {

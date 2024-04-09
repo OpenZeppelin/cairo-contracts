@@ -3,7 +3,7 @@
 
 /// # ERC1155Upgradeable Preset
 ///
-/// The ERC1155 contract offers a batch-mint mechanism that
+/// The upgradeable ERC1155 contract offers a batch-mint mechanism that
 /// can only be executed once upon contract construction.
 ///
 /// For more complex or custom contracts, use Wizard for Cairo

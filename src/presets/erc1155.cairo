@@ -60,6 +60,7 @@ mod ERC1155Upgradeable {
         UpgradeableEvent: UpgradeableComponent::Event
     }
 
+    /// Assigns `owner` as the contract owner.
     /// Sets the `base_uri` for all tokens.
     /// Mints the `values` for `token_ids` tokens to `recipient`.
     ///

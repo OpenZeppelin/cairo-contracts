@@ -5,6 +5,9 @@
 ///
 /// The upgradeable ERC721 contract offers a batch-mint mechanism that
 /// can only be executed once upon contract construction.
+///
+/// For more complex or custom contracts, use Wizard for Cairo
+/// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
 mod ERC721Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
@@ -57,6 +60,7 @@ mod ERC721Upgradeable {
         UpgradeableEvent: UpgradeableComponent::Event
     }
 
+    /// Assigns `owner` as the contract owner.
     /// Sets the token `name` and `symbol`.
     /// Mints the `token_ids` tokens to `recipient` and sets
     /// the base URI.

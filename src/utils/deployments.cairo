@@ -79,6 +79,6 @@ fn udc_calculate_contract_address_not_from_zero(
     let hashed_salt = state.update_with(caller_address).update_with(salt).finalize();
 
     calculate_contract_address_from_deploy_syscall(
-        hashed_salt, class_hash, constructor_calldata, deployer_address
+        hashed_salt, class_hash, constructor_calldata, udc_address
     )
 }

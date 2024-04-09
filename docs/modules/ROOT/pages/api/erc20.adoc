@@ -414,11 +414,11 @@ See <<IERC20-Approval,IERC20::Approval>>.
 == Presets
 
 [.contract]
-[[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
+[[ERC20Upgradeable]]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::presets::ERC20;
+use openzeppelin::presets::ERC20Upgradeable;
 ```
 
 Basic ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.
@@ -428,13 +428,13 @@ include::../utils/_class_hashes.adoc[]
 [.contract-index]
 .{presets-page}
 --
-{ERC20-class-hash}
+{ERC20Upgradeable-class-hash}
 --
 
 [.contract-index]
 .Constructor
 --
-* xref:#ERC20-constructor[`++constructor(self, name, symbol, fixed_supply, recipient)++`]
+* xref:#ERC20Upgradeable-constructor[`++constructor(self, name, symbol, fixed_supply, recipient, owner)++`]
 --
 
 [.contract-index]
@@ -443,13 +443,27 @@ include::../utils/_class_hashes.adoc[]
 .ERC20MixinImpl
 
 * xref:#ERC20Component-Embeddable-Mixin-Impl[`++ERC20MixinImpl++`]
+
+.OwnableMixinImpl
+
+* xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
-[#ERC20-constructor-section]
+[#ERC20Upgradeable-constructor-section]
 ==== Constructor
 
 [.contract-item]
-[[ERC20-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, fixed_supply: u256, recipient: ContractAddress)++` [.item-kind]#constructor#
+[[ERC20Upgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, fixed_supply: u256, recipient: ContractAddress, owner: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol` and mints `fixed_supply` tokens to `recipient`.
+Assigns `owner` as the contract owner with permissions to upgrade.
+
+[#ERC20Upgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[ERC20Upgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.

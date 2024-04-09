@@ -67,6 +67,6 @@ trait IERC1155Upgradeable<TState> {
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);
 
-    //IUpgradeable
+    // IUpgradeable
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
 }

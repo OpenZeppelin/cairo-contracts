@@ -72,7 +72,7 @@ fn udc_calculate_contract_address_not_from_zero(
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
     caller_address: ContractAddress,
-    deployer_address: ContractAddress
+    udc_address: ContractAddress
 ) -> ContractAddress {
     // Hash salt
     let mut state = PoseidonTrait::new();

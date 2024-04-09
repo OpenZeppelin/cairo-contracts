@@ -46,7 +46,7 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
     loop {
         match data.pop_front() {
             Option::Some(elem) => { state = state.update_with(*elem); },
-            _ => {
+            Option::None => {
                 hash = state.update_with(data_len).finalize();
                 break;
             },

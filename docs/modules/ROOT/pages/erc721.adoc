@@ -101,21 +101,10 @@ mod MyNFT {
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // ERC721
+    // ERC721 Mixin
     #[abi(embed_v0)]
-    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721MetadataCamelOnly =
-        ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
+    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -211,16 +200,10 @@ mod MyTokenReceiver {
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // ERC721Receiver
+    // ERC721Receiver Mixin
     #[abi(embed_v0)]
-    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721ReceiverCamelImpl = ERC721ReceiverComponent::ERC721ReceiverCamelImpl<ContractState>;
+    impl ERC721ReceiverMixinImpl = ERC721ReceiverComponent::ERC721ReceiverMixinImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     struct Storage {

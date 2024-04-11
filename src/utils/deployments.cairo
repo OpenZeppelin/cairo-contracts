@@ -16,7 +16,7 @@ const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 /// Returns the contract address from a `deploy_syscall`.
 /// `deployer_address` should be the zero address if the deployment is origin-independent (deployed from zero).
 /// For more information, see https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
-fn calculate_contract_address_from_deploy_syscall(
+fn deploy_syscall_calculate_contract_address(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
@@ -76,12 +76,12 @@ fn udc_calculate_contract_address(
                 .update_with(deployer_info.caller_address)
                 .update_with(salt)
                 .finalize();
-            return calculate_contract_address_from_deploy_syscall(
+            return deploy_syscall_calculate_contract_address(
                 hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address
             );
         },
         Option::None => {
-            return calculate_contract_address_from_deploy_syscall(
+            return deploy_syscall_calculate_contract_address(
                 salt, class_hash, constructor_calldata, Zeroable::zero()
             );
         },

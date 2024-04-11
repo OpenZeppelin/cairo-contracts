@@ -4,7 +4,7 @@ use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin::utils::deployments::{DeployerInfo, udc_calculate_contract_address};
+use openzeppelin::utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin::utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
@@ -41,7 +41,7 @@ fn test_deploy_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = udc_calculate_contract_address(
+    let expected_addr = calculate_contract_address_from_udc(
         SALT, ERC20_CLASS_HASH(), ERC20_CALLDATA(), Option::None
     );
     let deployed_addr = udc.deploy_contract(ERC20_CLASS_HASH(), SALT, from_zero, ERC20_CALLDATA());
@@ -71,7 +71,7 @@ fn test_deploy_not_from_zero() {
     testing::set_contract_address(CALLER());
 
     // Check address
-    let expected_addr = udc_calculate_contract_address(
+    let expected_addr = calculate_contract_address_from_udc(
         SALT,
         ERC20_CLASS_HASH(),
         ERC20_CALLDATA(),

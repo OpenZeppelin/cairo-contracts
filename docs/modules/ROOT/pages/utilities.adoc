@@ -175,22 +175,22 @@ Module containing utility functions for calculating contract addresses through {
 * xref:deployments-DeployerInfo[`++DeployerInfo(caller_address, udc_address)++`]
 
 .Functions
-* xref:deployments-deploy_syscall_calculate_contract_address[`++deploy_syscall_calculate_contract_address(salt, class_hash, constructor_calldata, deployer_address)++`]
+* xref:deployments-calculate_contract_address_from_deploy_syscall[`++calculate_contract_address_from_deploy_syscall(salt, class_hash, constructor_calldata, deployer_address)++`]
 * xref:deployments-compute_hash_on_elements[`++compute_hash_on_elements(data)++`]
-* xref:deployments-udc_calculate_contract_address[`++udc_calculate_contract_address(salt, class_hash, constructor_calldata, deployer_info)++`]
+* xref:deployments-calculate_contract_address_from_udc[`++calculate_contract_address_from_udc(salt, class_hash, constructor_calldata, deployer_info)++`]
 --
 
 [#deployments-Structs]
 ==== Structs
 
-:udc_calculate_contract_address: xref:deployments-udc_calculate_contract_address[utils::udc_calculate_contract_address]
+:calculate_contract_address_from_udc: xref:deployments-calculate_contract_address_from_udc[utils::calculate_contract_address_from_udc]
 
 
 [.contract-item]
 [[deployments-DeployerInfo]]
 ==== `[.contract-item-name]#++DeployerInfo++#++(caller_address: ContractAddress, udc_address: ContractAddress)++` [.item-kind]#struct#
 
-Struct containing arguments necessary in {udc_calculate_contract_address} for origin-dependent deployment calculations.
+Struct containing arguments necessary in {calculate_contract_address_from_udc} for origin-dependent deployment calculations.
 
 [#deployments-Functions]
 ==== Functions
@@ -199,8 +199,8 @@ Struct containing arguments necessary in {udc_calculate_contract_address} for or
 :deployer-info: xref:deployments-DeployerInfo[DeployerInfo]
 
 [.contract-item]
-[[deployments-deploy_syscall_calculate_contract_address]]
-==== `[.contract-item-name]#++deploy_syscall_calculate_contract_address++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+[[deployments-calculate_contract_address_from_deploy_syscall]]
+==== `[.contract-item-name]#++calculate_contract_address_from_deploy_syscall++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
 
 Returns the contract address when passing the given arguments to {deploy_syscall}.
 
@@ -211,8 +211,8 @@ Returns the contract address when passing the given arguments to {deploy_syscall
 Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
 
 [.contract-item]
-[[deployments-udc_calculate_contract_address]]
-==== `[.contract-item-name]#++udc_calculate_contract_address++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_info: Option<DeployerInfo>) → ContractAddress++` [.item-kind]#function#
+[[deployments-calculate_contract_address_from_udc]]
+==== `[.contract-item-name]#++calculate_contract_address_from_udc++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_info: Option<DeployerInfo>) → ContractAddress++` [.item-kind]#function#
 
 Returns the calculated contract address for UDC deployments.
 

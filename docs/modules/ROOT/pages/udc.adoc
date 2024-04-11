@@ -125,10 +125,10 @@ It's especially important to keep this in mind when dealing with `ContractDeploy
 
 == Precomputing contract addresses
 
-:deploy_syscall_calculate_contract_address: xref:/utilities.adoc#deployments-deploy_syscall_calculate_contract_address[deploy_syscall_calculate_contract_address]
-:udc_calculate_contract_address: xref:/utilities.adoc#deployments-udc_calculate_contract_address[udc_calculate_contract_address]
+:calculate_contract_address_from_deploy_syscall: xref:/utilities.adoc#deployments-calculate_contract_address_from_deploy_syscall[calculate_contract_address_from_deploy_syscall]
+:calculate_contract_address_from_udc: xref:/utilities.adoc#deployments-calculate_contract_address_from_udc[calculate_contract_address_from_udc]
 :deployments: xref:/utilities.adoc#deployments[deployments]
 
 This library offers utility functions written in Cairo to precompute contract addresses.
-They include the generic {deploy_syscall_calculate_contract_address} as well as the UDC-specific {udc_calculate_contract_address}.
+They include the generic {calculate_contract_address_from_deploy_syscall} as well as the UDC-specific {calculate_contract_address_from_udc}.
 Check out the {deployments} for more information.

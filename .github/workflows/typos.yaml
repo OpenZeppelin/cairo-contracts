@@ -1,0 +1,13 @@
+name: Check for typos
+
+on: [pull_request]
+
+jobs:
+  check-for-typos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Check for typos
+        uses: crate-ci/typos@bcafd462cb07ef7ba57e34abf458fe20767e808b

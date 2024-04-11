@@ -364,10 +364,12 @@ Module containing utilities for testing the library.
 --
 .Functions
 * xref:#testutils-deploy[`++deploy(contract_class_hash, calldata)++`]
+* xref:#testutils-deploy_with_salt[`++deploy_with_salt(contract_class_hash, calldata, salt)++`]
 * xref:#testutils-pop_log[`++pop_log<T>(address)++`]
 * xref:#testutils-assert_indexed_keys[`++assert_indexed_keys<T>(event, expected_keys)++`]
 * xref:#testutils-assert_no_events_left[`++assert_no_events_left(address)++`]
 * xref:#testutils-drop_event[`++drop_event(address)++`]
+* xref:#testutils-drop_events[`++drop_events(address, n_events)++`]
 
 .Inner modules
 * xref:#testutils-constants[`++constants++`]
@@ -400,6 +402,15 @@ fn deploy_test_contract() -> ContractAddress {
 ```
 
 [.contract-item]
+[[testutils-deploy_with_salt]]
+==== `[.contract-item-name]#++deploy_with_salt++#++(contract_class_hash: felt252, calldata: Array<felt252>, salt: felt252) → ContractAddress++` [.item-kind]#function#
+
+:deploy: xref:testutils-deploy[utils::deploy]
+
+Same as {deploy} except this function accepts a `salt` argument.
+This utility is useful when tests require multiple deployed instances of the same contract.
+
+[.contract-item]
 [[testutils-pop_log]]
 ==== `[.contract-item-name]#++pop_log++#++<T>(address: ContractAddress) → Option<T>++` [.item-kind]#function#
 
@@ -415,8 +426,22 @@ Requirements:
 
 - No extra data or keys are left on the raw event after deserialization.
 
-WARNING: This method doesn't currently work for component events that are not flattened
-because an extra key is added, pushing the event ID key to the second position.
+Usage example:
+
+```javascript
+use openzeppelin::tests::utils;
+use openzeppelin::token::erc20::ERC20Component;
+use openzeppelin::token::erc20::ERC20Component::Transfer;
+use starknet::ContractAddress;
+
+fn assert_emitted_event(
+    target: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
+    let event = utils::pop_log::<ERC20Component::Event>(target).unwrap();
+    let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
+    assert!(event == expected);
+}
+```
 
 [.contract-item]
 [[testutils-assert_indexed_keys]]
@@ -428,7 +453,7 @@ Asserts that `expected_keys` exactly matches the indexed keys from `event`.
 that they're defined.
 
 NOTE: If the event is not flattened, the first key will be the event member name
-e.g. selector!("EnumMemberName").
+e.g. `selector!("EnumMemberName")`.
 
 Required traits for `T`:
 
@@ -446,6 +471,14 @@ Asserts that there are no more events left in the queue for the given address.
 ==== `[.contract-item-name]#++drop_event++#++(address: ContractAddress)++` [.item-kind]#function#
 
 Removes an event from the queue for the given address.
+
+If the queue is empty, this function won't do anything.
+
+[.contract-item]
+[[testutils-drop_events]]
+==== `[.contract-item-name]#++drop_events++#++(address: ContractAddress, n_events: felt252)++` [.item-kind]#function#
+
+Removes `n_events` from the queue for the given address.
 
 If the queue is empty, this function won't do anything.
 

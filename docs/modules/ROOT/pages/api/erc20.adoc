@@ -599,7 +599,7 @@ May emit one or two {DelegateVotesChanged} events.
 [[ERC20VotesComponent-move_delegate_votes]]
 ==== `[.contract-item-name]#++move_delegate_votes++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
-Moves delegated votes from one delegate to another.
+Moves `amount` of delegated votes from `from` to `to`.
 
 May emit one or two {DelegateVotesChanged} events.
 

@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- before_update and after_update hooks to ERC20Component (#951)
+- INSUFFICIENT_BALANCE and INSUFFICIENT_ALLOWANCE errors to ERC20Component (#951)
+- ERC20Votes component (#951)
+
 ### Changed
 
 - Allow testing utilities to be importable (#963)

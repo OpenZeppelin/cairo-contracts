@@ -82,12 +82,9 @@ mod MyToken {
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
+    // ERC20 Mixin
     #[abi(embed_v0)]
-    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
@@ -165,6 +162,8 @@ impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
 ==== The storage approach
 
 For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate.
+
+TIP: Note that we are not using the MixinImpl in this case, since we need to customize the IERC20Metadata implementation.
 
 [,javascript]
 ----

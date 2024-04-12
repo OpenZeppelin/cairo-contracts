@@ -42,7 +42,7 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
     }
     #[inline(always)]
     fn size() -> u8 {
-        // 0 was selected because the read method doesn't actually read from storage.
+        // 0 was selected because the read method doesn't actually read from storage
         0_u8
     }
 }

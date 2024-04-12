@@ -3,8 +3,7 @@
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
-use super::storage_array::StorageArray;
-use super::storage_array::StorageArrayTrait;
+use super::storage_array::{StorageArray, StorageArrayTrait};
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
@@ -120,10 +119,10 @@ impl CheckpointImpl of CheckpointTrait {
         if (pos > 0) {
             let mut last: Checkpoint = self.read_at(pos - 1);
 
-            // Checkpoint keys must be non-decreasing.
+            // Checkpoint keys must be non-decreasing
             assert(last.key <= key, 'Unordered insertion');
 
-            // Update or append new checkpoint.
+            // Update or append new checkpoint
             let prev = last.value;
             if (last.key == key) {
                 last.value = value;
@@ -207,7 +206,6 @@ mod test {
     const LOW_MASK: u256 = 0xffffffffffffffffffffffffffffffff;
 
     #[test]
-    #[available_gas(2000000)]
     fn test_pack_big_key_and_value() {
         let key = BoundedInt::max();
         let value = BoundedInt::max();
@@ -225,7 +223,6 @@ mod test {
     }
 
     #[test]
-    #[available_gas(2000000)]
     fn test_unpack_big_key_and_value() {
         let key_and_low = BoundedInt::<u64>::max().into() * _2_POW_184
             + BoundedInt::<u128>::max().into();

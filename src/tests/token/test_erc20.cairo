@@ -162,7 +162,7 @@ fn test_transfer() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test_transfer_not_enough_balance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -199,7 +199,7 @@ fn test__transfer() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -261,7 +261,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -284,7 +284,7 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
     state.transfer_from(ZERO(), RECIPIENT(), VALUE);
@@ -326,7 +326,7 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -349,7 +349,7 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transferFrom_from_zero_address() {
     let mut state = setup();
     state.transferFrom(ZERO(), RECIPIENT(), VALUE);

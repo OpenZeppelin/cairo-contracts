@@ -73,7 +73,7 @@ fn test_constructor() {
 
 #[test]
 fn test_total_supply() {
-    let mut dispatcher = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     assert_eq!(dispatcher.total_supply(), SUPPLY);
     assert_eq!(dispatcher.totalSupply(), SUPPLY);
@@ -81,7 +81,7 @@ fn test_total_supply() {
 
 #[test]
 fn test_balance_of() {
-    let mut dispatcher = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
     assert_eq!(dispatcher.balanceOf(OWNER()), SUPPLY);
@@ -151,7 +151,7 @@ fn test_transfer() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient balance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_not_enough_balance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -214,7 +214,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_greater_than_allowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -237,7 +237,7 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
     dispatcher.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);
@@ -277,7 +277,7 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_greater_than_allowance() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
@@ -300,7 +300,7 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
     dispatcher.transferFrom(Zeroable::zero(), RECIPIENT(), VALUE);

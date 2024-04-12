@@ -12,7 +12,7 @@
 #[starknet::contract]
 mod ERC20Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, ClassHash};

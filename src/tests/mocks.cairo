@@ -15,3 +15,4 @@ mod pausable_mocks;
 mod reentrancy_mocks;
 mod src5_mocks;
 mod upgrades_mocks;
+mod merkle_mocks;

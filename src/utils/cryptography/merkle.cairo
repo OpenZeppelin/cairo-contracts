@@ -40,7 +40,7 @@ mod MerkleComponent {
         fn process_proof(
             self: @ComponentState<TContractState>, proof: Span<felt252>, leaf: felt252
         ) -> felt252 {
-            let length = proof.len(); 
+            let length = proof.len();
             let mut computedHash = leaf;
             let mut counter = 0;
 

@@ -1,4 +1,4 @@
 mod interface;
+mod merkle;
 mod nonces;
 mod snip12;
-mod merkle;

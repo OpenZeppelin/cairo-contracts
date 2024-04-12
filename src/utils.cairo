@@ -8,6 +8,7 @@ mod serde;
 mod structs;
 mod universal_deployer;
 mod unwrap_and_cast;
+use cryptography::merkle;
 
 use cryptography::nonces;
 use cryptography::snip12;

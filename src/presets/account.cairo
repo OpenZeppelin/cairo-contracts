@@ -16,7 +16,7 @@ mod AccountUpgradeable {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    // AccountMixin
+    // Account Mixin
     #[abi(embed_v0)]
     impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;

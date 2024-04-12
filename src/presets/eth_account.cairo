@@ -19,7 +19,7 @@ mod EthAccountUpgradeable {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
-    // EthAccountMixin
+    // EthAccount Mixin
     #[abi(embed_v0)]
     impl EthAccountMixinImpl =
         EthAccountComponent::EthAccountMixinImpl<ContractState>;

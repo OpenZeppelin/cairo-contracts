@@ -40,10 +40,7 @@ mod ERC20VotesComponent {
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
-<<<<<<< HEAD
     /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
     #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateChanged {
         #[key]
@@ -54,10 +51,7 @@ mod ERC20VotesComponent {
         to_delegate: ContractAddress
     }
 
-<<<<<<< HEAD
     /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
     #[derive(Drop, PartialEq, starknet::Event)]
     struct DelegateVotesChanged {
         #[key]
@@ -82,22 +76,16 @@ mod ERC20VotesComponent {
         +SNIP12Metadata,
         +Drop<TContractState>
     > of IVotes<ComponentState<TContractState>> {
-<<<<<<< HEAD
         /// Returns the current amount of votes that `account` has.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn get_votes(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             self.ERC20Votes_delegate_checkpoints.read(account).latest()
         }
 
-<<<<<<< HEAD
         /// Returns the amount of votes that `account` had at a specific moment in the past.
         ///
         /// Requirements:
         ///
         /// - `timepoint` must be in the past.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn get_past_votes(
             self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
         ) -> u256 {
@@ -107,7 +95,6 @@ mod ERC20VotesComponent {
             self.ERC20Votes_delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
         }
 
-<<<<<<< HEAD
         /// Returns the total supply of votes available at a specific moment in the past.
         ///
         /// Requirements:
@@ -117,8 +104,6 @@ mod ERC20VotesComponent {
         /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
         /// Votes that have not been delegated are still part of total supply, even though they would not participate in a
         /// vote.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn get_past_total_supply(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
@@ -126,29 +111,22 @@ mod ERC20VotesComponent {
             self.ERC20Votes_total_checkpoints.read().upper_lookup_recent(timepoint)
         }
 
-<<<<<<< HEAD
         /// Returns the delegate that `account` has chosen.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn delegates(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> ContractAddress {
             self.ERC20Votes_delegatee.read(account)
         }
 
-<<<<<<< HEAD
         /// Delegates votes from the sender to `delegatee`.
         ///
         /// Emits a `DelegateChanged` event.
         /// May emit one or two `DelegateVotesChanged` events.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn delegate(ref self: ComponentState<TContractState>, delegatee: ContractAddress) {
             let sender = starknet::get_caller_address();
             self._delegate(sender, delegatee);
         }
 
-<<<<<<< HEAD
         /// Delegates votes from the sender to `delegatee` through a SNIP12 message signature validation.
         ///
         /// Requirements:
@@ -160,8 +138,6 @@ mod ERC20VotesComponent {
         ///
         /// Emits a `DelegateChanged` event.
         /// May emit one or two `DelegateVotesChanged` events.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn delegate_by_sig(
             ref self: ComponentState<TContractState>,
             delegator: ContractAddress,
@@ -233,11 +209,8 @@ mod ERC20VotesComponent {
         }
 
         /// Moves delegated votes from one delegate to another.
-<<<<<<< HEAD
         ///
         /// May emit one or two `DelegateVotesChanged` events.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn move_delegate_votes(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -262,17 +235,12 @@ mod ERC20VotesComponent {
             }
         }
 
-<<<<<<< HEAD
         /// Transfers, mints, or burns voting units.
         ///
         /// To register a mint, `from` should be zero. To register a burn, `to`
         /// should be zero. Total supply of voting units will be adjusted with mints and burns.
         ///
         /// May emit one or two `DelegateVotesChanged` events.
-=======
-        /// Transfers, mints, or burns voting units. To register a mint, `from` should be zero. To register a burn, `to`
-        /// should be zero. Total supply of voting units will be adjusted with mints and burns.
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn transfer_voting_units(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -292,30 +260,19 @@ mod ERC20VotesComponent {
             self.move_delegate_votes(self.delegates(from), self.delegates(to), amount);
         }
 
-<<<<<<< HEAD
         /// Returns the number of checkpoints for `account`.
-=======
-        /// Get number of checkpoints for `account`.
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn num_checkpoints(self: @ComponentState<TContractState>, account: ContractAddress) -> u32 {
             self.ERC20Votes_delegate_checkpoints.read(account).length()
         }
 
-<<<<<<< HEAD
         /// Returns the `pos`-th checkpoint for `account`.
-=======
-        /// Get the `pos`-th checkpoint for `account`.
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn checkpoints(
             self: @ComponentState<TContractState>, account: ContractAddress, pos: u32
         ) -> Checkpoint {
             self.ERC20Votes_delegate_checkpoints.read(account).at(pos)
         }
 
-<<<<<<< HEAD
         /// Returns the voting units of an `account`.
-=======
->>>>>>> ec99fc382f573c6f52d1ddcc89e3e269d6d17aa8
         fn get_voting_units(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> u256 {

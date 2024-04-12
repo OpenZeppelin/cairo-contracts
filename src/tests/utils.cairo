@@ -5,11 +5,7 @@ use starknet::SyscallResultTrait;
 use starknet::testing;
 
 fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
-    let (address, _) = starknet::deploy_syscall(
-        contract_class_hash.try_into().unwrap(), 0, calldata.span(), false
-    )
-        .unwrap_syscall();
-    address
+    deploy_with_salt(contract_class_hash, calldata, 0)
 }
 
 fn deploy_with_salt(
@@ -59,13 +55,13 @@ fn drop_event(address: ContractAddress) {
     let _ = testing::pop_log_raw(address);
 }
 
-fn drop_events(address: ContractAddress, count: felt252) {
-    let mut _count = count;
+fn drop_events(address: ContractAddress, n_events: felt252) {
+    let mut count = n_events;
     loop {
-        if _count == 0 {
+        if count == 0 {
             break;
         }
         drop_event(address);
-        _count -= 1;
+        count -= 1;
     }
 }

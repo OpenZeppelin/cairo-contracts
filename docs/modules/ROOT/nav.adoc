@@ -18,6 +18,8 @@
 ** xref:accounts.adoc[Accounts]
 *** xref:/api/account.adoc[API Reference]
 
+** xref:/api/governance.adoc[Governance]
+
 ** xref:introspection.adoc[Introspection]
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 *** xref:/api/introspection.adoc[API Reference]
@@ -37,7 +39,6 @@
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
-** xref:/api/governance.adoc[Governance]
 ** xref:/api/utilities.adoc[Utilities]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]

@@ -257,7 +257,6 @@ Function executed at the beginning of the xref:#ERC20Component-_update[_update] 
 
 Function executed at the end of the xref:#ERC20Component-_update[_update] function.
 
-
 [#ERC20Component-Embeddable-functions]
 ==== Embeddable functions
 
@@ -435,7 +434,7 @@ Possibly emits an <<ERC20Component-Approval,Approval>> event.
 ==== `[.contract-item-name]#++_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+the zero address.
 
 This function can be extended using the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait], to add
 functionality before and/or after the transfer, mint, or burn.
@@ -514,8 +513,8 @@ By default, token balance does not account for voting power. This makes transfer
 [.contract-index]
 .Events
 --
-* xref:#ERC20VotesComponent-DelegateChanged[`++DelegateChanged([key] delegator, [key] from_delegate, [key] to_delegate)++`]
-* xref:#ERC20VotesComponent-DelegateVotesChanged[`++DelegateVotesChanged([key] delegate, previous_votes, new_votes)++`]
+* xref:#ERC20VotesComponent-DelegateChanged[`++DelegateChanged(delegator, from_delegate, to_delegate)++`]
+* xref:#ERC20VotesComponent-DelegateVotesChanged[`++DelegateVotesChanged(delegate, previous_votes, new_votes)++`]
 --
 
 [#ERC20VotesComponent-Embeddable-functions]
@@ -532,6 +531,10 @@ Returns the current amount of votes that `account` has.
 ==== `[.contract-item-name]#++get_past_votes++#++(self: @ContractState, account: ContractAddress, timepoint: u64) → u256++` [.item-kind]#external#
 
 Returns the amount of votes that `account` had at a specific moment in the past.
+
+Requirements:
+
+- `timepoint` must be in the past.
 
 [.contract-item]
 [[ERC20VotesComponent-get_past_total_supply]]
@@ -553,7 +556,7 @@ Returns the delegate that `account` has chosen.
 [[ERC20VotesComponent-delegate]]
 ==== `[.contract-item-name]#++delegate++#++(ref self: ContractState, delegatee: ContractAddress)++` [.item-kind]#external#
 
-Delegates votes from the sender to `delegatee`.
+Delegates votes from the caller to `delegatee`.
 
 Emits a {DelegateChanged} event.
 
@@ -563,7 +566,7 @@ May emit one or two {DelegateVotesChanged} events.
 [[ERC20VotesComponent-delegate_by_sig]]
 ==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ContractState, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>)++` [.item-kind]#external#
 
-Delegates votes from the sender to `delegatee` through a SNIP12 message signature validation.
+Delegates votes from `delegator` to `delegatee` through a SNIP12 message signature validation.
 
 Requirements:
 
@@ -589,7 +592,7 @@ Returns the current total supply of votes.
 [[ERC20VotesComponent-_delegate]]
 ==== `[.contract-item-name]#++_delegate++#++(ref self: ContractState, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
 
-Delegates all of `account`'s voting units to `delegatee`.
+Delegates all of ``account``'s voting units to `delegatee`.
 
 Emits a {DelegateChanged} event.
 
@@ -637,13 +640,13 @@ Returns the voting units of an `account`.
 
 [.contract-item]
 [[ERC20VotesComponent-DelegateChanged]]
-==== `[.contract-item-name]#++DelegateChanged++#++([key] delegator: ContractAddress, [key] from_delegate: ContractAddress, [key] to_delegate: ContractAddress)++` [.item-kind]#event#
+==== `[.contract-item-name]#++DelegateChanged++#++(delegator: ContractAddress, from_delegate: ContractAddress, to_delegate: ContractAddress)++` [.item-kind]#event#
 
 Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
 
 [.contract-item]
 [[ERC20VotesComponent-DelegateVotesChanged]]
-==== `[.contract-item-name]#++DelegateVotesChanged++#++([key] delegate: ContractAddress, previous_votes: u256, new_votes: u256)++` [.item-kind]#event#
+==== `[.contract-item-name]#++DelegateVotesChanged++#++(delegate: ContractAddress, previous_votes: u256, new_votes: u256)++` [.item-kind]#event#
 
 Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 

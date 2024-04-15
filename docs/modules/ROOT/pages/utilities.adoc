@@ -195,7 +195,6 @@ Struct containing arguments necessary in {calculate_contract_address_from_udc} f
 [#deployments-Functions]
 ==== Functions
 
-:udc-deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[UniversalDeployer::deploy_contract]
 :deployer-info: xref:deployments-DeployerInfo[DeployerInfo]
 
 [.contract-item]

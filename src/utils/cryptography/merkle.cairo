@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.11.0 (token/utils/cryptography/merkle.cairo)
 
+/// # Merkle Proof Verifier Component
+///
+/// Merkle Proof Verifier Component enables contracts to verify merkle proofs.
 #[starknet::interface]
 trait IMerkle<TContractState> {
     fn verify(self: @TContractState, proof: Span<felt252>, root: felt252, leaf: felt252) -> bool;
@@ -38,20 +41,18 @@ mod MerkleComponent {
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         fn process_proof(
-            self: @ComponentState<TContractState>, proof: Span<felt252>, leaf: felt252
+            self: @ComponentState<TContractState>, mut proof: Span<felt252>, mut leaf: felt252
         ) -> felt252 {
-            let length = proof.len();
-            let mut computedHash = leaf;
-            let mut counter = 0;
-
-            loop {
-                if counter == length {
-                    break ();
-                }
-                computedHash = InternalTrait::hash_pair(self, computedHash, *proof.at(counter));
-                counter += 1;
+             while let Option::Some(element) = proof
+            .pop_front() {
+                leaf =
+                    if Into::<felt252, u256>::into(leaf) < (*element).into() {
+                        InternalTrait::hash_pair(self, leaf, *element)
+                    } else {
+                        InternalTrait::hash_pair(self, *element, leaf)
+                    };
             };
-            return computedHash;
+        leaf
         }
 
         fn hash_pair(self: @ComponentState<TContractState>, a: felt252, b: felt252) -> felt252 {

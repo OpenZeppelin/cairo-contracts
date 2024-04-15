@@ -4,8 +4,10 @@
 mod cryptography;
 mod deployments;
 mod interfaces;
+mod math;
 mod selectors;
 mod serde;
+mod structs;
 mod unwrap_and_cast;
 
 use cryptography::nonces;

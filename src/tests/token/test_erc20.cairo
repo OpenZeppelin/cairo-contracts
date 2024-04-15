@@ -97,7 +97,7 @@ fn test_approve() {
     testing::set_caller_address(OWNER());
     assert!(state.approve(SPENDER(), VALUE));
 
-    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -124,7 +124,7 @@ fn test__approve() {
     testing::set_caller_address(OWNER());
     state._approve(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(OWNER(), SPENDER(), VALUE);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -155,14 +155,14 @@ fn test_transfer() {
     testing::set_caller_address(OWNER());
     assert!(state.transfer(RECIPIENT(), VALUE));
 
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test_transfer_not_enough_balance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -192,14 +192,14 @@ fn test__transfer() {
 
     state._transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -236,8 +236,8 @@ fn test_transfer_from() {
     testing::set_caller_address(SPENDER());
     assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(ZERO(), OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -261,7 +261,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -284,7 +284,7 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
     state.transfer_from(ZERO(), RECIPIENT(), VALUE);
@@ -300,8 +300,8 @@ fn test_transferFrom() {
     testing::set_caller_address(SPENDER());
     assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(ZERO(), OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -326,7 +326,7 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
     testing::set_caller_address(OWNER());
@@ -349,7 +349,7 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('u256_sub Overflow',))]
+#[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transferFrom_from_zero_address() {
     let mut state = setup();
     state.transferFrom(ZERO(), RECIPIENT(), VALUE);
@@ -368,7 +368,7 @@ fn test__spend_allowance_not_unlimited() {
 
     state._spend_allowance(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(OWNER(), SPENDER(), SUPPLY - VALUE);
+    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), SUPPLY - VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, SUPPLY - VALUE);
@@ -395,7 +395,7 @@ fn test__mint() {
     let mut state = COMPONENT_STATE();
     state._mint(OWNER(), VALUE);
 
-    assert_only_event_transfer(ZERO(), OWNER(), VALUE);
+    assert_only_event_transfer(ZERO(), ZERO(), OWNER(), VALUE);
     assert_eq!(state.balance_of(OWNER()), VALUE);
     assert_eq!(state.total_supply(), VALUE);
 }
@@ -416,7 +416,7 @@ fn test__burn() {
     let mut state = setup();
     state._burn(OWNER(), VALUE);
 
-    assert_only_event_transfer(OWNER(), ZERO(), VALUE);
+    assert_only_event_transfer(ZERO(), OWNER(), ZERO(), VALUE);
     assert_eq!(state.total_supply(), SUPPLY - VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
 }
@@ -432,8 +432,10 @@ fn test__burn_from_zero() {
 // Helpers
 //
 
-fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    let event = utils::pop_log::<ERC20Component::Event>(ZERO()).unwrap();
+fn assert_event_approval(
+    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
+) {
+    let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
     let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
     assert!(event == expected);
 
@@ -445,13 +447,17 @@ fn assert_event_approval(owner: ContractAddress, spender: ContractAddress, value
     utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
-fn assert_only_event_approval(owner: ContractAddress, spender: ContractAddress, value: u256) {
-    assert_event_approval(owner, spender, value);
-    utils::assert_no_events_left(ZERO());
+fn assert_only_event_approval(
+    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
+) {
+    assert_event_approval(contract, owner, spender, value);
+    utils::assert_no_events_left(contract);
 }
 
-fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    let event = utils::pop_log::<ERC20Component::Event>(ZERO()).unwrap();
+fn assert_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
+    let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
     let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
     assert!(event == expected);
 
@@ -463,7 +469,9 @@ fn assert_event_transfer(from: ContractAddress, to: ContractAddress, value: u256
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer(from: ContractAddress, to: ContractAddress, value: u256) {
-    assert_event_transfer(from, to, value);
-    utils::assert_no_events_left(ZERO());
+fn assert_only_event_transfer(
+    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
+) {
+    assert_event_transfer(contract, from, to, value);
+    utils::assert_no_events_left(contract);
 }

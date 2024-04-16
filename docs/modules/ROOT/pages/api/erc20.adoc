@@ -181,7 +181,7 @@ NOTE: See xref:#ERC20Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC20Component-after_update[`++after_update(self, from, recipient, amount)++`]
 --
 
-[.contract-index#ERC20Component-Embeddable-MixinImpl]
+[.contract-index#ERC20Component-Embeddable-Mixin-Impl]
 .{mixin-impls}
 --
 .ERC20MixinImpl

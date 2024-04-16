@@ -559,6 +559,11 @@ Sets the account `public_key` and registers the interfaces the contract supports
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
 
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.
+
 [.contract]
 [[EthAccountUpgradeable]]
 === `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
@@ -616,3 +621,8 @@ Sets the account `public_key` and registers the interfaces the contract supports
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.

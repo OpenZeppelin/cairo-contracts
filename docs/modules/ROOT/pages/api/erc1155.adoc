@@ -689,3 +689,8 @@ Requirements:
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the contract owner.
+- `new_class_hash` cannot be zero.

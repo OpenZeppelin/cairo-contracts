@@ -2,7 +2,7 @@ use integer::BoundedInt;
 use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::presets::ERC20Upgradeable;
 use openzeppelin::presets::interfaces::{
-    IERC20UpgradeableDispatcher, IERC20UpgradeableDispatcherTrait
+    ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
@@ -28,7 +28,7 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> IERC20UpgradeableDispatcher {
+fn setup_dispatcher_with_event() -> ERC20UpgradeableABIDispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME());
@@ -38,10 +38,10 @@ fn setup_dispatcher_with_event() -> IERC20UpgradeableDispatcher {
     calldata.append_serde(OWNER());
 
     let address = utils::deploy(ERC20Upgradeable::TEST_CLASS_HASH, calldata);
-    IERC20UpgradeableDispatcher { contract_address: address }
+    ERC20UpgradeableABIDispatcher { contract_address: address }
 }
 
-fn setup_dispatcher() -> IERC20UpgradeableDispatcher {
+fn setup_dispatcher() -> ERC20UpgradeableABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
     utils::drop_event(dispatcher.contract_address); // Ownable `OwnershipTransferred`
     utils::drop_event(dispatcher.contract_address); // ERC20 `Transfer`

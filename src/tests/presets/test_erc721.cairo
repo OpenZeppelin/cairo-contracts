@@ -2,7 +2,7 @@ use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
 use openzeppelin::presets::ERC721Upgradeable;
 use openzeppelin::presets::interfaces::{
-    IERC721UpgradeableDispatcher, IERC721UpgradeableDispatcherTrait
+    ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
@@ -49,7 +49,7 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> IERC721UpgradeableDispatcher {
+fn setup_dispatcher_with_event() -> ERC721UpgradeableABIDispatcher {
     let mut calldata = array![];
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
@@ -64,10 +64,10 @@ fn setup_dispatcher_with_event() -> IERC721UpgradeableDispatcher {
     calldata.append_serde(OWNER());
 
     let address = utils::deploy(ERC721Upgradeable::TEST_CLASS_HASH, calldata);
-    IERC721UpgradeableDispatcher { contract_address: address }
+    ERC721UpgradeableABIDispatcher { contract_address: address }
 }
 
-fn setup_dispatcher() -> IERC721UpgradeableDispatcher {
+fn setup_dispatcher() -> ERC721UpgradeableABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
     // `OwnershipTransferred` + `Transfer`s
     utils::drop_events(dispatcher.contract_address, TOKENS_LEN.try_into().unwrap() + 1);
@@ -1166,7 +1166,7 @@ fn test_state_persists_after_upgrade() {
 //
 
 fn assert_state_before_transfer(
-    dispatcher: IERC721UpgradeableDispatcher,
+    dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -1177,7 +1177,7 @@ fn assert_state_before_transfer(
 }
 
 fn assert_state_after_transfer(
-    dispatcher: IERC721UpgradeableDispatcher,
+    dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -1192,7 +1192,7 @@ fn assert_state_after_transfer(
 }
 
 fn assert_state_transfer_to_self(
-    dispatcher: IERC721UpgradeableDispatcher,
+    dispatcher: ERC721UpgradeableABIDispatcher,
     target: ContractAddress,
     token_id: u256,
     token_balance: u256

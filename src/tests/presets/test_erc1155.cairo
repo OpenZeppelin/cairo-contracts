@@ -1,7 +1,7 @@
 use openzeppelin::introspection;
 use openzeppelin::presets::ERC1155Upgradeable;
 use openzeppelin::presets::interfaces::{
-    IERC1155UpgradeableDispatcher, IERC1155UpgradeableDispatcherTrait
+    ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::erc1155_mocks::SnakeERC1155Mock;
@@ -36,7 +36,7 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> (IERC1155UpgradeableDispatcher, ContractAddress) {
+fn setup_dispatcher_with_event() -> (ERC1155UpgradeableABIDispatcher, ContractAddress) {
     let uri: ByteArray = "URI";
     let mut calldata = array![];
     let mut token_ids = array![TOKEN_ID, TOKEN_ID_2];
@@ -52,10 +52,10 @@ fn setup_dispatcher_with_event() -> (IERC1155UpgradeableDispatcher, ContractAddr
     calldata.append_serde(owner);
 
     let address = utils::deploy(ERC1155Upgradeable::TEST_CLASS_HASH, calldata);
-    (IERC1155UpgradeableDispatcher { contract_address: address }, owner)
+    (ERC1155UpgradeableABIDispatcher { contract_address: address }, owner)
 }
 
-fn setup_dispatcher() -> (IERC1155UpgradeableDispatcher, ContractAddress) {
+fn setup_dispatcher() -> (ERC1155UpgradeableABIDispatcher, ContractAddress) {
     let (dispatcher, owner) = setup_dispatcher_with_event();
     utils::drop_event(dispatcher.contract_address); // `TransferOwnership`
     utils::drop_event(dispatcher.contract_address); // `Transfer`
@@ -874,7 +874,7 @@ fn test_state_persists_after_upgrade() {
 //
 
 fn assert_state_before_transfer_single(
-    dispatcher: IERC1155UpgradeableDispatcher,
+    dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -884,7 +884,7 @@ fn assert_state_before_transfer_single(
 }
 
 fn assert_state_after_transfer_single(
-    dispatcher: IERC1155UpgradeableDispatcher,
+    dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -894,7 +894,7 @@ fn assert_state_after_transfer_single(
 }
 
 fn assert_state_before_transfer_batch(
-    dispatcher: IERC1155UpgradeableDispatcher,
+    dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
     token_ids: Span<u256>,
@@ -915,7 +915,7 @@ fn assert_state_before_transfer_batch(
 }
 
 fn assert_state_after_transfer_batch(
-    dispatcher: IERC1155UpgradeableDispatcher,
+    dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
     token_ids: Span<u256>,

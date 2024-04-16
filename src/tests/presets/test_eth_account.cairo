@@ -5,7 +5,7 @@ use openzeppelin::account::utils::secp256k1::{
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
-    IEthAccountUpgradeableDispatcher, IEthAccountUpgradeableDispatcherTrait
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::account::test_eth_account::{
     assert_only_event_owner_added, assert_event_owner_removed
@@ -41,19 +41,19 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher() -> IEthAccountUpgradeableDispatcher {
+fn setup_dispatcher() -> EthAccountUpgradeableABIDispatcher {
     let mut calldata = array![];
     calldata.append_serde(ETH_PUBKEY());
 
     let target = utils::deploy(CLASS_HASH(), calldata);
     utils::drop_event(target);
 
-    IEthAccountUpgradeableDispatcher { contract_address: target }
+    EthAccountUpgradeableABIDispatcher { contract_address: target }
 }
 
 fn setup_dispatcher_with_data(
     data: Option<@SignedTransactionData>
-) -> IEthAccountUpgradeableDispatcher {
+) -> EthAccountUpgradeableABIDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
@@ -70,7 +70,7 @@ fn setup_dispatcher_with_data(
         calldata.append_serde(ETH_PUBKEY());
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    IEthAccountUpgradeableDispatcher { contract_address: address }
+    EthAccountUpgradeableABIDispatcher { contract_address: address }
 }
 
 //
@@ -149,7 +149,7 @@ fn test_setPublicKey_different_account() {
 // is_valid_signature & isValidSignature
 //
 
-fn is_valid_sig_dispatcher() -> (IEthAccountUpgradeableDispatcher, felt252, Array<felt252>) {
+fn is_valid_sig_dispatcher() -> (EthAccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let dispatcher = setup_dispatcher();
 
     let data = SIGNED_TX_DATA();
@@ -471,7 +471,7 @@ fn test_v2_missing_camel_selector() {
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    let dispatcher = IEthAccountUpgradeableDispatcher { contract_address: v1.contract_address };
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
     dispatcher.getPublicKey();
 }
 
@@ -481,7 +481,7 @@ fn test_state_persists_after_upgrade() {
     let v2_class_hash = V2_CLASS_HASH();
 
     set_contract_and_caller(v1.contract_address);
-    let dispatcher = IEthAccountUpgradeableDispatcher { contract_address: v1.contract_address };
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
     let (point, _) = get_points();
 

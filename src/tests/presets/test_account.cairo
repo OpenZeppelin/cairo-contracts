@@ -3,7 +3,7 @@ use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::presets::interfaces::{
-    IAccountUpgradeableDispatcher, IAccountUpgradeableDispatcherTrait
+    AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::account::test_account::{
     assert_only_event_owner_added, assert_event_owner_removed
@@ -37,17 +37,17 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher() -> IAccountUpgradeableDispatcher {
+fn setup_dispatcher() -> AccountUpgradeableABIDispatcher {
     let calldata = array![PUBKEY];
     let target = utils::deploy(CLASS_HASH(), calldata);
     utils::drop_event(target);
 
-    IAccountUpgradeableDispatcher { contract_address: target }
+    AccountUpgradeableABIDispatcher { contract_address: target }
 }
 
 fn setup_dispatcher_with_data(
     data: Option<@SignedTransactionData>
-) -> IAccountUpgradeableDispatcher {
+) -> AccountUpgradeableABIDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
@@ -61,7 +61,7 @@ fn setup_dispatcher_with_data(
         calldata.append(PUBKEY);
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    IAccountUpgradeableDispatcher { contract_address: address }
+    AccountUpgradeableABIDispatcher { contract_address: address }
 }
 
 //
@@ -135,7 +135,7 @@ fn test_setPublicKey_different_account() {
 // is_valid_signature & isValidSignature
 //
 
-fn is_valid_sig_dispatcher() -> (IAccountUpgradeableDispatcher, felt252, Array<felt252>) {
+fn is_valid_sig_dispatcher() -> (AccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let dispatcher = setup_dispatcher();
 
     let data = SIGNED_TX_DATA();
@@ -484,7 +484,7 @@ fn test_v2_missing_camel_selector() {
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    let dispatcher = IAccountUpgradeableDispatcher { contract_address: v1.contract_address };
+    let dispatcher = AccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
     dispatcher.getPublicKey();
 }
 
@@ -494,7 +494,7 @@ fn test_state_persists_after_upgrade() {
     let v2_class_hash = V2_CLASS_HASH();
 
     set_contract_and_caller(v1.contract_address);
-    let dispatcher = IAccountUpgradeableDispatcher { contract_address: v1.contract_address };
+    let dispatcher = AccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
     dispatcher.set_public_key(PUBKEY);
 

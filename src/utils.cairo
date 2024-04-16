@@ -2,11 +2,12 @@
 // OpenZeppelin Contracts for Cairo v0.11.0 (utils.cairo)
 
 mod cryptography;
+mod deployments;
+mod interfaces;
 mod math;
 mod selectors;
 mod serde;
 mod structs;
-mod universal_deployer;
 mod unwrap_and_cast;
 
 use cryptography::nonces;

@@ -1,226 +1,134 @@
 = Universal Deployer Contract
 
-The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html#the-deploy-system-call[`deploy syscall`] to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a **standardized generic factory for StarkNet contracts**.
+:deploy-syscall: xref:architecture_and_concepts:Smart_Contracts/system-calls-cairo1.adoc#deploy[deploy syscall]
+:deployer-interface: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[Standard Deployer Interface]
+:udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
+:deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
+:contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
-And since StarkNet has no deployment transaction type, it offers a canonical way to deploy smart contracts by following the https://community.starknet.io/t/snip-deployer-contract-interface/2772[standard deployer interface] and emitting a `ContractDeployed` event.
+The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 
-TIP: For information on design decisions, see the https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract Proposal].
+Since Starknet has no deployment transaction type, it offers a standardized way to deploy smart contracts by following the {deployer-interface} and emitting a {contract-deployed} event.
 
-NOTE: The UDC address is `0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf` in mainnet, testnets, and starknet-devnet. This address may change in the future.
+For details on the motivation and the decision making process, see the {udc-proposal}.
 
-== Table of Contents
-* <<quickstart, Quickstart>>
-* <<deploying_the_udc,Deploying the UDC>>
-* <<usage,Usage>>
- ** <<deployer_dependent,Deployer dependent>>
- ** <<deployer_independent,Deployer independent>>
-* <<calculating_counterfactual_addresses,Calculating counterfactual addresses>>
-* <<api_specification,API specification>>
+== UDC contract address
 
-== Quickstart
+The UDC address is deployed at address `0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221` in Mainnet and Sepolia testnet.
 
-To deploy a contract first you need to make sure it's been declared and then send a `deployContract` transaction to the Universal Deployer Contract.
-Here's an example implementation in Python:
+== Interface
 
-[,python]
+[,javascript]
 ----
-from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
-
-signer = MockSigner(PRIVATE_KEY)
-
-async def deploy_contract():
-    # Declare the contract and get the class hash before deployment
-    class_hash, _ = await signer.declare_class(account, "Ownable")
-
-    # Set up deployment parameters
-    salt = 123456  # random number
-    unique = FALSE
-    calldata = [account.contract_address]
-    params = [class_hash, salt, unique, len(calldata), *calldata]
-
-    # Send a "deployContract" transaction to the deployer contract
-    await account.send_transaction(
-        account,
-        UNIVERSAL_DEPLOYER_ADDRESS,
-        "deployContract",
-        params
-    )
+trait IUniversalDeployer {
+    fn deploy_contract(
+        class_hash: ClassHash,
+        salt: felt252,
+        from_zero: bool,
+        calldata: Span<felt252>
+    ) -> ContractAddress;
+}
 ----
 
-=== Deploying the UDC
+== Deploying a contract with the UDC
 
-NOTE: The Universal Deployer Contract has already been deployed on most networks and development environments.
-The deployment of the UDC requires `deploy_from_zero=TRUE` to be passed to the `deploy` syscall. This results in a deterministic and predictable address across all instances of StarkNet, facilitating SDK integration and reproducibility of deployments.
+:declare: link:https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction[declare]
 
-== Usage
+First, {declare} the target contract (if it's not already declared).
+Next, call the UDC's `deploy_contract` method.
+Here's an implementation example in Cairo:
 
-The Universal Deployer Contract offers two types of addresses to deploy: deployer dependent and deployer independent.
-As the names suggest, the deployer-dependent type includes the deployer's address in the address calculation;
-whereas, the deployer-independent type does not.
-The `unique` boolean parameter ultimately determines the type of deployment.
-
-CAUTION: When deploying a contract that uses `get_caller_address` in the constructor calldata, remember that the UDC (and not the account) deploys that contract.
-Therefore, querying `get_caller_address` in a contract's constructor will return the UDC's address and *not* the account's address.
-
-=== Deployer dependent
-
-Making deployments dependent of the deployer address, users can "reserve" a whole address space from squatting by someone else.
-Only that deployer can deploy to those addresses.
-
-Achieving this type of deployment necessitates that the deployer sets `unique` to `TRUE` in the `deployContract` call.
-Under the hood, the function call leverages the deployer's address and creates a hashchain by hashing the deployer's address with the given salt.
-
-To deploy a unique contract address:
-
-[,python]
+[,javascript]
 ----
-from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
+use openzeppelin::utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
-signer = MockSigner(PRIVATE_KEY)
+const UDC_ADDRESS: felt252 = 0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221;
 
-async def deploy_contract():
-    # Declare the contract and get the class hash before deployment
-    class_hash, _ = await signer.declare_class(account, "Ownable")
+fn deploy() -> ContractAddress {
+    let dispatcher = IUniversalDeployerDispatcher {
+        contract_address: UDC_ADDRESS.try_into().unwrap()
+    };
 
-    # Set up deployment parameters
-    salt = 123456  # random number
-    unique = TRUE
-    calldata = [account.contract_address]
-    params = [class_hash, salt, unique, len(calldata), *calldata]
+    // Deployment parameters
+    let class_hash = class_hash_const::<
+       0x5c478ee27f2112411f86f207605b2e2c58cdb647bac0df27f660ef2252359c6
+    >();
+    let salt = 1234567879;
+    let from_zero = false;
+    let mut calldata = array![];
 
-    # Send a "deployContract" transaction to the deployer contract
-    await account.send_transaction(
-        account,
-        UNIVERSAL_DEPLOYER_ADDRESS,
-        "deployContract",
-        params
-    )
+    // The UDC returns the deployed contract address
+    dispatcher.deploy_contract(class_hash, salt, from_zero, calldata.span())
+}
 ----
 
+== Deployment types
 
-=== Deployer independent
+The Universal Deployer Contract offers two types of addresses to deploy: origin-dependent and origin-independent.
+As the names suggest, the origin-dependent type includes the deployer's address in the address calculation,
+whereas, the origin-independent type does not.
+The `from_zero` boolean parameter ultimately determines the type of deployment.
 
-Deployer-independent contract deployments create contract addresses independent of the deployer and the UDC instance.
-Instead only the class hash, salt, and constructor arguments determine the address.
+[IMPORTANT]
+====
+When deploying a contract that uses `get_caller_address` in the constructor calldata, remember that the UDC, not the account, deploys that contract.
+Therefore, querying `get_caller_address` in a contract's constructor returns the UDC's address, _not the account's address_.
+====
+
+=== Origin-dependent
+
+By making deployments dependent upon the origin address, users can reserve a whole address space to prevent someone else from taking ownership of the address.
+
+Only the owner of the origin address can deploy to those addresses.
+
+Achieving this type of deployment necessitates that the origin sets `from_zero` to `false` in the {deploy_contract} call.
+Under the hood, the function passes a modified salt to the `deploy_syscall`, which is the hash of the origin's address with the given salt.
+
+To deploy a unique contract address pass:
+
+[,js]
+----
+let deployed_addr = udc.deploy_contract(class_hash, salt, false, calldata.span());
+----
+
+=== Origin-independent
+
+Origin-independent contract deployments create contract addresses independent of the deployer and the UDC instance.
+Instead, only the class hash, salt, and constructor arguments determine the address.
 This type of deployment enables redeployments of accounts and known systems across multiple networks.
-To deploy a reproducible deployment, set `unique` to `FALSE`.
+To deploy a reproducible deployment, set `from_zero` to `true`.
 
-[,python]
+[source,cairo]
 ----
-from nile.common import UNIVERSAL_DEPLOYER_ADDRESS
-
-signer = MockSigner(PRIVATE_KEY)
-
-async def deploy_contract():
-    # Declare the contract and get the class hash before deployment
-    class_hash, _ = await signer.declare_class(account, "Ownable")
-
-    # Set up deployment parameters
-    salt = 123456  # random number
-    unique = FALSE
-    calldata = [account.contract_address]
-    params = [class_hash, salt, unique, len(calldata), *calldata]
-
-    # Send a "deployContract" transaction to the deployer contract
-    await account.send_transaction(
-        account,
-        UNIVERSAL_DEPLOYER_ADDRESS,
-        "deployContract",
-        params
-    )
+let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span());
 ----
 
-== Calculating counterfactual addresses
+== Version changes
 
-Counterfactual addresses are contract addresses that haven't been deployed yet.
-A strong use-case for calculating a contract's counterfactual address lies in deploying account contracts.
-See xref:accounts.adoc#counterfactual_deployments[Counterfactual Deployments].
+:pedersen: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#pedersen_hash[Pedersen]
+:poseidon: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#poseidon_hash[Poseidon]
+:origin-dependent-deployments: xref:origin_dependent[origin-dependent deployments]
+:previous-udc-api: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc#api_specification[previous Universal Deployer API]
+:contract-deployed-event: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
-To predict the counterfactual address, use the StarkWare library's `calculate_contract_address_from_hash` and pass the same arguments that will be used for the actual deployment.
-For example:
+NOTE: See the {previous-udc-api} for the initial spec.
 
-[,python]
-----
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
+The latest iteration of the UDC includes some notable changes to the API which include:
 
-expected_address = calculate_contract_address_from_hash(
-    salt=salt,
-    class_hash=class_hash,
-    constructor_calldata=calldata,
-    deployer_address=deployer_address
-)
-----
+* `deployContract` method is replaced with the snake_case {deploy_contract}.
+* {pedersen} hashing algorithm is replaced with the {poseidon} hashing algorithm for computing the salt on {origin-dependent-deployments}.
+* `unique` parameter is replaced with `from_zero` in both the `deploy_contract` method and {contract-deployed-event} event.
 
-== API specification
+WARNING: Origin-dependent deployments previously meant that the `unique` argument would be `true`.
+Origin-dependent deployments from the new UDC iteration, however, requires that `from_zero` is `false`.
+It's especially important to keep this in mind when dealing with `ContractDeployed` events because this change will appear as the opposite boolean per deployment type.
 
-=== Methods
+== Precomputing contract addresses
 
-[,cairo]
-----
-func deployContract(
-    classHash: felt,
-    salt: felt,
-    unique: felt,
-    calldata_len: felt,
-    calldata: felt*
-) -> (address: felt) {
-}
+:calculate_contract_address_from_deploy_syscall: xref:/utilities.adoc#deployments-calculate_contract_address_from_deploy_syscall[calculate_contract_address_from_deploy_syscall]
+:calculate_contract_address_from_udc: xref:/utilities.adoc#deployments-calculate_contract_address_from_udc[calculate_contract_address_from_udc]
+:deployments: xref:/utilities.adoc#deployments[deployments]
 
-----
-
-==== deployContract
-
-Deploy a contract through the Universal Deploy Contract.
-
-Parameters:
-
-[,cairo]
-----
-classHash: felt
-salt: felt
-unique: felt
-calldata_len: felt
-calldata: felt*
-----
-
-Returns:
-
-[,cairo]
-----
-address: felt
-----
-
-=== Events
-
-[,cairo]
-----
-func ContractDeployed(
-    address: felt,
-    deployer: felt,
-    unique: felt,
-    classHash: felt,
-    calldata_len: felt,
-    calldata: felt*,
-    salt: felt
-) {
-}
-----
-
-==== `ContractDeployed`
-
-Emitted when `deployer` deploys a contract through the Universal Deployer Contract.
-
-Parameters:
-
-[,cairo]
-----
-address: felt,
-deployer: felt,
-unique: felt,
-classHash: felt,
-calldata_len: felt,
-calldata: felt*,
-salt: felt
-----
+This library offers utility functions written in Cairo to precompute contract addresses.
+They include the generic {calculate_contract_address_from_deploy_syscall} as well as the UDC-specific {calculate_contract_address_from_udc}.
+Check out the {deployments} for more information.

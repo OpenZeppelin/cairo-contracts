@@ -3,7 +3,7 @@
 
 #[starknet::component]
 mod NoncesComponent {
-    use openzeppelin::utils::cryptography::interface::INonces;
+    use openzeppelin::utils::interfaces::INonces;
     use starknet::ContractAddress;
 
     #[storage]

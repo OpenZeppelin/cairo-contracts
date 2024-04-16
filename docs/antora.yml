@@ -5,4 +5,4 @@ nav:
   - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
-    page-sidebar-collapse-default: 'Access,Accounts,Introspection,Security,ERC20,ERC721,ERC1155,Upgrades'
+    page-sidebar-collapse-default: 'Access,Accounts,Introspection,Security,ERC20,ERC721,ERC1155,Upgrades,Universal Deployer Contract'

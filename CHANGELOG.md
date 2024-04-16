@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - INSUFFICIENT_BALANCE and INSUFFICIENT_ALLOWANCE errors to ERC20Component (#951)
 - ERC20Votes component (#951)
 - Preset interfaces (#964)
+- UDC docs (#954)
+- Util functions to precompute addresses (#954)
 
 ### Changed
 

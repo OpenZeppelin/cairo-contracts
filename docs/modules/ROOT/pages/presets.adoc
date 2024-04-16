@@ -1,7 +1,7 @@
-:account: xref:/api/account.adoc#Account[Account]
-:erc20: xref:/api/erc20.adoc#ERC20[ERC20]
-:erc721: xref:/api/erc721.adoc#ERC721[ERC721]
-:erc1155: xref:/api/erc1155.adoc#ERC1155[ERC1155]
+:account-upgradeable: xref:/api/account.adoc#AccountUpgradeable[AccountUpgradeable]
+:erc20-upgradeable: xref:/api/erc20.adoc#ERC20Upgradeable[ERC20Upgradeable]
+:erc721-upgradeable: xref:/api/erc721.adoc#ERC721Upgradeable[ERC721Upgradeable]
+:erc1155-upgradeable: xref:/api/erc1155.adoc#ERC1155Upgradeable[ERC1155Upgradeable]
 :eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
 :udc: https://github.com/starknet-io/starknet-docs/blob/v0.1.479/components/Starknet/modules/architecture_and_concepts/pages/Smart_Contracts/universal-deployer.adoc[UniversalDeployer]
 :sierra-class-hashes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash[Sierra class hashes]
@@ -28,17 +28,17 @@ NOTE: Class hashes were computed using {class-hash-cairo-version}.
 |===
 | Name | Sierra Class Hash
 
-| `{account}`
-| `{Account-class-hash}`
+| `{account-upgradeable}`
+| `{AccountUpgradeable-class-hash}`
 
-| `{erc20}`
-| `{ERC20-class-hash}`
+| `{erc20-upgradeable}`
+| `{ERC20Upgradeable-class-hash}`
 
-| `{erc721}`
-| `{ERC721-class-hash}`
+| `{erc721-upgradeable}`
+| `{ERC721Upgradeable-class-hash}`
 
-| `{erc1155}`
-| `{ERC1155-class-hash}`
+| `{erc1155-upgradeable}`
+| `{ERC1155Upgradeable-class-hash}`
 
 | `{eth-account-upgradeable}`
 | `{EthAccountUpgradeable-class-hash}`

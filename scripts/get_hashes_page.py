@@ -2,10 +2,10 @@ import sys
 import json
 
 KNOWN_ORDER = [
-    "ERC20",
-    "ERC721",
-    "ERC1155",
-    "Account",
+    "ERC20Upgradeable",
+    "ERC721Upgradeable",
+    "ERC1155Upgradeable",
+    "AccountUpgradeable",
     "EthAccountUpgradeable",
     "UniversalDeployer"
 ]

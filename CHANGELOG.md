@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - before_update and after_update hooks to ERC20Component (#951)
 - INSUFFICIENT_BALANCE and INSUFFICIENT_ALLOWANCE errors to ERC20Component (#951)
 - ERC20Votes component (#951)
+- Preset interfaces (#964)
 - UDC docs (#954)
 - Util functions to precompute addresses (#954)
 
@@ -21,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow testing utilities to be importable (#963)
 - Utilities documentation (#963)
 - Parameter name in `tests::utils::drop_events` (`count` -> `n_events`) (#963)
+- Presets to include upgradeable functionality (#964)
+- ERC20, ERC721, and ERC1155 presets include Ownable functionality (#964)
 
 ## 0.11.0 (2024-03-29)
 

@@ -3,7 +3,7 @@
 
 /// # EthAccount Preset
 ///
-/// OpenZeppelin's account which can change its public key and declare,
+/// OpenZeppelin's upgradeable account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
 #[starknet::contract(account)]
 mod EthAccountUpgradeable {

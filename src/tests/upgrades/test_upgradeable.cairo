@@ -43,7 +43,7 @@ fn test_upgraded_event() {
     let v1 = deploy_v1();
     v1.upgrade(V2_CLASS_HASH());
 
-    assert_only_event_upgraded(V2_CLASS_HASH(), v1.contract_address);
+    assert_only_event_upgraded(v1.contract_address, V2_CLASS_HASH());
 }
 
 #[test]
@@ -87,13 +87,13 @@ fn test_remove_selector_fails_in_v2() {
 // Helpers
 //
 
-fn assert_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
+fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
     let event = utils::pop_log::<UpgradeableComponent::Event>(contract).unwrap();
     let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
     assert!(event == expected);
 }
 
-fn assert_only_event_upgraded(class_hash: ClassHash, contract: ContractAddress) {
-    assert_event_upgraded(class_hash, contract);
+fn assert_only_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
+    assert_event_upgraded(contract, class_hash);
     utils::assert_no_events_left(ZERO());
 }

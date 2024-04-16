@@ -40,7 +40,7 @@ fn test_initializer_owner_pending_owner() {
     assert!(state.Ownable_pending_owner.read().is_zero());
     state.initializer(OWNER());
 
-    assert_event_ownership_transferred(ZERO(), OWNER());
+    assert_event_ownership_transferred(ZERO(), ZERO(), OWNER());
 
     assert_eq!(state.Ownable_owner.read(), OWNER());
     assert!(state.Ownable_pending_owner.read().is_zero());
@@ -57,7 +57,7 @@ fn test__accept_ownership() {
 
     state._accept_ownership();
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pending_owner().is_zero());
 }
@@ -179,7 +179,7 @@ fn test_accept_ownership() {
 
     state.accept_ownership();
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pending_owner().is_zero());
 }
@@ -201,7 +201,7 @@ fn test_acceptOwnership() {
 
     state.acceptOwnership();
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pendingOwner().is_zero());
 }
@@ -225,7 +225,7 @@ fn test_renounce_ownership() {
     testing::set_caller_address(OWNER());
     state.renounce_ownership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_event_ownership_transferred(ZERO(), OWNER(), ZERO());
 
     assert!(state.owner().is_zero());
 }
@@ -251,7 +251,7 @@ fn test_renounceOwnership() {
     testing::set_caller_address(OWNER());
     state.renounceOwnership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_event_ownership_transferred(ZERO(), OWNER(), ZERO());
 
     assert!(state.owner().is_zero());
 }
@@ -284,7 +284,7 @@ fn test_full_two_step_transfer() {
     testing::set_caller_address(OTHER());
     state.accept_ownership();
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pending_owner().is_zero());
 }
@@ -301,13 +301,13 @@ fn test_pending_accept_after_owner_renounce() {
 
     state.renounce_ownership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_event_ownership_transferred(ZERO(), OWNER(), ZERO());
     assert!(state.owner().is_zero());
 
     testing::set_caller_address(OTHER());
     state.accept_ownership();
 
-    assert_event_ownership_transferred(ZERO(), OTHER());
+    assert_event_ownership_transferred(ZERO(), ZERO(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pending_owner().is_zero());
 }

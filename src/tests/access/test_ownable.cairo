@@ -40,7 +40,7 @@ fn test_initializer_owner() {
 
     state.initializer(OWNER());
 
-    assert_event_ownership_transferred(ZERO(), OWNER());
+    assert_event_ownership_transferred(ZERO(), ZERO(), OWNER());
 
     let new_owner = state.Ownable_owner.read();
     assert_eq!(new_owner, OWNER());
@@ -81,7 +81,7 @@ fn test__transfer_ownership() {
     let mut state = setup();
     state._transfer_ownership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
 
     let current_owner = state.Ownable_owner.read();
     assert_eq!(current_owner, OTHER());
@@ -97,7 +97,7 @@ fn test_transfer_ownership() {
     testing::set_caller_address(OWNER());
     state.transfer_ownership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -130,7 +130,7 @@ fn test_transferOwnership() {
     testing::set_caller_address(OWNER());
     state.transferOwnership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -167,7 +167,7 @@ fn test_renounce_ownership() {
     testing::set_caller_address(OWNER());
     state.renounce_ownership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_event_ownership_transferred(ZERO(), OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -192,7 +192,7 @@ fn test_renounceOwnership() {
     testing::set_caller_address(OWNER());
     state.renounceOwnership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_event_ownership_transferred(ZERO(), OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -215,13 +215,21 @@ fn test_renounceOwnership_from_nonowner() {
 // Helpers
 //
 
-fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner: ContractAddress) {
-    let event = utils::pop_log::<OwnableComponent::Event>(ZERO()).unwrap();
+fn assert_only_event_ownership_transferred(
+    contract: ContractAddress, previous_owner: ContractAddress, new_owner: ContractAddress
+) {
+    assert_event_ownership_transferred(contract, previous_owner, new_owner);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_ownership_transferred(
+    contract: ContractAddress, previous_owner: ContractAddress, new_owner: ContractAddress
+) {
+    let event = utils::pop_log::<OwnableComponent::Event>(contract).unwrap();
     let expected = OwnableComponent::Event::OwnershipTransferred(
         OwnershipTransferred { previous_owner, new_owner }
     );
     assert!(event == expected);
-    utils::assert_no_events_left(ZERO());
 
     let mut indexed_keys = array![];
     indexed_keys.append_serde(selector!("OwnershipTransferred"));

@@ -504,27 +504,27 @@ Emitted when a `public_key` is removed.
 == Presets
 
 [.contract]
-[[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/account.cairo[{github-icon},role=heading-link]
+[[AccountUpgradeable]]
+=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```javascript
-use openzeppelin::presets::Account;
+use openzeppelin::presets::AccountUpgradeable;
 ```
 
-Basic account contract leveraging xref:#AccountComponent[AccountComponent].
+Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
 
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
 .{presets-page}
 --
-{Account-class-hash}
+{AccountUpgradeable-class-hash}
 --
 
 [.contract-index]
 .Constructor
 --
-* xref:#Account-constructor[`++constructor(self, public_key)++`]
+* xref:#AccountUpgradeable-constructor[`++constructor(self, public_key)++`]
 --
 
 [.contract-index]
@@ -535,14 +535,34 @@ include::../utils/_class_hashes.adoc[]
 * xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
 --
 
-[#Account-constructor-section]
+[.contract-index]
+.External Functions
+--
+* xref:#AccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#AccountUpgradeable-constructor-section]
 ==== Constructor
 
 [.contract-item]
-[[Account-constructor]]
+[[AccountUpgradeable-constructor]]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: felt252)++` [.item-kind]#constructor#
 
 Sets the account `public_key` and registers the interfaces the contract supports.
+
+[#AccountUpgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[AccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.
 
 [.contract]
 [[EthAccountUpgradeable]]
@@ -552,7 +572,7 @@ Sets the account `public_key` and registers the interfaces the contract supports
 use openzeppelin::presets::EthAccountUpgradeable;
 ```
 
-Account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
+Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
@@ -601,3 +621,8 @@ Sets the account `public_key` and registers the interfaces the contract supports
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.

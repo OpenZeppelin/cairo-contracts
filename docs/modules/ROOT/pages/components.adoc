@@ -359,7 +359,7 @@ Here's the setup:
 #[starknet::contract]
 mod ERC20Pausable {
     use openzeppelin::security::pausable::PausableComponent;
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     // Import the ERC20 interfaces to create custom implementations
     use openzeppelin::token::erc20::interface::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;

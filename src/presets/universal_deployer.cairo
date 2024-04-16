@@ -7,7 +7,7 @@
 #[starknet::contract]
 mod UniversalDeployer {
     use hash::{HashStateTrait, HashStateExTrait};
-    use openzeppelin::utils::universal_deployer::interface;
+    use openzeppelin::utils::interfaces::IUniversalDeployer;
     use poseidon::PoseidonTrait;
     use starknet::ClassHash;
     use starknet::ContractAddress;
@@ -34,7 +34,7 @@ mod UniversalDeployer {
     }
 
     #[abi(embed_v0)]
-    impl UniversalDeployerImpl of interface::IUniversalDeployer<ContractState> {
+    impl UniversalDeployerImpl of IUniversalDeployer<ContractState> {
         fn deploy_contract(
             ref self: ContractState,
             class_hash: ClassHash,

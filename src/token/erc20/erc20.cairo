@@ -318,8 +318,13 @@ mod ERC20Component {
             }
         }
 
-        /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address.
+        ///
+        /// This function can be extended using the `ERC20HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
+        /// Emits a `Transfer` event.
         fn _update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,

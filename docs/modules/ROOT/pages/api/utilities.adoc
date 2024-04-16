@@ -31,6 +31,7 @@ Module containing core utilities of the library.
 .Inner modules
 * xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-deployments[`++deployments++`]
+* xref:#utils-math[`++math++`]
 * xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
@@ -110,6 +111,12 @@ See xref:#cryptography[`openzeppelin::utils::cryptography`].
 See xref:#deployments[`openzeppelin::utils::deployments`].
 
 [.contract-item]
+[[utils-math]]
+==== `[.contract-item-name]#++math++#` [.item-kind]#module#
+
+See xref:#math[`openzeppelin::utils::math`].
+
+[.contract-item]
 [[utils-selectors]]
 ==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
 
@@ -185,7 +192,6 @@ Module containing utility functions for calculating contract addresses through {
 
 :calculate_contract_address_from_udc: xref:deployments-calculate_contract_address_from_udc[utils::calculate_contract_address_from_udc]
 
-
 [.contract-item]
 [[deployments-DeployerInfo]]
 ==== `[.contract-item-name]#++DeployerInfo++#++(caller_address: ContractAddress, udc_address: ContractAddress)++` [.item-kind]#struct#
@@ -218,6 +224,34 @@ Returns the calculated contract address for UDC deployments.
 Origin-independent deployments (deployed from zero) should pass `Option::None` as `deployer_info`.
 
 Origin-dependent deployments hash `salt` with `caller_address` (member of {deployer-info}) and pass the hashed salt to the inner {deploy_syscall} as the `contract_address_salt` argument.
+
+[.contract]
+[[math]]
+=== `++math++`
+
+```javascript
+use openzeppelin::utils::math;
+```
+
+Module containing math utilities.
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#math-average[`++average(a, b)++`]
+--
+
+[#math-Functions]
+==== Functions
+
+[.contract-item]
+[[math-average]]
+==== `[.contract-item-name]#++average++#++(a: T, b: T) → T++` [.item-kind]#function#
+
+Returns the average of two values. The result is rounded down.
+
+NOTE: `T` is a generic value matching different numeric implementations.
 
 [.contract]
 [[selectors]]
@@ -292,7 +326,7 @@ Simple component for managing nonces.
 .Embeddable Implementations
 --
 [.sub-index#NoncesComponent-Embeddable-Impls-NoncesImpl]
-.SRC5Impl
+.NoncesImpl
 
 * xref:#NoncesComponent-nonces[`++nonces(self, owner)++`]
 --

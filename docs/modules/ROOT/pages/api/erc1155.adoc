@@ -658,6 +658,12 @@ include::../utils/_class_hashes.adoc[]
 * xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
+[.contract-index]
+.External Functions
+--
+* xref:#ERC1155Upgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
 [#ERC1155Upgradeable-constructor-section]
 ==== Constructor
 
@@ -676,7 +682,7 @@ Requirements:
 - `token_ids` and `values` must have the same length.
 
 [#ERC1155Upgradeable-external-functions]
-==== External functions
+==== External Functions
 
 [.contract-item]
 [[ERC1155Upgradeable-upgrade]]

@@ -724,6 +724,12 @@ include::../utils/_class_hashes.adoc[]
 * xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
+[.contract-index]
+.External Functions
+--
+* xref:#ERC721Upgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
 [#ERC721Upgradeable-constructor-section]
 ==== Constructor
 

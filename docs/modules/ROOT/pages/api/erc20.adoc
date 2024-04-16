@@ -449,6 +449,12 @@ include::../utils/_class_hashes.adoc[]
 * xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
+[.contract-index]
+.External Functions
+--
+* xref:#ERC20Upgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
 [#ERC20Upgradeable-constructor-section]
 ==== Constructor
 

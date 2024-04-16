@@ -320,7 +320,7 @@ The `contract_address_salt` is always set to zero, and `deploy_from_zero` is set
 Usage example:
 
 ```javascript
-use openzeppelin::presets::Account;
+use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 
@@ -328,7 +328,7 @@ const PUBKEY: felt252 = 'PUBKEY';
 
 fn deploy_test_contract() -> ContractAddress {
     let calldata = array![PUBKEY];
-    utils::deploy(Account::TEST_CLASS_HASH, calldata)
+    utils::deploy(AccountUpgradeable::TEST_CLASS_HASH, calldata)
 }
 ```
 

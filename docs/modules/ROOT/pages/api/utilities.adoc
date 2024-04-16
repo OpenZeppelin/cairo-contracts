@@ -28,6 +28,7 @@ Module containing core utilities of the library.
 
 .Inner modules
 * xref:#utils-cryptography[`++cryptography++`]
+* xref:#utils-math[`++math++`]
 * xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
@@ -100,6 +101,11 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 
 See xref:#cryptography[`openzeppelin::utils::cryptography`].
 
+[.contract-item]
+[[utils-math]]
+==== `[.contract-item-name]#++math++#` [.item-kind]#module#
+
+See xref:#math[`openzeppelin::utils::math`].
 
 [.contract-item]
 [[utils-selectors]]
@@ -148,6 +154,33 @@ See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComp
 
 See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
 
+[.contract]
+[[math]]
+=== `++math++`
+
+```javascript
+use openzeppelin::utils::math;
+```
+
+Module containing math utilities.
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#math-average[`++average(a, b)++`]
+--
+
+[#math-Functions]
+==== Functions
+
+[.contract-item]
+[[math-average]]
+==== `[.contract-item-name]#++average++#++(a: T, b: T) → T++` [.item-kind]#function#
+
+Returns the average of two values. The result is rounded down.
+
+NOTE: `T` is a generic value matching different numeric implementations.
 
 [.contract]
 [[selectors]]
@@ -222,7 +255,7 @@ Simple component for managing nonces.
 .Embeddable Implementations
 --
 [.sub-index#NoncesComponent-Embeddable-Impls-NoncesImpl]
-.SRC5Impl
+.NoncesImpl
 
 * xref:#NoncesComponent-nonces[`++nonces(self, owner)++`]
 --

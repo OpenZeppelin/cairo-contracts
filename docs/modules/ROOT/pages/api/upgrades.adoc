@@ -13,7 +13,7 @@ Reference of interfaces and utilities related to upgradeability.
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
-```javascript
+```cairo
 use openzeppelin::upgrades::interface::IUpgradeable;
 ```
 
@@ -40,7 +40,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 [[UpgradeableComponent]]
 === `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
 ```
 

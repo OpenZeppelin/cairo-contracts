@@ -11,7 +11,7 @@ Reference of interfaces and utilities related to Governance.
 === `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/governance/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::governance::utils::interfaces::IVotes;
 ```
 

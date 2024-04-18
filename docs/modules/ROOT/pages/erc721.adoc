@@ -19,7 +19,7 @@ The interface includes the {ierc721-interface} standard interface and the option
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
-[,javascript]
+[,cairo]
 ----
 trait ERC721ABI {
     // IERC721
@@ -90,7 +90,7 @@ Using Contracts for Cairo, constructing an ERC721 contract requires integrating 
 The contract should also set up the constructor to initialize the token's name, symbol, and interface support.
 Here's an example of a basic contract:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyNFT {
@@ -165,7 +165,7 @@ The recipient contract must also implement the {src5} interface which, as descri
 
 :receiver-id: xref:/api/erc721.adoc#IERC721Receiver[IERC721Receiver interface ID]
 
-[,javascript]
+[,cairo]
 ----
 trait IERC721Receiver {
     fn on_erc721_received(
@@ -189,7 +189,7 @@ The Contracts for Cairo `IERC721ReceiverImpl` already returns the correct interf
 To integrate the `IERC721Receiver` interface into a contract, simply include the ABI embed directive to the implementation and add the `initializer` in the contract's constructor.
 Here's an example of a simple token receiver contract:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyTokenReceiver {

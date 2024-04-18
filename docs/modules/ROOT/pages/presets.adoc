@@ -57,11 +57,11 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.
-Deploying the ERC20 preset with {starkli}, for example, will look like this:
+Deploying the ERC20Upgradeable preset with {starkli}, for example, will look like this:
 
 [,bash, subs="verbatim,attributes"]
 ----
-starkli deploy {ERC20-class-hash} \
+starkli deploy {ERC20Upgradeable-class-hash} \
   <CONSTRUCTOR_ARGS> \
   --network="sepolia"
 ----
@@ -70,7 +70,7 @@ If a class hash has yet to be declared, copy/paste the preset contract code and 
 Start by {setup_project} and {install_lib}.
 Copy the target preset contract from the {presets_dir} and paste it in the new project's `src/lib.cairo` like this:
 
-[,javascript]
+[,cairo]
 ----
 // src/lib.cairo
 

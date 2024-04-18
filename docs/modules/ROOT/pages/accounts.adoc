@@ -27,7 +27,7 @@ supporting this execution flow and interoperability with DApps in the ecosystem.
 
 === ISRC6 Interface
 
-[,javascript]
+[,cairo]
 ----
 /// Represents a call to a target contract function.
 struct Call {
@@ -57,7 +57,7 @@ a mechanism for detecting whether a contract is an account or not through intros
 
 === ISRC5 Interface
 
-[,javascript]
+[,cairo]
 ----
 /// Standard Interface Detection
 trait ISRC5 {

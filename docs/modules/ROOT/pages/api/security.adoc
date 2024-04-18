@@ -10,7 +10,7 @@ Reference of components, interfaces and utilities found in the library's `securi
 [[InitializableComponent]]
 === `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/security/initializable.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::security::InitializableComponent;
 ```
 
@@ -63,7 +63,7 @@ Requirements:
 :Paused: xref:PausableComponent-Paused[Paused]
 :Unpaused: xref:PausableComponent-Unpaused[Unpaused]
 
-```javascript
+```cairo
 use openzeppelin::security::PausableComponent;
 ```
 
@@ -165,7 +165,7 @@ Emitted when the contract is unpaused by `account`.
 [[ReentrancyGuardComponent]]
 === `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/security/reentrancyguard.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::security::ReentrancyGuardComponent;
 ```
 

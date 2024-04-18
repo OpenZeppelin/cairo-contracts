@@ -16,7 +16,7 @@ Starknet offers a similar mechanism for interface introspection defined by the {
 Similar to its Ethereum counterpart, the {src5} standard requires contracts to implement the `supports_interface` function,
 which can be used by others to query if a given interface is supported:
 
-[,javascript]
+[,cairo]
 ----
 trait ISRC5 {
     /// Query if a contract implements an interface.
@@ -37,7 +37,7 @@ extended function selectors. There are tools such as {src5-rs} that can help wit
 
 For a contract to declare its support for a given interface, we recommend using the SRC5 component to register support upon contract deployment through a constructor either directly or indirectly (as an initializer) like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -77,7 +77,7 @@ mod MyContract {
 
 Use the `supports_interface` function to query a contract's support for a given interface.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {

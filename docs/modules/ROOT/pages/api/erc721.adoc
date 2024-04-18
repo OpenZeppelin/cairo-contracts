@@ -19,7 +19,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 === `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721;
 ```
 Interface of the IERC721 standard as defined in {eip721}.
@@ -138,7 +138,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 === `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721Metadata;
 ```
 
@@ -184,7 +184,7 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 === `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::ERC721Component;
 ```
 
@@ -596,7 +596,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 === `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```
 
@@ -627,7 +627,7 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 === `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::ERC721ReceiverComponent;
 ```
 
@@ -692,7 +692,7 @@ Registers the `IERC721Receiver` interface ID as supported through introspection.
 [[ERC721Upgradeable]]
 === `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::presets::ERC721Upgradeable;
 ```
 

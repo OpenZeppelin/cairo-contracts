@@ -19,7 +19,7 @@ TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 === `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc1155::interface::IERC1155;
 ```
 Interface of the IERC1155 standard as defined in {eip1155}.
@@ -129,7 +129,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 === `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc1155::interface::IERC1155MetadataURI;
 ```
 Interface for the optional metadata function in {eip1155-metadata}[EIP1155].
@@ -159,7 +159,7 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 === `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc1155::ERC1155Component;
 ```
 
@@ -510,7 +510,7 @@ See <<IERC1155-URI,IERC1155::URI>>.
 === `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc1155::interface::IERC1155Receiver;
 ```
 
@@ -550,7 +550,7 @@ via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by 
 === `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
 ```
 
@@ -626,7 +626,7 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 [[ERC1155Upgradeable]]
 === `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::presets::ERC1155;
 ```
 

@@ -22,7 +22,7 @@ assigned each to multiple accounts.
 [[OwnableComponent]]
 === `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::access::ownable::OwnableComponent;
 ```
 
@@ -276,7 +276,7 @@ Emitted when the ownership is transferred.
 :RoleRevoked: xref:#IAccessControl-RoleRevoked[RoleRevoked]
 :RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
 
-```javascript
+```cairo
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 ```
 
@@ -407,21 +407,21 @@ Emitted when `account` is revoked `role`.
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
 :revoke_role: xref:#AccessControlComponent-revoke_role[revoke_role]
 
-```javascript
+```cairo
 use openzeppelin::access::accesscontrol::AccessControlComponent;
 ```
 
 Component that allows contracts to implement role-based access control mechanisms.
 Roles are referred to by their `felt252` identifier:
 
-```javascript
+```cairo
 const MY_ROLE: felt252 = selector!("MY_ROLE");
 ```
 
 Roles can be used to represent a set of permissions. To restrict access to a
 function call, use {assert_only_role}[`assert_only_role`]:
 
-```javascript
+```cairo
 (...)
 
 #[external(v0)]

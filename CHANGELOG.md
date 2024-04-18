@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parameter name in `tests::utils::drop_events` (`count` -> `n_events`) (#963)
 - Presets to include upgradeable functionality (#964)
 - ERC20, ERC721, and ERC1155 presets include Ownable functionality (#964)
+- EthAccount
+  - Expected signature format changed from `(r, s, y)` to `(r, s)` (#940)
 
 ## 0.11.0 (2024-03-29)
 
@@ -67,8 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `IERC721::name`, `IERC721::symbol`, and `IERC721Metadata::token_uri` return ByteArrays instead of felts (#857)
   - `InternalTrait::initializer` accepts an additional `base_uri` ByteArray parameter (#857)
   - IERC721Metadata SRC5 interface ID. This is changed because of the ByteArray integration (#857)
-- EthAccount
-  - Expected signature format changed from `(r, s, y)` to `(r, s)` (#940)
 
 ### Removed
 

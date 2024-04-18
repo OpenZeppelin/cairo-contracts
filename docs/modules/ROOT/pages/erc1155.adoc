@@ -38,7 +38,7 @@ The interface includes the {ierc1155-interface} standard interface and the optio
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
-[,javascript]
+[,cairo]
 ----
 trait ERC1155ABI {
     // IERC1155
@@ -109,7 +109,7 @@ Using Contracts for Cairo, constructing an ERC1155 contract requires integrating
 The contract should also set up the constructor to initialize the token's URI and interface support.
 Here's an example of a basic contract:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyERC1155 {
@@ -187,7 +187,7 @@ The recipient contract must also implement the {src5} interface which supports i
 
 :receiver-id: xref:/api/erc1155.adoc#IERC1155Receiver[IERC1155Receiver interface ID]
 
-[,javascript]
+[,cairo]
 ----
 trait IERC1155Receiver {
     fn on_erc1155_received(
@@ -221,7 +221,7 @@ The Contracts for Cairo {ERC1155ReceiverComponent} already returns the correct i
 To integrate the `IERC1155Receiver` interface into a contract, simply include the ABI embed directive to the implementations and add the `initializer` in the contract's constructor.
 Here's an example of a simple token receiver contract:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyTokenReceiver {

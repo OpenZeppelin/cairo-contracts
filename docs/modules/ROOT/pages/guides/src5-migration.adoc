@@ -32,7 +32,7 @@ The contract should include the new introspection mechanism, {src5-component}.
 It should also include the {initializable-component} which will be used in the `migrate` function.
 Here's the setup:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MigratingContract {
@@ -80,7 +80,7 @@ To successfully migrate ERC165 to SRC5, the contract needs to register the inter
 For this example, let's say that this contract supports the {ierc721} and {ierc721-metadata} interfaces.
 The contract should implement an `InternalImpl` and add a function to register those interfaces like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MigratingContract {
@@ -112,7 +112,7 @@ Finally, `migrate` should include a reinitialization check to ensure that it can
 WARNING: If the original contract implemented `Initializable` at any point and called the `initialize` method, the `InitializableComponent` will not be usable at this time.
 Instead, the contract can take inspiration from `InitializableComponent` and create its own initialization mechanism.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MigratingContract {

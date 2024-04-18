@@ -20,7 +20,7 @@ TIP: For more information on the construction and design of Starknet components,
 
 The contract should first import the component and declare it with the `component!` macro:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -36,7 +36,7 @@ The `path` argument should be the imported component itself (in this case, {init
 The `storage` and `event` arguments are the variable names that will be set in the `Storage` struct and `Event` enum, respectively.
 Note that even if the component doesn't define any events, the compiler will still create an empty event enum inside the component module.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -76,7 +76,7 @@ Components come with granular implementations of different interfaces.
 This allows contracts to integrate only the implementations that they'll use and avoid unnecessary bloat.
 Integrating an implementation looks like this:
 
-[,javascript]
+[,cairo]
 ----
 mod MyContract {
     use openzeppelin::security::InitializableComponent;
@@ -95,7 +95,7 @@ Defining an `impl` gives the contract access to the methods within the implement
 For example, `is_initialized` is defined in the `InitializableImpl`.
 A function on the contract level can expose it like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -119,7 +119,7 @@ While there's nothing wrong with manually exposing methods like in the previous 
 Fortunately, a contract can embed implementations which will expose all of the methods of the implementation.
 To embed an implementation, add the `#[abi(embed_v0)]` attribute above the `impl`:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -159,7 +159,7 @@ Compare the following code blocks to see the benefit of using a mixin when creat
 
 ==== Account without mixin
 
-[,javascript]
+[,cairo]
 ----
 component!(path: AccountComponent, storage: account, event: AccountEvent);
 component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -184,7 +184,7 @@ impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
 ==== Account with mixin
 
-[,javascript]
+[,cairo]
 ----
 component!(path: AccountComponent, storage: account, event: AccountEvent);
 component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -198,7 +198,7 @@ The rest of the setup for the contract, however, does not change.
 This means that component dependencies must still be included in the `Storage` struct and `Event` enum.
 Here's a full example of an account contract that embeds the `AccountMixinImpl`:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod Account {
@@ -250,7 +250,7 @@ Usually, this would be a job for a constructor; however, components themselves c
 Components instead offer ``initializer``s within their `InternalImpl` to call from the contract's constructor.
 Let's look at how a contract would integrate {ownable-component}:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -293,7 +293,7 @@ Contracts that integrate components with dependencies must also include the comp
 For instance, {access-component} depends on {src5-component}.
 Creating a contract with `AccessControlComponent` should look like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -354,7 +354,7 @@ In these scenarios, a contract must create a custom implementation of the interf
 Let's break down a pausable ERC20 contract to see what that looks like.
 Here's the setup:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod ERC20Pausable {
@@ -393,7 +393,7 @@ Next, the contract includes the {erc20-component} implementations; however, `ERC
 Instead, we want to expose our custom implementation of an interface.
 The following example shows the pausable logic integrated into the ERC20 implementations:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod ERC20Pausable {
@@ -458,7 +458,7 @@ TIP: The ERC20 documentation provides another custom implementation guide for {c
 There may be cases where the contract must read or write to an integrated component's storage.
 To do so, use the same syntax as calling an implementation method except replace the name of the method with the storage variable like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {

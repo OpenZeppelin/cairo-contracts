@@ -22,7 +22,7 @@ Integrating this component into a contract first requires assigning an owner.
 The implementing contract's constructor should set the initial owner by passing the owner's address to Ownable's
 xref:/api/access.adoc#OwnableComponent-initializer[`initializer`] like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -63,7 +63,7 @@ mod MyContract {
 
 To restrict a function's access to the owner only, add in the `assert_only_owner` method:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyContract {
@@ -83,7 +83,7 @@ mod MyContract {
 
 This is the full interface of the `Ownable` implementation:
 
-[,javascript]
+[,cairo]
 ----
 trait IOwnable {
     /// Returns the current owner.
@@ -113,7 +113,7 @@ xref:/api/access.adoc#OwnableTwoStepImpl[OwnableTwoStepImpl] implementation. A t
 to prevent unintended and irreversible owner transfers. Simply replace the `OwnableImpl` and `OwnableCamelOnlyImpl`
 with their respective two step variants:
 
-[,javascript]
+[,cairo]
 ----
 #[abi(embed_v0)]
 impl OwnableTwoStepImpl = OwnableComponent::OwnableTwoStepImpl<ContractState>;
@@ -127,7 +127,7 @@ impl OwnableTwoStepCamelOnlyImpl =
 
 This is the full interface of the two step `Ownable` implementation:
 
-[,javascript]
+[,cairo]
 ----
 trait IOwnableTwoStep {
     /// Returns the address of the current owner.
@@ -173,7 +173,7 @@ on creating identifiers.
 Here's a simple example of implementing `AccessControl` on a portion of an ERC20 token contract which defines
 and sets a 'minter' role:
 
-[,javascript]
+[,cairo]
 ----
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 
@@ -263,7 +263,7 @@ permissions are required, which can be implemented by defining _multiple_ roles.
 
 Let's augment our ERC20 token example by also defining a 'burner' role, which lets accounts destroy tokens:
 
-[,javascript]
+[,cairo]
 ----
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
@@ -385,7 +385,7 @@ xref:api/access.adoc#AccessControlComponent-_set_role_admin[`_set_role_admin`] i
 
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 
-[,javascript]
+[,cairo]
 ----
 const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
@@ -475,7 +475,7 @@ of a role as the role identifier.
 
 For example:
 
-[,javascript]
+[,cairo]
 ----
 bytes32 public constant SOME_ROLE = keccak256("SOME_ROLE")
 ----
@@ -496,7 +496,7 @@ TIP: The `selector!` macro can be used to compute {sn_keccak} in Cairo.
 
 This is the full interface of the `AccessControl` implementation:
 
-[,javascript]
+[,cairo]
 ----
 trait IAccessControl {
     /// Returns whether the account has the role or not.

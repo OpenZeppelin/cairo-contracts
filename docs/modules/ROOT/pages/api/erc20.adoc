@@ -19,7 +19,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 === `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc20::interface::IERC20;
 ```
 
@@ -117,7 +117,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 === `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc20::interface::IERC20Metadata;
 ```
 
@@ -165,7 +165,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 === `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
@@ -462,7 +462,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 [[ERC20VotesComponent]]
 === `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::token::extensions::ERC20VotesComponent;
 ```
 
@@ -656,7 +656,7 @@ Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 [[ERC20Upgradeable]]
 === `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::presets::ERC20Upgradeable;
 ```
 

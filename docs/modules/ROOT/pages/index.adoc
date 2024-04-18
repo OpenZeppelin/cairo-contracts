@@ -5,7 +5,7 @@
 = Contracts for Cairo
 
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
-ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
+ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
@@ -67,7 +67,7 @@ WARNING: Make sure the tag matches the target release.
 This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20 component].
 Copy the code into `src/lib.cairo`.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyERC20Token {

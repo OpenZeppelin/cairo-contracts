@@ -12,7 +12,7 @@ More specifically, it enables logic to be performed once and only once which is 
 
 You can use the component in your contracts like this:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyInitializableContract {
@@ -62,7 +62,7 @@ respectively.
 
 For example (using the xref:api/access.adoc#OwnableComponent[Ownable] component for access control):
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyPausableContract {
@@ -142,7 +142,7 @@ Since Cairo does not support modifiers like Solidity, the xref:api/security.adoc
 component exposes two methods `{start}` and `{end}` to protect functions against reentrancy attacks.
 The protected function must call `start` before the first function statement, and `end` before the return statement, as shown below:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyReentrancyContract {

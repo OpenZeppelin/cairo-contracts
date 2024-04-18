@@ -10,7 +10,7 @@ Reference of the Universal Deployer Contract (UDC) interface and preset.
 [[IUniversalDeployer]]
 === `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/utils/universal_deployer/interface.cairo#L7[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::utils::interfaces::IUniversalDeployer;
 ```
 
@@ -53,7 +53,7 @@ Emitted when `deployer` deploys a contract through the Universal Deployer Contra
 [[UniversalDeployer]]
 === `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.10.0/src/presets/universal_deployer.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::presets::UniversalDeployer;
 ```
 

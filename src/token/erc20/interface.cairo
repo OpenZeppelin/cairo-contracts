@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (token/erc20/interface.cairo)
 
 use openzeppelin::utils::structs::checkpoint::Checkpoint;
 use starknet::ContractAddress;

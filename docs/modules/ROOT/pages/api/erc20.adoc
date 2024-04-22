@@ -16,7 +16,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -114,7 +114,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -162,7 +162,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -460,7 +460,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC20VotesComponent]]
-=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
+=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::extensions::ERC20VotesComponent;
@@ -654,7 +654,7 @@ Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::ERC20Upgradeable;

@@ -261,7 +261,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/utils/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/utils/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.
@@ -532,7 +532,7 @@ See xref:#constants[`openzeppelin::tests::utils::constants`].
 use openzeppelin::tests::utils::constants;
 ```
 
-:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/tests/utils/constants.cairo[constants.cairo]
+:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/tests/utils/constants.cairo[constants.cairo]
 
 Module containing constants that are repeatedly used among tests.
 To see the full list, see {constants}.

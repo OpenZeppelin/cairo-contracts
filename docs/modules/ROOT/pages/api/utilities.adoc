@@ -1,5 +1,7 @@
 = Utilities
 
+:deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
+
 The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`
 and `openzeppelin::tests::utils`.
 
@@ -11,7 +13,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 [[utils]]
 === `++utils++`
 
-```javascript
+```cairo
 use openzeppelin::utils;
 ```
 
@@ -28,6 +30,8 @@ Module containing core utilities of the library.
 
 .Inner modules
 * xref:#utils-cryptography[`++cryptography++`]
+* xref:#utils-deployments[`++deployments++`]
+* xref:#utils-math[`++math++`]
 * xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
@@ -72,7 +76,7 @@ casting and unwrapping the result multiple times.
 
 Usage example:
 
-```javascript
+```cairo
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::UnwrapAndCast;
 
@@ -100,6 +104,17 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 
 See xref:#cryptography[`openzeppelin::utils::cryptography`].
 
+[.contract-item]
+[[utils-deployments]]
+==== `[.contract-item-name]#++deployments++#` [.item-kind]#module#
+
+See xref:#deployments[`openzeppelin::utils::deployments`].
+
+[.contract-item]
+[[utils-math]]
+==== `[.contract-item-name]#++math++#` [.item-kind]#module#
+
+See xref:#math[`openzeppelin::utils::math`].
 
 [.contract-item]
 [[utils-selectors]]
@@ -119,7 +134,7 @@ See xref:#serde[`openzeppelin::utils::serde`].
 
 :snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 
-```javascript
+```cairo
 use openzeppelin::utils::cryptography;
 ```
 
@@ -148,16 +163,105 @@ See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComp
 
 See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
 
+[.contract]
+[[deployments]]
+=== `++deployments++`
+
+:udc-doc: xref:/udc.adoc[Universal Deployer Contract]
+
+```cairo
+use openzeppelin::utils::deployments;
+```
+
+Module containing utility functions for calculating contract addresses through {deploy_syscall} and the {udc-doc} (UDC).
+
+[.contract-index]
+.Members
+--
+.Structs
+* xref:deployments-DeployerInfo[`++DeployerInfo(caller_address, udc_address)++`]
+
+.Functions
+* xref:deployments-calculate_contract_address_from_deploy_syscall[`++calculate_contract_address_from_deploy_syscall(salt, class_hash, constructor_calldata, deployer_address)++`]
+* xref:deployments-compute_hash_on_elements[`++compute_hash_on_elements(data)++`]
+* xref:deployments-calculate_contract_address_from_udc[`++calculate_contract_address_from_udc(salt, class_hash, constructor_calldata, deployer_info)++`]
+--
+
+[#deployments-Structs]
+==== Structs
+
+:calculate_contract_address_from_udc: xref:deployments-calculate_contract_address_from_udc[utils::calculate_contract_address_from_udc]
+
+[.contract-item]
+[[deployments-DeployerInfo]]
+==== `[.contract-item-name]#++DeployerInfo++#++(caller_address: ContractAddress, udc_address: ContractAddress)++` [.item-kind]#struct#
+
+Struct containing arguments necessary in {calculate_contract_address_from_udc} for origin-dependent deployment calculations.
+
+[#deployments-Functions]
+==== Functions
+
+:deployer-info: xref:deployments-DeployerInfo[DeployerInfo]
+
+[.contract-item]
+[[deployments-calculate_contract_address_from_deploy_syscall]]
+==== `[.contract-item-name]#++calculate_contract_address_from_deploy_syscall++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_address: ContractAddress) → ContractAddress++` [.item-kind]#function#
+
+Returns the contract address when passing the given arguments to {deploy_syscall}.
+
+[.contract-item]
+[[deployments-compute_hash_on_elements]]
+==== `[.contract-item-name]#++compute_hash_on_elements++#++(mut data: Span<felt252>) → felt252++` [.item-kind]#function#
+
+Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
+
+[.contract-item]
+[[deployments-calculate_contract_address_from_udc]]
+==== `[.contract-item-name]#++calculate_contract_address_from_udc++#++(salt: felt252, class_hash: ClassHash, constructor_calldata: Span<felt252>, deployer_info: Option<DeployerInfo>) → ContractAddress++` [.item-kind]#function#
+
+Returns the calculated contract address for UDC deployments.
+
+Origin-independent deployments (deployed from zero) should pass `Option::None` as `deployer_info`.
+
+Origin-dependent deployments hash `salt` with `caller_address` (member of {deployer-info}) and pass the hashed salt to the inner {deploy_syscall} as the `contract_address_salt` argument.
+
+[.contract]
+[[math]]
+=== `++math++`
+
+```cairo
+use openzeppelin::utils::math;
+```
+
+Module containing math utilities.
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#math-average[`++average(a, b)++`]
+--
+
+[#math-Functions]
+==== Functions
+
+[.contract-item]
+[[math-average]]
+==== `[.contract-item-name]#++average++#++(a: T, b: T) → T++` [.item-kind]#function#
+
+Returns the average of two values. The result is rounded down.
+
+NOTE: `T` is a generic value matching different numeric implementations.
 
 [.contract]
 [[selectors]]
 === `++selectors++`
 
-```javascript
+```cairo
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/utils/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/utils/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.
@@ -166,7 +270,7 @@ To see the full list of selectors, see {selectors}.
 [[serde]]
 === `++serde++`
 
-```javascript
+```cairo
 use openzeppelin::utils::serde;
 ```
 
@@ -191,7 +295,7 @@ implementing the `Serde` trait to a `felt252` buffer.
 
 Usage example:
 
-```javascript
+```cairo
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
@@ -212,7 +316,7 @@ that implements the `Serde` trait.
 [[NoncesComponent]]
 === `++NoncesComponent++`
 
-```javascript
+```cairo
 use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 ```
 
@@ -222,7 +326,7 @@ Simple component for managing nonces.
 .Embeddable Implementations
 --
 [.sub-index#NoncesComponent-Embeddable-Impls-NoncesImpl]
-.SRC5Impl
+.NoncesImpl
 
 * xref:#NoncesComponent-nonces[`++nonces(self, owner)++`]
 --
@@ -267,7 +371,7 @@ Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
 [[snip12]]
 === `++snip12++`
 
-```javascript
+```cairo
 use openzeppelin::utils::snip12;
 ```
 
@@ -282,7 +386,7 @@ xref:/guides/snip12.adoc[SNIP12 and Typed Messages] guide.
 [[testutils]]
 === `++utils++`
 
-```javascript
+```cairo
 use openzeppelin::tests::utils;
 ```
 
@@ -311,16 +415,14 @@ Module containing utilities for testing the library.
 [[testutils-deploy]]
 ==== `[.contract-item-name]#++deploy++#++(contract_class_hash: felt252, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-:deploy_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls/#deploy[deploy_syscall]
-
 Uses the `{deploy_syscall}` to deploy an instance of the contract given the class hash and the calldata.
 
 The `contract_address_salt` is always set to zero, and `deploy_from_zero` is set to false.
 
 Usage example:
 
-```javascript
-use openzeppelin::presets::Account;
+```cairo
+use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::tests::utils;
 use starknet::ContractAddress;
 
@@ -328,7 +430,7 @@ const PUBKEY: felt252 = 'PUBKEY';
 
 fn deploy_test_contract() -> ContractAddress {
     let calldata = array![PUBKEY];
-    utils::deploy(Account::TEST_CLASS_HASH, calldata)
+    utils::deploy(AccountUpgradeable::TEST_CLASS_HASH, calldata)
 }
 ```
 
@@ -359,7 +461,7 @@ Requirements:
 
 Usage example:
 
-```javascript
+```cairo
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::token::erc20::ERC20Component::Transfer;
@@ -426,11 +528,11 @@ See xref:#constants[`openzeppelin::tests::utils::constants`].
 [[constants]]
 === `++constants++`
 
-```javascript
+```cairo
 use openzeppelin::tests::utils::constants;
 ```
 
-:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/tests/utils/constants.cairo[constants.cairo]
+:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/tests/utils/constants.cairo[constants.cairo]
 
 Module containing constants that are repeatedly used among tests.
 To see the full list, see {constants}.

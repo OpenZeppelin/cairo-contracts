@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
-/// OpenZeppelin's account which can change its public key and declare,
+/// OpenZeppelin's upgradeable account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
 #[starknet::contract(account)]
 mod EthAccountUpgradeable {

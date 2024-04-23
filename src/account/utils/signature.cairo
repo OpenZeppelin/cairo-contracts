@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (account/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (account/utils/signature.cairo)
 
 use ecdsa::check_ecdsa_signature;
 use openzeppelin::account::interface::EthPublicKey;
-use openzeppelin::account::utils::secp256k1::Secp256k1PointPartialEq;
-use starknet::eth_signature::Signature;
-use starknet::secp256_trait::{is_signature_entry_valid, recover_public_key};
-use starknet::secp256k1::Secp256k1Point;
+use starknet::secp256_trait;
 
-/// This function assumes the `s` component of the signature to be positive 
+#[derive(Copy, Drop, Serde)]
+pub struct EthSignature {
+    pub r: u256,
+    pub s: u256,
+}
+
+/// This function assumes the `s` component of the signature to be positive
 /// for efficiency reasons. It is not recommended to use it other than for
 /// validating account signatures over transaction hashes since otherwise
 /// it's not protected against signature malleability.
@@ -25,7 +28,7 @@ fn is_valid_stark_signature(
     }
 }
 
-/// This function assumes the `s` component of the signature to be positive 
+/// This function assumes the `s` component of the signature to be positive
 /// for efficiency reasons. It is not recommended to use it other than for
 /// validating account signatures over transaction hashes since otherwise
 /// it's not protected against signature malleability.
@@ -34,21 +37,8 @@ fn is_valid_eth_signature(
     msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
 ) -> bool {
     let mut signature = signature;
-    let signature: Signature = Serde::deserialize(ref signature)
+    let signature: EthSignature = Serde::deserialize(ref signature)
         .expect('Signature: Invalid format.');
 
-    // Signature out of range
-    if !is_signature_entry_valid::<Secp256k1Point>(signature.r) {
-        return false;
-    }
-    if !is_signature_entry_valid::<Secp256k1Point>(signature.s) {
-        return false;
-    }
-
-    let public_key_point: Secp256k1Point = recover_public_key(msg_hash.into(), signature).unwrap();
-    if public_key_point != public_key {
-        // Invalid signature
-        return false;
-    }
-    true
+    secp256_trait::is_valid_signature(msg_hash.into(), signature.r, signature.s, public_key)
 }

@@ -16,10 +16,10 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721;
 ```
 Interface of the IERC721 standard as defined in {eip721}.
@@ -135,10 +135,10 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721Metadata;
 ```
 
@@ -181,10 +181,10 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 
 [.contract]
 [[ERC721Component]]
-=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::ERC721Component;
 ```
 
@@ -593,10 +593,10 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::interface::IERC721Receiver;
 ```
 
@@ -624,10 +624,10 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 
 [.contract]
 [[ERC721ReceiverComponent]]
-=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/token/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
-```javascript
+```cairo
 use openzeppelin::token::erc721::ERC721ReceiverComponent;
 ```
 
@@ -689,27 +689,27 @@ Registers the `IERC721Receiver` interface ID as supported through introspection.
 == Presets
 
 [.contract]
-[[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
+[[ERC721Upgradeable]]
+=== `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/erc721.cairo[{github-icon},role=heading-link]
 
-```javascript
-use openzeppelin::presets::ERC721;
+```cairo
+use openzeppelin::presets::ERC721Upgradeable;
 ```
 
-Basic ERC721 contract leveraging xref:#ERC721Component[ERC721Component].
+Upgradeable ERC721 contract leveraging xref:#ERC721Component[ERC721Component].
 
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
 .{presets-page}
 --
-{ERC721-class-hash}
+{ERC721Upgradeable-class-hash}
 --
 
 [.contract-index]
 .Constructor
 --
-* xref:#ERC721-constructor[`++constructor(self, name, symbol, recipient, token_ids, base_uri)++`]
+* xref:#ERC721Upgradeable-constructor[`++constructor(self, name, symbol, recipient, token_ids, base_uri, owner)++`]
 --
 
 [.contract-index]
@@ -718,15 +718,39 @@ include::../utils/_class_hashes.adoc[]
 .ERC721MixinImpl
 
 * xref:#ERC721Component-Embeddable-Mixin-Impl[`++ERC721MixinImpl++`]
+
+.OwnableMixinImpl
+
+* xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
 --
 
-[#ERC721-constructor-section]
+[.contract-index]
+.External Functions
+--
+* xref:#ERC721Upgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#ERC721Upgradeable-constructor-section]
 ==== Constructor
 
 [.contract-item]
-[[ERC721Component-constructor]]
-==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, base_uri: ByteArray)++` [.item-kind]#constructor#
+[[ERC721Upgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, name: ByteArray, symbol: ByteArray, recipient: ContractAddress, token_ids: Span<u256>, base_uri: ByteArray, owner: ContractAddress)++` [.item-kind]#constructor#
 
 Sets the `name` and `symbol`.
-
 Mints `token_ids` tokens to `recipient` and sets the `base_uri`.
+Assigns `owner` as the contract owner with permissions to upgrade.
+
+[#ERC721Upgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[ERC721Upgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the contract owner.
+- `new_class_hash` cannot be zero.

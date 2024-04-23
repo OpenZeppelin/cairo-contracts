@@ -11,11 +11,11 @@ This guide will go over strategies for creating both a fixed and dynamic token s
 Let's say we want to create a token named `MyToken` with a fixed token supply.
 We can achieve this by setting the token supply in the constructor which will execute upon deployment.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -65,11 +65,11 @@ In other words, we've implemented a fixed token supply!
 ERC20 contracts with a dynamic supply include a mechanism for creating or destroying tokens.
 Let's make a few changes to the almighty `MyToken` contract and create a minting mechanism.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -120,7 +120,7 @@ There is, however, a big problem.
 `mint` does not include any restrictions on who can call this function.
 For the sake of good practices, let's implement a simple permissioning mechanism with `Ownable`.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyToken {

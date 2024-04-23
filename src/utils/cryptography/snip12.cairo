@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (utils/cryptography/snip12.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (utils/cryptography/snip12.cairo)
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -30,7 +30,7 @@ trait StructHash<T> {
 }
 
 trait OffchainMessageHash<T> {
-    fn get_message_hash(self: @T, caller: ContractAddress) -> felt252;
+    fn get_message_hash(self: @T, signer: ContractAddress) -> felt252;
 }
 
 impl StructHashStarknetDomainImpl of StructHash<StarknetDomain> {
@@ -51,7 +51,7 @@ trait SNIP12Metadata {
 impl OffchainMessageHashImpl<
     T, +StructHash<T>, impl metadata: SNIP12Metadata
 > of OffchainMessageHash<T> {
-    fn get_message_hash(self: @T, caller: ContractAddress) -> felt252 {
+    fn get_message_hash(self: @T, signer: ContractAddress) -> felt252 {
         let domain = StarknetDomain {
             name: metadata::name(),
             version: metadata::version(),
@@ -61,7 +61,7 @@ impl OffchainMessageHashImpl<
         let mut state = PoseidonTrait::new();
         state = state.update_with('StarkNet Message');
         state = state.update_with(domain.hash_struct());
-        state = state.update_with(caller);
+        state = state.update_with(signer);
         state = state.update_with(self.hash_struct());
         state.finalize()
     }

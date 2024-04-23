@@ -12,9 +12,9 @@ include::../utils/_common.adoc[]
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::account::interface::ISRC6;
 ```
 
@@ -65,13 +65,13 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
 :starknet-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve/[Starknet curve]
 
-```javascript
+```cairo
 use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
@@ -282,13 +282,13 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
 :secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1[Secp256k1 curve]
 
-```javascript
+```cairo
 use openzeppelin::account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
@@ -504,27 +504,27 @@ Emitted when a `public_key` is removed.
 == Presets
 
 [.contract]
-[[Account]]
-=== `++Account++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/account.cairo[{github-icon},role=heading-link]
+[[AccountUpgradeable]]
+=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
-```javascript
-use openzeppelin::presets::Account;
+```cairo
+use openzeppelin::presets::AccountUpgradeable;
 ```
 
-Basic account contract leveraging xref:#AccountComponent[AccountComponent].
+Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
 
 include::../utils/_class_hashes.adoc[]
 
 [.contract-index]
 .{presets-page}
 --
-{Account-class-hash}
+{AccountUpgradeable-class-hash}
 --
 
 [.contract-index]
 .Constructor
 --
-* xref:#Account-constructor[`++constructor(self, public_key)++`]
+* xref:#AccountUpgradeable-constructor[`++constructor(self, public_key)++`]
 --
 
 [.contract-index]
@@ -535,24 +535,44 @@ include::../utils/_class_hashes.adoc[]
 * xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
 --
 
-[#Account-constructor-section]
+[.contract-index]
+.External Functions
+--
+* xref:#AccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#AccountUpgradeable-constructor-section]
 ==== Constructor
 
 [.contract-item]
-[[Account-constructor]]
+[[AccountUpgradeable-constructor]]
 ==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: felt252)++` [.item-kind]#constructor#
 
 Sets the account `public_key` and registers the interfaces the contract supports.
 
+[#AccountUpgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[AccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.
+
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
 
-```javascript
+```cairo
 use openzeppelin::presets::EthAccountUpgradeable;
 ```
 
-Account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
+Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
@@ -601,3 +621,8 @@ Sets the account `public_key` and registers the interfaces the contract supports
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.

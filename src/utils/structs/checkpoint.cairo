@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (utils/structs/checkpoint.cairo)
 
 use integer::u32_sqrt;
 use openzeppelin::utils::math;
@@ -22,13 +22,13 @@ struct Checkpoint {
 #[generate_trait]
 impl TraceImpl of TraceTrait {
     /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint
-    /// and returns previous value and new value.
+    /// and returns both the previous and the new value.
     fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {
         self.checkpoints._insert(key, value)
     }
 
-    /// Returns the value in the last (most recent) checkpoint with key lower or equal
-    /// than the search key, or zero if there is none.
+    /// Returns the value in the last (most recent) checkpoint with the key lower than or equal to
+    /// the search key, or zero if there is none.
     fn upper_lookup(self: @Trace, key: u64) -> u256 {
         let checkpoints = self.checkpoints;
         let len = checkpoints.len();
@@ -41,11 +41,11 @@ impl TraceImpl of TraceTrait {
         }
     }
 
-    /// Returns the value in the last (most recent) checkpoint with key lower or equal
-    /// than the search key, or zero if there is none.
+    /// Returns the value in the last (most recent) checkpoint with key lower than or equal to
+    /// the search key, or zero if there is none.
     ///
-    /// NOTE: This is a variant of {upper_lookup} that is optimised to
-    /// find "recent" checkpoint (checkpoints with high keys).
+    /// NOTE: This is a variant of `upper_lookup` that is optimised to
+    /// find "recent" checkpoints (checkpoints with high keys).
     fn upper_lookup_recent(self: @Trace, key: u64) -> u256 {
         let checkpoints = self.checkpoints;
         let len = checkpoints.len();
@@ -137,7 +137,7 @@ impl CheckpointImpl of CheckpointTrait {
         }
     }
 
-    /// Returns the index of the last (most recent) checkpoint with key lower or equal than the search key,
+    /// Returns the index of the last (most recent) checkpoint with the key lower than or equal to the search key,
     /// or `high` if there is none. `low` and `high` define a section where to do the search, with
     /// inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32) -> u32 {
@@ -167,7 +167,7 @@ const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
 /// - In this first felt, the first four bits are skipped to avoid representation errors due
 ///   to `felt252` max value being a bit less than a 252 bits number max value
 ///   (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
-/// - `key` is stored at range [4,67] bits (0-indexed), taking most significant usable bits.
+/// - `key` is stored at range [4,67] bits (0-indexed), taking the most significant usable bits.
 /// - `value.low` is stored at range [124, 251], taking the less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
 impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt252)> {

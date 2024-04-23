@@ -25,7 +25,7 @@ The interface includes the {ierc20-interface} standard interface as well as the 
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
 
-[,javascript]
+[,cairo]
 ----
 trait ERC20ABI {
     // IERC20
@@ -73,11 +73,11 @@ Some notable differences, however, can still be found, such as:
 Using Contracts for Cairo, constructing an ERC20 contract requires setting up the constructor and instantiating the token implementation.
 Here's what that looks like:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -145,7 +145,7 @@ NOTE: Both approaches require creating a custom implementation of the `IERC20Met
 The simplest way to customize `decimals` consists of returning the target value from the `decimals` method.
 For example:
 
-[,javascript]
+[,cairo]
 ----
 #[external(v0)]
 impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
@@ -165,11 +165,11 @@ For more complex scenarios, such as a factory deploying multiple tokens with dif
 
 TIP: Note that we are not using the MixinImpl in this case, since we need to customize the IERC20Metadata implementation.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

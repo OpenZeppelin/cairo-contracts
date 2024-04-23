@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (utils/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (utils/cryptography/nonces.cairo)
 
 #[starknet::component]
 mod NoncesComponent {
-    use openzeppelin::utils::cryptography::interface::INonces;
+    use openzeppelin::utils::interfaces::INonces;
     use starknet::ContractAddress;
 
     #[storage]

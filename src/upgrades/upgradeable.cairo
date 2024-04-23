@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (upgrades/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
@@ -36,7 +36,7 @@ mod UpgradeableComponent {
         ///
         /// Requirements:
         ///
-        /// - `new_class_hash` is not the zero address.
+        /// - `new_class_hash` is not zero.
         ///
         /// Emits an `Upgraded` event.
         fn _upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {

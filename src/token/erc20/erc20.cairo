@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (token/erc20/erc20.cairo)
 
 use starknet::ContractAddress;
 
@@ -9,7 +9,7 @@ use starknet::ContractAddress;
 /// non-standard implementations that can be used to create an ERC20 contract. This
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
-/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.11.0/guides/erc20-supply)
+/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.12.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 mod ERC20Component {
@@ -318,8 +318,13 @@ mod ERC20Component {
             }
         }
 
-        /// Transfers a `value` amount of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address.
+        ///
+        /// This function can be extended using the `ERC20HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
+        /// Emits a `Transfer` event.
         fn _update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,

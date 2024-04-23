@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- before_update and after_update hooks to ERC721Component (#978)
+
 ## 0.12.0 (2024-04-21)
 
 ### Added

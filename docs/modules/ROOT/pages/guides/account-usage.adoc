@@ -1,2 +1,56 @@
 = Account usage
 
+== Standard account
+
+Contracts for Cairo offers a mixin implementation that includes many basic account features such as the ability to:
+
+- View and change the account contract's public key.
+- Declare contract class hashes.
+- Deploy new contracts.
+
+Creating a standard account requires implementing the mixin as well as setting up the constructor to initialize the account.
+The `initializer` method sets the public key for the account contract and registers the account interface id.
+A vanilla account looks like this:
+
+```[,cairo]
+#[starknet::contract(account)]
+mod StandardAccount {
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // Account Mixin
+    #[abi(embed_v0)]
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        account: AccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+}
+```
+
+

@@ -1,6 +1,6 @@
 [package]
 name = "openzeppelin"
-version = "0.11.0"
+version = "0.12.0"
 edition = "2023_01"
 cairo-version = "2.6.3"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]

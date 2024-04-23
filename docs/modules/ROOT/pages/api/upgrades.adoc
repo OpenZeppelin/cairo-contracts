@@ -9,7 +9,7 @@ Reference of interfaces and utilities related to upgradeability.
 
 [.contract]
 [[IUpgradeable]]
-=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/upgrades/interface.cairo#L3[{github-icon},role=heading-link]
+=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/upgrades/interface.cairo#L3[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
@@ -38,7 +38,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 
 [.contract]
 [[UpgradeableComponent]]
-=== `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
+=== `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::upgrades::upgradeable::UpgradeableComponent;

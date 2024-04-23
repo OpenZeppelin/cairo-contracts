@@ -12,7 +12,7 @@ include::../utils/_common.adoc[]
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::account::interface::ISRC6;
@@ -65,7 +65,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -282,7 +282,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/account/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
@@ -505,7 +505,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[AccountUpgradeable]]
-=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/account.cairo[{github-icon},role=heading-link]
+=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::AccountUpgradeable;
@@ -566,7 +566,7 @@ Requirements:
 
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::EthAccountUpgradeable;

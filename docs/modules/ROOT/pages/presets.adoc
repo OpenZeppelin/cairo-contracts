@@ -53,7 +53,7 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
 :install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
-:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/presets[presets directory]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/presets[presets directory]
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.

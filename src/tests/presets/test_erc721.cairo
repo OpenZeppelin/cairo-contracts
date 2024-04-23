@@ -270,14 +270,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: approval to owner', 'ENTRYPOINT_FAILED'))]
-fn test_approve_to_owner() {
-    let dispatcher = setup_dispatcher();
-
-    dispatcher.approve(OWNER(), TOKEN_1);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_approve_nonexistent() {
     let dispatcher = setup_dispatcher();

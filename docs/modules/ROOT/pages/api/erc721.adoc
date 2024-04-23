@@ -192,6 +192,17 @@ ERC721 component implementing <<IERC721,IERC721>> and <<IERC721Metadata,IERC721M
 
 NOTE: {src5-component-required-note}
 
+NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
+
+[.contract-index]
+.Hooks
+--
+[.sub-index#ERC721Component-ERC721HooksTrait]
+.ERC721HooksTrait
+* xref:#ERC721Component-before_update[`++before_update(self, to, token_id, auth)++`]
+* xref:#ERC721Component-after_update[`++after_update(self, to, token_id, auth)++`]
+--
+
 [.contract-index#ERC721Component-Embeddable-Mixin-Impl]
 .{mixin-impls}
 
@@ -248,9 +259,10 @@ NOTE: {src5-component-required-note}
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
 * xref:#ERC721Component-_owner_of[`++_owner_of(self, token_id)++`]
+* xref:#ERC721Component-_require_owned[`++_owner_of(self, token_id)++`]
 * xref:#ERC721Component-_exists[`++_exists(self, token_id)++`]
-* xref:#ERC721Component-_is_approved_or_owner[`++_is_approved_or_owner(self, spender, token_id)++`]
-* xref:#ERC721Component-_approve[`++_approve(self, to, token_id)++`]
+* xref:#ERC721Component-_approve[`++_approve(self, to, token_id, auth)++`]
+* xref:#ERC721Component-_approve_with_optional_event[`++_approve_with_optional_event(self, to, token_id, auth, emit_event)++`]
 * xref:#ERC721Component-_set_approval_for_all[`++_set_approval_for_all(self, owner, operator, approved)++`]
 * xref:#ERC721Component-_mint[`++_mint(self, to, token_id)++`]
 * xref:#ERC721Component-_transfer[`++_transfer(self, from, to, token_id)++`]
@@ -259,6 +271,9 @@ NOTE: {src5-component-required-note}
 * xref:#ERC721Component-_safe_transfer[`++_safe_transfer(self, from, to, token_id, data)++`]
 * xref:#ERC721Component-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
 * xref:#ERC721Component-_base_uri[`++_base_uri(self)++`]
+* xref:#ERC721Component-_is_authorized[`++_is_authorized(self, owner, spender, token_id)++`]
+* xref:#ERC721Component-_check_authorized[`++_check_authorized(self, owner, spender, token_id)++`]
+* xref:#ERC721Component-_update[`++_update(self, to, token_id, auth)++`]
 --
 
 [.contract-index]
@@ -269,6 +284,28 @@ NOTE: {src5-component-required-note}
 * xref:#ERC721Component-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#ERC721Component-Transfer[`++Transfer(from, to, token_id)++`]
 --
+
+[#ERC721Component-Hooks]
+==== Hooks
+
+Hooks are functions which implementations can extend the functionality of the component source code. Every contract
+using ERC721Component is expected to provide an implementation of the ERC721HooksTrait. For basic token contracts, an
+empty implementation with no logic must be provided.
+
+TIP: You can use `openzeppelin::token::erc721::ERC721HooksEmptyImpl` which is already available as part of the library
+for this purpose.
+
+[.contract-item]
+[[ERC721Component-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
+
+Function executed at the beginning of the xref:#ERC721Component-_update[_update] function prior to any other logic.
+
+[.contract-item]
+[[ERC721Component-after_update]]
+==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
+
+Function executed at the end of the xref:#ERC721Component-_update[_update] function.
 
 ==== Embeddable functions
 
@@ -379,49 +416,49 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 [[ERC721Component-balanceOf]]
 ==== `[.contract-item-name]#++balanceOf++#++(self: @ContractState, account: ContractAddress) -> u256++` [.item-kind]#external#
 
-See <<IERC721-balance_of,IERC721::balance_of>>.
+See <<ERC721Component-balance_of,ERC721Component::balance_of>>.
 
 [.contract-item]
 [[ERC721Component-ownerOf]]
 ==== `[.contract-item-name]#++ownerOf++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
 
-See <<IERC721-owner_of,IERC721::owner_of>>.
+See <<ERC721Component-owner_of,ERC721Component::owner_of>>.
 
 [.contract-item]
 [[ERC721Component-safeTransferFrom]]
 ==== `[.contract-item-name]#++safeTransferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256, data: Span<felt252>)++` [.item-kind]#external#
 
-See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+See <<ERC721Component-safe_transfer_from,ERC721Component::safe_transfer_from>>.
 
 [.contract-item]
 [[ERC721Component-transferFrom]]
 ==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256)++` [.item-kind]#external#
 
-See <<IERC721-transfer_from,IERC721::transfer_from>>.
+See <<ERC721Component-transfer_from,ERC721Component::transfer_from>>.
 
 [.contract-item]
 [[ERC721Component-setApprovalForAll]]
 ==== `[.contract-item-name]#++setApprovalForAll++#++(ref self: ContractState, operator: ContractAddress, approved: bool)++` [.item-kind]#external#
 
-See <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>>.
+See <<ERC721Component-set_approval_for_all,ERC721Component::set_approval_for_all>>.
 
 [.contract-item]
 [[ERC721Component-getApproved]]
 ==== `[.contract-item-name]#++getApproved++#++(self: @ContractState, tokenId: u256) -> ContractAddress++` [.item-kind]#external#
 
-See <<IERC721-get_approved,IERC721::get_approved>>.
+See <<ERC721Component-get_approved,ERC721Component::get_approved>>.
 
 [.contract-item]
 [[ERC721Component-isApprovedForAll]]
 ==== `[.contract-item-name]#++isApprovedForAll++#++(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool++` [.item-kind]#external#
 
-See <<IERC721-is_approved_for_all,IERC721::is_approved_for_all>>.
+See <<ERC721Component-is_approved_for_all,ERC721Component::is_approved_for_all>>.
 
 [.contract-item]
 [[ERC721Component-tokenURI]]
 ==== `[.contract-item-name]#++tokenURI++#++(self: @ContractState, tokenId: u256) -> ByteArray++` [.item-kind]#external#
 
-See <<IERC721Metadata-token_uri,IERC721Metadata::token_uri>>.
+See <<ERC721Component-token_uri,ERC721Component::token_uri>>.
 
 ==== Internal functions
 
@@ -437,7 +474,12 @@ This should be used inside the contract's constructor.
 ==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
 
 Internal function that returns the owner address of `token_id`.
-This function will panic if the token does not exist.
+
+[.contract-item]
+[[ERC721Component-_require_owned]]
+==== `[.contract-item-name]#++_require_owned++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
+
+Version of xref:#ERC721Component-_owner_of[_owner_of] that panics if owner is the zero address.
 
 [.contract-item]
 [[ERC721Component-_exists]]
@@ -448,61 +490,66 @@ Internal function that returns whether `token_id` exists.
 Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop existing when they are burned (<<ERC721-_burn,_burn>>).
 
 [.contract-item]
-[[ERC721Component-_is_approved_or_owner]]
-==== `[.contract-item-name]#++_is_approved_or_owner++#++(ref self: ContractState, spender: ContractAddress, token_id: u256) -> bool++` [.item-kind]#internal#
-
-Internal function that returns whether `spender` is allowed to manage `token_id`.
-
-Requirements:
-
-- `token_id` exists.
-
-[.contract-item]
 [[ERC721Component-_approve]]
-==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
 
-Internal function that changes or reaffirms the approved address for an NFT.
+Approve `to` to operate on `token_id`
+
+The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+either the owner of the token, or approved to operate on all tokens held by this owner.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
+[.contract-item]
+[[ERC721Component-_approve_with_optional_event]]
+==== `[.contract-item-name]#++_approve_with_optional_event++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress, emit_event: bool)++` [.item-kind]#internal#
+
+Variant of xref:#ERC721Component-_approve[_approve] with an optional flag to enable or disable the `Approval` event.
+The event is not emitted in the context of transfers.
+
 Requirements:
 
-- `token_id` exists.
-- `to` is not the current token owner.
+- if `auth` is non-zero, it must be either the owner of the token or approved to
+operate on all of its tokens.
+
+May emit an <<IERC721-Approval,Approval>> event.
 
 [.contract-item]
 [[ERC721Component-_set_approval_for_all]]
 ==== `[.contract-item-name]#++_set_approval_for_all++#++(ref self: ContractState, owner: ContractAddress, operator: ContractAddress, approved: bool)++` [.item-kind]#internal#
 
-Internal function that enables or disables approval for `operator` to manage all of the
-`owner` assets.
-
-Emits an <<IERC721-Approval,Approval>> event.
+Enables or disables approval for `operator` to manage
+all of the `owner` assets.
 
 Requirements:
 
 - `operator` cannot be the caller.
 
+Emits an <<IERC721-Approval,Approval>> event.
+
 [.contract-item]
 [[ERC721Component-_mint]]
 ==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
-Internal function that mints `token_id` and transfers it to `to`.
+Mints `token_id` and transfers it to `to`.
+Internal function without access restriction.
 
-Emits an <<IERC721-Transfer,Transfer>> event.
+WARNING: Usage of this method is discouraged, use `_safe_mint` whenever possible
 
 Requirements:
 
 - `to` is not the zero address.
-- `token_id` does not already exist.
+- `token_id` must not exist.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-_transfer]]
 ==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
-Internal function that transfers `token_id` from `from` to `to`.
+Transfers `token_id` from `from` to `to`.
 
-Emits an <<IERC721-Transfer,Transfer>> event.
+Internal function without access restriction.
 
 Requirements:
 
@@ -510,52 +557,54 @@ Requirements:
 - `from` is the token owner.
 - `token_id` exists.
 
+Emits a <<IERC721-Transfer,Transfer>> event.
+
 [.contract-item]
 [[ERC721Component-_burn]]
 ==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
 
-Internal function that destroys `token_id`.
-The approval is cleared when the token is burned.
-This internal function does not check if the sender is authorized to operate on the token.
+Destroys `token_id`. The approval is cleared when the token is burned.
 
-Emits an <<IERC721-Transfer,Transfer>> event.
+This internal function does not check if the caller is authorized
+to operate on the token.
 
 Requirements:
 
-`token_id` exists.
+- `token_id` exists.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-_safe_mint]]
 ==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Internal function that mints `token_id` and transfers it to `to`.
-If `to` is not an account contract, `to` must support <<IERC721Receiver,IERC721Receiver>>; otherwise, the transaction will fail.
+Mints `token_id` if `to` is either an account or `IERC721Receiver`.
 
-Emits an <<IERC721-Transfer,Transfer>> event.
+`data` is additional data, it has no specified format and it is sent in call to `to`.
 
 Requirements:
 
-- `token_id` does not already exist.
-- `to` is either an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+- `token_id` does not exist.
+- `to` is either an account contract or supports the `IERC721Receiver` interface.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-_safe_transfer]]
 ==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
-Internal function that transfers `token_id` token from `from` to `to`, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.
+Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
 
 `data` is additional data, it has no specified format and it is sent in call to `to`.
-
-This internal function does not include permissions but can be useful for instances like implementing alternative mechanisms to perform signature-based token transfers.
-
-Emits an <<IERC721-Transfer,Transfer>> event.
 
 Requirements:
 
 - `to` cannot be the zero address.
 - `from` must be the token owner.
 - `token_id` exists.
-- `to` either is an account contract or supports the <<IERC721Receiver,IERC721Receiver>> interface.
+- `to` is either an account contract or supports the `IERC721Receiver` interface.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-_set_base_uri]]
@@ -568,6 +617,46 @@ Internal function that sets the `base_uri`.
 ==== `[.contract-item-name]#++_base_uri++#++(self: @ContractState) -> ByteArray++` [.item-kind]#internal#
 
 Base URI for computing <<IERC721Metadata-token_uri, token_uri>>.
+
+If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+Returns an empty `ByteArray` if not set.
+
+[.contract-item]
+[[ERC721Component-_is_authorized]]
+==== `[.contract-item-name]#++_is_authorized++#++(self: @ContractState, owner: ContractAddress, spender: ContractAddress, token_id: u256) -> bool++` [.item-kind]#internal#
+
+Returns whether `spender` is allowed to manage ``owner``'s tokens, or `token_id` in
+particular (ignoring whether it is owned by `owner`).
+
+WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
+assumption.
+
+[.contract-item]
+[[ERC721Component-_check_authorized]]
+==== `[.contract-item-name]#++_check_authorized++#++(self: @ContractState, owner: ContractAddress, spender: ContractAddress, token_id: u256) -> bool++` [.item-kind]#internal#
+
+Checks if `spender` can operate on `token_id`, assuming the provided `owner` is the actual owner.
+
+Requirements:
+
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
+- `spender` must be the owner of `token_id` or be approved to operate on it.
+
+WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
+assumption.
+
+[.contract-item]
+[[ERC721Component-_update]]
+==== `[.contract-item-name]#++_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
+
+Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+(or `to`) is the zero address. Returns the owner of the `token_id` before the update.
+
+The `auth` argument is optional. If the value passed is non 0, then this function will check that
+`auth` is either the owner of the token, or approved to operate on the token (by the owner).
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 ==== Events
 

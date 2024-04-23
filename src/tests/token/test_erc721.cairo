@@ -156,7 +156,7 @@ fn test_get_approved() {
     let token_id = TOKEN_ID;
 
     assert_eq!(state.get_approved(token_id), ZERO());
-    state._approve(spender, token_id);
+    state._approve(spender, token_id, ZERO());
     assert_eq!(state.get_approved(token_id), spender);
 }
 
@@ -237,15 +237,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: approval to owner',))]
-fn test_approve_to_owner() {
-    let mut state = setup();
-
-    testing::set_caller_address(OWNER());
-    state.approve(OWNER(), TOKEN_ID);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_approve_nonexistent() {
     let mut state = COMPONENT_STATE();
@@ -255,7 +246,7 @@ fn test_approve_nonexistent() {
 #[test]
 fn test__approve() {
     let mut state = setup();
-    state._approve(SPENDER(), TOKEN_ID);
+    state._approve(SPENDER(), TOKEN_ID, ZERO());
     assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
@@ -263,17 +254,10 @@ fn test__approve() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: approval to owner',))]
-fn test__approve_to_owner() {
-    let mut state = setup();
-    state._approve(OWNER(), TOKEN_ID);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__approve_nonexistent() {
     let mut state = COMPONENT_STATE();
-    state._approve(SPENDER(), TOKEN_ID);
+    state._approve(SPENDER(), TOKEN_ID, ZERO());
 }
 
 //
@@ -362,7 +346,7 @@ fn test_transfer_from_owner() {
     let owner = OWNER();
     let recipient = RECIPIENT();
     // set approval to check reset
-    state._approve(OTHER(), token_id);
+    state._approve(OTHER(), token_id, ZERO());
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
@@ -384,7 +368,7 @@ fn test_transferFrom_owner() {
     let owner = OWNER();
     let recipient = RECIPIENT();
     // set approval to check reset
-    state._approve(OTHER(), token_id);
+    state._approve(OTHER(), token_id, ZERO());
     utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
@@ -403,6 +387,7 @@ fn test_transferFrom_owner() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
+    testing::set_caller_address(OWNER());
     state.transfer_from(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -410,6 +395,7 @@ fn test_transfer_from_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
+    testing::set_caller_address(OWNER());
     state.transferFrom(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -762,6 +748,7 @@ fn test_safeTransferFrom_to_non_receiver() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safe_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
+    testing::set_caller_address(OWNER());
     state.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -769,6 +756,7 @@ fn test_safe_transfer_from_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safeTransferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
+    testing::set_caller_address(OWNER());
     state.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -1229,7 +1217,7 @@ fn test__safe_mint_already_exist() {
 fn test__burn() {
     let mut state = setup();
 
-    state._approve(OTHER(), TOKEN_ID);
+    state._approve(OTHER(), TOKEN_ID, ZERO());
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());

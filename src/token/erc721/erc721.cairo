@@ -129,7 +129,7 @@ mod ERC721Component {
         ///
         /// - `token_id` exists.
         fn owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
-            self._owner_of(token_id)
+            self._require_owned(token_id)
         }
 
         /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
@@ -359,12 +359,8 @@ mod ERC721Component {
         }
 
         /// Returns the owner address of `token_id`.
-        ///
-        /// Requirements:
-        ///
-        /// - `token_id` exists.
         fn _owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
-            self._require_owned(token_id)
+            self.ERC721_owners.read(token_id)
         }
 
         /// Returns the owner address of `token_id`.
@@ -380,12 +376,17 @@ mod ERC721Component {
             owner
         }
 
+        /// Returns whether `token_id` exists.
+        fn _exists(self: @ComponentState<TContractState>, token_id: u256) -> bool {
+            !self._owner_of(token_id).is_zero()
+        }
+
         /// Approve `to` to operate on `token_id`
         ///
         /// The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
         /// either the owner of the token, or approved to operate on all tokens held by this owner.
         ///
-        /// May emit an `Approval` event.
+        /// Emits an `Approval` event.
         fn _approve(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,

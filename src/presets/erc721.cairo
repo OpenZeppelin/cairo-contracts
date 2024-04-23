@@ -8,7 +8,7 @@
 #[starknet::contract]
 mod ERC721 {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -63,7 +63,6 @@ mod ERC721 {
                     break;
                 }
                 let id = *token_ids.pop_front().unwrap();
-
                 self.erc721._mint(recipient, id);
             }
         }

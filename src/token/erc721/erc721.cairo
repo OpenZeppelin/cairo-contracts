@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.11.0 (token/erc721/erc721.cairo)
 
+use starknet::ContractAddress;
+
 /// # ERC721 Component
 ///
 /// The ERC721 component provides implementations for both the IERC721 interface
@@ -75,13 +77,32 @@ mod ERC721Component {
         const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
         const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
-        const APPROVAL_TO_OWNER: felt252 = 'ERC721: approval to owner';
         const SELF_APPROVAL: felt252 = 'ERC721: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
         const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
         const WRONG_SENDER: felt252 = 'ERC721: wrong sender';
         const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
         const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
+    }
+
+    //
+    // Hooks
+    //
+
+    trait ERC721HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        );
+
+        fn after_update(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        );
     }
 
     //
@@ -93,6 +114,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721<ComponentState<TContractState>> {
         /// Returns the number of NFTs owned by `account`.
@@ -154,7 +176,7 @@ mod ERC721Component {
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+            // Setting an "auth" arguments enables the `_is_authorized` check which verifies that the token exists
             // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
             let previous_owner = self._update(to, token_id, get_caller_address());
 
@@ -210,6 +232,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
@@ -245,6 +268,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721CamelOnly<ComponentState<TContractState>> {
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -297,6 +321,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
@@ -313,6 +338,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl Hooks: ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name, symbol, and base URI.
@@ -341,6 +367,11 @@ mod ERC721Component {
             self._require_owned(token_id)
         }
 
+        /// Returns the owner address of `token_id`.
+        ///
+        /// Requirements:
+        ///
+        /// - `token_id` exists.
         fn _require_owned(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> ContractAddress {
@@ -355,7 +386,12 @@ mod ERC721Component {
         /// either the owner of the token, or approved to operate on all tokens held by this owner.
         ///
         /// May emit an `Approval` event.
-        fn _approve(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, auth: ContractAddress) {
+        fn _approve(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
             self._approve_with_optional_event(to, token_id, auth, true);
         }
 
@@ -452,7 +488,6 @@ mod ERC721Component {
 
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
             assert(from == previous_owner, Errors::WRONG_SENDER);
-
         }
 
         /// Destroys `token_id`. The approval is cleared when the token is burned.
@@ -584,6 +619,8 @@ mod ERC721Component {
             token_id: u256,
             auth: ContractAddress
         ) -> ContractAddress {
+            Hooks::before_update(ref self, to, token_id, auth);
+
             let from = self._owner_of(token_id);
 
             // Perform (optional) operator check
@@ -601,8 +638,9 @@ mod ERC721Component {
             }
 
             self.ERC721_owners.write(token_id, to);
-
             self.emit(Transfer { from, to, token_id });
+
+            Hooks::after_update(ref self, to, token_id, auth);
 
             from
         }
@@ -630,6 +668,7 @@ mod ERC721Component {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::ERC721ABI<ComponentState<TContractState>> {
         // IERC721
@@ -750,4 +789,21 @@ mod ERC721Component {
             src5.supports_interface(interface_id)
         }
     }
+}
+
+/// An empty implementation of the ERC721 hooks to be used in basic ERC721 preset contracts.
+impl ERC721HooksEmptyImpl<TContractState> of ERC721Component::ERC721HooksTrait<TContractState> {
+    fn before_update(
+        ref self: ERC721Component::ComponentState<TContractState>,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {}
+
+    fn after_update(
+        ref self: ERC721Component::ComponentState<TContractState>,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {}
 }

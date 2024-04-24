@@ -80,6 +80,7 @@ mod VestingWalletcomponent {
         ) -> u256 {
             let tokenAmount = IERC20Dispatcher { contract_address: token }
                 .balance_of(get_contract_address());
+            return self._vestingSchedule(tokenAmount + self.erc20released.read(token), timestamp);
         }
     }
 

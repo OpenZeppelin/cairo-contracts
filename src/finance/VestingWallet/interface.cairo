@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 use starknet::ContractAddress;
 
 /// Common interface for VestingWallet contracts.
@@ -16,4 +17,5 @@ trait IVestingWallet<TState> {
 #[starknet::interface]
 trait IVestingWalletCliff<TState> {
     fn get_cliff(self: @TState) -> u64;
+    fn vestedAmount(self: @TState, token: ContractAddress, timestamp: u64) -> u256;
 }

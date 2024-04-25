@@ -8,6 +8,7 @@ mod VestingWalletCliffComponent {
     use openzeppelin::finance::vestingwallet::{
         VestingWalletComponent, VestingWalletComponent::InternalImpl as VestingWallet
     };
+    use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::{ContractAddress, get_contract_address, get_block_timestamp};
 
     #[storage]
@@ -30,6 +31,16 @@ mod VestingWalletCliffComponent {
     > of interface::IVestingWalletCliff<ComponentState<TContractState>> {
         fn get_cliff(self: @ComponentState<TContractState>) -> u64 {
             return self.cliff.read();
+        }
+
+        fn vestedAmount(
+            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
+        ) -> u256 {
+            let tokenAmount = IERC20Dispatcher { contract_address: token }
+                .balance_of(get_contract_address());
+            let vestingwallet = get_dep_component!(self, VestingWallet);
+            return self
+                ._vestingSchedule(tokenAmount + vestingwallet.erc20released.read(token), timestamp);
         }
     }
 

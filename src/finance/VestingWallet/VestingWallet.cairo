@@ -103,11 +103,6 @@ mod VestingWalletComponent {
             self.duration.write(_duration);
         }
 
-        fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
-            let ownable = get_dep_component!(self, Ownable);
-            ownable.Ownable_owner.read()
-        }
-
         fn _vestingSchedule(
             self: @ComponentState<TContractState>, totalAllocation: u256, timestamp: u64
         ) -> u256 {

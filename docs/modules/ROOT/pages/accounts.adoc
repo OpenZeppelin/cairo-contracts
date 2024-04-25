@@ -98,3 +98,111 @@ But if you don't have an account to invoke it, you will probably want to use the
 
 To do counterfactual deployments, you need to implement another protocol-level entrypoint named
 `\\__validate_deploy__`. Check the {counterfactual} guide to learn how.
+
+== Usage
+
+Contracts for Cairo offers two flavors of components to use for creating accounts: `AccountComponent` and `EthAccountComponent`.
+Though the ISRC-6 interface is agnostic regarding validation schemes, both available components utilize public-private key pairs that control the account.
+The public key is set in the constructor.
+
+Mixin implementations are available to use for both components which include basic account functionality as well as additional features such as the ability to:
+
+- View and change the account's public key.
+- Declare contract class hashes.
+- Counterfactually deploy.
+
+=== AccountComponent
+
+To create an account, implement the `AccountComponent` mixin and set up the constructor to initialize the contract.
+The `initializer` method sets the public key for the account contract and registers the account interface id.
+A vanilla account contract looks like this:
+
+```[,cairo]
+#[starknet::contract(account)]
+mod MyAccount {
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // Account Mixin
+    #[abi(embed_v0)]
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        account: AccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+}
+```
+
+=== EthAccountComponent
+
+To create an Ethereum-flavored account, implement the `EthAccountComponent` mixin and set up the constructor to initialize the contract.
+Since this is an EthAccount, the `initializer` expects the `EthPublicKey` type (secp256k1 point) to store as the account's public key.
+The contract also requires the `Secp256K1Impl` implementation in order to serialize and deserialize the `EthPublicKey` type.
+A basic Ethereum-flavored account contract looks like this:
+
+```[,cairo]
+#[starknet::contract(account)]
+mod MyEthAccount {
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // EthAccount Mixin
+    #[abi(embed_v0)]
+    impl EthAccountMixinImpl =
+        EthAccountComponent::EthAccountMixinImpl<ContractState>;
+    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        eth_account: EthAccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        EthAccountEvent: EthAccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+        self.eth_account.initializer(public_key);
+    }
+}
+```
+

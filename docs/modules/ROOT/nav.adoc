@@ -8,7 +8,6 @@
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
 ** xref:guides/deployment.adoc[Counterfactual Deployments]
 ** xref:guides/snip12.adoc[SNIP12 and Typed Messages]
-// ** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
 
@@ -16,7 +15,6 @@
 *** xref:/api/access.adoc[API Reference]
 
 ** xref:accounts.adoc[Accounts]
-*** xref:/guides/account-usage.adoc[Account Usage]
 *** xref:/api/account.adoc[API Reference]
 
 ** xref:/api/governance.adoc[Governance]

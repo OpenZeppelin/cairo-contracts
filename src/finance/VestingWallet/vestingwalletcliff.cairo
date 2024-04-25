@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 #[starknet::component]
-mod VestingWalletCliffcomponent {
+mod VestingWalletCliffComponent {
     use openzeppelin::access::ownable::{
         OwnableComponent, OwnableComponent::InternalImpl as Ownable
     };
     use openzeppelin::finance::vestingwallet::interface;
     use openzeppelin::finance::vestingwallet::{
-        VestingWalletcomponent, VestingWalletcomponent::InternalImpl as VestingWallet
+        VestingWalletComponent, VestingWalletComponent::InternalImpl as VestingWallet
     };
     use starknet::{ContractAddress, get_contract_address, get_block_timestamp};
 
@@ -26,7 +26,7 @@ mod VestingWalletCliffcomponent {
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl Ownable: OwnableComponent::HasComponent<TContractState>,
-        impl VestingWallet: VestingWalletcomponent::HasComponent<TContractState>,
+        impl VestingWallet: VestingWalletComponent::HasComponent<TContractState>,
     > of interface::IVestingWalletCliff<ComponentState<TContractState>> {
         fn get_cliff(self: @ComponentState<TContractState>) -> u64 {
             return self.cliff.read();
@@ -39,7 +39,7 @@ mod VestingWalletCliffcomponent {
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl Ownable: OwnableComponent::HasComponent<TContractState>,
-        impl VestingWallet: VestingWalletcomponent::HasComponent<TContractState>,
+        impl VestingWallet: VestingWalletComponent::HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         fn initializer(
             ref self: ComponentState<TContractState>,
@@ -48,11 +48,8 @@ mod VestingWalletCliffcomponent {
             _duration: u64,
             _cliff: u64,
         ) {
-            let mut ownable = get_dep_component_mut!(ref self, Ownable);
-            ownable.initializer(beneficiary);
             let mut vestingwallet = get_dep_component_mut!(ref self, VestingWallet);
-            vestingwallet.start.write(_start);
-            vestingwallet.duration.write(_duration);
+            vestingwallet.initializer(beneficiary, _start, _duration);
             assert(_cliff < _duration, Errors::InvalidCliffDuration);
             self.cliff.write(vestingwallet.start.read() + _cliff);
         }

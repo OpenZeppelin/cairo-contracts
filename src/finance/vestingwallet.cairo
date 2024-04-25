@@ -3,5 +3,5 @@ mod vestingwallet;
 mod vestingwalletcliff;
 
 
-use vestingwallet::VestingWalletcomponent;
-use vestingwalletcliff::VestingWalletCliffcomponent;
+use vestingwallet::VestingWalletComponent;
+use vestingwalletcliff::VestingWalletCliffComponent;

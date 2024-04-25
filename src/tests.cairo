@@ -3,6 +3,8 @@ mod access;
 #[cfg(test)]
 mod account;
 #[cfg(test)]
+mod finance;
+#[cfg(test)]
 mod cryptography;
 #[cfg(test)]
 mod introspection;

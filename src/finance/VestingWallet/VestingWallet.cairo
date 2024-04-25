@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 #[starknet::component]
-mod VestingWalletcomponent {
+mod VestingWalletComponent {
     use openzeppelin::access::ownable::{
         OwnableComponent, OwnableComponent::InternalImpl as Ownable
     };
@@ -101,6 +101,11 @@ mod VestingWalletcomponent {
             ownable.initializer(beneficiary);
             self.start.write(_start);
             self.duration.write(_duration);
+        }
+
+        fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
+            let ownable = get_dep_component!(self, Ownable);
+            ownable.Ownable_owner.read()
         }
 
         fn _vestingSchedule(

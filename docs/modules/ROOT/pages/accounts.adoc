@@ -158,7 +158,30 @@ mod MyAccount {
 }
 ```
 
+To deploy a Contracts for Cairo account variant, compile the contract and declare the class hash because it's likely not already declared on the network.
+This also means that you'll need an account already deployed to the network.
+
+Next, create the account JSON file with Starknet Foundry's `sncast` with the `account create` subcommand and include the `--class-hash` flag with the declared class hash.
+The flag enables custom account variants.
+
+```[,bash]
+$ sncast account create \
+  --name my-custom-account \
+  --class-hash 0x123456...
+```
+
+This command will output the precomputed contract address and the recommended `max-fee`.
+To counterfactually deploy the account, send funds to the address and then deploy the custom account.
+
+```[,bash]
+$ sncast \
+  account deploy \
+  --name my-custom-account \
+```
+
 === EthAccountComponent
+
+:starknetjs: https://www.starknetjs.com/[StarknetJS]
 
 To create an Ethereum-flavored account, implement the `EthAccountComponent` mixin and set up the constructor to initialize the contract.
 Since this is an EthAccount, the `initializer` expects the `EthPublicKey` type (secp256k1 point) to store as the account's public key.
@@ -206,3 +229,59 @@ mod MyEthAccount {
 }
 ```
 
+Special tooling is required in order to deploy and send transactions with an Ethereum-flavored account contract.
+The following examples utilize the {starknetjs} library.
+
+Compile and declare the contract on the target network.
+Next, precompute the EthAccount contract address using the declared class hash.
+
+```[,javascript]
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethPubKey = await ethSigner.getPubKey();
+const ethAccountClassHash = `<ETH_ACCOUNT_CLASS_HASH>`;
+const ethCallData = new CallData(ETH_ABI);
+const ethAccountConstructorCalldata = ethCallData.compile('constructor', {
+    public_key: ethPubKey
+});
+const salt = '0x12345';
+const ethAccountAddress = hash.calculateContractAddressFromHash(
+    salt,
+    ethAccountClassHash,
+    ethAccountConstructorCalldata,
+    0
+);
+console.log('Pre-calculated EthAccount address: ', ethAccountAddress);
+```
+
+Finally, send funds to the pre-calculated EthAccount address and deploy the contract.
+
+```[,javascript]
+// Prepare EthAccount
+const provider = new RpcProvider({ nodeUrl: process.env.API_URL });
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethPubKey = await ethSigner.getPubKey();
+const ethAccountAddress = '<ETH_ACCOUNT_ADDRESS>'
+const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
+
+// Prepare payload
+const ethAccountClassHash = '<ETH_ACCOUNT_CLASS_HASH>'
+const ethCallData = new CallData(ETH_ABI);
+const ethAccountConstructorCalldata = ethCallData.compile('constructor', {
+    public_key: ethPubKey
+})
+const salt = '0x12345';
+const deployPayload = {
+    classHash: ethAccountClassHash,
+    constructorCalldata: ethAccountConstructorCalldata,
+    addressSalt: salt,
+};
+
+// Deploy
+const { suggestedMaxFee: feeDeploy } = await ethAccount.estimateAccountDeployFee(deployPayload);
+const { transaction_hash, contract_address } = await ethAccount.deployAccount(
+    deployPayload,
+    { maxFee: stark.estimatedFeeToMaxFee(feeDeploy, 100) }
+);
+await provider.waitForTransaction(transaction_hash);
+console.log('EthAccount deployed at: ', contract_address);
+```

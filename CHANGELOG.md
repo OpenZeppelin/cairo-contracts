@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Account usage section in docs (#)
+- Account usage section in docs (#981)
 
 ## 0.12.0 (2024-04-21)
 

@@ -1,14 +1,16 @@
 #[starknet::contract]
 mod DualCaseERC721EnumerableMock {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::ERC721Component::ERC721HooksTrait;
+    use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::extensions::ERC721EnumerableComponent;
 
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent);
+    component!(
+        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent
+    );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
@@ -18,9 +20,11 @@ mod DualCaseERC721EnumerableMock {
 
     // ERC721Enumerable
     #[abi(embed_v0)]
-    impl ERC721EnumerableImpl = ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
+    impl ERC721EnumerableImpl =
+        ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721EnumerableCamelImpl = ERC721EnumerableComponent::ERC721EnumerableCamelImpl<ContractState>;
+    impl ERC721EnumerableCamelImpl =
+        ERC721EnumerableComponent::ERC721EnumerableCamelImpl<ContractState>;
     impl ERC721EnumerableInternalImpl = ERC721EnumerableComponent::InternalImpl<ContractState>;
 
     // SRC5
@@ -61,7 +65,9 @@ mod DualCaseERC721EnumerableMock {
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut erc721_enumerable_component = get_dep_component_mut!(ref self, ERC721Enumerable);
+            let mut erc721_enumerable_component = get_dep_component_mut!(
+                ref self, ERC721Enumerable
+            );
             erc721_enumerable_component._before_update(to, token_id);
         }
 
@@ -70,8 +76,7 @@ mod DualCaseERC721EnumerableMock {
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
-        ) {
-        }
+        ) {}
     }
 
     #[constructor]

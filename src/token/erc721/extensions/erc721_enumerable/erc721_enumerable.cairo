@@ -13,7 +13,9 @@ mod ERC721EnumerableComponent {
     use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
     use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{IERC721Enumerable, IERC721EnumerableCamel};
+    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{
+        IERC721Enumerable, IERC721EnumerableCamel
+    };
     use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
     use starknet::ContractAddress;
 
@@ -112,9 +114,7 @@ mod ERC721EnumerableComponent {
 
         ///
         fn _before_update(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            token_id: u256,
+            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256,
         ) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let previous_owner = erc721_component._owner_of(token_id);

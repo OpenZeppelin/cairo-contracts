@@ -7,8 +7,10 @@ use openzeppelin::tests::utils::constants::{
     BASE_URI, BASE_URI_2
 };
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
+    ERC721EnumerableImpl, ERC721EnumerableCamelImpl, InternalImpl
+};
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{ERC721EnumerableImpl, ERC721EnumerableCamelImpl, InternalImpl};
 use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
@@ -28,7 +30,8 @@ const TOKENS_LEN: u256 = 3;
 // Setup
 //
 
-type ComponentState = ERC721EnumerableComponent::ComponentState<DualCaseERC721EnumerableMock::ContractState>;
+type ComponentState =
+    ERC721EnumerableComponent::ComponentState<DualCaseERC721EnumerableMock::ContractState>;
 
 fn CONTRACT_STATE() -> DualCaseERC721EnumerableMock::ContractState {
     DualCaseERC721EnumerableMock::contract_state_for_testing()

@@ -13,7 +13,7 @@ mod ERC721EnumerableComponent {
     use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
     use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
+    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{IERC721Enumerable, IERC721EnumerableCamel};
     use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
     use starknet::ContractAddress;
 
@@ -64,6 +64,33 @@ mod ERC721EnumerableComponent {
         }
     }
 
+    #[embeddable_as(ERC721EnumerableCamelImpl)]
+    impl ERC721EnumerableCamel<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        +ERC721Component::ERC721HooksTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of IERC721EnumerableCamel<ComponentState<TContractState>> {
+        ///
+        fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
+            self.total_supply()
+        }
+
+        ///
+        fn tokenOfOwnerByIndex(
+            self: @ComponentState<TContractState>, address: ContractAddress, index: u256
+        ) -> u256 {
+            self.token_of_owner_by_index(address, index)
+        }
+
+        ///
+        fn tokenByIndex(self: @ComponentState<TContractState>, index: u256) -> u256 {
+            self.token_by_index(index)
+        }
+    }
+
     //
     // Internal
     //
@@ -84,14 +111,13 @@ mod ERC721EnumerableComponent {
         }
 
         ///
-        fn _update(
+        fn _before_update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
-        ) -> ContractAddress {
-            let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-            let previous_owner = erc721_component._update(to, token_id, auth);
+        ) {
+            let erc721_component = get_dep_component!(@self, ERC721);
+            let previous_owner = erc721_component._owner_of(token_id);
             let zero_address = Zeroable::zero();
 
             if previous_owner == zero_address {
@@ -105,8 +131,6 @@ mod ERC721EnumerableComponent {
             } else if previous_owner != to {
                 self._add_token_to_owner_enumeration(to, token_id);
             }
-
-            previous_owner
         }
 
         ///
@@ -114,7 +138,7 @@ mod ERC721EnumerableComponent {
             ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256
         ) {
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-            let len = erc721_component.balance_of(to) - 1;
+            let len = erc721_component.balance_of(to);
             self.ERC721Enumerable_owned_tokens.write((to, len), token_id);
             self.ERC721Enumerable_owned_tokens_index.write(token_id, len);
         }
@@ -126,6 +150,7 @@ mod ERC721EnumerableComponent {
             let supply = self.total_supply();
             self.ERC721Enumerable_all_tokens_index.write(token_id, supply);
             self.ERC721Enumerable_all_tokens.write(supply, token_id);
+            self.ERC721Enumerable_all_tokens_len.write(supply + 1);
         }
 
         ///

@@ -8,4 +8,5 @@ mod test_erc1155_receiver;
 mod test_erc20;
 mod test_erc20_votes;
 mod test_erc721;
+mod test_erc721_enumerable;
 mod test_erc721_receiver;

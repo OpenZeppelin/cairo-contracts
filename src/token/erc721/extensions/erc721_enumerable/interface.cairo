@@ -21,7 +21,7 @@ trait IERC721EnumerableCamel<TState> {
 }
 
 #[starknet::interface]
-trait ERC721Enumerable_ABI<TState> {
+trait ERC721EnumerableABI<TState> {
     // IERC721Enumerable
     fn total_supply(self: @TState) -> u256;
     fn token_of_owner_by_index(self: @TState, address: ContractAddress, index: u256) -> u256;

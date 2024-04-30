@@ -580,7 +580,7 @@ Emits a <<IERC721-Transfer,Transfer>> event.
 
 Mints `token_id` if `to` is either an account or `IERC721Receiver`.
 
-`data` is additional data, it has no specified format and it is sent in call to `to`.
+`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
 
 Requirements:
 

@@ -383,7 +383,7 @@ mod ERC721Component {
 
         /// Approve `to` to operate on `token_id`
         ///
-        /// The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that `auth` is
         /// either the owner of the token, or approved to operate on all tokens held by this owner.
         ///
         /// Emits an `Approval` event.

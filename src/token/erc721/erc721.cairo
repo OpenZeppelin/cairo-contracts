@@ -614,6 +614,10 @@ mod ERC721Component {
         /// `auth` is either the owner of the token, or approved to operate on the token (by the owner).
         ///
         /// Emits a `Transfer` event.
+        ///
+        /// NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
         fn _update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,

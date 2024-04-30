@@ -656,6 +656,9 @@ The `auth` argument is optional. If the value passed is non-zero, then this func
 
 Emits a <<IERC721-Transfer,Transfer>> event.
 
+NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+functionality before and/or after the transfer, mint, or burn.
+
 ==== Events
 
 [.contract-item]

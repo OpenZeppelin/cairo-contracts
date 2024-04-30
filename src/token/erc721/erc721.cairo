@@ -401,7 +401,7 @@ mod ERC721Component {
         ///
         /// Requirements:
         ///
-        /// - if `auth` is non-zero, it must be either the owner of the token or approved to
+        /// - If `auth` is non-zero, it must be either the owner of the token or approved to
         /// operate on all of its tokens.
         ///
         /// May emit an `Approval` event.

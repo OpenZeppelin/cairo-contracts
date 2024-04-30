@@ -55,13 +55,13 @@ mod ERC721EnumerableComponent {
             self: @ComponentState<TContractState>, address: ContractAddress, index: u256
         ) -> u256 {
             let erc721_component = get_dep_component!(self, ERC721);
-            assert(index >= erc721_component.balance_of(address), Errors::OUT_OF_BOUNDS_INDEX);
+            assert(index < erc721_component.balance_of(address), Errors::OUT_OF_BOUNDS_INDEX);
             self.ERC721Enumerable_owned_tokens.read((address, index))
         }
 
         ///
         fn token_by_index(self: @ComponentState<TContractState>, index: u256) -> u256 {
-            assert(index >= self.total_supply(), Errors::OUT_OF_BOUNDS_INDEX);
+            assert(index < self.total_supply(), Errors::OUT_OF_BOUNDS_INDEX);
             self.ERC721Enumerable_all_tokens.read(index)
         }
     }
@@ -113,9 +113,7 @@ mod ERC721EnumerableComponent {
         }
 
         ///
-        fn _before_update(
-            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256,
-        ) {
+        fn _update(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256,) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let previous_owner = erc721_component._owner_of(token_id);
             let zero_address = Zeroable::zero();
@@ -139,7 +137,9 @@ mod ERC721EnumerableComponent {
         ) {
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
             let len = erc721_component.balance_of(to);
+            // address => index => id
             self.ERC721Enumerable_owned_tokens.write((to, len), token_id);
+            // id => index
             self.ERC721Enumerable_owned_tokens_index.write(token_id, len);
         }
 

@@ -321,7 +321,7 @@ mod ERC20Component {
         /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
         /// the zero address.
         ///
-        /// This function can be extended using the `ERC20HooksTrait`, to add
+        /// NOTe: This function can be extended using the `ERC20HooksTrait`, to add
         /// functionality before and/or after the transfer, mint, or burn.
         ///
         /// Emits a `Transfer` event.

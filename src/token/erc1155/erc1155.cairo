@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.12.0 (token/erc1155/erc1155.cairo)
 
+use starknet::ContractAddress;
+
 /// # ERC1155 Component
 ///
 /// The ERC1155 component provides an implementation of the basic standard multi-token.
@@ -95,6 +97,28 @@ mod ERC1155Component {
     }
 
     //
+    // Hooks
+    //
+
+    trait ERC1155HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>
+        );
+
+        fn after_update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>
+        );
+    }
+
+    //
     // External
     //
 
@@ -103,6 +127,7 @@ mod ERC1155Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC1155HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155<ComponentState<TContractState>> {
         /// Returns the amount of `token_id` tokens owned by `account`.
@@ -237,6 +262,7 @@ mod ERC1155Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC1155HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155MetadataURI<ComponentState<TContractState>> {
         /// This implementation returns the same URI for *all* token types. It relies
@@ -256,6 +282,7 @@ mod ERC1155Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
+        +ERC1155HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::IERC1155Camel<ComponentState<TContractState>> {
         fn balanceOf(
@@ -316,6 +343,7 @@ mod ERC1155Component {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl Hooks: ERC1155HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the `base_uri` for all tokens,
@@ -338,6 +366,9 @@ mod ERC1155Component {
         ///
         /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
         ///
+        /// NOTE: This function can be extended using the `ERC1155HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
         /// NOTE: The ERC1155 acceptance check is not performed in this function.
         /// See `update_with_acceptance_check` instead.
         fn update(
@@ -347,6 +378,8 @@ mod ERC1155Component {
             token_ids: Span<u256>,
             values: Span<u256>
         ) {
+            Hooks::before_update(ref self, from, to, token_ids, values);
+
             assert(token_ids.len() == values.len(), Errors::INVALID_ARRAY_LENGTH);
 
             let mut index = 0;
@@ -378,6 +411,8 @@ mod ERC1155Component {
             } else {
                 self.emit(TransferBatch { operator, from, to, ids: token_ids, values });
             }
+
+            Hooks::after_update(ref self, from, to, token_ids, values);
         }
 
         /// Version of `update` that performs the token acceptance check by calling
@@ -554,6 +589,7 @@ mod ERC1155Component {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +ERC1155HooksTrait<TContractState>,
         +Drop<TContractState>
     > of interface::ERC1155ABI<ComponentState<TContractState>> {
         // IERC1155
@@ -667,4 +703,23 @@ mod ERC1155Component {
             ERC1155Camel::setApprovalForAll(ref self, operator, approved);
         }
     }
+}
+
+/// An empty implementation of the ERC1155 hooks to be used in basic ERC1155 preset contracts.
+impl ERC1155HooksEmptyImpl<TContractState> of ERC1155Component::ERC1155HooksTrait<TContractState> {
+    fn before_update(
+        ref self: ERC1155Component::ComponentState<TContractState>,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>
+    ) {}
+
+    fn after_update(
+        ref self: ERC1155Component::ComponentState<TContractState>,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>
+    ) {}
 }

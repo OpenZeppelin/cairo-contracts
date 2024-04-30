@@ -68,7 +68,7 @@ mod DualCaseERC721EnumerableMock {
             let mut erc721_enumerable_component = get_dep_component_mut!(
                 ref self, ERC721Enumerable
             );
-            erc721_enumerable_component._before_update(to, token_id);
+            erc721_enumerable_component._update(to, token_id);
         }
 
         fn after_update(

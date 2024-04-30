@@ -26,6 +26,10 @@ const NONEXISTENT: u256 = 9898;
 
 const TOKENS_LEN: u256 = 3;
 
+fn TOKENS_LIST() -> Array<u256> {
+    array![TOKEN_1, TOKEN_2, TOKEN_3]
+}
+
 //
 // Setup
 //
@@ -94,4 +98,95 @@ fn test_totalSupply() {
 
     let supply = state.totalSupply();
     assert_eq!(supply, TOKENS_LEN);
+}
+
+//
+// token_of_owner_by_index
+//
+
+#[test]
+fn test_token_of_owner_by_index_when_index_is_lt_owned_tokens() {
+    let mut state = setup();
+
+    let mut i = 0;
+    loop {
+        if i == TOKENS_LIST().len() {
+            break;
+        };
+        let token = state.token_of_owner_by_index(OWNER(), i.into());
+        assert_eq!(token, *TOKENS_LIST().at(i));
+        i = i + 1;
+    };
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
+    let mut state = setup();
+
+    state.token_of_owner_by_index(OWNER(), TOKENS_LEN);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
+    let mut state = setup();
+
+    state.token_of_owner_by_index(OWNER(), TOKENS_LEN + 1);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_target_has_no_tokens() {
+    let mut state = setup();
+
+    state.token_of_owner_by_index(OTHER(), 0);
+}
+
+#[test]
+fn test_token_of_owner_by_index_when_all_tokens_transferred() {
+    let mut state = setup();
+    let mut contract_state = CONTRACT_STATE();
+    testing::set_caller_address(OWNER());
+
+    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_1);
+    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_2);
+    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_3);
+
+    let mut token = state.token_of_owner_by_index(RECIPIENT(), 0);
+    assert_eq!(token, TOKEN_1);
+
+    token = state.token_of_owner_by_index(RECIPIENT(), 1);
+    assert_eq!(token, TOKEN_2);
+
+    token = state.token_of_owner_by_index(RECIPIENT(), 2);
+    assert_eq!(token, TOKEN_3);
+}
+
+//
+// token_by_index
+//
+
+#[test]
+fn test_token_by_index() {
+    let mut state = setup();
+
+    let mut index = 0;
+    loop {
+        if index == TOKENS_LIST().len() {
+            break;
+        };
+
+        let token = state.token_by_index(index.into());
+        assert_eq!(token, *TOKENS_LIST().at(index));
+        index = index + 1;
+    };
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_by_index_equal_to_supply() {
+    let mut state = setup();
+
+    state.token_by_index(TOKENS_LEN);
 }

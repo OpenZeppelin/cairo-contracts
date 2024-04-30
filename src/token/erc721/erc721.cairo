@@ -77,10 +77,9 @@ mod ERC721Component {
         const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
         const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
-        const SELF_APPROVAL: felt252 = 'ERC721: self approval';
         const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
         const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
-        const WRONG_SENDER: felt252 = 'ERC721: wrong sender';
+        const INVALID_SENDER: felt252 = 'ERC721: invalid sender';
         const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
         const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
     }
@@ -136,6 +135,8 @@ mod ERC721Component {
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+        ///
         /// Requirements:
         ///
         /// - Caller is either approved or the `token_id` owner.
@@ -160,6 +161,8 @@ mod ERC721Component {
 
         /// Transfers ownership of `token_id` from `from` to `to`.
         ///
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        ///
         /// Requirements:
         ///
         /// - Caller is either approved or the `token_id` owner.
@@ -180,7 +183,7 @@ mod ERC721Component {
             // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
             let previous_owner = self._update(to, token_id, get_caller_address());
 
-            assert(from == previous_owner, Errors::WRONG_SENDER);
+            assert(from == previous_owner, Errors::INVALID_SENDER);
         }
 
         /// Change or reaffirm the approved address for an NFT.
@@ -197,10 +200,6 @@ mod ERC721Component {
 
         /// Enable or disable approval for `operator` to manage all of the
         /// caller's assets.
-        ///
-        /// Requirements:
-        ///
-        /// - `operator` cannot be the caller.
         ///
         /// Emits an `Approval` event.
         fn set_approval_for_all(
@@ -383,7 +382,7 @@ mod ERC721Component {
 
         /// Approve `to` to operate on `token_id`
         ///
-        /// The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that `auth` is
         /// either the owner of the token, or approved to operate on all tokens held by this owner.
         ///
         /// Emits an `Approval` event.
@@ -431,10 +430,6 @@ mod ERC721Component {
         /// Enables or disables approval for `operator` to manage
         /// all of the `owner` assets.
         ///
-        /// Requirements:
-        ///
-        /// - `operator` cannot be the caller.
-        ///
         /// Emits an `Approval` event.
         fn _set_approval_for_all(
             ref self: ComponentState<TContractState>,
@@ -442,7 +437,6 @@ mod ERC721Component {
             operator: ContractAddress,
             approved: bool
         ) {
-            assert(owner != operator, Errors::SELF_APPROVAL);
             self.ERC721_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }
@@ -450,12 +444,12 @@ mod ERC721Component {
         /// Mints `token_id` and transfers it to `to`.
         /// Internal function without access restriction.
         ///
-        /// WARNING: Usage of this method is discouraged, use `_safe_mint` whenever possible
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
         ///
         /// Requirements:
         ///
         /// - `to` is not the zero address.
-        /// - `token_id` must not exist.
+        /// - `token_id` does not exist.
         ///
         /// Emits a `Transfer` event.
         fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
@@ -469,6 +463,8 @@ mod ERC721Component {
         /// Transfers `token_id` from `from` to `to`.
         ///
         /// Internal function without access restriction.
+        ///
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
         ///
         /// Requirements:
         ///
@@ -488,7 +484,7 @@ mod ERC721Component {
             let previous_owner = self._update(to, token_id, Zeroable::zero());
 
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
-            assert(from == previous_owner, Errors::WRONG_SENDER);
+            assert(from == previous_owner, Errors::INVALID_SENDER);
         }
 
         /// Destroys `token_id`. The approval is cleared when the token is burned.
@@ -509,6 +505,8 @@ mod ERC721Component {
         /// Mints `token_id` if `to` is either an account or `IERC721Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
+        ///
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
         ///
         /// Requirements:
         ///
@@ -533,6 +531,8 @@ mod ERC721Component {
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+        /// 
         /// Requirements:
         ///
         /// - `to` cannot be the zero address.
@@ -610,7 +610,7 @@ mod ERC721Component {
         /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
         /// (or `to`) is the zero address. Returns the owner of the `token_id` before the update.
         ///
-        /// The `auth` argument is optional. If the value passed is non 0, then this function will check that
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that
         /// `auth` is either the owner of the token, or approved to operate on the token (by the owner).
         ///
         /// Emits a `Transfer` event.

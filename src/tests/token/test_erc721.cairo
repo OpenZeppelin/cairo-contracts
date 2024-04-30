@@ -286,22 +286,6 @@ fn test_set_approval_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: self approval',))]
-fn test_set_approval_for_all_owner_equal_operator_true() {
-    let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
-    state.set_approval_for_all(OWNER(), true);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval',))]
-fn test_set_approval_for_all_owner_equal_operator_false() {
-    let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
-    state.set_approval_for_all(OWNER(), false);
-}
-
-#[test]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
 
@@ -319,20 +303,6 @@ fn test__set_approval_for_all() {
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval',))]
-fn test__set_approval_for_all_owner_equal_operator_true() {
-    let mut state = COMPONENT_STATE();
-    state._set_approval_for_all(OWNER(), OWNER(), true);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval',))]
-fn test__set_approval_for_all_owner_equal_operator_false() {
-    let mut state = COMPONENT_STATE();
-    state._set_approval_for_all(OWNER(), OWNER(), false);
 }
 
 //
@@ -1066,7 +1036,7 @@ fn test__transfer_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: wrong sender',))]
+#[should_panic(expected: ('ERC721: invalid sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
     state._transfer(RECIPIENT(), OWNER(), TOKEN_ID);

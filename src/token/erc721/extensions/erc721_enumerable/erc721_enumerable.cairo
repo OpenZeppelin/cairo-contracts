@@ -161,7 +161,9 @@ mod ERC721EnumerableComponent {
 
             // When `token_id` is the last token, the swap operation is unnecessary
             if this_token_index != last_token_index {
-                let last_token_id = self.ERC721Enumerable_owned_tokens.read((from, last_token_index));
+                let last_token_id = self
+                    .ERC721Enumerable_owned_tokens
+                    .read((from, last_token_index));
                 // Set `token_id` index to point to last token id
                 self.ERC721Enumerable_owned_tokens.write((from, this_token_index), last_token_id);
                 // Set the last token id index to point to `token_id`'s index position

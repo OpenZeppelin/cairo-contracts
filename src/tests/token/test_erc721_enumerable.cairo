@@ -233,9 +233,7 @@ fn assert_token_of_owner_by_index(
     };
 }
 
-fn assert_token_by_index(
-    state: ComponentState, expected_token_list: Array<u256>
-) {
+fn assert_token_by_index(state: ComponentState, expected_token_list: Array<u256>) {
     let mut i = 0;
     loop {
         if i == expected_token_list.len() {

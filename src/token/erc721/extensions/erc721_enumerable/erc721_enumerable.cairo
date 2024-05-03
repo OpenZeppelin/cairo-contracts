@@ -137,9 +137,7 @@ mod ERC721EnumerableComponent {
         ) {
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
             let len = erc721_component.balance_of(to);
-            // address => index => id
             self.ERC721Enumerable_owned_tokens.write((to, len), token_id);
-            // id => index
             self.ERC721Enumerable_owned_tokens_index.write(token_id, len);
         }
 
@@ -159,35 +157,41 @@ mod ERC721EnumerableComponent {
         ) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let last_token_index = erc721_component.balance_of(from) - 1;
-            let token_index = self.ERC721Enumerable_owned_tokens_index.read(token_id);
+            let this_token_index = self.ERC721Enumerable_owned_tokens_index.read(token_id);
 
-            if token_index == last_token_index {
-                self.ERC721Enumerable_owned_tokens_index.write(token_id, 0);
-                self.ERC721Enumerable_owned_tokens.write((from, last_token_index), 0);
+            // When `token_id` is the last token, the swap operation is unnecessary
+            if this_token_index != last_token_index {
+                let last_token_id = self.ERC721Enumerable_owned_tokens.read((from, last_token_index));
+                // Set `token_id` index to point to last token id
+                self.ERC721Enumerable_owned_tokens.write((from, this_token_index), last_token_id);
+                // Set the last token id index to point to `token_id`'s index position
+                self.ERC721Enumerable_owned_tokens_index.write(last_token_id, this_token_index);
             }
 
-            let last_token_id = self.ERC721Enumerable_owned_tokens.read((from, last_token_index));
-            self.ERC721Enumerable_owned_tokens.write((from, token_index), last_token_id);
-            self.ERC721Enumerable_owned_tokens_index.write(last_token_id, token_index);
+            // Remove `token_id` from last token index position
+            self.ERC721Enumerable_owned_tokens.write((from, last_token_index), 0);
         }
 
         ///
         fn _remove_token_from_all_tokens_enumeration(
             ref self: ComponentState<TContractState>, token_id: u256
         ) {
-            let supply = self.total_supply();
-            let last_token_index = supply - 1;
+            let last_token_index = self.total_supply() - 1;
             let this_token_index = self.ERC721Enumerable_all_tokens_index.read(token_id);
             let last_token_id = self.ERC721Enumerable_all_tokens.read(last_token_index);
 
+            // Set last token index to zero
             self.ERC721Enumerable_all_tokens.write(last_token_index, 0);
+            // Set `token_id` index to 0
             self.ERC721Enumerable_all_tokens_index.write(token_id, 0);
+            // Remove one from total supply
             self.ERC721Enumerable_all_tokens_len.write(last_token_index);
 
-            if last_token_index == this_token_index {
-                self.ERC721Enumerable_all_tokens_index.write(last_token_id, this_token_index);
-                self.ERC721Enumerable_all_tokens.write(this_token_index, last_token_id);
-            }
+            // When the token to delete is the last token, the swap operation is unnecessary. However,
+            // since this occurs rarely (when the last minted token is burnt), we still do the swap
+            // which avoids the additional expense of including an `if` statement
+            self.ERC721Enumerable_all_tokens_index.write(last_token_id, this_token_index);
+            self.ERC721Enumerable_all_tokens.write(this_token_index, last_token_id);
         }
     }
 }

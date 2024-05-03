@@ -1,5 +1,4 @@
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::erc721_enumerable_mocks::DualCaseERC721EnumerableMock;
 use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT, OTHER};
@@ -10,8 +9,6 @@ use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721Enumerable
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
 use starknet::ContractAddress;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
-use starknet::testing;
 
 // Token IDs
 const TOKEN_1: u256 = 111;
@@ -132,11 +129,9 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
     let mut contract_state = CONTRACT_STATE();
     let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
-    testing::set_caller_address(OWNER());
-
-    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_1);
-    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_2);
-    contract_state.transfer_from(OWNER(), RECIPIENT(), TOKEN_3);
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_1);
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_2);
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_3);
 
     assert_token_of_owner_by_index(state, RECIPIENT(), tokens_list);
 }

@@ -775,6 +775,53 @@ See <<ERC721ReceiverComponent-on_erc721_received,ERC721ReceiverComponent::on_erc
 
 Registers the `IERC721Receiver` interface ID as supported through introspection.
 
+== Extensions
+
+[.contract]
+[[ERC721EnumerableComponent]]
+=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::token::extensions::ERC721EnumerableComponent;
+```
+
+Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all thoken ids owned by each account.
+
+NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
+
+WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-_update[ERC721EnumerableComponent::_update] function is called after every transfer, mint, or burn operation.
+This must be included in the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook.
+
+This extension allows contracts to publish their entire list of NFTs and make them discoverable.
+
+[.contract-index#ERC721EnumerableComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableImpl]
+.ERC721EnumerableImpl
+* xref:#ERC721EnumerableComponent-total_supply[`++total_supply(self)++`]
+* xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
+* xref:#ERC721EnumerableComponent-token_by_index[`++token_by_index(self, index)++`]
+
+[.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableCamelImpl]
+.ERC721EnumerableCamelImpl
+* xref:#ERC721EnumerableComponent-total_Spply[`++totalSupply(self)++`]
+* xref:#ERC721EnumerableComponent-tokenOfOwnerByIndex[`++tokenOfOwnerByIndex(self, address, index)++`]
+* xref:#ERC721EnumerableComponent-tokenByIndex[`++tokenByIndex(self, index)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]
+* xref:#ERC721EnumerableComponent-_update[`++_update(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-_add_token_to_owner_enumeration[`++_add_token_to_owner_enumeration(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration[`++_add_token_to_all_tokens_enumeration(self, token_id)++`]
+* xref:#ERC721EnumerableComponent-_remove_token_from_owner_enumeration[`++_remove_token_from_owner_enumeration(self, from, token_id)++`]
+* xref:#ERC721EnumerableComponent-_remove_token_from_all_tokens_enumeration[`++_remove_token_from_all_tokens_enumeration(self, token_id)++`]
+--
+
 == Presets
 
 [.contract]

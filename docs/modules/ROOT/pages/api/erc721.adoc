@@ -180,6 +180,48 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.
 
 [.contract]
+[[IERC721Enumerable]]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+
+Interface for the optional enumerable functions in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
+* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
+* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Enumerable-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
+
+Returns the total amount of tokens stored by the contract.
+
+[.contract-item]
+[[IERC721Metadata-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(index) -> u256++` [.item-kind]#external#
+
+Returns a token id at a given `index` of all the tokens stored by the contract.
+Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
+
+[.contract-item]
+[[IERC721Metadata-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner, index) -> u256++` [.item-kind]#external#
+
+Returns the token id owned by `owner` at a given `index` of its token list.
+Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
+
+[.contract]
 [[ERC721Component]]
 === `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.12.0/src/token/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
@@ -800,14 +842,14 @@ This extension allows contracts to publish their entire list of NFTs and make th
 [.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableImpl]
 .ERC721EnumerableImpl
 * xref:#ERC721EnumerableComponent-total_supply[`++total_supply(self)++`]
-* xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
 * xref:#ERC721EnumerableComponent-token_by_index[`++token_by_index(self, index)++`]
+* xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
 
 [.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableCamelImpl]
 .ERC721EnumerableCamelImpl
 * xref:#ERC721EnumerableComponent-total_Spply[`++totalSupply(self)++`]
-* xref:#ERC721EnumerableComponent-tokenOfOwnerByIndex[`++tokenOfOwnerByIndex(self, address, index)++`]
 * xref:#ERC721EnumerableComponent-tokenByIndex[`++tokenByIndex(self, index)++`]
+* xref:#ERC721EnumerableComponent-tokenOfOwnerByIndex[`++tokenOfOwnerByIndex(self, owner, index)++`]
 --
 
 [.contract-index]
@@ -821,6 +863,54 @@ This extension allows contracts to publish their entire list of NFTs and make th
 * xref:#ERC721EnumerableComponent-_remove_token_from_owner_enumeration[`++_remove_token_from_owner_enumeration(self, from, token_id)++`]
 * xref:#ERC721EnumerableComponent-_remove_token_from_all_tokens_enumeration[`++_remove_token_from_all_tokens_enumeration(self, token_id)++`]
 --
+
+[#ERC721EnumerableComponent-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC721EnumerableComponent-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+Returns the current amount of votes that `account` has.
+
+[.contract-item]
+[[ERC721EnumerableComponent-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(self: @ContractState, index: u256) → u256++` [.item-kind]#external#
+
+See xref:#IERC721Enumerable-token_by_index[IERC721Enumerable::token_by_index].
+
+Requirements:
+
+- `index` is less than the total token supply.
+
+[.contract-item]
+[[ERC721EnumerableComponent-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(self: @ContractState, owner: ContractAddress, index: u256) → u256++` [.item-kind]#external#
+
+See xref:#IERC721Enumerable-token_of_owner_by_index[IERC721Enumerable::token_of_owner_by_index].
+
+Requirements:
+
+- `index` is less than ``owner``'s token balance.
+- `owner` is not the zero address.
+
+[.contract-item]
+[[ERC721EnumerableComponent-totalSupply]]
+==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+See <<ERC721EnumerableComponent-total_supply,IERC721Enumerable::total_supply>>.
+
+[.contract-item]
+[[ERC721EnumerableComponent-tokenByIndex]]
+==== `[.contract-item-name]#++tokenByIndex++#++(self: @ContractState, index: u256) → u256++` [.item-kind]#external#
+
+See <<ERC721EnumerableComponent-token_by_index,IERC721Enumerable::token_by_index>>.
+
+[.contract-item]
+[[ERC721EnumerableComponent-tokenOfOwnerByIndex]]
+==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(self: @ContractState, owner: ContractAddress, index: u256) → u256++` [.item-kind]#external#
+
+See <<ERC721EnumerableComponent-token_of_owner_by_index,IERC721Enumerable::token_of_owner_by_index>>.
 
 == Presets
 

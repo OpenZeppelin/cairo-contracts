@@ -88,55 +88,6 @@ fn test_totalSupply() {
 }
 
 //
-// token_of_owner_by_index
-//
-
-#[test]
-fn test_token_of_owner_by_index() {
-    let state = setup();
-    let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
-
-    assert_token_of_owner_by_index(state, OWNER(), tokens_list);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
-fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
-    let state = setup();
-
-    state.token_of_owner_by_index(OWNER(), TOKENS_LEN);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
-fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
-    let state = setup();
-
-    state.token_of_owner_by_index(OWNER(), TOKENS_LEN + 1);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
-fn test_token_of_owner_by_index_when_target_has_no_tokens() {
-    let state = setup();
-
-    state.token_of_owner_by_index(OTHER(), 0);
-}
-
-#[test]
-fn test_token_of_owner_by_index_when_all_tokens_transferred() {
-    let state = setup();
-    let mut contract_state = CONTRACT_STATE();
-    let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
-
-    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_1);
-    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_2);
-    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_3);
-
-    assert_token_of_owner_by_index(state, RECIPIENT(), tokens_list);
-}
-
-//
 // token_by_index
 //
 
@@ -208,6 +159,55 @@ fn test_token_by_index_burn_and_mint_all() {
 
     let expected_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
     assert_token_by_index(state, expected_list);
+}
+
+//
+// token_of_owner_by_index
+//
+
+#[test]
+fn test_token_of_owner_by_index() {
+    let state = setup();
+    let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
+
+    assert_token_of_owner_by_index(state, OWNER(), tokens_list);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
+    let state = setup();
+
+    state.token_of_owner_by_index(OWNER(), TOKENS_LEN);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
+    let state = setup();
+
+    state.token_of_owner_by_index(OWNER(), TOKENS_LEN + 1);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+fn test_token_of_owner_by_index_when_target_has_no_tokens() {
+    let state = setup();
+
+    state.token_of_owner_by_index(OTHER(), 0);
+}
+
+#[test]
+fn test_token_of_owner_by_index_when_all_tokens_transferred() {
+    let state = setup();
+    let mut contract_state = CONTRACT_STATE();
+    let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
+
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_1);
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_2);
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_3);
+
+    assert_token_of_owner_by_index(state, RECIPIENT(), tokens_list);
 }
 
 //

@@ -116,8 +116,8 @@ mod ERC721EnumerableComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by declaring support for the IERC721Enumerable
-        /// interface id. This should only be used inside the contract's constructor.
+        /// Initializes the contract by declaring support for the `IERC721Enumerable`
+        /// interface id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC721ENUMERABLE_ID);
@@ -136,18 +136,30 @@ mod ERC721EnumerableComponent {
             let zero_address = Zeroable::zero();
 
             if previous_owner == zero_address {
-                self._add_token_to_all_tokens_enumeration(token_id);
+                PrivateImpl::_add_token_to_all_tokens_enumeration(ref self, token_id);
             } else if previous_owner != to {
-                self._remove_token_from_owner_enumeration(previous_owner, token_id);
+                PrivateImpl::_remove_token_from_owner_enumeration(
+                    ref self, previous_owner, token_id
+                );
             }
 
             if to == zero_address {
-                self._remove_token_from_all_tokens_enumeration(token_id);
+                PrivateImpl::_remove_token_from_all_tokens_enumeration(ref self, token_id);
             } else if previous_owner != to {
-                self._add_token_to_owner_enumeration(to, token_id);
+                PrivateImpl::_add_token_to_owner_enumeration(ref self, to, token_id);
             }
         }
+    }
 
+    #[generate_trait]
+    impl PrivateImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        +ERC721Component::ERC721HooksTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of PrivateTrait<TContractState> {
         /// Adds token to this extension's ownership-tracking data structures.
         fn _add_token_to_owner_enumeration(
             ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256
@@ -169,7 +181,10 @@ mod ERC721EnumerableComponent {
         }
 
         /// Removes a token from this extension's ownership-tracking data structures.
-        /// This has 0(1) time complexity but alters the order of the owned-tokens list.
+        ///
+        /// This has 0(1) time complexity but alters the indexed order of owned-tokens by
+        /// swapping `token_id` and the index thereof with the last token id and the index
+        /// thereof.
         fn _remove_token_from_owner_enumeration(
             ref self: ComponentState<TContractState>, from: ContractAddress, token_id: u256
         ) {
@@ -195,8 +210,9 @@ mod ERC721EnumerableComponent {
         }
 
         /// Removes `token_id` from this extension's token-tracking data structures.
-        /// This has 0(1) time complexity, but alters the order of the list by swapping
-        /// `token_id` and index thereof with the last token id and index thereof.
+        ///
+        /// This has 0(1) time complexity but alters the indexed order by swapping
+        /// `token_id` and the index thereof with the last token id and the index thereof.
         fn _remove_token_from_all_tokens_enumeration(
             ref self: ComponentState<TContractState>, token_id: u256
         ) {

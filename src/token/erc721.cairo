@@ -1,4 +1,5 @@
 mod dual721;
+mod dual721_enumerable;
 mod dual721_receiver;
 mod erc721;
 mod erc721_receiver;

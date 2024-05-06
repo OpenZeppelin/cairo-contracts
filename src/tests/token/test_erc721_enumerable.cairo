@@ -198,6 +198,32 @@ fn test_token_of_owner_by_index_when_target_has_no_tokens() {
 }
 
 #[test]
+fn test_token_of_owner_by_index_remove_last_token() {
+    let state = setup();
+    let mut contract_state = CONTRACT_STATE();
+    let last_token = TOKEN_3;
+
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), last_token);
+
+    let expected_list = array![TOKEN_1, TOKEN_2];
+    assert_token_of_owner_by_index(state, OWNER(), expected_list);
+}
+
+#[test]
+fn test_token_of_owner_by_index_remove_first_token() {
+    let state = setup();
+    let mut contract_state = CONTRACT_STATE();
+    let first_token = TOKEN_1;
+
+    contract_state.erc721._transfer(OWNER(), RECIPIENT(), first_token);
+
+    // Removed tokens are replaced by the last token
+    // to prevent indexing gaps
+    let expected_list = array![TOKEN_3, TOKEN_2];
+    assert_token_of_owner_by_index(state, OWNER(), expected_list);
+}
+
+#[test]
 fn test_token_of_owner_by_index_when_all_tokens_transferred() {
     let state = setup();
     let mut contract_state = CONTRACT_STATE();

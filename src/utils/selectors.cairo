@@ -51,6 +51,15 @@ const safe_transfer_from: felt252 = selector!("safe_transfer_from");
 const safeTransferFrom: felt252 = selector!("safeTransferFrom");
 
 //
+// ERC721Enumerable
+//
+
+const token_by_index: felt252 = selector!("token_by_index");
+const tokenByIndex: felt252 = selector!("tokenByIndex");
+const token_of_owner_by_index: felt252 = selector!("token_of_owner_by_index");
+const tokenOfOwnerByIndex: felt252 = selector!("tokenOfOwnerByIndex");
+
+//
 // ERC721Receiver
 //
 

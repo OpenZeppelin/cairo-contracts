@@ -1,7 +1,7 @@
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::erc721_enumerable_mocks::DualCaseERC721EnumerableMock;
-use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT, OTHER};
+use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT, OTHER, ZERO};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, ERC721EnumerableCamelImpl, InternalImpl
@@ -73,22 +73,50 @@ fn test_initializer() {
 
 #[test]
 fn test_total_supply() {
-    let mut state = setup();
+    let mut state = COMPONENT_STATE();
+    let mut contract_state = CONTRACT_STATE();
+    let token = TOKEN_1;
 
-    let supply = state.total_supply();
-    assert_eq!(supply, TOKENS_LEN);
+    let no_supply = state.total_supply();
+    assert_eq!(no_supply, 0);
+
+    // Mint
+    contract_state.erc721._mint(OWNER(), token);
+
+    let new_supply = state.total_supply();
+    assert_eq!(new_supply, 1);
+
+    // Burn
+    contract_state.erc721._burn(token);
+
+    let no_supply = state.total_supply();
+    assert_eq!(no_supply, 0);
 }
 
 #[test]
 fn test_totalSupply() {
-    let state = setup();
+    let mut state = COMPONENT_STATE();
+    let mut contract_state = CONTRACT_STATE();
+    let token = TOKEN_1;
 
-    let supply = state.totalSupply();
-    assert_eq!(supply, TOKENS_LEN);
+    let no_supply = state.totalSupply();
+    assert_eq!(no_supply, 0);
+
+    // Mint
+    contract_state.erc721._mint(OWNER(), token);
+
+    let new_supply = state.totalSupply();
+    assert_eq!(new_supply, 1);
+
+    // Burn
+    contract_state.erc721._burn(token);
+
+    let no_supply = state.totalSupply();
+    assert_eq!(no_supply, 0);
 }
 
 //
-// token_by_index
+// token_by_index & tokenByIndex
 //
 
 #[test]
@@ -96,7 +124,7 @@ fn test_token_by_index() {
     let state = setup();
     let token_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
-    assert_token_by_index(state, token_list);
+    assert_dual_token_by_index(state, token_list);
 }
 
 #[test]
@@ -124,7 +152,7 @@ fn test_token_by_index_burn_last_token() {
     contract_state.erc721._burn(last_token);
 
     let expected_list = array![TOKEN_1, TOKEN_2];
-    assert_token_by_index(state, expected_list);
+    assert_dual_token_by_index(state, expected_list);
 }
 
 #[test]
@@ -138,7 +166,7 @@ fn test_token_by_index_burn_first_token() {
     // Burnt tokens are replaced by the last token
     // to prevent indexing gaps
     let expected_list = array![TOKEN_3, TOKEN_2];
-    assert_token_by_index(state, expected_list);
+    assert_dual_token_by_index(state, expected_list);
 }
 
 #[test]
@@ -158,11 +186,11 @@ fn test_token_by_index_burn_and_mint_all() {
     contract_state.erc721._mint(OWNER(), TOKEN_3);
 
     let expected_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert_token_by_index(state, expected_list);
+    assert_dual_token_by_index(state, expected_list);
 }
 
 //
-// token_of_owner_by_index
+// token_of_owner_by_index & tokenOfOwnerByIndex
 //
 
 #[test]
@@ -170,7 +198,7 @@ fn test_token_of_owner_by_index() {
     let state = setup();
     let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
-    assert_token_of_owner_by_index(state, OWNER(), tokens_list);
+    assert_dual_token_of_owner_by_index(state, OWNER(), tokens_list);
 }
 
 #[test]
@@ -198,6 +226,14 @@ fn test_token_of_owner_by_index_when_target_has_no_tokens() {
 }
 
 #[test]
+#[should_panic(expected: ('ERC721: invalid account',))]
+fn test_token_of_owner_by_index_when_owner_is_zero() {
+    let state = setup();
+
+    state.token_of_owner_by_index(ZERO(), 0);
+}
+
+#[test]
 fn test_token_of_owner_by_index_remove_last_token() {
     let state = setup();
     let mut contract_state = CONTRACT_STATE();
@@ -206,7 +242,7 @@ fn test_token_of_owner_by_index_remove_last_token() {
     contract_state.erc721._transfer(OWNER(), RECIPIENT(), last_token);
 
     let expected_list = array![TOKEN_1, TOKEN_2];
-    assert_token_of_owner_by_index(state, OWNER(), expected_list);
+    assert_dual_token_of_owner_by_index(state, OWNER(), expected_list);
 }
 
 #[test]
@@ -220,7 +256,7 @@ fn test_token_of_owner_by_index_remove_first_token() {
     // Removed tokens are replaced by the last token
     // to prevent indexing gaps
     let expected_list = array![TOKEN_3, TOKEN_2];
-    assert_token_of_owner_by_index(state, OWNER(), expected_list);
+    assert_dual_token_of_owner_by_index(state, OWNER(), expected_list);
 }
 
 #[test]
@@ -233,14 +269,14 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
     contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_2);
     contract_state.erc721._transfer(OWNER(), RECIPIENT(), TOKEN_3);
 
-    assert_token_of_owner_by_index(state, RECIPIENT(), tokens_list);
+    assert_dual_token_of_owner_by_index(state, RECIPIENT(), tokens_list);
 }
 
 //
 // Helpers
 //
 
-fn assert_token_of_owner_by_index(
+fn assert_dual_token_of_owner_by_index(
     state: ComponentState, owner: ContractAddress, expected_token_list: Array<u256>
 ) {
     let mut i = 0;
@@ -248,19 +284,29 @@ fn assert_token_of_owner_by_index(
         if i == expected_token_list.len() {
             break;
         };
+        // snake_case
         let token = state.token_of_owner_by_index(owner, i.into());
+        assert_eq!(token, *expected_token_list.at(i));
+
+        // camelCase
+        let token = state.tokenOfOwnerByIndex(owner, i.into());
         assert_eq!(token, *expected_token_list.at(i));
         i = i + 1;
     };
 }
 
-fn assert_token_by_index(state: ComponentState, expected_token_list: Array<u256>) {
+fn assert_dual_token_by_index(state: ComponentState, expected_token_list: Array<u256>) {
     let mut i = 0;
     loop {
         if i == expected_token_list.len() {
             break;
         };
+        // snake_case
         let token = state.token_by_index(i.into());
+        assert_eq!(token, *expected_token_list.at(i));
+
+        // camelCase
+        let token = state.tokenByIndex(i.into());
         assert_eq!(token, *expected_token_list.at(i));
         i = i + 1;
     };

@@ -22,7 +22,9 @@ trait DualCaseERC721EnumerableTrait {
     fn owner_of(self: @DualCaseERC721Enumerable, token_id: u256) -> ContractAddress;
     fn get_approved(self: @DualCaseERC721Enumerable, token_id: u256) -> ContractAddress;
     fn approve(self: @DualCaseERC721Enumerable, to: ContractAddress, token_id: u256);
-    fn set_approval_for_all(self: @DualCaseERC721Enumerable, operator: ContractAddress, approved: bool);
+    fn set_approval_for_all(
+        self: @DualCaseERC721Enumerable, operator: ContractAddress, approved: bool
+    );
     fn transfer_from(
         self: @DualCaseERC721Enumerable, from: ContractAddress, to: ContractAddress, token_id: u256
     );
@@ -39,7 +41,9 @@ trait DualCaseERC721EnumerableTrait {
     fn supports_interface(self: @DualCaseERC721Enumerable, interface_id: felt252) -> bool;
     fn total_supply(self: @DualCaseERC721Enumerable) -> u256;
     fn token_by_index(self: @DualCaseERC721Enumerable, index: u256) -> u256;
-    fn token_of_owner_by_index(self: @DualCaseERC721Enumerable, owner: ContractAddress, index: u256) -> u256;
+    fn token_of_owner_by_index(
+        self: @DualCaseERC721Enumerable, owner: ContractAddress, index: u256
+    ) -> u256;
 }
 
 impl DualCaseERC72EnumerableImpl of DualCaseERC721EnumerableTrait {
@@ -117,7 +121,9 @@ impl DualCaseERC72EnumerableImpl of DualCaseERC721EnumerableTrait {
             .unwrap_syscall();
     }
 
-    fn set_approval_for_all(self: @DualCaseERC721Enumerable, operator: ContractAddress, approved: bool) {
+    fn set_approval_for_all(
+        self: @DualCaseERC721Enumerable, operator: ContractAddress, approved: bool
+    ) {
         let mut args = array![];
         args.append_serde(operator);
         args.append_serde(approved);
@@ -193,13 +199,18 @@ impl DualCaseERC72EnumerableImpl of DualCaseERC721EnumerableTrait {
             .unwrap_and_cast()
     }
 
-    fn token_of_owner_by_index(self: @DualCaseERC721Enumerable, owner: ContractAddress, index: u256) -> u256 {
+    fn token_of_owner_by_index(
+        self: @DualCaseERC721Enumerable, owner: ContractAddress, index: u256
+    ) -> u256 {
         let mut args = array![];
         args.append_serde(owner);
         args.append_serde(index);
 
         try_selector_with_fallback(
-            *self.contract_address, selectors::token_of_owner_by_index, selectors::tokenOfOwnerByIndex, args.span()
+            *self.contract_address,
+            selectors::token_of_owner_by_index,
+            selectors::tokenOfOwnerByIndex,
+            args.span()
         )
             .unwrap_and_cast()
     }

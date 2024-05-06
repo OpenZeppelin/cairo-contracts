@@ -1,10 +1,18 @@
-use openzeppelin::tests::mocks::erc721_enumerable_mocks::{CamelERC721EnumerableMock, SnakeERC721EnumerableMock};
-use openzeppelin::tests::mocks::erc721_enumerable_mocks::{CamelERC721EnumerablePanicMock, SnakeERC721EnumerablePanicMock};
+use openzeppelin::tests::mocks::erc721_enumerable_mocks::{
+    CamelERC721EnumerableMock, SnakeERC721EnumerableMock
+};
+use openzeppelin::tests::mocks::erc721_enumerable_mocks::{
+    CamelERC721EnumerablePanicMock, SnakeERC721EnumerablePanicMock
+};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{OWNER, NAME, SYMBOL, BASE_URI, TOKEN_ID};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::dual721_enumerable::{DualCaseERC721Enumerable, DualCaseERC721EnumerableTrait};
-use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{IERC721EnumerableDispatcher, IERC721EnumerableCamelDispatcher};
+use openzeppelin::token::erc721::dual721_enumerable::{
+    DualCaseERC721Enumerable, DualCaseERC721EnumerableTrait
+};
+use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{
+    IERC721EnumerableDispatcher, IERC721EnumerableCamelDispatcher
+};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
@@ -20,7 +28,10 @@ fn setup_snake() -> (DualCaseERC721Enumerable, IERC721EnumerableDispatcher) {
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
     let target = utils::deploy(SnakeERC721EnumerableMock::TEST_CLASS_HASH, calldata);
-    (DualCaseERC721Enumerable { contract_address: target }, IERC721EnumerableDispatcher { contract_address: target })
+    (
+        DualCaseERC721Enumerable { contract_address: target },
+        IERC721EnumerableDispatcher { contract_address: target }
+    )
 }
 
 fn setup_camel() -> (DualCaseERC721Enumerable, IERC721EnumerableCamelDispatcher) {
@@ -115,7 +126,6 @@ fn test_dual_token_of_owner_by_index_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_enumerable_panic();
     dispatcher.token_of_owner_by_index(OWNER(), 0);
 }
-
 
 //
 // camelCase target

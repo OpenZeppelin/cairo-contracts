@@ -305,7 +305,9 @@ mod SnakeERC721EnumerablePanicMock {
         }
 
         #[external(v0)]
-        fn token_of_owner_by_index(self: @ContractState, owner: ContractAddress, index: u256) -> u256 {
+        fn token_of_owner_by_index(
+            self: @ContractState, owner: ContractAddress, index: u256
+        ) -> u256 {
             panic!("Some error");
             u256 { low: 3, high: 3 }
         }

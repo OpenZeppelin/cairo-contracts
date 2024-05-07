@@ -68,7 +68,7 @@ mod DualCaseERC721EnumerableMock {
             let mut erc721_enumerable_component = get_dep_component_mut!(
                 ref self, ERC721Enumerable
             );
-            erc721_enumerable_component._update(to, token_id);
+            erc721_enumerable_component.before_update(to, token_id);
         }
 
         fn after_update(
@@ -158,7 +158,7 @@ mod SnakeERC721EnumerableMock {
             let mut erc721_enumerable_component = get_dep_component_mut!(
                 ref self, ERC721Enumerable
             );
-            erc721_enumerable_component._update(to, token_id);
+            erc721_enumerable_component.before_update(to, token_id);
         }
 
         fn after_update(
@@ -249,7 +249,7 @@ mod CamelERC721EnumerableMock {
             let mut erc721_enumerable_component = get_dep_component_mut!(
                 ref self, ERC721Enumerable
             );
-            erc721_enumerable_component._update(to, token_id);
+            erc721_enumerable_component.before_update(to, token_id);
         }
 
         fn after_update(
@@ -275,12 +275,6 @@ mod CamelERC721EnumerableMock {
     }
 }
 
-/// Although these modules are designed to panic, functions
-/// still need a valid return value. We chose:
-///
-/// 3 for felt252
-/// zero for ContractAddress
-/// u256 { 3, 3 } for u256
 #[starknet::contract]
 mod SnakeERC721EnumerablePanicMock {
     use starknet::ContractAddress;

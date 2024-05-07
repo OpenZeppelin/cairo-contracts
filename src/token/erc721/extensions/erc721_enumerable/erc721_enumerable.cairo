@@ -130,7 +130,9 @@ mod ERC721EnumerableComponent {
         ///
         /// When a token is transferred, the ownership-tracking data structures reflect
         /// the change in ownership of `token_id`.
-        fn _update(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
+        ///
+        /// This must be added to the implementing contract's `ERC721HooksTrait::before_update` hook.
+        fn before_update(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let previous_owner = erc721_component._owner_of(token_id);
             let zero_address = Zeroable::zero();

@@ -831,8 +831,8 @@ Extension of ERC721 as defined in the EIP that adds enumerability of all the tok
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
-WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-_update[ERC721EnumerableComponent::_update] function is called after every transfer, mint, or burn operation.
-This must be included in the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook.
+WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called after every transfer, mint, or burn operation.
+For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook must be used.
 
 This extension allows contracts to publish their entire list of NFTs and make them discoverable.
 
@@ -857,7 +857,7 @@ This extension allows contracts to publish their entire list of NFTs and make th
 --
 .InternalImpl
 * xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]
-* xref:#ERC721EnumerableComponent-_update[`++_update(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-before_update[`++before_update(self, to, token_id)++`]
 
 .PrivateImpl
 * xref:#ERC721EnumerableComponent-_add_token_to_owner_enumeration[`++_add_token_to_owner_enumeration(self, to, token_id)++`]
@@ -924,14 +924,16 @@ See <<ERC721EnumerableComponent-token_of_owner_by_index,IERC721Enumerable::token
 Registers the `IERC721Enumerable` interface ID as supported through introspection.
 
 [.contract-item]
-[[ERC721EnumerableComponent-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+[[ERC721EnumerableComponent-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
 Updates the ownership and token-tracking data structures.
 
 When a token is minted (or burned), `token_id` is added to (or removed from) the token-tracking structures.
 
 When a token is transferred, the ownership-tracking data structures reflect the change in ownership of `token_id`.
+
+This must be added to the implementing contract's xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook.
 
 [.contract-item]
 [[ERC721EnumerableComponent-_add_token_to_owner_enumeration]]

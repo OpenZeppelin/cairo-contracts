@@ -532,7 +532,7 @@ mod ERC721Component {
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
         /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
-        /// 
+        ///
         /// Requirements:
         ///
         /// - `to` cannot be the zero address.

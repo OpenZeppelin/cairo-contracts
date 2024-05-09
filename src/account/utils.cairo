@@ -2,6 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.13.0 (account/utils.cairo)
 
 mod secp256k1;
+mod secp256r1;
 mod signature;
 
 use signature::{is_valid_stark_signature, is_valid_eth_signature};

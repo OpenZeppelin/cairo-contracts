@@ -7,6 +7,8 @@ use starknet::account::Call;
 
 type EthPublicKey = starknet::secp256k1::Secp256k1Point;
 
+type P256PublicKey = starknet::secp256r1::Secp256r1Point;
+
 const ISRC6_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
 
 //

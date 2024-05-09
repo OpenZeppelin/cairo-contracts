@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["test_p256_account.cairo"]

@@ -5,7 +5,7 @@ mod secp256k1;
 mod secp256r1;
 mod signature;
 
-use signature::{is_valid_stark_signature, is_valid_eth_signature};
+use signature::{is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature};
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 

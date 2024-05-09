@@ -1,4 +1,6 @@
-use openzeppelin::account::utils::signature::{is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature};
+use openzeppelin::account::utils::signature::{
+    is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature
+};
 use openzeppelin::tests::account::test_account::SIGNED_TX_DATA as stark_signature_data;
 use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA as eth_signature_data;
 use openzeppelin::tests::account::test_p256_account::SIGNED_TX_DATA as p256_signature_data;

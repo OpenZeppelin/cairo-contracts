@@ -56,7 +56,6 @@ mod ERC721EnumerableComponent {
         /// - `index` is less than the total token supply.
         fn token_by_index(self: @ComponentState<TContractState>, index: u256) -> u256 {
             assert(index < self.total_supply(), Errors::OUT_OF_BOUNDS_INDEX);
-            assert(index < self.total_supply(), Errors::OUT_OF_BOUNDS_INDEX);
             self.ERC721Enumerable_all_tokens.read(index)
         }
 
@@ -81,7 +80,7 @@ mod ERC721EnumerableComponent {
     impl ERC721EnumerableCamel<
         TContractState,
         +HasComponent<TContractState>,
-        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        +ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
@@ -207,8 +206,9 @@ mod ERC721EnumerableComponent {
                 self.ERC721Enumerable_owned_tokens_index.write(last_token_id, this_token_index);
             }
 
-            // Remove `token_id` from last token index position
+            // Set the last token index and `token_id` to zero
             self.ERC721Enumerable_owned_tokens.write((from, last_token_index), 0);
+            self.ERC721Enumerable_owned_tokens_index.write(token_id, 0);
         }
 
         /// Removes `token_id` from this extension's token-tracking data structures.

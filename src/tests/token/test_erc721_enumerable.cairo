@@ -1,4 +1,3 @@
-use openzeppelin::token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::erc721_enumerable_mocks::DualCaseERC721EnumerableMock;
@@ -8,6 +7,7 @@ use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721Enumerable
     ERC721EnumerableImpl, ERC721EnumerableCamelImpl, InternalImpl
 };
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
+use openzeppelin::token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
 use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
 use starknet::ContractAddress;
 use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
@@ -578,7 +578,7 @@ fn assert_after_update_all_tokens_list(expected_list: Span<u256>) {
 
     let mut i = 0;
     loop {
-        if i == expected_list.len()  {
+        if i == expected_list.len() {
             break;
         };
         // Check total tokens list
@@ -594,7 +594,7 @@ fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: 
 
     let mut i = 0;
     loop {
-        if i == expected_list.len()  {
+        if i == expected_list.len() {
             break;
         };
         // Check owned tokens list

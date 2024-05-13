@@ -135,9 +135,6 @@ mod MyAccount {
     impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
     #[storage]
     struct Storage {
         #[substorage(v0)]

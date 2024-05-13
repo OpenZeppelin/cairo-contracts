@@ -167,6 +167,17 @@ ERC1155 component implementing <<IERC1155,IERC1155>> and <<IERC1155MetadataURI,I
 
 NOTE: {src5-component-required-note}
 
+NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
+
+[.contract-index]
+.Hooks
+--
+[.sub-index#ERC1155Component-ERC1155HooksTrait]
+.ERC1155HooksTrait
+* xref:#ERC1155Component-before_update[`++before_update(self, from, to, token_ids, values)++`]
+* xref:#ERC1155Component-after_update[`++after_update(self, from, to, token_ids, values)++`]
+--
+
 [.contract-index#ERC1155Component-Embeddable-Mixin-Impl]
 .{mixin-impls}
 
@@ -227,6 +238,28 @@ NOTE: {src5-component-required-note}
 * xref:#ERC1155Component-ApprovalForAll[`++ApprovalForAll(owner, operator, approved)++`]
 * xref:#ERC1155Component-URI[`++URI(value, id)++`]
 --
+
+[#ERC1155Component-Hooks]
+==== Hooks
+
+Hooks are functions which implementations can extend the functionality of the component source code. Every contract
+using ERC1155Component is expected to provide an implementation of the ERC1155HooksTrait. For basic token contracts, an
+empty implementation with no logic must be provided.
+
+TIP: You can use `openzeppelin::token::erc1155::ERC1155HooksEmptyImpl` which is already available as part of the library
+for this purpose.
+
+[.contract-item]
+[[ERC1155Component-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#hook#
+
+Function executed at the beginning of the xref:#ERC1155Component-update[update] function prior to any other logic.
+
+[.contract-item]
+[[ERC1155Component-after_update]]
+==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#hook#
+
+Function executed at the end of the xref:#ERC1155Component-update[update] function.
 
 ==== Embeddable functions
 
@@ -381,6 +414,9 @@ Requirements:
 
 Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
 and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
+
+NOTE: This function can be extended using the xref:ERC1155Component-ERC1155HooksTrait[ERC1155HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
 
 NOTE: The ERC1155 acceptance check is not performed in this function.
 See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check>> instead.

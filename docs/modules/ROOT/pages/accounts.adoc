@@ -166,7 +166,9 @@ Next, create the account JSON with Starknet Foundry's {custom-account-setup} and
 The flag enables custom account variants.
 
 ```[,bash]
-$ sncast account create \
+$ sncast \
+  --url http://127.0.0.1:5050 \
+  account create \
   --name my-custom-account \
   --class-hash 0x123456...
 ```
@@ -176,8 +178,21 @@ To counterfactually deploy the account, send funds to the address and then deplo
 
 ```[,bash]
 $ sncast \
+  --url http://127.0.0.1:5050 \
   account deploy \
-  --name my-custom-account \
+  --name my-custom-account
+```
+
+Once the account is deployed, set the `--account` flag with the custom account name to send transactions from that account.
+
+```[,bash]
+$ sncast \
+  --account my-custom-account \
+  --url http://127.0.0.1:5050 \
+  invoke \
+  --contract-address 0x123... \
+  --function "some_function" \
+  --calldata 1 2 3
 ```
 
 === EthAccountComponent

@@ -370,6 +370,10 @@ Requirements:
 
 See <<IERC721-set_approval_for_all,IERC721::set_approval_for_all>>.
 
+Requirements:
+
+- `operator` is not the zero address.
+
 [.contract-item]
 [[ERC721Component-get_approved]]
 ==== `[.contract-item-name]#++get_approved++#++(self: @ContractState, token_id: u256) -> u256++` [.item-kind]#external#
@@ -502,6 +506,8 @@ Emits an <<IERC721-Approval,Approval>> event.
 
 Variant of xref:#ERC721Component-_approve[_approve] with an optional flag to enable or disable the `Approval` event.
 The event is not emitted in the context of transfers.
+
+WARNING: If `auth` is zero and `emit_event` is false, this function will not check that the token exists.
 
 Requirements:
 

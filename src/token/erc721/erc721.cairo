@@ -76,6 +76,7 @@ mod ERC721Component {
     mod Errors {
         const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
         const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
+        const INVALID_OPERATOR: felt252 = 'ERC721: invalid operator';
         const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
         const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
         const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
@@ -200,6 +201,10 @@ mod ERC721Component {
 
         /// Enable or disable approval for `operator` to manage all of the
         /// caller's assets.
+        ///
+        /// Requirements:
+        ///
+        /// - `operator` is not the zero address.
         ///
         /// Emits an `Approval` event.
         fn set_approval_for_all(
@@ -398,6 +403,8 @@ mod ERC721Component {
         /// Variant of `_approve` with an optional flag to enable or disable the `Approval` event. The event is not
         /// emitted in the context of transfers.
         ///
+        /// WARNING: If `auth` is zero and `emit_event` is false, this function will not check that the token exists.
+        ///
         /// Requirements:
         ///
         /// - If `auth` is non-zero, it must be either the owner of the token or approved to
@@ -430,6 +437,10 @@ mod ERC721Component {
         /// Enables or disables approval for `operator` to manage
         /// all of the `owner` assets.
         ///
+        /// Requirements:
+        ///
+        /// - `operator` is not the zero address.
+        ///
         /// Emits an `Approval` event.
         fn _set_approval_for_all(
             ref self: ComponentState<TContractState>,
@@ -437,6 +448,7 @@ mod ERC721Component {
             operator: ContractAddress,
             approved: bool
         ) {
+            assert(!operator.is_zero(), Errors::INVALID_OPERATOR);
             self.ERC721_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }

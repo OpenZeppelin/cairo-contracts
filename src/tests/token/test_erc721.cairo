@@ -291,6 +291,13 @@ fn test_set_approval_for_all() {
 }
 
 #[test]
+#[should_panic(expected: ('ERC721: invalid operator',))]
+fn test_set_approval_for_all_invalid_operator() {
+    let mut state = COMPONENT_STATE();
+    state.set_approval_for_all(ZERO(), true);
+}
+
+#[test]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
 
@@ -308,6 +315,13 @@ fn test__set_approval_for_all() {
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
+}
+
+#[test]
+#[should_panic(expected: ('ERC721: invalid operator',))]
+fn test__set_approval_for_all_invalid_operator() {
+    let mut state = COMPONENT_STATE();
+    state._set_approval_for_all(OWNER(), ZERO(), true);
 }
 
 //
@@ -1393,7 +1407,7 @@ fn test__is_authorized_approved() {
     let mut state = setup();
 
     testing::set_caller_address(OWNER());
-    state.set_approval_for_all(SPENDER(), true);
+    state.approve(SPENDER(), TOKEN_ID);
     utils::drop_event(ZERO());
 
     let authorized = state._is_authorized(OWNER(), SPENDER(), TOKEN_ID);
@@ -1436,7 +1450,7 @@ fn test__check_authorized_approved() {
     let mut state = setup();
 
     testing::set_caller_address(OWNER());
-    state.set_approval_for_all(SPENDER(), true);
+    state.approve(SPENDER(), TOKEN_ID);
     utils::drop_event(ZERO());
 
     state._check_authorized(OWNER(), SPENDER(), TOKEN_ID);

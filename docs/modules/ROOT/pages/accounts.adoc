@@ -162,8 +162,8 @@ mod MyAccount {
 }
 ```
 
-To deploy the Contracts for Cairo account variant, compile the contract and declare the class hash because custom accounts are likely not declared on the network.
-This means that you'll need an account already deployed to the network.
+To deploy the Contracts for Cairo account variant, compile the contract and declare the class hash because custom accounts are likely not declared.
+This means that you'll need an account already deployed.
 
 Next, create the account JSON with Starknet Foundry's {custom-account-setup} and include the `--class-hash` flag with the declared class hash.
 The flag enables custom account variants.

@@ -461,7 +461,7 @@ mod ERC721Component {
         /// Requirements:
         ///
         /// - `to` is not the zero address.
-        /// - `token_id` must not exist.
+        /// - `token_id` does not exist.
         ///
         /// Emits a `Transfer` event.
         fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {

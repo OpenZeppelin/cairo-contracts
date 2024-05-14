@@ -254,26 +254,38 @@ Compile and declare the contract on the target network.
 Next, precompute the EthAccount contract address using the declared class hash.
 
 ```[,javascript]
+import * as dotenv from 'dotenv';
+import { CallData, EthSigner, hash } from 'starknet';
+import { ABI as ETH_ABI } from '../abis/eth_account.js';
+dotenv.config();
+
+// Calculate EthAccount address
 const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
 const ethPubKey = await ethSigner.getPubKey();
-const ethAccountClassHash = `<ETH_ACCOUNT_CLASS_HASH>`;
+const ethAccountClassHash = '<ETH_ACCOUNT_CLASS_HASH>';
 const ethCallData = new CallData(ETH_ABI);
 const ethAccountConstructorCalldata = ethCallData.compile('constructor', {
     public_key: ethPubKey
-});
+})
 const salt = '0x12345';
-const ethAccountAddress = hash.calculateContractAddressFromHash(
+const deployerAddress = '0x0';
+const ethContractAddress = hash.calculateContractAddressFromHash(
     salt,
     ethAccountClassHash,
     ethAccountConstructorCalldata,
-    0
+    deployerAddress
 );
-console.log('Pre-calculated EthAccount address: ', ethAccountAddress);
+console.log('Pre-calculated EthAccount address: ', ethContractAddress);
 ```
 
 Send funds to the pre-calculated EthAccount address and deploy the contract.
 
 ```[,javascript]
+import * as dotenv from 'dotenv';
+import { Account, CallData, EthSigner, RpcProvider, stark } from 'starknet';
+import { ABI as ETH_ABI } from '../abis/eth_account.js';
+dotenv.config();
+
 // Prepare EthAccount
 const provider = new RpcProvider({ nodeUrl: process.env.API_URL });
 const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
@@ -308,11 +320,20 @@ Once deployed, connect the EthAccount instance to the target contract which enab
 Here's what an ERC20 transfer from an EthAccount looks like.
 
 ```[,javascript]
+import * as dotenv from 'dotenv';
+import { Account, RpcProvider, Contract, EthSigner } from 'starknet';
+dotenv.config();
+
+// Prepare EthAccount
+const provider = new RpcProvider({ nodeUrl: process.env.API_URL });
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethAccountAddress = '<ETH_ACCOUNT_CONTRACT_ADDRESS>'
+const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
+
 // Prepare target contract
 const erc20 = new Contract(compiledErc20.abi, erc20Address, provider);
 
 // Connect EthAccount with the target contract
-const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
 erc20.connect(ethAccount);
 
 // Execute ERC20 transfer

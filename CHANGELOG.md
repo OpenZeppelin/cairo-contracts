@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Account usage section in docs (#981)
+- before_update and after_update hooks to ERC1155Component (#982)
+
+### Changed (Breaking)
+
+- ERC1155Component implementations now require an ERC1155HooksTrait implementation in scope.
 
 ## 0.12.0 (2024-04-21)
 

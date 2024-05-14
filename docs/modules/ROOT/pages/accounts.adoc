@@ -116,6 +116,7 @@ Mixin implementations are available to use for both components which include bas
 :account-mixin: xref:/api/account.adoc#AccountComponent-Embeddable-Mixin-Impl[AccountMixin]
 :initializer: xref:/api/account.adoc#AccountComponent-initializer[initializer]
 :custom-account-setup: https://foundry-rs.github.io/starknet-foundry/starknet/account.html#custom-account-contract[custom account setup]
+:sncast-version: https://github.com/foundry-rs/starknet-foundry/releases/tag/v0.23.0[v0.23.0]
 
 To create an account, implement the {account-mixin} and set up the constructor to initialize the contract.
 The {initializer} method sets the public key for the account contract and registers the account interface id.
@@ -165,6 +166,8 @@ This means that you'll need an account already deployed.
 Next, create the account JSON with Starknet Foundry's {custom-account-setup} and include the `--class-hash` flag with the declared class hash.
 The flag enables custom account variants.
 
+NOTE: The following examples use `sncast` {sncast-version}.
+
 ```[,bash]
 $ sncast \
   --url http://127.0.0.1:5050 \
@@ -200,6 +203,7 @@ $ sncast \
 :eth-account-mixin: xref:/api/account.adoc#EthAccountComponent-Embeddable-Mixin-Impl[EthAccountMixin]
 :eth-initializer: xref:/api/account.adoc#EthAccountComponent-initializer[initializer]
 :starknetjs: https://www.starknetjs.com/[StarknetJS]
+:starknetjs-commit: https://github.com/starknet-io/starknet.js/commit/d002baea0abc1de3ac6e87a671f3dec3757437b3[d002baea0abc1de3ac6e87a671f3dec3757437b3]
 
 To create an Ethereum-flavored account, implement the {eth-account-mixin} and set up the constructor to initialize the contract.
 Since this is an EthAccount, the {eth-initializer} expects the `EthPublicKey` type (alias for `Secp256k1Point`) to store as the account's public key.
@@ -252,6 +256,8 @@ The following examples utilize the {starknetjs} library.
 
 Compile and declare the contract on the target network.
 Next, precompute the EthAccount contract address using the declared class hash.
+
+NOTE: The following examples use unreleased features from StarknetJS (`starknetjs@next`) at commit {starknetjs-commit}.
 
 ```[,javascript]
 import * as dotenv from 'dotenv';

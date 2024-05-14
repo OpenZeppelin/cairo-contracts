@@ -301,7 +301,7 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
 * xref:#ERC721Component-_owner_of[`++_owner_of(self, token_id)++`]
-* xref:#ERC721Component-_require_owned[`++_owner_of(self, token_id)++`]
+* xref:#ERC721Component-_require_owned[`++_require_owned(self, token_id)++`]
 * xref:#ERC721Component-_exists[`++_exists(self, token_id)++`]
 * xref:#ERC721Component-_approve[`++_approve(self, to, token_id, auth)++`]
 * xref:#ERC721Component-_approve_with_optional_event[`++_approve_with_optional_event(self, to, token_id, auth, emit_event)++`]
@@ -414,7 +414,7 @@ See <<IERC721-set_approval_for_all,IERC721::set_approval_for_all>>.
 
 Requirements:
 
-- `operator` cannot be the caller.
+- `operator` is not the zero address.
 
 [.contract-item]
 [[ERC721Component-get_approved]]
@@ -537,7 +537,7 @@ Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop ex
 
 Approve `to` to operate on `token_id`
 
-The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+The `auth` argument is optional. If the value passed is non-zero, then this function will check that `auth` is
 either the owner of the token, or approved to operate on all tokens held by this owner.
 
 Emits an <<IERC721-Approval,Approval>> event.
@@ -548,6 +548,8 @@ Emits an <<IERC721-Approval,Approval>> event.
 
 Variant of xref:#ERC721Component-_approve[_approve] with an optional flag to enable or disable the `Approval` event.
 The event is not emitted in the context of transfers.
+
+WARNING: If `auth` is zero and `emit_event` is false, this function will not check that the token exists.
 
 Requirements:
 
@@ -565,7 +567,9 @@ all of the `owner` assets.
 
 Requirements:
 
-- `operator` cannot be the caller.
+- `operator` is not the zero address.
+
+Emits an <<IERC721-Approval,Approval>> event.
 
 Emits an <<IERC721-Approval,Approval>> event.
 
@@ -576,12 +580,12 @@ Emits an <<IERC721-Approval,Approval>> event.
 Mints `token_id` and transfers it to `to`.
 Internal function without access restriction.
 
-WARNING: Usage of this method is discouraged, use `_safe_mint` whenever possible
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
 
 Requirements:
 
 - `to` is not the zero address.
-- `token_id` must not exist.
+- `token_id` does not exist.
 
 Emits a <<IERC721-Transfer,Transfer>> event.
 
@@ -592,6 +596,8 @@ Emits a <<IERC721-Transfer,Transfer>> event.
 Transfers `token_id` from `from` to `to`.
 
 Internal function without access restriction.
+
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
 
 Requirements:
 
@@ -622,7 +628,9 @@ Emits a <<IERC721-Transfer,Transfer>> event.
 
 Mints `token_id` if `to` is either an account or `IERC721Receiver`.
 
-`data` is additional data, it has no specified format and it is sent in call to `to`.
+`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
+
+WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
 
 Requirements:
 
@@ -637,7 +645,9 @@ Emits a <<IERC721-Transfer,Transfer>> event.
 
 Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
 
-`data` is additional data, it has no specified format and it is sent in call to `to`.
+`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
+
+WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
 
 Requirements:
 
@@ -695,10 +705,13 @@ assumption.
 Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
 (or `to`) is the zero address. Returns the owner of the `token_id` before the update.
 
-The `auth` argument is optional. If the value passed is non 0, then this function will check that
+The `auth` argument is optional. If the value passed is non-zero, then this function will check that
 `auth` is either the owner of the token, or approved to operate on the token (by the owner).
 
 Emits a <<IERC721-Transfer,Transfer>> event.
+
+NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+functionality before and/or after the transfer, mint, or burn.
 
 ==== Events
 

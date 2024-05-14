@@ -300,20 +300,6 @@ fn test_set_approval_for_all() {
     assert!(is_not_approved_for_all);
 }
 
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_true() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), true);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_false() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), false);
-}
-
 //
 // transfer_from & transferFrom
 //

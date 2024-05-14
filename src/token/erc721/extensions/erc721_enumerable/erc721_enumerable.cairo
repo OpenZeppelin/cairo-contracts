@@ -125,7 +125,7 @@ mod ERC721EnumerableComponent {
         /// When a token is minted (or burned), `token_id` is added to (or removed from)
         /// the token-tracking structures.
         ///
-        /// When a token is transferred, the ownership-tracking data structures reflect
+        /// When a token is transferred, minted, or burned, the ownership-tracking data structures reflect
         /// the change in ownership of `token_id`.
         ///
         /// This must be added to the implementing contract's `ERC721HooksTrait::before_update` hook.

@@ -523,6 +523,10 @@ May emit an <<IERC721-Approval,Approval>> event.
 Enables or disables approval for `operator` to manage
 all of the `owner` assets.
 
+Requirements:
+
+- `operator` is not the zero address.
+
 Emits an <<IERC721-Approval,Approval>> event.
 
 [.contract-item]

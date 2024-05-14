@@ -271,7 +271,7 @@ const ethAccountAddress = hash.calculateContractAddressFromHash(
 console.log('Pre-calculated EthAccount address: ', ethAccountAddress);
 ```
 
-Finally, send funds to the pre-calculated EthAccount address and deploy the contract.
+Send funds to the pre-calculated EthAccount address and deploy the contract.
 
 ```[,javascript]
 // Prepare EthAccount
@@ -302,4 +302,26 @@ const { transaction_hash, contract_address } = await ethAccount.deployAccount(
 );
 await provider.waitForTransaction(transaction_hash);
 console.log('EthAccount deployed at: ', contract_address);
+```
+
+Once deployed, connect the EthAccount instance to the target contract which enables calls to come from the EthAccount.
+Here's what an ERC20 transfer from an EthAccount looks like.
+
+```[,javascript]
+// Prepare target contract
+const erc20 = new Contract(compiledERC20.abi, erc20Address, provider);
+
+// Connect EthAccount with the target contract
+const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
+erc20.connect(ethAccount);
+
+// Execute ERC20 transfer
+const transferCall = erc20.populate('transfer', {
+    recipient: recipient.address,
+    amount: 50n
+});
+const tx = await erc20.transfer(
+    transferCall.calldata, { maxFee: 900_000_000_000_000 }
+);
+await provider.waitForTransaction(tx.transaction_hash);
 ```

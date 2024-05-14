@@ -117,7 +117,7 @@ NOTE: {src5-component-required-note}
 .PublicKeyImpl
 
 * xref:#AccountComponent-get_public_key[`++get_public_key(self)++`]
-* xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key)++`]
+* xref:#AccountComponent-set_public_key[`++set_public_key(self, new_public_key, signature)++`]
 
 [.sub-index#AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
 .SRC6CamelOnlyImpl
@@ -128,7 +128,7 @@ NOTE: {src5-component-required-note}
 .PublicKeyCamelImpl
 
 * xref:#AccountComponent-getPublicKey[`++getPublicKey(self)++`]
-* xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey)++`]
+* xref:#AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey, signature)++`]
 
 .SRC5Impl
 * xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
@@ -141,6 +141,7 @@ NOTE: {src5-component-required-note}
 
 * xref:#AccountComponent-initializer[`++initializer(self, public_key)++`]
 * xref:#AccountComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#AccountComponent-assert_valid_new_owner[`++assert_valid_new_owner(self, current_owner, new_owner, signature)++`]
 * xref:#AccountComponent-validate_transaction[`++validate_transaction(self)++`]
 * xref:#AccountComponent-_set_public_key[`++_set_public_key(self, new_public_key)++`]
 * xref:#AccountComponent-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
@@ -199,11 +200,30 @@ Returns the current public key of the account.
 
 [.contract-item]
 [[AccountComponent-set_public_key]]
-==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: felt252, signature: Span<felt252>)++` [.item-kind]#external#
 
 Sets a new public key for the account. Only accessible by the account calling itself through `\\__execute__`.
 
+Requirements:
+
+- The caller must be the contract itself.
+- The signature must be valid for the new owner.
+
 Emits both an {OwnerRemoved} and an {OwnerAdded} event.
+
+[NOTE]
+====
+The message to be signed is computed in Cairo as follows:
+
+```javascript
+let message_hash = PoseidonTrait::new()
+        .update('StarkNet Message')
+        .update('accept_ownership')
+        .update(get_contract_address().into())
+        .update(current_owner)
+        .finalize();
+```
+====
 
 [.contract-item]
 [[AccountComponent-isValidSignature]]
@@ -219,7 +239,7 @@ See xref:AccountComponent-get_public_key[get_public_key].
 
 [.contract-item]
 [[AccountComponent-setPublicKey]]
-==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252)++` [.item-kind]#external#
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: felt252, signature: Span<felt252>)++` [.item-kind]#external#
 
 See xref:AccountComponent-set_public_key[set_public_key].
 
@@ -239,6 +259,19 @@ Emits an {OwnerAdded} event.
 ==== `[.contract-item-name]#++assert_only_self++#++(self: @ComponentState)++` [.item-kind]#internal#
 
 Validates that the caller is the account itself. Otherwise it reverts.
+
+[.contract-item]
+[[AccountComponent-assert_valid_new_owner]]
+==== `[.contract-item-name]#++assert_valid_new_owner++#++(self: @ComponentState, current_owner: felt252, new_owner: felt252, signature: Span<felt252>)++` [.item-kind]#internal#
+
+Validates that new owner accepted the ownership of the contract through a signature.
+
+Requirements:
+
+- The signature must be valid for the new owner.
+
+WARNING: This function assumes that current_owner is the current owner of the contract, and
+does not validate this assumption.
 
 [.contract-item]
 [[AccountComponent-validate_transaction]]

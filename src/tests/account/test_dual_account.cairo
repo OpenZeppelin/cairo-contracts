@@ -6,9 +6,11 @@ use openzeppelin::tests::mocks::account_mocks::{
     CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY};
+use openzeppelin::tests::utils::constants::PUBKEY;
 use openzeppelin::tests::utils;
 use starknet::testing;
+
+const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 
 //
 // Setup
@@ -57,7 +59,7 @@ fn test_dual_set_public_key() {
 
     testing::set_contract_address(snake_dispatcher.contract_address);
 
-    snake_dispatcher.set_public_key(NEW_PUBKEY);
+    snake_dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature_snake());
 
     let public_key = target.get_public_key();
     assert_eq!(public_key, NEW_PUBKEY);
@@ -67,14 +69,14 @@ fn test_dual_set_public_key() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, array![].span());
 }
 
 #[test]
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, array![].span());
 }
 
 #[test]
@@ -107,7 +109,7 @@ fn test_dual_is_valid_signature() {
     let mut signature = array![data.r, data.s];
 
     testing::set_contract_address(snake_dispatcher.contract_address);
-    target.set_public_key(data.public_key);
+    target.set_public_key(data.public_key, get_accept_ownership_signature_snake());
 
     let is_valid = snake_dispatcher.is_valid_signature(hash, signature);
     assert_eq!(is_valid, starknet::VALIDATED);
@@ -163,8 +165,7 @@ fn test_dual_setPublicKey() {
     let (camel_dispatcher, target) = setup_camel();
 
     testing::set_contract_address(camel_dispatcher.contract_address);
-
-    camel_dispatcher.set_public_key(NEW_PUBKEY);
+    camel_dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature_camel());
 
     let public_key = target.getPublicKey();
     assert_eq!(public_key, NEW_PUBKEY);
@@ -174,7 +175,7 @@ fn test_dual_setPublicKey() {
 #[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, array![].span());
 }
 
 #[test]
@@ -197,10 +198,10 @@ fn test_dual_isValidSignature() {
 
     let data = SIGNED_TX_DATA();
     let hash = data.transaction_hash;
-    let mut signature = array![data.r, data.s];
+    let signature = array![data.r, data.s];
 
     testing::set_contract_address(camel_dispatcher.contract_address);
-    target.setPublicKey(data.public_key);
+    target.setPublicKey(data.public_key, get_accept_ownership_signature_camel());
 
     let is_valid = camel_dispatcher.is_valid_signature(hash, signature);
     assert_eq!(is_valid, starknet::VALIDATED);
@@ -214,4 +215,48 @@ fn test_dual_isValidSignature_exists_and_panics() {
 
     let (_, dispatcher) = setup_account_panic();
     dispatcher.is_valid_signature(hash, signature);
+}
+
+//
+// Helpers
+//
+
+fn get_accept_ownership_signature_snake() -> Span<felt252> {
+    // 0x68d0d8341890d736df4ad1f1d73fc0ea21240f5a7f0877376c11cbd5aedaa87 =
+    // PoseidonTrait::new()
+    //             .update('StarkNet Message')
+    //             .update('accept_ownership')
+    //             .update(snake_dispatcher.contract_address.into())
+    //             .update(PUBKEY)
+    //             .finalize();
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: '1234'
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0x68d0d8341890d736df4ad1f1d73fc0ea21240f5a7f0877376c11cbd5aedaa87
+    array![
+        0x3735f9488006188a1bcb44954c6a42ec9772407b5d74fb8ef289f4dc7e19546,
+        0x729228e2d61aa713ccb5eaa5d1d542f5020a8dad9720e70733667189bf73c6d
+    ]
+        .span()
+}
+
+fn get_accept_ownership_signature_camel() -> Span<felt252> {
+    // 0x7574ff949c0537b235ec5ab787f1c1989ebd875a8e083a1038ee21eb2b44a43 =
+    // PoseidonTrait::new()
+    //             .update('StarkNet Message')
+    //             .update('accept_ownership')
+    //             .update(camel_dispatcher.contract_address.into())
+    //             .update(PUBKEY)
+    //             .finalize();
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: '1234'
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0x7574ff949c0537b235ec5ab787f1c1989ebd875a8e083a1038ee21eb2b44a43
+    array![
+        0x5a776880cf7154726f9d4afaeee9055ba4ab1a4e9d7f19b6cda4529ed7dc78e,
+        0x1e1f24c532a23606f2b996b0b5e38fe14dc2ea9028f1849752fdef534a536d5
+    ]
+        .span()
 }

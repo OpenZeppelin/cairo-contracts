@@ -270,14 +270,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: approval to owner', 'ENTRYPOINT_FAILED'))]
-fn test_approve_to_owner() {
-    let dispatcher = setup_dispatcher();
-
-    dispatcher.approve(OWNER(), TOKEN_1);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_approve_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -306,20 +298,6 @@ fn test_set_approval_for_all() {
 
     let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_not_approved_for_all);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_true() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), true);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_false() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), false);
 }
 
 //

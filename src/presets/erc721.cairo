@@ -12,7 +12,7 @@
 mod ERC721Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, ClassHash};
@@ -100,7 +100,6 @@ mod ERC721Upgradeable {
                     break;
                 }
                 let id = *token_ids.pop_front().unwrap();
-
                 self.erc721._mint(recipient, id);
             }
         }

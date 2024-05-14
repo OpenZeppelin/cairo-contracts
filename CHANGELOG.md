@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- before_update and after_update hooks to ERC721Component (#978)
 - before_update and after_update hooks to ERC1155Component (#982)
 
 ### Changed (Breaking)
 
+- ERC721Component internal implementation to support transfer, mint, and burn flows going through an `_update` function (#978)
+- ERC721Component implementations now require an ERC721HooksTrait implementation in scope.
 - ERC1155Component implementations now require an ERC1155HooksTrait implementation in scope.
 
 ## 0.12.0 (2024-04-21)

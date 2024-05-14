@@ -309,7 +309,7 @@ Here's what an ERC20 transfer from an EthAccount looks like.
 
 ```[,javascript]
 // Prepare target contract
-const erc20 = new Contract(compiledERC20.abi, erc20Address, provider);
+const erc20 = new Contract(compiledErc20.abi, erc20Address, provider);
 
 // Connect EthAccount with the target contract
 const ethAccount = new Account(provider, ethAccountAddress, ethSigner);

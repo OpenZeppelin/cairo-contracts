@@ -99,7 +99,7 @@ But if you don't have an account to invoke it, you will probably want to use the
 To do counterfactual deployments, you need to implement another protocol-level entrypoint named
 `\\__validate_deploy__`. Check the {counterfactual} guide to learn how.
 
-== Usage
+== Sending transactions
 
 Contracts for Cairo offers two flavors of components to use for creating accounts: `AccountComponent` and `EthAccountComponent`.
 Though the ISRC6 interface is agnostic regarding validation schemes, both available components utilize public-private key pairs that control the account.

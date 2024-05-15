@@ -217,10 +217,10 @@ The message to be signed is computed in Cairo as follows:
 
 ```javascript
 let message_hash = PoseidonTrait::new()
-        .update('StarkNet Message')
-        .update('accept_ownership')
-        .update(get_contract_address().into())
-        .update(current_owner)
+        .update_with('StarkNet Message')
+        .update_with('accept_ownership')
+        .update_with(get_contract_address())
+        .update_with(current_owner)
         .finalize();
 ```
 ====

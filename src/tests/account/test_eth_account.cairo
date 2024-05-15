@@ -9,7 +9,6 @@ use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
-use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
@@ -26,6 +25,7 @@ use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
+use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 use starknet::secp256k1::secp256k1_new_syscall;
 use starknet::testing;
 
@@ -555,7 +555,7 @@ fn test_assert_valid_new_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('Account: invalid signature',))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_assert_valid_new_owner_invalid_signature() {
     let mut state = setup();
 
@@ -564,7 +564,8 @@ fn test_assert_valid_new_owner_invalid_signature() {
     EthSignature {
         r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
         s: 0x6811f854c0f5793a0086f53e4a23c3773fd8afee401b1c4ef148a1554eede5e1,
-    }.serialize(ref bad_signature);
+    }
+        .serialize(ref bad_signature);
     state.assert_valid_new_owner(ETH_PUBKEY(), NEW_ETH_PUBKEY(), bad_signature.span());
 }
 
@@ -629,7 +630,8 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     EthSignature {
         r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
         s: 0x6811f854c0f5793a0086f53e4a23c3773fd8afee401b1c4ef148a1554eede5e2,
-    }.serialize(ref output);
+    }
+        .serialize(ref output);
 
     output.span()
 }

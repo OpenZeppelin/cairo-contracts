@@ -3,14 +3,14 @@ use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountA
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
+use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
 use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::eth_account_mocks::{
     CamelEthAccountPanicMock, CamelEthAccountMock, SnakeEthAccountMock, SnakeEthAccountPanicMock
 };
-use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
 use openzeppelin::tests::utils::constants::ETH_PUBKEY;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -247,7 +247,8 @@ fn get_accept_ownership_signature_snake() -> Span<felt252> {
     EthSignature {
         r: 0x2ee21d761c9dec6bc855f427ea83b9746b84d3ed7f38cf41e65e9c2d846e9f6c,
         s: 0x586ceb49429f27352cd8237775b28c57002b27f9f1d5418707ac8b88c4794847,
-    }.serialize(ref output);
+    }
+        .serialize(ref output);
 
     output.span()
 }
@@ -272,7 +273,8 @@ fn get_accept_ownership_signature_camel() -> Span<felt252> {
     EthSignature {
         r: 0xfa72fe7817eaf98fc104183f7f64956196285f7e09f4eecb47c1dcf352a23e13,
         s: 0x4213427c846e9a9be01c91d556f8981f3450918926a5716e865763c9d41bc14b,
-    }.serialize(ref output);
+    }
+        .serialize(ref output);
 
     output.span()
 }

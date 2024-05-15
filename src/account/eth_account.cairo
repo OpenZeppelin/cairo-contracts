@@ -164,7 +164,11 @@ mod EthAccountComponent {
         /// - The signature must be valid for the new owner.
         ///
         /// Emits an `OwnerRemoved` event.
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey, signature: Span<felt252>) {
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: EthPublicKey,
+            signature: Span<felt252>
+        ) {
             self.assert_only_self();
 
             let current_public_key: EthPublicKey = self.EthAccount_public_key.read();
@@ -204,7 +208,11 @@ mod EthAccountComponent {
             self.EthAccount_public_key.read()
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey, signature: Span<felt252>) {
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: EthPublicKey,
+            signature: Span<felt252>
+        ) {
             PublicKey::set_public_key(ref self, newPublicKey, signature);
         }
     }
@@ -233,12 +241,12 @@ mod EthAccountComponent {
 
         /// Validates that new owner accepted the ownership of the contract.
         ///
-        /// WARNING: This function assumes that current_owner is the current owner of the contract, and
+        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
         /// does not validate this assumption.
         ///
         /// Requirements:
         ///
-        /// - The signature must be valid for the new owner.
+        /// - The signature must be valid for the `new_owner`.
         fn assert_valid_new_owner(
             self: @ComponentState<TContractState>,
             current_owner: EthPublicKey,
@@ -344,7 +352,11 @@ mod EthAccountComponent {
             PublicKey::get_public_key(self)
         }
 
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey, signature: Span<felt252>) {
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: EthPublicKey,
+            signature: Span<felt252>
+        ) {
             PublicKey::set_public_key(ref self, new_public_key, signature);
         }
 
@@ -353,7 +365,11 @@ mod EthAccountComponent {
             PublicKeyCamel::getPublicKey(self)
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey, signature: Span<felt252>) {
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: EthPublicKey,
+            signature: Span<felt252>
+        ) {
             PublicKeyCamel::setPublicKey(ref self, newPublicKey, signature);
         }
 

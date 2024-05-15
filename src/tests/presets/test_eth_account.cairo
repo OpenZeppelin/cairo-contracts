@@ -2,12 +2,13 @@ use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
 };
+use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::account::utils::signature::EthSignature;
+use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
 use openzeppelin::tests::account::test_eth_account::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
@@ -17,10 +18,8 @@ use openzeppelin::tests::account::test_eth_account::{
 use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
 use openzeppelin::tests::utils::constants::{
-    CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
-    MIN_TRANSACTION_VERSION
+    CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
@@ -524,7 +523,8 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     EthSignature {
         r: 0x512c2acbb64be5ac67d5d143898d915919cc6d6806a26f0686d5e92e101c6271,
         s: 0x420deca8404b7680530a4c9178a7fcd2c3e5a2f98fa4f8ada84ef90fea0d98ca,
-    }.serialize(ref output);
+    }
+        .serialize(ref output);
 
     output.span()
 }

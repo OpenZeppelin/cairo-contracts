@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Account usage section in docs (#981)
+- Sending transactions section in account docs (#981)
 - before_update and after_update hooks to ERC721Component (#978)
 - before_update and after_update hooks to ERC1155Component (#982)
 

@@ -4,7 +4,6 @@ mod DualCaseERC721EnumerableMock {
     use openzeppelin::token::erc721::ERC721Component::ERC721HooksTrait;
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::token::erc721::extensions::ERC721EnumerableComponent;
-
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);

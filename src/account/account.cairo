@@ -7,7 +7,6 @@
 #[starknet::component]
 mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
-    use core::traits::Into;
     use openzeppelin::account::interface;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
@@ -249,10 +248,10 @@ mod AccountComponent {
             signature: Span<felt252>
         ) {
             let message_hash = PoseidonTrait::new()
-                .update('StarkNet Message')
-                .update('accept_ownership')
-                .update(get_contract_address().into())
-                .update(current_owner)
+                .update_with('StarkNet Message')
+                .update_with('accept_ownership')
+                .update_with(get_contract_address())
+                .update_with(current_owner)
                 .finalize();
 
             let is_valid = is_valid_stark_signature(message_hash, new_owner, signature);

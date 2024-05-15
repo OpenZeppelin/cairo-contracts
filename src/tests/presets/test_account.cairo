@@ -521,10 +521,10 @@ fn set_contract_and_caller(address: ContractAddress) {
 fn get_accept_ownership_signature() -> Span<felt252> {
     // 0x1d0f29f91d4d8242ae5646be871a7e64717eac611aed9ec15b423cb965817fb =
     // PoseidonTrait::new()
-    //             .update('StarkNet Message')
-    //             .update('accept_ownership')
-    //             .update(dispatcher.contract_address.into())
-    //             .update(PUBKEY)
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(dispatcher.contract_address)
+    //             .update_with(PUBKEY)
     //             .finalize();
 
     // This signature was computed using starknet js sdk from the following values:

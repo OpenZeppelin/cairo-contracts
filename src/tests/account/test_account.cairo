@@ -565,10 +565,10 @@ fn test__set_public_key() {
 fn get_accept_ownership_signature() -> Span<felt252> {
     // 0x7b3d2ce38c132a36e692f6e809b518276d091513af3baf0e94ce2abceee3632 =
     // PoseidonTrait::new()
-    //             .update('StarkNet Message')
-    //             .update('accept_ownership')
-    //             .update(ACCOUNT_ADDRESS().into())
-    //             .update(PUBKEY)
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(ACCOUNT_ADDRESS())
+    //             .update_with(PUBKEY)
     //             .finalize();
 
     // This signature was computed using starknet js sdk from the following values:

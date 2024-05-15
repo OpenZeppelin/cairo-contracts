@@ -224,10 +224,10 @@ fn test_dual_isValidSignature_exists_and_panics() {
 fn get_accept_ownership_signature_snake() -> Span<felt252> {
     // 0x68d0d8341890d736df4ad1f1d73fc0ea21240f5a7f0877376c11cbd5aedaa87 =
     // PoseidonTrait::new()
-    //             .update('StarkNet Message')
-    //             .update('accept_ownership')
-    //             .update(snake_dispatcher.contract_address.into())
-    //             .update(PUBKEY)
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(snake_dispatcher.contract_address)
+    //             .update_with(PUBKEY)
     //             .finalize();
 
     // This signature was computed using starknet js sdk from the following values:
@@ -244,10 +244,10 @@ fn get_accept_ownership_signature_snake() -> Span<felt252> {
 fn get_accept_ownership_signature_camel() -> Span<felt252> {
     // 0x7574ff949c0537b235ec5ab787f1c1989ebd875a8e083a1038ee21eb2b44a43 =
     // PoseidonTrait::new()
-    //             .update('StarkNet Message')
-    //             .update('accept_ownership')
-    //             .update(camel_dispatcher.contract_address.into())
-    //             .update(PUBKEY)
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(camel_dispatcher.contract_address)
+    //             .update_with(PUBKEY)
     //             .finalize();
 
     // This signature was computed using starknet js sdk from the following values:

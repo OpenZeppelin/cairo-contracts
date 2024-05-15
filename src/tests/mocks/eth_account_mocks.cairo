@@ -162,7 +162,7 @@ mod SnakeEthAccountPanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn set_public_key(ref self: ContractState, new_public_key: EthPublicKey) {
+        fn set_public_key(ref self: ContractState, new_public_key: EthPublicKey, signature: Span<felt252>) {
             panic!("Some error");
         }
 
@@ -202,7 +202,7 @@ mod CamelEthAccountPanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn setPublicKey(ref self: ContractState, newPublicKey: EthPublicKey) {
+        fn setPublicKey(ref self: ContractState, newPublicKey: EthPublicKey, signature: Span<felt252>) {
             panic!("Some error");
         }
 

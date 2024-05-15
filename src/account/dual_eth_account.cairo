@@ -17,7 +17,7 @@ struct DualCaseEthAccount {
 }
 
 trait DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey);
+    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey, signature: Span<felt252>);
     fn get_public_key(self: @DualCaseEthAccount) -> EthPublicKey;
     fn is_valid_signature(
         self: @DualCaseEthAccount, hash: felt252, signature: Array<felt252>
@@ -26,9 +26,10 @@ trait DualCaseEthAccountABI {
 }
 
 impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey) {
+    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey, signature: Span<felt252>) {
         let mut args = array![];
-        new_public_key.serialize(ref args);
+        args.append_serde(new_public_key);
+        args.append_serde(signature);
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()

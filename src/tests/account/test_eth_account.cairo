@@ -9,12 +9,13 @@ use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
+use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
 use openzeppelin::tests::utils::constants::{
-    ETH_PUBKEY, NEW_ETH_PUBKEY, NAME, SYMBOL, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
+    ETH_PUBKEY, NAME, SYMBOL, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
@@ -40,12 +41,7 @@ struct SignedTransactionData {
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9,
-        public_key: secp256k1_new_syscall(
-            0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
-            0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-        )
-            .unwrap()
-            .unwrap(),
+        public_key: NEW_ETH_PUBKEY(),
         transaction_hash: 0x008f882c63d0396d216d57529fe29ad5e70b6cd51b47bd2458b0a4ccb2ba0957,
         signature: EthSignature {
             r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
@@ -57,6 +53,15 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 //
 // Constants
 //
+
+fn NEW_ETH_PUBKEY() -> EthPublicKey {
+    secp256k1_new_syscall(
+        0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
+        0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
+    )
+        .unwrap()
+        .unwrap()
+}
 
 fn CLASS_HASH() -> felt252 {
     DualCaseEthAccountMock::TEST_CLASS_HASH
@@ -418,12 +423,11 @@ fn test_cannot_get_without_initialize() {
 #[should_panic(expected: ('Secp256k1Point: Invalid point.',))]
 fn test_cannot_set_without_initialize() {
     let mut state = COMPONENT_STATE();
-    let new_public_key = NEW_ETH_PUBKEY();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
-    state.set_public_key(new_public_key);
+    state.set_public_key(NEW_ETH_PUBKEY(), array![].span());
 }
 
 #[test]
@@ -443,7 +447,7 @@ fn test_public_key_setter_and_getter() {
     assert_eq!(current, public_key);
 
     // Set key
-    state.set_public_key(new_public_key);
+    state.set_public_key(new_public_key, get_accept_ownership_signature());
 
     assert_event_owner_removed(ACCOUNT_ADDRESS(), current);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
@@ -459,7 +463,7 @@ fn test_public_key_setter_different_account() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(CALLER());
 
-    state.set_public_key(NEW_ETH_PUBKEY());
+    state.set_public_key(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
 }
 
 //
@@ -481,7 +485,7 @@ fn test_public_key_setter_and_getter_camel() {
     let current = state.getPublicKey();
     assert_eq!(current, public_key);
 
-    state.setPublicKey(new_public_key);
+    state.setPublicKey(new_public_key, get_accept_ownership_signature());
 
     assert_event_owner_removed(ACCOUNT_ADDRESS(), public_key);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
@@ -497,7 +501,7 @@ fn test_public_key_setter_different_account_camel() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(CALLER());
 
-    state.setPublicKey(NEW_ETH_PUBKEY());
+    state.setPublicKey(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
 }
 
 //
@@ -543,6 +547,28 @@ fn test_assert_only_self_false() {
 }
 
 #[test]
+fn test_assert_valid_new_owner() {
+    let mut state = setup();
+
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    state.assert_valid_new_owner(ETH_PUBKEY(), NEW_ETH_PUBKEY(), get_accept_ownership_signature());
+}
+
+#[test]
+#[should_panic(expected: ('Account: invalid signature',))]
+fn test_assert_valid_new_owner_invalid_signature() {
+    let mut state = setup();
+
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    let mut bad_signature = array![];
+    EthSignature {
+        r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
+        s: 0x6811f854c0f5793a0086f53e4a23c3773fd8afee401b1c4ef148a1554eede5e1,
+    }.serialize(ref bad_signature);
+    state.assert_valid_new_owner(ETH_PUBKEY(), NEW_ETH_PUBKEY(), bad_signature.span());
+}
+
+#[test]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -582,6 +608,31 @@ fn test__set_public_key() {
 //
 // Helpers
 //
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    let mut output = array![];
+
+    // 0x02357636c7266194923ea0b270bd563853c1fdea875b3cc6567f6d08cbccc3be =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(ACCOUNT_ADDRESS())
+    //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
+    //             .finalize();
+
+    // This signature was computed using ethers js sdk from the following values:
+    // - private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9
+    // - public_key:
+    //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
+    //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
+    // - msg_hash: 0x02357636c7266194923ea0b270bd563853c1fdea875b3cc6567f6d08cbccc3be
+    EthSignature {
+        r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
+        s: 0x6811f854c0f5793a0086f53e4a23c3773fd8afee401b1c4ef148a1554eede5e2,
+    }.serialize(ref output);
+
+    output.span()
+}
 
 fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
     let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();

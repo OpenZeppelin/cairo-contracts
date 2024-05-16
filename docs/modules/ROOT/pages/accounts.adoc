@@ -98,3 +98,257 @@ But if you don't have an account to invoke it, you will probably want to use the
 
 To do counterfactual deployments, you need to implement another protocol-level entrypoint named
 `\\__validate_deploy__`. Check the {counterfactual} guide to learn how.
+
+== Sending transactions
+
+Contracts for Cairo offers two flavors of components to use for creating accounts: `AccountComponent` and `EthAccountComponent`.
+Though the ISRC6 interface is agnostic regarding validation schemes, both available components utilize public-private key pairs that control the account.
+The public key is set in the constructor.
+
+Mixin implementations are available to use for both components which include basic account functionality as well as additional features such as the ability to:
+
+- View and transfer the account's public key.
+- Declare contract class hashes.
+- Counterfactually deploy.
+
+=== AccountComponent
+
+:account-mixin: xref:/api/account.adoc#AccountComponent-Embeddable-Mixin-Impl[AccountMixin]
+:initializer: xref:/api/account.adoc#AccountComponent-initializer[initializer]
+:custom-account-setup: https://foundry-rs.github.io/starknet-foundry/starknet/account.html#custom-account-contract[custom account setup]
+:sncast-version: https://github.com/foundry-rs/starknet-foundry/releases/tag/v0.23.0[v0.23.0]
+
+To create an account, implement the {account-mixin} and set up the constructor to initialize the contract.
+The {initializer} method sets the public key for the account contract and registers the account interface id.
+A vanilla account contract looks like this:
+
+```[,cairo]
+#[starknet::contract(account)]
+mod MyAccount {
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // Account Mixin
+    #[abi(embed_v0)]
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        account: AccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+}
+```
+
+To deploy the Contracts for Cairo account variant, compile the contract and declare the class hash because custom accounts are likely not declared.
+This means that you'll need an account already deployed.
+
+Next, create the account JSON with Starknet Foundry's {custom-account-setup} and include the `--class-hash` flag with the declared class hash.
+The flag enables custom account variants.
+
+NOTE: The following examples use `sncast` {sncast-version}.
+
+```[,bash]
+$ sncast \
+  --url http://127.0.0.1:5050 \
+  account create \
+  --name my-custom-account \
+  --class-hash 0x123456...
+```
+
+This command will output the precomputed contract address and the recommended `max-fee`.
+To counterfactually deploy the account, send funds to the address and then deploy the custom account.
+
+```[,bash]
+$ sncast \
+  --url http://127.0.0.1:5050 \
+  account deploy \
+  --name my-custom-account
+```
+
+Once the account is deployed, set the `--account` flag with the custom account name to send transactions from that account.
+
+```[,bash]
+$ sncast \
+  --account my-custom-account \
+  --url http://127.0.0.1:5050 \
+  invoke \
+  --contract-address 0x123... \
+  --function "some_function" \
+  --calldata 1 2 3
+```
+
+=== EthAccountComponent
+
+:eth-account-mixin: xref:/api/account.adoc#EthAccountComponent-Embeddable-Mixin-Impl[EthAccountMixin]
+:eth-initializer: xref:/api/account.adoc#EthAccountComponent-initializer[initializer]
+:starknetjs: https://www.starknetjs.com/[StarknetJS]
+:starknetjs-commit: https://github.com/starknet-io/starknet.js/commit/d002baea0abc1de3ac6e87a671f3dec3757437b3[d002baea0abc1de3ac6e87a671f3dec3757437b3]
+
+To create an Ethereum-flavored account, implement the {eth-account-mixin} and set up the constructor to initialize the contract.
+Since this is an EthAccount, the {eth-initializer} expects the `EthPublicKey` type (alias for `Secp256k1Point`) to store as the account's public key.
+The contract also requires the `Secp256K1Impl` implementation in order to serialize and deserialize the `EthPublicKey` type.
+A basic Ethereum-flavored account contract looks like this:
+
+```[,cairo]
+#[starknet::contract(account)]
+mod MyEthAccount {
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // EthAccount Mixin
+    #[abi(embed_v0)]
+    impl EthAccountMixinImpl =
+        EthAccountComponent::EthAccountMixinImpl<ContractState>;
+    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        eth_account: EthAccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        EthAccountEvent: EthAccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+        self.eth_account.initializer(public_key);
+    }
+}
+```
+
+Special tooling is required in order to deploy and send transactions with an Ethereum-flavored account contract.
+The following examples utilize the {starknetjs} library.
+
+Compile and declare the contract on the target network.
+Next, precompute the EthAccount contract address using the declared class hash.
+
+NOTE: The following examples use unreleased features from StarknetJS (`starknetjs@next`) at commit {starknetjs-commit}.
+
+```[,javascript]
+import * as dotenv from 'dotenv';
+import { CallData, EthSigner, hash } from 'starknet';
+import { ABI as ETH_ABI } from '../abis/eth_account.js';
+dotenv.config();
+
+// Calculate EthAccount address
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethPubKey = await ethSigner.getPubKey();
+const ethAccountClassHash = '<ETH_ACCOUNT_CLASS_HASH>';
+const ethCallData = new CallData(ETH_ABI);
+const ethAccountConstructorCalldata = ethCallData.compile('constructor', {
+    public_key: ethPubKey
+})
+const salt = '0x12345';
+const deployerAddress = '0x0';
+const ethContractAddress = hash.calculateContractAddressFromHash(
+    salt,
+    ethAccountClassHash,
+    ethAccountConstructorCalldata,
+    deployerAddress
+);
+console.log('Pre-calculated EthAccount address: ', ethContractAddress);
+```
+
+Send funds to the pre-calculated EthAccount address and deploy the contract.
+
+```[,javascript]
+import * as dotenv from 'dotenv';
+import { Account, CallData, EthSigner, RpcProvider, stark } from 'starknet';
+import { ABI as ETH_ABI } from '../abis/eth_account.js';
+dotenv.config();
+
+// Prepare EthAccount
+const provider = new RpcProvider({ nodeUrl: process.env.API_URL });
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethPubKey = await ethSigner.getPubKey();
+const ethAccountAddress = '<ETH_ACCOUNT_ADDRESS>'
+const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
+
+// Prepare payload
+const ethAccountClassHash = '<ETH_ACCOUNT_CLASS_HASH>'
+const ethCallData = new CallData(ETH_ABI);
+const ethAccountConstructorCalldata = ethCallData.compile('constructor', {
+    public_key: ethPubKey
+})
+const salt = '0x12345';
+const deployPayload = {
+    classHash: ethAccountClassHash,
+    constructorCalldata: ethAccountConstructorCalldata,
+    addressSalt: salt,
+};
+
+// Deploy
+const { suggestedMaxFee: feeDeploy } = await ethAccount.estimateAccountDeployFee(deployPayload);
+const { transaction_hash, contract_address } = await ethAccount.deployAccount(
+    deployPayload,
+    { maxFee: stark.estimatedFeeToMaxFee(feeDeploy, 100) }
+);
+await provider.waitForTransaction(transaction_hash);
+console.log('EthAccount deployed at: ', contract_address);
+```
+
+Once deployed, connect the EthAccount instance to the target contract which enables calls to come from the EthAccount.
+Here's what an ERC20 transfer from an EthAccount looks like.
+
+```[,javascript]
+import * as dotenv from 'dotenv';
+import { Account, RpcProvider, Contract, EthSigner } from 'starknet';
+dotenv.config();
+
+// Prepare EthAccount
+const provider = new RpcProvider({ nodeUrl: process.env.API_URL });
+const ethSigner = new EthSigner(process.env.ETH_PRIVATE_KEY);
+const ethAccountAddress = '<ETH_ACCOUNT_CONTRACT_ADDRESS>'
+const ethAccount = new Account(provider, ethAccountAddress, ethSigner);
+
+// Prepare target contract
+const erc20 = new Contract(compiledErc20.abi, erc20Address, provider);
+
+// Connect EthAccount with the target contract
+erc20.connect(ethAccount);
+
+// Execute ERC20 transfer
+const transferCall = erc20.populate('transfer', {
+    recipient: recipient.address,
+    amount: 50n
+});
+const tx = await erc20.transfer(
+    transferCall.calldata, { maxFee: 900_000_000_000_000 }
+);
+await provider.waitForTransaction(tx.transaction_hash);
+```

@@ -8,7 +8,7 @@ use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
-    NAME, SYMBOL, PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    NAME, SYMBOL, PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
@@ -31,7 +31,7 @@ struct SignedTransactionData {
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 1234,
-        public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7,
+        public_key: NEW_PUBKEY,
         transaction_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
         r: 0x6bc22689efcaeacb9459577138aff9f0af5b77ee7894cdc8efabaf760f6cf6e,
         s: 0x295989881583b9325436851934334faa9d639a2094cd1e2f8691c8a71cd4cdf
@@ -41,8 +41,6 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 //
 // Constants
 //
-
-const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 
 fn CLASS_HASH() -> felt252 {
     DualCaseAccountMock::TEST_CLASS_HASH

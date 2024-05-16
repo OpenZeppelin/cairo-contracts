@@ -14,7 +14,7 @@ use openzeppelin::tests::account::test_account::{
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
+    PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils;
@@ -24,8 +24,6 @@ use openzeppelin::utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::testing;
 use starknet::{ContractAddress, ClassHash};
-
-const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 
 fn CLASS_HASH() -> felt252 {
     AccountUpgradeable::TEST_CLASS_HASH

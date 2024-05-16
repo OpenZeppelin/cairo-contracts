@@ -6,11 +6,9 @@ use openzeppelin::tests::mocks::account_mocks::{
     CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils::constants::PUBKEY;
+use openzeppelin::tests::utils::constants::{PUBKEY, NEW_PUBKEY};
 use openzeppelin::tests::utils;
 use starknet::testing;
-
-const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 
 //
 // Setup

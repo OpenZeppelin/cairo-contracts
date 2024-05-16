@@ -270,7 +270,7 @@ Requirements:
 
 - `signature` must be valid for the new owner.
 
-WARNING: This function assumes that current_owner is the current owner of the contract, and
+WARNING: This function assumes that `current_owner` is the current owner of the contract, and
 does not validate this assumption.
 
 [.contract-item]

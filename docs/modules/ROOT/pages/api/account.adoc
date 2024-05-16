@@ -268,7 +268,7 @@ Validates that `new_owner` accepted the ownership of the contract through a sign
 
 Requirements:
 
-- The signature must be valid for the new owner.
+- `signature` must be valid for the new owner.
 
 WARNING: This function assumes that current_owner is the current owner of the contract, and
 does not validate this assumption.

@@ -21,14 +21,14 @@ trait AccountUpgradeableABI<TState> {
 
     // IPublicKey
     fn get_public_key(self: @TState) -> felt252;
-    fn set_public_key(ref self: TState, new_public_key: felt252);
+    fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn setPublicKey(ref self: TState, newPublicKey: felt252, signature: Span<felt252>);
 
     // IUpgradeable
     fn upgrade(ref self: TState, new_class_hash: ClassHash);

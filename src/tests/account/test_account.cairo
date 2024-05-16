@@ -32,10 +32,10 @@ struct SignedTransactionData {
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 1234,
-        public_key: 0x1f3c942d7f492a37608cde0d77b884a5aa9e11d2919225968557370ddb5a5aa,
+        public_key: NEW_PUBKEY,
         transaction_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
-        r: 0x6c8be1fb0fb5c730fbd7abaecbed9d980376ff2e660dfcd157e158d2b026891,
-        s: 0x76b4669998eb933f44a59eace12b41328ab975ceafddf92602b21eb23e22e35
+        r: 0x6bc22689efcaeacb9459577138aff9f0af5b77ee7894cdc8efabaf760f6cf6e,
+        s: 0x295989881583b9325436851934334faa9d639a2094cd1e2f8691c8a71cd4cdf
     }
 }
 
@@ -114,7 +114,7 @@ fn test_is_valid_signature() {
     let mut good_signature = array![data.r, data.s];
     let mut bad_signature = array![0x987, 0x564];
 
-    state.set_public_key(data.public_key);
+    state._set_public_key(data.public_key);
 
     let is_valid = state.is_valid_signature(hash, good_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
@@ -132,7 +132,7 @@ fn test_isValidSignature() {
     let mut good_signature = array![data.r, data.s];
     let mut bad_signature = array![0x987, 0x564];
 
-    state.set_public_key(data.public_key);
+    state._set_public_key(data.public_key);
 
     let is_valid = state.isValidSignature(hash, good_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
@@ -398,14 +398,15 @@ fn test_public_key_setter_and_getter() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
-    // Check default
+    state._set_public_key(PUBKEY);
+    utils::drop_event(ACCOUNT_ADDRESS());
     let public_key = state.get_public_key();
-    assert!(public_key.is_zero());
+    assert_eq!(public_key, PUBKEY);
 
     // Set key
-    state.set_public_key(NEW_PUBKEY);
+    state.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), PUBKEY);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.get_public_key();
@@ -420,7 +421,7 @@ fn test_public_key_setter_different_account() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.set_public_key(NEW_PUBKEY);
+    state.set_public_key(NEW_PUBKEY, array![].span());
 }
 
 //
@@ -433,14 +434,15 @@ fn test_public_key_setter_and_getter_camel() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(ACCOUNT_ADDRESS());
 
-    // Check default
+    state._set_public_key(PUBKEY);
+    utils::drop_event(ACCOUNT_ADDRESS());
     let public_key = state.getPublicKey();
-    assert!(public_key.is_zero());
+    assert_eq!(public_key, PUBKEY);
 
     // Set key
-    state.setPublicKey(NEW_PUBKEY);
+    state.setPublicKey(NEW_PUBKEY, get_accept_ownership_signature());
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), 0);
+    assert_event_owner_removed(ACCOUNT_ADDRESS(), PUBKEY);
     assert_only_event_owner_added(ACCOUNT_ADDRESS(), NEW_PUBKEY);
 
     let public_key = state.getPublicKey();
@@ -455,7 +457,7 @@ fn test_public_key_setter_different_account_camel() {
     testing::set_contract_address(ACCOUNT_ADDRESS());
     testing::set_caller_address(caller);
 
-    state.setPublicKey(NEW_PUBKEY);
+    state.setPublicKey(NEW_PUBKEY, array![].span());
 }
 
 //
@@ -501,6 +503,28 @@ fn test_assert_only_self_false() {
 }
 
 #[test]
+fn test_assert_valid_new_owner() {
+    let state = setup();
+
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    state.assert_valid_new_owner(PUBKEY, NEW_PUBKEY, get_accept_ownership_signature());
+}
+
+
+#[test]
+#[should_panic(expected: ('Account: invalid signature',))]
+fn test_assert_valid_new_owner_invalid_signature() {
+    let state = setup();
+
+    testing::set_contract_address(ACCOUNT_ADDRESS());
+    let bad_signature = array![
+        0x2ce8fbcf8a793ee5b2a57254dc96863b696698943e3bc7845285f3851336318,
+        0x6009f5720649ff1ceb0aba44f85bec3572c81aecb9d2dada7c0cc70b791debe
+    ];
+    state.assert_valid_new_owner(PUBKEY, NEW_PUBKEY, bad_signature.span());
+}
+
+#[test]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
     let data = SIGNED_TX_DATA();
@@ -510,7 +534,7 @@ fn test__is_valid_signature() {
     let mut bad_signature = array![0x987, 0x564];
     let mut invalid_length_signature = array![0x987];
 
-    state.set_public_key(data.public_key);
+    state._set_public_key(data.public_key);
 
     let is_valid = state._is_valid_signature(hash, good_signature.span());
     assert!(is_valid);
@@ -536,6 +560,26 @@ fn test__set_public_key() {
 //
 // Helpers
 //
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    // 0x7b3d2ce38c132a36e692f6e809b518276d091513af3baf0e94ce2abceee3632 =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(ACCOUNT_ADDRESS())
+    //             .update_with(PUBKEY)
+    //             .finalize();
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: '1234'
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0x7b3d2ce38c132a36e692f6e809b518276d091513af3baf0e94ce2abceee3632
+    array![
+        0x1ce8fbcf8a793ee5b2a57254dc96863b696698943e3bc7845285f3851336318,
+        0x6009f5720649ff1ceb0aba44f85bec3572c81aecb9d2dada7c0cc70b791debe
+    ]
+        .span()
+}
 
 fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
     let event = utils::pop_log::<AccountComponent::Event>(contract).unwrap();

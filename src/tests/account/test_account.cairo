@@ -503,7 +503,7 @@ fn test_assert_only_self_false() {
 
 #[test]
 fn test_assert_valid_new_owner() {
-    let mut state = setup();
+    let state = setup();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     state.assert_valid_new_owner(PUBKEY, NEW_PUBKEY, get_accept_ownership_signature());
@@ -513,7 +513,7 @@ fn test_assert_valid_new_owner() {
 #[test]
 #[should_panic(expected: ('Account: invalid signature',))]
 fn test_assert_valid_new_owner_invalid_signature() {
-    let mut state = setup();
+    let state = setup();
 
     testing::set_contract_address(ACCOUNT_ADDRESS());
     let bad_signature = array![

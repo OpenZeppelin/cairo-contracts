@@ -264,13 +264,13 @@ Validates that the caller is the account itself. Otherwise it reverts.
 [[AccountComponent-assert_valid_new_owner]]
 ==== `[.contract-item-name]#++assert_valid_new_owner++#++(self: @ComponentState, current_owner: felt252, new_owner: felt252, signature: Span<felt252>)++` [.item-kind]#internal#
 
-Validates that new owner accepted the ownership of the contract through a signature.
+Validates that `new_owner` accepted the ownership of the contract through a signature.
 
 Requirements:
 
-- The signature must be valid for the new owner.
+- `signature` must be valid for the new owner.
 
-WARNING: This function assumes that current_owner is the current owner of the contract, and
+WARNING: This function assumes that `current_owner` is the current owner of the contract, and
 does not validate this assumption.
 
 [.contract-item]

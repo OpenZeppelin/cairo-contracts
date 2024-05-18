@@ -22,12 +22,12 @@ use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatc
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::poseidon_hash_span;
-use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
 use starknet::secp256k1::secp256k1_new_syscall;
 use starknet::testing;
+use starknet::{contract_address_const, ContractAddress};
 
 #[derive(Drop)]
 struct SignedTransactionData {
@@ -68,7 +68,7 @@ fn CLASS_HASH() -> felt252 {
 }
 
 fn ACCOUNT_ADDRESS() -> ContractAddress {
-    Zeroable::zero()
+    contract_address_const::<0x111111>()
 }
 
 //
@@ -613,7 +613,7 @@ fn test__set_public_key() {
 fn get_accept_ownership_signature() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x02357636c7266194923ea0b270bd563853c1fdea875b3cc6567f6d08cbccc3be =
+    // 0x5b23679494e4634c66808d93eeef8301f5fd806b095e5e98b45ee97432a0d8d =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -626,10 +626,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x02357636c7266194923ea0b270bd563853c1fdea875b3cc6567f6d08cbccc3be
+    // - msg_hash: 0x5b23679494e4634c66808d93eeef8301f5fd806b095e5e98b45ee97432a0d8d
     EthSignature {
-        r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
-        s: 0x6811f854c0f5793a0086f53e4a23c3773fd8afee401b1c4ef148a1554eede5e2,
+        r: 0x161de897c0232716792d7b580a577212a6573dbb60c0d0449fa673b95b22d942,
+        s: 0x7c7b279857889e20fb4c002fd2d1c112c9f30fa4c411f7cb32f55ab0af991a73,
     }
         .serialize(ref output);
 

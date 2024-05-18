@@ -239,7 +239,7 @@ mod EthAccountComponent {
             assert(self == caller, Errors::UNAUTHORIZED);
         }
 
-        /// Validates that new owner accepted the ownership of the contract.
+        /// Validates that `new_owner` accepted the ownership of the contract.
         ///
         /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
         /// does not validate this assumption.

@@ -6,12 +6,14 @@
 /// The Account component enables contracts to behave as accounts.
 #[starknet::component]
 mod AccountComponent {
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use openzeppelin::account::interface;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
+    use poseidon::PoseidonTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -155,11 +157,20 @@ mod AccountComponent {
         /// Requirements:
         ///
         /// - The caller must be the contract itself.
+        /// - The signature must be valid for the new owner.
         ///
-        /// Emits an `OwnerRemoved` event.
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
+        /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: felt252,
+            signature: Span<felt252>
+        ) {
             self.assert_only_self();
-            self.emit(OwnerRemoved { removed_owner_guid: self.Account_public_key.read() });
+
+            let current_owner = self.Account_public_key.read();
+            self.assert_valid_new_owner(current_owner, new_public_key, signature);
+
+            self.emit(OwnerRemoved { removed_owner_guid: current_owner });
             self._set_public_key(new_public_key);
         }
     }
@@ -191,8 +202,12 @@ mod AccountComponent {
             self.Account_public_key.read()
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            PublicKey::set_public_key(ref self, newPublicKey);
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: felt252,
+            signature: Span<felt252>
+        ) {
+            PublicKey::set_public_key(ref self, newPublicKey, signature);
         }
     }
 
@@ -216,6 +231,31 @@ mod AccountComponent {
             let caller = get_caller_address();
             let self = get_contract_address();
             assert(self == caller, Errors::UNAUTHORIZED);
+        }
+
+        /// Validates that `new_owner` accepted the ownership of the contract.
+        ///
+        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
+        /// does not validate this assumption.
+        ///
+        /// Requirements:
+        ///
+        /// - The signature must be valid for the new owner.
+        fn assert_valid_new_owner(
+            self: @ComponentState<TContractState>,
+            current_owner: felt252,
+            new_owner: felt252,
+            signature: Span<felt252>
+        ) {
+            let message_hash = PoseidonTrait::new()
+                .update_with('StarkNet Message')
+                .update_with('accept_ownership')
+                .update_with(get_contract_address())
+                .update_with(current_owner)
+                .finalize();
+
+            let is_valid = is_valid_stark_signature(message_hash, new_owner, signature);
+            assert(is_valid, Errors::INVALID_SIGNATURE);
         }
 
         /// Validates the signature for the current transaction.
@@ -300,8 +340,12 @@ mod AccountComponent {
             PublicKey::get_public_key(self)
         }
 
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            PublicKey::set_public_key(ref self, new_public_key);
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: felt252,
+            signature: Span<felt252>
+        ) {
+            PublicKey::set_public_key(ref self, new_public_key, signature);
         }
 
         // IPublicKeyCamel
@@ -309,8 +353,12 @@ mod AccountComponent {
             PublicKeyCamel::getPublicKey(self)
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: felt252) {
-            PublicKeyCamel::setPublicKey(ref self, newPublicKey);
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: felt252,
+            signature: Span<felt252>
+        ) {
+            PublicKeyCamel::setPublicKey(ref self, newPublicKey, signature);
         }
 
         // ISRC5

@@ -10,14 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Sending transactions section in account docs (#981)
 - before_update and after_update hooks to ERC721Component (#978)
 - before_update and after_update hooks to ERC1155Component (#982)
 
 ### Changed (Breaking)
 
 - ERC721Component internal implementation to support transfer, mint, and burn flows going through an `_update` function (#978)
-- ERC721Component implementations now require an ERC721HooksTrait implementation in scope (#982)
+- ERC721Component implementations now require an ERC721HooksTrait implementation in scope (#978)
 - ERC1155Component implementations now require an ERC1155HooksTrait implementation in scope (#982)
+- AccountComponent, preset, and dispatcher now require a `signature` param in the public-key-setter functions (#989)
 - EthAccountComponent, preset, and dispatcher now require a `signature` param in the public-key-setter functions (#990)
 
 ## 0.12.0 (2024-04-21)

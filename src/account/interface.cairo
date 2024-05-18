@@ -97,14 +97,14 @@ trait IEthDeployable<TState> {
 #[starknet::interface]
 trait IEthPublicKey<TState> {
     fn get_public_key(self: @TState) -> EthPublicKey;
-    fn set_public_key(ref self: TState, new_public_key: EthPublicKey);
+    fn set_public_key(ref self: TState, new_public_key: EthPublicKey, signature: Span<felt252>);
 }
 
 
 #[starknet::interface]
 trait IEthPublicKeyCamel<TState> {
     fn getPublicKey(self: @TState) -> EthPublicKey;
-    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
+    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey, signature: Span<felt252>);
 }
 
 //
@@ -131,12 +131,12 @@ trait EthAccountABI<TState> {
 
     // IEthPublicKey
     fn get_public_key(self: @TState) -> EthPublicKey;
-    fn set_public_key(ref self: TState, new_public_key: EthPublicKey);
+    fn set_public_key(ref self: TState, new_public_key: EthPublicKey, signature: Span<felt252>);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IEthPublicKeyCamel
     fn getPublicKey(self: @TState) -> EthPublicKey;
-    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
+    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey, signature: Span<felt252>);
 }

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.13.0 (2024-05-20)
+
 ### Added
 
 - Sending transactions section in account docs (#981)

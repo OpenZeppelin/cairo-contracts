@@ -11,9 +11,7 @@ mod ERC721EnumerableComponent {
     use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
     use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::{
-        IERC721Enumerable, IERC721EnumerableCamel
-    };
+    use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
     use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
     use starknet::ContractAddress;
 
@@ -72,31 +70,6 @@ mod ERC721EnumerableComponent {
             let erc721_component = get_dep_component!(self, ERC721);
             assert(index < erc721_component.balance_of(owner), Errors::OUT_OF_BOUNDS_INDEX);
             self.ERC721Enumerable_owned_tokens.read((owner, index))
-        }
-    }
-
-    /// Adds camelCase support for `IERC721Enumerable`.
-    #[embeddable_as(ERC721EnumerableCamelImpl)]
-    impl ERC721EnumerableCamel<
-        TContractState,
-        +HasComponent<TContractState>,
-        +ERC721Component::HasComponent<TContractState>,
-        +ERC721Component::ERC721HooksTrait<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of IERC721EnumerableCamel<ComponentState<TContractState>> {
-        fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
-            self.total_supply()
-        }
-
-        fn tokenOfOwnerByIndex(
-            self: @ComponentState<TContractState>, owner: ContractAddress, index: u256
-        ) -> u256 {
-            self.token_of_owner_by_index(owner, index)
-        }
-
-        fn tokenByIndex(self: @ComponentState<TContractState>, index: u256) -> u256 {
-            self.token_by_index(index)
         }
     }
 

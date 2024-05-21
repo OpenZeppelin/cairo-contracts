@@ -12,23 +12,3 @@ trait IERC721Enumerable<TState> {
     fn token_by_index(self: @TState, index: u256) -> u256;
     fn token_of_owner_by_index(self: @TState, owner: ContractAddress, index: u256) -> u256;
 }
-
-#[starknet::interface]
-trait IERC721EnumerableCamel<TState> {
-    fn totalSupply(self: @TState) -> u256;
-    fn tokenByIndex(self: @TState, index: u256) -> u256;
-    fn tokenOfOwnerByIndex(self: @TState, owner: ContractAddress, index: u256) -> u256;
-}
-
-#[starknet::interface]
-trait ERC721EnumerableABI<TState> {
-    // IERC721Enumerable
-    fn total_supply(self: @TState) -> u256;
-    fn token_by_index(self: @TState, index: u256) -> u256;
-    fn token_of_owner_by_index(self: @TState, owner: ContractAddress, index: u256) -> u256;
-
-    // IERC721EnumerableCamel
-    fn totalSupply(self: @TState) -> u256;
-    fn tokenByIndex(self: @TState, index: u256) -> u256;
-    fn tokenOfOwnerByIndex(self: @TState, owner: ContractAddress, index: u256) -> u256;
-}

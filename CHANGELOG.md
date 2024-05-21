@@ -8,13 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- ERC721Enumerable component (#983)
+
 ## 0.13.0 (2024-05-20)
 
 ### Added
 
 - Sending transactions section in account docs (#981)
 - before_update and after_update hooks to ERC721Component (#978)
-- ERC721Enumerable component (#983)
 - before_update and after_update hooks to ERC1155Component (#982)
 
 ### Changed (Breaking)

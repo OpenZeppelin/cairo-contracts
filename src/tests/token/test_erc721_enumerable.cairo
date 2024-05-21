@@ -1,10 +1,10 @@
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::erc721_enumerable_mocks::DualCaseERC721EnumerableMock;
+use openzeppelin::tests::mocks::erc721_enumerable_mocks::ERC721EnumerableMock;
 use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT, OTHER, ZERO};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, ERC721EnumerableCamelImpl, InternalImpl
+    ERC721EnumerableImpl, InternalImpl
 };
 use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use openzeppelin::token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
@@ -24,10 +24,10 @@ const TOKENS_LEN: u256 = 3;
 //
 
 type ComponentState =
-    ERC721EnumerableComponent::ComponentState<DualCaseERC721EnumerableMock::ContractState>;
+    ERC721EnumerableComponent::ComponentState<ERC721EnumerableMock::ContractState>;
 
-fn CONTRACT_STATE() -> DualCaseERC721EnumerableMock::ContractState {
-    DualCaseERC721EnumerableMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> ERC721EnumerableMock::ContractState {
+    ERC721EnumerableMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
@@ -99,30 +99,8 @@ fn test_total_supply() {
     assert_eq!(no_supply, 0);
 }
 
-#[test]
-fn test_totalSupply() {
-    let mut state = COMPONENT_STATE();
-    let mut contract_state = CONTRACT_STATE();
-    let token = TOKEN_1;
-
-    let no_supply = state.totalSupply();
-    assert_eq!(no_supply, 0);
-
-    // Mint
-    contract_state.erc721._mint(OWNER(), token);
-
-    let new_supply = state.totalSupply();
-    assert_eq!(new_supply, 1);
-
-    // Burn
-    contract_state.erc721._burn(token);
-
-    let no_supply = state.totalSupply();
-    assert_eq!(no_supply, 0);
-}
-
 //
-// token_by_index & tokenByIndex
+// token_by_index
 //
 
 #[test]
@@ -197,7 +175,7 @@ fn test_token_by_index_burn_and_mint_all() {
 }
 
 //
-// token_of_owner_by_index & tokenOfOwnerByIndex
+// token_of_owner_by_index
 //
 
 #[test]
@@ -541,12 +519,7 @@ fn assert_dual_token_of_owner_by_index(owner: ContractAddress, expected_token_li
         if i == expected_token_list.len() {
             break;
         };
-        // snake_case
         let token = state.token_of_owner_by_index(owner, i.into());
-        assert_eq!(token, *expected_token_list.at(i));
-
-        // camelCase
-        let token = state.tokenOfOwnerByIndex(owner, i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
         i = i + 1;
@@ -561,12 +534,7 @@ fn assert_dual_token_by_index(expected_token_list: Span<u256>) {
         if i == expected_token_list.len() {
             break;
         };
-        // snake_case
         let token = state.token_by_index(i.into());
-        assert_eq!(token, *expected_token_list.at(i));
-
-        // camelCase
-        let token = state.tokenByIndex(i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
         i = i + 1;

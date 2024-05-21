@@ -857,12 +857,6 @@ This extension allows contracts to publish their entire list of NFTs and make th
 * xref:#ERC721EnumerableComponent-total_supply[`++total_supply(self)++`]
 * xref:#ERC721EnumerableComponent-token_by_index[`++token_by_index(self, index)++`]
 * xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
-
-[.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableCamelImpl]
-.ERC721EnumerableCamelImpl
-* xref:#ERC721EnumerableComponent-total_Spply[`++totalSupply(self)++`]
-* xref:#ERC721EnumerableComponent-tokenByIndex[`++tokenByIndex(self, index)++`]
-* xref:#ERC721EnumerableComponent-tokenOfOwnerByIndex[`++tokenOfOwnerByIndex(self, owner, index)++`]
 --
 
 [.contract-index]
@@ -908,24 +902,6 @@ Requirements:
 
 - `index` is less than ``owner``'s token balance.
 - `owner` is not the zero address.
-
-[.contract-item]
-[[ERC721EnumerableComponent-totalSupply]]
-==== `[.contract-item-name]#++totalSupply++#++(self: @ContractState) → u256++` [.item-kind]#external#
-
-See <<ERC721EnumerableComponent-total_supply,IERC721Enumerable::total_supply>>.
-
-[.contract-item]
-[[ERC721EnumerableComponent-tokenByIndex]]
-==== `[.contract-item-name]#++tokenByIndex++#++(self: @ContractState, index: u256) → u256++` [.item-kind]#external#
-
-See <<ERC721EnumerableComponent-token_by_index,IERC721Enumerable::token_by_index>>.
-
-[.contract-item]
-[[ERC721EnumerableComponent-tokenOfOwnerByIndex]]
-==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(self: @ContractState, owner: ContractAddress, index: u256) → u256++` [.item-kind]#external#
-
-See <<ERC721EnumerableComponent-token_of_owner_by_index,IERC721Enumerable::token_of_owner_by_index>>.
 
 [#ERC721EnumerableComponent-Internal-functions]
 ==== Internal functions

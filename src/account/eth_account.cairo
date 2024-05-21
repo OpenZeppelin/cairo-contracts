@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.13.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
 /// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
 #[starknet::component]
 mod EthAccountComponent {
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::interface;
@@ -15,7 +16,7 @@ mod EthAccountComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
-    use poseidon::poseidon_hash_span;
+    use poseidon::{PoseidonTrait, poseidon_hash_span};
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -160,13 +161,20 @@ mod EthAccountComponent {
         /// Requirements:
         ///
         /// - The caller must be the contract itself.
+        /// - The signature must be valid for the new owner.
         ///
         /// Emits an `OwnerRemoved` event.
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: EthPublicKey,
+            signature: Span<felt252>
+        ) {
             self.assert_only_self();
 
             let current_public_key: EthPublicKey = self.EthAccount_public_key.read();
             let removed_owner_guid = _get_guid_from_public_key(current_public_key);
+
+            self.assert_valid_new_owner(current_public_key, new_public_key, signature);
 
             self.emit(OwnerRemoved { removed_owner_guid });
             self._set_public_key(new_public_key);
@@ -200,8 +208,12 @@ mod EthAccountComponent {
             self.EthAccount_public_key.read()
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey) {
-            PublicKey::set_public_key(ref self, newPublicKey);
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: EthPublicKey,
+            signature: Span<felt252>
+        ) {
+            PublicKey::set_public_key(ref self, newPublicKey, signature);
         }
     }
 
@@ -225,6 +237,31 @@ mod EthAccountComponent {
             let caller = get_caller_address();
             let self = get_contract_address();
             assert(self == caller, Errors::UNAUTHORIZED);
+        }
+
+        /// Validates that `new_owner` accepted the ownership of the contract.
+        ///
+        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
+        /// does not validate this assumption.
+        ///
+        /// Requirements:
+        ///
+        /// - The signature must be valid for the `new_owner`.
+        fn assert_valid_new_owner(
+            self: @ComponentState<TContractState>,
+            current_owner: EthPublicKey,
+            new_owner: EthPublicKey,
+            signature: Span<felt252>
+        ) {
+            let message_hash = PoseidonTrait::new()
+                .update_with('StarkNet Message')
+                .update_with('accept_ownership')
+                .update_with(get_contract_address())
+                .update_with(current_owner.get_coordinates().unwrap_syscall())
+                .finalize();
+
+            let is_valid = is_valid_eth_signature(message_hash, new_owner, signature);
+            assert(is_valid, Errors::INVALID_SIGNATURE);
         }
 
         /// Validates the signature for the current transaction.
@@ -315,8 +352,12 @@ mod EthAccountComponent {
             PublicKey::get_public_key(self)
         }
 
-        fn set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
-            PublicKey::set_public_key(ref self, new_public_key);
+        fn set_public_key(
+            ref self: ComponentState<TContractState>,
+            new_public_key: EthPublicKey,
+            signature: Span<felt252>
+        ) {
+            PublicKey::set_public_key(ref self, new_public_key, signature);
         }
 
         // IPublicKeyCamel
@@ -324,8 +365,12 @@ mod EthAccountComponent {
             PublicKeyCamel::getPublicKey(self)
         }
 
-        fn setPublicKey(ref self: ComponentState<TContractState>, newPublicKey: EthPublicKey) {
-            PublicKeyCamel::setPublicKey(ref self, newPublicKey);
+        fn setPublicKey(
+            ref self: ComponentState<TContractState>,
+            newPublicKey: EthPublicKey,
+            signature: Span<felt252>
+        ) {
+            PublicKeyCamel::setPublicKey(ref self, newPublicKey, signature);
         }
 
         // ISRC5

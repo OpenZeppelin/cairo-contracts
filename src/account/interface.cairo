@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.13.0 (account/interface.cairo)
 
 use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use starknet::ContractAddress;
@@ -35,7 +35,7 @@ trait IDeployable<TState> {
 #[starknet::interface]
 trait IPublicKey<TState> {
     fn get_public_key(self: @TState) -> felt252;
-    fn set_public_key(ref self: TState, new_public_key: felt252);
+    fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
 }
 
 #[starknet::interface]
@@ -46,7 +46,7 @@ trait ISRC6CamelOnly<TState> {
 #[starknet::interface]
 trait IPublicKeyCamel<TState> {
     fn getPublicKey(self: @TState) -> felt252;
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn setPublicKey(ref self: TState, newPublicKey: felt252, signature: Span<felt252>);
 }
 
 //
@@ -73,14 +73,14 @@ trait AccountABI<TState> {
 
     // IPublicKey
     fn get_public_key(self: @TState) -> felt252;
-    fn set_public_key(ref self: TState, new_public_key: felt252);
+    fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
-    fn setPublicKey(ref self: TState, newPublicKey: felt252);
+    fn setPublicKey(ref self: TState, newPublicKey: felt252, signature: Span<felt252>);
 }
 
 //
@@ -97,14 +97,14 @@ trait IEthDeployable<TState> {
 #[starknet::interface]
 trait IEthPublicKey<TState> {
     fn get_public_key(self: @TState) -> EthPublicKey;
-    fn set_public_key(ref self: TState, new_public_key: EthPublicKey);
+    fn set_public_key(ref self: TState, new_public_key: EthPublicKey, signature: Span<felt252>);
 }
 
 
 #[starknet::interface]
 trait IEthPublicKeyCamel<TState> {
     fn getPublicKey(self: @TState) -> EthPublicKey;
-    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
+    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey, signature: Span<felt252>);
 }
 
 //
@@ -131,12 +131,12 @@ trait EthAccountABI<TState> {
 
     // IEthPublicKey
     fn get_public_key(self: @TState) -> EthPublicKey;
-    fn set_public_key(ref self: TState, new_public_key: EthPublicKey);
+    fn set_public_key(ref self: TState, new_public_key: EthPublicKey, signature: Span<felt252>);
 
     // ISRC6CamelOnly
     fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
 
     // IEthPublicKeyCamel
     fn getPublicKey(self: @TState) -> EthPublicKey;
-    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey);
+    fn setPublicKey(ref self: TState, newPublicKey: EthPublicKey, signature: Span<felt252>);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (account/dual_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.13.0 (account/dual_account.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -15,7 +15,7 @@ struct DualCaseAccount {
 }
 
 trait DualCaseAccountABI {
-    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252);
+    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252, signature: Span<felt252>);
     fn get_public_key(self: @DualCaseAccount) -> felt252;
     fn is_valid_signature(
         self: @DualCaseAccount, hash: felt252, signature: Array<felt252>
@@ -24,8 +24,9 @@ trait DualCaseAccountABI {
 }
 
 impl DualCaseAccountImpl of DualCaseAccountABI {
-    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252) {
-        let args = array![new_public_key];
+    fn set_public_key(self: @DualCaseAccount, new_public_key: felt252, signature: Span<felt252>) {
+        let mut args = array![new_public_key];
+        args.append_serde(signature);
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()

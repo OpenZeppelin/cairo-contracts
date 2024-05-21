@@ -2,11 +2,13 @@ use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
 };
+use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
+use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
 use openzeppelin::tests::account::test_eth_account::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
@@ -17,8 +19,7 @@ use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
 use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
-    MIN_TRANSACTION_VERSION
+    CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
@@ -104,13 +105,13 @@ fn test_constructor() {
 //
 
 #[test]
-fn test_public_key_setter_and_getter() {
+fn test_public_key_setter_and_getter_2() {
     let dispatcher = setup_dispatcher();
     let new_public_key = NEW_ETH_PUBKEY();
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.set_public_key(new_public_key);
+    dispatcher.set_public_key(new_public_key, get_accept_ownership_signature());
     assert_eq!(dispatcher.get_public_key(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
@@ -124,7 +125,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.setPublicKey(new_public_key);
+    dispatcher.setPublicKey(new_public_key, get_accept_ownership_signature());
     assert_eq!(dispatcher.getPublicKey(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
@@ -135,14 +136,14 @@ fn test_public_key_setter_and_getter_camel() {
 #[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.set_public_key(NEW_ETH_PUBKEY());
+    dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
 }
 
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.setPublicKey(NEW_ETH_PUBKEY());
+    dispatcher.setPublicKey(NEW_ETH_PUBKEY(), array![].span());
 }
 
 //
@@ -158,7 +159,7 @@ fn is_valid_sig_dispatcher() -> (EthAccountUpgradeableABIDispatcher, felt252, Ar
     data.signature.serialize(ref serialized_signature);
 
     testing::set_contract_address(dispatcher.contract_address);
-    dispatcher.set_public_key(data.public_key);
+    dispatcher.set_public_key(data.public_key, get_accept_ownership_signature());
 
     (dispatcher, hash, serialized_signature)
 }
@@ -430,7 +431,6 @@ fn test_account_called_from_contract() {
     account.__execute__(calls);
 }
 
-
 //
 // upgrade
 //
@@ -483,12 +483,10 @@ fn test_state_persists_after_upgrade() {
     set_contract_and_caller(v1.contract_address);
     let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
-    let (point, _) = get_points();
-
-    dispatcher.set_public_key(point);
+    dispatcher.set_public_key(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
 
     let camel_public_key = dispatcher.getPublicKey();
-    assert_eq!(camel_public_key, point);
+    assert_eq!(camel_public_key, NEW_ETH_PUBKEY());
 
     v1.upgrade(v2_class_hash);
     let snake_public_key = dispatcher.get_public_key();
@@ -503,4 +501,30 @@ fn test_state_persists_after_upgrade() {
 fn set_contract_and_caller(address: ContractAddress) {
     testing::set_contract_address(address);
     testing::set_caller_address(address);
+}
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    let mut output = array![];
+
+    // 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(dispatcher.contract_address)
+    //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
+    //             .finalize();
+
+    // This signature was computed using ethers js sdk from the following values:
+    // - private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9
+    // - public_key:
+    //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
+    //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
+    // - msg_hash: 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed
+    EthSignature {
+        r: 0x512c2acbb64be5ac67d5d143898d915919cc6d6806a26f0686d5e92e101c6271,
+        s: 0x420deca8404b7680530a4c9178a7fcd2c3e5a2f98fa4f8ada84ef90fea0d98ca,
+    }
+        .serialize(ref output);
+
+    output.span()
 }

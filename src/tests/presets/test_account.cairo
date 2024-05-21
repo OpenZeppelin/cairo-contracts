@@ -95,7 +95,7 @@ fn test_public_key_setter_and_getter() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
     let public_key = dispatcher.get_public_key();
     assert_eq!(public_key, NEW_PUBKEY);
 
@@ -109,7 +109,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.setPublicKey(NEW_PUBKEY);
+    dispatcher.setPublicKey(NEW_PUBKEY, get_accept_ownership_signature());
     let public_key = dispatcher.getPublicKey();
     assert_eq!(public_key, NEW_PUBKEY);
 
@@ -121,14 +121,14 @@ fn test_public_key_setter_and_getter_camel() {
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
 }
 
 #[test]
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.setPublicKey(NEW_PUBKEY);
+    dispatcher.setPublicKey(NEW_PUBKEY, get_accept_ownership_signature());
 }
 
 //
@@ -143,7 +143,7 @@ fn is_valid_sig_dispatcher() -> (AccountUpgradeableABIDispatcher, felt252, Array
     let mut signature = array![data.r, data.s];
 
     testing::set_contract_address(dispatcher.contract_address);
-    dispatcher.set_public_key(data.public_key);
+    dispatcher.set_public_key(data.public_key, get_accept_ownership_signature());
 
     (dispatcher, hash, signature)
 }
@@ -496,10 +496,10 @@ fn test_state_persists_after_upgrade() {
     set_contract_and_caller(v1.contract_address);
     let dispatcher = AccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
-    dispatcher.set_public_key(PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
 
     let camel_public_key = dispatcher.getPublicKey();
-    assert_eq!(camel_public_key, PUBKEY);
+    assert_eq!(camel_public_key, NEW_PUBKEY);
 
     v1.upgrade(v2_class_hash);
     let snake_public_key = dispatcher.get_public_key();
@@ -514,4 +514,24 @@ fn test_state_persists_after_upgrade() {
 fn set_contract_and_caller(address: ContractAddress) {
     testing::set_contract_address(address);
     testing::set_caller_address(address);
+}
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    // 0x1d0f29f91d4d8242ae5646be871a7e64717eac611aed9ec15b423cb965817fb =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(dispatcher.contract_address)
+    //             .update_with(PUBKEY)
+    //             .finalize();
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: '1234'
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0x1d0f29f91d4d8242ae5646be871a7e64717eac611aed9ec15b423cb965817fb
+    array![
+        0x5fcf4473fa8304093722b4999e53042db1a16ac4e51669203fe32c241b8ac4c,
+        0x2350a661e77f26c304d9a896271977522410d015437dfea190148f224c6c30f
+    ]
+        .span()
 }

@@ -67,7 +67,7 @@ fn test_assert_not_paused_when_not_paused() {
 }
 
 //
-// pause
+// _pause
 //
 
 #[test]
@@ -90,7 +90,7 @@ fn test_pause_when_paused() {
 }
 
 //
-// unpause
+// _unpause
 //
 
 #[test]

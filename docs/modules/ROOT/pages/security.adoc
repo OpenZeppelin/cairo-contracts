@@ -108,13 +108,13 @@ mod MyPausableContract {
     #[external(v0)]
     fn pause(ref self: ContractState) {
         self.ownable.assert_only_owner();
-        self.pausable._pause();
+        self.pausable.pause();
     }
 
     #[external(v0)]
     fn unpause(ref self: ContractState) {
         self.ownable.assert_only_owner();
-        self.pausable._unpause();
+        self.pausable.unpause();
     }
 
     #[external(v0)]

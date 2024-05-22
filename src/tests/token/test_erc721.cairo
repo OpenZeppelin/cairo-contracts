@@ -1093,7 +1093,7 @@ fn test__mint_already_exist() {
 }
 
 //
-// _safe_mint
+// safe_mint
 //
 
 #[test]
@@ -1103,7 +1103,7 @@ fn test__safe_mint_to_receiver() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1116,7 +1116,7 @@ fn test__safe_mint_to_receiver_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1129,7 +1129,7 @@ fn test__safe_mint_to_account() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    state._safe_mint(account, token_id, DATA(true));
+    state.safe_mint(account, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
@@ -1142,7 +1142,7 @@ fn test__safe_mint_to_account_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    state._safe_mint(account, token_id, DATA(true));
+    state.safe_mint(account, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
@@ -1156,7 +1156,7 @@ fn test__safe_mint_to_non_receiver() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1168,7 +1168,7 @@ fn test__safe_mint_to_receiver_failure() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(false));
+    state.safe_mint(recipient, token_id, DATA(false));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1180,7 +1180,7 @@ fn test__safe_mint_to_receiver_failure_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(false));
+    state.safe_mint(recipient, token_id, DATA(false));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1188,18 +1188,18 @@ fn test__safe_mint_to_receiver_failure_camel() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__safe_mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._safe_mint(ZERO(), TOKEN_ID, DATA(true));
+    state.safe_mint(ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__safe_mint_already_exist() {
     let mut state = setup();
-    state._safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
+    state.safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 //
-// _burn
+// burn
 //
 
 #[test]
@@ -1213,7 +1213,7 @@ fn test__burn() {
     assert_eq!(state.balance_of(OWNER()), 1);
     assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
-    state._burn(TOKEN_ID);
+    state.burn(TOKEN_ID);
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
 
     assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
@@ -1225,7 +1225,7 @@ fn test__burn() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__burn_nonexistent() {
     let mut state = COMPONENT_STATE();
-    state._burn(TOKEN_ID);
+    state.burn(TOKEN_ID);
 }
 
 //
@@ -1291,7 +1291,7 @@ fn test__exists() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
 
-    let not_exists = !state._exists(token_id);
+    let not_exists = !state.exists(token_id);
     assert!(not_exists);
 
     let mut owner = state.ERC721_owners.read(token_id);
@@ -1299,15 +1299,15 @@ fn test__exists() {
 
     state._mint(RECIPIENT(), token_id);
 
-    let exists = state._exists(token_id);
+    let exists = state.exists(token_id);
     assert!(exists);
 
     owner = state.ERC721_owners.read(token_id);
     assert_eq!(owner, RECIPIENT());
 
-    state._burn(token_id);
+    state.burn(token_id);
 
-    let not_exists = !state._exists(token_id);
+    let not_exists = !state.exists(token_id);
     assert!(not_exists);
 
     owner = state.ERC721_owners.read(token_id);

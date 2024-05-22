@@ -25,7 +25,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
 }
@@ -52,28 +52,28 @@ fn test_initializer() {
 #[test]
 fn test_total_supply() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
 fn test_totalSupply() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.totalSupply(), SUPPLY);
 }
 
 #[test]
 fn test_balance_of() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.balance_of(OWNER()), SUPPLY);
 }
 
 #[test]
 fn test_balanceOf() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.balanceOf(OWNER()), SUPPLY);
 }
 
@@ -387,13 +387,13 @@ fn test__spend_allowance_unlimited() {
 }
 
 //
-// _mint
+// mint
 //
 
 #[test]
 fn test__mint() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), VALUE);
+    state.mint(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), ZERO(), OWNER(), VALUE);
     assert_eq!(state.balance_of(OWNER()), VALUE);
@@ -404,17 +404,17 @@ fn test__mint() {
 #[should_panic(expected: ('ERC20: mint to 0',))]
 fn test__mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._mint(ZERO(), VALUE);
+    state.mint(ZERO(), VALUE);
 }
 
 //
-// _burn
+// burn
 //
 
 #[test]
 fn test__burn() {
     let mut state = setup();
-    state._burn(OWNER(), VALUE);
+    state.burn(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), VALUE);
     assert_eq!(state.total_supply(), SUPPLY - VALUE);
@@ -425,7 +425,7 @@ fn test__burn() {
 #[should_panic(expected: ('ERC20: burn from 0',))]
 fn test__burn_from_zero() {
     let mut state = setup();
-    state._burn(ZERO(), VALUE);
+    state.burn(ZERO(), VALUE);
 }
 
 //

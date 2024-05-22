@@ -76,7 +76,7 @@ mod ERC721Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc721.initializer(name, symbol, base_uri);
-        self._mint_assets(recipient, token_ids);
+        self.mint_assets(recipient, token_ids);
     }
 
     #[abi(embed_v0)]
@@ -92,7 +92,7 @@ mod ERC721Upgradeable {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         /// Mints `token_ids` to `recipient`.
-        fn _mint_assets(
+        fn mint_assets(
             ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>
         ) {
             loop {

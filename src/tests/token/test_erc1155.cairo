@@ -701,7 +701,7 @@ fn test_setApprovalForAll_owner_equal_operator_false() {
 }
 
 //
-// update
+// _update
 //
 
 #[test]
@@ -714,7 +714,7 @@ fn test_update_single_from_non_zero_to_non_zero() {
 
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
     assert_only_event_transfer_single(ZERO(), owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -729,7 +729,7 @@ fn test_update_batch_from_non_zero_to_non_zero() {
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
     assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -744,7 +744,7 @@ fn test_update_from_non_zero_to_zero() {
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
     assert_only_event_transfer_batch(ZERO(), owner, owner, recipient, token_ids, values);
 
     assert_state_after_transfer_to_zero_batch(owner, recipient, token_ids);
@@ -760,7 +760,7 @@ fn test_update_from_zero_to_non_zero() {
 
     assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
 
-    state.update(sender, recipient, token_ids, values);
+    state._update(sender, recipient, token_ids, values);
     assert_only_event_transfer_batch(ZERO(), owner, sender, recipient, token_ids, values);
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
@@ -774,7 +774,7 @@ fn test_update_token_ids_len_greater_than_values() {
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE].span();
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
 }
 
 #[test]
@@ -785,7 +785,7 @@ fn test_update_values_len_greater_than_token_ids() {
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
 }
 
 #[test]
@@ -796,7 +796,7 @@ fn test_update_insufficient_balance() {
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE + 1].span();
 
-    state.update(owner, recipient, token_ids, values);
+    state._update(owner, recipient, token_ids, values);
 }
 
 

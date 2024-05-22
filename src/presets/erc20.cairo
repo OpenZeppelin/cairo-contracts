@@ -69,7 +69,7 @@ mod ERC20Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 
     #[abi(embed_v0)]

@@ -212,151 +212,6 @@ mod ERC20Component {
         }
     }
 
-    //
-    // Internal
-    //
-
-    #[generate_trait]
-    impl InternalImpl<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
-    > of InternalTrait<TContractState> {
-        /// Initializes the contract by setting the token name and symbol.
-        /// To prevent reinitialization, this should only be used inside of a contract's constructor.
-        fn initializer(
-            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
-        ) {
-            self.ERC20_name.write(name);
-            self.ERC20_symbol.write(symbol);
-        }
-
-        /// Internal method that moves an `amount` of tokens from `from` to `to`.
-        ///
-        /// Requirements:
-        ///
-        /// - `sender` is not the zero address.
-        /// - `sender` must have at least a balance of `amount`.
-        /// - `recipient` is not the zero address.
-        ///
-        /// Emits a `Transfer` event.
-        fn _transfer(
-            ref self: ComponentState<TContractState>,
-            sender: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self._update(sender, recipient, amount);
-        }
-
-        /// Internal method that sets `amount` as the allowance of `spender` over the
-        /// `owner`s tokens.
-        ///
-        /// Requirements:
-        ///
-        /// - `owner` is not the zero address.
-        /// - `spender` is not the zero address.
-        ///
-        /// Emits an `Approval` event.
-        fn _approve(
-            ref self: ComponentState<TContractState>,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: u256
-        ) {
-            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
-            self.ERC20_allowances.write((owner, spender), amount);
-            self.emit(Approval { owner, spender, value: amount });
-        }
-
-        /// Creates a `value` amount of tokens and assigns them to `account`.
-        ///
-        /// Requirements:
-        ///
-        /// - `recipient` is not the zero address.
-        ///
-        /// Emits a `Transfer` event with `from` set to the zero address.
-        fn _mint(
-            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
-        ) {
-            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self._update(Zeroable::zero(), recipient, amount);
-        }
-
-        /// Destroys `amount` of tokens from `account`.
-        ///
-        /// Requirements:
-        ///
-        /// - `account` is not the zero address.
-        /// - `account` must have at least a balance of `amount`.
-        ///
-        /// Emits a `Transfer` event with `to` set to the zero address.
-        fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
-            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self._update(account, Zeroable::zero(), amount);
-        }
-
-        /// Updates `owner`s allowance for `spender` based on spent `amount`.
-        /// Does not update the allowance value in case of infinite allowance.
-        ///
-        /// Requirements:
-        ///
-        /// - `spender` must have at least an allowance of `amount` from `owner`.
-        ///
-        /// Possibly emits an `Approval` event.
-        fn _spend_allowance(
-            ref self: ComponentState<TContractState>,
-            owner: ContractAddress,
-            spender: ContractAddress,
-            amount: u256
-        ) {
-            let current_allowance = self.ERC20_allowances.read((owner, spender));
-            if current_allowance != BoundedInt::max() {
-                assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
-                self._approve(owner, spender, current_allowance - amount);
-            }
-        }
-
-        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address.
-        ///
-        /// NOTE: This function can be extended using the `ERC20HooksTrait`, to add
-        /// functionality before and/or after the transfer, mint, or burn.
-        ///
-        /// Emits a `Transfer` event.
-        fn _update(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            amount: u256
-        ) {
-            Hooks::before_update(ref self, from, to, amount);
-
-            let zero_address = Zeroable::zero();
-            if (from == zero_address) {
-                let total_supply = self.ERC20_total_supply.read();
-                self.ERC20_total_supply.write(total_supply + amount);
-            } else {
-                let from_balance = self.ERC20_balances.read(from);
-                assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);
-                self.ERC20_balances.write(from, from_balance - amount);
-            }
-
-            if (to == zero_address) {
-                let total_supply = self.ERC20_total_supply.read();
-                self.ERC20_total_supply.write(total_supply - amount);
-            } else {
-                let to_balance = self.ERC20_balances.read(to);
-                self.ERC20_balances.write(to, to_balance + amount);
-            }
-
-            self.emit(Transfer { from, to, value: amount });
-
-            Hooks::after_update(ref self, from, to, amount);
-        }
-    }
-
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
         TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
@@ -426,6 +281,151 @@ mod ERC20Component {
             amount: u256
         ) -> bool {
             ERC20CamelOnly::transferFrom(ref self, sender, recipient, amount)
+        }
+    }
+
+    //
+    // Internal
+    //
+
+    #[generate_trait]
+    impl InternalImpl<
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Initializes the contract by setting the token name and symbol.
+        /// To prevent reinitialization, this should only be used inside of a contract's constructor.
+        fn initializer(
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+        ) {
+            self.ERC20_name.write(name);
+            self.ERC20_symbol.write(symbol);
+        }
+
+        /// Creates a `value` amount of tokens and assigns them to `account`.
+        ///
+        /// Requirements:
+        ///
+        /// - `recipient` is not the zero address.
+        ///
+        /// Emits a `Transfer` event with `from` set to the zero address.
+        fn mint(
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+        ) {
+            assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
+            self._update(Zeroable::zero(), recipient, amount);
+        }
+
+        /// Destroys `amount` of tokens from `account`.
+        ///
+        /// Requirements:
+        ///
+        /// - `account` is not the zero address.
+        /// - `account` must have at least a balance of `amount`.
+        ///
+        /// Emits a `Transfer` event with `to` set to the zero address.
+        fn burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
+            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
+            self._update(account, Zeroable::zero(), amount);
+        }
+
+        /// Internal method that moves an `amount` of tokens from `from` to `to`.
+        ///
+        /// Requirements:
+        ///
+        /// - `sender` is not the zero address.
+        /// - `sender` must have at least a balance of `amount`.
+        /// - `recipient` is not the zero address.
+        ///
+        /// Emits a `Transfer` event.
+        fn _transfer(
+            ref self: ComponentState<TContractState>,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
+            assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
+            self._update(sender, recipient, amount);
+        }
+
+        /// Internal method that sets `amount` as the allowance of `spender` over the
+        /// `owner`s tokens.
+        ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
+        /// - `spender` is not the zero address.
+        ///
+        /// Emits an `Approval` event.
+        fn _approve(
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            amount: u256
+        ) {
+            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
+            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
+            self.ERC20_allowances.write((owner, spender), amount);
+            self.emit(Approval { owner, spender, value: amount });
+        }
+
+        /// Updates `owner`s allowance for `spender` based on spent `amount`.
+        /// Does not update the allowance value in case of infinite allowance.
+        ///
+        /// Requirements:
+        ///
+        /// - `spender` must have at least an allowance of `amount` from `owner`.
+        ///
+        /// Possibly emits an `Approval` event.
+        fn _spend_allowance(
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            amount: u256
+        ) {
+            let current_allowance = self.ERC20_allowances.read((owner, spender));
+            if current_allowance != BoundedInt::max() {
+                assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
+                self._approve(owner, spender, current_allowance - amount);
+            }
+        }
+
+        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address.
+        ///
+        /// NOTE: This function can be extended using the `ERC20HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
+        /// Emits a `Transfer` event.
+        fn _update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            amount: u256
+        ) {
+            Hooks::before_update(ref self, from, to, amount);
+
+            let zero_address = Zeroable::zero();
+            if (from == zero_address) {
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply + amount);
+            } else {
+                let from_balance = self.ERC20_balances.read(from);
+                assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);
+                self.ERC20_balances.write(from, from_balance - amount);
+            }
+
+            if (to == zero_address) {
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply - amount);
+            } else {
+                let to_balance = self.ERC20_balances.read(to);
+                self.ERC20_balances.write(to, to_balance + amount);
+            }
+
+            self.emit(Transfer { from, to, value: amount });
+
+            Hooks::after_update(ref self, from, to, amount);
         }
     }
 }

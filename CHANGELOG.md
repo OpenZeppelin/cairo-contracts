@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed (Breaking)
+
+- Applied underscore pattern to modules
+  - AccessControlComponent
+    - `_change_role_admin` function renamed to `change_role_admin`
+  - ERC20Component:
+    - `_mint` function renamed to `mint`
+    - `_burn` function renamed to `burn`
+  - ERC721Component:
+    - `_safe_transfer` function renamed to `safe_transfer`
+    - `_safe_mint` function renamed to `safe_mint`
+    - `_burn` function renamed to `burn`
+  - ERC1155Component:
+    - `set_base_uri` function renamed to `_set_base_uri`
+    - `_update` function renamed to `update`
+
 ## 0.13.0 (2024-05-20)
 
 ### Added

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Applied underscore pattern to modules
+- Apply underscore pattern to modules (#993)
   - AccessControlComponent
     - `_change_role_admin` function renamed to `change_role_admin`
   - ERC20Component:

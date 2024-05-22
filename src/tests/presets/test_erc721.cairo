@@ -93,7 +93,7 @@ fn setup_camel_account() -> ContractAddress {
 }
 
 //
-// _mint_assets
+// mint_assets
 //
 
 #[test]
@@ -101,7 +101,7 @@ fn test__mint_assets() {
     let mut state = ERC721Upgradeable::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
 
-    state._mint_assets(OWNER(), token_ids);
+    state.mint_assets(OWNER(), token_ids);
     assert_eq!(state.erc721.balance_of(OWNER()), TOKENS_LEN);
 
     loop {

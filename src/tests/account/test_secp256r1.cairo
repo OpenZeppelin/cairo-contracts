@@ -1,6 +1,6 @@
 use openzeppelin::account::utils::secp256r1::{
     SyscallResultTrait, Secp256r1Point, DebugSecp256r1Point, Secp256r1PointSerde,
-    Secp256r1PointPartialEq, Secp256r1PointStorePacking as StorePacking
+    Secp256r1PointPartialEq, Secp256r1PointStorePacking as StorePacking, secp256r1_new_syscall
 };
 use starknet::secp256_trait::Secp256PointTrait;
 use starknet::secp256r1::Secp256r1Impl;
@@ -17,21 +17,13 @@ fn test_curve_size() {
 fn test_secp256_ec_get_point_from_x_syscall() {
     let curve_size = Secp256r1Impl::get_curve_size();
     match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true).unwrap_syscall() {
-        Option::Some(_data) => { 
-          assert_eq!(true, false);
-        },
-        Option::None => { 
-          assert_eq!(true, true);
-        },
+        Option::Some(_data) => { assert_eq!(true, false); },
+        Option::None => { assert_eq!(true, true); },
     }
 
     match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, false).unwrap_syscall() {
-        Option::Some(_data) => { 
-          assert_eq!(true, false);
-        },
-        Option::None => { 
-          assert_eq!(true, true);
-        },
+        Option::Some(_data) => { assert_eq!(true, false); },
+        Option::None => { assert_eq!(true, true); },
     }
 }
 

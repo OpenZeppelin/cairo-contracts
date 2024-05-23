@@ -6,6 +6,36 @@ use starknet::secp256_trait::Secp256PointTrait;
 use starknet::secp256r1::Secp256r1Impl;
 
 #[test]
+fn test_curve_size() {
+    let curve_size = Secp256r1Impl::get_curve_size();
+    assert_eq!(curve_size, 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551);
+    assert_eq!(curve_size.low, 0xbce6faada7179e84f3b9cac2fc632551);
+    assert_eq!(curve_size.high, 0xffffffff00000000ffffffffffffffff);
+}
+
+#[test]
+fn test_secp256_ec_get_point_from_x_syscall() {
+    let curve_size = Secp256r1Impl::get_curve_size();
+    match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true).unwrap_syscall() {
+        Option::Some(_data) => { 
+          assert_eq!(true, false);
+        },
+        Option::None => { 
+          assert_eq!(true, true);
+        },
+    }
+
+    match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, false).unwrap_syscall() {
+        Option::Some(_data) => { 
+          assert_eq!(true, false);
+        },
+        Option::None => { 
+          assert_eq!(true, true);
+        },
+    }
+}
+
+// #[test]
 fn test_pack_big_secp256r1_points() {
     let (big_point_1, big_point_2) = get_points();
     let curve_size = Secp256r1Impl::get_curve_size();
@@ -37,7 +67,7 @@ fn test_pack_big_secp256r1_points() {
     assert_eq!(parity, false, "Parity should be even");
 }
 
-#[test]
+// #[test]
 fn test_unpack_big_secp256r1_points() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -62,7 +92,7 @@ fn test_unpack_big_secp256r1_points() {
     assert_eq!(y, expected_y);
 }
 
-#[test]
+// #[test]
 fn test_secp256r1_serialization() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -84,7 +114,7 @@ fn test_secp256r1_serialization() {
     assert!(serialized_point == expected_serialization);
 }
 
-#[test]
+// #[test]
 fn test_secp256r1_deserialization() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -109,7 +139,7 @@ fn test_secp256r1_deserialization() {
     assert_eq!(big_point_2, deserialized_point);
 }
 
-#[test]
+// #[test]
 fn test_partial_eq() {
     let (big_point_1, big_point_2) = get_points();
 

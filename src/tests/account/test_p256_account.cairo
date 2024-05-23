@@ -1,10 +1,5 @@
-use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin::account::interface::P256PublicKey;
-use openzeppelin::account::utils::secp256r1::{
-    DebugSecp256r1Point, Secp256r1PointPartialEq, Secp256r1PointSerde
-};
 use openzeppelin::account::utils::signature::P256Signature;
-use starknet::SyscallResultTrait;
 use starknet::secp256r1::secp256r1_new_syscall;
 
 #[derive(Drop)]
@@ -18,10 +13,10 @@ struct SignedTransactionData {
 /// This signature was computed using @noble/curves.
 fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
-        private_key: 0x1efecf7ee1e25bb87098baf2aaab0406167aae0d5ea9ba0d31404bf01886bd0e_u256,
+        private_key: 0x1efecf7ee1e25bb87098baf2aaab0406167aae0d5ea9ba0d31404bf01886bd0e,
         public_key: secp256r1_new_syscall(
-            0x097420e05fbc83afe4d73b31890187d0cacf2c3653e27f434701a91625f916c2_u256,
-            0x98a304ff544db99c864308a9b3432324adc6c792181bae33fe7a4cbd48cf263a_u256
+            0x097420e05fbc83afe4d73b31890187d0cacf2c3653e27f434701a91625f916c2,
+            0x98a304ff544db99c864308a9b3432324adc6c792181bae33fe7a4cbd48cf263a
         )
             .unwrap()
             .unwrap(),

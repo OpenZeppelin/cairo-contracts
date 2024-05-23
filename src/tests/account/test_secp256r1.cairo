@@ -14,7 +14,7 @@ fn test_curve_size() {
 }
 
 #[test]
-fn test_secp256_ec_get_point_from_x_syscall() {
+fn test_get_point_from_x_syscall_on_curve_size_is_none() {
     let curve_size = Secp256r1Impl::get_curve_size();
     match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true).unwrap_syscall() {
         Option::Some(_data) => { assert_eq!(true, false); },
@@ -27,10 +27,10 @@ fn test_secp256_ec_get_point_from_x_syscall() {
     }
 }
 
-// #[test]
+#[test]
 fn test_pack_big_secp256r1_points() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256r1Impl::get_curve_size();
+    let private_key = P256_PRIVATEKEY_SAMPLE();
 
     // Check point 1
 
@@ -42,7 +42,7 @@ fn test_pack_big_secp256r1_points() {
     };
     let parity = xhigh_and_parity % 2 == 1;
 
-    assert_eq!(x, curve_size);
+    assert_eq!(x, private_key);
     assert_eq!(parity, true, "Parity should be odd");
 
     // Check point 2
@@ -55,11 +55,11 @@ fn test_pack_big_secp256r1_points() {
     };
     let parity = xhigh_and_parity % 2 == 1;
 
-    assert_eq!(x, curve_size);
+    assert_eq!(x, private_key);
     assert_eq!(parity, false, "Parity should be even");
 }
 
-// #[test]
+#[test]
 fn test_unpack_big_secp256r1_points() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -84,7 +84,7 @@ fn test_unpack_big_secp256r1_points() {
     assert_eq!(y, expected_y);
 }
 
-// #[test]
+#[test]
 fn test_secp256r1_serialization() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -106,7 +106,7 @@ fn test_secp256r1_serialization() {
     assert!(serialized_point == expected_serialization);
 }
 
-// #[test]
+#[test]
 fn test_secp256r1_deserialization() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -131,7 +131,7 @@ fn test_secp256r1_deserialization() {
     assert_eq!(big_point_2, deserialized_point);
 }
 
-// #[test]
+#[test]
 fn test_partial_eq() {
     let (big_point_1, big_point_2) = get_points();
 
@@ -145,12 +145,17 @@ fn test_partial_eq() {
 // Helpers
 //
 
+/// This signature was computed using @noble/curves.
+fn P256_PRIVATEKEY_SAMPLE() -> u256 {
+    0x1efecf7ee1e25bb87098baf2aaab0406167aae0d5ea9ba0d31404bf01886bd0e
+}
+
 fn get_points() -> (Secp256r1Point, Secp256r1Point) {
-    let curve_size = Secp256r1Impl::get_curve_size();
-    let point_1 = Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true)
+    let private_key = P256_PRIVATEKEY_SAMPLE();
+    let point_1 = Secp256r1Impl::secp256_ec_get_point_from_x_syscall(private_key, true)
         .unwrap_syscall()
         .unwrap();
-    let point_2 = Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, false)
+    let point_2 = Secp256r1Impl::secp256_ec_get_point_from_x_syscall(private_key, false)
         .unwrap_syscall()
         .unwrap();
 

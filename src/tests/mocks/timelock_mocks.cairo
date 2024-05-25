@@ -30,7 +30,7 @@ mod TimelockControllerMock {
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
     impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
-    // ERC721Receiver
+    // ERC1155Receiver
     impl ERC1155ReceiverImpl = ERC1155ReceiverComponent::ERC1155ReceiverImpl<ContractState>;
     impl ERC1155ReceiverInternalImpl = ERC1155ReceiverComponent::InternalImpl<ContractState>;
 

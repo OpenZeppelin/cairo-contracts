@@ -14,4 +14,5 @@ mod ownable_mocks;
 mod pausable_mocks;
 mod reentrancy_mocks;
 mod src5_mocks;
+mod timelock_mocks;
 mod upgrades_mocks;

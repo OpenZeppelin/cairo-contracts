@@ -1,2 +1,2 @@
-mod timelock_controller;
+mod timelock;
 mod utils;

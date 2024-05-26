@@ -1,25 +1,36 @@
+use openzeppelin::access::accesscontrol::AccessControlComponent::{
+    AccessControlImpl, InternalImpl as AccessControlInternalImpl
+};
+use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
+use openzeppelin::governance::timelock::TimelockControllerComponent::{
+    CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
+};
+use openzeppelin::governance::timelock::TimelockControllerComponent::{
+    PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE
+};
+use openzeppelin::governance::timelock::TimelockControllerComponent::{
+    TimelockImpl, InternalImpl as TimelockInternalImpl
+};
+use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::ITimelock;
+use openzeppelin::governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
-use openzeppelin::governance::timelock::TimelockControllerComponent;
-use openzeppelin::governance::timelock::TimelockControllerComponent::{CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange};
-use openzeppelin::governance::timelock::TimelockControllerComponent::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
-use openzeppelin::governance::timelock::TimelockControllerComponent::{TimelockImpl, InternalImpl as TimelockInternalImpl};
-use openzeppelin::access::accesscontrol::AccessControlComponent::{AccessControlImpl, InternalImpl as AccessControlInternalImpl};
+use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::timelock_mocks::TimelockControllerMock;
-use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin::tests::utils::constants::{
+    ADMIN, ZERO, NAME, SYMBOL, BASE_URI, RECIPIENT, TOKEN_ID
+};
 use openzeppelin::tests::utils;
+use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
+use openzeppelin::token::erc721::interface::{IERC721DispatcherTrait, IERC721Dispatcher};
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
-use openzeppelin::tests::utils::constants::{ADMIN, ZERO, NAME, SYMBOL, BASE_URI, RECIPIENT, TOKEN_ID};
 use starknet::contract_address_const;
-use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
-use openzeppelin::token::erc721::interface::{IERC721DispatcherTrait, IERC721Dispatcher};
-use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
 
-type ComponentState = TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
+type ComponentState =
+    TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
 
 fn CONTRACT_STATE() -> TimelockControllerMock::ContractState {
     TimelockControllerMock::contract_state_for_testing()
@@ -202,7 +213,9 @@ fn test_hash_operation() {
     calldata.append_serde(RECIPIENT());
     calldata.append_serde(TOKEN_ID);
 
-    let mut call = Call { to: erc721_address, selector: 'transfer_from', calldata: calldata.span() };
+    let mut call = Call {
+        to: erc721_address, selector: 'transfer_from', calldata: calldata.span()
+    };
     let call_span = array![call].span();
 
     let _hash = timelock.hash_operation(call_span, 0, 0);
@@ -212,17 +225,15 @@ fn test_hash_operation() {
 // Helpers
 //
 
-fn assert_event_delay_change(
-    contract: ContractAddress, old_duration: u64, new_duration: u64
-) {
+fn assert_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(MinDelayChange { old_duration, new_duration });
+    let expected = TimelockControllerComponent::Event::MinDelayChange(
+        MinDelayChange { old_duration, new_duration }
+    );
     assert!(event == expected);
 }
 
-fn assert_only_event_delay_change(
-    contract: ContractAddress, old_duration: u64, new_duration: u64
-) {
+fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     assert_event_delay_change(contract, old_duration, new_duration);
     utils::drop_event(ZERO());
 }

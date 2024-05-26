@@ -23,11 +23,11 @@ mod TimelockControllerComponent {
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent;
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721InternalImpl;
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent;
-    use super::{CallPartialEq, HashCallImpl};
     use poseidon::PoseidonTrait;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
+    use super::{CallPartialEq, HashCallImpl};
     use zeroable::Zeroable;
 
     // Constants

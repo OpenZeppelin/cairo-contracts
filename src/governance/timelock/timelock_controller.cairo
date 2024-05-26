@@ -43,7 +43,7 @@ mod TimelockControllerComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, PartialEq, starknet::Event)]
     enum Event {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
@@ -279,6 +279,7 @@ mod TimelockControllerComponent {
                 i = i + 1;
             };
 
+            self.TimelockController_min_delay.write(min_delay);
             self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
         }
 

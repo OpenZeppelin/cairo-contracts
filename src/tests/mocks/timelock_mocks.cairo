@@ -5,6 +5,7 @@ mod TimelockControllerMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
+    use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -61,5 +62,16 @@ mod TimelockControllerMock {
         ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
         ERC1155ReceiverEvent: ERC1155ReceiverComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        min_delay: u64,
+        proposers: Span<ContractAddress>,
+        executors: Span<ContractAddress>,
+        admin: ContractAddress
+    ) {
+        self.timelock.initializer(min_delay, proposers, executors, admin);
     }
 }

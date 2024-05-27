@@ -289,7 +289,7 @@ pub mod ERC20VotesComponent {
 // sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
 //
 // Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.
-const DELEGATION_TYPE_HASH: felt252 =
+pub const DELEGATION_TYPE_HASH: felt252 =
     0x241244ac7acec849adc6df9848262c651eb035a3add56e7f6c7bcda6649e837;
 
 #[derive(Copy, Drop, Hash)]

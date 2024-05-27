@@ -17,11 +17,11 @@ pub const STARKNET_DOMAIN_TYPE_HASH: felt252 =
     0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210;
 
 #[derive(Drop, Copy, Hash)]
-pub(crate) struct StarknetDomain {
-    pub(crate) name: felt252,
-    pub(crate) version: felt252,
-    pub(crate) chain_id: felt252,
-    pub(crate) revision: felt252,
+pub struct StarknetDomain {
+    pub name: felt252,
+    pub version: felt252,
+    pub chain_id: felt252,
+    pub revision: felt252,
 }
 
 pub trait StructHash<T> {

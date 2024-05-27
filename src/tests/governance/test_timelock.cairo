@@ -1,3 +1,4 @@
+use hash::{HashStateTrait, HashStateExTrait};
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
@@ -14,6 +15,7 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::{
 use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::ITimelock;
 use openzeppelin::governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
+use openzeppelin::governance::timelock::timelock_controller::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
@@ -26,11 +28,9 @@ use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
 use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin::token::erc721::interface::{IERC721DispatcherTrait, IERC721Dispatcher};
 use openzeppelin::utils::serde::SerializedAppend;
+use poseidon::PoseidonTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use openzeppelin::governance::timelock::timelock_controller::{CallPartialEq, HashCallImpl};
-use hash::{HashStateTrait, HashStateExTrait};
-use poseidon::PoseidonTrait;
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
@@ -75,9 +75,7 @@ fn single_operation(erc721_addr: ContractAddress) -> Call {
     calldata.append_serde(SPENDER());
     calldata.append_serde(TOKEN_ID);
 
-    Call {
-        to: erc721_addr, selector: 'approve', calldata: calldata.span()
-    }
+    Call { to: erc721_addr, selector: 'approve', calldata: calldata.span() }
 }
 
 fn batched_operations(erc721_addr: ContractAddress, timelock_addr: ContractAddress) -> Span<Call> {
@@ -86,16 +84,14 @@ fn batched_operations(erc721_addr: ContractAddress, timelock_addr: ContractAddre
     calldata1.append_serde(SPENDER());
     calldata1.append_serde(TOKEN_ID);
 
-    let call1 = Call{ to: erc721_addr, selector: 'approve', calldata: calldata1.span() };
+    let call1 = Call { to: erc721_addr, selector: 'approve', calldata: calldata1.span() };
 
     // Call 2: transfer_from
     let mut calldata2 = array![];
     calldata2.append_serde(timelock_addr);
     calldata2.append_serde(RECIPIENT());
     calldata2.append_serde(TOKEN_ID);
-    let call2 = Call {
-        to: erc721_addr, selector: 'transfer_from', calldata: calldata2.span()
-    };
+    let call2 = Call { to: erc721_addr, selector: 'transfer_from', calldata: calldata2.span() };
 
     array![call1, call2].span()
 }
@@ -364,9 +360,7 @@ fn test_hash_operation() {
     calldata1.append_serde(SPENDER());
     calldata1.append_serde(TOKEN_ID);
 
-    let mut call1 = Call {
-        to: erc721_address, selector: 'approve', calldata: calldata1.span()
-    };
+    let mut call1 = Call { to: erc721_address, selector: 'approve', calldata: calldata1.span() };
 
     // Call 2
     let mut calldata2 = array![];
@@ -385,24 +379,24 @@ fn test_hash_operation() {
 
     // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
-    .update_with(14)                        // total elements of Call span
-    .update_with(2)                         // total number of Calls
-    .update_with(erc721_address)            // call1::to
-    .update_with('approve')                 // call1::selector
-    .update_with(3)                         // call1::calldata.len
-    .update_with(SPENDER())                 // call1::calldata::to
-    .update_with(TOKEN_ID.low)              // call1::calldata::token_id.low
-    .update_with(TOKEN_ID.high)             // call1::calldata::token_id.high
-    .update_with(erc721_address)            // call2::to
-    .update_with('transfer_from')           // call2::selector
-    .update_with(4)                         // call2::calldata.len
-    .update_with(timelock.contract_address) // call2::calldata::from
-    .update_with(RECIPIENT())               // call2::calldata::to
-    .update_with(TOKEN_ID.low)              // call2::calldata::token_id.low
-    .update_with(TOKEN_ID.high)             // call2::calldata::token_id.high
-    .update_with(predecessor)               // predecessor
-    .update_with(salt)                      // salt
-    .finalize();
+        .update_with(14) // total elements of Call span
+        .update_with(2) // total number of Calls
+        .update_with(erc721_address) // call1::to
+        .update_with('approve') // call1::selector
+        .update_with(3) // call1::calldata.len
+        .update_with(SPENDER()) // call1::calldata::to
+        .update_with(TOKEN_ID.low) // call1::calldata::token_id.low
+        .update_with(TOKEN_ID.high) // call1::calldata::token_id.high
+        .update_with(erc721_address) // call2::to
+        .update_with('transfer_from') // call2::selector
+        .update_with(4) // call2::calldata.len
+        .update_with(timelock.contract_address) // call2::calldata::from
+        .update_with(RECIPIENT()) // call2::calldata::to
+        .update_with(TOKEN_ID.low) // call2::calldata::token_id.low
+        .update_with(TOKEN_ID.high) // call2::calldata::token_id.high
+        .update_with(predecessor) // predecessor
+        .update_with(salt) // salt
+        .finalize();
 
     assert_eq!(hashed_operation, expected_hash);
 }
@@ -424,7 +418,9 @@ fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, 
     utils::drop_event(contract);
 }
 
-fn assert_event_schedule(contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64) {
+fn assert_event_schedule(
+    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
     let expected = TimelockControllerComponent::Event::CallScheduled(
         CallScheduled { calls, predecessor, delay }
@@ -438,16 +434,16 @@ fn assert_event_schedule(contract: ContractAddress, calls: Span<Call>, predecess
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_schedule(contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64) {
+fn assert_only_event_schedule(
+    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+) {
     assert_event_schedule(contract, calls, predecessor, delay);
     utils::drop_event(contract);
 }
 
 fn assert_event_call_salt(contract: ContractAddress, id: felt252, salt: felt252) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::CallSalt(
-        CallSalt { id, salt }
-    );
+    let expected = TimelockControllerComponent::Event::CallSalt(CallSalt { id, salt });
     assert!(event == expected);
 }
 

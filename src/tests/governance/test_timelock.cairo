@@ -13,7 +13,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent;
-use openzeppelin::governance::timelock::interface::ITimelock;
 use openzeppelin::governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
 use openzeppelin::governance::timelock::timelock_controller::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;

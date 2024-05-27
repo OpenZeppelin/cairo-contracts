@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply underscore pattern to modules (#993)
   - AccessControlComponent
     - `_change_role_admin` function renamed to `change_role_admin`
+  - PausableComponent
+    - `_pause` function renamed to `pause`
+    - `_unpause` function renamed to `unpause`
   - ERC20Component:
     - `_mint` function renamed to `mint`
     - `_burn` function renamed to `burn`

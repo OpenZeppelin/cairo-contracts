@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.13.0 (introspection/src5.cairo)
 
 /// # SRC5 Component
 ///
@@ -18,7 +18,7 @@ pub mod SRC5Component {
     }
 
     #[embeddable_as(SRC5Impl)]
-    pub impl SRC5<
+    impl SRC5<
         TContractState, +HasComponent<TContractState>
     > of interface::ISRC5<ComponentState<TContractState>> {
         /// Returns whether the contract implements the given interface.

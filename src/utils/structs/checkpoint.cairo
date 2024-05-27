@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.13.0 (utils/structs/checkpoint.cairo)
 
 use core::integer::u32_sqrt;
 use openzeppelin::utils::math;

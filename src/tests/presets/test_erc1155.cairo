@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::introspection;
 use openzeppelin::presets::ERC1155Upgradeable;
 use openzeppelin::presets::interfaces::{

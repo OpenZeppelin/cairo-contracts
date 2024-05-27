@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseERC1155Mock {
+pub(crate) mod DualCaseERC1155Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -52,7 +52,7 @@ mod DualCaseERC1155Mock {
 }
 
 #[starknet::contract]
-mod SnakeERC1155Mock {
+pub(crate) mod SnakeERC1155Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -103,7 +103,7 @@ mod SnakeERC1155Mock {
 }
 
 #[starknet::contract]
-mod CamelERC1155Mock {
+pub(crate) mod CamelERC1155Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -154,9 +154,8 @@ mod CamelERC1155Mock {
 }
 
 #[starknet::contract]
-mod SnakeERC1155PanicMock {
+pub(crate) mod SnakeERC1155PanicMock {
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -232,9 +231,8 @@ mod SnakeERC1155PanicMock {
 }
 
 #[starknet::contract]
-mod CamelERC1155PanicMock {
+pub(crate) mod CamelERC1155PanicMock {
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}

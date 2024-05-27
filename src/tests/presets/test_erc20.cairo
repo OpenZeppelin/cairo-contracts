@@ -1,4 +1,5 @@
-use integer::BoundedInt;
+use core::integer::BoundedInt;
+use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::presets::ERC20Upgradeable;
 use openzeppelin::presets::interfaces::{
@@ -129,7 +130,7 @@ fn test_approve_from_zero() {
 fn test_approve_to_zero() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
-    dispatcher.approve(Zeroable::zero(), VALUE);
+    dispatcher.approve(Zero::zero(), VALUE);
 }
 
 //
@@ -233,14 +234,14 @@ fn test_transfer_from_to_zero_address() {
     dispatcher.approve(SPENDER(), VALUE);
 
     testing::set_contract_address(SPENDER());
-    dispatcher.transfer_from(OWNER(), Zeroable::zero(), VALUE);
+    dispatcher.transfer_from(OWNER(), Zero::zero(), VALUE);
 }
 
 #[test]
 #[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
-    dispatcher.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);
+    dispatcher.transfer_from(Zero::zero(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -296,14 +297,14 @@ fn test_transferFrom_to_zero_address() {
     dispatcher.approve(SPENDER(), VALUE);
 
     testing::set_contract_address(SPENDER());
-    dispatcher.transferFrom(OWNER(), Zeroable::zero(), VALUE);
+    dispatcher.transferFrom(OWNER(), Zero::zero(), VALUE);
 }
 
 #[test]
 #[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
-    dispatcher.transferFrom(Zeroable::zero(), RECIPIENT(), VALUE);
+    dispatcher.transferFrom(Zero::zero(), RECIPIENT(), VALUE);
 }
 
 //

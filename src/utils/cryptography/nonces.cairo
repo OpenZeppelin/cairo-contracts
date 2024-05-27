@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.12.0 (utils/cryptography/nonces.cairo)
 
 #[starknet::component]
-mod NoncesComponent {
+pub mod NoncesComponent {
     use openzeppelin::utils::interfaces::INonces;
     use starknet::ContractAddress;
 
@@ -12,7 +12,7 @@ mod NoncesComponent {
     }
 
     mod Errors {
-        const INVALID_NONCE: felt252 = 'Nonces: invalid nonce';
+        pub const INVALID_NONCE: felt252 = 'Nonces: invalid nonce';
     }
 
     #[embeddable_as(NoncesImpl)]
@@ -26,7 +26,7 @@ mod NoncesComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Consumes a nonce, returns the current value, and increments nonce.

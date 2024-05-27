@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.12.0 (token/erc20/extensions/erc20_votes.cairo)
 
-use core::hash::HashStateExTrait;
-use hash::{HashStateTrait, Hash};
+use core::hash::{Hash, HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use openzeppelin::utils::cryptography::snip12::{OffchainMessageHash, StructHash, SNIP12Metadata};
-use poseidon::PoseidonTrait;
 use starknet::ContractAddress;
 
 /// # ERC20Votes Component
@@ -15,7 +14,8 @@ use starknet::ContractAddress;
 /// decisions. In fact, voting units MUST be delegated in order to count as actual votes, and an account has to
 /// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::component]
-mod ERC20VotesComponent {
+pub mod ERC20VotesComponent {
+    use core::num::traits::Zero;
     use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
     use openzeppelin::governance::utils::interfaces::IVotes;
     use openzeppelin::token::erc20::ERC20Component;
@@ -35,35 +35,35 @@ mod ERC20VotesComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         DelegateChanged: DelegateChanged,
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
     /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct DelegateChanged {
+    pub struct DelegateChanged {
         #[key]
-        delegator: ContractAddress,
+        pub delegator: ContractAddress,
         #[key]
-        from_delegate: ContractAddress,
+        pub from_delegate: ContractAddress,
         #[key]
-        to_delegate: ContractAddress
+        pub to_delegate: ContractAddress
     }
 
     /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct DelegateVotesChanged {
+    pub struct DelegateVotesChanged {
         #[key]
-        delegate: ContractAddress,
-        previous_votes: u256,
-        new_votes: u256
+        pub delegate: ContractAddress,
+        pub previous_votes: u256,
+        pub new_votes: u256
     }
 
-    mod Errors {
-        const FUTURE_LOOKUP: felt252 = 'Votes: future Lookup';
-        const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
-        const INVALID_SIGNATURE: felt252 = 'Votes: invalid signature';
+    pub mod Errors {
+        pub const FUTURE_LOOKUP: felt252 = 'Votes: future Lookup';
+        pub const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
+        pub const INVALID_SIGNATURE: felt252 = 'Votes: invalid signature';
     }
 
     #[embeddable_as(ERC20VotesImpl)]
@@ -175,7 +175,7 @@ mod ERC20VotesComponent {
     //
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
@@ -217,7 +217,7 @@ mod ERC20VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zeroable::zero();
+            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
             if (from != to && amount > 0) {
                 if (from != zero_address) {
@@ -247,7 +247,7 @@ mod ERC20VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zeroable::zero();
+            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
             if (from == zero_address) {
                 let mut trace = self.ERC20Votes_total_checkpoints.read();
@@ -293,10 +293,10 @@ const DELEGATION_TYPE_HASH: felt252 =
     0x241244ac7acec849adc6df9848262c651eb035a3add56e7f6c7bcda6649e837;
 
 #[derive(Copy, Drop, Hash)]
-struct Delegation {
-    delegatee: ContractAddress,
-    nonce: felt252,
-    expiry: u64
+pub struct Delegation {
+    pub delegatee: ContractAddress,
+    pub nonce: felt252,
+    pub expiry: u64
 }
 
 impl StructHashImpl of StructHash<Delegation> {

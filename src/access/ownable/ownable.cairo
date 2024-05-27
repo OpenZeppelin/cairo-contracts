@@ -14,7 +14,8 @@
 /// transfer where the new owner first has to accept their ownership to
 /// finalize the transfer.
 #[starknet::component]
-mod OwnableComponent {
+pub mod OwnableComponent {
+    use core::num::traits::Zero;
     use openzeppelin::access::ownable::interface::IOwnableTwoStep;
     use openzeppelin::access::ownable::interface;
     use starknet::ContractAddress;
@@ -28,32 +29,32 @@ mod OwnableComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         OwnershipTransferred: OwnershipTransferred,
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnershipTransferred {
+    pub struct OwnershipTransferred {
         #[key]
-        previous_owner: ContractAddress,
+        pub previous_owner: ContractAddress,
         #[key]
-        new_owner: ContractAddress,
+        pub new_owner: ContractAddress,
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnershipTransferStarted {
+    pub struct OwnershipTransferStarted {
         #[key]
-        previous_owner: ContractAddress,
+        pub previous_owner: ContractAddress,
         #[key]
-        new_owner: ContractAddress,
+        pub new_owner: ContractAddress,
     }
 
-    mod Errors {
-        const NOT_OWNER: felt252 = 'Caller is not the owner';
-        const NOT_PENDING_OWNER: felt252 = 'Caller is not the pending owner';
-        const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
-        const ZERO_ADDRESS_OWNER: felt252 = 'New owner is the zero address';
+    pub mod Errors {
+        pub const NOT_OWNER: felt252 = 'Caller is not the owner';
+        pub const NOT_PENDING_OWNER: felt252 = 'Caller is not the pending owner';
+        pub const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
+        pub const ZERO_ADDRESS_OWNER: felt252 = 'New owner is the zero address';
     }
 
     #[embeddable_as(OwnableImpl)]
@@ -91,7 +92,7 @@ mod OwnableComponent {
         /// Emits an `OwnershipTransferred` event.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
             self.assert_only_owner();
-            self._transfer_ownership(Zeroable::zero());
+            self._transfer_ownership(Zero::zero());
         }
     }
 
@@ -171,7 +172,7 @@ mod OwnableComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Sets the contract's initial owner.
@@ -195,7 +196,7 @@ mod OwnableComponent {
         /// Internal function without access restriction.
         fn _accept_ownership(ref self: ComponentState<TContractState>) {
             let pending_owner = self.Ownable_pending_owner.read();
-            self.Ownable_pending_owner.write(Zeroable::zero());
+            self.Ownable_pending_owner.write(Zero::zero());
             self._transfer_ownership(pending_owner);
         }
 

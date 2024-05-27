@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
 use openzeppelin::presets::ERC721Upgradeable;

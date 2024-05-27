@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq

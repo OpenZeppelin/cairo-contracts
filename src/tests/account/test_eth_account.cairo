@@ -1,3 +1,4 @@
+use core::poseidon::poseidon_hash_span;
 use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
@@ -21,24 +22,22 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use poseidon::poseidon_hash_span;
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
-use starknet::secp256k1::secp256k1_get_point_from_x_syscall;
-use starknet::secp256k1::secp256k1_new_syscall;
+use starknet::secp256_trait::Secp256Trait;
 use starknet::testing;
 use starknet::{contract_address_const, ContractAddress};
 
 #[derive(Drop)]
-struct SignedTransactionData {
-    private_key: u256,
-    public_key: EthPublicKey,
-    transaction_hash: felt252,
-    signature: EthSignature
+pub(crate) struct SignedTransactionData {
+    pub(crate) private_key: u256,
+    pub(crate) public_key: EthPublicKey,
+    pub(crate) transaction_hash: felt252,
+    pub(crate) signature: EthSignature
 }
 
 /// This signature was computed using ethers.js.
-fn SIGNED_TX_DATA() -> SignedTransactionData {
+pub(crate) fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9,
         public_key: NEW_ETH_PUBKEY(),
@@ -54,8 +53,8 @@ fn SIGNED_TX_DATA() -> SignedTransactionData {
 // Constants
 //
 
-fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    secp256k1_new_syscall(
+pub(crate) fn NEW_ETH_PUBKEY() -> EthPublicKey {
+    Secp256Trait::secp256_ec_new_syscall(
         0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
         0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
     )
@@ -112,7 +111,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispat
     EthAccountABIDispatcher { contract_address: address }
 }
 
-fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let name = NAME();
     let symbol = SYMBOL();
     let mut calldata = array![];
@@ -636,7 +635,7 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     output.span()
 }
 
-fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
+pub(crate) fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
     let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
     let new_owner_guid = get_guid_from_public_key(public_key);
     let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
@@ -649,12 +648,12 @@ fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey)
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
+pub(crate) fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
     assert_event_owner_added(contract, public_key);
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
+pub(crate) fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
     let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
     let removed_owner_guid = get_guid_from_public_key(public_key);
     let expected = EthAccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });

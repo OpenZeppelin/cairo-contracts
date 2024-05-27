@@ -1,14 +1,15 @@
 use openzeppelin::account::utils::secp256k1::{
-    SyscallResultTrait, Secp256k1Point, DebugSecp256k1Point, Secp256k1PointSerde,
-    Secp256k1PointPartialEq, Secp256k1PointStorePacking as StorePacking
+    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq,
+    Secp256k1PointStorePacking as StorePacking
 };
-use starknet::secp256_trait::Secp256PointTrait;
-use starknet::secp256k1::Secp256k1Impl;
+use starknet::SyscallResultTrait;
+use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
+use starknet::secp256k1::Secp256k1Point;
 
 #[test]
 fn test_pack_big_secp256k1_points() {
     let (big_point_1, big_point_2) = get_points();
-    let curve_size = Secp256k1Impl::get_curve_size();
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
 
     // Check point 1
 
@@ -123,12 +124,12 @@ fn test_partial_eq() {
 // Helpers
 //
 
-fn get_points() -> (Secp256k1Point, Secp256k1Point) {
-    let curve_size = Secp256k1Impl::get_curve_size();
-    let point_1 = Secp256k1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true)
+pub(crate) fn get_points() -> (Secp256k1Point, Secp256k1Point) {
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
+    let point_1 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, true)
         .unwrap_syscall()
         .unwrap();
-    let point_2 = Secp256k1Impl::secp256_ec_get_point_from_x_syscall(curve_size, false)
+    let point_2 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, false)
         .unwrap_syscall()
         .unwrap();
 

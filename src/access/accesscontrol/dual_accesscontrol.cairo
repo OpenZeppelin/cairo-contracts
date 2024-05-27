@@ -7,14 +7,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseAccessControl {
-    contract_address: ContractAddress
+pub struct DualCaseAccessControl {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseAccessControlTrait {
+pub trait DualCaseAccessControlTrait {
     fn has_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress) -> bool;
     fn get_role_admin(self: @DualCaseAccessControl, role: felt252) -> felt252;
     fn grant_role(self: @DualCaseAccessControl, role: felt252, account: ContractAddress);

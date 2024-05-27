@@ -1,17 +1,17 @@
-mod constants;
+pub mod constants;
 
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::testing;
 
-fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
+pub(crate) fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> ContractAddress {
     deploy_with_salt(contract_class_hash, calldata, 0)
 }
 
-fn deploy_with_salt(
+pub(crate) fn deploy_with_salt(
     contract_class_hash: felt252, calldata: Array<felt252>, salt: felt252
 ) -> ContractAddress {
-    let (address, _) = starknet::deploy_syscall(
+    let (address, _) = starknet::syscalls::deploy_syscall(
         contract_class_hash.try_into().unwrap(), salt, calldata.span(), false
     )
         .unwrap_syscall();
@@ -23,7 +23,7 @@ fn deploy_with_salt(
 ///
 /// CAUTION: If the event enum contains two `flat` events with the same structure (member types),
 /// this function will always match the first event, even when the second one is emitted.
-fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option<T> {
+pub(crate) fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option<T> {
     let (mut keys, mut data) = testing::pop_log_raw(address)?;
 
     let ret = starknet::Event::deserialize(ref keys, ref data);
@@ -39,7 +39,9 @@ fn pop_log<T, +Drop<T>, +starknet::Event<T>>(address: ContractAddress) -> Option
 ///
 /// If the event is not flattened, the first key will be the event member name
 /// e.g. selector!("EnumMemberName").
-fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys: Span<felt252>) {
+pub(crate) fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(
+    event: T, expected_keys: Span<felt252>
+) {
     let mut keys = array![];
     let mut data = array![];
 
@@ -47,15 +49,15 @@ fn assert_indexed_keys<T, +Drop<T>, +starknet::Event<T>>(event: T, expected_keys
     assert!(expected_keys == keys.span());
 }
 
-fn assert_no_events_left(address: ContractAddress) {
+pub(crate) fn assert_no_events_left(address: ContractAddress) {
     assert!(testing::pop_log_raw(address).is_none(), "Events remaining on queue");
 }
 
-fn drop_event(address: ContractAddress) {
+pub(crate) fn drop_event(address: ContractAddress) {
     let _ = testing::pop_log_raw(address);
 }
 
-fn drop_events(address: ContractAddress, n_events: felt252) {
+pub(crate) fn drop_events(address: ContractAddress, n_events: felt252) {
     let mut count = n_events;
     loop {
         if count == 0 {

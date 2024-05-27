@@ -5,7 +5,7 @@ use starknet::ClassHash;
 use starknet::ContractAddress;
 
 #[starknet::interface]
-trait IUniversalDeployer<TState> {
+pub trait IUniversalDeployer<TState> {
     fn deploy_contract(
         ref self: TState,
         class_hash: ClassHash,

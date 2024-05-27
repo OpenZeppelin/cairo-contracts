@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use core::starknet::storage::StorageMemberAccessTrait;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection;
@@ -50,25 +51,25 @@ fn setup() -> (ComponentState, ContractAddress) {
     (state, owner)
 }
 
-fn setup_receiver() -> ContractAddress {
+pub(crate) fn setup_receiver() -> ContractAddress {
     utils::deploy(SnakeERC1155ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
-fn setup_camel_receiver() -> ContractAddress {
+pub(crate) fn setup_camel_receiver() -> ContractAddress {
     utils::deploy(CamelERC1155ReceiverMock::TEST_CLASS_HASH, array![])
 }
 
-fn setup_account() -> ContractAddress {
+pub(crate) fn setup_account() -> ContractAddress {
     let mut calldata = array![PUBKEY];
     utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata)
 }
 
-fn setup_account_with_salt(salt: felt252) -> ContractAddress {
+pub(crate) fn setup_account_with_salt(salt: felt252) -> ContractAddress {
     let mut calldata = array![PUBKEY];
     utils::deploy_with_salt(SnakeAccountMock::TEST_CLASS_HASH, calldata, salt)
 }
 
-fn setup_src5() -> ContractAddress {
+pub(crate) fn setup_src5() -> ContractAddress {
     utils::deploy(SRC5Mock::TEST_CLASS_HASH, array![])
 }
 
@@ -1297,7 +1298,7 @@ fn assert_state_after_transfer_from_zero_batch(
     }
 }
 
-fn assert_event_approval_for_all(
+pub(crate) fn assert_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     let event = utils::pop_log::<ERC1155Component::Event>(contract).unwrap();
@@ -1314,7 +1315,7 @@ fn assert_event_approval_for_all(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_transfer_single(
+pub(crate) fn assert_event_transfer_single(
     contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
@@ -1338,7 +1339,7 @@ fn assert_event_transfer_single(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_transfer_batch(
+pub(crate) fn assert_event_transfer_batch(
     contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
@@ -1362,7 +1363,7 @@ fn assert_event_transfer_batch(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer_single(
+pub(crate) fn assert_only_event_transfer_single(
     contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
@@ -1374,7 +1375,7 @@ fn assert_only_event_transfer_single(
     utils::assert_no_events_left(contract);
 }
 
-fn assert_only_event_transfer_batch(
+pub(crate) fn assert_only_event_transfer_batch(
     contract: ContractAddress,
     operator: ContractAddress,
     from: ContractAddress,
@@ -1386,20 +1387,20 @@ fn assert_only_event_transfer_batch(
     utils::assert_no_events_left(contract);
 }
 
-fn assert_only_event_approval_for_all(
+pub(crate) fn assert_only_event_approval_for_all(
     contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
 ) {
     assert_event_approval_for_all(contract, owner, operator, approved);
     utils::assert_no_events_left(contract);
 }
 
-fn get_ids_and_values() -> (Span<u256>, Span<u256>) {
+pub(crate) fn get_ids_and_values() -> (Span<u256>, Span<u256>) {
     let ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
     (ids, values)
 }
 
-fn get_ids_and_split_values(split: u256) -> (Span<u256>, Span<u256>) {
+pub(crate) fn get_ids_and_split_values(split: u256) -> (Span<u256>, Span<u256>) {
     let ids = array![TOKEN_ID, TOKEN_ID].span();
     let values = array![TOKEN_VALUE - split, split].span();
     (ids, values)

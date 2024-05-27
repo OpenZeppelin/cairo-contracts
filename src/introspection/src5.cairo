@@ -5,7 +5,7 @@
 ///
 /// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
-mod SRC5Component {
+pub mod SRC5Component {
     use openzeppelin::introspection::interface;
 
     #[storage]
@@ -13,12 +13,12 @@ mod SRC5Component {
         SRC5_supported_interfaces: LegacyMap<felt252, bool>
     }
 
-    mod Errors {
-        const INVALID_ID: felt252 = 'SRC5: invalid id';
+    pub mod Errors {
+        pub const INVALID_ID: felt252 = 'SRC5: invalid id';
     }
 
     #[embeddable_as(SRC5Impl)]
-    impl SRC5<
+    pub impl SRC5<
         TContractState, +HasComponent<TContractState>
     > of interface::ISRC5<ComponentState<TContractState>> {
         /// Returns whether the contract implements the given interface.
@@ -33,7 +33,7 @@ mod SRC5Component {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Registers the given interface as supported by the contract.

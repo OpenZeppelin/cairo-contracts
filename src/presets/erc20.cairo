@@ -10,7 +10,7 @@
 /// For more complex or custom contracts, use Wizard for Cairo
 /// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
-mod ERC20Upgradeable {
+pub(crate) mod ERC20Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::upgrades::UpgradeableComponent;

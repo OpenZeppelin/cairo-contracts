@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.12.0 (utils/math.cairo)
 
-use traits::Into;
+use core::traits::Into;
 
 /// Returns the average of two numbers. The result is rounded down.
-fn average<
+pub fn average<
     T,
     impl TDrop: Drop<T>,
     impl TCopy: Copy<T>,

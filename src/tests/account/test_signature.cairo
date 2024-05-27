@@ -1,7 +1,8 @@
 use openzeppelin::account::utils::signature::{is_valid_stark_signature, is_valid_eth_signature};
 use openzeppelin::tests::account::test_account::SIGNED_TX_DATA as stark_signature_data;
 use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA as eth_signature_data;
-use starknet::secp256k1::Secp256k1Impl;
+use starknet::secp256_trait::Secp256Trait;
+use starknet::secp256k1::Secp256k1Point;
 
 //
 // is_valid_stark_signature
@@ -92,7 +93,7 @@ fn test_signature_r_out_of_range() {
     let hash = data.transaction_hash;
     let mut bad_signature = data.signature;
 
-    let curve_size = Secp256k1Impl::get_curve_size();
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
 
     bad_signature.r = curve_size + 1;
 
@@ -112,7 +113,7 @@ fn test_signature_s_out_of_range() {
     let hash = data.transaction_hash;
     let mut bad_signature = data.signature;
 
-    let curve_size = Secp256k1Impl::get_curve_size();
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
 
     bad_signature.s = curve_size + 1;
 

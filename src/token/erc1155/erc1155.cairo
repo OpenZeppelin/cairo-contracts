@@ -8,7 +8,8 @@ use starknet::ContractAddress;
 /// The ERC1155 component provides an implementation of the basic standard multi-token.
 /// See https://eips.ethereum.org/EIPS/eip-1155.
 #[starknet::component]
-mod ERC1155Component {
+pub mod ERC1155Component {
+    use core::num::traits::Zero;
     use openzeppelin::account;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
@@ -30,7 +31,7 @@ mod ERC1155Component {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
         ApprovalForAll: ApprovalForAll,
@@ -39,39 +40,39 @@ mod ERC1155Component {
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct TransferSingle {
+    pub struct TransferSingle {
         #[key]
-        operator: ContractAddress,
+        pub operator: ContractAddress,
         #[key]
-        from: ContractAddress,
+        pub from: ContractAddress,
         #[key]
-        to: ContractAddress,
-        id: u256,
-        value: u256
+        pub to: ContractAddress,
+        pub id: u256,
+        pub value: u256
     }
 
     /// Emitted when `values` are transferred from `from` to `to` for `ids`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct TransferBatch {
+    pub struct TransferBatch {
         #[key]
-        operator: ContractAddress,
+        pub operator: ContractAddress,
         #[key]
-        from: ContractAddress,
+        pub from: ContractAddress,
         #[key]
-        to: ContractAddress,
-        ids: Span<u256>,
-        values: Span<u256>,
+        pub to: ContractAddress,
+        pub ids: Span<u256>,
+        pub values: Span<u256>,
     }
 
     /// Emitted when `account` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct ApprovalForAll {
+    pub struct ApprovalForAll {
         #[key]
-        owner: ContractAddress,
+        pub owner: ContractAddress,
         #[key]
-        operator: ContractAddress,
-        approved: bool
+        pub operator: ContractAddress,
+        pub approved: bool
     }
 
     /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
@@ -80,27 +81,27 @@ mod ERC1155Component {
     /// returned by `IERC1155MetadataURI::uri`.
     /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct URI {
-        value: ByteArray,
+    pub struct URI {
+        pub value: ByteArray,
         #[key]
-        id: u256
+        pub id: u256
     }
 
-    mod Errors {
-        const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
-        const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
-        const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';
-        const INVALID_SENDER: felt252 = 'ERC1155: invalid sender';
-        const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: no equal array length';
-        const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
-        const SAFE_TRANSFER_FAILED: felt252 = 'ERC1155: safe transfer failed';
+    pub mod Errors {
+        pub const UNAUTHORIZED: felt252 = 'ERC1155: unauthorized operator';
+        pub const SELF_APPROVAL: felt252 = 'ERC1155: self approval';
+        pub const INVALID_RECEIVER: felt252 = 'ERC1155: invalid receiver';
+        pub const INVALID_SENDER: felt252 = 'ERC1155: invalid sender';
+        pub const INVALID_ARRAY_LENGTH: felt252 = 'ERC1155: no equal array length';
+        pub const INSUFFICIENT_BALANCE: felt252 = 'ERC1155: insufficient balance';
+        pub const SAFE_TRANSFER_FAILED: felt252 = 'ERC1155: safe transfer failed';
     }
 
     //
     // Hooks
     //
 
-    trait ERC1155HooksTrait<TContractState> {
+    pub trait ERC1155HooksTrait<TContractState> {
         fn before_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -339,7 +340,7 @@ mod ERC1155Component {
     //
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -462,7 +463,7 @@ mod ERC1155Component {
 
             let token_ids = array![token_id].span();
             let values = array![value].span();
-            self.update_with_acceptance_check(Zeroable::zero(), to, token_ids, values, data);
+            self.update_with_acceptance_check(Zero::zero(), to, token_ids, values, data);
         }
 
         /// Batched version of `mint_with_acceptance_check`.
@@ -483,7 +484,7 @@ mod ERC1155Component {
             data: Span<felt252>
         ) {
             assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
-            self.update_with_acceptance_check(Zeroable::zero(), to, token_ids, values, data);
+            self.update_with_acceptance_check(Zero::zero(), to, token_ids, values, data);
         }
 
         /// Destroys a `value` amount of tokens of type `token_id` from `from`.
@@ -504,7 +505,7 @@ mod ERC1155Component {
 
             let token_ids = array![token_id].span();
             let values = array![value].span();
-            self.update(from, Zeroable::zero(), token_ids, values);
+            self.update(from, Zero::zero(), token_ids, values);
         }
 
         /// Batched version of `burn`.
@@ -523,7 +524,7 @@ mod ERC1155Component {
             values: Span<u256>
         ) {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
-            self.update(from, Zeroable::zero(), token_ids, values);
+            self.update(from, Zero::zero(), token_ids, values);
         }
 
         /// Sets a new URI for all token types, by relying on the token type ID
@@ -706,7 +707,9 @@ mod ERC1155Component {
 }
 
 /// An empty implementation of the ERC1155 hooks to be used in basic ERC1155 preset contracts.
-impl ERC1155HooksEmptyImpl<TContractState> of ERC1155Component::ERC1155HooksTrait<TContractState> {
+pub impl ERC1155HooksEmptyImpl<
+    TContractState
+> of ERC1155Component::ERC1155HooksTrait<TContractState> {
     fn before_update(
         ref self: ERC1155Component::ComponentState<TContractState>,
         from: ContractAddress,

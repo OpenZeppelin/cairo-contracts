@@ -1,1 +1,1 @@
-mod test_upgradeable;
+pub(crate) mod test_upgradeable;

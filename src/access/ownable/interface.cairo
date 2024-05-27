@@ -4,20 +4,20 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-trait IOwnable<TState> {
+pub trait IOwnable<TState> {
     fn owner(self: @TState) -> ContractAddress;
     fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
     fn renounce_ownership(ref self: TState);
 }
 
 #[starknet::interface]
-trait IOwnableCamelOnly<TState> {
+pub trait IOwnableCamelOnly<TState> {
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
     fn renounceOwnership(ref self: TState);
 }
 
 #[starknet::interface]
-trait OwnableABI<TState> {
+pub trait OwnableABI<TState> {
     // IOwnable
     fn owner(self: @TState) -> ContractAddress;
     fn transfer_ownership(ref self: TState, new_owner: ContractAddress);
@@ -29,7 +29,7 @@ trait OwnableABI<TState> {
 }
 
 #[starknet::interface]
-trait IOwnableTwoStep<TState> {
+pub trait IOwnableTwoStep<TState> {
     fn owner(self: @TState) -> ContractAddress;
     fn pending_owner(self: @TState) -> ContractAddress;
     fn accept_ownership(ref self: TState);
@@ -38,7 +38,7 @@ trait IOwnableTwoStep<TState> {
 }
 
 #[starknet::interface]
-trait IOwnableTwoStepCamelOnly<TState> {
+pub trait IOwnableTwoStepCamelOnly<TState> {
     fn pendingOwner(self: @TState) -> ContractAddress;
     fn acceptOwnership(ref self: TState);
     fn transferOwnership(ref self: TState, newOwner: ContractAddress);
@@ -46,7 +46,7 @@ trait IOwnableTwoStepCamelOnly<TState> {
 }
 
 #[starknet::interface]
-trait OwnableTwoStepABI<TState> {
+pub trait OwnableTwoStepABI<TState> {
     // IOwnableTwoStep
     fn owner(self: @TState) -> ContractAddress;
     fn pending_owner(self: @TState) -> ContractAddress;

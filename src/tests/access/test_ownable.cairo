@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
 use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::access::ownable::OwnableComponent;
@@ -215,14 +216,14 @@ fn test_renounceOwnership_from_nonowner() {
 // Helpers
 //
 
-fn assert_only_event_ownership_transferred(
+pub(crate) fn assert_only_event_ownership_transferred(
     contract: ContractAddress, previous_owner: ContractAddress, new_owner: ContractAddress
 ) {
     assert_event_ownership_transferred(contract, previous_owner, new_owner);
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_ownership_transferred(
+pub(crate) fn assert_event_ownership_transferred(
     contract: ContractAddress, previous_owner: ContractAddress, new_owner: ContractAddress
 ) {
     let event = utils::pop_log::<OwnableComponent::Event>(contract).unwrap();

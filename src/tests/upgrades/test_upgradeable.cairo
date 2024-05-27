@@ -87,13 +87,13 @@ fn test_remove_selector_fails_in_v2() {
 // Helpers
 //
 
-fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
+pub(crate) fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
     let event = utils::pop_log::<UpgradeableComponent::Event>(contract).unwrap();
     let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
     assert!(event == expected);
 }
 
-fn assert_only_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
+pub(crate) fn assert_only_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
     assert_event_upgraded(contract, class_hash);
     utils::assert_no_events_left(ZERO());
 }

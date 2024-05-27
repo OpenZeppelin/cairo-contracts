@@ -4,7 +4,7 @@
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
 
-trait UnwrapAndCast<T> {
+pub trait UnwrapAndCast<T> {
     fn unwrap_and_cast(self: SyscallResult<Span<felt252>>) -> T;
 }
 

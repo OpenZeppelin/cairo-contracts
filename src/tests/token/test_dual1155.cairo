@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155Mock, SnakeERC1155Mock};
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155PanicMock, SnakeERC1155PanicMock};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;

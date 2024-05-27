@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
@@ -21,15 +22,15 @@ use starknet::contract_address_const;
 use starknet::testing;
 
 #[derive(Drop)]
-struct SignedTransactionData {
-    private_key: felt252,
-    public_key: felt252,
-    transaction_hash: felt252,
-    r: felt252,
-    s: felt252
+pub(crate) struct SignedTransactionData {
+    pub(crate) private_key: felt252,
+    pub(crate) public_key: felt252,
+    pub(crate) transaction_hash: felt252,
+    pub(crate) r: felt252,
+    pub(crate) s: felt252
 }
 
-fn SIGNED_TX_DATA() -> SignedTransactionData {
+pub(crate) fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 1234,
         public_key: NEW_PUBKEY,
@@ -89,7 +90,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> AccountABIDispatche
     AccountABIDispatcher { contract_address: address }
 }
 
-fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME());
@@ -581,7 +582,7 @@ fn get_accept_ownership_signature() -> Span<felt252> {
         .span()
 }
 
-fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
+pub(crate) fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: felt252) {
     let event = utils::pop_log::<AccountComponent::Event>(contract).unwrap();
     let expected = AccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });
     assert!(event == expected);
@@ -593,7 +594,7 @@ fn assert_event_owner_removed(contract: ContractAddress, removed_owner_guid: fel
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+pub(crate) fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
     let event = utils::pop_log::<AccountComponent::Event>(contract).unwrap();
     let expected = AccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
     assert!(event == expected);
@@ -605,7 +606,7 @@ fn assert_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) 
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
+pub(crate) fn assert_only_event_owner_added(contract: ContractAddress, new_owner_guid: felt252) {
     assert_event_owner_added(contract, new_owner_guid);
     utils::assert_no_events_left(contract);
 }

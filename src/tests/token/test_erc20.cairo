@@ -1,4 +1,4 @@
-use integer::BoundedInt;
+use core::integer::BoundedInt;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
@@ -432,7 +432,7 @@ fn test__burn_from_zero() {
 // Helpers
 //
 
-fn assert_event_approval(
+pub(crate) fn assert_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
@@ -447,14 +447,14 @@ fn assert_event_approval(
     utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
-fn assert_only_event_approval(
+pub(crate) fn assert_only_event_approval(
     contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
 ) {
     assert_event_approval(contract, owner, spender, value);
     utils::assert_no_events_left(contract);
 }
 
-fn assert_event_transfer(
+pub(crate) fn assert_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
     let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
@@ -469,7 +469,7 @@ fn assert_event_transfer(
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_transfer(
+pub(crate) fn assert_only_event_transfer(
     contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
     assert_event_transfer(contract, from, to, value);

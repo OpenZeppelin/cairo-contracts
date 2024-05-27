@@ -264,7 +264,7 @@ mod TimelockControllerComponent {
                 let mut proposer = proposers.at(i);
                 access_component._grant_role(PROPOSER_ROLE, *proposer);
                 access_component._grant_role(CANCELLER_ROLE, *proposer);
-                i = i + 1;
+                i += 1;
             };
 
             // Register executors
@@ -276,7 +276,7 @@ mod TimelockControllerComponent {
 
                 let mut executor = executors.at(i);
                 access_component._grant_role(EXECUTOR_ROLE, *executor);
-                i = i + 1;
+                i += 1;
             };
 
             self.TimelockController_min_delay.write(min_delay);
@@ -302,8 +302,8 @@ mod TimelockControllerComponent {
         }
 
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
-            assert(self.is_operation(id), Errors::UNEXPECTED_OPERATION_STATE);
-            assert(self.get_min_delay() < delay, Errors::INSUFFICIENT_DELAY);
+            assert(!self.is_operation(id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(self.get_min_delay() <= delay, Errors::INSUFFICIENT_DELAY);
             self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
         }
 

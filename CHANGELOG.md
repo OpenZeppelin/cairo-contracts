@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Secp256k1PointPartialEq` and `DebugSecp256k1Point` are not public anymore.
   - `account::utils::execute_single_call` is not public anymore.
   - Presets are not public anymore, since they should be copied into projects, and not directly imported.
-  - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilties.
-  - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utilty, but as a temporary solution until Starknet native implementation arrives.
+  - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
+  - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
 
 ## 0.13.0 (2024-05-20)
 

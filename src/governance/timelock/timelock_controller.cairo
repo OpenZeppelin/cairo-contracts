@@ -296,7 +296,7 @@ mod TimelockControllerComponent {
         }
 
         fn after_call(ref self: ComponentState<TContractState>, id: felt252) {
-            assert(!self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 

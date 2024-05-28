@@ -346,6 +346,24 @@ fn test_schedule_with_salt_zero() {
 
 // execute
 
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+fn test_execute_when_not_scheduled() {
+    let mut timelock = deploy_timelock();
+    let mut erc721 = deploy_erc721(timelock.contract_address);
+    utils::drop_events(timelock.contract_address, 12);
+
+    let executor = get_executor();
+    starknet::testing::set_contract_address(executor);
+
+    let predecessor = 0;
+    let salt = SALT;
+    let call = single_operation(erc721.contract_address);
+    let call_arr = array![call];
+
+    timelock.execute(call_arr.span(), predecessor, salt);
+}
+
 // hash_operation
 
 #[test]

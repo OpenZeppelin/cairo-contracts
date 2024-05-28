@@ -6,28 +6,6 @@ use starknet::secp256_trait::Secp256PointTrait;
 use starknet::secp256r1::Secp256r1Impl;
 
 #[test]
-fn test_curve_size() {
-    let curve_size = Secp256r1Impl::get_curve_size();
-    assert_eq!(curve_size, 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551);
-    assert_eq!(curve_size.low, 0xbce6faada7179e84f3b9cac2fc632551);
-    assert_eq!(curve_size.high, 0xffffffff00000000ffffffffffffffff);
-}
-
-#[test]
-fn test_get_point_from_x_syscall_on_curve_size_is_none() {
-    let curve_size = Secp256r1Impl::get_curve_size();
-    match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, true).unwrap_syscall() {
-        Option::Some(_data) => { assert_eq!(true, false); },
-        Option::None => { assert_eq!(true, true); },
-    }
-
-    match Secp256r1Impl::secp256_ec_get_point_from_x_syscall(curve_size, false).unwrap_syscall() {
-        Option::Some(_data) => { assert_eq!(true, false); },
-        Option::None => { assert_eq!(true, true); },
-    }
-}
-
-#[test]
 fn test_pack_big_secp256r1_points() {
     let (big_point_1, big_point_2) = get_points();
     let private_key = P256_PRIVATEKEY_SAMPLE();

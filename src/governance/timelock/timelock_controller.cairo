@@ -289,7 +289,10 @@ mod TimelockControllerComponent {
 
         fn before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
             assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
-            assert(predecessor == 0 || !self.is_operation_done(predecessor), Errors::UNEXECUTED_PREDECESSOR);
+            assert(
+                predecessor == 0 || !self.is_operation_done(predecessor),
+                Errors::UNEXECUTED_PREDECESSOR
+            );
         }
 
         fn after_call(ref self: ComponentState<TContractState>, id: felt252) {

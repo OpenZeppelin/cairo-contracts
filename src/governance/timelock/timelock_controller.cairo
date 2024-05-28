@@ -93,11 +93,10 @@ mod TimelockControllerComponent {
     }
 
     mod Errors {
-        const INVALID_CLASS: felt252 = 'Class hash cannot be zero';
         const INVALID_OPERATION_LEN: felt252 = 'Timelock: invalid operation len';
         const INSUFFICIENT_DELAY: felt252 = 'Timelock: insufficient delay';
         const UNEXPECTED_OPERATION_STATE: felt252 = 'Timelock: unexpected op state';
-        const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: unexecuted predessor';
+        const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
         const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
     }
 
@@ -290,10 +289,7 @@ mod TimelockControllerComponent {
 
         fn before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
             assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
-            assert(
-                predecessor != 0 && !self.is_operation_done(predecessor),
-                Errors::UNEXECUTED_PREDECESSOR
-            );
+            assert(predecessor == 0 || !self.is_operation_done(predecessor), Errors::UNEXECUTED_PREDECESSOR);
         }
 
         fn after_call(ref self: ComponentState<TContractState>, id: felt252) {
@@ -320,6 +316,8 @@ mod TimelockControllerComponent {
                     calldata: *calls.at(index).calldata
                 };
                 execute_single_call(call);
+
+                index += 1;
             }
         }
     }

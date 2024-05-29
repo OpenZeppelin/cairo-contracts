@@ -238,7 +238,7 @@ mod MyContract {
     ) {
         // ERC20-related initialization
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
 
         // AccessControl-related initialization
         self.accesscontrol.initializer();
@@ -249,7 +249,7 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-        self.erc20._mint(recipient, amount);
+        self.erc20.mint(recipient, amount);
     }
 }
 ----
@@ -330,7 +330,7 @@ mod MyContract {
     ) {
         // ERC20-related initialization
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
 
         // AccessControl-related initialization
         self.accesscontrol.initializer();
@@ -342,14 +342,14 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-        self.erc20._mint(recipient, amount);
+        self.erc20.mint(recipient, amount);
     }
 
     /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(BURNER_ROLE);
-        self.erc20._burn(account, amount);
+        self.erc20.burn(account, amount);
     }
 }
 ----
@@ -433,7 +433,7 @@ mod MyContract {
     ) {
         // ERC20-related initialization
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
 
         // AccessControl-related initialization
         self.accesscontrol.initializer();
@@ -444,14 +444,14 @@ mod MyContract {
     #[external(v0)]
     fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(MINTER_ROLE);
-        self.erc20._mint(recipient, amount);
+        self.erc20.mint(recipient, amount);
     }
 
     /// This function can only be called by a burner.
     #[external(v0)]
     fn burn(ref self: ContractState, account: ContractAddress, amount: u256) {
         self.accesscontrol.assert_only_role(BURNER_ROLE);
-        self.erc20._burn(account, amount);
+        self.erc20.burn(account, amount);
     }
 }
 ----

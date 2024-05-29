@@ -28,7 +28,7 @@ The `{replace_class_syscall}` syscall allows a contract to update its source cod
 [,cairo]
 ----
 /// Upgrades the contract source code to the new contract class.
-fn _upgrade(new_class_hash: ClassHash) {
+fn upgrade(new_class_hash: ClassHash) {
     assert(!new_class_hash.is_zero(), 'Class hash cannot be zero');
     starknet::replace_class_syscall(new_class_hash).unwrap_syscall();
 }
@@ -97,7 +97,7 @@ mod UpgradeableContract {
             self.ownable.assert_only_owner();
 
             // Replace the class hash upgrading the contract
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

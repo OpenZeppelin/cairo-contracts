@@ -51,7 +51,7 @@ Upgradeable component.
 --
 .InternalImpl
 
-* xref:#UpgradeableComponent-_upgrade[`++_upgrade(self, new_class_hash)++`]
+* xref:#UpgradeableComponent-upgrade[`++upgrade(self, new_class_hash)++`]
 --
 
 [.contract-index]
@@ -64,8 +64,8 @@ Upgradeable component.
 ==== Internal Functions
 
 [.contract-item]
-[[UpgradeableComponent-_upgrade]]
-==== `[.contract-item-name]#++_upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#internal#
+[[UpgradeableComponent-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#internal#
 
 Upgrades the contract by updating the contract {class_hash}.
 

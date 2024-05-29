@@ -262,6 +262,7 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC721Component-safe_transfer[`++safe_transfer(self, from, to, token_id, data)++`]
 * xref:#ERC721Component-safe_mint[`++safe_mint(self, to, token_id, data)++`]
 * xref:#ERC721Component-burn[`++burn(self, token_id)++`]
+* xref:#ERC721Component-update[`++update(self, to, token_id, auth)++`]
 * xref:#ERC721Component-_owner_of[`++_owner_of(self, token_id)++`]
 * xref:#ERC721Component-_require_owned[`++_require_owned(self, token_id)++`]
 * xref:#ERC721Component-_approve[`++_approve(self, to, token_id, auth)++`]
@@ -273,7 +274,6 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC721Component-_base_uri[`++_base_uri(self)++`]
 * xref:#ERC721Component-_is_authorized[`++_is_authorized(self, owner, spender, token_id)++`]
 * xref:#ERC721Component-_check_authorized[`++_check_authorized(self, owner, spender, token_id)++`]
-* xref:#ERC721Component-_update[`++_update(self, to, token_id, auth)++`]
 --
 
 [.contract-index]
@@ -299,13 +299,13 @@ for this purpose.
 [[ERC721Component-before_update]]
 ==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
 
-Function executed at the beginning of the xref:#ERC721Component-_update[_update] function prior to any other logic.
+Function executed at the beginning of the xref:#ERC721Component-update[update] function prior to any other logic.
 
 [.contract-item]
 [[ERC721Component-after_update]]
 ==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
 
-Function executed at the end of the xref:#ERC721Component-_update[_update] function.
+Function executed at the end of the xref:#ERC721Component-update[update] function.
 
 ==== Embeddable functions
 
@@ -655,8 +655,8 @@ WARNING: This function assumes that `owner` is the actual owner of `token_id` an
 assumption.
 
 [.contract-item]
-[[ERC721Component-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
+[[ERC721Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
 
 Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
 (or `to`) is the zero address. Returns the owner of the `token_id` before the update.

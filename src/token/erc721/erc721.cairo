@@ -182,7 +182,7 @@ mod ERC721Component {
 
             // Setting an "auth" arguments enables the `_is_authorized` check which verifies that the token exists
             // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
-            let previous_owner = self._update(to, token_id, get_caller_address());
+            let previous_owner = self.update(to, token_id, get_caller_address());
 
             assert(from == previous_owner, Errors::INVALID_SENDER);
         }
@@ -557,8 +557,51 @@ mod ERC721Component {
         ///
         /// Emits a `Transfer` event.
         fn burn(ref self: ComponentState<TContractState>, token_id: u256) {
-            let previous_owner = self._update(Zeroable::zero(), token_id, Zeroable::zero());
+            let previous_owner = self.update(Zeroable::zero(), token_id, Zeroable::zero());
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
+        }
+
+        /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+        /// (or `to`) is the zero address. Returns the owner of the `token_id` before the update.
+        ///
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that
+        /// `auth` is either the owner of the token, or approved to operate on the token (by the owner).
+        ///
+        /// Emits a `Transfer` event.
+        ///
+        /// NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
+        fn update(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) -> ContractAddress {
+            Hooks::before_update(ref self, to, token_id, auth);
+
+            let from = self._owner_of(token_id);
+
+            // Perform (optional) operator check
+            if !auth.is_zero() {
+                self._check_authorized(from, auth, token_id);
+            }
+            if !from.is_zero() {
+                let zero_address = Zeroable::zero();
+                self._approve_with_optional_event(zero_address, token_id, zero_address, false);
+
+                self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
+            }
+            if !to.is_zero() {
+                self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
+            }
+
+            self.ERC721_owners.write(token_id, to);
+            self.emit(Transfer { from, to, token_id });
+
+            Hooks::after_update(ref self, to, token_id, auth);
+
+            from
         }
 
         /// Returns the owner address of `token_id`.
@@ -668,7 +711,7 @@ mod ERC721Component {
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            let previous_owner = self._update(to, token_id, Zeroable::zero());
+            let previous_owner = self.update(to, token_id, Zeroable::zero());
 
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
             assert(from == previous_owner, Errors::INVALID_SENDER);
@@ -688,7 +731,7 @@ mod ERC721Component {
         fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            let previous_owner = self._update(to, token_id, Zeroable::zero());
+            let previous_owner = self.update(to, token_id, Zeroable::zero());
 
             assert(previous_owner.is_zero(), Errors::ALREADY_MINTED);
         }
@@ -744,49 +787,6 @@ mod ERC721Component {
             // Non-existent token
             assert(!owner.is_zero(), Errors::INVALID_TOKEN_ID);
             assert(self._is_authorized(owner, spender, token_id), Errors::UNAUTHORIZED);
-        }
-
-        /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-        /// (or `to`) is the zero address. Returns the owner of the `token_id` before the update.
-        ///
-        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that
-        /// `auth` is either the owner of the token, or approved to operate on the token (by the owner).
-        ///
-        /// Emits a `Transfer` event.
-        ///
-        /// NOTE: This function can be extended using the `ERC721HooksTrait`, to add
-        /// functionality before and/or after the transfer, mint, or burn.
-        ///
-        fn _update(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            token_id: u256,
-            auth: ContractAddress
-        ) -> ContractAddress {
-            Hooks::before_update(ref self, to, token_id, auth);
-
-            let from = self._owner_of(token_id);
-
-            // Perform (optional) operator check
-            if !auth.is_zero() {
-                self._check_authorized(from, auth, token_id);
-            }
-            if !from.is_zero() {
-                let zero_address = Zeroable::zero();
-                self._approve_with_optional_event(zero_address, token_id, zero_address, false);
-
-                self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
-            }
-            if !to.is_zero() {
-                self.ERC721_balances.write(to, self.ERC721_balances.read(to) + 1);
-            }
-
-            self.ERC721_owners.write(token_id, to);
-            self.emit(Transfer { from, to, token_id });
-
-            Hooks::after_update(ref self, to, token_id, auth);
-
-            from
         }
     }
 

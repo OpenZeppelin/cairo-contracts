@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - PausableComponent
     - `_pause` function renamed to `pause`
     - `_unpause` function renamed to `unpause`
+  - UpgradeableComponent
+    - `_upgrade` function renamed to `upgrade`
   - ERC20Component:
     - `_mint` function renamed to `mint`
     - `_burn` function renamed to `burn`
@@ -23,9 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `_safe_transfer` function renamed to `safe_transfer`
     - `_safe_mint` function renamed to `safe_mint`
     - `_burn` function renamed to `burn`
+    - `_update` function renamed to `update`
   - ERC1155Component:
     - `set_base_uri` function renamed to `_set_base_uri`
-    - `_update` function renamed to `update`
 
 ## 0.13.0 (2024-05-20)
 

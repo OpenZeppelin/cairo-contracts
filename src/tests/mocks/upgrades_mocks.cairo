@@ -38,7 +38,7 @@ mod UpgradesV1 {
     #[abi(embed_v0)]
     impl UpgradesV1Impl of super::IUpgradesV1<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
 
         fn set_value(ref self: ContractState, val: felt252) {
@@ -89,7 +89,7 @@ mod UpgradesV2 {
     #[abi(embed_v0)]
     impl UpgradesV2Impl of super::IUpgradesV2<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
 
         fn set_value(ref self: ContractState, val: felt252) {

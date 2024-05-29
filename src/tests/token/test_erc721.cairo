@@ -1481,7 +1481,7 @@ fn test__check_authorized_zero_address() {
 fn test_update_mint() {
     let mut state = setup();
 
-    state._update(RECIPIENT(), TOKEN_ID_2, ZERO());
+    state.update(RECIPIENT(), TOKEN_ID_2, ZERO());
     assert_only_event_transfer(ZERO(), ZERO(), RECIPIENT(), TOKEN_ID_2);
 
     let owner = state.owner_of(TOKEN_ID_2);
@@ -1495,7 +1495,7 @@ fn test_update_mint() {
 fn test_update_burn() {
     let mut state = setup();
 
-    state._update(ZERO(), TOKEN_ID, ZERO());
+    state.update(ZERO(), TOKEN_ID, ZERO());
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
 
     let owner = state._owner_of(TOKEN_ID);
@@ -1509,7 +1509,7 @@ fn test_update_burn() {
 fn test_update_transfer() {
     let mut state = setup();
 
-    state._update(RECIPIENT(), TOKEN_ID, ZERO());
+    state.update(RECIPIENT(), TOKEN_ID, ZERO());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1517,7 +1517,7 @@ fn test_update_transfer() {
 #[test]
 fn test_update_auth_owner() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID, OWNER());
+    state.update(RECIPIENT(), TOKEN_ID, OWNER());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1529,7 +1529,7 @@ fn test_update_auth_approved_for_all() {
     state.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(ZERO());
 
-    state._update(RECIPIENT(), TOKEN_ID, OPERATOR());
+    state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1541,7 +1541,7 @@ fn test_update_auth_approved() {
     state.approve(OPERATOR(), TOKEN_ID);
     utils::drop_event(ZERO());
 
-    state._update(RECIPIENT(), TOKEN_ID, OPERATOR());
+    state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1550,14 +1550,14 @@ fn test_update_auth_approved() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_update_auth_not_approved() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID, CALLER());
+    state.update(RECIPIENT(), TOKEN_ID, CALLER());
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_update_mint_auth_not_zero() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID_2, CALLER());
+    state.update(RECIPIENT(), TOKEN_ID_2, CALLER());
 }
 
 //

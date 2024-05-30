@@ -75,3 +75,55 @@ mod TimelockControllerMock {
         self.timelock.initializer(min_delay, proposers, executors, admin);
     }
 }
+
+#[starknet::interface]
+trait ITimelockAttacker<TState> {
+    fn reenter(ref self: TState);
+}
+
+#[starknet::contract]
+mod TimelockAttackerMock {
+    use openzeppelin::governance::timelock::interface::{
+        ITimelockDispatcher, ITimelockDispatcherTrait
+    };
+    use openzeppelin::tests::utils::constants::SALT;
+    use starknet::ContractAddress;
+    use starknet::account::Call;
+    use super::ITimelockAttacker;
+
+    const PREDECESSOR: felt252 = 0;
+
+    #[storage]
+    struct Storage {
+        balance: felt252,
+        count: felt252
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {}
+
+    #[abi(embed_v0)]
+    impl TimelockAttackerImpl of ITimelockAttacker<ContractState> {
+        fn reenter(ref self: ContractState) {
+            let new_balance = self.balance.read() + 1;
+            self.balance.write(new_balance);
+
+            let sender = starknet::get_caller_address();
+            let this = starknet::get_contract_address();
+
+            let current_count = self.count.read();
+            if current_count != 2 {
+                self.count.write(current_count + 1);
+
+                let reentrant_call = Call {
+                    to: this, selector: selector!("reenter"), calldata: array![].span()
+                };
+                let reentrant_call_span = array![reentrant_call].span();
+
+                let timelock = ITimelockDispatcher { contract_address: sender };
+                timelock.execute(reentrant_call_span, PREDECESSOR, SALT);
+            }
+        }
+    }
+}

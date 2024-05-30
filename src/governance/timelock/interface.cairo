@@ -7,14 +7,7 @@
 
 use starknet::ContractAddress;
 use starknet::account::Call;
-
-#[derive(Drop, Copy, Serde, PartialEq)]
-enum OperationState {
-    Unset,
-    Waiting,
-    Ready,
-    Done
-}
+use openzeppelin::governance::timelock::utils::OperationState;
 
 #[starknet::interface]
 trait ITimelock<TState> {

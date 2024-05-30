@@ -11,10 +11,9 @@ mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::account::utils::execute_single_call;
     use openzeppelin::governance::timelock::interface::ITimelock;
     use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::{CallPartialEq, HashCallImpl};
+    use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -311,12 +310,8 @@ mod TimelockControllerComponent {
                     break;
                 }
 
-                let mut call = Call {
-                    to: *calls.at(index).to,
-                    selector: *calls.at(index).selector,
-                    calldata: *calls.at(index).calldata
-                };
-                execute_single_call(call);
+                let Call { to, selector, calldata } = calls.at(index);
+                starknet::call_contract_syscall(*to, *selector, *calldata).unwrap_syscall();
 
                 index += 1;
             }

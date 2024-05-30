@@ -5,6 +5,7 @@ use openzeppelin::access::accesscontrol::AccessControlComponent::{
 use openzeppelin::access::accesscontrol::accesscontrol::AccessControlComponent::InternalTrait;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
+use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
 };
@@ -15,7 +16,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent;
-use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
 use openzeppelin::governance::timelock::interface::{
     ITimelockABIDispatcher, ITimelockABIDispatcherTrait
 };
@@ -705,7 +705,9 @@ fn test_hash_operation() {
 // Helpers
 //
 
-fn assert_operation_state(timelock: ITimelockABIDispatcher, exp_state: OperationState, id: felt252) {
+fn assert_operation_state(
+    timelock: ITimelockABIDispatcher, exp_state: OperationState, id: felt252
+) {
     let operation_state = timelock.get_operation_state(id);
     assert_eq!(operation_state, exp_state);
 
@@ -830,7 +832,9 @@ fn assert_only_event_cancel(contract: ContractAddress, id: felt252) {
 
 fn assert_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(MinDelayChange { old_duration, new_duration });
+    let expected = TimelockControllerComponent::Event::MinDelayChange(
+        MinDelayChange { old_duration, new_duration }
+    );
     assert!(event == expected);
 }
 

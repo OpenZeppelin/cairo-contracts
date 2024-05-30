@@ -5,9 +5,9 @@
 ///
 ///
 
+use openzeppelin::governance::timelock::utils::OperationState;
 use starknet::ContractAddress;
 use starknet::account::Call;
-use openzeppelin::governance::timelock::utils::OperationState;
 
 #[starknet::interface]
 trait ITimelock<TState> {

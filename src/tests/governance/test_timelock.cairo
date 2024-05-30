@@ -601,7 +601,7 @@ fn test_hash_operation() {
     calldata1.append_serde(TOKEN_ID);
 
     let mut call1 = Call {
-        to: erc721.contract_address, selector: 'approve', calldata: calldata1.span()
+        to: erc721.contract_address, selector: selectors::approve, calldata: calldata1.span()
     };
 
     // Call 2
@@ -610,7 +610,7 @@ fn test_hash_operation() {
     calldata2.append_serde(RECIPIENT());
     calldata2.append_serde(TOKEN_ID);
     let mut call2 = Call {
-        to: erc721.contract_address, selector: 'transfer_from', calldata: calldata2.span()
+        to: erc721.contract_address, selector: selectors::transfer_from, calldata: calldata2.span()
     };
 
     // Hash operation
@@ -624,13 +624,13 @@ fn test_hash_operation() {
         .update_with(14) // total elements of Call span
         .update_with(2) // total number of Calls
         .update_with(erc721.contract_address) // call1::to
-        .update_with('approve') // call1::selector
+        .update_with(selector!("approve")) // call1::selector
         .update_with(3) // call1::calldata.len
         .update_with(SPENDER()) // call1::calldata::to
         .update_with(TOKEN_ID.low) // call1::calldata::token_id.low
         .update_with(TOKEN_ID.high) // call1::calldata::token_id.high
         .update_with(erc721.contract_address) // call2::to
-        .update_with('transfer_from') // call2::selector
+        .update_with(selector!("transfer_from")) // call2::selector
         .update_with(4) // call2::calldata.len
         .update_with(timelock.contract_address) // call2::calldata::from
         .update_with(RECIPIENT()) // call2::calldata::to

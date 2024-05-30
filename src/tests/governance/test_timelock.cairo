@@ -19,7 +19,7 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
     ITimelockABIDispatcher, ITimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::utils::{CallPartialEq, HashCallImpl};
+use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;

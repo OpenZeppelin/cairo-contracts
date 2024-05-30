@@ -52,6 +52,7 @@ fn COMPONENT_STATE() -> ComponentState {
 }
 
 const MIN_DELAY: u64 = 1000;
+const NEW_DELAY: u64 = 2000;
 const NO_PREDECESSOR: felt252 = 0;
 
 fn PROPOSER() -> ContractAddress {
@@ -81,6 +82,16 @@ fn single_operation(erc721_addr: ContractAddress) -> Call {
     let mut calldata = array![];
     calldata.append_serde(SPENDER());
     calldata.append_serde(TOKEN_ID);
+
+    Call { to: erc721_addr, selector: selectors::approve, calldata: calldata.span() }
+}
+
+fn failing_operation(erc721_addr: ContractAddress) -> Call {
+    let nonexistent_token = 999_u256;
+    // Call: approve
+    let mut calldata = array![];
+    calldata.append_serde(SPENDER());
+    calldata.append_serde(nonexistent_token);
 
     Call { to: erc721_addr, selector: selectors::approve, calldata: calldata.span() }
 }
@@ -461,6 +472,123 @@ fn test_execute_reentrant_call() {
     timelock.execute(reentrant_call_span, NO_PREDECESSOR, SALT);
 }
 
+#[test]
+#[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'))]
+fn test_execute_partial_execution() {
+    let (mut timelock, mut erc721) = setup_dispatchers();
+
+    let good_call = single_operation(erc721.contract_address);
+    let bad_call = failing_operation(erc721.contract_address);
+    let call_span = array![good_call, bad_call].span();
+    let salt = SALT;
+    let delay = MIN_DELAY;
+
+    // schedule
+    testing::set_contract_address(PROPOSER());
+
+    timelock.schedule(call_span, NO_PREDECESSOR, salt, delay);
+    utils::drop_events(timelock.contract_address, 2);
+
+    // fast-forward
+    testing::set_block_timestamp(delay);
+
+    // execute
+    testing::set_contract_address(EXECUTOR());
+    timelock.execute(call_span, NO_PREDECESSOR, salt);
+}
+
+// cancel
+
+#[test]
+fn test_cancel() {
+    let (mut timelock, mut erc721) = setup_dispatchers();
+
+    let batched_operations = batched_operations(erc721.contract_address, timelock.contract_address);
+    let hash_id = timelock.hash_operation(batched_operations, NO_PREDECESSOR, SALT);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER()); // PROPOSER is also CANCELLER
+    timelock.schedule(batched_operations, NO_PREDECESSOR, SALT, MIN_DELAY);
+    utils::drop_events(timelock.contract_address, 2);
+
+    // Cancel
+    timelock.cancel(hash_id);
+    assert_only_event_cancel(timelock.contract_address, hash_id);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+fn test_cancel_invalid_operation() {
+    let (mut timelock, mut erc721) = setup_dispatchers();
+
+    let batched_operations = batched_operations(erc721.contract_address, timelock.contract_address);
+    let hash_id = timelock.hash_operation(batched_operations, NO_PREDECESSOR, SALT);
+
+    // PROPOSER is also CANCELLER
+    testing::set_contract_address(PROPOSER());
+
+    timelock.cancel(hash_id);
+}
+
+#[test]
+#[should_panic(expected: ('Caller is missing role', 'ENTRYPOINT_FAILED'))]
+fn test_cancel_unauthorized() {
+    let (mut timelock, mut erc721) = setup_dispatchers();
+
+    let batched_operations = batched_operations(erc721.contract_address, timelock.contract_address);
+    let hash_id = timelock.hash_operation(batched_operations, NO_PREDECESSOR, SALT);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(batched_operations, NO_PREDECESSOR, SALT, MIN_DELAY);
+    utils::drop_events(timelock.contract_address, 2);
+
+    // Cancel
+    testing::set_contract_address(OTHER());
+    timelock.cancel(hash_id);
+}
+
+// update_delay
+
+#[test]
+#[should_panic(expected: ('Timelock: unauthorized caller', 'ENTRYPOINT_FAILED'))]
+fn test_update_delay_unauthorized() {
+    let mut timelock = deploy_timelock();
+
+    timelock.update_delay(NEW_DELAY);
+}
+
+#[test]
+fn test_update_delay_scheduled() {
+    let mut timelock = deploy_timelock();
+
+    let update_delay_call = Call {
+        to: timelock.contract_address,
+        selector: selector!("update_delay"),
+        calldata: array![NEW_DELAY.into()].span()
+    };
+    let call_span = array![update_delay_call].span();
+    let hash_id = timelock.hash_operation(call_span, NO_PREDECESSOR, SALT);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call_span, NO_PREDECESSOR, SALT, MIN_DELAY);
+    utils::drop_events(timelock.contract_address, 2);
+
+    // fast-forward
+    testing::set_block_timestamp(MIN_DELAY);
+
+    // execute
+    testing::set_contract_address(EXECUTOR());
+    timelock.execute(call_span, NO_PREDECESSOR, SALT);
+    assert_event_delay(timelock.contract_address, MIN_DELAY, NEW_DELAY);
+    assert_only_event_execute(timelock.contract_address, hash_id, call_span);
+
+    // Check new minimum delay
+    let get_new_delay = timelock.get_min_delay();
+    assert_eq!(get_new_delay, NEW_DELAY);
+}
+
 // hash_operation
 
 #[test]
@@ -581,5 +709,33 @@ fn assert_event_execute(contract: ContractAddress, id: felt252, calls: Span<Call
 
 fn assert_only_event_execute(contract: ContractAddress, id: felt252, calls: Span<Call>) {
     assert_event_execute(contract, id, calls);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_cancel(contract: ContractAddress, id: felt252) {
+    let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
+    let expected = TimelockControllerComponent::Event::Cancelled(Cancelled { id });
+    assert!(event == expected);
+
+    // Check indexed keys
+    let mut indexed_keys = array![];
+    indexed_keys.append_serde(selector!("Cancelled"));
+    indexed_keys.append_serde(id);
+    utils::assert_indexed_keys(event, indexed_keys.span());
+}
+
+fn assert_only_event_cancel(contract: ContractAddress, id: felt252) {
+    assert_event_cancel(contract, id);
+    utils::assert_no_events_left(contract);
+}
+
+fn assert_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
+    let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
+    let expected = TimelockControllerComponent::Event::MinDelayChange(MinDelayChange { old_duration, new_duration });
+    assert!(event == expected);
+}
+
+fn assert_only_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
+    assert_event_delay(contract, old_duration, new_duration);
     utils::assert_no_events_left(contract);
 }

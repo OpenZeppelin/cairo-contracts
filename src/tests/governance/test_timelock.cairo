@@ -15,10 +15,11 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent;
+use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
 use openzeppelin::governance::timelock::interface::{
     ITimelockABIDispatcher, ITimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::timelock_controller::{CallPartialEq, HashCallImpl};
+use openzeppelin::governance::timelock::utils::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
@@ -268,14 +269,16 @@ fn test_initializer_min_delay() {
 fn test_schedule_from_proposer_with_salt() {
     let (mut timelock, mut erc721) = setup_dispatchers();
     let batched_operations = batched_operations(erc721.contract_address, timelock.contract_address);
+    let hash_id = timelock.hash_operation(batched_operations, NO_PREDECESSOR, SALT);
+    assert_operation_state(timelock, OperationState::Unset, hash_id);
 
     testing::set_contract_address(PROPOSER());
 
     timelock.schedule(batched_operations, NO_PREDECESSOR, SALT, MIN_DELAY);
+    assert_operation_state(timelock, OperationState::Waiting, hash_id);
     assert_event_schedule(timelock.contract_address, batched_operations, NO_PREDECESSOR, MIN_DELAY);
 
     // Check timestamp
-    let hash_id = timelock.hash_operation(batched_operations, NO_PREDECESSOR, SALT);
     let operation_ts = timelock.get_timestamp(hash_id);
     let expected_ts = starknet::get_block_timestamp() + MIN_DELAY;
     assert_eq!(operation_ts, expected_ts);
@@ -497,6 +500,61 @@ fn test_execute_partial_execution() {
     timelock.execute(call_span, NO_PREDECESSOR, salt);
 }
 
+#[test]
+fn test_execute_with_predecessor() {
+    let (mut timelock, mut erc721) = setup_dispatchers();
+
+    // Call 1
+    let approve_call = single_operation(erc721.contract_address);
+    let call_1_span = array![approve_call].span();
+    let call_1_id = timelock.hash_operation(call_1_span, NO_PREDECESSOR, SALT);
+
+    // Schedule call 1
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call_1_span, NO_PREDECESSOR, SALT, MIN_DELAY);
+
+    assert_event_schedule(timelock.contract_address, call_1_span, NO_PREDECESSOR, MIN_DELAY);
+    assert_only_event_call_salt(timelock.contract_address, call_1_id, SALT);
+
+    // Call 2
+    let mut calldata_2 = array![];
+    calldata_2.append_serde(timelock.contract_address);
+    calldata_2.append_serde(RECIPIENT());
+    calldata_2.append_serde(TOKEN_ID);
+
+    let transfer_call = Call {
+        to: erc721.contract_address, selector: selectors::transfer_from, calldata: calldata_2.span()
+    };
+    let call_2_span = array![transfer_call].span();
+    let call_2_id = timelock.hash_operation(call_2_span, call_1_id, SALT);
+
+    // Schedule call 2
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call_2_span, call_1_id, SALT, MIN_DELAY);
+    assert_event_schedule(timelock.contract_address, call_2_span, call_1_id, MIN_DELAY);
+    assert_only_event_call_salt(timelock.contract_address, call_2_id, SALT);
+
+    // Check initial owner
+    let token_owner = erc721.owner_of(TOKEN_ID);
+    assert_eq!(token_owner, timelock.contract_address);
+
+    // fast-forward
+    testing::set_block_timestamp(MIN_DELAY);
+
+    // Execute call 1
+    testing::set_contract_address(EXECUTOR());
+    timelock.execute(call_1_span, NO_PREDECESSOR, SALT);
+    assert_only_event_execute(timelock.contract_address, call_1_id, call_1_span);
+
+    // Execute call 2
+    timelock.execute(call_2_span, call_1_id, SALT);
+    assert_event_execute(timelock.contract_address, call_2_id, call_2_span);
+
+    // Check new owner
+    let token_owner = erc721.owner_of(TOKEN_ID);
+    assert_eq!(token_owner, RECIPIENT());
+}
+
 // cancel
 
 #[test]
@@ -645,6 +703,47 @@ fn test_hash_operation() {
 
 //
 // Helpers
+//
+
+fn assert_operation_state(timelock: ITimelockABIDispatcher, exp_state: OperationState, id: felt252) {
+    let operation_state = timelock.get_operation_state(id);
+    assert_eq!(operation_state, exp_state);
+
+    let is_operation = timelock.is_operation(id);
+    let is_pending = timelock.is_operation_pending(id);
+    let is_ready = timelock.is_operation_ready(id);
+    let is_done = timelock.is_operation_done(id);
+
+    match exp_state {
+        OperationState::Unset => {
+            assert!(!is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Waiting => {
+            assert!(is_operation);
+            assert!(is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Ready => {
+            assert!(is_operation);
+            assert!(!is_pending);
+            assert!(is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Done => {
+            assert!(is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(is_done);
+        }
+    };
+}
+
+//
+// Event helpers
 //
 
 fn assert_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {

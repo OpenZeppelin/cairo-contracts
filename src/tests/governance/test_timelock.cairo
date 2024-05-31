@@ -3,7 +3,6 @@ use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
-use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
 use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
@@ -22,6 +21,7 @@ use openzeppelin::governance::timelock::interface::{
 use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::timelock_mocks::{
@@ -32,7 +32,8 @@ use openzeppelin::tests::mocks::timelock_mocks::{
 };
 use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
 use openzeppelin::tests::utils::constants::{
-    ADMIN, ZERO, NAME, SYMBOL, BASE_URI, OWNER, RECIPIENT, SPENDER, OTHER, PUBKEY, SALT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
+    ADMIN, ZERO, NAME, SYMBOL, BASE_URI, OWNER, RECIPIENT, SPENDER, OTHER, PUBKEY, SALT, TOKEN_ID,
+    TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
@@ -1100,7 +1101,10 @@ fn test_receive_erc1155_safe_batch_transfer() {
     let transfer_ids = array![token_id, token_id].span();
     let transfer_amts = array![1, 1].span();
     let data = array![].span();
-    erc1155.safe_batch_transfer_from(owner, timelock.contract_address, transfer_ids, transfer_amts, data);
+    erc1155
+        .safe_batch_transfer_from(
+            owner, timelock.contract_address, transfer_ids, transfer_amts, data
+        );
 
     // Check new balances
     let total_transfer_amt = 2;

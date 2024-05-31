@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.13.0 (governance/timelock/timelock_controller.cairo)
 
-/// # TimelockController Component
+/// # Timelock Controller Component
 ///
 ///
 #[starknet::component]
@@ -16,7 +16,6 @@ mod TimelockControllerComponent {
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
     use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, Call};
-    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
@@ -26,7 +25,7 @@ mod TimelockControllerComponent {
         InternalImpl as ERC1155InternalImpl
     };
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent;
-    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721InternalImpl;
+    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721ReceiverInternalImpl;
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::{
         ERC721ReceiverImpl, ERC721ReceiverCamelImpl
     };
@@ -34,7 +33,6 @@ mod TimelockControllerComponent {
     use poseidon::PoseidonTrait;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
-    use zeroable::Zeroable;
 
     // Constants
     const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");

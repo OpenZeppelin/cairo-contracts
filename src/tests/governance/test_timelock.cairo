@@ -3,6 +3,7 @@ use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
+use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
 use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
@@ -21,6 +22,7 @@ use openzeppelin::governance::timelock::interface::{
 use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::timelock_mocks::{
     ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
@@ -30,10 +32,11 @@ use openzeppelin::tests::mocks::timelock_mocks::{
 };
 use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
 use openzeppelin::tests::utils::constants::{
-    ADMIN, ZERO, NAME, SYMBOL, BASE_URI, RECIPIENT, SPENDER, OTHER, SALT, TOKEN_ID
+    ADMIN, ZERO, NAME, SYMBOL, BASE_URI, OWNER, RECIPIENT, SPENDER, OTHER, PUBKEY, SALT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin::token::erc1155::interface::{IERC1155DispatcherTrait, IERC1155Dispatcher};
 use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin::token::erc721::interface::{IERC721DispatcherTrait, IERC721Dispatcher};
 use openzeppelin::utils::selectors;
@@ -54,11 +57,13 @@ fn COMPONENT_STATE() -> ComponentState {
     TimelockControllerComponent::component_state_for_testing()
 }
 
+// Constants
 const MIN_DELAY: u64 = 1000;
 const NEW_DELAY: u64 = 2000;
 const VALUE: felt252 = 'VALUE';
 const NO_PREDECESSOR: felt252 = 0;
 
+// Addresses
 fn PROPOSER() -> ContractAddress {
     contract_address_const::<'PROPOSER'>()
 }
@@ -81,6 +86,7 @@ fn get_executors() -> (ContractAddress, ContractAddress, ContractAddress) {
     (e1, e2, e3)
 }
 
+// Operations
 fn single_operation(target: ContractAddress) -> Call {
     // Call: approve
     let mut calldata = array![];
@@ -104,6 +110,10 @@ fn failing_operation(target: ContractAddress) -> Call {
 
     Call { to: target, selector: selector!("failing_function"), calldata: calldata.span() }
 }
+
+//
+// Dispatchers
+//
 
 fn setup_dispatchers() -> (TimelockABIDispatcher, IMockContractDispatcher) {
     let timelock = deploy_timelock();
@@ -132,20 +142,40 @@ fn deploy_timelock() -> TimelockABIDispatcher {
     TimelockABIDispatcher { contract_address: address }
 }
 
-fn deploy_erc721(recipient: ContractAddress) -> IERC721Dispatcher {
+fn deploy_erc721() -> IERC721Dispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
     calldata.append_serde(BASE_URI());
-    calldata.append_serde(recipient);
+    calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
 
     let address = utils::deploy(DualCaseERC721Mock::TEST_CLASS_HASH, calldata);
-    // Event dropped:
-    // - Transfer
-    utils::drop_event(address);
     IERC721Dispatcher { contract_address: address }
+}
+
+fn deploy_erc1155() -> (IERC1155Dispatcher, ContractAddress) {
+    let uri: ByteArray = "URI";
+    let mut calldata = array![];
+    let mut token_id = TOKEN_ID;
+    let mut value = TOKEN_VALUE;
+
+    let owner = setup_account();
+    testing::set_contract_address(owner);
+
+    calldata.append_serde(uri);
+    calldata.append_serde(owner);
+    calldata.append_serde(token_id);
+    calldata.append_serde(value);
+
+    let address = utils::deploy(DualCaseERC1155Mock::TEST_CLASS_HASH, calldata);
+    (IERC1155Dispatcher { contract_address: address }, owner)
+}
+
+fn setup_account() -> ContractAddress {
+    let mut calldata = array![PUBKEY];
+    utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata)
 }
 
 fn deploy_mock_target() -> IMockContractDispatcher {
@@ -985,6 +1015,103 @@ fn test_update_delay_scheduled() {
     // Check new minimum delay
     let get_new_delay = timelock.get_min_delay();
     assert_eq!(get_new_delay, NEW_DELAY);
+}
+
+//
+// Safe receive
+//
+
+#[test]
+fn test_receive_erc721_safe_transfer() {
+    let mut timelock = deploy_timelock();
+    let mut erc721 = deploy_erc721();
+
+    let owner = OWNER();
+    let timelock_addr = timelock.contract_address;
+    let token = TOKEN_ID;
+    let data = array![].span();
+
+    // Check original holder
+    let original_owner = erc721.owner_of(token);
+    assert_eq!(original_owner, owner);
+
+    // Safe transfer
+    testing::set_contract_address(OWNER());
+    erc721.safe_transfer_from(owner, timelock_addr, token, data);
+
+    // Check that timelock accepted safe transfer
+    let new_owner = erc721.owner_of(token);
+    assert_eq!(new_owner, timelock_addr);
+}
+
+#[test]
+fn test_receive_erc1155_safe_transfer() {
+    let mut timelock = deploy_timelock();
+    let (mut erc1155, owner) = deploy_erc1155();
+
+    let token_id = TOKEN_ID;
+    let token_value = TOKEN_VALUE;
+    //let data = array![];
+
+    // Check initial balances
+    let owner_balance = erc1155.balance_of(owner, token_id);
+    let expected_balance = token_value;
+    assert_eq!(owner_balance, expected_balance);
+
+    let timelock_balance = erc1155.balance_of(timelock.contract_address, token_id);
+    let expected_balance = 0;
+    assert_eq!(timelock_balance, expected_balance);
+
+    // Safe transfer
+    testing::set_contract_address(owner);
+    let transfer_amt = 1;
+    let data = array![].span();
+    erc1155.safe_transfer_from(owner, timelock.contract_address, token_id, transfer_amt, data);
+
+    // Check new balances
+    let owner_balance = erc1155.balance_of(owner, token_id);
+    let expected_balance = token_value - transfer_amt;
+    assert_eq!(owner_balance, expected_balance);
+
+    let timelock_balance = erc1155.balance_of(timelock.contract_address, token_id);
+    let expected_balance = transfer_amt;
+    assert_eq!(timelock_balance, expected_balance);
+}
+
+#[test]
+fn test_receive_erc1155_safe_batch_transfer() {
+    let mut timelock = deploy_timelock();
+    let (mut erc1155, owner) = deploy_erc1155();
+
+    let token_id = TOKEN_ID;
+    let token_value = TOKEN_VALUE;
+
+    // Check initial balances
+    let owner_balance = erc1155.balance_of(owner, token_id);
+    let expected_balance = token_value;
+    assert_eq!(owner_balance, expected_balance);
+
+    let timelock_balance = erc1155.balance_of(timelock.contract_address, token_id);
+    let expected_balance = 0;
+    assert_eq!(timelock_balance, expected_balance);
+
+    // Safe batch transfer
+    testing::set_contract_address(owner);
+    let transfer_ids = array![token_id, token_id].span();
+    let transfer_amts = array![1, 1].span();
+    let data = array![].span();
+    erc1155.safe_batch_transfer_from(owner, timelock.contract_address, transfer_ids, transfer_amts, data);
+
+    // Check new balances
+    let total_transfer_amt = 2;
+
+    let owner_balance = erc1155.balance_of(owner, token_id);
+    let expected_balance = token_value - total_transfer_amt;
+    assert_eq!(owner_balance, expected_balance);
+
+    let timelock_balance = erc1155.balance_of(timelock.contract_address, token_id);
+    let expected_balance = total_transfer_amt;
+    assert_eq!(timelock_balance, expected_balance);
 }
 
 //

@@ -7,18 +7,20 @@
 #[starknet::component]
 mod TimelockControllerComponent {
     use hash::{HashStateTrait, HashStateExTrait};
-    use openzeppelin::access::accesscontrol::AccessControlComponent::AccessControlImpl;
+    use openzeppelin::access::accesscontrol::AccessControlComponent::{AccessControlImpl, AccessControlCamelImpl};
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::governance::timelock::interface::ITimelock;
+    use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
     use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl, Call};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::InternalImpl as ERC1155InternalImpl;
+    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl};
+    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{InternalImpl as ERC1155InternalImpl};
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent;
+    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::{ERC721ReceiverImpl, ERC721ReceiverCamelImpl};
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721InternalImpl;
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent;
     use poseidon::PoseidonTrait;
@@ -107,20 +109,20 @@ mod TimelockControllerComponent {
         +Drop<TContractState>
     > of ITimelock<ComponentState<TContractState>> {
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            self.get_operation_state(id) != OperationState::Unset
+            Timelock::get_operation_state(self, id) != OperationState::Unset
         }
 
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            let state = self.get_operation_state(id);
+            let state = Timelock::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready
         }
 
         fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            self.get_operation_state(id) == OperationState::Ready
+            Timelock::get_operation_state(self, id) == OperationState::Ready
         }
 
         fn is_operation_done(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            self.get_operation_state(id) == OperationState::Done
+            Timelock::get_operation_state(self, id) == OperationState::Done
         }
 
         fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
@@ -130,7 +132,7 @@ mod TimelockControllerComponent {
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252
         ) -> OperationState {
-            let timestamp = self.get_timestamp(id);
+            let timestamp = Timelock::get_timestamp(self, id);
             if (timestamp == 0) {
                 return OperationState::Unset;
             } else if (timestamp == DONE_TIMESTAMP) {
@@ -176,9 +178,9 @@ mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role(PROPOSER_ROLE);
+            self.assert_only_role_or_open_role(PROPOSER_ROLE);
 
-            let id = self.hash_operation(call, predecessor, salt);
+            let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
             self.emit(CallScheduled { call, predecessor, delay });
 
@@ -194,9 +196,9 @@ mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role(PROPOSER_ROLE);
+            self.assert_only_role_or_open_role(PROPOSER_ROLE);
 
-            let id = self.hash_operation_batch(calls, predecessor, salt);
+            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
             self._schedule(id, delay);
 
             let mut index = 0;
@@ -216,8 +218,8 @@ mod TimelockControllerComponent {
         }
 
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
-            self.assert_only_role(CANCELLER_ROLE);
-            assert(self.is_operation_pending(id), Errors::UNEXPECTED_OPERATION_STATE);
+            self.assert_only_role_or_open_role(CANCELLER_ROLE);
+            assert(Timelock::is_operation_pending(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
 
             self.TimelockController_timestamps.write(id, 0);
             self.emit(Cancelled { id });
@@ -229,9 +231,9 @@ mod TimelockControllerComponent {
             predecessor: felt252,
             salt: felt252
         ) {
-            self.assert_only_role(EXECUTOR_ROLE);
+            self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = self.hash_operation(call, predecessor, salt);
+            let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._before_call(id, predecessor);
             self._execute(call);
             self.emit(CallExecuted { id, call });
@@ -244,9 +246,9 @@ mod TimelockControllerComponent {
             predecessor: felt252,
             salt: felt252
         ) {
-            self.assert_only_role(EXECUTOR_ROLE);
+            self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = self.hash_operation_batch(calls, predecessor, salt);
+            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
             self._before_call(id, predecessor);
 
             let mut index = 0;
@@ -276,6 +278,213 @@ mod TimelockControllerComponent {
         }
     }
 
+    #[embeddable_as(TimelockMixinImpl)]
+    impl TimelockMixin<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
+        impl ERC721Receiver: ERC721ReceiverComponent::HasComponent<TContractState>,
+        impl ERC1155Receiver: ERC1155ReceiverComponent::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of TimelockABI<ComponentState<TContractState>> {
+        fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
+            Timelock::is_operation(self, id)
+        }
+
+        fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
+            Timelock::is_operation_pending(self, id)
+        }
+
+        fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
+            Timelock::is_operation_ready(self, id)
+        }
+
+        fn is_operation_done(self: @ComponentState<TContractState>, id: felt252) -> bool {
+            Timelock::is_operation_done(self, id)
+        }
+
+        fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
+            Timelock::get_timestamp(self, id)
+        }
+
+        fn get_operation_state(self: @ComponentState<TContractState>, id: felt252) -> OperationState {
+            Timelock::get_operation_state(self, id)
+        }
+
+        fn get_min_delay(self: @ComponentState<TContractState>) -> u64 {
+            Timelock::get_min_delay(self)
+        }
+
+        fn hash_operation(self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252) -> felt252 {
+            Timelock::hash_operation(self, call, predecessor, salt)
+        }
+
+        fn hash_operation_batch(
+            self: @ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252
+        ) -> felt252 {
+            Timelock::hash_operation_batch(self, calls, predecessor, salt)
+        }
+
+        fn schedule(ref self: ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252, delay: u64) {
+            Timelock::schedule(ref self, call, predecessor, salt, delay);
+        }
+
+        fn schedule_batch(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
+        ) {
+            Timelock::schedule_batch(ref self, calls, predecessor, salt, delay);
+        }
+
+        fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
+            Timelock::cancel(ref self, id);
+        }
+
+        fn execute(ref self: ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252) {
+            Timelock::execute(ref self, call, predecessor, salt);
+        }
+
+        fn execute_batch(ref self: ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252) {
+            Timelock::execute_batch(ref self, calls, predecessor, salt);
+        }
+
+        fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
+            Timelock::update_delay(ref self, new_delay);
+        }
+
+        // ISRC5
+        fn supports_interface(
+            self: @ComponentState<TContractState>, interface_id: felt252
+        ) -> bool {
+            let src5 = get_dep_component!(self, SRC5);
+            src5.supports_interface(interface_id)
+        }
+
+        // IAccessControl
+        fn has_role(self: @ComponentState<TContractState>, role: felt252, account: ContractAddress) -> bool {
+            let access_control = get_dep_component!(self, AccessControl);
+            access_control.has_role(role, account)
+        }
+
+        fn get_role_admin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
+            let access_control = get_dep_component!(self, AccessControl);
+            access_control.get_role_admin(role)
+        }
+
+        fn grant_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.grant_role(role, account);
+        }
+
+        fn revoke_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.revoke_role(role, account);
+        }
+        fn renounce_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.renounce_role(role, account);
+        }
+
+        // IAccessControlCamel
+        fn hasRole(self: @ComponentState<TContractState>, role: felt252, account: ContractAddress) -> bool {
+            let access_control = get_dep_component!(self, AccessControl);
+            access_control.hasRole(role, account)
+        }
+
+        fn getRoleAdmin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
+            let access_control = get_dep_component!(self, AccessControl);
+            access_control.getRoleAdmin(role)
+        }
+
+        fn grantRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.grantRole(role, account);
+        }
+
+        fn revokeRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.revokeRole(role, account);
+        }
+
+        fn renounceRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
+            access_control.renounceRole(role, account);
+        }
+
+        // IERC721Receiver
+        fn on_erc721_received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc721_receiver = get_dep_component!(self, ERC721Receiver);
+            erc721_receiver.on_erc721_received(operator, from, token_id, data)
+        }
+
+        // IERC721ReceiverCamel
+        fn onERC721Received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc721_receiver = get_dep_component!(self, ERC721Receiver);
+            erc721_receiver.onERC721Received(operator, from, tokenId, data)
+        }
+
+        // IERC1155Receiver
+        fn on_erc1155_received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            value: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
+            erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
+        }
+
+        fn on_erc1155_batch_received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
+            erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
+        }
+
+        // IERC1155ReceiverCamel
+        fn onERC1155Received(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            value: u256,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
+            erc1155_receiver.onERC1155Received(operator, from, tokenId, value, data)
+        }
+
+        fn onERC1155BatchReceived(
+            self: @ComponentState<TContractState>,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenIds: Span<u256>,
+            values: Span<u256>,
+            data: Span<felt252>
+        ) -> felt252 {
+            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
+            erc1155_receiver.onERC1155BatchReceived(operator, from, tokenIds, values, data)
+        }
+    }
 
     #[generate_trait]
     impl InternalImpl<
@@ -342,27 +551,30 @@ mod TimelockControllerComponent {
             self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
         }
 
-        fn assert_only_role(self: @ComponentState<TContractState>, role: felt252) {
+        fn assert_only_role_or_open_role(self: @ComponentState<TContractState>, role: felt252) {
             let access_component = get_dep_component!(self, AccessControl);
-            access_component.assert_only_role(role);
+            let is_role_open = access_component.has_role(role, Zeroable::zero());
+            if !is_role_open {
+                access_component.assert_only_role(role);
+            }
         }
 
         fn _before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
-            assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(self, id), Errors::UNEXPECTED_OPERATION_STATE);
             assert(
-                predecessor == 0 || self.is_operation_done(predecessor),
+                predecessor == 0 || Timelock::is_operation_done(self, predecessor),
                 Errors::UNEXECUTED_PREDECESSOR
             );
         }
 
         fn _after_call(ref self: ComponentState<TContractState>, id: felt252) {
-            assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
-            assert(!self.is_operation(id), Errors::UNEXPECTED_OPERATION_STATE);
-            assert(self.get_min_delay() <= delay, Errors::INSUFFICIENT_DELAY);
+            assert(!Timelock::is_operation(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);
             self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
         }
 

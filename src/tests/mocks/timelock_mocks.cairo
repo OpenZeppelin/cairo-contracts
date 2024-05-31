@@ -15,25 +15,10 @@ mod TimelockControllerMock {
         path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
     );
 
+    // Timelock Mixin
     #[abi(embed_v0)]
-    impl AccessControlImpl =
-        AccessControlComponent::AccessControlImpl<ContractState>;
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
-
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
-    #[abi(embed_v0)]
-    impl TimelockImpl = TimelockControllerComponent::TimelockImpl<ContractState>;
+    impl TimelockMixinImpl = TimelockControllerComponent::TimelockMixinImpl<ContractState>;
     impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
-
-    // ERC721Receiver
-    impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
-    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
-
-    // ERC1155Receiver
-    impl ERC1155ReceiverImpl = ERC1155ReceiverComponent::ERC1155ReceiverImpl<ContractState>;
-    impl ERC1155ReceiverInternalImpl = ERC1155ReceiverComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {

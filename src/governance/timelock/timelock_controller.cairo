@@ -13,7 +13,7 @@ mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::ITimelock;
     use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
+    use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl, Call};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -24,7 +24,7 @@ mod TimelockControllerComponent {
     use poseidon::PoseidonTrait;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
-    use starknet::account::Call;
+    //use starknet::account::Call;
     use zeroable::Zeroable;
 
     // Constants
@@ -53,7 +53,7 @@ mod TimelockControllerComponent {
     #[derive(Drop, PartialEq, starknet::Event)]
     struct CallScheduled {
         #[key]
-        calls: Span<Call>,
+        call: Call,
         predecessor: felt252,
         delay: u64
     }
@@ -64,7 +64,7 @@ mod TimelockControllerComponent {
         #[key]
         id: felt252,
         #[key]
-        calls: Span<Call>
+        call: Call
     }
 
     /// Emitted when...
@@ -149,6 +149,19 @@ mod TimelockControllerComponent {
 
         fn hash_operation(
             self: @ComponentState<TContractState>,
+            call: Call,
+            predecessor: felt252,
+            salt: felt252
+        ) -> felt252 {
+            PoseidonTrait::new()
+                .update_with(@call)
+                .update_with(predecessor)
+                .update_with(salt)
+                .finalize()
+        }
+
+        fn hash_operation_batch(
+            self: @ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
             salt: felt252
@@ -162,6 +175,24 @@ mod TimelockControllerComponent {
 
         fn schedule(
             ref self: ComponentState<TContractState>,
+            call: Call,
+            predecessor: felt252,
+            salt: felt252,
+            delay: u64
+        ) {
+            self.assert_only_role(PROPOSER_ROLE);
+
+            let id = self.hash_operation(call, predecessor, salt);
+            self._schedule(id, delay);
+            self.emit(CallScheduled { call, predecessor, delay });
+
+            if salt != 0 {
+                self.emit(CallSalt { id, salt });
+            }
+        }
+
+        fn schedule_batch(
+            ref self: ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
             salt: felt252,
@@ -169,9 +200,19 @@ mod TimelockControllerComponent {
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
-            let id = self.hash_operation(calls, predecessor, salt);
+            let id = self.hash_operation_batch(calls, predecessor, salt);
             self._schedule(id, delay);
-            self.emit(CallScheduled { calls, predecessor, delay });
+
+            let mut index = 0;
+            loop {
+                if index == calls.len() {
+                    break;
+                }
+
+                let call = *calls.at(index);
+                self.emit(CallScheduled { call, predecessor, delay });
+                index += 1;
+            };
 
             if salt != 0 {
                 self.emit(CallSalt { id, salt });
@@ -188,17 +229,43 @@ mod TimelockControllerComponent {
 
         fn execute(
             ref self: ComponentState<TContractState>,
+            call: Call,
+            predecessor: felt252,
+            salt: felt252
+        ) {
+            self.assert_only_role(EXECUTOR_ROLE);
+
+            let id = self.hash_operation(call, predecessor, salt);
+            self._before_call(id, predecessor);
+            self._execute(call);
+            self.emit(CallExecuted { id, call });
+            self._after_call(id);
+        }
+
+        fn execute_batch(
+            ref self: ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
             salt: felt252
         ) {
             self.assert_only_role(EXECUTOR_ROLE);
 
-            let id = self.hash_operation(calls, predecessor, salt);
-            self.before_call(id, predecessor);
-            self._execute(calls);
-            self.emit(CallExecuted { id, calls });
-            self.after_call(id);
+            let id = self.hash_operation_batch(calls, predecessor, salt);
+            self._before_call(id, predecessor);
+
+            let mut index = 0;
+            loop {
+                if index == calls.len() {
+                    break;
+                }
+
+                let call = *calls.at(index);
+                self._execute(call);
+                self.emit(CallExecuted { id, call });
+                index += 1;
+            };
+
+            self._after_call(id);
         }
 
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
@@ -284,7 +351,7 @@ mod TimelockControllerComponent {
             access_component.assert_only_role(role);
         }
 
-        fn before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
+        fn _before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
             assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
             assert(
                 predecessor == 0 || self.is_operation_done(predecessor),
@@ -292,7 +359,7 @@ mod TimelockControllerComponent {
             );
         }
 
-        fn after_call(ref self: ComponentState<TContractState>, id: felt252) {
+        fn _after_call(ref self: ComponentState<TContractState>, id: felt252) {
             assert(self.is_operation_ready(id), Errors::UNEXPECTED_OPERATION_STATE);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
@@ -303,18 +370,9 @@ mod TimelockControllerComponent {
             self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
         }
 
-        fn _execute(ref self: ComponentState<TContractState>, mut calls: Span<Call>) {
-            let mut index = 0;
-            loop {
-                if index == calls.len() {
-                    break;
-                }
-
-                let Call { to, selector, calldata } = calls.at(index);
-                starknet::call_contract_syscall(*to, *selector, *calldata).unwrap_syscall();
-
-                index += 1;
-            }
+        fn _execute(ref self: ComponentState<TContractState>, call: Call) {
+            let Call { to, selector, calldata } = call;
+            starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
     }
 }

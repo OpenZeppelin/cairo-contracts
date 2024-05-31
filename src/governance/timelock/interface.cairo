@@ -33,7 +33,7 @@ trait ITimelock<TState> {
 }
 
 #[starknet::interface]
-trait ITimelockABI<TState> {
+trait TimelockABI<TState> {
     fn is_operation(self: @TState, id: felt252) -> bool;
     fn is_operation_pending(self: @TState, id: felt252) -> bool;
     fn is_operation_ready(self: @TState, id: felt252) -> bool;

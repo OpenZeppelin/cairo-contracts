@@ -2,7 +2,16 @@
 // OpenZeppelin Contracts for Cairo v0.13.0 (governance/timelock/utils/call_impls.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
-use starknet::account::Call;
+use starknet::ContractAddress;
+
+// TMP until cairo v2.7 release, then use SN `Call` struct
+// `Call` from v2.6 does not derive Copy trait
+#[derive(Drop, Copy, Serde, Debug)]
+pub struct Call {
+    pub to: ContractAddress,
+    pub selector: felt252,
+    pub calldata: Span<felt252>
+}
 
 impl HashCallImpl<Call, S, +Serde<Call>, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
     fn update_state(mut state: S, value: @Call) -> S {

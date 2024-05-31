@@ -17,7 +17,7 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::{
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
-    ITimelockABIDispatcher, ITimelockABIDispatcherTrait
+    TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
 use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
@@ -106,14 +106,14 @@ fn failing_operation(target: ContractAddress) -> Call {
     Call { to: target, selector: selector!("failing_function"), calldata: calldata.span() }
 }
 
-fn setup_dispatchers() -> (ITimelockABIDispatcher, IMockContractDispatcher) {
+fn setup_dispatchers() -> (TimelockABIDispatcher, IMockContractDispatcher) {
     let timelock = deploy_timelock();
     let target = deploy_mock_target();
 
     (timelock, target)
 }
 
-fn deploy_timelock() -> ITimelockABIDispatcher {
+fn deploy_timelock() -> TimelockABIDispatcher {
     let mut calldata = array![];
 
     let proposers = array![PROPOSER()].span();
@@ -130,7 +130,7 @@ fn deploy_timelock() -> ITimelockABIDispatcher {
     // - 5 RoleGranted: self, proposer, canceller, executor, admin
     // - MinDelayChange
     utils::drop_events(address, 6);
-    ITimelockABIDispatcher { contract_address: address }
+    TimelockABIDispatcher { contract_address: address }
 }
 
 fn deploy_erc721(recipient: ContractAddress) -> IERC721Dispatcher {
@@ -292,18 +292,18 @@ fn test_hash_operation() {
 fn test_hash_operation_batch() {
     let (mut timelock, mut target) = setup_dispatchers();
 
-    // Setup call
+    // Setup calls
     let mut calldata = array![];
     calldata.append_serde(VALUE);
 
     let mut call = Call {
         to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span()
     };
+    let calls = array![call, call, call].span();
 
     // Hash operation
     let predecessor = 123;
     let salt = SALT;
-    let calls = array![call, call, call].span();
     let hashed_operation = timelock.hash_operation_batch(calls, predecessor, salt);
 
     // Manually set hash elements
@@ -439,14 +439,10 @@ fn schedule_batch_from_proposer(salt: felt252) {
 
     // Check events
     if salt != 0 {
-        assert_event_schedule(timelock.contract_address, *calls.at(0), predecessor, delay);
-        assert_event_schedule(timelock.contract_address, *calls.at(1), predecessor, delay);
-        assert_event_schedule(timelock.contract_address, *calls.at(2), predecessor, delay);
+        assert_events_schedule_batch(timelock.contract_address, calls, predecessor, delay);
         assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
-        assert_event_schedule(timelock.contract_address, *calls.at(0), predecessor, delay);
-        assert_event_schedule(timelock.contract_address, *calls.at(1), predecessor, delay);
-        assert_only_event_schedule(timelock.contract_address, *calls.at(2), predecessor, delay);
+        assert_only_events_schedule_batch(timelock.contract_address, calls, predecessor, delay);
     }
 }
 
@@ -1063,7 +1059,7 @@ fn test_update_delay_scheduled() {
 //
 
 fn assert_operation_state(
-    timelock: ITimelockABIDispatcher, exp_state: OperationState, id: felt252
+    timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252
 ) {
     let operation_state = timelock.get_operation_state(id);
     assert_eq!(operation_state, exp_state);

@@ -77,6 +77,42 @@ mod TimelockControllerMock {
 }
 
 #[starknet::interface]
+trait IMockContract<TState> {
+    fn set_number(ref self: TState, new_number: felt252);
+    fn get_number(self: @TState) -> felt252;
+    fn failing_function(self: @TState);
+}
+
+#[starknet::contract]
+mod MockContract {
+    use super::IMockContract;
+
+    #[storage]
+    struct Storage {
+        number: felt252,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {}
+
+    #[abi(embed_v0)]
+    impl MockContractImpl of IMockContract<ContractState> {
+        fn set_number(ref self: ContractState, new_number: felt252) {
+            self.number.write(new_number);
+        }
+
+        fn get_number(self: @ContractState) -> felt252 {
+            self.number.read()
+        }
+
+        fn failing_function(self: @ContractState) {
+            core::panic_with_felt252('Expected failure');
+        }
+    }
+}
+
+#[starknet::interface]
 trait ITimelockAttacker<TState> {
     fn reenter(ref self: TState);
 }
@@ -86,9 +122,9 @@ mod TimelockAttackerMock {
     use openzeppelin::governance::timelock::interface::{
         ITimelockDispatcher, ITimelockDispatcherTrait
     };
+    use openzeppelin::governance::timelock::utils::call_impls::Call;
     use openzeppelin::tests::utils::constants::SALT;
     use starknet::ContractAddress;
-    use starknet::account::Call;
     use super::ITimelockAttacker;
 
     const PREDECESSOR: felt252 = 0;
@@ -119,10 +155,10 @@ mod TimelockAttackerMock {
                 let reentrant_call = Call {
                     to: this, selector: selector!("reenter"), calldata: array![].span()
                 };
-                let reentrant_call_span = array![reentrant_call].span();
+                //let reentrant_call_span = array![reentrant_call].span();
 
                 let timelock = ITimelockDispatcher { contract_address: sender };
-                timelock.execute(reentrant_call_span, PREDECESSOR, SALT);
+                timelock.execute(reentrant_call, PREDECESSOR, SALT);
             }
         }
     }

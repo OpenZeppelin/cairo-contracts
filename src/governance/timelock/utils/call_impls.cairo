@@ -34,7 +34,7 @@ impl CallPartialEq of PartialEq<Call> {
         Serde::serialize(lhs, ref rhs_arr);
         lhs_arr == rhs_arr
     }
-
+    #[inline(always)]
     fn ne(lhs: @Call, rhs: @Call) -> bool {
         let mut lhs_arr = array![];
         Serde::serialize(lhs, ref lhs_arr);

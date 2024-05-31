@@ -1,4 +1,5 @@
 use hash::{HashStateTrait, HashStateExTrait};
+use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
@@ -8,8 +9,8 @@ use openzeppelin::governance::timelock::TimelockControllerComponent::OperationSt
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
 };
-use openzeppelin::governance::timelock::TimelockControllerComponent::{
-    PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE, DEFAULT_ADMIN_ROLE
+use openzeppelin::governance::timelock::{
+    PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
@@ -18,7 +19,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
     TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
@@ -27,9 +27,8 @@ use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::timelock_mocks::{
     ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
 };
-use openzeppelin::tests::mocks::timelock_mocks::{
-    MockContract, IMockContractDispatcher, IMockContractDispatcherTrait
-};
+use openzeppelin::tests::mocks::timelock_mocks::MockContract;
+use openzeppelin::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
 use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
 use openzeppelin::tests::utils::constants::{
     ADMIN, ZERO, NAME, SYMBOL, BASE_URI, OWNER, RECIPIENT, SPENDER, OTHER, PUBKEY, SALT, TOKEN_ID,
@@ -58,13 +57,19 @@ fn COMPONENT_STATE() -> ComponentState {
     TimelockControllerComponent::component_state_for_testing()
 }
 
+//
 // Constants
+//
+
 const MIN_DELAY: u64 = 1000;
 const NEW_DELAY: u64 = 2000;
 const VALUE: felt252 = 'VALUE';
 const NO_PREDECESSOR: felt252 = 0;
 
+//
 // Addresses
+//
+
 fn PROPOSER() -> ContractAddress {
     contract_address_const::<'PROPOSER'>()
 }
@@ -87,9 +92,11 @@ fn get_executors() -> (ContractAddress, ContractAddress, ContractAddress) {
     (e1, e2, e3)
 }
 
+//
 // Operations
+//
+
 fn single_operation(target: ContractAddress) -> Call {
-    // Call: approve
     let mut calldata = array![];
     calldata.append_serde(VALUE);
 
@@ -193,7 +200,9 @@ fn deploy_attacker() -> ITimelockAttackerDispatcher {
     ITimelockAttackerDispatcher { contract_address: address }
 }
 
+//
 // hash_operation
+//
 
 #[test]
 fn test_hash_operation() {
@@ -204,13 +213,14 @@ fn test_hash_operation() {
     // Setup call
     let mut calldata = array![];
     calldata.append_serde(VALUE);
-
     let mut call = Call {
         to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span()
     };
 
+    // Hash operation
     let hashed_operation = timelock.hash_operation(call, predecessor, salt);
 
+    // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
         .update_with(4) // total elements of call
         .update_with(target.contract_address) // call::to
@@ -226,19 +236,18 @@ fn test_hash_operation() {
 #[test]
 fn test_hash_operation_batch() {
     let (mut timelock, mut target) = setup_dispatchers();
+    let predecessor = 123;
+    let salt = SALT;
 
     // Setup calls
     let mut calldata = array![];
     calldata.append_serde(VALUE);
-
     let mut call = Call {
         to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span()
     };
     let calls = array![call, call, call].span();
 
     // Hash operation
-    let predecessor = 123;
-    let salt = SALT;
     let hashed_operation = timelock.hash_operation_batch(calls, predecessor, salt);
 
     // Manually set hash elements
@@ -264,7 +273,9 @@ fn test_hash_operation_batch() {
     assert_eq!(hashed_operation, expected_hash);
 }
 
+//
 // schedule
+//
 
 fn schedule_from_proposer(salt: felt252) {
     let (mut timelock, mut target) = setup_dispatchers();
@@ -355,7 +366,9 @@ fn test_schedule_bad_min_delay() {
     timelock.schedule(call, predecessor, salt, bad_delay);
 }
 
+//
 // schedule_batch
+//
 
 fn schedule_batch_from_proposer(salt: felt252) {
     let (mut timelock, mut target) = setup_dispatchers();
@@ -445,7 +458,9 @@ fn test_schedule_batch_bad_min_delay() {
     timelock.schedule_batch(calls, predecessor, salt, bad_delay);
 }
 
+//
 // execute
+//
 
 #[test]
 #[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
@@ -667,7 +682,9 @@ fn test_execute_after_dependency() {
     assert_only_event_execute(timelock.contract_address, target_id_2, event_index, call_2);
 }
 
+//
 // execute_batch
+//
 
 #[test]
 #[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
@@ -910,7 +927,9 @@ fn test_execute_batch_after_dependency() {
     assert_only_events_execute_batch(timelock.contract_address, target_id_2, calls_2);
 }
 
+//
 // cancel
+//
 
 #[test]
 fn test_cancel_from_canceller() {
@@ -970,7 +989,9 @@ fn test_cancel_unauthorized() {
     timelock.cancel(target_id);
 }
 
+//
 // update_delay
+//
 
 #[test]
 #[should_panic(expected: ('Timelock: unauthorized caller', 'ENTRYPOINT_FAILED'))]
@@ -1122,7 +1143,9 @@ fn test_receive_erc1155_safe_batch_transfer() {
 // Internal
 //
 
+//
 // initializer
+//
 
 #[test]
 fn test_initializer_single_role_and_no_admin() {
@@ -1217,7 +1240,9 @@ fn test_initializer_min_delay() {
     assert_only_event_delay_change(ZERO(), 0, MIN_DELAY);
 }
 
+//
 // assert_only_role_or_open_role
+//
 
 #[test]
 fn test_assert_only_role_or_open_role_when_has_role() {
@@ -1322,7 +1347,9 @@ fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationS
 // Event helpers
 //
 
+//
 // MinDelayChange
+//
 
 fn assert_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
@@ -1337,7 +1364,9 @@ fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, 
     utils::assert_no_events_left(contract);
 }
 
+//
 // CallScheduled
+//
 
 fn assert_event_schedule(
     contract: ContractAddress,
@@ -1393,7 +1422,9 @@ fn assert_only_events_schedule_batch(
     utils::assert_no_events_left(contract);
 }
 
+//
 // CallSalt
+//
 
 fn assert_event_call_salt(contract: ContractAddress, id: felt252, salt: felt252) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
@@ -1406,7 +1437,9 @@ fn assert_only_event_call_salt(contract: ContractAddress, id: felt252, salt: fel
     utils::assert_no_events_left(contract);
 }
 
+//
 // CallExecuted
+//
 
 fn assert_event_execute(contract: ContractAddress, id: felt252, index: felt252, call: Call) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
@@ -1444,7 +1477,9 @@ fn assert_only_events_execute_batch(contract: ContractAddress, id: felt252, call
     utils::assert_no_events_left(contract);
 }
 
+//
 // Cancelled
+//
 
 fn assert_event_cancel(contract: ContractAddress, id: felt252) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
@@ -1463,7 +1498,9 @@ fn assert_only_event_cancel(contract: ContractAddress, id: felt252) {
     utils::assert_no_events_left(contract);
 }
 
+//
 // MinDelayChange
+//
 
 fn assert_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();

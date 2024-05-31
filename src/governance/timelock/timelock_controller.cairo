@@ -15,7 +15,7 @@ mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashCallImpl, Call};
+    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, Call};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;

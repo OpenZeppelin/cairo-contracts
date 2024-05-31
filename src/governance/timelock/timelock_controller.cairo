@@ -7,8 +7,10 @@
 #[starknet::component]
 mod TimelockControllerComponent {
     use hash::{HashStateTrait, HashStateExTrait};
-    use openzeppelin::access::accesscontrol::AccessControlComponent::{AccessControlImpl, AccessControlCamelImpl};
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
+    use openzeppelin::access::accesscontrol::AccessControlComponent::{
+        AccessControlImpl, AccessControlCamelImpl
+    };
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
@@ -17,11 +19,17 @@ mod TimelockControllerComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl};
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{InternalImpl as ERC1155InternalImpl};
+    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
+        ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl
+    };
+    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
+        InternalImpl as ERC1155InternalImpl
+    };
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent;
-    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::{ERC721ReceiverImpl, ERC721ReceiverCamelImpl};
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721InternalImpl;
+    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::{
+        ERC721ReceiverImpl, ERC721ReceiverCamelImpl
+    };
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent;
     use poseidon::PoseidonTrait;
     use starknet::ContractAddress;
@@ -312,7 +320,9 @@ mod TimelockControllerComponent {
             Timelock::get_timestamp(self, id)
         }
 
-        fn get_operation_state(self: @ComponentState<TContractState>, id: felt252) -> OperationState {
+        fn get_operation_state(
+            self: @ComponentState<TContractState>, id: felt252
+        ) -> OperationState {
             Timelock::get_operation_state(self, id)
         }
 
@@ -320,22 +330,37 @@ mod TimelockControllerComponent {
             Timelock::get_min_delay(self)
         }
 
-        fn hash_operation(self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252) -> felt252 {
+        fn hash_operation(
+            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
+        ) -> felt252 {
             Timelock::hash_operation(self, call, predecessor, salt)
         }
 
         fn hash_operation_batch(
-            self: @ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252
+            self: @ComponentState<TContractState>,
+            calls: Span<Call>,
+            predecessor: felt252,
+            salt: felt252
         ) -> felt252 {
             Timelock::hash_operation_batch(self, calls, predecessor, salt)
         }
 
-        fn schedule(ref self: ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252, delay: u64) {
+        fn schedule(
+            ref self: ComponentState<TContractState>,
+            call: Call,
+            predecessor: felt252,
+            salt: felt252,
+            delay: u64
+        ) {
             Timelock::schedule(ref self, call, predecessor, salt, delay);
         }
 
         fn schedule_batch(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
+            ref self: ComponentState<TContractState>,
+            calls: Span<Call>,
+            predecessor: felt252,
+            salt: felt252,
+            delay: u64
         ) {
             Timelock::schedule_batch(ref self, calls, predecessor, salt, delay);
         }
@@ -344,11 +369,21 @@ mod TimelockControllerComponent {
             Timelock::cancel(ref self, id);
         }
 
-        fn execute(ref self: ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252) {
+        fn execute(
+            ref self: ComponentState<TContractState>,
+            call: Call,
+            predecessor: felt252,
+            salt: felt252
+        ) {
             Timelock::execute(ref self, call, predecessor, salt);
         }
 
-        fn execute_batch(ref self: ComponentState<TContractState>, calls: Span<Call>, predecessor: felt252, salt: felt252) {
+        fn execute_batch(
+            ref self: ComponentState<TContractState>,
+            calls: Span<Call>,
+            predecessor: felt252,
+            salt: felt252
+        ) {
             Timelock::execute_batch(ref self, calls, predecessor, salt);
         }
 
@@ -365,7 +400,9 @@ mod TimelockControllerComponent {
         }
 
         // IAccessControl
-        fn has_role(self: @ComponentState<TContractState>, role: felt252, account: ContractAddress) -> bool {
+        fn has_role(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) -> bool {
             let access_control = get_dep_component!(self, AccessControl);
             access_control.has_role(role, account)
         }
@@ -375,22 +412,30 @@ mod TimelockControllerComponent {
             access_control.get_role_admin(role)
         }
 
-        fn grant_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn grant_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.grant_role(role, account);
         }
 
-        fn revoke_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn revoke_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.revoke_role(role, account);
         }
-        fn renounce_role(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn renounce_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.renounce_role(role, account);
         }
 
         // IAccessControlCamel
-        fn hasRole(self: @ComponentState<TContractState>, role: felt252, account: ContractAddress) -> bool {
+        fn hasRole(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) -> bool {
             let access_control = get_dep_component!(self, AccessControl);
             access_control.hasRole(role, account)
         }
@@ -400,17 +445,23 @@ mod TimelockControllerComponent {
             access_control.getRoleAdmin(role)
         }
 
-        fn grantRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn grantRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.grantRole(role, account);
         }
 
-        fn revokeRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn revokeRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.revokeRole(role, account);
         }
 
-        fn renounceRole(ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress) {
+        fn renounceRole(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+        ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.renounceRole(role, account);
         }

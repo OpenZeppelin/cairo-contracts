@@ -258,10 +258,14 @@ fn schedule_from_proposer(salt: felt252) {
     // Check event(s)
     let event_index = 0;
     if salt != 0 {
-        assert_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
+        assert_event_schedule(
+            timelock.contract_address, target_id, event_index, call, predecessor, delay
+        );
         assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
-        assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
+        assert_only_event_schedule(
+            timelock.contract_address, target_id, event_index, call, predecessor, delay
+        );
     }
 }
 
@@ -344,10 +348,14 @@ fn schedule_batch_from_proposer(salt: felt252) {
 
     // Check events
     if salt != 0 {
-        assert_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
+        assert_events_schedule_batch(
+            timelock.contract_address, target_id, calls, predecessor, delay
+        );
         assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
-        assert_only_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
+        assert_only_events_schedule_batch(
+            timelock.contract_address, target_id, calls, predecessor, delay
+        );
     }
 }
 
@@ -437,7 +445,9 @@ fn test_execute_when_scheduled() {
     // Schedule
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call, predecessor, salt, delay);
-    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
+    assert_only_event_schedule(
+        timelock.contract_address, target_id, event_index, call, predecessor, delay
+    );
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Fast-forward
@@ -598,12 +608,16 @@ fn test_execute_after_dependency() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call_1, predecessor_1, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
-    assert_only_event_schedule(timelock.contract_address, target_id_1, event_index, call_1, predecessor_1, delay);
+    assert_only_event_schedule(
+        timelock.contract_address, target_id_1, event_index, call_1, predecessor_1, delay
+    );
 
     // Schedule call 2
     timelock.schedule(call_2, predecessor_2, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
-    assert_only_event_schedule(timelock.contract_address, target_id_2, event_index, call_2, predecessor_2, delay);
+    assert_only_event_schedule(
+        timelock.contract_address, target_id_2, event_index, call_2, predecessor_2, delay
+    );
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -614,7 +628,7 @@ fn test_execute_after_dependency() {
     testing::set_contract_address(EXECUTOR());
     timelock.execute(call_1, predecessor_1, salt);
     assert_operation_state(timelock, OperationState::Done, target_id_1);
-    assert_event_execute(timelock.contract_address, target_id_1,event_index, call_1);
+    assert_event_execute(timelock.contract_address, target_id_1, event_index, call_1);
 
     // Execute call 2
     timelock.execute(call_2, predecessor_2, salt);
@@ -653,7 +667,9 @@ fn test_execute_batch_when_scheduled() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule_batch(calls, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
+    assert_only_events_schedule_batch(
+        timelock.contract_address, target_id, calls, predecessor, delay
+    );
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -835,12 +851,16 @@ fn test_execute_batch_after_dependency() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule_batch(calls_1, predecessor_1, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
-    assert_only_events_schedule_batch(timelock.contract_address, target_id_1, calls_1, predecessor_1, delay);
+    assert_only_events_schedule_batch(
+        timelock.contract_address, target_id_1, calls_1, predecessor_1, delay
+    );
 
     // Schedule calls 2
     timelock.schedule_batch(calls_2, predecessor_2, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
-    assert_only_events_schedule_batch(timelock.contract_address, target_id_2, calls_2, predecessor_2, delay);
+    assert_only_events_schedule_batch(
+        timelock.contract_address, target_id_2, calls_2, predecessor_2, delay
+    );
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -877,7 +897,9 @@ fn test_cancel_from_canceller() {
     testing::set_contract_address(PROPOSER()); // PROPOSER is also CANCELLER
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
+    assert_only_event_schedule(
+        timelock.contract_address, target_id, event_index, call, predecessor, delay
+    );
 
     // Cancel
     timelock.cancel(target_id);
@@ -946,7 +968,9 @@ fn test_update_delay_scheduled() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
+    assert_only_event_schedule(
+        timelock.contract_address, target_id, event_index, call, predecessor, delay
+    );
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -1126,9 +1150,7 @@ fn test_assert_only_role_or_open_role_with_open_role() {
 // Helpers
 //
 
-fn assert_operation_state(
-    timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252
-) {
+fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252) {
     let operation_state = timelock.get_operation_state(id);
     assert_eq!(operation_state, exp_state);
 
@@ -1186,7 +1208,14 @@ fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, 
 
 // CallScheduled
 
-fn assert_event_schedule(contract: ContractAddress, id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64) {
+fn assert_event_schedule(
+    contract: ContractAddress,
+    id: felt252,
+    index: felt252,
+    call: Call,
+    predecessor: felt252,
+    delay: u64
+) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
     let expected = TimelockControllerComponent::Event::CallScheduled(
         CallScheduled { id, index, call, predecessor, delay }
@@ -1202,7 +1231,12 @@ fn assert_event_schedule(contract: ContractAddress, id: felt252, index: felt252,
 }
 
 fn assert_only_event_schedule(
-    contract: ContractAddress, id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64
+    contract: ContractAddress,
+    id: felt252,
+    index: felt252,
+    call: Call,
+    predecessor: felt252,
+    delay: u64
 ) {
     assert_event_schedule(contract, id, index, call, predecessor, delay);
     utils::assert_no_events_left(contract);
@@ -1245,7 +1279,9 @@ fn assert_only_event_call_salt(contract: ContractAddress, id: felt252, salt: fel
 
 fn assert_event_execute(contract: ContractAddress, id: felt252, index: felt252, call: Call) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::CallExecuted(CallExecuted { id, index, call });
+    let expected = TimelockControllerComponent::Event::CallExecuted(
+        CallExecuted { id, index, call }
+    );
     assert!(event == expected);
 
     // Check indexed keys

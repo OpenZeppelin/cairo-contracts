@@ -17,7 +17,8 @@ mod TimelockControllerMock {
 
     // Timelock Mixin
     #[abi(embed_v0)]
-    impl TimelockMixinImpl = TimelockControllerComponent::TimelockMixinImpl<ContractState>;
+    impl TimelockMixinImpl =
+        TimelockControllerComponent::TimelockMixinImpl<ContractState>;
     impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
 
     #[storage]

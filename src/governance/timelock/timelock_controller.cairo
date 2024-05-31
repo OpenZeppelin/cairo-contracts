@@ -148,10 +148,7 @@ mod TimelockControllerComponent {
         }
 
         fn hash_operation(
-            self: @ComponentState<TContractState>,
-            call: Call,
-            predecessor: felt252,
-            salt: felt252
+            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
         ) -> felt252 {
             PoseidonTrait::new()
                 .update_with(@call)

@@ -23,9 +23,11 @@ use openzeppelin::governance::timelock::utils::call_impls::{CallPartialEq, HashC
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
-use openzeppelin::tests::mocks::timelock_mocks::{MockContract, IMockContractDispatcher, IMockContractDispatcherTrait};
 use openzeppelin::tests::mocks::timelock_mocks::{
     ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
+};
+use openzeppelin::tests::mocks::timelock_mocks::{
+    MockContract, IMockContractDispatcher, IMockContractDispatcherTrait
 };
 use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
 use openzeppelin::tests::utils::constants::{
@@ -308,22 +310,18 @@ fn test_hash_operation_batch() {
     let mut expected_hash = PoseidonTrait::new()
         .update_with(13) // total elements of Call span
         .update_with(3) // total number of Calls
-
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
         .update_with(VALUE) // call::calldata::number
-
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
         .update_with(VALUE) // call::calldata::number
-
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
         .update_with(VALUE) // call::calldata::number
-
         .update_with(predecessor) // predecessor
         .update_with(salt) // salt
         .finalize();
@@ -1124,9 +1122,7 @@ fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, 
 
 // CallScheduled
 
-fn assert_event_schedule(
-    contract: ContractAddress, call: Call, predecessor: felt252, delay: u64
-) {
+fn assert_event_schedule(contract: ContractAddress, call: Call, predecessor: felt252, delay: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
     let expected = TimelockControllerComponent::Event::CallScheduled(
         CallScheduled { call, predecessor, delay }
@@ -1147,7 +1143,9 @@ fn assert_only_event_schedule(
     utils::assert_no_events_left(contract);
 }
 
-fn assert_events_schedule_batch(contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64) {
+fn assert_events_schedule_batch(
+    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+) {
     let mut index = 0;
     loop {
         if index == calls.len() {
@@ -1158,7 +1156,9 @@ fn assert_events_schedule_batch(contract: ContractAddress, calls: Span<Call>, pr
     }
 }
 
-fn assert_only_events_schedule_batch(contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64) {
+fn assert_only_events_schedule_batch(
+    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+) {
     let mut index = 0;
     loop {
         if index == calls.len() - 1 {

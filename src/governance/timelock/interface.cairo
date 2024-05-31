@@ -6,8 +6,8 @@
 ///
 
 use openzeppelin::governance::timelock::utils::OperationState;
-use starknet::ContractAddress;
 use openzeppelin::governance::timelock::utils::call_impls::Call;
+use starknet::ContractAddress;
 
 #[starknet::interface]
 trait ITimelock<TState> {
@@ -18,15 +18,11 @@ trait ITimelock<TState> {
     fn get_timestamp(self: @TState, id: felt252) -> u64;
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
-    fn hash_operation(
-        self: @TState, call: Call, predecessor: felt252, salt: felt252
-    ) -> felt252;
+    fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
     fn hash_operation_batch(
         self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
     ) -> felt252;
-    fn schedule(
-        ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64
-    );
+    fn schedule(ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64);
     fn schedule_batch(
         ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
     );
@@ -45,15 +41,11 @@ trait ITimelockABI<TState> {
     fn get_timestamp(self: @TState, id: felt252) -> u64;
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
-    fn hash_operation(
-        self: @TState, call: Call, predecessor: felt252, salt: felt252
-    ) -> felt252;
+    fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
     fn hash_operation_batch(
         self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
     ) -> felt252;
-    fn schedule(
-        ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64
-    );
+    fn schedule(ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64);
     fn schedule_batch(
         ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
     );

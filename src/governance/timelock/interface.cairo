@@ -7,7 +7,7 @@
 
 use openzeppelin::governance::timelock::utils::OperationState;
 use starknet::ContractAddress;
-use starknet::account::Call;
+use openzeppelin::governance::timelock::utils::call_impls::Call;
 
 #[starknet::interface]
 trait ITimelock<TState> {
@@ -19,13 +19,20 @@ trait ITimelock<TState> {
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(
+        self: @TState, call: Call, predecessor: felt252, salt: felt252
+    ) -> felt252;
+    fn hash_operation_batch(
         self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
     ) -> felt252;
     fn schedule(
+        ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64
+    );
+    fn schedule_batch(
         ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
     );
     fn cancel(ref self: TState, id: felt252);
-    fn execute(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
+    fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);
+    fn execute_batch(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
     fn update_delay(ref self: TState, new_delay: u64);
 }
 
@@ -39,13 +46,20 @@ trait ITimelockABI<TState> {
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(
+        self: @TState, call: Call, predecessor: felt252, salt: felt252
+    ) -> felt252;
+    fn hash_operation_batch(
         self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
     ) -> felt252;
     fn schedule(
+        ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64
+    );
+    fn schedule_batch(
         ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
     );
     fn cancel(ref self: TState, id: felt252);
-    fn execute(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
+    fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);
+    fn execute_batch(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
     fn update_delay(ref self: TState, new_delay: u64);
 
     // ISRC5

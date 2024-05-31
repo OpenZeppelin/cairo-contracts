@@ -54,6 +54,9 @@ mod TimelockControllerComponent {
     #[derive(Drop, PartialEq, starknet::Event)]
     struct CallScheduled {
         #[key]
+        id: felt252,
+        #[key]
+        index: felt252,
         call: Call,
         predecessor: felt252,
         delay: u64
@@ -65,6 +68,7 @@ mod TimelockControllerComponent {
         #[key]
         id: felt252,
         #[key]
+        index: felt252,
         call: Call
     }
 
@@ -182,7 +186,7 @@ mod TimelockControllerComponent {
 
             let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
-            self.emit(CallScheduled { call, predecessor, delay });
+            self.emit(CallScheduled { id, index: 0, call, predecessor, delay });
 
             if salt != 0 {
                 self.emit(CallSalt { id, salt });
@@ -208,7 +212,7 @@ mod TimelockControllerComponent {
                 }
 
                 let call = *calls.at(index);
-                self.emit(CallScheduled { call, predecessor, delay });
+                self.emit(CallScheduled { id, index: index.into(), call, predecessor, delay });
                 index += 1;
             };
 
@@ -236,7 +240,7 @@ mod TimelockControllerComponent {
             let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._before_call(id, predecessor);
             self._execute(call);
-            self.emit(CallExecuted { id, call });
+            self.emit(CallExecuted { id, index: 0, call });
             self._after_call(id);
         }
 
@@ -259,7 +263,7 @@ mod TimelockControllerComponent {
 
                 let call = *calls.at(index);
                 self._execute(call);
-                self.emit(CallExecuted { id, call });
+                self.emit(CallExecuted { id, index: index.into(), call });
                 index += 1;
             };
 

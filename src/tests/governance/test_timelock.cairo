@@ -2,7 +2,6 @@ use hash::{HashStateTrait, HashStateExTrait};
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
-use openzeppelin::access::accesscontrol::accesscontrol::AccessControlComponent::InternalTrait;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
 use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
@@ -163,101 +162,6 @@ fn deploy_attacker() -> ITimelockAttackerDispatcher {
     ITimelockAttackerDispatcher { contract_address: address }
 }
 
-// initializer
-
-#[test]
-fn test_initializer_single_role_and_no_admin() {
-    let mut state = COMPONENT_STATE();
-    let contract_state = CONTRACT_STATE();
-    let min_delay = MIN_DELAY;
-
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
-
-    state.initializer(min_delay, proposers, executors, admin_zero);
-    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero));
-}
-
-#[test]
-fn test_initializer_multiple_roles_and_admin() {
-    let mut state = COMPONENT_STATE();
-    let contract_state = CONTRACT_STATE();
-    let min_delay = MIN_DELAY;
-
-    let (p1, p2, p3) = get_proposers();
-    let mut proposers = array![p1, p2, p3].span();
-
-    let (e1, e2, e3) = get_executors();
-    let mut executors = array![e1, e2, e3].span();
-
-    let admin = ADMIN();
-
-    state.initializer(min_delay, proposers, executors, admin);
-
-    // Check assigned roles
-    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin));
-
-    let mut index = 0;
-    loop {
-        if index == proposers.len() {
-            break;
-        }
-
-        assert!(contract_state.has_role(PROPOSER_ROLE, *proposers.at(index)));
-        assert!(contract_state.has_role(CANCELLER_ROLE, *proposers.at(index)));
-        assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(index)));
-        index += 1;
-    };
-}
-
-#[test]
-fn test_initializer_supported_interfaces() {
-    let mut state = COMPONENT_STATE();
-    let contract_state = CONTRACT_STATE();
-    let min_delay = MIN_DELAY;
-
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
-
-    state.initializer(min_delay, proposers, executors, admin);
-
-    // Check interface support
-    let supports_isrc5 = contract_state.src5.supports_interface(ISRC5_ID);
-    assert!(supports_isrc5);
-
-    let supports_ierc1155_receiver = contract_state.src5.supports_interface(IERC1155_RECEIVER_ID);
-    assert!(supports_ierc1155_receiver);
-
-    let supports_ierc721_receiver = contract_state.src5.supports_interface(IERC721_RECEIVER_ID);
-    assert!(supports_ierc721_receiver);
-}
-
-#[test]
-fn test_initializer_min_delay() {
-    let mut state = COMPONENT_STATE();
-    let min_delay = MIN_DELAY;
-
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
-
-    state.initializer(min_delay, proposers, executors, admin_zero);
-
-    // Check minimum delay is set
-    let delay = state.get_min_delay();
-    assert_eq!(delay, MIN_DELAY);
-
-    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChange`:
-    // - Self administration
-    // - 1 proposers
-    // - 1 cancellers
-    // - 1 executors
-    utils::drop_events(ZERO(), 4);
-    assert_only_event_delay_change(ZERO(), 0, MIN_DELAY);
-}
-
 // hash_operation
 
 #[test]
@@ -352,11 +256,12 @@ fn schedule_from_proposer(salt: felt252) {
     assert_eq!(operation_ts, expected_ts);
 
     // Check event(s)
+    let event_index = 0;
     if salt != 0 {
-        assert_event_schedule(timelock.contract_address, call, predecessor, delay);
+        assert_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
         assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
-        assert_only_event_schedule(timelock.contract_address, call, predecessor, delay);
+        assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
     }
 }
 
@@ -439,10 +344,10 @@ fn schedule_batch_from_proposer(salt: felt252) {
 
     // Check events
     if salt != 0 {
-        assert_events_schedule_batch(timelock.contract_address, calls, predecessor, delay);
+        assert_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
         assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
-        assert_only_events_schedule_batch(timelock.contract_address, calls, predecessor, delay);
+        assert_only_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
     }
 }
 
@@ -522,6 +427,7 @@ fn test_execute_when_scheduled() {
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
     let delay = MIN_DELAY;
+    let event_index = 0;
 
     // Set up call
     let call = single_operation(target.contract_address);
@@ -531,7 +437,7 @@ fn test_execute_when_scheduled() {
     // Schedule
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call, predecessor, salt, delay);
-    assert_only_event_schedule(timelock.contract_address, call, predecessor, delay);
+    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Fast-forward
@@ -547,7 +453,7 @@ fn test_execute_when_scheduled() {
     timelock.execute(call, predecessor, salt);
 
     assert_operation_state(timelock, OperationState::Done, target_id);
-    assert_only_event_execute(timelock.contract_address, target_id, call);
+    assert_only_event_execute(timelock.contract_address, target_id, event_index, call);
 
     // Check target state updates
     let check_target = target.get_number();
@@ -674,6 +580,7 @@ fn test_execute_after_dependency() {
     let (mut timelock, mut target) = setup_dispatchers();
     let salt = 0;
     let delay = MIN_DELAY;
+    let event_index = 0;
 
     // Call 1
     let call_1 = single_operation(target.contract_address);
@@ -691,12 +598,12 @@ fn test_execute_after_dependency() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call_1, predecessor_1, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
-    assert_only_event_schedule(timelock.contract_address, call_1, predecessor_1, delay);
+    assert_only_event_schedule(timelock.contract_address, target_id_1, event_index, call_1, predecessor_1, delay);
 
     // Schedule call 2
     timelock.schedule(call_2, predecessor_2, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
-    assert_only_event_schedule(timelock.contract_address, call_2, predecessor_2, delay);
+    assert_only_event_schedule(timelock.contract_address, target_id_2, event_index, call_2, predecessor_2, delay);
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -707,12 +614,12 @@ fn test_execute_after_dependency() {
     testing::set_contract_address(EXECUTOR());
     timelock.execute(call_1, predecessor_1, salt);
     assert_operation_state(timelock, OperationState::Done, target_id_1);
-    assert_event_execute(timelock.contract_address, target_id_1, call_1);
+    assert_event_execute(timelock.contract_address, target_id_1,event_index, call_1);
 
     // Execute call 2
     timelock.execute(call_2, predecessor_2, salt);
     assert_operation_state(timelock, OperationState::Done, target_id_2);
-    assert_only_event_execute(timelock.contract_address, target_id_2, call_2);
+    assert_only_event_execute(timelock.contract_address, target_id_2, event_index, call_2);
 }
 
 // execute_batch
@@ -746,7 +653,7 @@ fn test_execute_batch_when_scheduled() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule_batch(calls, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_events_schedule_batch(timelock.contract_address, calls, predecessor, delay);
+    assert_only_events_schedule_batch(timelock.contract_address, target_id, calls, predecessor, delay);
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -928,12 +835,12 @@ fn test_execute_batch_after_dependency() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule_batch(calls_1, predecessor_1, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
-    assert_only_events_schedule_batch(timelock.contract_address, calls_1, predecessor_1, delay);
+    assert_only_events_schedule_batch(timelock.contract_address, target_id_1, calls_1, predecessor_1, delay);
 
     // Schedule calls 2
     timelock.schedule_batch(calls_2, predecessor_2, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
-    assert_only_events_schedule_batch(timelock.contract_address, calls_2, predecessor_2, delay);
+    assert_only_events_schedule_batch(timelock.contract_address, target_id_2, calls_2, predecessor_2, delay);
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -960,6 +867,7 @@ fn test_cancel_from_canceller() {
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
     let delay = MIN_DELAY;
+    let event_index = 0;
 
     let call = single_operation(target.contract_address);
     let target_id = timelock.hash_operation(call, predecessor, salt);
@@ -969,7 +877,7 @@ fn test_cancel_from_canceller() {
     testing::set_contract_address(PROPOSER()); // PROPOSER is also CANCELLER
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_event_schedule(timelock.contract_address, call, predecessor, delay);
+    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
 
     // Cancel
     timelock.cancel(target_id);
@@ -1025,6 +933,7 @@ fn test_update_delay_scheduled() {
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
     let delay = MIN_DELAY;
+    let event_index = 0;
 
     let call = Call {
         to: timelock.contract_address,
@@ -1037,7 +946,7 @@ fn test_update_delay_scheduled() {
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
-    assert_only_event_schedule(timelock.contract_address, call, predecessor, delay);
+    assert_only_event_schedule(timelock.contract_address, target_id, event_index, call, predecessor, delay);
 
     // Fast-forward
     testing::set_block_timestamp(delay);
@@ -1047,11 +956,170 @@ fn test_update_delay_scheduled() {
     timelock.execute(call, predecessor, salt);
     assert_operation_state(timelock, OperationState::Done, target_id);
     assert_event_delay(timelock.contract_address, MIN_DELAY, NEW_DELAY);
-    assert_only_event_execute(timelock.contract_address, target_id, call);
+    assert_only_event_execute(timelock.contract_address, target_id, event_index, call);
 
     // Check new minimum delay
     let get_new_delay = timelock.get_min_delay();
     assert_eq!(get_new_delay, NEW_DELAY);
+}
+
+//
+// Internal
+//
+
+// initializer
+
+#[test]
+fn test_initializer_single_role_and_no_admin() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin_zero = ZERO();
+
+    state.initializer(min_delay, proposers, executors, admin_zero);
+    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero));
+}
+
+#[test]
+fn test_initializer_multiple_roles_and_admin() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let (p1, p2, p3) = get_proposers();
+    let mut proposers = array![p1, p2, p3].span();
+
+    let (e1, e2, e3) = get_executors();
+    let mut executors = array![e1, e2, e3].span();
+
+    let admin = ADMIN();
+
+    state.initializer(min_delay, proposers, executors, admin);
+
+    // Check assigned roles
+    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin));
+
+    let mut index = 0;
+    loop {
+        if index == proposers.len() {
+            break;
+        }
+
+        assert!(contract_state.has_role(PROPOSER_ROLE, *proposers.at(index)));
+        assert!(contract_state.has_role(CANCELLER_ROLE, *proposers.at(index)));
+        assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(index)));
+        index += 1;
+    };
+}
+
+#[test]
+fn test_initializer_supported_interfaces() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin = ADMIN();
+
+    state.initializer(min_delay, proposers, executors, admin);
+
+    // Check interface support
+    let supports_isrc5 = contract_state.src5.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
+
+    let supports_ierc1155_receiver = contract_state.src5.supports_interface(IERC1155_RECEIVER_ID);
+    assert!(supports_ierc1155_receiver);
+
+    let supports_ierc721_receiver = contract_state.src5.supports_interface(IERC721_RECEIVER_ID);
+    assert!(supports_ierc721_receiver);
+}
+
+#[test]
+fn test_initializer_min_delay() {
+    let mut state = COMPONENT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin_zero = ZERO();
+
+    state.initializer(min_delay, proposers, executors, admin_zero);
+
+    // Check minimum delay is set
+    let delay = state.get_min_delay();
+    assert_eq!(delay, MIN_DELAY);
+
+    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChange`:
+    // - Self administration
+    // - 1 proposers
+    // - 1 cancellers
+    // - 1 executors
+    utils::drop_events(ZERO(), 4);
+    assert_only_event_delay_change(ZERO(), 0, MIN_DELAY);
+}
+
+// assert_only_role_or_open_role
+
+#[test]
+fn test_assert_only_role_or_open_role_when_has_role() {
+    let mut state = COMPONENT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin = ADMIN();
+
+    state.initializer(min_delay, proposers, executors, admin);
+
+    testing::set_caller_address(PROPOSER());
+    state.assert_only_role_or_open_role(PROPOSER_ROLE);
+
+    // PROPOSER == CANCELLER
+    testing::set_caller_address(PROPOSER());
+    state.assert_only_role_or_open_role(CANCELLER_ROLE);
+
+    testing::set_caller_address(EXECUTOR());
+    state.assert_only_role_or_open_role(EXECUTOR_ROLE);
+}
+
+#[test]
+#[should_panic(expected: ('Caller is missing role',))]
+fn test_assert_only_role_or_open_role_unauthorized() {
+    let mut state = COMPONENT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin = ADMIN();
+
+    state.initializer(min_delay, proposers, executors, admin);
+
+    testing::set_caller_address(OTHER());
+    state.assert_only_role_or_open_role(PROPOSER_ROLE);
+}
+
+#[test]
+fn test_assert_only_role_or_open_role_with_open_role() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+    let open_role = ZERO();
+
+    let proposers = array![open_role].span();
+    let executors = array![EXECUTOR()].span();
+    let admin = ADMIN();
+
+    state.initializer(min_delay, proposers, executors, admin);
+
+    let is_open_role = contract_state.has_role(PROPOSER_ROLE, open_role);
+    assert!(is_open_role);
+
+    testing::set_caller_address(OTHER());
+    state.assert_only_role_or_open_role(PROPOSER_ROLE);
 }
 
 //
@@ -1118,52 +1186,46 @@ fn assert_only_event_delay_change(contract: ContractAddress, old_duration: u64, 
 
 // CallScheduled
 
-fn assert_event_schedule(contract: ContractAddress, call: Call, predecessor: felt252, delay: u64) {
+fn assert_event_schedule(contract: ContractAddress, id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
     let expected = TimelockControllerComponent::Event::CallScheduled(
-        CallScheduled { call, predecessor, delay }
+        CallScheduled { id, index, call, predecessor, delay }
     );
     assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
     indexed_keys.append_serde(selector!("CallScheduled"));
-    indexed_keys.append_serde(call);
+    indexed_keys.append_serde(id);
+    indexed_keys.append_serde(index);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
 fn assert_only_event_schedule(
-    contract: ContractAddress, call: Call, predecessor: felt252, delay: u64
+    contract: ContractAddress, id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64
 ) {
-    assert_event_schedule(contract, call, predecessor, delay);
+    assert_event_schedule(contract, id, index, call, predecessor, delay);
     utils::assert_no_events_left(contract);
 }
 
 fn assert_events_schedule_batch(
-    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+    contract: ContractAddress, id: felt252, calls: Span<Call>, predecessor: felt252, delay: u64
 ) {
-    let mut index = 0;
+    let mut i = 0;
     loop {
-        if index == calls.len() {
+        if i == calls.len() {
             break;
         }
-        assert_event_schedule(contract, *calls.at(index), predecessor, delay);
-        index += 1;
+        assert_event_schedule(contract, id, i.into(), *calls.at(i), predecessor, delay);
+        i += 1;
     }
 }
 
 fn assert_only_events_schedule_batch(
-    contract: ContractAddress, calls: Span<Call>, predecessor: felt252, delay: u64
+    contract: ContractAddress, id: felt252, calls: Span<Call>, predecessor: felt252, delay: u64
 ) {
-    let mut index = 0;
-    loop {
-        if index == calls.len() - 1 {
-            break;
-        }
-        assert_event_schedule(contract, *calls.at(index), predecessor, delay);
-        index += 1;
-    };
-    assert_only_event_schedule(contract, *calls.at(index), predecessor, delay);
+    assert_events_schedule_batch(contract, id, calls, predecessor, delay);
+    utils::assert_no_events_left(contract);
 }
 
 // CallSalt
@@ -1181,45 +1243,38 @@ fn assert_only_event_call_salt(contract: ContractAddress, id: felt252, salt: fel
 
 // CallExecuted
 
-fn assert_event_execute(contract: ContractAddress, id: felt252, call: Call) {
+fn assert_event_execute(contract: ContractAddress, id: felt252, index: felt252, call: Call) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::CallExecuted(CallExecuted { id, call });
+    let expected = TimelockControllerComponent::Event::CallExecuted(CallExecuted { id, index, call });
     assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
     indexed_keys.append_serde(selector!("CallExecuted"));
     indexed_keys.append_serde(id);
-    indexed_keys.append_serde(call);
+    indexed_keys.append_serde(index);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
 
-fn assert_only_event_execute(contract: ContractAddress, id: felt252, call: Call) {
-    assert_event_execute(contract, id, call);
+fn assert_only_event_execute(contract: ContractAddress, id: felt252, index: felt252, call: Call) {
+    assert_event_execute(contract, id, index, call);
     utils::assert_no_events_left(contract);
 }
 
 fn assert_events_execute_batch(contract: ContractAddress, id: felt252, calls: Span<Call>) {
-    let mut index = 0;
+    let mut i = 0;
     loop {
-        if index == calls.len() {
+        if i == calls.len() {
             break;
         }
-        assert_event_execute(contract, id, *calls.at(index));
-        index += 1;
+        assert_event_execute(contract, id, i.into(), *calls.at(i));
+        i += 1;
     }
 }
 
 fn assert_only_events_execute_batch(contract: ContractAddress, id: felt252, calls: Span<Call>) {
-    let mut index = 0;
-    loop {
-        if index == calls.len() - 1 {
-            break;
-        }
-        assert_event_execute(contract, id, *calls.at(index));
-        index += 1;
-    };
-    assert_only_event_execute(contract, id, *calls.at(index));
+    assert_events_execute_batch(contract, id, calls);
+    utils::assert_no_events_left(contract);
 }
 
 // Cancelled

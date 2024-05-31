@@ -58,7 +58,7 @@ mod TimelockControllerComponent {
         MinDelayChange: MinDelayChange
     }
 
-    /// Emitted when...
+    /// Emitted when `call` is scheduled as part of operation `id`.
     #[derive(Drop, PartialEq, starknet::Event)]
     struct CallScheduled {
         #[key]
@@ -70,7 +70,7 @@ mod TimelockControllerComponent {
         delay: u64
     }
 
-    /// Emitted when...
+    /// Emitted when `call` is performed as part of operation `id`.
     #[derive(Drop, PartialEq, starknet::Event)]
     struct CallExecuted {
         #[key]
@@ -80,7 +80,7 @@ mod TimelockControllerComponent {
         call: Call
     }
 
-    /// Emitted when...
+    /// Emitted when a new proposal is scheduled with non-zero salt.
     #[derive(Drop, PartialEq, starknet::Event)]
     struct CallSalt {
         #[key]
@@ -88,14 +88,14 @@ mod TimelockControllerComponent {
         salt: felt252
     }
 
-    /// Emitted when...
+    /// Emitted when operation `id` is cancelled.
     #[derive(Drop, PartialEq, starknet::Event)]
     struct Cancelled {
         #[key]
         id: felt252
     }
 
-    /// Emitted when...
+    /// Emitted when the minimum delay for future operations is modified.
     #[derive(Drop, PartialEq, starknet::Event)]
     struct MinDelayChange {
         old_duration: u64,

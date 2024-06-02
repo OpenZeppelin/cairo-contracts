@@ -141,7 +141,6 @@ mod TimelockAttackerMock {
                 let reentrant_call = Call {
                     to: this, selector: selector!("reenter"), calldata: array![].span()
                 };
-                //let reentrant_call_span = array![reentrant_call].span();
 
                 let timelock = ITimelockDispatcher { contract_address: sender };
                 timelock.execute(reentrant_call, PREDECESSOR, SALT);

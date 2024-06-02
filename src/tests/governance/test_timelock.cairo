@@ -24,10 +24,10 @@ use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::timelock_mocks::MockContract;
 use openzeppelin::tests::mocks::timelock_mocks::{
-    ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
+    IMockContractDispatcher, IMockContractDispatcherTrait
 };
 use openzeppelin::tests::mocks::timelock_mocks::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
+    ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
 };
 use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
 use openzeppelin::tests::utils::constants::{

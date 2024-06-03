@@ -1075,7 +1075,6 @@ fn test_receive_erc1155_safe_transfer() {
 
     let token_id = TOKEN_ID;
     let token_value = TOKEN_VALUE;
-    //let data = array![];
 
     // Check initial balances
     let owner_balance = erc1155.balance_of(owner, token_id);
@@ -1235,9 +1234,9 @@ fn test_initializer_min_delay() {
 
     // The initializer emits 4 `RoleGranted` events prior to `MinDelayChange`:
     // - Self administration
-    // - 1 proposers
-    // - 1 cancellers
-    // - 1 executors
+    // - 1 proposer
+    // - 1 canceller
+    // - 1 executor
     utils::drop_events(ZERO(), 4);
     assert_only_event_delay_change(ZERO(), 0, MIN_DELAY);
 }

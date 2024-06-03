@@ -230,6 +230,7 @@ fn test_hash_operation() {
         .update_with(predecessor) // predecessor
         .update_with(salt) // salt
         .finalize();
+
     assert_eq!(hashed_operation, expected_hash);
 }
 

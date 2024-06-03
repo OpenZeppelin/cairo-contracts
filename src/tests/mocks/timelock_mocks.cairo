@@ -109,11 +109,11 @@ mod TimelockAttackerMock {
         ITimelockDispatcher, ITimelockDispatcherTrait
     };
     use openzeppelin::governance::timelock::utils::call_impls::Call;
-    use openzeppelin::tests::utils::constants::SALT;
     use starknet::ContractAddress;
     use super::ITimelockAttacker;
 
-    const PREDECESSOR: felt252 = 0;
+    const NO_PREDECESSOR: felt252 = 0;
+    const NO_SALT: felt252 = 0;
 
     #[storage]
     struct Storage {
@@ -143,7 +143,7 @@ mod TimelockAttackerMock {
                 };
 
                 let timelock = ITimelockDispatcher { contract_address: sender };
-                timelock.execute(reentrant_call, PREDECESSOR, SALT);
+                timelock.execute(reentrant_call, NO_PREDECESSOR, NO_SALT);
             }
         }
     }

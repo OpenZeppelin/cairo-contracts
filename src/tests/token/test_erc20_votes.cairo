@@ -213,12 +213,13 @@ fn test_delegate_by_sig_hash_generation() {
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = contract_address_const::<
-        0xe3338551aa36b2ed40c925c7c6b89ab27d21693829df63c3764cca3500448a
+        0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
     >();
     let delegatee = RECIPIENT();
     let delegation = Delegation { delegatee, nonce, expiry };
 
     let hash = delegation.get_message_hash(delegator);
+
     // This hash was computed using starknet js sdk from the following values:
     // - name: 'DAPP_NAME'
     // - version: 'DAPP_VERSION'
@@ -228,7 +229,7 @@ fn test_delegate_by_sig_hash_generation() {
     // - nonce: 0
     // - expiry: 'ts2'
     // - revision: '1'
-    let expected_hash = 0x4adb3ed01ab548905666eb9a8ee35ca054ebdce90f9fc3d4ee53e23f3f6dfc1;
+    let expected_hash = 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511;
     assert_eq!(hash, expected_hash);
 }
 
@@ -248,8 +249,8 @@ fn test_delegate_by_sig() {
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
     // - msg_hash: 0x4adb3ed01ab548905666eb9a8ee35ca054ebdce90f9fc3d4ee53e23f3f6dfc1
     let signature = array![
-        0x372f30266cc0409f4ee035fccfff4d1703b732648c1a26e39df2e29481e048a,
-        0x6abf9128857df48ada4f6d8a532711e0db733bc3c4dee7b49469005f42b25cc
+        0x4b2ca5c3cb47eafc1263db0fb7a1c4ee54eb9cc6605607a072894c0a9ae3b08,
+        0x313dc5b5f05ab680db7d51b391fadd52e679c971551f0017a8ceba37bacc5c6
     ];
 
     testing::set_block_timestamp('ts1');

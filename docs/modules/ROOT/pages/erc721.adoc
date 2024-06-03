@@ -84,7 +84,7 @@ The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 
 == Usage
 
-:mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
+:mint-api: xref:api/erc721.adoc#ERC721-mint[mint]
 
 Using Contracts for Cairo, constructing an ERC721 contract requires integrating both `ERC721Component` and `SRC5Component`.
 The contract should also set up the constructor to initialize the token's name, symbol, and interface support.
@@ -134,7 +134,7 @@ mod MyNFT {
         let token_id = 1;
 
         self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }
 ----

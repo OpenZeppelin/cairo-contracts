@@ -100,7 +100,7 @@ mod ERC721Upgradeable {
                     break;
                 }
                 let id = *token_ids.pop_front().unwrap();
-                self.erc721._mint(recipient, id);
+                self.erc721.mint(recipient, id);
             }
         }
     }

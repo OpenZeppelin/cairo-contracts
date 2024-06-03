@@ -259,6 +259,8 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
 * xref:#ERC721Component-exists[`++exists(self, token_id)++`]
+* xref:#ERC721Component-mint[`++mint(self, to, token_id)++`]
+* xref:#ERC721Component-transfer[`++transfer(self, from, to, token_id)++`]
 * xref:#ERC721Component-safe_transfer[`++safe_transfer(self, from, to, token_id, data)++`]
 * xref:#ERC721Component-safe_mint[`++safe_mint(self, to, token_id, data)++`]
 * xref:#ERC721Component-burn[`++burn(self, token_id)++`]
@@ -268,8 +270,6 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC721Component-_approve[`++_approve(self, to, token_id, auth)++`]
 * xref:#ERC721Component-_approve_with_optional_event[`++_approve_with_optional_event(self, to, token_id, auth, emit_event)++`]
 * xref:#ERC721Component-_set_approval_for_all[`++_set_approval_for_all(self, owner, operator, approved)++`]
-* xref:#ERC721Component-_transfer[`++_transfer(self, from, to, token_id)++`]
-* xref:#ERC721Component-_mint[`++_mint(self, to, token_id)++`]
 * xref:#ERC721Component-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
 * xref:#ERC721Component-_base_uri[`++_base_uri(self)++`]
 * xref:#ERC721Component-_is_authorized[`++_is_authorized(self, owner, spender, token_id)++`]
@@ -475,7 +475,41 @@ This should be used inside the contract's constructor.
 
 Internal function that returns whether `token_id` exists.
 
-Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop existing when they are burned (<<ERC721-burn,burn>>).
+Tokens start existing when they are minted (<<ERC721-mint,mint>>), and stop existing when they are burned (<<ERC721-burn,burn>>).
+
+[.contract-item]
+[[ERC721Component-transfer]]
+==== `[.contract-item-name]#++transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Transfers `token_id` from `from` to `to`.
+
+Internal function without access restriction.
+
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+
+Requirements:
+
+- `to` is not the zero address.
+- `from` is the token owner.
+- `token_id` exists.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-mint]]
+==== `[.contract-item-name]#++mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Mints `token_id` and transfers it to `to`.
+Internal function without access restriction.
+
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+
+Requirements:
+
+- `to` is not the zero address.
+- `token_id` does not exist.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-safe_transfer]]
@@ -579,40 +613,6 @@ Requirements:
 - `operator` is not the zero address.
 
 Emits an <<IERC721-Approval,Approval>> event.
-
-[.contract-item]
-[[ERC721Component-_transfer]]
-==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
-
-Transfers `token_id` from `from` to `to`.
-
-Internal function without access restriction.
-
-WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-
-Requirements:
-
-- `to` is not the zero address.
-- `from` is the token owner.
-- `token_id` exists.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
-[[ERC721Component-_mint]]
-==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
-
-Mints `token_id` and transfers it to `to`.
-Internal function without access restriction.
-
-WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-
-Requirements:
-
-- `to` is not the zero address.
-- `token_id` does not exist.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
 [[ERC721Component-_set_base_uri]]

@@ -44,7 +44,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(OWNER(), TOKEN_ID);
+    state.mint(OWNER(), TOKEN_ID);
     utils::drop_event(ZERO());
     state
 }
@@ -137,7 +137,7 @@ fn test_token_uri() {
 fn test_token_uri_not_set() {
     let mut state = COMPONENT_STATE();
 
-    state._mint(OWNER(), TOKEN_ID);
+    state.mint(OWNER(), TOKEN_ID);
     let uri = state.token_uri(TOKEN_ID);
     let expected: ByteArray = "";
     assert_eq!(uri, expected);
@@ -771,7 +771,7 @@ fn test_safe_transfer_from_to_owner() {
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -791,7 +791,7 @@ fn test_safeTransferFrom_to_owner() {
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -811,7 +811,7 @@ fn test_safe_transfer_from_to_owner_camel() {
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -831,7 +831,7 @@ fn test_safeTransferFrom_to_owner_camel() {
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -1022,7 +1022,7 @@ fn test_safeTransferFrom_unauthorized() {
 }
 
 //
-// _transfer
+// transfer
 //
 
 #[test]
@@ -1034,7 +1034,7 @@ fn test__transfer() {
 
     assert_state_before_transfer(owner, recipient, token_id);
 
-    state._transfer(owner, recipient, token_id);
+    state.transfer(owner, recipient, token_id);
     assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
@@ -1044,25 +1044,25 @@ fn test__transfer() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__transfer_nonexistent() {
     let mut state = COMPONENT_STATE();
-    state._transfer(ZERO(), RECIPIENT(), TOKEN_ID);
+    state.transfer(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
-    state._transfer(OWNER(), ZERO(), TOKEN_ID);
+    state.transfer(OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
-    state._transfer(RECIPIENT(), OWNER(), TOKEN_ID);
+    state.transfer(RECIPIENT(), OWNER(), TOKEN_ID);
 }
 
 //
-// _mint
+// mint
 //
 
 #[test]
@@ -1072,7 +1072,7 @@ fn test__mint() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._mint(recipient, TOKEN_ID);
+    state.mint(recipient, TOKEN_ID);
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1082,14 +1082,14 @@ fn test__mint() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._mint(ZERO(), TOKEN_ID);
+    state.mint(ZERO(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__mint_already_exist() {
     let mut state = setup();
-    state._mint(RECIPIENT(), TOKEN_ID);
+    state.mint(RECIPIENT(), TOKEN_ID);
 }
 
 //
@@ -1297,7 +1297,7 @@ fn test__exists() {
     let mut owner = state.ERC721_owners.read(token_id);
     assert!(owner.is_zero());
 
-    state._mint(RECIPIENT(), token_id);
+    state.mint(RECIPIENT(), token_id);
 
     let exists = state.exists(token_id);
     assert!(exists);

@@ -494,6 +494,52 @@ mod ERC721Component {
             !self._owner_of(token_id).is_zero()
         }
 
+        /// Transfers `token_id` from `from` to `to`.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is not the zero address.
+        /// - `from` is the token owner.
+        /// - `token_id` exists.
+        ///
+        /// Emits a `Transfer` event.
+        fn transfer(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_id: u256
+        ) {
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
+
+            let previous_owner = self.update(to, token_id, Zeroable::zero());
+
+            assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
+            assert(from == previous_owner, Errors::INVALID_SENDER);
+        }
+
+        /// Mints `token_id` and transfers it to `to`.
+        /// Internal function without access restriction.
+        ///
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        ///
+        /// Requirements:
+        ///
+        /// - `to` is not the zero address.
+        /// - `token_id` does not exist.
+        ///
+        /// Emits a `Transfer` event.
+        fn mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
+            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
+
+            let previous_owner = self.update(to, token_id, Zeroable::zero());
+
+            assert(previous_owner.is_zero(), Errors::ALREADY_MINTED);
+        }
+
         /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
@@ -515,7 +561,7 @@ mod ERC721Component {
             token_id: u256,
             data: Span<felt252>
         ) {
-            self._transfer(from, to, token_id);
+            self.transfer(from, to, token_id);
             assert(
                 _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
             );
@@ -539,7 +585,7 @@ mod ERC721Component {
             token_id: u256,
             data: Span<felt252>
         ) {
-            self._mint(to, token_id);
+            self.mint(to, token_id);
             assert(
                 _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
                 Errors::SAFE_MINT_FAILED
@@ -688,52 +734,6 @@ mod ERC721Component {
             assert(!operator.is_zero(), Errors::INVALID_OPERATOR);
             self.ERC721_operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
-        }
-
-        /// Transfers `token_id` from `from` to `to`.
-        ///
-        /// Internal function without access restriction.
-        ///
-        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is not the zero address.
-        /// - `from` is the token owner.
-        /// - `token_id` exists.
-        ///
-        /// Emits a `Transfer` event.
-        fn _transfer(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256
-        ) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-
-            let previous_owner = self.update(to, token_id, Zeroable::zero());
-
-            assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
-            assert(from == previous_owner, Errors::INVALID_SENDER);
-        }
-
-        /// Mints `token_id` and transfers it to `to`.
-        /// Internal function without access restriction.
-        ///
-        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-        ///
-        /// Requirements:
-        ///
-        /// - `to` is not the zero address.
-        /// - `token_id` does not exist.
-        ///
-        /// Emits a `Transfer` event.
-        fn _mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
-            assert(!to.is_zero(), Errors::INVALID_RECEIVER);
-
-            let previous_owner = self.update(to, token_id, Zeroable::zero());
-
-            assert(previous_owner.is_zero(), Errors::ALREADY_MINTED);
         }
 
         /// Sets the base URI.

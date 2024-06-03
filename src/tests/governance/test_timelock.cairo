@@ -284,12 +284,13 @@ fn schedule_from_proposer(salt: felt252) {
     let delay = MIN_DELAY;
     let mut salt = salt;
 
+    // Set up call
     let call = single_operation(target.contract_address);
     let target_id = timelock.hash_operation(call, predecessor, salt);
     assert_operation_state(timelock, OperationState::Unset, target_id);
 
+    // Schedule
     testing::set_contract_address(PROPOSER());
-
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
@@ -377,12 +378,13 @@ fn schedule_batch_from_proposer(salt: felt252) {
     let delay = MIN_DELAY;
     let mut salt = salt;
 
+    // Set up calls
     let calls = batched_operations(target.contract_address);
     let target_id = timelock.hash_operation_batch(calls, predecessor, salt);
     assert_operation_state(timelock, OperationState::Unset, target_id);
 
+    // Schedule batch
     testing::set_contract_address(PROPOSER());
-
     timelock.schedule_batch(calls, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
@@ -807,11 +809,11 @@ fn test_execute_batch_reentrant_call() {
     };
     let calls = array![call_1, call_2, reentrant_call].span();
 
-    // schedule
+    // Schedule
     testing::set_contract_address(PROPOSER());
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
-    // fast-forward
+    // Fast-forward
     testing::set_block_timestamp(delay);
 
     // Grant executor role to attacker
@@ -854,12 +856,12 @@ fn test_execute_batch_before_dependency() {
     let salt = 0;
     let delay = MIN_DELAY;
 
-    // Call 1
+    // Calls 1
     let calls_1 = batched_operations(target.contract_address);
     let predecessor_1 = NO_PREDECESSOR;
     let target_id_1 = timelock.hash_operation_batch(calls_1, predecessor_1, salt);
 
-    // Call 2
+    // Calls 2
     let calls_2 = batched_operations(target.contract_address);
     let predecessor_2 = target_id_1;
 
@@ -983,7 +985,6 @@ fn test_cancel_unauthorized() {
     // Schedule
     testing::set_contract_address(PROPOSER());
     timelock.schedule(call, predecessor, salt, delay);
-    utils::drop_events(timelock.contract_address, 2);
 
     // Cancel
     testing::set_contract_address(OTHER());

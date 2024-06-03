@@ -220,7 +220,7 @@ fn test_dual_isValidSignature_exists_and_panics() {
 //
 
 fn get_accept_ownership_signature_snake() -> Span<felt252> {
-    // 0x68d0d8341890d736df4ad1f1d73fc0ea21240f5a7f0877376c11cbd5aedaa87 =
+    // 0x26a14ae81fad8adcb81337e49fd68ac44d508cfca09c4a6167c71e85759e98d =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -231,16 +231,16 @@ fn get_accept_ownership_signature_snake() -> Span<felt252> {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x68d0d8341890d736df4ad1f1d73fc0ea21240f5a7f0877376c11cbd5aedaa87
+    // - msg_hash: 0x26a14ae81fad8adcb81337e49fd68ac44d508cfca09c4a6167c71e85759e98d
     array![
-        0x3735f9488006188a1bcb44954c6a42ec9772407b5d74fb8ef289f4dc7e19546,
-        0x729228e2d61aa713ccb5eaa5d1d542f5020a8dad9720e70733667189bf73c6d
+        0x14de5d99a3a43bc7e8e0ddf8ff72fab172798ac3dd7bd858d4f6f489a2a4bcb,
+        0x88dd5cb7f27a8932a5c6d226b486830e952e3d9e78996e7ca2315afa9c0be2
     ]
         .span()
 }
 
 fn get_accept_ownership_signature_camel() -> Span<felt252> {
-    // 0x7574ff949c0537b235ec5ab787f1c1989ebd875a8e083a1038ee21eb2b44a43 =
+    // 0x1e2acd787c2778bebfbf4d8770fdc0834db1576b5fd190f35afae5a6f7f469f =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -251,10 +251,10 @@ fn get_accept_ownership_signature_camel() -> Span<felt252> {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x7574ff949c0537b235ec5ab787f1c1989ebd875a8e083a1038ee21eb2b44a43
+    // - msg_hash: 0x1e2acd787c2778bebfbf4d8770fdc0834db1576b5fd190f35afae5a6f7f469f
     array![
-        0x5a776880cf7154726f9d4afaeee9055ba4ab1a4e9d7f19b6cda4529ed7dc78e,
-        0x1e1f24c532a23606f2b996b0b5e38fe14dc2ea9028f1849752fdef534a536d5
+        0xd0eab69db72a46ee0fb39c833cfaec035ca809eb884285d0e603262f15e0dd,
+        0x768e984a96d5f731c3cf1660c5a00f508f3d99d8240bf3ba4c3e69561a545d1
     ]
         .span()
 }

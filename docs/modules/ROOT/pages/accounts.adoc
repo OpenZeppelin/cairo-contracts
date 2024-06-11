@@ -188,7 +188,9 @@ For this the {eth-account-component} must be used.
 
 === Usage
 
-Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}. The contract should also set up the constructor to initialize the public key that will be used as the account's signer. Here’s an example of a basic contract:
+Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}.
+The contract should also set up the constructor to initialize the public key that will be used as the account's signer.
+Here’s an example of a basic contract:
 
 [,cairo]
 ----

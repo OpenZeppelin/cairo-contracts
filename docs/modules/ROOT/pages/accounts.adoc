@@ -183,7 +183,8 @@ trait AccountABI {
 :secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1
 :eth-account-component: xref:/api/account.adoc#EthAccountComponent[EthAccountComponent]
 
-Besides the Stark-curve account, OpenZeppelin Contracts for Cairo also offers Ethereum-flavored accounts that use the secp256k1 curve for signature validation. For this the {eth-account-component} must be used.
+Besides the Stark-curve account, OpenZeppelin Contracts for Cairo also offers Ethereum-flavored accounts that use the {secp256k1-curve}[secp256k1] curve for signature validation.
+For this the {eth-account-component} must be used.
 
 === Usage
 

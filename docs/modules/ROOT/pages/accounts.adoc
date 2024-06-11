@@ -95,7 +95,7 @@ NOTE: Although these entrypoints are available to the protocol for its regular t
 
 Starknet native account abstraction pattern allows for the creation of custom accounts with different validation schemes, but
 usually most account implementations validate transactions using the {stark-curve}[Stark curve] which is the most efficient way
-of validating signatures since is a STARK-friendly curve.
+of validating signatures since it is a STARK-friendly curve.
 
 OpenZeppelin Contracts for Cairo provides {account-component} for implementing this validation scheme.
 

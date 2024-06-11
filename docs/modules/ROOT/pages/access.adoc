@@ -109,7 +109,7 @@ will no longer be callable!
 The component also offers a more robust way of transferring ownership via the
 xref:/api/access.adoc#OwnableTwoStepImpl[OwnableTwoStepImpl] implementation. A two step transfer mechanism helps
 to prevent unintended and irreversible owner transfers. Simply replace the `OwnableMixinImpl`
-with its respective two step variants:
+with its respective two step variant:
 
 [,cairo]
 ----

@@ -24,6 +24,7 @@ Here is an example contract:
 
 [,cairo]
 ----
+#[starknet::contract]
 mod MyContract {
     use openzeppelin::introspection::src5::SRC5Component;
 

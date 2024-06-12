@@ -9,6 +9,7 @@ mod selectors;
 mod serde;
 mod structs;
 mod unwrap_and_cast;
+use cryptography::merkle;
 
 use cryptography::nonces;
 use cryptography::snip12;

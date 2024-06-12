@@ -19,10 +19,12 @@ which can be used by others to query if a given interface is supported.
 
 === Usage
 
-To expose this functionality, the contract must implement the {src5-component}, which defines the `supports_interface` function. Here is an example contract:
+To expose this functionality, the contract must implement the {src5-component}, which defines the `supports_interface` function.
+Here is an example contract:
 
 [,cairo]
 ----
+#[starknet::contract]
 mod MyContract {
     use openzeppelin::introspection::src5::SRC5Component;
 

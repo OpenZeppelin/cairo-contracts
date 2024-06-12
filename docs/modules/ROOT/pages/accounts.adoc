@@ -95,7 +95,7 @@ NOTE: Although these entrypoints are available to the protocol for its regular t
 
 Starknet native account abstraction pattern allows for the creation of custom accounts with different validation schemes, but
 usually most account implementations validate transactions using the {stark-curve}[Stark curve] which is the most efficient way
-of validating signatures since is a STARK-friendly curve.
+of validating signatures since it is a STARK-friendly curve.
 
 OpenZeppelin Contracts for Cairo provides {account-component} for implementing this validation scheme.
 
@@ -183,11 +183,14 @@ trait AccountABI {
 :secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1
 :eth-account-component: xref:/api/account.adoc#EthAccountComponent[EthAccountComponent]
 
-Besides the Stark-curve account, OpenZeppelin Contracts for Cairo also offers Ethereum-flavored accounts that use the secp256k1 curve for signature validation. For this the {eth-account-component} must be used.
+Besides the Stark-curve account, OpenZeppelin Contracts for Cairo also offers Ethereum-flavored accounts that use the {secp256k1-curve}[secp256k1] curve for signature validation.
+For this the {eth-account-component} must be used.
 
 === Usage
 
-Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}. The contract should also set up the constructor to initialize the public key that will be used as the account's signer. Here’s an example of a basic contract:
+Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}.
+The contract should also set up the constructor to initialize the public key that will be used as the account's signer.
+Here’s an example of a basic contract:
 
 [,cairo]
 ----

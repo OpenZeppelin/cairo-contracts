@@ -259,8 +259,8 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
 * xref:#ERC721Component-exists[`++exists(self, token_id)++`]
-* xref:#ERC721Component-mint[`++mint(self, to, token_id)++`]
 * xref:#ERC721Component-transfer[`++transfer(self, from, to, token_id)++`]
+* xref:#ERC721Component-mint[`++mint(self, to, token_id)++`]
 * xref:#ERC721Component-safe_transfer[`++safe_transfer(self, from, to, token_id, data)++`]
 * xref:#ERC721Component-safe_mint[`++safe_mint(self, to, token_id, data)++`]
 * xref:#ERC721Component-burn[`++burn(self, token_id)++`]
@@ -563,6 +563,21 @@ Requirements:
 Emits a <<IERC721-Transfer,Transfer>> event.
 
 [.contract-item]
+[[ERC721Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
+
+Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+(or `to`) is the zero address. Returns the owner of the `token_id` before the update.
+
+The `auth` argument is optional. If the value passed is non-zero, then this function will check that
+`auth` is either the owner of the token, or approved to operate on the token (by the owner).
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+functionality before and/or after the transfer, mint, or burn.
+
+[.contract-item]
 [[ERC721Component-_owner_of]]
 ==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
 
@@ -653,21 +668,6 @@ Requirements:
 
 WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
 assumption.
-
-[.contract-item]
-[[ERC721Component-update]]
-==== `[.contract-item-name]#++update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
-
-Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-(or `to`) is the zero address. Returns the owner of the `token_id` before the update.
-
-The `auth` argument is optional. If the value passed is non-zero, then this function will check that
-`auth` is either the owner of the token, or approved to operate on the token (by the owner).
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-NOTE: This function can be extended using the `ERC721HooksTrait`, to add
-functionality before and/or after the transfer, mint, or burn.
 
 ==== Events
 

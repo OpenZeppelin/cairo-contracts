@@ -312,7 +312,7 @@ mod ERC20Component {
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self._update(Zeroable::zero(), recipient, amount);
+            self.update(Zeroable::zero(), recipient, amount);
         }
 
         /// Destroys `amount` of tokens from `account`.
@@ -325,7 +325,46 @@ mod ERC20Component {
         /// Emits a `Transfer` event with `to` set to the zero address.
         fn burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self._update(account, Zeroable::zero(), amount);
+            self.update(account, Zeroable::zero(), amount);
+        }
+
+
+        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+        /// the zero address.
+        ///
+        /// NOTE: This function can be extended using the `ERC20HooksTrait`, to add
+        /// functionality before and/or after the transfer, mint, or burn.
+        ///
+        /// Emits a `Transfer` event.
+        fn update(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            amount: u256
+        ) {
+            Hooks::before_update(ref self, from, to, amount);
+
+            let zero_address = Zeroable::zero();
+            if (from == zero_address) {
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply + amount);
+            } else {
+                let from_balance = self.ERC20_balances.read(from);
+                assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);
+                self.ERC20_balances.write(from, from_balance - amount);
+            }
+
+            if (to == zero_address) {
+                let total_supply = self.ERC20_total_supply.read();
+                self.ERC20_total_supply.write(total_supply - amount);
+            } else {
+                let to_balance = self.ERC20_balances.read(to);
+                self.ERC20_balances.write(to, to_balance + amount);
+            }
+
+            self.emit(Transfer { from, to, value: amount });
+
+            Hooks::after_update(ref self, from, to, amount);
         }
 
         /// Internal method that moves an `amount` of tokens from `from` to `to`.
@@ -345,7 +384,7 @@ mod ERC20Component {
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self._update(sender, recipient, amount);
+            self.update(sender, recipient, amount);
         }
 
         /// Internal method that sets `amount` as the allowance of `spender` over the
@@ -388,44 +427,6 @@ mod ERC20Component {
                 assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
                 self._approve(owner, spender, current_allowance - amount);
             }
-        }
-
-        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address.
-        ///
-        /// NOTE: This function can be extended using the `ERC20HooksTrait`, to add
-        /// functionality before and/or after the transfer, mint, or burn.
-        ///
-        /// Emits a `Transfer` event.
-        fn _update(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            to: ContractAddress,
-            amount: u256
-        ) {
-            Hooks::before_update(ref self, from, to, amount);
-
-            let zero_address = Zeroable::zero();
-            if (from == zero_address) {
-                let total_supply = self.ERC20_total_supply.read();
-                self.ERC20_total_supply.write(total_supply + amount);
-            } else {
-                let from_balance = self.ERC20_balances.read(from);
-                assert(from_balance >= amount, Errors::INSUFFICIENT_BALANCE);
-                self.ERC20_balances.write(from, from_balance - amount);
-            }
-
-            if (to == zero_address) {
-                let total_supply = self.ERC20_total_supply.read();
-                self.ERC20_total_supply.write(total_supply - amount);
-            } else {
-                let to_balance = self.ERC20_balances.read(to);
-                self.ERC20_balances.write(to, to_balance + amount);
-            }
-
-            self.emit(Transfer { from, to, value: amount });
-
-            Hooks::after_update(ref self, from, to, amount);
         }
     }
 }

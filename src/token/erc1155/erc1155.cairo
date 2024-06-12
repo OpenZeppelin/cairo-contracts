@@ -539,7 +539,7 @@ mod ERC1155Component {
 
             let token_ids = array![token_id].span();
             let values = array![value].span();
-            self._update(from, Zeroable::zero(), token_ids, values);
+            self.update(from, Zeroable::zero(), token_ids, values);
         }
 
         /// Batched version of `burn`.
@@ -558,10 +558,10 @@ mod ERC1155Component {
             values: Span<u256>
         ) {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
-            self._update(from, Zeroable::zero(), token_ids, values);
+            self.update(from, Zeroable::zero(), token_ids, values);
         }
 
-        /// Version of `_update` that performs the token acceptance check by calling
+        /// Version of `update` that performs the token acceptance check by calling
         /// `IERC1155Receiver::onERC1155Received` or `IERC1155Receiver::onERC1155BatchReceived` if
         /// the receiver is not recognized as an account.
         ///
@@ -579,32 +579,13 @@ mod ERC1155Component {
             values: Span<u256>,
             data: Span<felt252>
         ) {
-            self._update(from, to, token_ids, values);
+            self.update(from, to, token_ids, values);
             let accepted = if token_ids.len() == 1 {
                 _check_on_ERC1155_received(from, to, *token_ids.at(0), *values.at(0), data)
             } else {
                 _check_on_ERC1155_batch_received(from, to, token_ids, values, data)
             };
             assert(accepted, Errors::SAFE_TRANSFER_FAILED);
-        }
-
-        /// Sets a new URI for all token types, by relying on the token type ID
-        /// substitution mechanism defined in the ERC1155 standard.
-        /// See https://eips.ethereum.org/EIPS/eip-1155#metadata.
-        ///
-        /// By this mechanism, any occurrence of the `\{id\}` substring in either the
-        /// URI or any of the values in the JSON file at said URI will be replaced by
-        /// clients with the token type ID.
-        ///
-        /// For example, the `https://token-cdn-domain/\{id\}.json` URI would be
-        /// interpreted by clients as
-        /// `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
-        /// for token type ID 0x4cce0.
-        ///
-        /// Because these URIs cannot be meaningfully represented by the `URI` event,
-        /// this function emits no events.
-        fn _set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
-            self.ERC1155_uri.write(base_uri);
         }
 
         /// Transfers a `value` amount of tokens of type `id` from `from` to `to`.
@@ -621,7 +602,7 @@ mod ERC1155Component {
         ///
         /// NOTE: The ERC1155 acceptance check is not performed in this function.
         /// See `update_with_acceptance_check` instead.
-        fn _update(
+        fn update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
@@ -663,6 +644,25 @@ mod ERC1155Component {
             }
 
             Hooks::after_update(ref self, from, to, token_ids, values);
+        }
+
+        /// Sets a new URI for all token types, by relying on the token type ID
+        /// substitution mechanism defined in the ERC1155 standard.
+        /// See https://eips.ethereum.org/EIPS/eip-1155#metadata.
+        ///
+        /// By this mechanism, any occurrence of the `\{id\}` substring in either the
+        /// URI or any of the values in the JSON file at said URI will be replaced by
+        /// clients with the token type ID.
+        ///
+        /// For example, the `https://token-cdn-domain/\{id\}.json` URI would be
+        /// interpreted by clients as
+        /// `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
+        /// for token type ID 0x4cce0.
+        ///
+        /// Because these URIs cannot be meaningfully represented by the `URI` event,
+        /// this function emits no events.
+        fn _set_base_uri(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
+            self.ERC1155_uri.write(base_uri);
         }
     }
 

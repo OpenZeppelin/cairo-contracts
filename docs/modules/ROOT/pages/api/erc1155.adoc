@@ -225,8 +225,8 @@ NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC1155Component-burn[`++burn(self, from, token_id, value)++`]
 * xref:#ERC1155Component-batch_burn[`++batch_burn(self, from, token_ids, values)++`]
 * xref:#ERC1155Component-update_with_acceptance_check[`++update_with_acceptance_check(self, from, to, token_ids, values, data)++`]
+* xref:#ERC1155Component-update[`++update(self, from, to, token_ids, values)++`]
 * xref:#ERC1155Component-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
-* xref:#ERC1155Component-_update[`++_update(self, from, to, token_ids, values)++`]
 --
 
 [.contract-index]
@@ -253,13 +253,13 @@ for this purpose.
 [[ERC1155Component-before_update]]
 ==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#hook#
 
-Function executed at the beginning of the xref:#ERC1155Component-_update[_update] function prior to any other logic.
+Function executed at the beginning of the xref:#ERC1155Component-update[update] function prior to any other logic.
 
 [.contract-item]
 [[ERC1155Component-after_update]]
 ==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#hook#
 
-Function executed at the end of the xref:#ERC1155Component-_update[_update] function.
+Function executed at the end of the xref:#ERC1155Component-update[update] function.
 
 ==== Embeddable functions
 
@@ -402,42 +402,6 @@ Initializes the contract by setting the token's base URI as `base_uri`, and regi
 This should only be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC1155Component-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#internal#
-
-Transfers a `value` amount of tokens of type `id` from `from` to `to`.
-Will mint (or burn) if `from` (or `to`) is the zero address.
-
-Requirements:
-
-- `token_ids` and `values` must have the same length.
-
-Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
-and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
-
-NOTE: This function can be extended using the xref:ERC1155Component-ERC1155HooksTrait[ERC1155HooksTrait], to add
-functionality before and/or after the transfer, mint, or burn.
-
-NOTE: The ERC1155 acceptance check is not performed in this function.
-See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check>> instead.
-
-[.contract-item]
-[[ERC1155Component-update_with_acceptance_check]]
-==== `[.contract-item-name]#++update_with_acceptance_check++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#internal#
-
-Version of `_update` that performs the token acceptance check by calling
-`onERC1155Received` or `onERC1155BatchReceived` in the receiver if
-it implements `IERC1155Receiver`, otherwise by checking if it is an account.
-
-Requirements:
-
-- `to` is either an account contract or supports the `IERC1155Receiver` interface.
-- `token_ids` and `values` must have the same length.
-
-Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
-and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
-
-[.contract-item]
 [[ERC1155Component-mint_with_acceptance_check]]
 ==== `[.contract-item-name]#++mint_with_acceptance_check++#++(ref self: ContractState, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
@@ -492,6 +456,42 @@ Requirements:
 - `token_ids` and `values` must have the same length.
 
 Emits a <<ERC1155Component-TransferBatch,TransferBatch>> event.
+
+[.contract-item]
+[[ERC1155Component-update_with_acceptance_check]]
+==== `[.contract-item-name]#++update_with_acceptance_check++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#internal#
+
+Version of `update` that performs the token acceptance check by calling
+`onERC1155Received` or `onERC1155BatchReceived` in the receiver if
+it implements `IERC1155Receiver`, otherwise by checking if it is an account.
+
+Requirements:
+
+- `to` is either an account contract or supports the `IERC1155Receiver` interface.
+- `token_ids` and `values` must have the same length.
+
+Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
+and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
+
+[.contract-item]
+[[ERC1155Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#internal#
+
+Transfers a `value` amount of tokens of type `id` from `from` to `to`.
+Will mint (or burn) if `from` (or `to`) is the zero address.
+
+Requirements:
+
+- `token_ids` and `values` must have the same length.
+
+Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
+and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
+
+NOTE: This function can be extended using the xref:ERC1155Component-ERC1155HooksTrait[ERC1155HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
+
+NOTE: The ERC1155 acceptance check is not performed in this function.
+See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check>> instead.
 
 [.contract-item]
 [[ERC1155Component-_set_base_uri]]

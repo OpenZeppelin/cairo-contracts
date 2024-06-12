@@ -1,4 +1,3 @@
-:test-signers: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.6.1/tests/signers.py
 :snip-5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md
 :snip-6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md
 :counterfactual: xref:/guides/deployment.adoc[counterfactual deployments]
@@ -17,7 +16,7 @@ https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781[St
 
 TIP: For detailed information on the usage and implementation check the xref:/api/account.adoc[API Reference] section.
 
-== Standard Account Interface
+== What is an account?
 
 Accounts in Starknet are smart contracts, and so they can be deployed and interacted
 with like any other contract, and can be extended to implement any custom logic. However, an account is a special type
@@ -71,10 +70,10 @@ trait ISRC5 {
 Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling
 interoperability with the ecosystem.
 
-== Protocol-level methods
+=== Protocol-level methods
 
-In this section we will describe the methods that the protocol uses for abstracting the accounts. The first two
-are required for enabling accounts to be used for executing transactions. The rest are optional:
+The Starknet protocol uses a few entrypoints for abstracting the accounts. We already mentioned the first two
+as part of the ISRC6 interface, and both are required for enabling accounts to be used for executing transactions. The rest are optional:
 
 1. `\\__validate__` verifies the validity of the transaction to be executed. This is usually used to validate signatures,
 but the entrypoint implementation can be customized to feature any validation mechanism https://docs.starknet.io/documentation/architecture_and_concepts/Accounts/validate_and_execute/#validate_limitations[with some limitations].
@@ -87,6 +86,191 @@ meant to declare other contracts.
 4. `\\__validate_deploy__` optional entrypoint similar to `\\__validate__` but meant for {counterfactual}.
 
 NOTE: Although these entrypoints are available to the protocol for its regular transaction flow, they can also be called like any other method.
+
+== Starknet Account
+
+:stark-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve
+:account-component: xref:/api/account.adoc#AccountComponent[AccountComponent]
+:src5-component: xref:/api/introspection.adoc#SRC5Component[SRC5Component]
+
+Starknet native account abstraction pattern allows for the creation of custom accounts with different validation schemes, but
+usually most account implementations validate transactions using the {stark-curve}[Stark curve] which is the most efficient way
+of validating signatures since it is a STARK-friendly curve.
+
+OpenZeppelin Contracts for Cairo provides {account-component} for implementing this validation scheme.
+
+=== Usage
+
+Constructing an account contract requires integrating both {account-component} and {src5-component}. The contract should also set up the constructor to initialize the public key that will be used as the account's signer. Here’s an example of a basic contract:
+
+[,cairo]
+----
+#[starknet::contract(account)]
+mod MyAccount {
+    use openzeppelin::account::AccountComponent;
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // Account Mixin
+    #[abi(embed_v0)]
+    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        account: AccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+}
+----
+
+=== Interface
+
+This is the full interface of the `AccountMixinImpl` implementation:
+
+[,cairo]
+----
+trait AccountABI {
+    // ISRC6
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(calls: Array<Call>) -> felt252;
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC5
+    fn supports_interface(interface_id: felt252) -> bool;
+
+    // IDeclarer
+    fn __validate_declare__(class_hash: felt252) -> felt252;
+
+    // IDeployable
+    fn __validate_deploy__(
+        class_hash: felt252, contract_address_salt: felt252, public_key: felt252
+    ) -> felt252;
+
+    // IPublicKey
+    fn get_public_key() -> felt252;
+    fn set_public_key(new_public_key: felt252, signature: Span<felt252>);
+
+    // ISRC6CamelOnly
+    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // IPublicKeyCamel
+    fn getPublicKey() -> felt252;
+    fn setPublicKey(newPublicKey: felt252, signature: Span<felt252>);
+}
+----
+
+== Ethereum Account
+
+:secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1
+:eth-account-component: xref:/api/account.adoc#EthAccountComponent[EthAccountComponent]
+
+Besides the Stark-curve account, OpenZeppelin Contracts for Cairo also offers Ethereum-flavored accounts that use the {secp256k1-curve}[secp256k1] curve for signature validation.
+For this the {eth-account-component} must be used.
+
+=== Usage
+
+Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}.
+The contract should also set up the constructor to initialize the public key that will be used as the account's signer.
+Here’s an example of a basic contract:
+
+[,cairo]
+----
+#[starknet::contract(account)]
+mod MyEthAccount {
+    use openzeppelin::account::EthAccountComponent;
+    use openzeppelin::account::interface::EthPublicKey;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin::introspection::src5::SRC5Component;
+    use starknet::ClassHash;
+
+    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // EthAccount Mixin
+    #[abi(embed_v0)]
+    impl EthAccountMixinImpl =
+        EthAccountComponent::EthAccountMixinImpl<ContractState>;
+    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        eth_account: EthAccountComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        EthAccountEvent: EthAccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+        self.eth_account.initializer(public_key);
+    }
+}
+----
+
+=== Interface
+
+This is the full interface of the `EthAccountMixinImpl` implementation:
+
+[,cairo]
+----
+trait EthAccountABI {
+    // ISRC6
+    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __validate__(calls: Array<Call>) -> felt252;
+    fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC5
+    fn supports_interface(interface_id: felt252) -> bool;
+
+    // IDeclarer
+    fn __validate_declare__(class_hash: felt252) -> felt252;
+
+    // IEthDeployable
+    fn __validate_deploy__(
+        class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey
+    ) -> felt252;
+
+    // IEthPublicKey
+    fn get_public_key() -> EthPublicKey;
+    fn set_public_key(new_public_key: EthPublicKey, signature: Span<felt252>);
+
+    // ISRC6CamelOnly
+    fn isValidSignature(hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // IEthPublicKeyCamel
+    fn getPublicKey() -> EthPublicKey;
+    fn setPublicKey(newPublicKey: EthPublicKey, signature: Span<felt252>);
+}
+
+----
 
 == Deploying an account
 
@@ -101,26 +285,14 @@ To do counterfactual deployments, you need to implement another protocol-level e
 
 == Sending transactions
 
-Contracts for Cairo offers two flavors of components to use for creating accounts: `AccountComponent` and `EthAccountComponent`.
-Though the ISRC6 interface is agnostic regarding validation schemes, both available components utilize public-private key pairs that control the account.
-The public key is set in the constructor.
+Let's now explore how to send transactions through these accounts.
 
-Mixin implementations are available to use for both components which include basic account functionality as well as additional features such as the ability to:
+=== Starknet Account
 
-- View and transfer the account's public key.
-- Declare contract class hashes.
-- Counterfactually deploy.
-
-=== AccountComponent
-
-:account-mixin: xref:/api/account.adoc#AccountComponent-Embeddable-Mixin-Impl[AccountMixin]
-:initializer: xref:/api/account.adoc#AccountComponent-initializer[initializer]
 :custom-account-setup: https://foundry-rs.github.io/starknet-foundry/starknet/account.html#custom-account-contract[custom account setup]
 :sncast-version: https://github.com/foundry-rs/starknet-foundry/releases/tag/v0.23.0[v0.23.0]
 
-To create an account, implement the {account-mixin} and set up the constructor to initialize the contract.
-The {initializer} method sets the public key for the account contract and registers the account interface id.
-A vanilla account contract looks like this:
+First, let's take the example account we created before and deploy it:
 
 ```[,cairo]
 #[starknet::contract(account)]
@@ -160,7 +332,7 @@ mod MyAccount {
 }
 ```
 
-To deploy the Contracts for Cairo account variant, compile the contract and declare the class hash because custom accounts are likely not declared.
+To deploy the account variant, compile the contract and declare the class hash because custom accounts are likely not declared.
 This means that you'll need an account already deployed.
 
 Next, create the account JSON with Starknet Foundry's {custom-account-setup} and include the `--class-hash` flag with the declared class hash.
@@ -198,17 +370,12 @@ $ sncast \
   --calldata 1 2 3
 ```
 
-=== EthAccountComponent
+=== Ethereum Account
 
-:eth-account-mixin: xref:/api/account.adoc#EthAccountComponent-Embeddable-Mixin-Impl[EthAccountMixin]
-:eth-initializer: xref:/api/account.adoc#EthAccountComponent-initializer[initializer]
 :starknetjs: https://www.starknetjs.com/[StarknetJS]
 :starknetjs-commit: https://github.com/starknet-io/starknet.js/commit/d002baea0abc1de3ac6e87a671f3dec3757437b3[d002baea0abc1de3ac6e87a671f3dec3757437b3]
 
-To create an Ethereum-flavored account, implement the {eth-account-mixin} and set up the constructor to initialize the contract.
-Since this is an EthAccount, the {eth-initializer} expects the `EthPublicKey` type (alias for `Secp256k1Point`) to store as the account's public key.
-The contract also requires the `Secp256K1Impl` implementation in order to serialize and deserialize the `EthPublicKey` type.
-A basic Ethereum-flavored account contract looks like this:
+First, let's take the example account we created before and deploy it:
 
 ```[,cairo]
 #[starknet::contract(account)]

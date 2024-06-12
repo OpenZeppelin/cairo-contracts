@@ -5,12 +5,12 @@ use openzeppelin::presets::ERC20Upgradeable;
 use openzeppelin::presets::interfaces::{
     ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::access::common::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
-use openzeppelin::tests::token::test_erc20::{
+use openzeppelin::tests::token::erc20::common::{
     assert_event_approval, assert_only_event_approval, assert_only_event_transfer
 };
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };

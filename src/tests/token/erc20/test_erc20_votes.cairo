@@ -20,6 +20,8 @@ use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
 use starknet::testing;
 
+use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
+
 //
 // Setup
 //
@@ -224,7 +226,7 @@ fn test_delegate_by_sig_hash_generation() {
     // - name: 'DAPP_NAME'
     // - version: 'DAPP_VERSION'
     // - chainId: 'SN_TEST'
-    // - account: 0x690df21011750a48177759ddd517bcf8ff000fbb5e4a3eddec9a0917b52329e
+    // - account: 0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
     // - delegatee: 'RECIPIENT'
     // - nonce: 0
     // - expiry: 'ts2'
@@ -247,7 +249,7 @@ fn test_delegate_by_sig() {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x4adb3ed01ab548905666eb9a8ee35ca054ebdce90f9fc3d4ee53e23f3f6dfc1
+    // - msg_hash: 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511
     let signature = array![
         0x4b2ca5c3cb47eafc1263db0fb7a1c4ee54eb9cc6605607a072894c0a9ae3b08,
         0x313dc5b5f05ab680db7d51b391fadd52e679c971551f0017a8ceba37bacc5c6

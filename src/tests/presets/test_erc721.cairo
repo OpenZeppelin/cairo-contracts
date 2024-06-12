@@ -5,18 +5,18 @@ use openzeppelin::presets::ERC721Upgradeable;
 use openzeppelin::presets::interfaces::{
     ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::access::common::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::token::test_erc721::{
+use openzeppelin::tests::token::erc721::common::{
     assert_event_transfer, assert_only_event_transfer, assert_event_approval,
     assert_event_approval_for_all
 };
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
     BASE_URI

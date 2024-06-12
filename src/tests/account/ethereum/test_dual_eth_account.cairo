@@ -5,8 +5,6 @@ use openzeppelin::account::utils::secp256k1::{
 };
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
-use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::eth_account_mocks::{
     CamelEthAccountPanicMock, CamelEthAccountMock, SnakeEthAccountMock, SnakeEthAccountPanicMock
 };
@@ -15,6 +13,8 @@ use openzeppelin::tests::utils::constants::ETH_PUBKEY;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing;
+
+use super::common::{NEW_ETH_PUBKEY, SIGNED_TX_DATA};
 
 //
 // Setup

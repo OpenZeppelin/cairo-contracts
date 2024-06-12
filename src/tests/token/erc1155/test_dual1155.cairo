@@ -2,7 +2,6 @@ use core::num::traits::Zero;
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155Mock, SnakeERC1155Mock};
 use openzeppelin::tests::mocks::erc1155_mocks::{CamelERC1155PanicMock, SnakeERC1155PanicMock};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::token::test_erc1155::{setup_account, setup_receiver};
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
 };
@@ -16,6 +15,8 @@ use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155Dispat
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
+
+use super::common::{setup_account, setup_receiver};
 
 //
 // Setup

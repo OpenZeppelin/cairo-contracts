@@ -1,7 +1,7 @@
 use openzeppelin::account::dual_account::{DualCaseAccountABI, DualCaseAccount};
 use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::tests::account::test_account::SIGNED_TX_DATA;
+use openzeppelin::tests::account::starknet::common::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::account_mocks::{
     CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
 };

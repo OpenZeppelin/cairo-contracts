@@ -5,6 +5,8 @@ mod account;
 #[cfg(test)]
 mod cryptography;
 #[cfg(test)]
+mod finance;
+#[cfg(test)]
 mod introspection;
 #[cfg(test)]
 mod mocks;

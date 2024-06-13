@@ -1,5 +1,6 @@
 mod access;
 mod account;
+mod finance;
 mod governance;
 mod introspection;
 mod presets;

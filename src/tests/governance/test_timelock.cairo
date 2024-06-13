@@ -1502,6 +1502,120 @@ fn test__after_call_already_done() {
 }
 
 //
+// _schedule
+//
+
+#[test]
+fn test__schedule() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+    let predecessor = NO_PREDECESSOR;
+    let delay = MIN_DELAY;
+    let mut salt = 0;
+
+    // Set up call
+    let call = single_operation(target.contract_address);
+    let target_id = state.hash_operation(call, predecessor, salt);
+
+    // Schedule
+    state._schedule(target_id, delay);
+
+    let actual_ts = state.TimelockController_timestamps.read(target_id);
+    let expected_ts = starknet::get_block_timestamp() + delay;
+    assert_eq!(actual_ts, expected_ts);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__schedule_overwrite() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+    let predecessor = NO_PREDECESSOR;
+    let delay = MIN_DELAY;
+    let mut salt = 0;
+
+    // Set up call
+    let call = single_operation(target.contract_address);
+    let target_id = state.hash_operation(call, predecessor, salt);
+
+    // Schedule and overwrite
+    state._schedule(target_id, delay);
+    state._schedule(target_id, delay);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: insufficient delay',))]
+fn test__schedule_bad_delay() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+    let predecessor = NO_PREDECESSOR;
+    let mut salt = 0;
+    let delay = MIN_DELAY;
+
+    // Set up call
+    let call = single_operation(target.contract_address);
+    let target_id = state.hash_operation(call, predecessor, salt);
+
+    // Set min delay
+    state.TimelockController_min_delay.write(delay);
+
+    // Schedule with bad delay
+    state._schedule(target_id, delay - 1);
+}
+
+//
+// _execute
+//
+
+#[test]
+fn test__execute() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+
+    // Set up call
+    let call = single_operation(target.contract_address);
+
+    let storage_num = target.get_number();
+    let expected_num = 0;
+    assert_eq!(storage_num, expected_num);
+
+    // Execute
+    state._execute(call);
+
+    let storage_num = target.get_number();
+    let expected_num = VALUE;
+    assert_eq!(storage_num, expected_num);
+}
+
+#[test]
+#[should_panic(expected: ('Expected failure', 'ENTRYPOINT_FAILED',))]
+fn test__execute_with_failing_tx() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+
+    // Set up call
+    let call = failing_operation(target.contract_address);
+
+    // Execute failing tx
+    state._execute(call);
+}
+
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+fn test__execute_with_bad_selector() {
+    let mut state = COMPONENT_STATE();
+    let mut target = deploy_mock_target();
+
+    // Set up call
+    let bad_selector_call = Call {
+        to: target.contract_address, selector: selector!("bad_selector"), calldata: array![].span()
+    };
+
+    // Execute call with bad selector
+    state._execute(bad_selector_call);
+}
+
+//
 // _batch_grant_role
 //
 

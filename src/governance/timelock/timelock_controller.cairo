@@ -131,8 +131,8 @@ mod TimelockControllerComponent {
             Timelock::get_operation_state(self, id) != OperationState::Unset
         }
 
-        /// Returns whether the `id` OperationState is Pending or not.
-        /// Note that a Pending operation may also be Ready.
+        /// Returns whether the `id` OperationState is Waiting or not.
+        /// Note that a Waiting operation may also be Ready.
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
             let state = Timelock::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready

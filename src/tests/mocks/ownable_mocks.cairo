@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseOwnableMock {
+pub(crate) mod DualCaseOwnableMock {
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
@@ -29,7 +29,7 @@ mod DualCaseOwnableMock {
 }
 
 #[starknet::contract]
-mod SnakeOwnableMock {
+pub(crate) mod SnakeOwnableMock {
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
@@ -59,7 +59,7 @@ mod SnakeOwnableMock {
 }
 
 #[starknet::contract]
-mod CamelOwnableMock {
+pub(crate) mod CamelOwnableMock {
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
@@ -99,9 +99,9 @@ mod CamelOwnableMock {
 }
 
 #[starknet::contract]
-mod SnakeOwnablePanicMock {
+pub(crate) mod SnakeOwnablePanicMock {
+    use core::num::traits::Zero;
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -112,7 +112,7 @@ mod SnakeOwnablePanicMock {
         #[external(v0)]
         fn owner(self: @ContractState) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]
@@ -128,7 +128,8 @@ mod SnakeOwnablePanicMock {
 }
 
 #[starknet::contract]
-mod CamelOwnablePanicMock {
+pub(crate) mod CamelOwnablePanicMock {
+    use core::num::traits::Zero;
     use starknet::ContractAddress;
 
     #[storage]
@@ -140,7 +141,7 @@ mod CamelOwnablePanicMock {
         #[external(v0)]
         fn owner(self: @ContractState) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]
@@ -156,7 +157,7 @@ mod CamelOwnablePanicMock {
 }
 
 #[starknet::contract]
-mod DualCaseTwoStepOwnableMock {
+pub(crate) mod DualCaseTwoStepOwnableMock {
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 

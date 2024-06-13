@@ -8,11 +8,12 @@ use starknet::ContractAddress;
 /// The ERC721 component provides implementations for both the IERC721 interface
 /// and the IERC721Metadata interface.
 #[starknet::component]
-mod ERC721Component {
+pub mod ERC721Component {
+    use core::num::traits::Zero;
     use openzeppelin::account;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::dual721_receiver::{
         DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
@@ -34,7 +35,7 @@ mod ERC721Component {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
         ApprovalForAll: ApprovalForAll,
@@ -42,54 +43,54 @@ mod ERC721Component {
 
     /// Emitted when `token_id` token is transferred from `from` to `to`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Transfer {
+    pub struct Transfer {
         #[key]
-        from: ContractAddress,
+        pub from: ContractAddress,
         #[key]
-        to: ContractAddress,
+        pub to: ContractAddress,
         #[key]
-        token_id: u256
+        pub token_id: u256
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Approval {
+    pub struct Approval {
         #[key]
-        owner: ContractAddress,
+        pub owner: ContractAddress,
         #[key]
-        approved: ContractAddress,
+        pub approved: ContractAddress,
         #[key]
-        token_id: u256
+        pub token_id: u256
     }
 
     /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct ApprovalForAll {
+    pub struct ApprovalForAll {
         #[key]
-        owner: ContractAddress,
+        pub owner: ContractAddress,
         #[key]
-        operator: ContractAddress,
-        approved: bool
+        pub operator: ContractAddress,
+        pub approved: bool
     }
 
-    mod Errors {
-        const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
-        const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
-        const INVALID_OPERATOR: felt252 = 'ERC721: invalid operator';
-        const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
-        const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
-        const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
-        const INVALID_SENDER: felt252 = 'ERC721: invalid sender';
-        const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
-        const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
+    pub mod Errors {
+        pub const INVALID_TOKEN_ID: felt252 = 'ERC721: invalid token ID';
+        pub const INVALID_ACCOUNT: felt252 = 'ERC721: invalid account';
+        pub const INVALID_OPERATOR: felt252 = 'ERC721: invalid operator';
+        pub const UNAUTHORIZED: felt252 = 'ERC721: unauthorized caller';
+        pub const INVALID_RECEIVER: felt252 = 'ERC721: invalid receiver';
+        pub const ALREADY_MINTED: felt252 = 'ERC721: token already minted';
+        pub const INVALID_SENDER: felt252 = 'ERC721: invalid sender';
+        pub const SAFE_MINT_FAILED: felt252 = 'ERC721: safe mint failed';
+        pub const SAFE_TRANSFER_FAILED: felt252 = 'ERC721: safe transfer failed';
     }
 
     //
     // Hooks
     //
 
-    trait ERC721HooksTrait<TContractState> {
+    pub trait ERC721HooksTrait<TContractState> {
         fn before_update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -465,7 +466,7 @@ mod ERC721Component {
     //
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -515,7 +516,7 @@ mod ERC721Component {
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            let previous_owner = self.update(to, token_id, Zeroable::zero());
+            let previous_owner = self.update(to, token_id, Zero::zero());
 
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
             assert(from == previous_owner, Errors::INVALID_SENDER);
@@ -535,7 +536,7 @@ mod ERC721Component {
         fn mint(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            let previous_owner = self.update(to, token_id, Zeroable::zero());
+            let previous_owner = self.update(to, token_id, Zero::zero());
 
             assert(previous_owner.is_zero(), Errors::ALREADY_MINTED);
         }
@@ -587,7 +588,7 @@ mod ERC721Component {
         ) {
             self.mint(to, token_id);
             assert(
-                _check_on_erc721_received(Zeroable::zero(), to, token_id, data),
+                _check_on_erc721_received(Zero::zero(), to, token_id, data),
                 Errors::SAFE_MINT_FAILED
             );
         }
@@ -603,7 +604,7 @@ mod ERC721Component {
         ///
         /// Emits a `Transfer` event.
         fn burn(ref self: ComponentState<TContractState>, token_id: u256) {
-            let previous_owner = self.update(Zeroable::zero(), token_id, Zeroable::zero());
+            let previous_owner = self.update(Zero::zero(), token_id, Zero::zero());
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
         }
 
@@ -633,7 +634,7 @@ mod ERC721Component {
                 self._check_authorized(from, auth, token_id);
             }
             if !from.is_zero() {
-                let zero_address = Zeroable::zero();
+                let zero_address = Zero::zero();
                 self._approve_with_optional_event(zero_address, token_id, zero_address, false);
 
                 self.ERC721_balances.write(from, self.ERC721_balances.read(from) - 1);
@@ -809,7 +810,7 @@ mod ERC721Component {
 }
 
 /// An empty implementation of the ERC721 hooks to be used in basic ERC721 preset contracts.
-impl ERC721HooksEmptyImpl<TContractState> of ERC721Component::ERC721HooksTrait<TContractState> {
+pub impl ERC721HooksEmptyImpl<TContractState> of ERC721Component::ERC721HooksTrait<TContractState> {
     fn before_update(
         ref self: ERC721Component::ComponentState<TContractState>,
         to: ContractAddress,

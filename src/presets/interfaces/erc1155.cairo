@@ -1,7 +1,7 @@
 use starknet::{ContractAddress, ClassHash};
 
 #[starknet::interface]
-trait ERC1155UpgradeableABI<TState> {
+pub trait ERC1155UpgradeableABI<TState> {
     // IERC1155
     fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(

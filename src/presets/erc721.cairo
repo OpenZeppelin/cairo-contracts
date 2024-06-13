@@ -9,7 +9,7 @@
 /// For more complex or custom contracts, use Wizard for Cairo
 /// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
-mod ERC721Upgradeable {
+pub(crate) mod ERC721Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
@@ -90,7 +90,7 @@ mod ERC721Upgradeable {
     }
 
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
+    pub(crate) impl InternalImpl of InternalTrait {
         /// Mints `token_ids` to `recipient`.
         fn mint_assets(
             ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>

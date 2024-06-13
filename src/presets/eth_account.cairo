@@ -6,7 +6,7 @@
 /// OpenZeppelin's upgradeable account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
 #[starknet::contract(account)]
-mod EthAccountUpgradeable {
+pub(crate) mod EthAccountUpgradeable {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
@@ -21,7 +21,7 @@ mod EthAccountUpgradeable {
 
     // EthAccount Mixin
     #[abi(embed_v0)]
-    impl EthAccountMixinImpl =
+    pub(crate) impl EthAccountMixinImpl =
         EthAccountComponent::EthAccountMixinImpl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
@@ -50,7 +50,7 @@ mod EthAccountUpgradeable {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+    pub(crate) fn constructor(ref self: ContractState, public_key: EthPublicKey) {
         self.eth_account.initializer(public_key);
     }
 

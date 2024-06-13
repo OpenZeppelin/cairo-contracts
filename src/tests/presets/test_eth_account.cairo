@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
@@ -8,16 +9,14 @@ use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
-use openzeppelin::tests::account::test_eth_account::{
+use openzeppelin::tests::account::ethereum::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
+use openzeppelin::tests::account::ethereum::common::{
+    deploy_erc20, get_points, NEW_ETH_PUBKEY, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };

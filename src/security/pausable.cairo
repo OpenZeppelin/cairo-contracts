@@ -7,7 +7,7 @@
 /// emergency stop mechanism. Only functions that call `assert_paused`
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
-mod PausableComponent {
+pub mod PausableComponent {
     use openzeppelin::security::interface::IPausable;
 
     use starknet::ContractAddress;
@@ -20,26 +20,26 @@ mod PausableComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         Paused: Paused,
         Unpaused: Unpaused,
     }
 
     /// Emitted when the pause is triggered by `account`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Paused {
-        account: ContractAddress
+    pub struct Paused {
+        pub account: ContractAddress
     }
 
     /// Emitted when the pause is lifted by `account`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Unpaused {
-        account: ContractAddress
+    pub struct Unpaused {
+        pub account: ContractAddress
     }
 
-    mod Errors {
-        const PAUSED: felt252 = 'Pausable: paused';
-        const NOT_PAUSED: felt252 = 'Pausable: not paused';
+    pub mod Errors {
+        pub const PAUSED: felt252 = 'Pausable: paused';
+        pub const NOT_PAUSED: felt252 = 'Pausable: not paused';
     }
 
     #[embeddable_as(PausableImpl)]
@@ -53,7 +53,7 @@ mod PausableComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Makes a function only callable when the contract is not paused.

@@ -1,9 +1,9 @@
-mod dual20;
-mod erc20;
-mod extensions;
-mod interface;
+pub mod dual20;
+pub mod erc20;
+pub mod extensions;
+pub mod interface;
 
-use erc20::ERC20Component;
-use erc20::ERC20HooksEmptyImpl;
-use interface::ERC20ABIDispatcher;
-use interface::ERC20ABIDispatcherTrait;
+pub use erc20::ERC20Component;
+pub use erc20::ERC20HooksEmptyImpl;
+pub use interface::ERC20ABIDispatcher;
+pub use interface::ERC20ABIDispatcherTrait;

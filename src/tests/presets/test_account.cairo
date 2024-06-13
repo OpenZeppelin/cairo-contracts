@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
@@ -5,14 +6,14 @@ use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::tests::account::starknet::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::tests::account::starknet::common::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO

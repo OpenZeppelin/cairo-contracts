@@ -1388,10 +1388,12 @@ fn test__before_call_when_already_done() {
 fn test__before_call_with_predecessor_done() {
     let mut state = COMPONENT_STATE();
 
-    // Mock targets
-    let target_id = 'TARGET_ID';
+    // Mock `Done` predecessor
     let predecessor_id = 'DONE';
     let done_time = 1;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
     let target_time = MIN_DELAY + starknet::get_block_timestamp();
 
     // Set targets in storage
@@ -1409,10 +1411,12 @@ fn test__before_call_with_predecessor_done() {
 fn test__before_call_with_predecessor_not_done() {
     let mut state = COMPONENT_STATE();
 
-    // Mock targets
-    let target_id = 'TARGET_ID';
+    // Mock awaiting predecessor
     let predecessor_id = 'DONE';
     let not_done_time = 2;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
     let target_time = MIN_DELAY + starknet::get_block_timestamp();
 
     // Set targets in storage

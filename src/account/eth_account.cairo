@@ -5,8 +5,10 @@
 ///
 /// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
 #[starknet::component]
-mod EthAccountComponent {
+pub mod EthAccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
+    use core::num::traits::Zero;
+    use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::interface;
@@ -14,9 +16,8 @@ mod EthAccountComponent {
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use poseidon::{PoseidonTrait, poseidon_hash_span};
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -30,28 +31,28 @@ mod EthAccountComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerAdded {
+    pub struct OwnerAdded {
         #[key]
-        new_owner_guid: felt252
+        pub new_owner_guid: felt252
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerRemoved {
+    pub struct OwnerRemoved {
         #[key]
-        removed_owner_guid: felt252
+        pub removed_owner_guid: felt252
     }
 
-    mod Errors {
-        const INVALID_CALLER: felt252 = 'EthAccount: invalid caller';
-        const INVALID_SIGNATURE: felt252 = 'EthAccount: invalid signature';
-        const INVALID_TX_VERSION: felt252 = 'EthAccount: invalid tx version';
-        const UNAUTHORIZED: felt252 = 'EthAccount: unauthorized';
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252 = 'EthAccount: invalid caller';
+        pub const INVALID_SIGNATURE: felt252 = 'EthAccount: invalid signature';
+        pub const INVALID_TX_VERSION: felt252 = 'EthAccount: invalid tx version';
+        pub const UNAUTHORIZED: felt252 = 'EthAccount: unauthorized';
     }
 
     #[embeddable_as(SRC6Impl)]
@@ -218,7 +219,7 @@ mod EthAccountComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,

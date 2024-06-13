@@ -1,9 +1,9 @@
 #[starknet::interface]
-trait IInitializable<TState> {
+pub trait IInitializable<TState> {
     fn is_initialized(self: @TState) -> bool;
 }
 
 #[starknet::interface]
-trait IPausable<TState> {
+pub trait IPausable<TState> {
     fn is_paused(self: @TState) -> bool;
 }

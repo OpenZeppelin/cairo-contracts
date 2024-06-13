@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::introspection::interface::ISRC5_ID;
@@ -5,14 +6,14 @@ use openzeppelin::presets::AccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::tests::account::starknet::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::tests::account::starknet::common::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
@@ -517,7 +518,7 @@ fn set_contract_and_caller(address: ContractAddress) {
 }
 
 fn get_accept_ownership_signature() -> Span<felt252> {
-    // 0x1d0f29f91d4d8242ae5646be871a7e64717eac611aed9ec15b423cb965817fb =
+    // 0x29d33bfe2aaef69267b4f68e9d6ede5abb215aca7c46d0cf756eddf8a3f2cfd =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -528,10 +529,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x1d0f29f91d4d8242ae5646be871a7e64717eac611aed9ec15b423cb965817fb
+    // - msg_hash: 0x29d33bfe2aaef69267b4f68e9d6ede5abb215aca7c46d0cf756eddf8a3f2cfd
     array![
-        0x5fcf4473fa8304093722b4999e53042db1a16ac4e51669203fe32c241b8ac4c,
-        0x2350a661e77f26c304d9a896271977522410d015437dfea190148f224c6c30f
+        0x116fda6023f35ae4a6436dbc7ed9179f78ca4852cc8538a9ffcbbd13e396304,
+        0x5ab734a345374ed6fd25fb348f24f9c0c6e4a48309a4c3918072a772ca671c9
     ]
         .span()
 }

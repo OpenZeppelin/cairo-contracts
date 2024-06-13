@@ -12,8 +12,9 @@ use starknet::ContractAddress;
 /// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.13.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
-mod ERC20Component {
-    use integer::BoundedInt;
+pub mod ERC20Component {
+    use core::integer::BoundedInt;
+    use core::num::traits::Zero;
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
@@ -29,48 +30,48 @@ mod ERC20Component {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Transfer {
+    pub struct Transfer {
         #[key]
-        from: ContractAddress,
+        pub from: ContractAddress,
         #[key]
-        to: ContractAddress,
-        value: u256
+        pub to: ContractAddress,
+        pub value: u256
     }
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to `approve`. `value` is the new allowance.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Approval {
+    pub struct Approval {
         #[key]
-        owner: ContractAddress,
+        pub owner: ContractAddress,
         #[key]
-        spender: ContractAddress,
-        value: u256
+        pub spender: ContractAddress,
+        pub value: u256
     }
 
-    mod Errors {
-        const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
-        const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
-        const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
-        const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
-        const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
-        const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
-        const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
-        const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
+    pub mod Errors {
+        pub const APPROVE_FROM_ZERO: felt252 = 'ERC20: approve from 0';
+        pub const APPROVE_TO_ZERO: felt252 = 'ERC20: approve to 0';
+        pub const TRANSFER_FROM_ZERO: felt252 = 'ERC20: transfer from 0';
+        pub const TRANSFER_TO_ZERO: felt252 = 'ERC20: transfer to 0';
+        pub const BURN_FROM_ZERO: felt252 = 'ERC20: burn from 0';
+        pub const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
+        pub const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
+        pub const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
     }
 
     //
     // Hooks
     //
 
-    trait ERC20HooksTrait<TContractState> {
+    pub trait ERC20HooksTrait<TContractState> {
         fn before_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -217,7 +218,7 @@ mod ERC20Component {
     //
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
@@ -281,7 +282,7 @@ mod ERC20Component {
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
-            self._update(Zeroable::zero(), recipient, amount);
+            self._update(Zero::zero(), recipient, amount);
         }
 
         /// Destroys `amount` of tokens from `account`.
@@ -294,7 +295,7 @@ mod ERC20Component {
         /// Emits a `Transfer` event with `to` set to the zero address.
         fn _burn(ref self: ComponentState<TContractState>, account: ContractAddress, amount: u256) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self._update(account, Zeroable::zero(), amount);
+            self._update(account, Zero::zero(), amount);
         }
 
         /// Updates `owner`s allowance for `spender` based on spent `amount`.
@@ -333,7 +334,7 @@ mod ERC20Component {
         ) {
             Hooks::before_update(ref self, from, to, amount);
 
-            let zero_address = Zeroable::zero();
+            let zero_address = Zero::zero();
             if (from == zero_address) {
                 let total_supply = self.ERC20_total_supply.read();
                 self.ERC20_total_supply.write(total_supply + amount);
@@ -431,7 +432,7 @@ mod ERC20Component {
 }
 
 /// An empty implementation of the ERC20 hooks to be used in basic ERC20 preset contracts.
-impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
+pub impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
     fn before_update(
         ref self: ERC20Component::ComponentState<TContractState>,
         from: ContractAddress,

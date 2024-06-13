@@ -1,24 +1,25 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.13.0 (utils.cairo)
 
-mod cryptography;
-mod deployments;
-mod interfaces;
-mod math;
-mod selectors;
-mod serde;
-mod structs;
-mod unwrap_and_cast;
+pub mod cryptography;
+pub mod deployments;
+pub mod interfaces;
+pub mod math;
+pub mod selectors;
+pub mod serde;
+pub mod structs;
+pub mod unwrap_and_cast;
 
-use cryptography::nonces;
-use cryptography::snip12;
+pub use cryptography::nonces;
+pub use cryptography::snip12;
+pub use unwrap_and_cast::UnwrapAndCast;
+
 use starknet::ContractAddress;
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
-use unwrap_and_cast::UnwrapAndCast;
+use starknet::syscalls::call_contract_syscall;
 
-fn try_selector_with_fallback(
+pub fn try_selector_with_fallback(
     target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>
 ) -> SyscallResult<Span<felt252>> {
     match call_contract_syscall(target, selector, args) {

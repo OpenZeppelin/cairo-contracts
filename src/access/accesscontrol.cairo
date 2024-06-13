@@ -1,7 +1,7 @@
-mod accesscontrol;
-mod dual_accesscontrol;
-mod interface;
+pub mod accesscontrol;
+pub mod dual_accesscontrol;
+pub mod interface;
 
-use accesscontrol::AccessControlComponent;
+pub use accesscontrol::AccessControlComponent;
 
-const DEFAULT_ADMIN_ROLE: felt252 = 0;
+pub const DEFAULT_ADMIN_ROLE: felt252 = 0;

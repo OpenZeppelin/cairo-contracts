@@ -5,15 +5,16 @@
 ///
 /// The Account component enables contracts to behave as accounts.
 #[starknet::component]
-mod AccountComponent {
+pub mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
+    use core::num::traits::Zero;
+    use core::poseidon::PoseidonTrait;
     use openzeppelin::account::interface;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use poseidon::PoseidonTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
     use starknet::get_contract_address;
@@ -26,28 +27,28 @@ mod AccountComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerAdded {
+    pub struct OwnerAdded {
         #[key]
-        new_owner_guid: felt252
+        pub new_owner_guid: felt252
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerRemoved {
+    pub struct OwnerRemoved {
         #[key]
-        removed_owner_guid: felt252
+        pub removed_owner_guid: felt252
     }
 
-    mod Errors {
-        const INVALID_CALLER: felt252 = 'Account: invalid caller';
-        const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
-        const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
-        const UNAUTHORIZED: felt252 = 'Account: unauthorized';
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252 = 'Account: invalid caller';
+        pub const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
+        pub const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
+        pub const UNAUTHORIZED: felt252 = 'Account: unauthorized';
     }
 
     #[embeddable_as(SRC6Impl)]
@@ -212,7 +213,7 @@ mod AccountComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,

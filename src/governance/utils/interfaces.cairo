@@ -1,3 +1,3 @@
-mod votes;
+pub mod votes;
 
-use votes::IVotes;
+pub use votes::IVotes;

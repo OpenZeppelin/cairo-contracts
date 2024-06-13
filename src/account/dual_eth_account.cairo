@@ -9,14 +9,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseEthAccount {
-    contract_address: ContractAddress
+pub struct DualCaseEthAccount {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseEthAccountABI {
+pub trait DualCaseEthAccountABI {
     fn set_public_key(
         self: @DualCaseEthAccount, new_public_key: EthPublicKey, signature: Span<felt252>
     );

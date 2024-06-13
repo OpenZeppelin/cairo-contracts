@@ -1,4 +1,4 @@
-use integer::u256_from_felt252;
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;
@@ -17,16 +17,18 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
 };
-use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
-use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::StorageMapMemberAccessTrait;
 use starknet::testing;
+
+use super::common::{
+    assert_only_event_approval, assert_only_event_approval_for_all, assert_only_event_transfer,
+};
 
 //
 // Setup
@@ -121,7 +123,7 @@ fn test_owner_of() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_owner_of_non_minted() {
     let state = setup();
-    state.owner_of(u256_from_felt252(7));
+    state.owner_of(7);
 }
 
 #[test]
@@ -147,7 +149,7 @@ fn test_token_uri_not_set() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_token_uri_non_minted() {
     let state = setup();
-    state.token_uri(u256_from_felt252(7));
+    state.token_uri(7);
 }
 
 #[test]
@@ -165,7 +167,7 @@ fn test_get_approved() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_get_approved_nonexistent() {
     let state = setup();
-    state.get_approved(u256_from_felt252(7));
+    state.get_approved(7);
 }
 
 //
@@ -1591,74 +1593,4 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     assert_eq!(state.owner_of(token_id), recipient);
     assert_eq!(state.balance_of(recipient), 1);
     assert!(state.get_approved(token_id).is_zero());
-}
-
-fn assert_event_approval_for_all(
-    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::ApprovalForAll(
-        ApprovalForAll { owner, operator, approved }
-    );
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("ApprovalForAll"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(operator);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_approval_for_all(
-    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
-) {
-    assert_event_approval_for_all(contract, owner, operator, approved);
-    utils::assert_no_events_left(contract);
-}
-
-fn assert_event_approval(
-    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Approval"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(approved);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_approval(
-    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
-) {
-    assert_event_approval(contract, owner, approved, token_id);
-    utils::assert_no_events_left(contract);
-}
-
-fn assert_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
-) {
-    let event = testing::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Transfer"));
-    indexed_keys.append_serde(from);
-    indexed_keys.append_serde(to);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
-) {
-    assert_event_transfer(contract, from, to, token_id);
-    utils::assert_no_events_left(contract);
 }

@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
@@ -8,16 +9,14 @@ use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
-use openzeppelin::tests::account::test_eth_account::{
+use openzeppelin::tests::account::ethereum::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
+use openzeppelin::tests::account::ethereum::common::{
+    deploy_erc20, get_points, NEW_ETH_PUBKEY, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
@@ -105,7 +104,7 @@ fn test_constructor() {
 //
 
 #[test]
-fn test_public_key_setter_and_getter_2() {
+fn test_public_key_setter_and_getter() {
     let dispatcher = setup_dispatcher();
     let new_public_key = NEW_ETH_PUBKEY();
 
@@ -506,7 +505,7 @@ fn set_contract_and_caller(address: ContractAddress) {
 fn get_accept_ownership_signature() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed =
+    // 0x0221042e1c5eb52dd7306ab4d987f14ed795e6bafc611999eb535ef7bf2a3d80 =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -519,10 +518,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed
+    // - msg_hash: 0x0221042e1c5eb52dd7306ab4d987f14ed795e6bafc611999eb535ef7bf2a3d80
     EthSignature {
-        r: 0x512c2acbb64be5ac67d5d143898d915919cc6d6806a26f0686d5e92e101c6271,
-        s: 0x420deca8404b7680530a4c9178a7fcd2c3e5a2f98fa4f8ada84ef90fea0d98ca,
+        r: 0x4a72dd569e1ef9fad60ef138afd25e7d9fd33b0e1b735d2c0cb1d8d94b579b12,
+        s: 0x39832ebc66a99d1f478e5a019e552d88216e19095fed238977e4520d5188e7c5,
     }
         .serialize(ref output);
 

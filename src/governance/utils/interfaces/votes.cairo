@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 /// Common interface for Votes-enabled contracts.
 #[starknet::interface]
-trait IVotes<TState> {
+pub trait IVotes<TState> {
     /// Returns the current amount of votes that `account` has.
     fn get_votes(self: @TState, account: ContractAddress) -> u256;
 

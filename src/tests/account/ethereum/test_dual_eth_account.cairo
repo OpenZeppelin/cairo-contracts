@@ -5,8 +5,6 @@ use openzeppelin::account::utils::secp256k1::{
 };
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
-use openzeppelin::tests::account::test_eth_account::SIGNED_TX_DATA;
 use openzeppelin::tests::mocks::eth_account_mocks::{
     CamelEthAccountPanicMock, CamelEthAccountMock, SnakeEthAccountMock, SnakeEthAccountPanicMock
 };
@@ -15,6 +13,8 @@ use openzeppelin::tests::utils::constants::ETH_PUBKEY;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::testing;
+
+use super::common::{NEW_ETH_PUBKEY, SIGNED_TX_DATA};
 
 //
 // Setup
@@ -230,7 +230,7 @@ fn test_dual_isValidSignature_exists_and_panics() {
 fn get_accept_ownership_signature_snake() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x0601d3dfc94e01d267d2e879ba8063b4341dc231939110bcb9e1211b9bbbaf19 =
+    // 0x03e8d3aa715dc5fc3b93c7572df7d6f227a6aad93a77873db3308b30897eee53 =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -243,10 +243,10 @@ fn get_accept_ownership_signature_snake() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x0601d3dfc94e01d267d2e879ba8063b4341dc231939110bcb9e1211b9bbbaf19
+    // - msg_hash: 0x03e8d3aa715dc5fc3b93c7572df7d6f227a6aad93a77873db3308b30897eee53
     EthSignature {
-        r: 0x2ee21d761c9dec6bc855f427ea83b9746b84d3ed7f38cf41e65e9c2d846e9f6c,
-        s: 0x586ceb49429f27352cd8237775b28c57002b27f9f1d5418707ac8b88c4794847,
+        r: 0x7e1ff13cbdf03e92125a69cb1e4ad94f2178720d156df3827c8d3172484fbfd8,
+        s: 0x0def4eb71f21bc623c0ca896cb3356cee12504da7b19021d3253d433366e0a3e,
     }
         .serialize(ref output);
 
@@ -256,7 +256,7 @@ fn get_accept_ownership_signature_snake() -> Span<felt252> {
 fn get_accept_ownership_signature_camel() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x07cb1b9d0e9d4c29d2ac505057496b5f3674218c804b17b625f0880c93540dde =
+    // 0x048d4c831924c90963645d7473e0954d2ac37c1f20e201ed7c1778942df5d58d =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -269,10 +269,10 @@ fn get_accept_ownership_signature_camel() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x07cb1b9d0e9d4c29d2ac505057496b5f3674218c804b17b625f0880c93540dde
+    // - msg_hash: 0x048d4c831924c90963645d7473e0954d2ac37c1f20e201ed7c1778942df5d58d
     EthSignature {
-        r: 0xfa72fe7817eaf98fc104183f7f64956196285f7e09f4eecb47c1dcf352a23e13,
-        s: 0x4213427c846e9a9be01c91d556f8981f3450918926a5716e865763c9d41bc14b,
+        r: 0x7a0fa1e6bfc6a0b86cdbb9877551a108d42d3de50cb7a516e63fe5a26e5a9c52,
+        s: 0x3cc64ca8bf6963ae01125f0d932b8780ca0ed1612fb74a84d4f76593e6687b74,
     }
         .serialize(ref output);
 

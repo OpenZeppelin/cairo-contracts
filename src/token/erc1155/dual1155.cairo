@@ -7,14 +7,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseERC1155 {
-    contract_address: ContractAddress
+pub struct DualCaseERC1155 {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseERC1155Trait {
+pub trait DualCaseERC1155Trait {
     fn uri(self: @DualCaseERC1155, token_id: u256) -> ByteArray;
     fn balance_of(self: @DualCaseERC1155, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(

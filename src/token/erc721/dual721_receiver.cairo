@@ -8,11 +8,11 @@ use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 
 #[derive(Copy, Drop)]
-struct DualCaseERC721Receiver {
-    contract_address: ContractAddress
+pub struct DualCaseERC721Receiver {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseERC721ReceiverTrait {
+pub trait DualCaseERC721ReceiverTrait {
     fn on_erc721_received(
         self: @DualCaseERC721Receiver,
         operator: ContractAddress,

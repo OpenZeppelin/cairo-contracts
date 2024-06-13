@@ -258,22 +258,22 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 --
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
+* xref:#ERC721Component-exists[`++exists(self, token_id)++`]
+* xref:#ERC721Component-transfer[`++transfer(self, from, to, token_id)++`]
+* xref:#ERC721Component-mint[`++mint(self, to, token_id)++`]
+* xref:#ERC721Component-safe_transfer[`++safe_transfer(self, from, to, token_id, data)++`]
+* xref:#ERC721Component-safe_mint[`++safe_mint(self, to, token_id, data)++`]
+* xref:#ERC721Component-burn[`++burn(self, token_id)++`]
+* xref:#ERC721Component-update[`++update(self, to, token_id, auth)++`]
 * xref:#ERC721Component-_owner_of[`++_owner_of(self, token_id)++`]
 * xref:#ERC721Component-_require_owned[`++_require_owned(self, token_id)++`]
-* xref:#ERC721Component-_exists[`++_exists(self, token_id)++`]
 * xref:#ERC721Component-_approve[`++_approve(self, to, token_id, auth)++`]
 * xref:#ERC721Component-_approve_with_optional_event[`++_approve_with_optional_event(self, to, token_id, auth, emit_event)++`]
 * xref:#ERC721Component-_set_approval_for_all[`++_set_approval_for_all(self, owner, operator, approved)++`]
-* xref:#ERC721Component-_mint[`++_mint(self, to, token_id)++`]
-* xref:#ERC721Component-_transfer[`++_transfer(self, from, to, token_id)++`]
-* xref:#ERC721Component-_burn[`++_burn(self, token_id)++`]
-* xref:#ERC721Component-_safe_mint[`++_safe_mint(self, to, token_id, data)++`]
-* xref:#ERC721Component-_safe_transfer[`++_safe_transfer(self, from, to, token_id, data)++`]
 * xref:#ERC721Component-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
 * xref:#ERC721Component-_base_uri[`++_base_uri(self)++`]
 * xref:#ERC721Component-_is_authorized[`++_is_authorized(self, owner, spender, token_id)++`]
 * xref:#ERC721Component-_check_authorized[`++_check_authorized(self, owner, spender, token_id)++`]
-* xref:#ERC721Component-_update[`++_update(self, to, token_id, auth)++`]
 --
 
 [.contract-index]
@@ -299,13 +299,13 @@ for this purpose.
 [[ERC721Component-before_update]]
 ==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
 
-Function executed at the beginning of the xref:#ERC721Component-_update[_update] function prior to any other logic.
+Function executed at the beginning of the xref:#ERC721Component-update[update] function prior to any other logic.
 
 [.contract-item]
 [[ERC721Component-after_update]]
 ==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#hook#
 
-Function executed at the end of the xref:#ERC721Component-_update[_update] function.
+Function executed at the end of the xref:#ERC721Component-update[update] function.
 
 ==== Embeddable functions
 
@@ -470,6 +470,114 @@ Initializes the contract by setting the token name and symbol.
 This should be used inside the contract's constructor.
 
 [.contract-item]
+[[ERC721Component-exists]]
+==== `[.contract-item-name]#++exists++#++(self: @ContractState, token_id: u256) -> bool++` [.item-kind]#internal#
+
+Internal function that returns whether `token_id` exists.
+
+Tokens start existing when they are minted (<<ERC721-mint,mint>>), and stop existing when they are burned (<<ERC721-burn,burn>>).
+
+[.contract-item]
+[[ERC721Component-transfer]]
+==== `[.contract-item-name]#++transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Transfers `token_id` from `from` to `to`.
+
+Internal function without access restriction.
+
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+
+Requirements:
+
+- `to` is not the zero address.
+- `from` is the token owner.
+- `token_id` exists.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-mint]]
+==== `[.contract-item-name]#++mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Mints `token_id` and transfers it to `to`.
+Internal function without access restriction.
+
+WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+
+Requirements:
+
+- `to` is not the zero address.
+- `token_id` does not exist.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-safe_transfer]]
+==== `[.contract-item-name]#++safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+
+Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
+
+`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
+
+WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+
+Requirements:
+
+- `to` cannot be the zero address.
+- `from` must be the token owner.
+- `token_id` exists.
+- `to` is either an account contract or supports the `IERC721Receiver` interface.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-safe_mint]]
+==== `[.contract-item-name]#++safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
+
+Mints `token_id` if `to` is either an account or `IERC721Receiver`.
+
+`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
+
+WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+
+Requirements:
+
+- `token_id` does not exist.
+- `to` is either an account contract or supports the `IERC721Receiver` interface.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-burn]]
+==== `[.contract-item-name]#++burn++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+
+Destroys `token_id`. The approval is cleared when the token is burned.
+
+This internal function does not check if the caller is authorized
+to operate on the token.
+
+Requirements:
+
+- `token_id` exists.
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC721Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
+
+Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+(or `to`) is the zero address. Returns the owner of the `token_id` before the update.
+
+The `auth` argument is optional. If the value passed is non-zero, then this function will check that
+`auth` is either the owner of the token, or approved to operate on the token (by the owner).
+
+Emits a <<IERC721-Transfer,Transfer>> event.
+
+NOTE: This function can be extended using the `ERC721HooksTrait`, to add
+functionality before and/or after the transfer, mint, or burn.
+
+[.contract-item]
 [[ERC721Component-_owner_of]]
 ==== `[.contract-item-name]#++_owner_of++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
 
@@ -480,14 +588,6 @@ Internal function that returns the owner address of `token_id`.
 ==== `[.contract-item-name]#++_require_owned++#++(self: @ContractState, token_id: felt252) -> ContractAddress++` [.item-kind]#internal#
 
 Version of xref:#ERC721Component-_owner_of[_owner_of] that panics if owner is the zero address.
-
-[.contract-item]
-[[ERC721Component-_exists]]
-==== `[.contract-item-name]#++_exists++#++(self: @ContractState, token_id: u256) -> bool++` [.item-kind]#internal#
-
-Internal function that returns whether `token_id` exists.
-
-Tokens start existing when they are minted (<<ERC721-_mint,_mint>>), and stop existing when they are burned (<<ERC721-_burn,_burn>>).
 
 [.contract-item]
 [[ERC721Component-_approve]]
@@ -530,91 +630,6 @@ Requirements:
 Emits an <<IERC721-Approval,Approval>> event.
 
 [.contract-item]
-[[ERC721Component-_mint]]
-==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
-
-Mints `token_id` and transfers it to `to`.
-Internal function without access restriction.
-
-WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-
-Requirements:
-
-- `to` is not the zero address.
-- `token_id` does not exist.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
-[[ERC721Component-_transfer]]
-==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
-
-Transfers `token_id` from `from` to `to`.
-
-Internal function without access restriction.
-
-WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
-
-Requirements:
-
-- `to` is not the zero address.
-- `from` is the token owner.
-- `token_id` exists.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
-[[ERC721Component-_burn]]
-==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
-
-Destroys `token_id`. The approval is cleared when the token is burned.
-
-This internal function does not check if the caller is authorized
-to operate on the token.
-
-Requirements:
-
-- `token_id` exists.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
-[[ERC721Component-_safe_mint]]
-==== `[.contract-item-name]#++_safe_mint++#++(ref self: ContractState, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
-
-Mints `token_id` if `to` is either an account or `IERC721Receiver`.
-
-`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
-
-WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
-
-Requirements:
-
-- `token_id` does not exist.
-- `to` is either an account contract or supports the `IERC721Receiver` interface.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
-[[ERC721Component-_safe_transfer]]
-==== `[.contract-item-name]#++_safe_transfer++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>)++` [.item-kind]#internal#
-
-Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
-
-`data` is additional data, it has no specified format and is forwarded in `IERC721Receiver::on_erc721_received` to `to`.
-
-WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
-
-Requirements:
-
-- `to` cannot be the zero address.
-- `from` must be the token owner.
-- `token_id` exists.
-- `to` is either an account contract or supports the `IERC721Receiver` interface.
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-[.contract-item]
 [[ERC721Component-_set_base_uri]]
 ==== `[.contract-item-name]#++_set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
 
@@ -653,21 +668,6 @@ Requirements:
 
 WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
 assumption.
-
-[.contract-item]
-[[ERC721Component-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256, auth: ContractAddress)++` [.item-kind]#internal#
-
-Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-(or `to`) is the zero address. Returns the owner of the `token_id` before the update.
-
-The `auth` argument is optional. If the value passed is non-zero, then this function will check that
-`auth` is either the owner of the token, or approved to operate on the token (by the owner).
-
-Emits a <<IERC721-Transfer,Transfer>> event.
-
-NOTE: This function can be extended using the `ERC721HooksTrait`, to add
-functionality before and/or after the transfer, mint, or burn.
 
 ==== Events
 

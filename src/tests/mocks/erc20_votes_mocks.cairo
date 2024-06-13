@@ -96,6 +96,6 @@ pub(crate) mod DualCaseERC20VotesMock {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 }

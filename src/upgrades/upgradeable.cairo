@@ -40,7 +40,7 @@ pub mod UpgradeableComponent {
         /// - `new_class_hash` is not zero.
         ///
         /// Emits an `Upgraded` event.
-        fn _upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {
+        fn upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {
             assert(!new_class_hash.is_zero(), Errors::INVALID_CLASS);
             starknet::syscalls::replace_class_syscall(new_class_hash).unwrap_syscall();
             self.emit(Upgraded { class_hash: new_class_hash });

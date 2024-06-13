@@ -69,7 +69,7 @@ pub(crate) mod ERC20Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 
     #[abi(embed_v0)]
@@ -78,7 +78,7 @@ pub(crate) mod ERC20Upgradeable {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

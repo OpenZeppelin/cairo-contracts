@@ -39,7 +39,7 @@ fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = CONTRACT_STATE();
 
-    mock_state.erc20._mint(OWNER(), SUPPLY);
+    mock_state.erc20.mint(OWNER(), SUPPLY);
     state.transfer_voting_units(ZERO(), OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state

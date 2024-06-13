@@ -76,7 +76,7 @@ pub(crate) mod ERC721Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc721.initializer(name, symbol, base_uri);
-        self._mint_assets(recipient, token_ids);
+        self.mint_assets(recipient, token_ids);
     }
 
     #[abi(embed_v0)]
@@ -85,14 +85,14 @@ pub(crate) mod ERC721Upgradeable {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 
     #[generate_trait]
     pub(crate) impl InternalImpl of InternalTrait {
         /// Mints `token_ids` to `recipient`.
-        fn _mint_assets(
+        fn mint_assets(
             ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>
         ) {
             loop {
@@ -100,7 +100,7 @@ pub(crate) mod ERC721Upgradeable {
                     break;
                 }
                 let id = *token_ids.pop_front().unwrap();
-                self.erc721._mint(recipient, id);
+                self.erc721.mint(recipient, id);
             }
         }
     }

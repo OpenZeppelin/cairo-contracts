@@ -360,14 +360,14 @@ fn test_renounceRole_unauthorized() {
 }
 
 //
-// _set_role_admin
+// set_role_admin
 //
 
 #[test]
-fn test__set_role_admin() {
+fn test_set_role_admin() {
     let mut state = setup();
     assert_eq!(state.get_role_admin(ROLE), DEFAULT_ADMIN_ROLE);
-    state._set_role_admin(ROLE, OTHER_ROLE);
+    state.set_role_admin(ROLE, OTHER_ROLE);
 
     assert_event_role_admin_changed(ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);
 
@@ -378,7 +378,7 @@ fn test__set_role_admin() {
 #[test]
 fn test_new_admin_can_grant_roles() {
     let mut state = setup();
-    state._set_role_admin(ROLE, OTHER_ROLE);
+    state.set_role_admin(ROLE, OTHER_ROLE);
 
     testing::set_caller_address(ADMIN());
     state.grant_role(OTHER_ROLE, OTHER_ADMIN());
@@ -393,7 +393,7 @@ fn test_new_admin_can_grant_roles() {
 #[test]
 fn test_new_admin_can_revoke_roles() {
     let mut state = setup();
-    state._set_role_admin(ROLE, OTHER_ROLE);
+    state.set_role_admin(ROLE, OTHER_ROLE);
 
     testing::set_caller_address(ADMIN());
     state.grant_role(OTHER_ROLE, OTHER_ADMIN());
@@ -410,7 +410,7 @@ fn test_new_admin_can_revoke_roles() {
 #[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_grant_roles() {
     let mut state = setup();
-    state._set_role_admin(ROLE, OTHER_ROLE);
+    state.set_role_admin(ROLE, OTHER_ROLE);
     testing::set_caller_address(ADMIN());
     state.grant_role(ROLE, AUTHORIZED());
 }
@@ -419,7 +419,7 @@ fn test_previous_admin_cannot_grant_roles() {
 #[should_panic(expected: ('Caller is missing role',))]
 fn test_previous_admin_cannot_revoke_roles() {
     let mut state = setup();
-    state._set_role_admin(ROLE, OTHER_ROLE);
+    state.set_role_admin(ROLE, OTHER_ROLE);
     testing::set_caller_address(ADMIN());
     state.revoke_role(ROLE, AUTHORIZED());
 }

@@ -98,7 +98,7 @@ mod MyToken {
         let symbol = "MTK";
 
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 }
 ```

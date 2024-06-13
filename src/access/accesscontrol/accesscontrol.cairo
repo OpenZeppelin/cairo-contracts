@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -194,6 +194,19 @@ pub mod AccessControlComponent {
             assert(authorized, Errors::MISSING_ROLE);
         }
 
+        /// Sets `admin_role` as `role`'s admin role.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// Emits a `RoleAdminChanged` event.
+        fn set_role_admin(
+            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
+        ) {
+            let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
+            self.AccessControl_role_admin.write(role, admin_role);
+            self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
+        }
+
         /// Attempts to grant `role` to `account`.
         ///
         /// Internal function without access restriction.
@@ -222,17 +235,6 @@ pub mod AccessControlComponent {
                 self.AccessControl_role_member.write((role, account), false);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }
-        }
-
-        /// Sets `admin_role` as `role`'s admin role.
-        ///
-        /// Emits a `RoleAdminChanged` event.
-        fn _set_role_admin(
-            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
-        ) {
-            let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
-            self.AccessControl_role_admin.write(role, admin_role);
-            self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
     }
 

@@ -8,7 +8,7 @@ The ERC721 token standard is a specification for {token-types}, or more colloqui
 
 == Usage
 
-:mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
+:mint-api: xref:api/erc721.adoc#ERC721-mint[mint]
 
 Using Contracts for Cairo, constructing an ERC721 contract requires integrating both `ERC721Component` and `SRC5Component`.
 The contract should also set up the constructor to initialize the token's name, symbol, and interface support.
@@ -58,7 +58,7 @@ mod MyNFT {
         let token_id = 1;
 
         self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }
 ----
@@ -156,7 +156,7 @@ WARNING: Usage of `safe_transfer_from` prevents loss, though the caller must und
 :on_erc721_received-api: xref:api/erc721.adoc#IERC721Receiver-on_erc721_received[on_erc721_received]
 :computing-interface-id: xref:introspection.adoc#computing_the_interface_id[Computing the interface ID]
 :safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
-:safe_mint-api: xref:api/erc721.adoc#ERC721-_safe_mint[_safe_mint]
+:safe_mint-api: xref:api/erc721.adoc#ERC721-safe_mint[safe_mint]
 
 In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface.
 The recipient contract must also implement the {src5} interface which, as described earlier, supports interface introspection.

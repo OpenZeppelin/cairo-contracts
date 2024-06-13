@@ -51,6 +51,10 @@ pub mod AccountComponent {
         pub const UNAUTHORIZED: felt252 = 'Account: unauthorized';
     }
 
+    //
+    // External
+    //
+
     #[embeddable_as(SRC6Impl)]
     impl SRC6<
         TContractState,
@@ -212,82 +216,6 @@ pub mod AccountComponent {
         }
     }
 
-    #[generate_trait]
-    pub impl InternalImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of InternalTrait<TContractState> {
-        /// Initializes the account by setting the initial public key
-        /// and registering the ISRC6 interface Id.
-        fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
-            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
-            src5_component.register_interface(interface::ISRC6_ID);
-            self._set_public_key(public_key);
-        }
-
-        /// Validates that the caller is the account itself. Otherwise it reverts.
-        fn assert_only_self(self: @ComponentState<TContractState>) {
-            let caller = get_caller_address();
-            let self = get_contract_address();
-            assert(self == caller, Errors::UNAUTHORIZED);
-        }
-
-        /// Validates that `new_owner` accepted the ownership of the contract.
-        ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
-        ///
-        /// Requirements:
-        ///
-        /// - The signature must be valid for the new owner.
-        fn assert_valid_new_owner(
-            self: @ComponentState<TContractState>,
-            current_owner: felt252,
-            new_owner: felt252,
-            signature: Span<felt252>
-        ) {
-            let message_hash = PoseidonTrait::new()
-                .update_with('StarkNet Message')
-                .update_with('accept_ownership')
-                .update_with(get_contract_address())
-                .update_with(current_owner)
-                .finalize();
-
-            let is_valid = is_valid_stark_signature(message_hash, new_owner, signature);
-            assert(is_valid, Errors::INVALID_SIGNATURE);
-        }
-
-        /// Validates the signature for the current transaction.
-        /// Returns the short string `VALID` if valid, otherwise it reverts.
-        fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
-            let tx_info = get_tx_info().unbox();
-            let tx_hash = tx_info.transaction_hash;
-            let signature = tx_info.signature;
-            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
-            starknet::VALIDATED
-        }
-
-        /// Sets the public key without validating the caller.
-        /// The usage of this method outside the `set_public_key` function is discouraged.
-        ///
-        /// Emits an `OwnerAdded` event.
-        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
-            self.Account_public_key.write(new_public_key);
-            self.emit(OwnerAdded { new_owner_guid: new_public_key });
-        }
-
-        /// Returns whether the given signature is valid for the given hash
-        /// using the account's current public key.
-        fn _is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
-        ) -> bool {
-            let public_key = self.Account_public_key.read();
-            is_valid_stark_signature(hash, public_key, signature)
-        }
-    }
-
     #[embeddable_as(AccountMixinImpl)]
     impl AccountMixin<
         TContractState,
@@ -368,6 +296,86 @@ pub mod AccountComponent {
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
+        }
+    }
+
+    //
+    // Internal
+    //
+
+    #[generate_trait]
+    pub impl InternalImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Initializes the account by setting the initial public key
+        /// and registering the ISRC6 interface Id.
+        fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::ISRC6_ID);
+            self._set_public_key(public_key);
+        }
+
+        /// Validates that the caller is the account itself. Otherwise it reverts.
+        fn assert_only_self(self: @ComponentState<TContractState>) {
+            let caller = get_caller_address();
+            let self = get_contract_address();
+            assert(self == caller, Errors::UNAUTHORIZED);
+        }
+
+        /// Validates that `new_owner` accepted the ownership of the contract.
+        ///
+        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
+        /// does not validate this assumption.
+        ///
+        /// Requirements:
+        ///
+        /// - The signature must be valid for the new owner.
+        fn assert_valid_new_owner(
+            self: @ComponentState<TContractState>,
+            current_owner: felt252,
+            new_owner: felt252,
+            signature: Span<felt252>
+        ) {
+            let message_hash = PoseidonTrait::new()
+                .update_with('StarkNet Message')
+                .update_with('accept_ownership')
+                .update_with(get_contract_address())
+                .update_with(current_owner)
+                .finalize();
+
+            let is_valid = is_valid_stark_signature(message_hash, new_owner, signature);
+            assert(is_valid, Errors::INVALID_SIGNATURE);
+        }
+
+        /// Validates the signature for the current transaction.
+        /// Returns the short string `VALID` if valid, otherwise it reverts.
+        fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
+            let tx_info = get_tx_info().unbox();
+            let tx_hash = tx_info.transaction_hash;
+            let signature = tx_info.signature;
+            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
+            starknet::VALIDATED
+        }
+
+        /// Sets the public key without validating the caller.
+        /// The usage of this method outside the `set_public_key` function is discouraged.
+        ///
+        /// Emits an `OwnerAdded` event.
+        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: felt252) {
+            self.Account_public_key.write(new_public_key);
+            self.emit(OwnerAdded { new_owner_guid: new_public_key });
+        }
+
+        /// Returns whether the given signature is valid for the given hash
+        /// using the account's current public key.
+        fn _is_valid_signature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
+        ) -> bool {
+            let public_key = self.Account_public_key.read();
+            is_valid_stark_signature(hash, public_key, signature)
         }
     }
 }

@@ -2,11 +2,17 @@
 // OpenZeppelin Contracts for Cairo v0.13.0 (account/utils/signature.cairo)
 
 use ecdsa::check_ecdsa_signature;
-use openzeppelin::account::interface::EthPublicKey;
+use openzeppelin::account::interface::{EthPublicKey, P256PublicKey};
 use starknet::secp256_trait;
 
 #[derive(Copy, Drop, Serde)]
 pub struct EthSignature {
+    pub r: u256,
+    pub s: u256,
+}
+
+#[derive(Copy, Drop, Serde)]
+pub struct P256Signature {
     pub r: u256,
     pub s: u256,
 }
@@ -38,6 +44,21 @@ fn is_valid_eth_signature(
 ) -> bool {
     let mut signature = signature;
     let signature: EthSignature = Serde::deserialize(ref signature)
+        .expect('Signature: Invalid format.');
+
+    secp256_trait::is_valid_signature(msg_hash.into(), signature.r, signature.s, public_key)
+}
+
+/// This function assumes the `s` component of the signature to be positive
+/// for efficiency reasons. It is not recommended to use it other than for
+/// validating account signatures over transaction hashes since otherwise
+/// it's not protected against signature malleability.
+/// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
+fn is_valid_p256_signature(
+    msg_hash: felt252, public_key: P256PublicKey, signature: Span<felt252>
+) -> bool {
+    let mut signature = signature;
+    let signature: P256Signature = Serde::deserialize(ref signature)
         .expect('Signature: Invalid format.');
 
     secp256_trait::is_valid_signature(msg_hash.into(), signature.r, signature.s, public_key)

@@ -391,7 +391,7 @@ fn test__spend_allowance_unlimited() {
 //
 
 #[test]
-fn test__mint() {
+fn test_mint() {
     let mut state = COMPONENT_STATE();
     state.mint(OWNER(), VALUE);
 
@@ -402,7 +402,7 @@ fn test__mint() {
 
 #[test]
 #[should_panic(expected: ('ERC20: mint to 0',))]
-fn test__mint_to_zero() {
+fn test_mint_to_zero() {
     let mut state = COMPONENT_STATE();
     state.mint(ZERO(), VALUE);
 }
@@ -412,7 +412,7 @@ fn test__mint_to_zero() {
 //
 
 #[test]
-fn test__burn() {
+fn test_burn() {
     let mut state = setup();
     state.burn(OWNER(), VALUE);
 
@@ -423,7 +423,7 @@ fn test__burn() {
 
 #[test]
 #[should_panic(expected: ('ERC20: burn from 0',))]
-fn test__burn_from_zero() {
+fn test_burn_from_zero() {
     let mut state = setup();
     state.burn(ZERO(), VALUE);
 }

@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ERC20Component:
     - `_mint` function renamed to `mint`
     - `_burn` function renamed to `burn`
+    - `_update` function renamed to `update`
   - ERC721Component:
     - `_safe_transfer` function renamed to `safe_transfer`
     - `_safe_mint` function renamed to `safe_mint`

@@ -1066,7 +1066,7 @@ fn test__transfer_from_invalid_owner() {
 //
 
 #[test]
-fn test__mint() {
+fn test_mint() {
     let mut state = COMPONENT_STATE();
     let recipient = RECIPIENT();
     let token_id = TOKEN_ID;
@@ -1080,14 +1080,14 @@ fn test__mint() {
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
-fn test__mint_to_zero() {
+fn test_mint_to_zero() {
     let mut state = COMPONENT_STATE();
     state.mint(ZERO(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: token already minted',))]
-fn test__mint_already_exist() {
+fn test_mint_already_exist() {
     let mut state = setup();
     state.mint(RECIPIENT(), TOKEN_ID);
 }
@@ -1203,7 +1203,7 @@ fn test__safe_mint_already_exist() {
 //
 
 #[test]
-fn test__burn() {
+fn test_burn() {
     let mut state = setup();
 
     state._approve(OTHER(), TOKEN_ID, ZERO());
@@ -1223,7 +1223,7 @@ fn test__burn() {
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
-fn test__burn_nonexistent() {
+fn test_burn_nonexistent() {
     let mut state = COMPONENT_STATE();
     state.burn(TOKEN_ID);
 }

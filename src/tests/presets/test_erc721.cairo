@@ -97,7 +97,7 @@ fn setup_camel_account() -> ContractAddress {
 //
 
 #[test]
-fn test__mint_assets() {
+fn test_mint_assets() {
     let mut state = ERC721Upgradeable::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
 

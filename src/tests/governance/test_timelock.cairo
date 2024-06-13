@@ -1,3 +1,5 @@
+use openzeppelin::governance::timelock::interface::ITimelock;
+use core::starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 use hash::{HashStateTrait, HashStateExTrait};
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
@@ -1305,6 +1307,200 @@ fn test_assert_only_role_or_open_role_with_open_role() {
 
     testing::set_caller_address(OTHER());
     state.assert_only_role_or_open_role(PROPOSER_ROLE);
+}
+
+//
+// _before_call
+//
+
+#[test]
+fn test__before_call() {
+    let mut state = COMPONENT_STATE();
+    let predecessor = NO_PREDECESSOR;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time);
+
+    state._before_call(target_id, predecessor);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__before_call_nonexistent_operation() {
+    let mut state = COMPONENT_STATE();
+    let predecessor = NO_PREDECESSOR;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let not_scheduled = 0;
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, not_scheduled);
+
+    state._before_call(target_id, predecessor);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__before_call_insufficient_time() {
+    let mut state = COMPONENT_STATE();
+    let predecessor = NO_PREDECESSOR;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time - 1);
+
+    state._before_call(target_id, predecessor);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__before_call_when_already_done() {
+    let mut state = COMPONENT_STATE();
+    let predecessor = NO_PREDECESSOR;
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let done_time = 1;
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, done_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(done_time);
+
+    state._before_call(target_id, predecessor);
+}
+
+#[test]
+fn test__before_call_with_predecessor_done() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let predecessor_id = 'DONE';
+    let done_time = 1;
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(predecessor_id, done_time);
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time);
+
+    state._before_call(target_id, predecessor_id);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: awaiting predecessor',))]
+fn test__before_call_with_predecessor_not_done() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let predecessor_id = 'DONE';
+    let not_done_time = 2;
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(predecessor_id, not_done_time);
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time);
+
+    state._before_call(target_id, predecessor_id);
+}
+
+//
+// _after_call
+//
+
+#[test]
+fn test__after_call() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time);
+
+    state._after_call(target_id);
+
+    // Check timestamp is set to done (1)
+    let done_ts = 1;
+    let is_done = state.TimelockController_timestamps.read(target_id);
+    assert_eq!(is_done, done_ts);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__after_call_nonexistent_operation() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let not_scheduled = 0;
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, not_scheduled);
+
+    state._after_call(target_id);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__after_call_insufficient_time() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let target_time = MIN_DELAY + starknet::get_block_timestamp();
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, target_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(target_time - 1);
+
+    state._after_call(target_id);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state',))]
+fn test__after_call_already_done() {
+    let mut state = COMPONENT_STATE();
+
+    // Mock targets
+    let target_id = 'TARGET_ID';
+    let done_time = 1;
+
+    // Set targets in storage
+    state.TimelockController_timestamps.write(target_id, done_time);
+
+    // Fast-forward
+    testing::set_block_timestamp(done_time);
+
+    state._after_call(target_id);
 }
 
 //

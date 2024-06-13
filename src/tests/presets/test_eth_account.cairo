@@ -29,8 +29,6 @@ use starknet::contract_address_const;
 use starknet::testing;
 use starknet::{ContractAddress, ClassHash};
 
-const CONTRACT_ADDRESS: felt252 = 0x309d810d9968979a3d32182ed641dc7c2841507c9268a32a6bd83398385863c;
-
 fn CLASS_HASH() -> felt252 {
     EthAccountUpgradeable::TEST_CLASS_HASH
 }
@@ -106,7 +104,7 @@ fn test_constructor() {
 //
 
 #[test]
-fn test_public_key_setter_and_getter() {
+fn test_public_key_setter_and_getter_2() {
     let dispatcher = setup_dispatcher();
     let new_public_key = NEW_ETH_PUBKEY();
 
@@ -507,11 +505,11 @@ fn set_contract_and_caller(address: ContractAddress) {
 fn get_accept_ownership_signature() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x0639da8d542a751298e4fc2d49504a7fd98f1d781317d1f17aefd8988e89d508 =
+    // 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
-    //             .update_with(CONTRACT_ADDRESS)
+    //             .update_with(dispatcher.contract_address)
     //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
     //             .finalize();
 
@@ -520,10 +518,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x0639da8d542a751298e4fc2d49504a7fd98f1d781317d1f17aefd8988e89d508
+    // - msg_hash: 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c
     EthSignature {
-        r: 0x5927cd69cf901cffdf8c3c2c5536b6c9c1d3a89102bead87986333ad132215e7,
-        s: 0x7bf10c9f9a9385a542d8f21fb589a6481ca282c881c684eb72fee4eb859bf121,
+        r: 0xc4de7637e4206e64ddae9261782dad6d3c99eaaede20ff3fb183f751b94ee9ff,
+        s: 0x77c24e1ad34f5ba0627048f6a11c1e7ee1ddd3b5d518ee4c71ebd5725390f860,
     }
         .serialize(ref output);
 

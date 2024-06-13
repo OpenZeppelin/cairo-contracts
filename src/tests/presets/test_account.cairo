@@ -518,7 +518,7 @@ fn set_contract_and_caller(address: ContractAddress) {
 }
 
 fn get_accept_ownership_signature() -> Span<felt252> {
-    // 0x3be84a41fc2988d1b0870de2251cdd321770187fa2bc1db11d9ff2d2e5450f0 =
+    // 0xecfdac5cd0e60434b672a97ba94520b9acfe629d123a883005e45afa25ccea =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -529,10 +529,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x3be84a41fc2988d1b0870de2251cdd321770187fa2bc1db11d9ff2d2e5450f0
+    // - msg_hash: 0xecfdac5cd0e60434b672a97ba94520b9acfe629d123a883005e45afa25ccea
     array![
-        0x6876e5c9cc030bb6837c5d7cd640c61a72d02f26e3847f78326f8635626d558,
-        0x75b5277dccddc4194b53063aeb10fe696cda58f4308f98dfa1deca36d2e6da5
+        0x379fcc17e39513c19b5d97143e919ec3a5d9f59d4ae80fef83e037bc9275240,
+        0x7719ade3541834755ed48a4373a19872c4032937344d832e2743df677b0a43
     ]
         .span()
 }

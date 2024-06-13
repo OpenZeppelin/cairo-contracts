@@ -169,6 +169,5 @@ mod TimelockAttackerMock {
                 timelock.execute_batch(calls, NO_PREDECESSOR, NO_SALT);
             }
         }
-
     }
 }

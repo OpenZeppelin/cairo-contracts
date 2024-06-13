@@ -1,5 +1,3 @@
-use openzeppelin::governance::timelock::interface::ITimelock;
-use core::starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 use hash::{HashStateTrait, HashStateExTrait};
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
@@ -47,6 +45,7 @@ use openzeppelin::utils::serde::SerializedAppend;
 use poseidon::PoseidonTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
+use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 use starknet::testing;
 
 type ComponentState =
@@ -806,7 +805,9 @@ fn test_execute_batch_reentrant_call() {
     let delay = MIN_DELAY;
 
     let reentrant_call = Call {
-        to: attacker.contract_address, selector: selector!("reenter_batch"), calldata: array![].span()
+        to: attacker.contract_address,
+        selector: selector!("reenter_batch"),
+        calldata: array![].span()
     };
     let calls = array![reentrant_call].span();
 

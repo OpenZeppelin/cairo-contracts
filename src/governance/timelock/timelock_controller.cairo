@@ -626,8 +626,9 @@ mod TimelockControllerComponent {
             let mut erc1155_receiver = get_dep_component_mut!(ref self, ERC1155Receiver);
             erc1155_receiver.initializer();
 
-            // Self administration
+            // Register access control ID and self as default admin
             let mut access_component = get_dep_component_mut!(ref self, AccessControl);
+            access_component.initializer();
             access_component._grant_role(DEFAULT_ADMIN_ROLE, starknet::get_contract_address());
 
             // Optional admin
@@ -636,30 +637,13 @@ mod TimelockControllerComponent {
             };
 
             // Register proposers and cancellers
-            let mut i = 0;
-            loop {
-                if i == proposers.len() {
-                    break;
-                }
-
-                let mut proposer = proposers.at(i);
-                access_component._grant_role(PROPOSER_ROLE, *proposer);
-                access_component._grant_role(CANCELLER_ROLE, *proposer);
-                i += 1;
-            };
+            self._batch_grant_role(PROPOSER_ROLE, proposers);
+            self._batch_grant_role(CANCELLER_ROLE, proposers);
 
             // Register executors
-            let mut i = 0;
-            loop {
-                if i == executors.len() {
-                    break;
-                }
+            self._batch_grant_role(EXECUTOR_ROLE, executors);
 
-                let mut executor = executors.at(i);
-                access_component._grant_role(EXECUTOR_ROLE, *executor);
-                i += 1;
-            };
-
+            // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
             self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
         }
@@ -710,6 +694,24 @@ mod TimelockControllerComponent {
         fn _execute(ref self: ComponentState<TContractState>, call: Call) {
             let Call { to, selector, calldata } = call;
             starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall();
+        }
+
+        /// Grants each contract address in `accounts` with `role`.
+        fn _batch_grant_role(
+            ref self: ComponentState<TContractState>, role: felt252, accounts: Span<ContractAddress>
+        ) {
+            let mut access_component = get_dep_component_mut!(ref self, AccessControl);
+
+            let mut i = 0;
+            loop {
+                if i == accounts.len() {
+                    break;
+                }
+
+                let mut account = accounts.at(i);
+                access_component._grant_role(role, *account);
+                i += 1;
+            };
         }
     }
 }

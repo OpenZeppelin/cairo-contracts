@@ -3,6 +3,7 @@ use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
 use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
@@ -1215,6 +1216,9 @@ fn test_initializer_supported_interfaces() {
 
     let supports_ierc721_receiver = contract_state.src5.supports_interface(IERC721_RECEIVER_ID);
     assert!(supports_ierc721_receiver);
+
+    let supports_access_control = contract_state.src5.supports_interface(IACCESSCONTROL_ID);
+    assert!(supports_access_control);
 }
 
 #[test]
@@ -1301,6 +1305,39 @@ fn test_assert_only_role_or_open_role_with_open_role() {
 
     testing::set_caller_address(OTHER());
     state.assert_only_role_or_open_role(PROPOSER_ROLE);
+}
+
+//
+// _batch_grant_role
+//
+
+#[test]
+fn test__batch_grant_role() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let (t1, t2, t3) = get_proposers();
+    let target_role = 'ROLE';
+
+    let is_not_supported = !contract_state.access_control.has_role(target_role, t1);
+    assert!(is_not_supported);
+
+    let is_not_supported = !contract_state.access_control.has_role(target_role, t2);
+    assert!(is_not_supported);
+
+    let is_not_supported = !contract_state.access_control.has_role(target_role, t3);
+    assert!(is_not_supported);
+
+    let target_span = array![t1, t2, t3].span();
+    state._batch_grant_role(target_role, target_span);
+
+    let is_supported = contract_state.access_control.has_role(target_role, t1);
+    assert!(is_supported);
+
+    let is_supported = contract_state.access_control.has_role(target_role, t2);
+    assert!(is_supported);
+
+    let is_supported = contract_state.access_control.has_role(target_role, t3);
+    assert!(is_supported);
 }
 
 //

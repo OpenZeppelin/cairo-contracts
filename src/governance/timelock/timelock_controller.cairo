@@ -3,7 +3,14 @@
 
 /// # Timelock Controller Component
 ///
+/// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart contract,
+/// it enforces a timelock on all `only_owner` maintenance operations. This gives time for users
+/// of the controlled contract to exit before a potentially dangerous maintenance operation is applied.
 ///
+/// By default, this component is self administered, meaning administration tasks have to go through
+/// the timelock process. The proposer role is in charge of proposing operations. A common use case
+/// is to position the timelock controller as the owner of a smart contract, with a multi-sig
+/// or a DAO as the sole proposer.
 #[starknet::component]
 mod TimelockControllerComponent {
     use hash::{HashStateTrait, HashStateExTrait};
@@ -275,6 +282,19 @@ mod TimelockControllerComponent {
             self.emit(Cancelled { id });
         }
 
+        /// Execute a (Ready) operation containing a single Call.
+        ///
+        /// Requirements:
+        ///
+        /// - Caller must have `EXECUTOR_ROLE`.
+        /// - `id` must be in Ready OperationState.
+        /// - `predecessor` must either be `0` or in Done OperationState.
+        ///
+        /// NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
+        /// checks that the proposal is pending, thus any modifications to the operation during
+        /// reentrancy should be caught.
+        ///
+        /// Emits a `CallExecuted` event.
         fn execute(
             ref self: ComponentState<TContractState>,
             call: Call,
@@ -290,6 +310,19 @@ mod TimelockControllerComponent {
             self._after_call(id);
         }
 
+        /// Execute a (Ready) operation containing a batch of Calls.
+        ///
+        /// Requirements:
+        ///
+        /// - Caller must have `EXECUTOR_ROLE`.
+        /// - `id` must be in Ready OperationState.
+        /// - `predecessor` must either be `0` or in Done OperationState.
+        ///
+        /// NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
+        /// checks that the proposal is pending, thus any modifications to the operation during
+        /// reentrancy should be caught.
+        ///
+        /// Emits a `CallExecuted` event for each Call.
         fn execute_batch(
             ref self: ComponentState<TContractState>,
             calls: Span<Call>,
@@ -316,6 +349,15 @@ mod TimelockControllerComponent {
             self._after_call(id);
         }
 
+        /// Changes the minimum timelock duration for future operations.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the timelock itself. This can only be achieved by scheduling
+        /// and later executing an operation where the timelock is the target and the data
+        /// is the ABI-encoded call to this function.
+        ///
+        /// Emits a `MinDelayChange` event.
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
             let this = starknet::get_contract_address();
             let caller = starknet::get_caller_address();

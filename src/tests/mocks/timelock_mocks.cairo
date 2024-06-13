@@ -101,6 +101,7 @@ mod MockContract {
 #[starknet::interface]
 trait ITimelockAttacker<TState> {
     fn reenter(ref self: TState);
+    fn reenter_batch(ref self: TState);
 }
 
 #[starknet::contract]
@@ -146,5 +147,28 @@ mod TimelockAttackerMock {
                 timelock.execute(reentrant_call, NO_PREDECESSOR, NO_SALT);
             }
         }
+
+        fn reenter_batch(ref self: ContractState) {
+            let new_balance = self.balance.read() + 1;
+            self.balance.write(new_balance);
+
+            let sender = starknet::get_caller_address();
+            let this = starknet::get_contract_address();
+
+            let current_count = self.count.read();
+            if current_count != 2 {
+                self.count.write(current_count + 1);
+
+                let reentrant_call = Call {
+                    to: this, selector: selector!("reenter_batch"), calldata: array![].span()
+                };
+
+                let calls = array![reentrant_call].span();
+
+                let timelock = ITimelockDispatcher { contract_address: sender };
+                timelock.execute_batch(calls, NO_PREDECESSOR, NO_SALT);
+            }
+        }
+
     }
 }

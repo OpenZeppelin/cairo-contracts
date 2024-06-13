@@ -799,18 +799,16 @@ fn test_execute_batch_unauthorized() {
     )
 )]
 fn test_execute_batch_reentrant_call() {
-    let (mut timelock, mut target) = setup_dispatchers();
+    let mut timelock = deploy_timelock();
     let mut attacker = deploy_attacker();
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
     let delay = MIN_DELAY;
 
-    let call_1 = single_operation(target.contract_address);
-    let call_2 = single_operation(target.contract_address);
     let reentrant_call = Call {
-        to: attacker.contract_address, selector: selector!("reenter"), calldata: array![].span()
+        to: attacker.contract_address, selector: selector!("reenter_batch"), calldata: array![].span()
     };
-    let calls = array![call_1, call_2, reentrant_call].span();
+    let calls = array![reentrant_call].span();
 
     // Schedule
     testing::set_contract_address(PROPOSER());

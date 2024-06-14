@@ -36,7 +36,8 @@ struct Call {
 }
 
 /// Standard Account Interface
-trait ISRC6 {
+#[starknet::interface]
+pub trait ISRC6 {
     /// Executes a transaction through the account.
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
 
@@ -47,6 +48,9 @@ trait ISRC6 {
     fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
 }
 ----
+
+WARNING: The `calldata` member of the `Call` struct in the accounts has been updated to `Span<felt252>` for optimization
+purposes, but the interface Id remains the same for backwards compatiblity. This inconsistency will be fixed in future releases.
 
 {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
 DApps to verify the validity of signatures, supporting features like Sign In with Starknet.
@@ -59,7 +63,8 @@ a mechanism for detecting whether a contract is an account or not through intros
 [,cairo]
 ----
 /// Standard Interface Detection
-trait ISRC5 {
+#[starknet::interface]
+pub trait ISRC5 {
     /// Queries if a contract implements a given interface.
     fn supports_interface(interface_id: felt252) -> bool;
 }
@@ -148,7 +153,8 @@ This is the full interface of the `AccountMixinImpl` implementation:
 
 [,cairo]
 ----
-trait AccountABI {
+#[starknet::interface]
+pub trait AccountABI {
     // ISRC6
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(calls: Array<Call>) -> felt252;
@@ -241,7 +247,8 @@ This is the full interface of the `EthAccountMixinImpl` implementation:
 
 [,cairo]
 ----
-trait EthAccountABI {
+#[starknet::interface]
+pub trait EthAccountABI {
     // ISRC6
     fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
     fn __validate__(calls: Array<Call>) -> felt252;

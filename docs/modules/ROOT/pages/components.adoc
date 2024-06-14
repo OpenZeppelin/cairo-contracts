@@ -400,7 +400,7 @@ mod ERC20Pausable {
     (...)
 
     // Custom ERC20 implementation
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl CustomERC20Impl of IERC20<ContractState> {
         fn transfer(
             ref self: ContractState, recipient: ContractAddress, amount: u256
@@ -422,7 +422,7 @@ mod ERC20Pausable {
     }
 
     // Custom ERC20CamelOnly implementation
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl CustomERC20CamelOnlyImpl of IERC20CamelOnly<ContractState> {
         fn totalSupply(self: @ContractState) -> u256 {
             self.erc20.total_supply()

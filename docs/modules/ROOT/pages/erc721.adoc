@@ -78,7 +78,8 @@ To support older token deployments, as mentioned in {dual-interfaces}, the compo
 
 [,cairo]
 ----
-trait ERC721ABI {
+#[starknet::interface]
+pub trait ERC721ABI {
     // IERC721
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -167,7 +168,8 @@ The recipient contract must also implement the {src5} interface which, as descri
 
 [,cairo]
 ----
-trait IERC721Receiver {
+#[starknet::interface]
+pub trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress,
         from: ContractAddress,

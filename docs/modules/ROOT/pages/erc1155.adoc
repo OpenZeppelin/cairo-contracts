@@ -95,7 +95,8 @@ To support older token deployments, as mentioned in {dual-interfaces}, the compo
 
 [,cairo]
 ----
-trait ERC1155ABI {
+#[starknet::interface]
+pub trait ERC1155ABI {
     // IERC1155
     fn balance_of(account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
@@ -189,7 +190,8 @@ The recipient contract must also implement the {src5} interface which supports i
 
 [,cairo]
 ----
-trait IERC1155Receiver {
+#[starknet::interface]
+pub trait IERC1155Receiver {
     fn on_erc1155_received(
         operator: ContractAddress,
         from: ContractAddress,

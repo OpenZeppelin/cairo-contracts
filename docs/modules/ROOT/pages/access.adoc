@@ -83,7 +83,8 @@ This is the full interface of the `OwnableMixinImpl` implementation:
 
 [,cairo]
 ----
-trait OwnableABI {
+#[starknet::interface]
+pub trait OwnableABI {
     // IOwnable
     fn owner() -> ContractAddress;
     fn transfer_ownership(new_owner: ContractAddress);
@@ -124,7 +125,8 @@ This is the full interface of the two step `OwnableTwoStepMixinImpl` implementat
 
 [,cairo]
 ----
-trait OwnableTwoStepABI {
+#[starknet::interface]
+pub trait OwnableTwoStepABI {
     // IOwnableTwoStep
     fn owner() -> ContractAddress;
     fn pending_owner() -> ContractAddress;
@@ -491,7 +493,8 @@ This is the full interface of the `AccessControlMixinImpl` implementation:
 
 [,cairo]
 ----
-trait AccessControlABI {
+#[starknet::interface]
+pub trait AccessControlABI {
     // IAccessControl
     fn has_role(role: felt252, account: ContractAddress) -> bool;
     fn get_role_admin(role: felt252) -> felt252;

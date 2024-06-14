@@ -58,7 +58,8 @@ mod MyContract {
 
 [,cairo]
 ----
-trait ISRC5 {
+#[starknet::interface]
+pub trait ISRC5 {
     /// Query if a contract implements an interface.
     /// Receives the interface identifier as specified in SRC-5.
     /// Returns `true` if the contract implements `interface_id`, `false` otherwise.

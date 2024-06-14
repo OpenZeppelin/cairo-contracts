@@ -4,6 +4,240 @@
 
 Reference of interfaces and utilities related to Governance.
 
+== Timelock
+
+In a governance system, `TimelockControllerComponent` is in charge of introducing a delay between a proposal and its execution.
+
+[.contract]
+[[ITimelock]]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/governance/timelock/interface.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::governance::timelock::interface::ITimelock;
+```
+
+[.contract-index]
+.Functions
+--
+* xref:#ITimelock-is_operation[`++is_operation(id) -> bool++`]
+* xref:#ITimelock-is_operation_pending[`++is_operation_pending(id) -> bool++`]
+* xref:#ITimelock-is_operation_ready[`++is_operation_ready(id) -> bool++`]
+* xref:#ITimelock-is_operation_done[`++is_operation_done(id) -> bool++`]
+* xref:#ITimelock-get_timestamp[`++get_timestamp(id) -> u64++`]
+* xref:#ITimelock-get_operation_state[`++get_operation_state(id) -> OperationState++`]
+* xref:#ITimelock-get_min_delay[`++get_min_delay() -> u64++`]
+* xref:#ITimelock-hash_operation[`++hash_operation(call, predecessor, salt) -> felt252++`]
+* xref:#ITimelock-hash_operation_batch[`++hash_operation_batch(calls, predecessor, salt) -> felt252++`]
+* xref:#ITimelock-schedule[`++schedule(call, predecessor, salt, delay)++`]
+* xref:#ITimelock-schedule_batch[`++schedule_batch(calls, predecessor, salt, delay)++`]
+* xref:#ITimelock-cancel[`++cancel(id)++`]
+* xref:#ITimelock-execute[`++execute(call, predecessor, salt)++`]
+* xref:#ITimelock-execute_batch[`++execute_batch(calls, predecessor, salt)++`]
+* xref:#ITimelock-update_delay[`++update_delay(new_delay)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#ITimelock-CallScheduled[`++CallScheduled(id, index, call, predecessor, delay)++`]
+* xref:#ITimelock-CallExecuted[`++CallExecuted(id, index, call)++`]
+* xref:#ITimelock-CallSalt[`++CallSalt(id, salt)++`]
+* xref:#ITimelock-Cancelled[`++Cancelled(id)++`]
+* xref:#ITimelock-MinDelayChange[`++MinDelayChange(old_duration, new_duration)++`]
+
+--
+
+[#ITimelock-Functions]
+==== Functions
+
+[.contract-item]
+[[ITimelock-is_operation]]
+==== `[.contract-item-name]#++is_operation++#++(id: felt252) → bool++` [.item-kind]#external#
+
+Returns whether `id` corresponds to a registered operation.
+This includes the OperationStates: `Waiting`, `Ready`, and `Done`.
+
+[.contract-item]
+[[ITimelock-is_operation_pending]]
+==== `[.contract-item-name]#++is_operation_pending++#++(id: felt252) → bool++` [.item-kind]#external#
+
+Returns whether the `id` OperationState is `Waiting` or not.
+Note that a `Waiting` operation may also be `Ready`.
+
+[.contract-item]
+[[ITimelock-is_operation_ready]]
+==== `[.contract-item-name]#++is_operation_ready++#++(id: felt252) → bool++` [.item-kind]#external#
+
+Returns whether the `id` OperationState is `Ready` or not.
+Note that a `Waiting` operation may also be `Ready`.
+
+[.contract-item]
+[[ITimelock-is_operation_done]]
+==== `[.contract-item-name]#++is_operation_done++#++(id: felt252) → bool++` [.item-kind]#external#
+
+Returns whether the `id` OperationState is `Done` or not.
+
+[.contract-item]
+[[ITimelock-get_timestamp]]
+==== `[.contract-item-name]#++get_timestamp++#++(id: felt252) → u64++` [.item-kind]#external#
+
+Returns the timestamp at which `id` becomes `Ready`.
+
+NOTE: `0` means the OperationState is `Unset` and `1` means the OperationState
+is `Done`.
+
+[.contract-item]
+[[ITimelock-get_operation_state]]
+==== `[.contract-item-name]#++get_operation_state++#++(id: felt252) → OperationState++` [.item-kind]#external#
+
+Returns the OperationState for `id`.
+
+[.contract-item]
+[[ITimelock-get_min_delay]]
+==== `[.contract-item-name]#++get_min_delay++#++() → u64++` [.item-kind]#external#
+
+Returns the minimum delay in seconds for an operation to become valid.
+This value can be changed by executing an operation that calls `update_delay`.
+
+[.contract-item]
+[[ITimelock-hash_operation]]
+==== `[.contract-item-name]#++hash_operation++#++(call: Call, predecessor: felt252, salt: felt252)++` [.item-kind]#external#
+
+Returns the identifier of an operation containing a single transaction.
+
+[.contract-item]
+[[ITimelock-hash_operation_batch]]
+==== `[.contract-item-name]#++hash_operation_batch++#++(calls: Span<Call>, predecessor: felt252, salt: felt252)++` [.item-kind]#external#
+
+Returns the identifier of an operation containing a batch of transactions.
+
+[.contract-item]
+[[ITimelock-schedule]]
+==== `[.contract-item-name]#++schedule++#++(call: Call, predecessor: felt252, salt: felt252, delay: u64)++` [.item-kind]#external#
+
+Schedule an operation containing a single transaction.
+
+Requirements:
+
+- the caller must have the `PROPOSER_ROLE` role.
+
+Emits `CallScheduled` event.
+
+If `salt` is not zero, emits `CallSalt` event.
+
+[.contract-item]
+[[ITimelock-schedule_batch]]
+==== `[.contract-item-name]#++schedule_batch++#++(calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64)++` [.item-kind]#external#
+
+Schedule an operation containing a batch of transactions.
+
+Requirements:
+
+- The caller must have the `PROPOSER_ROLE` role.
+
+Emits one `CallScheduled` event for each transaction in the batch.
+
+If `salt` is not zero, emits `CallSalt` event.
+
+[.contract-item]
+[[ITimelock-cancel]]
+==== `[.contract-item-name]#++cancel++#++(id: felt252)++` [.item-kind]#external#
+
+Cancel an operation.
+
+Requirements:
+
+- The caller must have the `CANCELLER_ROLE` role.
+- `id` must be an operation.
+
+Emits a `Cancelled` event.
+
+[.contract-item]
+[[ITimelock-execute]]
+==== `[.contract-item-name]#++execute++#++(call: Call, predecessor: felt252, salt: felt252)++` [.item-kind]#external#
+
+Execute a (Ready) operation containing a single Call.
+
+Requirements:
+
+- Caller must have `EXECUTOR_ROLE`.
+- `id` must be in Ready OperationState.
+- `predecessor` must either be `0` or in Done OperationState.
+
+Emits a `CallExecuted` event.
+
+NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
+checks that the proposal is pending, thus any modifications to the operation during
+reentrancy should be caught.
+
+[.contract-item]
+[[ITimelock-execute_batch]]
+==== `[.contract-item-name]#++execute_batch++#++(calls: Span<Call>, predecessor: felt252, salt: felt252)++` [.item-kind]#external#
+
+Execute a (Ready) operation containing a batch of Calls.
+
+Requirements:
+
+- Caller must have `EXECUTOR_ROLE`.
+- `id` must be in Ready OperationState.
+- `predecessor` must either be `0` or in Done OperationState.
+
+Emits a `CallExecuted` event for each Call.
+
+NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
+checks that the proposal is pending, thus any modifications to the operation during
+reentrancy should be caught.
+
+[.contract-item]
+[[ITimelock-update_delay]]
+==== `[.contract-item-name]#++update_delay++#++(new_delay: u64)++` [.item-kind]#external#
+
+Changes the minimum timelock duration for future operations.
+
+Requirements:
+
+- The caller must be the timelock itself. This can only be achieved by scheduling
+and later executing an operation where the timelock is the target and the data
+is the ABI-encoded call to this function.
+
+Emits a `MinDelayChange` event.
+
+[#ITimelock-Events]
+==== Events
+
+[.contract-item]
+[[ITimelock-CallScheduled]]
+==== `[.contract-item-name]#++CallScheduled++#++(id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64)++` [.item-kind]#event#
+
+Emitted when `call` is scheduled as part of operation `id`.
+
+[.contract-item]
+[[ITimelock-CallExecuted]]
+==== `[.contract-item-name]#++CallExecuted++#++(id: felt252, index: felt252, call: Call)++` [.item-kind]#event#
+
+Emitted when `call` is performed as part of operation `id`.
+
+[.contract-item]
+[[ITimelock-CallSalt]]
+==== `[.contract-item-name]#++CallSalt++#++(id: felt252, salt: felt252)++` [.item-kind]#event#
+
+Emitted when a new proposal is scheduled with non-zero salt.
+
+[.contract-item]
+[[ITimelock-Cancelled]]
+==== `[.contract-item-name]#++Cancelled++#++(id: felt252)++` [.item-kind]#event#
+
+Emitted when operation `id` is cancelled.
+
+[.contract-item]
+[[ITimelock-MinDelayChange]]
+==== `[.contract-item-name]#++MinDelayChange++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
+
+Emitted when the minimum delay for future operations is modified.
+
+=== TimelockControllerComponent
+
 == Utils
 
 [.contract]

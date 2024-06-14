@@ -50,7 +50,7 @@ pub trait ISRC6 {
 ----
 
 WARNING: The `calldata` member of the `Call` struct in the accounts has been updated to `Span<felt252>` for optimization
-purposes, but the interface Id remains the same for backwards compatiblity. This inconsistency will be fixed in future releases.
+purposes, but the interface Id remains the same for backwards compatibility. This inconsistency will be fixed in future releases.
 
 {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
 DApps to verify the validity of signatures, supporting features like Sign In with Starknet.

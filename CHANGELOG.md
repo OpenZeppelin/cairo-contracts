@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.14.0 (2024-06-14)
+
 ### Changed (Breaking)
 
 - Migrated to the `2023_11` edition:
@@ -18,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Presets are not public anymore, since they should be copied into projects, and not directly imported.
   - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
   - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
+
 - Apply underscore pattern to modules (#993)
   - AccessControlComponent
     - `_set_role_admin` function renamed to `set_role_admin`

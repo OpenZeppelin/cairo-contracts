@@ -1675,39 +1675,6 @@ fn test__execute_with_bad_selector() {
 }
 
 //
-// _batch_grant_role
-//
-
-#[test]
-fn test__batch_grant_role() {
-    let mut state = COMPONENT_STATE();
-    let contract_state = CONTRACT_STATE();
-    let (t1, t2, t3) = get_proposers();
-    let target_role = 'ROLE';
-
-    let is_not_supported = !contract_state.access_control.has_role(target_role, t1);
-    assert!(is_not_supported);
-
-    let is_not_supported = !contract_state.access_control.has_role(target_role, t2);
-    assert!(is_not_supported);
-
-    let is_not_supported = !contract_state.access_control.has_role(target_role, t3);
-    assert!(is_not_supported);
-
-    let target_span = array![t1, t2, t3].span();
-    state._batch_grant_role(target_role, target_span);
-
-    let is_supported = contract_state.access_control.has_role(target_role, t1);
-    assert!(is_supported);
-
-    let is_supported = contract_state.access_control.has_role(target_role, t2);
-    assert!(is_supported);
-
-    let is_supported = contract_state.access_control.has_role(target_role, t3);
-    assert!(is_supported);
-}
-
-//
 // Helpers
 //
 

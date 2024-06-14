@@ -78,10 +78,6 @@ pub(crate) mod MockContract {
         number: felt252,
     }
 
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {}
-
     #[abi(embed_v0)]
     impl MockContractImpl of IMockContract<ContractState> {
         fn set_number(ref self: ContractState, new_number: felt252) {
@@ -121,10 +117,6 @@ pub(crate) mod TimelockAttackerMock {
         balance: felt252,
         count: felt252
     }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {}
 
     #[abi(embed_v0)]
     impl TimelockAttackerImpl of ITimelockAttacker<ContractState> {

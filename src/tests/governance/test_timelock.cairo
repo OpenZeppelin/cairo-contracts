@@ -1,5 +1,5 @@
-use core::num::traits::Zero;
 use core::hash::{HashStateTrait, HashStateExTrait};
+use core::num::traits::Zero;
 use core::poseidon::PoseidonTrait;
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
@@ -7,8 +7,6 @@ use openzeppelin::access::accesscontrol::AccessControlComponent::{
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
-use openzeppelin::governance::timelock::utils::call_impls::Call;
-use openzeppelin::governance::timelock::utils::operation_state::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
 };
@@ -19,6 +17,7 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
     TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
+use openzeppelin::governance::timelock::utils::{Call, OperationState};
 use openzeppelin::governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;

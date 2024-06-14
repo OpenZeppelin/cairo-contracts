@@ -13,8 +13,8 @@
 /// or a DAO as the sole proposer.
 #[starknet::component]
 pub mod TimelockControllerComponent {
-    use core::num::traits::Zero;
     use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::{

@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod TimelockControllerMock {
+pub(crate) mod TimelockControllerMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::governance::timelock::TimelockControllerComponent;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -63,14 +63,14 @@ mod TimelockControllerMock {
 }
 
 #[starknet::interface]
-trait IMockContract<TState> {
+pub(crate) trait IMockContract<TState> {
     fn set_number(ref self: TState, new_number: felt252);
     fn get_number(self: @TState) -> felt252;
     fn failing_function(self: @TState);
 }
 
 #[starknet::contract]
-mod MockContract {
+pub(crate) mod MockContract {
     use super::IMockContract;
 
     #[storage]
@@ -99,13 +99,13 @@ mod MockContract {
 }
 
 #[starknet::interface]
-trait ITimelockAttacker<TState> {
+pub(crate) trait ITimelockAttacker<TState> {
     fn reenter(ref self: TState);
     fn reenter_batch(ref self: TState);
 }
 
 #[starknet::contract]
-mod TimelockAttackerMock {
+pub(crate) mod TimelockAttackerMock {
     use openzeppelin::governance::timelock::interface::{
         ITimelockDispatcher, ITimelockDispatcherTrait
     };

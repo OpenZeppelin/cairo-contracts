@@ -7,14 +7,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseAccount {
-    contract_address: ContractAddress
+pub struct DualCaseAccount {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseAccountABI {
+pub trait DualCaseAccountABI {
     fn set_public_key(self: @DualCaseAccount, new_public_key: felt252, signature: Span<felt252>);
     fn get_public_key(self: @DualCaseAccount) -> felt252;
     fn is_valid_signature(

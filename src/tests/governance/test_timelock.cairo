@@ -1,12 +1,14 @@
-use hash::{HashStateTrait, HashStateExTrait};
+use core::num::traits::Zero;
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
-use openzeppelin::governance::timelock::TimelockControllerComponent::Call;
-use openzeppelin::governance::timelock::TimelockControllerComponent::OperationState;
+use openzeppelin::governance::timelock::utils::call_impls::Call;
+use openzeppelin::governance::timelock::utils::operation_state::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
 };
@@ -42,7 +44,6 @@ use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin::token::erc721::interface::{IERC721DispatcherTrait, IERC721Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use poseidon::PoseidonTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};

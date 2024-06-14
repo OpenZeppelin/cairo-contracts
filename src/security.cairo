@@ -1,8 +1,8 @@
-mod initializable;
-mod interface;
-mod pausable;
-mod reentrancyguard;
+pub mod initializable;
+pub mod interface;
+pub mod pausable;
+pub mod reentrancyguard;
 
-use initializable::InitializableComponent;
-use pausable::PausableComponent;
-use reentrancyguard::ReentrancyGuardComponent;
+pub use initializable::InitializableComponent;
+pub use pausable::PausableComponent;
+pub use reentrancyguard::ReentrancyGuardComponent;

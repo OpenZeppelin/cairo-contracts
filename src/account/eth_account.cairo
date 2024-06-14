@@ -5,8 +5,10 @@
 ///
 /// The EthAccount component enables contracts to behave as accounts signing with Ethereum keys.
 #[starknet::component]
-mod EthAccountComponent {
+pub mod EthAccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
+    use core::num::traits::Zero;
+    use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::interface;
@@ -14,9 +16,8 @@ mod EthAccountComponent {
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use poseidon::{PoseidonTrait, poseidon_hash_span};
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -30,29 +31,33 @@ mod EthAccountComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerAdded {
+    pub struct OwnerAdded {
         #[key]
-        new_owner_guid: felt252
+        pub new_owner_guid: felt252
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct OwnerRemoved {
+    pub struct OwnerRemoved {
         #[key]
-        removed_owner_guid: felt252
+        pub removed_owner_guid: felt252
     }
 
-    mod Errors {
-        const INVALID_CALLER: felt252 = 'EthAccount: invalid caller';
-        const INVALID_SIGNATURE: felt252 = 'EthAccount: invalid signature';
-        const INVALID_TX_VERSION: felt252 = 'EthAccount: invalid tx version';
-        const UNAUTHORIZED: felt252 = 'EthAccount: unauthorized';
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252 = 'EthAccount: invalid caller';
+        pub const INVALID_SIGNATURE: felt252 = 'EthAccount: invalid signature';
+        pub const INVALID_TX_VERSION: felt252 = 'EthAccount: invalid tx version';
+        pub const UNAUTHORIZED: felt252 = 'EthAccount: unauthorized';
     }
+
+    //
+    // External
+    //
 
     #[embeddable_as(SRC6Impl)]
     impl SRC6<
@@ -217,88 +222,6 @@ mod EthAccountComponent {
         }
     }
 
-    #[generate_trait]
-    impl InternalImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of InternalTrait<TContractState> {
-        /// Initializes the account by setting the initial public key
-        /// and registering the ISRC6 interface Id.
-        fn initializer(ref self: ComponentState<TContractState>, public_key: EthPublicKey) {
-            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
-            src5_component.register_interface(interface::ISRC6_ID);
-            self._set_public_key(public_key);
-        }
-
-        /// Validates that the caller is the account itself. Otherwise it reverts.
-        fn assert_only_self(self: @ComponentState<TContractState>) {
-            let caller = get_caller_address();
-            let self = get_contract_address();
-            assert(self == caller, Errors::UNAUTHORIZED);
-        }
-
-        /// Validates that `new_owner` accepted the ownership of the contract.
-        ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
-        ///
-        /// Requirements:
-        ///
-        /// - The signature must be valid for the `new_owner`.
-        fn assert_valid_new_owner(
-            self: @ComponentState<TContractState>,
-            current_owner: EthPublicKey,
-            new_owner: EthPublicKey,
-            signature: Span<felt252>
-        ) {
-            let message_hash = PoseidonTrait::new()
-                .update_with('StarkNet Message')
-                .update_with('accept_ownership')
-                .update_with(get_contract_address())
-                .update_with(current_owner.get_coordinates().unwrap_syscall())
-                .finalize();
-
-            let is_valid = is_valid_eth_signature(message_hash, new_owner, signature);
-            assert(is_valid, Errors::INVALID_SIGNATURE);
-        }
-
-        /// Validates the signature for the current transaction.
-        /// Returns the short string `VALID` if valid, otherwise it reverts.
-        fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
-            let tx_info = get_tx_info().unbox();
-            let tx_hash = tx_info.transaction_hash;
-            let signature = tx_info.signature;
-            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
-            starknet::VALIDATED
-        }
-
-        /// Sets the public key without validating the caller.
-        /// The usage of this method outside the `set_public_key` function is discouraged.
-        ///
-        /// Emits an `OwnerAdded` event.
-        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
-            self.EthAccount_public_key.write(new_public_key);
-            let new_owner_guid = _get_guid_from_public_key(new_public_key);
-            self.emit(OwnerAdded { new_owner_guid });
-        }
-
-        /// Returns whether the given signature is valid for the given hash
-        /// using the account's current public key.
-        fn _is_valid_signature(
-            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
-        ) -> bool {
-            let public_key: EthPublicKey = self.EthAccount_public_key.read();
-            is_valid_eth_signature(hash, public_key, signature)
-        }
-    }
-
-    fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
-        let (x, y) = public_key.get_coordinates().unwrap_syscall();
-        poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
-    }
-
     #[embeddable_as(EthAccountMixinImpl)]
     impl EthAccountMixin<
         TContractState,
@@ -380,5 +303,91 @@ mod EthAccountComponent {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
         }
+    }
+
+    //
+    // Internal
+    //
+
+    #[generate_trait]
+    pub impl InternalImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Initializes the account by setting the initial public key
+        /// and registering the ISRC6 interface Id.
+        fn initializer(ref self: ComponentState<TContractState>, public_key: EthPublicKey) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::ISRC6_ID);
+            self._set_public_key(public_key);
+        }
+
+        /// Validates that the caller is the account itself. Otherwise it reverts.
+        fn assert_only_self(self: @ComponentState<TContractState>) {
+            let caller = get_caller_address();
+            let self = get_contract_address();
+            assert(self == caller, Errors::UNAUTHORIZED);
+        }
+
+        /// Validates that `new_owner` accepted the ownership of the contract.
+        ///
+        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
+        /// does not validate this assumption.
+        ///
+        /// Requirements:
+        ///
+        /// - The signature must be valid for the `new_owner`.
+        fn assert_valid_new_owner(
+            self: @ComponentState<TContractState>,
+            current_owner: EthPublicKey,
+            new_owner: EthPublicKey,
+            signature: Span<felt252>
+        ) {
+            let message_hash = PoseidonTrait::new()
+                .update_with('StarkNet Message')
+                .update_with('accept_ownership')
+                .update_with(get_contract_address())
+                .update_with(current_owner.get_coordinates().unwrap_syscall())
+                .finalize();
+
+            let is_valid = is_valid_eth_signature(message_hash, new_owner, signature);
+            assert(is_valid, Errors::INVALID_SIGNATURE);
+        }
+
+        /// Validates the signature for the current transaction.
+        /// Returns the short string `VALID` if valid, otherwise it reverts.
+        fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
+            let tx_info = get_tx_info().unbox();
+            let tx_hash = tx_info.transaction_hash;
+            let signature = tx_info.signature;
+            assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);
+            starknet::VALIDATED
+        }
+
+        /// Sets the public key without validating the caller.
+        /// The usage of this method outside the `set_public_key` function is discouraged.
+        ///
+        /// Emits an `OwnerAdded` event.
+        fn _set_public_key(ref self: ComponentState<TContractState>, new_public_key: EthPublicKey) {
+            self.EthAccount_public_key.write(new_public_key);
+            let new_owner_guid = _get_guid_from_public_key(new_public_key);
+            self.emit(OwnerAdded { new_owner_guid });
+        }
+
+        /// Returns whether the given signature is valid for the given hash
+        /// using the account's current public key.
+        fn _is_valid_signature(
+            self: @ComponentState<TContractState>, hash: felt252, signature: Span<felt252>
+        ) -> bool {
+            let public_key: EthPublicKey = self.EthAccount_public_key.read();
+            is_valid_eth_signature(hash, public_key, signature)
+        }
+    }
+
+    fn _get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {
+        let (x, y) = public_key.get_coordinates().unwrap_syscall();
+        poseidon_hash_span(array![x.low.into(), x.high.into(), y.low.into(), y.high.into()].span())
     }
 }

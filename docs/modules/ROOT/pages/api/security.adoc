@@ -84,8 +84,8 @@ Component to implement an emergency stop mechanism.
 
 * xref:#PausableComponent-assert_not_paused[`++assert_not_paused(self)++`]
 * xref:#PausableComponent-assert_paused[`++assert_paused(self)++`]
-* xref:#PausableComponent-_pause[`++_pause(self)++`]
-* xref:#PausableComponent-_unpause[`++_unpause(self)++`]
+* xref:#PausableComponent-pause[`++pause(self)++`]
+* xref:#PausableComponent-unpause[`++unpause(self)++`]
 --
 
 [.contract-index]
@@ -120,8 +120,8 @@ Panics if the contract is paused.
 Panics if the contract is not paused.
 
 [.contract-item]
-[[PausableComponent-_pause]]
-==== `[.contract-item-name]#++_pause++#++(ref self: ComponentState)++` [.item-kind]#internal#
+[[PausableComponent-pause]]
+==== `[.contract-item-name]#++pause++#++(ref self: ComponentState)++` [.item-kind]#internal#
 
 Pauses the contract.
 
@@ -132,8 +132,8 @@ Requirements:
 Emits a {Paused} event.
 
 [.contract-item]
-[[PausableComponent-_unpause]]
-==== `[.contract-item-name]#++_unpause++#++(ref self: ComponentState)++` [.item-kind]#internal#
+[[PausableComponent-unpause]]
+==== `[.contract-item-name]#++unpause++#++(ref self: ComponentState)++` [.item-kind]#internal#
 
 Unpauses the contract.
 

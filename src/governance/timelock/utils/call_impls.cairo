@@ -13,7 +13,7 @@ pub struct Call {
     pub calldata: Span<felt252>
 }
 
-impl HashCallImpl<Call, S, +Serde<Call>, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
+pub(crate) impl HashCallImpl<Call, S, +Serde<Call>, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
     fn update_state(mut state: S, value: @Call) -> S {
         let mut arr = array![];
         Serde::serialize(value, ref arr);

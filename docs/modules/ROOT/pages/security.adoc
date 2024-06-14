@@ -10,6 +10,8 @@ The xref:api/security.adoc#InitializableComponent[Initializable] component provi
 the functionality of a constructor.
 More specifically, it enables logic to be performed once and only once which is useful to set up a contract's initial state when a constructor cannot be used, for example when there are circular dependencies at construction time.
 
+=== Usage
+
 You can use the component in your contracts like this:
 
 [,cairo]
@@ -48,6 +50,17 @@ mod MyInitializableContract {
 
 CAUTION: This Initializable pattern should only be used in one function.
 
+=== Interface
+
+The component provides the following external functions as part of the `InitializableImpl` implementation:
+
+[,cairo]
+----
+trait InitializableABI {
+    fn is_initialized() -> bool;
+}
+----
+
 == Pausable
 
 :assert_not_paused: xref:api/security.adoc#PausableComponent-assert_not_paused[assert_not_paused]
@@ -59,6 +72,8 @@ This can be useful for scenarios such as preventing trades until the end of an e
 To become pausable, the contract should include `pause` and `unpause` functions (which should be protected).
 For methods that should be available only when paused or not, insert calls to `{assert_paused}` and `{assert_not_paused}`
 respectively.
+
+=== Usage
 
 For example (using the xref:api/access.adoc#OwnableComponent[Ownable] component for access control):
 
@@ -108,13 +123,13 @@ mod MyPausableContract {
     #[external(v0)]
     fn pause(ref self: ContractState) {
         self.ownable.assert_only_owner();
-        self.pausable._pause();
+        self.pausable.pause();
     }
 
     #[external(v0)]
     fn unpause(ref self: ContractState) {
         self.ownable.assert_only_owner();
-        self.pausable._unpause();
+        self.pausable.unpause();
     }
 
     #[external(v0)]
@@ -131,12 +146,25 @@ mod MyPausableContract {
 }
 ----
 
+=== Interface
+
+The component provides the following external functions as part of the `PausableImpl` implementation:
+
+[,cairo]
+----
+trait PausableABI {
+    fn is_paused() -> bool;
+}
+----
+
 == Reentrancy Guard
 
 :start: xref:api/security.adoc#ReentrancyGuardComponent-start[start]
 :end: xref:api/security.adoc#ReentrancyGuardComponent-end[end]
 
 A https://gus-tavo-guim.medium.com/reentrancy-attack-on-smart-contracts-how-to-identify-the-exploitable-and-an-example-of-an-attack-4470a2d8dfe4[reentrancy attack] occurs when the caller is able to obtain more resources than allowed by recursively calling a target's function.
+
+=== Usage
 
 Since Cairo does not support modifiers like Solidity, the xref:api/security.adoc#ReentrancyGuardComponent[ReentrancyGuard]
 component exposes two methods `{start}` and `{end}` to protect functions against reentrancy attacks.

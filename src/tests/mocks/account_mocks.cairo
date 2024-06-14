@@ -1,5 +1,5 @@
 #[starknet::contract(account)]
-mod DualCaseAccountMock {
+pub(crate) mod DualCaseAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -45,7 +45,7 @@ mod DualCaseAccountMock {
 }
 
 #[starknet::contract(account)]
-mod SnakeAccountMock {
+pub(crate) mod SnakeAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -87,7 +87,7 @@ mod SnakeAccountMock {
 }
 
 #[starknet::contract(account)]
-mod CamelAccountMock {
+pub(crate) mod CamelAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -151,7 +151,7 @@ mod CamelAccountMock {
 // false for bool
 
 #[starknet::contract]
-mod SnakeAccountPanicMock {
+pub(crate) mod SnakeAccountPanicMock {
     #[storage]
     struct Storage {}
 
@@ -188,7 +188,7 @@ mod SnakeAccountPanicMock {
 }
 
 #[starknet::contract]
-mod CamelAccountPanicMock {
+pub(crate) mod CamelAccountPanicMock {
     #[storage]
     struct Storage {}
 

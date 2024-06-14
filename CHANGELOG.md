@@ -14,6 +14,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HashCall implementation (#996)
 - CallPartialEq (#996)
 
+### Changed (Breaking)
+
+- Migrated to the `2023_11` edition:
+  - Component implementations annotated with `#[embeddable_as()]` (e.g: `AccessControlComponent::AccessControl`) are not public anymore. Note that the embeddable versions are still public (e.g: `AccessControlComponent::AccessControlImpl`).
+  - Implementations that can be compiler-derived from traits are not public anymore (e.g: `DualCaseAccessControlImpl` is not public while `DualCaseAccessControlTrait` is).
+  - `Secp256k1PointPartialEq` and `DebugSecp256k1Point` are not public anymore.
+  - `account::utils::execute_single_call` is not public anymore.
+  - Presets are not public anymore, since they should be copied into projects, and not directly imported.
+  - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
+  - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
+- Apply underscore pattern to modules (#993)
+  - AccessControlComponent
+    - `_set_role_admin` function renamed to `set_role_admin`
+  - PausableComponent
+    - `_pause` function renamed to `pause`
+    - `_unpause` function renamed to `unpause`
+  - UpgradeableComponent
+    - `_upgrade` function renamed to `upgrade`
+  - ERC20Component:
+    - `_mint` function renamed to `mint`
+    - `_burn` function renamed to `burn`
+    - `_update` function renamed to `update`
+  - ERC721Component:
+    - `_safe_transfer` function renamed to `safe_transfer`
+    - `_safe_mint` function renamed to `safe_mint`
+    - `_mint` function renamed to `mint`
+    - `_transfer` function renamed to `transfer`
+    - `_burn` function renamed to `burn`
+    - `_update` function renamed to `update`
+  - ERC1155Component:
+    - `set_base_uri` function renamed to `_set_base_uri`
+
 ## 0.13.0 (2024-05-20)
 
 ### Added

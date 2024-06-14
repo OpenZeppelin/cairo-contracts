@@ -5,7 +5,7 @@
 ///
 /// OpenZeppelin's upgradeable account which can change its public key and declare, deploy, or call contracts.
 #[starknet::contract(account)]
-mod AccountUpgradeable {
+pub(crate) mod AccountUpgradeable {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::upgrades::UpgradeableComponent;
@@ -18,7 +18,8 @@ mod AccountUpgradeable {
 
     // Account Mixin
     #[abi(embed_v0)]
-    impl AccountMixinImpl = AccountComponent::AccountMixinImpl<ContractState>;
+    pub(crate) impl AccountMixinImpl =
+        AccountComponent::AccountMixinImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
     // Upgradeable
@@ -46,7 +47,7 @@ mod AccountUpgradeable {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: felt252) {
+    pub(crate) fn constructor(ref self: ContractState, public_key: felt252) {
         self.account.initializer(public_key);
     }
 
@@ -54,7 +55,7 @@ mod AccountUpgradeable {
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.account.assert_only_self();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

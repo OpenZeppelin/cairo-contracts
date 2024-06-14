@@ -1,15 +1,16 @@
-use integer::BoundedInt;
+use core::integer::BoundedInt;
+use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::presets::ERC20Upgradeable;
 use openzeppelin::presets::interfaces::{
     ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::access::common::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
-use openzeppelin::tests::token::test_erc20::{
+use openzeppelin::tests::token::erc20::common::{
     assert_event_approval, assert_only_event_approval, assert_only_event_transfer
 };
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
@@ -129,7 +130,7 @@ fn test_approve_from_zero() {
 fn test_approve_to_zero() {
     let mut dispatcher = setup_dispatcher();
     testing::set_contract_address(OWNER());
-    dispatcher.approve(Zeroable::zero(), VALUE);
+    dispatcher.approve(Zero::zero(), VALUE);
 }
 
 //
@@ -233,14 +234,14 @@ fn test_transfer_from_to_zero_address() {
     dispatcher.approve(SPENDER(), VALUE);
 
     testing::set_contract_address(SPENDER());
-    dispatcher.transfer_from(OWNER(), Zeroable::zero(), VALUE);
+    dispatcher.transfer_from(OWNER(), Zero::zero(), VALUE);
 }
 
 #[test]
 #[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transfer_from_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
-    dispatcher.transfer_from(Zeroable::zero(), RECIPIENT(), VALUE);
+    dispatcher.transfer_from(Zero::zero(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -296,14 +297,14 @@ fn test_transferFrom_to_zero_address() {
     dispatcher.approve(SPENDER(), VALUE);
 
     testing::set_contract_address(SPENDER());
-    dispatcher.transferFrom(OWNER(), Zeroable::zero(), VALUE);
+    dispatcher.transferFrom(OWNER(), Zero::zero(), VALUE);
 }
 
 #[test]
 #[should_panic(expected: ('ERC20: insufficient allowance', 'ENTRYPOINT_FAILED'))]
 fn test_transferFrom_from_zero_address() {
     let mut dispatcher = setup_dispatcher();
-    dispatcher.transferFrom(Zeroable::zero(), RECIPIENT(), VALUE);
+    dispatcher.transferFrom(Zero::zero(), RECIPIENT(), VALUE);
 }
 
 //

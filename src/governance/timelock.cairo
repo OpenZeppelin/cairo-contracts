@@ -1,8 +1,8 @@
-mod interface;
-mod timelock_controller;
-mod utils;
+pub mod interface;
+pub mod timelock_controller;
+pub mod utils;
 
-use timelock_controller::TimelockControllerComponent::{
+pub use timelock_controller::TimelockControllerComponent::{
     PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE
 };
-use timelock_controller::TimelockControllerComponent;
+pub use timelock_controller::TimelockControllerComponent;

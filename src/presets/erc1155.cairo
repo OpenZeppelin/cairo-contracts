@@ -9,7 +9,7 @@
 /// For more complex or custom contracts, use Wizard for Cairo
 /// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
-mod ERC1155Upgradeable {
+pub(crate) mod ERC1155Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
@@ -91,7 +91,7 @@ mod ERC1155Upgradeable {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

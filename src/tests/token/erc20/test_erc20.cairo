@@ -1,4 +1,4 @@
-use integer::BoundedInt;
+use core::integer::BoundedInt;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
@@ -11,6 +11,8 @@ use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
+
+use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
 
 //
 // Setup
@@ -25,7 +27,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
 }
@@ -52,28 +54,28 @@ fn test_initializer() {
 #[test]
 fn test_total_supply() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
 fn test_totalSupply() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.totalSupply(), SUPPLY);
 }
 
 #[test]
 fn test_balance_of() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.balance_of(OWNER()), SUPPLY);
 }
 
 #[test]
 fn test_balanceOf() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), SUPPLY);
+    state.mint(OWNER(), SUPPLY);
     assert_eq!(state.balanceOf(OWNER()), SUPPLY);
 }
 
@@ -387,13 +389,13 @@ fn test__spend_allowance_unlimited() {
 }
 
 //
-// _mint
+// mint
 //
 
 #[test]
-fn test__mint() {
+fn test_mint() {
     let mut state = COMPONENT_STATE();
-    state._mint(OWNER(), VALUE);
+    state.mint(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), ZERO(), OWNER(), VALUE);
     assert_eq!(state.balance_of(OWNER()), VALUE);
@@ -402,19 +404,19 @@ fn test__mint() {
 
 #[test]
 #[should_panic(expected: ('ERC20: mint to 0',))]
-fn test__mint_to_zero() {
+fn test_mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._mint(ZERO(), VALUE);
+    state.mint(ZERO(), VALUE);
 }
 
 //
-// _burn
+// burn
 //
 
 #[test]
-fn test__burn() {
+fn test_burn() {
     let mut state = setup();
-    state._burn(OWNER(), VALUE);
+    state.burn(OWNER(), VALUE);
 
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), VALUE);
     assert_eq!(state.total_supply(), SUPPLY - VALUE);
@@ -423,55 +425,7 @@ fn test__burn() {
 
 #[test]
 #[should_panic(expected: ('ERC20: burn from 0',))]
-fn test__burn_from_zero() {
+fn test_burn_from_zero() {
     let mut state = setup();
-    state._burn(ZERO(), VALUE);
-}
-
-//
-// Helpers
-//
-
-fn assert_event_approval(
-    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
-) {
-    let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Approval"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(spender);
-    utils::assert_indexed_keys(event, indexed_keys.span())
-}
-
-fn assert_only_event_approval(
-    contract: ContractAddress, owner: ContractAddress, spender: ContractAddress, value: u256
-) {
-    assert_event_approval(contract, owner, spender, value);
-    utils::assert_no_events_left(contract);
-}
-
-fn assert_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
-) {
-    let event = utils::pop_log::<ERC20Component::Event>(contract).unwrap();
-    let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Transfer"));
-    indexed_keys.append_serde(from);
-    indexed_keys.append_serde(to);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
-) {
-    assert_event_transfer(contract, from, to, value);
-    utils::assert_no_events_left(contract);
+    state.burn(ZERO(), VALUE);
 }

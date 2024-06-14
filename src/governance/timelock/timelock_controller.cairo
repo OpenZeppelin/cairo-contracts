@@ -12,8 +12,10 @@
 /// is to position the timelock controller as the owner of a smart contract, with a multi-sig
 /// or a DAO as the sole proposer.
 #[starknet::component]
-mod TimelockControllerComponent {
-    use hash::{HashStateTrait, HashStateExTrait};
+pub mod TimelockControllerComponent {
+    use core::num::traits::Zero;
+    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::poseidon::PoseidonTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
@@ -23,7 +25,7 @@ mod TimelockControllerComponent {
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
     use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, Call};
-    use openzeppelin::introspection::src5::SRC5Component::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
         ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl
@@ -37,15 +39,14 @@ mod TimelockControllerComponent {
         ERC721ReceiverImpl, ERC721ReceiverCamelImpl
     };
     use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent;
-    use poseidon::PoseidonTrait;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
 
     // Constants
-    const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
-    const EXECUTOR_ROLE: felt252 = selector!("EXECUTOR_ROLE");
-    const CANCELLER_ROLE: felt252 = selector!("CANCELLER_ROLE");
-    const DONE_TIMESTAMP: u64 = 1;
+    pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
+    pub const EXECUTOR_ROLE: felt252 = selector!("EXECUTOR_ROLE");
+    pub const CANCELLER_ROLE: felt252 = selector!("CANCELLER_ROLE");
+    pub const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
     struct Storage {
@@ -55,7 +56,7 @@ mod TimelockControllerComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
         CallSalt: CallSalt,
@@ -65,54 +66,54 @@ mod TimelockControllerComponent {
 
     /// Emitted when `call` is scheduled as part of operation `id`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct CallScheduled {
+    pub struct CallScheduled {
         #[key]
-        id: felt252,
+        pub id: felt252,
         #[key]
-        index: felt252,
-        call: Call,
-        predecessor: felt252,
-        delay: u64
+        pub index: felt252,
+        pub call: Call,
+        pub predecessor: felt252,
+        pub delay: u64
     }
 
     /// Emitted when `call` is performed as part of operation `id`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct CallExecuted {
+    pub struct CallExecuted {
         #[key]
-        id: felt252,
+        pub id: felt252,
         #[key]
-        index: felt252,
-        call: Call
+        pub index: felt252,
+        pub call: Call
     }
 
     /// Emitted when a new proposal is scheduled with non-zero salt.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct CallSalt {
+    pub struct CallSalt {
         #[key]
-        id: felt252,
-        salt: felt252
+        pub id: felt252,
+        pub salt: felt252
     }
 
     /// Emitted when operation `id` is cancelled.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Cancelled {
+    pub struct Cancelled {
         #[key]
-        id: felt252
+        pub id: felt252
     }
 
     /// Emitted when the minimum delay for future operations is modified.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct MinDelayChange {
-        old_duration: u64,
-        new_duration: u64
+    pub struct MinDelayChange {
+        pub old_duration: u64,
+        pub new_duration: u64
     }
 
-    mod Errors {
-        const INVALID_OPERATION_LEN: felt252 = 'Timelock: invalid operation len';
-        const INSUFFICIENT_DELAY: felt252 = 'Timelock: insufficient delay';
-        const UNEXPECTED_OPERATION_STATE: felt252 = 'Timelock: unexpected op state';
-        const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
-        const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
+    pub mod Errors {
+        pub const INVALID_OPERATION_LEN: felt252 = 'Timelock: invalid operation len';
+        pub const INSUFFICIENT_DELAY: felt252 = 'Timelock: insufficient delay';
+        pub const UNEXPECTED_OPERATION_STATE: felt252 = 'Timelock: unexpected op state';
+        pub const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
+        pub const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
     }
 
     #[embeddable_as(TimelockImpl)]
@@ -622,7 +623,7 @@ mod TimelockControllerComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -674,7 +675,7 @@ mod TimelockControllerComponent {
             access_component._grant_role(DEFAULT_ADMIN_ROLE, starknet::get_contract_address());
 
             // Optional admin
-            if admin != Zeroable::zero() {
+            if admin != Zero::zero() {
                 access_component._grant_role(DEFAULT_ADMIN_ROLE, admin)
             };
 
@@ -695,7 +696,7 @@ mod TimelockControllerComponent {
         /// allows anyone to be the caller.
         fn assert_only_role_or_open_role(self: @ComponentState<TContractState>, role: felt252) {
             let access_component = get_dep_component!(self, AccessControl);
-            let is_role_open = access_component.has_role(role, Zeroable::zero());
+            let is_role_open = access_component.has_role(role, Zero::zero());
             if !is_role_open {
                 access_component.assert_only_role(role);
             }
@@ -735,7 +736,7 @@ mod TimelockControllerComponent {
         /// Private function that executes an operation's calls.
         fn _execute(ref self: ComponentState<TContractState>, call: Call) {
             let Call { to, selector, calldata } = call;
-            starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall();
+            starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
 
         /// Grants each contract address in `accounts` with `role`.

@@ -4,7 +4,7 @@
 use core::fmt::{Debug, Formatter, Error};
 
 #[derive(Drop, Copy, Serde, PartialEq)]
-enum OperationState {
+pub enum OperationState {
     Unset,
     Waiting,
     Ready,

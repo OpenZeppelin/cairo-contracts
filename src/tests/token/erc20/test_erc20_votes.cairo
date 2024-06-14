@@ -1,23 +1,26 @@
-use integer::BoundedInt;
+use core::integer::BoundedInt;
+use core::num::traits::Zero;
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, PUBKEY, RECIPIENT};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::InternalImpl as ERC20Impl;
-use openzeppelin::token::erc20::extensions::ERC20VotesComponent::Checkpoint;
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
     DelegateChanged, DelegateVotesChanged
 };
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
-use openzeppelin::token::erc20::extensions::erc20_votes::{Delegation, OffchainMessageHash};
+use openzeppelin::token::erc20::extensions::erc20_votes::Delegation;
+use openzeppelin::utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::structs::checkpoint::{Trace, TraceTrait};
+use openzeppelin::utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
 use starknet::testing;
+
+use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
 
 //
 // Setup
@@ -36,7 +39,7 @@ fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = CONTRACT_STATE();
 
-    mock_state.erc20._mint(OWNER(), SUPPLY);
+    mock_state.erc20.mint(OWNER(), SUPPLY);
     state.transfer_voting_units(ZERO(), OWNER(), SUPPLY);
     utils::drop_event(ZERO());
     state
@@ -212,22 +215,23 @@ fn test_delegate_by_sig_hash_generation() {
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = contract_address_const::<
-        0xe3338551aa36b2ed40c925c7c6b89ab27d21693829df63c3764cca3500448a
+        0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
     >();
     let delegatee = RECIPIENT();
     let delegation = Delegation { delegatee, nonce, expiry };
 
     let hash = delegation.get_message_hash(delegator);
+
     // This hash was computed using starknet js sdk from the following values:
     // - name: 'DAPP_NAME'
     // - version: 'DAPP_VERSION'
     // - chainId: 'SN_TEST'
-    // - account: 0x690df21011750a48177759ddd517bcf8ff000fbb5e4a3eddec9a0917b52329e
+    // - account: 0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
     // - delegatee: 'RECIPIENT'
     // - nonce: 0
     // - expiry: 'ts2'
     // - revision: '1'
-    let expected_hash = 0x4adb3ed01ab548905666eb9a8ee35ca054ebdce90f9fc3d4ee53e23f3f6dfc1;
+    let expected_hash = 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511;
     assert_eq!(hash, expected_hash);
 }
 
@@ -245,10 +249,10 @@ fn test_delegate_by_sig() {
     // This signature was computed using starknet js sdk from the following values:
     // - private_key: '1234'
     // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x4adb3ed01ab548905666eb9a8ee35ca054ebdce90f9fc3d4ee53e23f3f6dfc1
+    // - msg_hash: 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511
     let signature = array![
-        0x372f30266cc0409f4ee035fccfff4d1703b732648c1a26e39df2e29481e048a,
-        0x6abf9128857df48ada4f6d8a532711e0db733bc3c4dee7b49469005f42b25cc
+        0x4b2ca5c3cb47eafc1263db0fb7a1c4ee54eb9cc6605607a072894c0a9ae3b08,
+        0x313dc5b5f05ab680db7d51b391fadd52e679c971551f0017a8ceba37bacc5c6
     ];
 
     testing::set_block_timestamp('ts1');

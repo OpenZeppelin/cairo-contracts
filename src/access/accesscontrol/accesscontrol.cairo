@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
 /// The AccessControl component allows contracts to implement role-based access control mechanisms.
 /// Roles are referred to by their `felt252` identifier.
 #[starknet::component]
-mod AccessControlComponent {
+pub mod AccessControlComponent {
     use openzeppelin::access::accesscontrol::interface;
-    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
@@ -22,7 +22,7 @@ mod AccessControlComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         RoleGranted: RoleGranted,
         RoleRevoked: RoleRevoked,
         RoleAdminChanged: RoleAdminChanged,
@@ -33,10 +33,10 @@ mod AccessControlComponent {
     /// `sender` is the account that originated the contract call, an admin role
     /// bearer (except if `_grant_role` is called during initialization from the constructor).
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct RoleGranted {
-        role: felt252,
-        account: ContractAddress,
-        sender: ContractAddress
+    pub struct RoleGranted {
+        pub role: felt252,
+        pub account: ContractAddress,
+        pub sender: ContractAddress
     }
 
     /// Emitted when `account` is revoked `role`.
@@ -45,10 +45,10 @@ mod AccessControlComponent {
     ///   - If using `revoke_role`, it is the admin role bearer.
     ///   - If using `renounce_role`, it is the role bearer (i.e. `account`).
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct RoleRevoked {
-        role: felt252,
-        account: ContractAddress,
-        sender: ContractAddress
+    pub struct RoleRevoked {
+        pub role: felt252,
+        pub account: ContractAddress,
+        pub sender: ContractAddress
     }
 
     /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
@@ -56,15 +56,15 @@ mod AccessControlComponent {
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
     /// {RoleAdminChanged} not being emitted signaling this.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct RoleAdminChanged {
-        role: felt252,
-        previous_admin_role: felt252,
-        new_admin_role: felt252
+    pub struct RoleAdminChanged {
+        pub role: felt252,
+        pub previous_admin_role: felt252,
+        pub new_admin_role: felt252
     }
 
-    mod Errors {
-        const INVALID_CALLER: felt252 = 'Can only renounce role for self';
-        const MISSING_ROLE: felt252 = 'Caller is missing role';
+    pub mod Errors {
+        pub const INVALID_CALLER: felt252 = 'Can only renounce role for self';
+        pub const MISSING_ROLE: felt252 = 'Caller is missing role';
     }
 
     #[embeddable_as(AccessControlImpl)]
@@ -175,7 +175,7 @@ mod AccessControlComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -192,6 +192,19 @@ mod AccessControlComponent {
             let caller: ContractAddress = get_caller_address();
             let authorized = AccessControl::has_role(self, role, caller);
             assert(authorized, Errors::MISSING_ROLE);
+        }
+
+        /// Sets `admin_role` as `role`'s admin role.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// Emits a `RoleAdminChanged` event.
+        fn set_role_admin(
+            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
+        ) {
+            let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
+            self.AccessControl_role_admin.write(role, admin_role);
+            self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
 
         /// Attempts to grant `role` to `account`.
@@ -222,17 +235,6 @@ mod AccessControlComponent {
                 self.AccessControl_role_member.write((role, account), false);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }
-        }
-
-        /// Sets `admin_role` as `role`'s admin role.
-        ///
-        /// Emits a `RoleAdminChanged` event.
-        fn _set_role_admin(
-            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
-        ) {
-            let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
-            self.AccessControl_role_admin.write(role, admin_role);
-            self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
     }
 

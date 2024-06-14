@@ -1,4 +1,4 @@
-mod call_impls;
-mod operation_state;
+pub mod call_impls;
+pub mod operation_state;
 
-use operation_state::OperationState;
+pub use operation_state::OperationState;

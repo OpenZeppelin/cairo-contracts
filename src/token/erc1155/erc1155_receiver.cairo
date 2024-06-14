@@ -7,7 +7,7 @@
 /// interface. Integrating this component allows contracts to support ERC1155
 /// safe transfers.
 #[starknet::component]
-mod ERC1155ReceiverComponent {
+pub mod ERC1155ReceiverComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -19,10 +19,6 @@ mod ERC1155ReceiverComponent {
 
     #[storage]
     struct Storage {}
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {}
 
     #[embeddable_as(ERC1155ReceiverImpl)]
     impl ERC1155Receiver<
@@ -89,7 +85,7 @@ mod ERC1155ReceiverComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,

@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
@@ -8,16 +9,14 @@ use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::test_eth_account::NEW_ETH_PUBKEY;
-use openzeppelin::tests::account::test_eth_account::{
+use openzeppelin::tests::account::ethereum::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
+use openzeppelin::tests::account::ethereum::common::{
+    deploy_erc20, get_points, NEW_ETH_PUBKEY, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
@@ -506,7 +505,7 @@ fn set_contract_and_caller(address: ContractAddress) {
 fn get_accept_ownership_signature() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed =
+    // 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -519,10 +518,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x0438342f44d2d0cd5f5037fc965ca4765cdfc9d6b039c8ffefd1f94804d3b6ed
+    // - msg_hash: 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c
     EthSignature {
-        r: 0x512c2acbb64be5ac67d5d143898d915919cc6d6806a26f0686d5e92e101c6271,
-        s: 0x420deca8404b7680530a4c9178a7fcd2c3e5a2f98fa4f8ada84ef90fea0d98ca,
+        r: 0xc4de7637e4206e64ddae9261782dad6d3c99eaaede20ff3fb183f751b94ee9ff,
+        s: 0x77c24e1ad34f5ba0627048f6a11c1e7ee1ddd3b5d518ee4c71ebd5725390f860,
     }
         .serialize(ref output);
 

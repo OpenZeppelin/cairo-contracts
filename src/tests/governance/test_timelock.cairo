@@ -121,16 +121,15 @@ fn failing_operation(target: ContractAddress) -> Call {
     Call { to: target, selector: selector!("failing_function"), calldata: calldata.span() }
 }
 
+fn operation_with_bad_selector(target: ContractAddress) -> Call {
+    let mut calldata = array![];
+
+    Call { to: target, selector: selector!("bad_selector"), calldata: calldata.span() }
+}
+
 //
 // Dispatchers
 //
-
-fn setup_dispatchers() -> (TimelockABIDispatcher, IMockContractDispatcher) {
-    let timelock = deploy_timelock();
-    let target = deploy_mock_target();
-
-    (timelock, target)
-}
 
 fn deploy_timelock() -> TimelockABIDispatcher {
     let mut calldata = array![];
@@ -150,6 +149,27 @@ fn deploy_timelock() -> TimelockABIDispatcher {
     // - MinDelayChange
     utils::drop_events(address, 6);
     TimelockABIDispatcher { contract_address: address }
+}
+
+fn deploy_mock_target() -> IMockContractDispatcher {
+    let mut calldata = array![];
+
+    let address = utils::deploy(MockContract::TEST_CLASS_HASH, calldata);
+    IMockContractDispatcher { contract_address: address }
+}
+
+fn setup_dispatchers() -> (TimelockABIDispatcher, IMockContractDispatcher) {
+    let timelock = deploy_timelock();
+    let target = deploy_mock_target();
+
+    (timelock, target)
+}
+
+fn deploy_attacker() -> ITimelockAttackerDispatcher {
+    let mut calldata = array![];
+
+    let address = utils::deploy(TimelockAttackerMock::TEST_CLASS_HASH, calldata);
+    ITimelockAttackerDispatcher { contract_address: address }
 }
 
 fn deploy_erc721() -> IERC721Dispatcher {
@@ -188,20 +208,6 @@ fn setup_account() -> ContractAddress {
     utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata)
 }
 
-fn deploy_mock_target() -> IMockContractDispatcher {
-    let mut calldata = array![];
-
-    let address = utils::deploy(MockContract::TEST_CLASS_HASH, calldata);
-    IMockContractDispatcher { contract_address: address }
-}
-
-fn deploy_attacker() -> ITimelockAttackerDispatcher {
-    let mut calldata = array![];
-
-    let address = utils::deploy(TimelockAttackerMock::TEST_CLASS_HASH, calldata);
-    ITimelockAttackerDispatcher { contract_address: address }
-}
-
 //
 // hash_operation
 //
@@ -212,7 +218,7 @@ fn test_hash_operation() {
     let predecessor = 123;
     let salt = SALT;
 
-    // Setup call
+    // Set up call
     let mut calldata = array![];
     calldata.append_serde(VALUE);
     let mut call = Call {
@@ -242,7 +248,7 @@ fn test_hash_operation_batch() {
     let predecessor = 123;
     let salt = SALT;
 
-    // Setup calls
+    // Set up calls
     let mut calldata = array![];
     calldata.append_serde(VALUE);
     let mut call = Call {
@@ -563,6 +569,56 @@ fn test_execute_unauthorized() {
 
     // Execute
     testing::set_contract_address(OTHER());
+    timelock.execute(call, predecessor, salt);
+}
+
+#[test]
+#[should_panic(expected: ('Expected failure', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'))]
+fn test_execute_failing_tx() {
+    let (mut timelock, mut target) = setup_dispatchers();
+    let predecessor = NO_PREDECESSOR;
+    let salt = 0;
+    let delay = MIN_DELAY;
+
+    // Set up call
+    let call = failing_operation(target.contract_address);
+    let target_id = timelock.hash_operation(call, predecessor, salt);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call, predecessor, salt, delay);
+
+    // Fast-forward
+    testing::set_block_timestamp(delay);
+    assert_operation_state(timelock, OperationState::Ready, target_id);
+
+    // Execute
+    testing::set_contract_address(EXECUTOR());
+    timelock.execute(call, predecessor, salt);
+}
+
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+fn test_execute_bad_selector() {
+    let (mut timelock, mut target) = setup_dispatchers();
+    let predecessor = NO_PREDECESSOR;
+    let salt = 0;
+    let delay = MIN_DELAY;
+
+    // Set up call
+    let call = operation_with_bad_selector(target.contract_address);
+    let target_id = timelock.hash_operation(call, predecessor, salt);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call, predecessor, salt, delay);
+
+    // Fast-forward
+    testing::set_block_timestamp(delay);
+    assert_operation_state(timelock, OperationState::Ready, target_id);
+
+    // Execute
+    testing::set_contract_address(EXECUTOR());
     timelock.execute(call, predecessor, salt);
 }
 
@@ -1612,9 +1668,7 @@ fn test__execute_with_bad_selector() {
     let mut target = deploy_mock_target();
 
     // Set up call
-    let bad_selector_call = Call {
-        to: target.contract_address, selector: selector!("bad_selector"), calldata: array![].span()
-    };
+    let bad_selector_call = operation_with_bad_selector(target.contract_address);
 
     // Execute call with bad selector
     state._execute(bad_selector_call);

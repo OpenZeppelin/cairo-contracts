@@ -56,7 +56,8 @@ The component provides the following external functions as part of the `Initiali
 
 [,cairo]
 ----
-trait InitializableABI {
+#[starknet::interface]
+pub trait InitializableABI {
     fn is_initialized() -> bool;
 }
 ----
@@ -152,7 +153,8 @@ The component provides the following external functions as part of the `Pausable
 
 [,cairo]
 ----
-trait PausableABI {
+#[starknet::interface]
+pub trait PausableABI {
     fn is_paused() -> bool;
 }
 ----

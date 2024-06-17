@@ -83,7 +83,8 @@ To support older token deployments, as mentioned in {dual-interfaces}, the compo
 
 [,cairo]
 ----
-trait ERC20ABI {
+#[starknet::interface]
+pub trait ERC20ABI {
     // IERC20
     fn total_supply() -> u256;
     fn balance_of(account: ContractAddress) -> u256;
@@ -147,7 +148,7 @@ For example:
 
 [,cairo]
 ----
-#[external(v0)]
+#[abi(embed_v0)]
 impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
     fn decimals(self: @ContractState) -> u8 {
         // Change the `3` below to the desired number of decimals
@@ -213,7 +214,7 @@ mod MyToken {
         self.erc20.mint(recipient, initial_supply);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
         fn name(self: @ContractState) -> ByteArray {
             self.erc20.name()

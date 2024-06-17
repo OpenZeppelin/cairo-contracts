@@ -242,7 +242,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/governance/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/governance/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc20/erc20.cairo)
 
 use starknet::ContractAddress;
 
@@ -9,7 +9,7 @@ use starknet::ContractAddress;
 /// non-standard implementations that can be used to create an ERC20 contract. This
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
-/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.13.0/guides/erc20-supply)
+/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.14.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {

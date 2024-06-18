@@ -16,7 +16,7 @@ TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -126,7 +126,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -156,7 +156,7 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 [.contract]
 [[ERC1155Component]]
-=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc1155/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc1155/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -220,13 +220,13 @@ NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
 --
 .InternalImpl
 * xref:#ERC1155Component-initializer[`++initializer(self, base_uri)++`]
-* xref:#ERC1155Component-update[`++update(self, from, to, token_ids, values)++`]
-* xref:#ERC1155Component-update_with_acceptance_check[`++update_with_acceptance_check(self, from, to, token_ids, values, data)++`]
 * xref:#ERC1155Component-mint_with_acceptance_check[`++mint_with_acceptance_check(self, to, token_id, value, data)++`]
 * xref:#ERC1155Component-batch_mint_with_acceptance_check[`++batch_mint_with_acceptance_check(self, to, token_ids, values, data)++`]
 * xref:#ERC1155Component-burn[`++burn(self, from, token_id, value)++`]
 * xref:#ERC1155Component-batch_burn[`++batch_burn(self, from, token_ids, values)++`]
-* xref:#ERC1155Component-set_base_uri[`++set_base_uri(self, base_uri)++`]
+* xref:#ERC1155Component-update_with_acceptance_check[`++update_with_acceptance_check(self, from, to, token_ids, values, data)++`]
+* xref:#ERC1155Component-update[`++update(self, from, to, token_ids, values)++`]
+* xref:#ERC1155Component-_set_base_uri[`++_set_base_uri(self, base_uri)++`]
 --
 
 [.contract-index]
@@ -402,42 +402,6 @@ Initializes the contract by setting the token's base URI as `base_uri`, and regi
 This should only be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC1155Component-update]]
-==== `[.contract-item-name]#++update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#internal#
-
-Transfers a `value` amount of tokens of type `id` from `from` to `to`.
-Will mint (or burn) if `from` (or `to`) is the zero address.
-
-Requirements:
-
-- `token_ids` and `values` must have the same length.
-
-Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
-and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
-
-NOTE: This function can be extended using the xref:ERC1155Component-ERC1155HooksTrait[ERC1155HooksTrait], to add
-functionality before and/or after the transfer, mint, or burn.
-
-NOTE: The ERC1155 acceptance check is not performed in this function.
-See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check>> instead.
-
-[.contract-item]
-[[ERC1155Component-update_with_acceptance_check]]
-==== `[.contract-item-name]#++update_with_acceptance_check++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#internal#
-
-Version of `update` that performs the token acceptance check by calling
-`onERC1155Received` or `onERC1155BatchReceived` in the receiver if
-it implements `IERC1155Receiver`, otherwise by checking if it is an account.
-
-Requirements:
-
-- `to` is either an account contract or supports the `IERC1155Receiver` interface.
-- `token_ids` and `values` must have the same length.
-
-Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
-and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
-
-[.contract-item]
 [[ERC1155Component-mint_with_acceptance_check]]
 ==== `[.contract-item-name]#++mint_with_acceptance_check++#++(ref self: ContractState, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>)++` [.item-kind]#internal#
 
@@ -494,8 +458,44 @@ Requirements:
 Emits a <<ERC1155Component-TransferBatch,TransferBatch>> event.
 
 [.contract-item]
-[[ERC1155Component-set_base_uri]]
-==== `[.contract-item-name]#++set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
+[[ERC1155Component-update_with_acceptance_check]]
+==== `[.contract-item-name]#++update_with_acceptance_check++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data: Span<felt252>)++` [.item-kind]#internal#
+
+Version of `update` that performs the token acceptance check by calling
+`onERC1155Received` or `onERC1155BatchReceived` in the receiver if
+it implements `IERC1155Receiver`, otherwise by checking if it is an account.
+
+Requirements:
+
+- `to` is either an account contract or supports the `IERC1155Receiver` interface.
+- `token_ids` and `values` must have the same length.
+
+Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
+and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
+
+[.contract-item]
+[[ERC1155Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_ids: Span<u256>, values: Span<u256>)++` [.item-kind]#internal#
+
+Transfers a `value` amount of tokens of type `id` from `from` to `to`.
+Will mint (or burn) if `from` (or `to`) is the zero address.
+
+Requirements:
+
+- `token_ids` and `values` must have the same length.
+
+Emits a <<ERC1155Component-TransferSingle,TransferSingle>> event if the arrays contain one element,
+and <<ERC1155Component-TransferBatch,TransferBatch>> otherwise.
+
+NOTE: This function can be extended using the xref:ERC1155Component-ERC1155HooksTrait[ERC1155HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
+
+NOTE: The ERC1155 acceptance check is not performed in this function.
+See <<ERC1155Component-update_with_acceptance_check,update_with_acceptance_check>> instead.
+
+[.contract-item]
+[[ERC1155Component-_set_base_uri]]
+==== `[.contract-item-name]#++_set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
 
 Sets a new URI for all token types, by relying on the token type ID
 substitution mechanism
@@ -543,7 +543,7 @@ See <<IERC1155-URI,IERC1155::URI>>.
 
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -583,7 +583,7 @@ via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by 
 
 [.contract]
 [[ERC1155ReceiverComponent]]
-=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -660,7 +660,7 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 
 [.contract]
 [[ERC1155Upgradeable]]
-=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/presets/erc1155.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::ERC1155;

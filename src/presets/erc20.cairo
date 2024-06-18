@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (presets/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (presets/erc20.cairo)
 
 /// # ERC20 Preset
 ///
@@ -10,7 +10,7 @@
 /// For more complex or custom contracts, use Wizard for Cairo
 /// https://wizard.openzeppelin.com/cairo
 #[starknet::contract]
-mod ERC20Upgradeable {
+pub(crate) mod ERC20Upgradeable {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::upgrades::UpgradeableComponent;
@@ -69,7 +69,7 @@ mod ERC20Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 
     #[abi(embed_v0)]
@@ -78,7 +78,7 @@ mod ERC20Upgradeable {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

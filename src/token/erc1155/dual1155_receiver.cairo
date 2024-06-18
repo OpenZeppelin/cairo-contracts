@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (token/erc1155/dual1155_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc1155/dual1155_receiver.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -8,11 +8,11 @@ use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 
 #[derive(Copy, Drop)]
-struct DualCaseERC1155Receiver {
-    contract_address: ContractAddress
+pub struct DualCaseERC1155Receiver {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseERC1155ReceiverTrait {
+pub trait DualCaseERC1155ReceiverTrait {
     fn on_erc1155_received(
         self: @DualCaseERC1155Receiver,
         operator: ContractAddress,

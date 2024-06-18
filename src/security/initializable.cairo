@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (security/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (security/initializable.cairo)
 
 /// # Initializable Component
 ///
@@ -7,7 +7,7 @@
 /// logic once and only once. This can be useful for setting a contract's
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
-mod InitializableComponent {
+pub mod InitializableComponent {
     use openzeppelin::security::interface::IInitializable;
 
     #[storage]
@@ -15,8 +15,8 @@ mod InitializableComponent {
         Initializable_initialized: bool
     }
 
-    mod Errors {
-        const INITIALIZED: felt252 = 'Initializable: is initialized';
+    pub mod Errors {
+        pub const INITIALIZED: felt252 = 'Initializable: is initialized';
     }
 
     #[embeddable_as(InitializableImpl)]
@@ -30,7 +30,7 @@ mod InitializableComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Ensures the calling function can only be called once.

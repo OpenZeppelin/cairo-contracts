@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (account/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (account/utils/signature.cairo)
 
-use ecdsa::check_ecdsa_signature;
+use core::ecdsa::check_ecdsa_signature;
 use openzeppelin::account::interface::EthPublicKey;
 use starknet::secp256_trait;
 
@@ -16,7 +16,7 @@ pub struct EthSignature {
 /// validating account signatures over transaction hashes since otherwise
 /// it's not protected against signature malleability.
 /// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
-fn is_valid_stark_signature(
+pub fn is_valid_stark_signature(
     msg_hash: felt252, public_key: felt252, signature: Span<felt252>
 ) -> bool {
     let valid_length = signature.len() == 2;
@@ -33,7 +33,7 @@ fn is_valid_stark_signature(
 /// validating account signatures over transaction hashes since otherwise
 /// it's not protected against signature malleability.
 /// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
-fn is_valid_eth_signature(
+pub fn is_valid_eth_signature(
     msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
 ) -> bool {
     let mut signature = signature;

@@ -1,3 +1,3 @@
-mod erc721_enumerable;
+pub mod erc721_enumerable;
 
-use erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent;
+pub use erc721_enumerable::ERC721EnumerableComponent;

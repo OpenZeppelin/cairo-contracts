@@ -16,7 +16,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -114,7 +114,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -162,7 +162,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -220,12 +220,12 @@ NOTE: See xref:#ERC20Component-Hooks[Hooks] to understand how are hooks used.
 --
 .InternalImpl
 * xref:#ERC20Component-initializer[`++initializer(self, name, symbol)++`]
+* xref:#ERC20Component-mint[`++mint(self, recipient, amount)++`]
+* xref:#ERC20Component-burn[`++burn(self, account, amount)++`]
+* xref:#ERC20Component-update[`++update(self, from, to, amount)++`]
 * xref:#ERC20Component-_transfer[`++_transfer(self, sender, recipient, amount)++`]
 * xref:#ERC20Component-_approve[`++_approve(self, owner, spender, amount)++`]
-* xref:#ERC20Component-_mint[`++_mint(self, recipient, amount)++`]
-* xref:#ERC20Component-_burn[`++_burn(self, account, amount)++`]
 * xref:#ERC20Component-_spend_allowance[`++_spend_allowance(self, owner, spender, amount)++`]
-* xref:#ERC20Component-_update[`++_update(self, from, to, amount)++`]
 --
 
 [.contract-index]
@@ -249,13 +249,13 @@ for this purpose.
 [[ERC20Component-before_update]]
 ==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#hook#
 
-Function executed at the beginning of the xref:#ERC20Component-_update[_update] function prior to any other logic.
+Function executed at the beginning of the xref:#ERC20Component-update[update] function prior to any other logic.
 
 [.contract-item]
 [[ERC20Component-after_update]]
 ==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#hook#
 
-Function executed at the end of the xref:#ERC20Component-_update[_update] function.
+Function executed at the end of the xref:#ERC20Component-update[update] function.
 
 [#ERC20Component-Embeddable-functions]
 ==== Embeddable functions
@@ -365,6 +365,42 @@ Initializes the contract by setting the token name and symbol.
 This should be used inside of the contract's constructor.
 
 [.contract-item]
+[[ERC20Component-mint]]
+==== `[.contract-item-name]#++mint++#++(ref self: ContractState, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Creates an `amount` number of tokens and assigns them to `recipient`.
+
+Emits a <<ERC20Component-Transfer,Transfer>> event with `from` being the zero address.
+
+Requirements:
+
+- `recipient` cannot be the zero address.
+
+[.contract-item]
+[[ERC20Component-burn]]
+==== `[.contract-item-name]#++burn++#++(ref self: ContractState, account: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Destroys `amount` number of tokens from `account`.
+
+Emits a <<ERC20Component-Transfer,Transfer>> event with `to` set to the zero address.
+
+Requirements:
+
+- `account` cannot be the zero address.
+
+[.contract-item]
+[[ERC20Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+
+Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+the zero address.
+
+NOTE: This function can be extended using the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
+
+Emits a <<ERC20Component-Transfer,Transfer>> event.
+
+[.contract-item]
 [[ERC20Component-_transfer]]
 ==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
@@ -396,30 +432,6 @@ Requirements:
 - `spender` cannot be the zero address.
 
 [.contract-item]
-[[ERC20Component-_mint]]
-==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, recipient: ContractAddress, amount: u256)++` [.item-kind]#internal#
-
-Creates an `amount` number of tokens and assigns them to `recipient`.
-
-Emits a <<ERC20Component-Transfer,Transfer>> event with `from` being the zero address.
-
-Requirements:
-
-- `recipient` cannot be the zero address.
-
-[.contract-item]
-[[ERC20Component-_burn]]
-==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, account: ContractAddress, amount: u256)++` [.item-kind]#internal#
-
-Destroys `amount` number of tokens from `account`.
-
-Emits a <<ERC20Component-Transfer,Transfer>> event with `to` set to the zero address.
-
-Requirements:
-
-- `account` cannot be the zero address.
-
-[.contract-item]
 [[ERC20Component-_spend_allowance]]
 ==== `[.contract-item-name]#++_spend_allowance++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
@@ -428,18 +440,6 @@ Updates ``owner``'s allowance for `spender` based on spent `amount`.
 This internal function does not update the allowance value in the case of infinite allowance.
 
 Possibly emits an <<ERC20Component-Approval,Approval>> event.
-
-[.contract-item]
-[[ERC20Component-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
-
-Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-the zero address.
-
-NOTE: This function can be extended using the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait], to add
-functionality before and/or after the transfer, mint, or burn.
-
-Emits a <<ERC20Component-Transfer,Transfer>> event.
 
 [#ERC20Component-Events]
 ==== Events
@@ -460,7 +460,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC20VotesComponent]]
-=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
+=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::extensions::ERC20VotesComponent;
@@ -653,7 +653,7 @@ Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/presets/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::ERC20Upgradeable;

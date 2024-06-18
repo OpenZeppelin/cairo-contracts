@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (token/erc20/dual20.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc20/dual20.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -7,14 +7,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseERC20 {
-    contract_address: ContractAddress
+pub struct DualCaseERC20 {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseERC20Trait {
+pub trait DualCaseERC20Trait {
     fn name(self: @DualCaseERC20) -> ByteArray;
     fn symbol(self: @DualCaseERC20) -> ByteArray;
     fn decimals(self: @DualCaseERC20) -> u8;

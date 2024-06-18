@@ -3,7 +3,7 @@
 :Ownable: xref:OwnableComponent[Ownable]
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
-:_set_role_admin: xref:#AccessControlComponent-_set_role_admin[_set_role_admin]
+:set_role_admin: xref:#AccessControlComponent-set_role_admin[set_role_admin]
 
 = Access Control
 
@@ -20,7 +20,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/access/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::access::ownable::OwnableComponent;
@@ -87,9 +87,9 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 
 * xref:OwnableComponent-initializer[`++initializer(self, owner)++`]
 * xref:OwnableComponent-assert_only_owner[`++assert_only_owner(self)++`]
-* xref:OwnableComponent-_accept_ownership[`++_accept_ownership(self)++`]
-* xref:OwnableComponent-_propose_owner[`++_propose_owner(self, new_owner)++`]
 * xref:OwnableComponent-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
+* xref:OwnableComponent-_propose_owner[`++_propose_owner(self, new_owner)++`]
+* xref:OwnableComponent-_accept_ownership[`++_accept_ownership(self)++`]
 --
 
 [.contract-index]
@@ -221,16 +221,13 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 Panics if called by any account other than the owner.
 
 [.contract-item]
-[[OwnableComponent-_accept_ownership]]
-==== `[.contract-item-name]#++_accept_ownership++#++(ref self: ContractState)++` [.item-kind]#internal#
+[[OwnableComponent-_transfer_ownership]]
+==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
 
-Transfers ownership to the pending owner. Resets pending owner to zero address.
-Calls xref:OwnableComponent-_transfer_ownership[_transfer_ownership].
-
+Transfers ownership of the contract to a new account (`new_owner`).
 Internal function without access restriction.
 
-[.contract-item]
-[[OwnableComponent-_transfer_ownership]]
+Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 
 [.contract-item]
 [[OwnableComponent-_propose_owner]]
@@ -243,10 +240,12 @@ Internal function without access restriction.
 Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
 
 [.contract-item]
-[[OwnableComponent-_transfer_ownership]]
-==== `[.contract-item-name]#++_transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#internal#
+[[OwnableComponent-_accept_ownership]]
+==== `[.contract-item-name]#++_accept_ownership++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Transfers ownership of the contract to a new account (`new_owner`).
+Transfers ownership to the pending owner. Resets pending owner to zero address.
+Calls xref:OwnableComponent-_transfer_ownership[_transfer_ownership].
+
 Internal function without access restriction.
 
 Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
@@ -268,7 +267,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/access/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -323,7 +322,7 @@ Returns `true` if `account` has been granted `role`.
 Returns the admin role that controls `role`. See {grant_role} and
 {revoke_role}.
 
-To change a role's admin, use {_set_role_admin}.
+To change a role's admin, use {set_role_admin}.
 
 [.contract-item]
 [[IAccessControl-grant_role]]
@@ -401,7 +400,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/access/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
@@ -439,7 +438,7 @@ accounts that have a role's admin role can call {grant_role} and {revoke_role}.
 By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
 that only accounts with this role will be able to grant or revoke other
 roles. More complex role relationships can be created by using
-{_set_role_admin}.
+{set_role_admin}.
 
 WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
 grant and revoke this role. Extra precautions should be taken to secure
@@ -488,7 +487,7 @@ accounts that have been granted it.
 
 * xref:#AccessControlComponent-initializer[`++initializer(self)++`]
 * xref:#AccessControlComponent-assert_only_role[`++assert_only_role(self, role)++`]
-* xref:#AccessControlComponent-_set_role_admin[`++_set_role_admin(self, role, admin_role)++`]
+* xref:#AccessControlComponent-set_role_admin[`++set_role_admin(self, role, admin_role)++`]
 * xref:#AccessControlComponent-_grant_role[`++_grant_role(self, role, account)++`]
 * xref:#AccessControlComponent-_revoke_role[`++_revoke_role(self, role, account)++`]
 --
@@ -518,7 +517,7 @@ Returns `true` if `account` has been granted `role`.
 Returns the admin role that controls `role`. See {grant_role} and
 {revoke_role}.
 
-To change a role's admin, use {_set_role_admin}.
+To change a role's admin, use {set_role_admin}.
 
 [.contract-item]
 [[AccessControlComponent-grant_role]]
@@ -620,10 +619,12 @@ Initializes the contract by registering the xref:#IAccessControl[IAccessControl]
 Panics if called by any account without the given `role`.
 
 [.contract-item]
-[[AccessControlComponent-_set_role_admin]]
-==== `[.contract-item-name]#++_set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
+[[AccessControlComponent-set_role_admin]]
+==== `[.contract-item-name]#++set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#internal#
 
 Sets `admin_role` as ``role``'s admin role.
+
+Internal function without access restriction.
 
 Emits a {RoleAdminChanged} event.
 

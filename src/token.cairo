@@ -1,3 +1,3 @@
-mod erc1155;
-mod erc20;
-mod erc721;
+pub mod erc1155;
+pub mod erc20;
+pub mod erc721;

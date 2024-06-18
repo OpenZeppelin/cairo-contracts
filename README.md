@@ -43,7 +43,7 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.13.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.14.0" }
 ```
 
 Build the project to download it:
@@ -98,14 +98,14 @@ mod MyToken {
         let symbol = "MTK";
 
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 }
 ```
 
 ### Unsupported
 
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.13.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.14.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 
@@ -155,8 +155,8 @@ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 $ cd cairo-contracts
 $ scarb build
 
-Compiling lib(openzeppelin) openzeppelin v0.13.0 (~/cairo-contracts/Scarb.toml)
-Compiling starknet-contract(openzeppelin) openzeppelin v0.13.0 (~/cairo-contracts/Scarb.toml)
+Compiling lib(openzeppelin) openzeppelin v0.14.0 (~/cairo-contracts/Scarb.toml)
+Compiling starknet-contract(openzeppelin) openzeppelin v0.14.0 (~/cairo-contracts/Scarb.toml)
 Finished release target(s) in 16 seconds
 ```
 

@@ -1,4 +1,4 @@
-use integer::u256_from_felt252;
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;
@@ -17,16 +17,18 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
 };
-use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
-use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::StorageMapMemberAccessTrait;
 use starknet::testing;
+
+use super::common::{
+    assert_only_event_approval, assert_only_event_approval_for_all, assert_only_event_transfer,
+};
 
 //
 // Setup
@@ -44,7 +46,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(OWNER(), TOKEN_ID);
+    state.mint(OWNER(), TOKEN_ID);
     utils::drop_event(ZERO());
     state
 }
@@ -121,7 +123,7 @@ fn test_owner_of() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_owner_of_non_minted() {
     let state = setup();
-    state.owner_of(u256_from_felt252(7));
+    state.owner_of(7);
 }
 
 #[test]
@@ -137,7 +139,7 @@ fn test_token_uri() {
 fn test_token_uri_not_set() {
     let mut state = COMPONENT_STATE();
 
-    state._mint(OWNER(), TOKEN_ID);
+    state.mint(OWNER(), TOKEN_ID);
     let uri = state.token_uri(TOKEN_ID);
     let expected: ByteArray = "";
     assert_eq!(uri, expected);
@@ -147,7 +149,7 @@ fn test_token_uri_not_set() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_token_uri_non_minted() {
     let state = setup();
-    state.token_uri(u256_from_felt252(7));
+    state.token_uri(7);
 }
 
 #[test]
@@ -165,7 +167,7 @@ fn test_get_approved() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_get_approved_nonexistent() {
     let state = setup();
-    state.get_approved(u256_from_felt252(7));
+    state.get_approved(7);
 }
 
 //
@@ -771,7 +773,7 @@ fn test_safe_transfer_from_to_owner() {
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -791,7 +793,7 @@ fn test_safeTransferFrom_to_owner() {
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -811,7 +813,7 @@ fn test_safe_transfer_from_to_owner_camel() {
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -831,7 +833,7 @@ fn test_safeTransferFrom_to_owner_camel() {
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
-    state._mint(owner, token_id);
+    state.mint(owner, token_id);
     utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
@@ -1022,7 +1024,7 @@ fn test_safeTransferFrom_unauthorized() {
 }
 
 //
-// _transfer
+// transfer
 //
 
 #[test]
@@ -1034,7 +1036,7 @@ fn test__transfer() {
 
     assert_state_before_transfer(owner, recipient, token_id);
 
-    state._transfer(owner, recipient, token_id);
+    state.transfer(owner, recipient, token_id);
     assert_only_event_transfer(ZERO(), owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
@@ -1044,35 +1046,35 @@ fn test__transfer() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test__transfer_nonexistent() {
     let mut state = COMPONENT_STATE();
-    state._transfer(ZERO(), RECIPIENT(), TOKEN_ID);
+    state.transfer(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__transfer_to_zero() {
     let mut state = setup();
-    state._transfer(OWNER(), ZERO(), TOKEN_ID);
+    state.transfer(OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid sender',))]
 fn test__transfer_from_invalid_owner() {
     let mut state = setup();
-    state._transfer(RECIPIENT(), OWNER(), TOKEN_ID);
+    state.transfer(RECIPIENT(), OWNER(), TOKEN_ID);
 }
 
 //
-// _mint
+// mint
 //
 
 #[test]
-fn test__mint() {
+fn test_mint() {
     let mut state = COMPONENT_STATE();
     let recipient = RECIPIENT();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._mint(recipient, TOKEN_ID);
+    state.mint(recipient, TOKEN_ID);
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1080,20 +1082,20 @@ fn test__mint() {
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid receiver',))]
-fn test__mint_to_zero() {
+fn test_mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._mint(ZERO(), TOKEN_ID);
+    state.mint(ZERO(), TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: token already minted',))]
-fn test__mint_already_exist() {
+fn test_mint_already_exist() {
     let mut state = setup();
-    state._mint(RECIPIENT(), TOKEN_ID);
+    state.mint(RECIPIENT(), TOKEN_ID);
 }
 
 //
-// _safe_mint
+// safe_mint
 //
 
 #[test]
@@ -1103,7 +1105,7 @@ fn test__safe_mint_to_receiver() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1116,7 +1118,7 @@ fn test__safe_mint_to_receiver_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
@@ -1129,7 +1131,7 @@ fn test__safe_mint_to_account() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    state._safe_mint(account, token_id, DATA(true));
+    state.safe_mint(account, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
@@ -1142,7 +1144,7 @@ fn test__safe_mint_to_account_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
-    state._safe_mint(account, token_id, DATA(true));
+    state.safe_mint(account, token_id, DATA(true));
     assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
@@ -1156,7 +1158,7 @@ fn test__safe_mint_to_non_receiver() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(true));
+    state.safe_mint(recipient, token_id, DATA(true));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1168,7 +1170,7 @@ fn test__safe_mint_to_receiver_failure() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(false));
+    state.safe_mint(recipient, token_id, DATA(false));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1180,7 +1182,7 @@ fn test__safe_mint_to_receiver_failure_camel() {
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
-    state._safe_mint(recipient, token_id, DATA(false));
+    state.safe_mint(recipient, token_id, DATA(false));
     assert_state_after_mint(recipient, token_id);
 }
 
@@ -1188,22 +1190,22 @@ fn test__safe_mint_to_receiver_failure_camel() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test__safe_mint_to_zero() {
     let mut state = COMPONENT_STATE();
-    state._safe_mint(ZERO(), TOKEN_ID, DATA(true));
+    state.safe_mint(ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: token already minted',))]
 fn test__safe_mint_already_exist() {
     let mut state = setup();
-    state._safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
+    state.safe_mint(RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
 //
-// _burn
+// burn
 //
 
 #[test]
-fn test__burn() {
+fn test_burn() {
     let mut state = setup();
 
     state._approve(OTHER(), TOKEN_ID, ZERO());
@@ -1213,7 +1215,7 @@ fn test__burn() {
     assert_eq!(state.balance_of(OWNER()), 1);
     assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
-    state._burn(TOKEN_ID);
+    state.burn(TOKEN_ID);
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
 
     assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
@@ -1223,9 +1225,9 @@ fn test__burn() {
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
-fn test__burn_nonexistent() {
+fn test_burn_nonexistent() {
     let mut state = COMPONENT_STATE();
-    state._burn(TOKEN_ID);
+    state.burn(TOKEN_ID);
 }
 
 //
@@ -1291,23 +1293,23 @@ fn test__exists() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
 
-    let not_exists = !state._exists(token_id);
+    let not_exists = !state.exists(token_id);
     assert!(not_exists);
 
     let mut owner = state.ERC721_owners.read(token_id);
     assert!(owner.is_zero());
 
-    state._mint(RECIPIENT(), token_id);
+    state.mint(RECIPIENT(), token_id);
 
-    let exists = state._exists(token_id);
+    let exists = state.exists(token_id);
     assert!(exists);
 
     owner = state.ERC721_owners.read(token_id);
     assert_eq!(owner, RECIPIENT());
 
-    state._burn(token_id);
+    state.burn(token_id);
 
-    let not_exists = !state._exists(token_id);
+    let not_exists = !state.exists(token_id);
     assert!(not_exists);
 
     owner = state.ERC721_owners.read(token_id);
@@ -1481,7 +1483,7 @@ fn test__check_authorized_zero_address() {
 fn test_update_mint() {
     let mut state = setup();
 
-    state._update(RECIPIENT(), TOKEN_ID_2, ZERO());
+    state.update(RECIPIENT(), TOKEN_ID_2, ZERO());
     assert_only_event_transfer(ZERO(), ZERO(), RECIPIENT(), TOKEN_ID_2);
 
     let owner = state.owner_of(TOKEN_ID_2);
@@ -1495,7 +1497,7 @@ fn test_update_mint() {
 fn test_update_burn() {
     let mut state = setup();
 
-    state._update(ZERO(), TOKEN_ID, ZERO());
+    state.update(ZERO(), TOKEN_ID, ZERO());
     assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
 
     let owner = state._owner_of(TOKEN_ID);
@@ -1509,7 +1511,7 @@ fn test_update_burn() {
 fn test_update_transfer() {
     let mut state = setup();
 
-    state._update(RECIPIENT(), TOKEN_ID, ZERO());
+    state.update(RECIPIENT(), TOKEN_ID, ZERO());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1517,7 +1519,7 @@ fn test_update_transfer() {
 #[test]
 fn test_update_auth_owner() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID, OWNER());
+    state.update(RECIPIENT(), TOKEN_ID, OWNER());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1529,7 +1531,7 @@ fn test_update_auth_approved_for_all() {
     state.set_approval_for_all(OPERATOR(), true);
     utils::drop_event(ZERO());
 
-    state._update(RECIPIENT(), TOKEN_ID, OPERATOR());
+    state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1541,7 +1543,7 @@ fn test_update_auth_approved() {
     state.approve(OPERATOR(), TOKEN_ID);
     utils::drop_event(ZERO());
 
-    state._update(RECIPIENT(), TOKEN_ID, OPERATOR());
+    state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
     assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
@@ -1550,14 +1552,14 @@ fn test_update_auth_approved() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_update_auth_not_approved() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID, CALLER());
+    state.update(RECIPIENT(), TOKEN_ID, CALLER());
 }
 
 #[test]
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_update_mint_auth_not_zero() {
     let mut state = setup();
-    state._update(RECIPIENT(), TOKEN_ID_2, CALLER());
+    state.update(RECIPIENT(), TOKEN_ID_2, CALLER());
 }
 
 //
@@ -1591,74 +1593,4 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     assert_eq!(state.owner_of(token_id), recipient);
     assert_eq!(state.balance_of(recipient), 1);
     assert!(state.get_approved(token_id).is_zero());
-}
-
-fn assert_event_approval_for_all(
-    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::ApprovalForAll(
-        ApprovalForAll { owner, operator, approved }
-    );
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("ApprovalForAll"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(operator);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_approval_for_all(
-    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
-) {
-    assert_event_approval_for_all(contract, owner, operator, approved);
-    utils::assert_no_events_left(contract);
-}
-
-fn assert_event_approval(
-    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Approval"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(approved);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_approval(
-    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
-) {
-    assert_event_approval(contract, owner, approved, token_id);
-    utils::assert_no_events_left(contract);
-}
-
-fn assert_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
-) {
-    let event = testing::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Transfer"));
-    indexed_keys.append_serde(from);
-    indexed_keys.append_serde(to);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
-) {
-    assert_event_transfer(contract, from, to, token_id);
-    utils::assert_no_events_left(contract);
 }

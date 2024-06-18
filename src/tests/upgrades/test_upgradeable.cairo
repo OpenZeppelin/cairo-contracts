@@ -6,10 +6,10 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
 use openzeppelin::upgrades::UpgradeableComponent;
 use starknet::ClassHash;
-use starknet::ContractAddress;
+
+use super::common::assert_only_event_upgraded;
 
 const VALUE: felt252 = 123;
 
@@ -81,19 +81,4 @@ fn test_remove_selector_fails_in_v2() {
     v1.upgrade(V2_CLASS_HASH());
     // We use the v1 dispatcher because remove_selector is not in v2 interface
     v1.remove_selector();
-}
-
-//
-// Helpers
-//
-
-fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
-    let event = utils::pop_log::<UpgradeableComponent::Event>(contract).unwrap();
-    let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
-    assert!(event == expected);
-}
-
-fn assert_only_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
-    assert_event_upgraded(contract, class_hash);
-    utils::assert_no_events_left(ZERO());
 }

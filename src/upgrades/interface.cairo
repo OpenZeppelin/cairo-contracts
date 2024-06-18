@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (upgrades/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (upgrades/interface.cairo)
 
 use starknet::ClassHash;
 
 #[starknet::interface]
-trait IUpgradeable<TState> {
+pub trait IUpgradeable<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
 }

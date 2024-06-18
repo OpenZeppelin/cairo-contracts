@@ -1,10 +1,11 @@
-mod interface;
+pub mod interface;
 
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
-use hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use interface::IUniversalDeployer;
 use openzeppelin::utils::serde::SerializedAppend;
-use poseidon::PoseidonTrait;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 
@@ -16,7 +17,7 @@ const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 /// Returns the contract address from a `deploy_syscall`.
 /// `deployer_address` should be the zero address if the deployment is origin-independent (deployed from zero).
 /// For more information, see https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
-fn calculate_contract_address_from_deploy_syscall(
+pub fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
@@ -35,7 +36,9 @@ fn calculate_contract_address_from_deploy_syscall(
     // Felt modulo is discouraged, hence the conversion to u256
     let u256_addr: u256 = raw_address.into() % L2_ADDRESS_UPPER_BOUND.into();
     let felt_addr = u256_addr.try_into().unwrap();
-    starknet::contract_address_try_from_felt252(felt_addr).unwrap()
+
+    let mut serialized = array![felt_addr].span();
+    Serde::<ContractAddress>::deserialize(ref serialized).unwrap()
 }
 
 /// Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
@@ -56,14 +59,14 @@ fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
 }
 
 #[derive(Drop)]
-struct DeployerInfo {
-    caller_address: ContractAddress,
-    udc_address: ContractAddress
+pub struct DeployerInfo {
+    pub caller_address: ContractAddress,
+    pub udc_address: ContractAddress
 }
 
 /// Returns the calculated contract address for contracts deployed through the UDC.
 /// Origin-independent deployments (deployed from zero) should pass `Option::None` as `deployer_info`.
-fn calculate_contract_address_from_udc(
+pub fn calculate_contract_address_from_udc(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
@@ -82,7 +85,7 @@ fn calculate_contract_address_from_udc(
         },
         Option::None => {
             return calculate_contract_address_from_deploy_syscall(
-                salt, class_hash, constructor_calldata, Zeroable::zero()
+                salt, class_hash, constructor_calldata, Zero::zero()
             );
         },
     }

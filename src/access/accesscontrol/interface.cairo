@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (access/accesscontrol/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (access/accesscontrol/interface.cairo)
 
 use starknet::ContractAddress;
 
-const IACCESSCONTROL_ID: felt252 =
+pub const IACCESSCONTROL_ID: felt252 =
     0x23700be02858dbe2ac4dc9c9f66d0b6b0ed81ec7f970ca6844500a56ff61751;
 
 #[starknet::interface]
-trait IAccessControl<TState> {
+pub trait IAccessControl<TState> {
     fn has_role(self: @TState, role: felt252, account: ContractAddress) -> bool;
     fn get_role_admin(self: @TState, role: felt252) -> felt252;
     fn grant_role(ref self: TState, role: felt252, account: ContractAddress);
@@ -16,7 +16,7 @@ trait IAccessControl<TState> {
 }
 
 #[starknet::interface]
-trait IAccessControlCamel<TState> {
+pub trait IAccessControlCamel<TState> {
     fn hasRole(self: @TState, role: felt252, account: ContractAddress) -> bool;
     fn getRoleAdmin(self: @TState, role: felt252) -> felt252;
     fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
@@ -25,7 +25,7 @@ trait IAccessControlCamel<TState> {
 }
 
 #[starknet::interface]
-trait AccessControlABI<TState> {
+pub trait AccessControlABI<TState> {
     // IAccessControl
     fn has_role(self: @TState, role: felt252, account: ContractAddress) -> bool;
     fn get_role_admin(self: @TState, role: felt252) -> felt252;

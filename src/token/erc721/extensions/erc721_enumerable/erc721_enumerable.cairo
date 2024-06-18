@@ -5,7 +5,8 @@
 ///
 ///
 #[starknet::component]
-mod ERC721EnumerableComponent {
+pub mod ERC721EnumerableComponent {
+    use core::num::traits::Zero;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
@@ -24,12 +25,8 @@ mod ERC721EnumerableComponent {
         ERC721Enumerable_all_tokens_index: LegacyMap<u256, u256>
     }
 
-    #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {}
-
-    mod Errors {
-        const OUT_OF_BOUNDS_INDEX: felt252 = 'ERC721Enum: out of bounds index';
+    pub mod Errors {
+        pub const OUT_OF_BOUNDS_INDEX: felt252 = 'ERC721Enum: out of bounds index';
     }
 
     #[embeddable_as(ERC721EnumerableImpl)]
@@ -78,7 +75,7 @@ mod ERC721EnumerableComponent {
     //
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
@@ -107,7 +104,7 @@ mod ERC721EnumerableComponent {
         ) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let previous_owner = erc721_component._owner_of(token_id);
-            let zero_address = Zeroable::zero();
+            let zero_address = Zero::zero();
 
             if previous_owner == zero_address {
                 PrivateImpl::_add_token_to_all_tokens_enumeration(ref self, token_id);
@@ -126,7 +123,7 @@ mod ERC721EnumerableComponent {
     }
 
     #[generate_trait]
-    impl PrivateImpl<
+    pub impl PrivateImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,

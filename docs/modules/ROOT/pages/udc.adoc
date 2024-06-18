@@ -20,7 +20,8 @@ The UDC address is deployed at address `0x04a64cd09a853868621d94cae9952b106f2c36
 
 [,cairo]
 ----
-trait IUniversalDeployer {
+#[starknet::interface]
+pub trait IUniversalDeployer {
     fn deploy_contract(
         class_hash: ClassHash,
         salt: felt252,

@@ -1,5 +1,5 @@
-mod dual_ownable;
-mod interface;
-mod ownable;
+pub mod dual_ownable;
+pub mod interface;
+pub mod ownable;
 
-use ownable::OwnableComponent;
+pub use ownable::OwnableComponent;

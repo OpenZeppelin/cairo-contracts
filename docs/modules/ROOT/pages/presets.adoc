@@ -53,7 +53,7 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
 :install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
-:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/presets[presets directory]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/presets[presets directory]
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.
@@ -131,14 +131,14 @@ mod ERC20Upgradeable {
     ) {
         self.ownable.initializer(owner);
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 
     #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

@@ -1,7 +1,7 @@
 use openzeppelin::tests::utils::constants::SUCCESS;
 
 #[starknet::contract]
-mod DualCaseERC721ReceiverMock {
+pub(crate) mod DualCaseERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
@@ -71,7 +71,7 @@ mod DualCaseERC721ReceiverMock {
 }
 
 #[starknet::contract]
-mod SnakeERC721ReceiverMock {
+pub(crate) mod SnakeERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
@@ -130,7 +130,7 @@ mod SnakeERC721ReceiverMock {
 }
 
 #[starknet::contract]
-mod CamelERC721ReceiverMock {
+pub(crate) mod CamelERC721ReceiverMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
@@ -189,7 +189,7 @@ mod CamelERC721ReceiverMock {
 }
 
 #[starknet::contract]
-mod SnakeERC721ReceiverPanicMock {
+pub(crate) mod SnakeERC721ReceiverPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
@@ -213,7 +213,7 @@ mod SnakeERC721ReceiverPanicMock {
 }
 
 #[starknet::contract]
-mod CamelERC721ReceiverPanicMock {
+pub(crate) mod CamelERC721ReceiverPanicMock {
     use starknet::ContractAddress;
 
     #[storage]

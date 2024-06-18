@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (introspection/src5.cairo)
 
 /// # SRC5 Component
 ///
 /// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
-mod SRC5Component {
+pub mod SRC5Component {
     use openzeppelin::introspection::interface;
 
     #[storage]
@@ -13,8 +13,8 @@ mod SRC5Component {
         SRC5_supported_interfaces: LegacyMap<felt252, bool>
     }
 
-    mod Errors {
-        const INVALID_ID: felt252 = 'SRC5: invalid id';
+    pub mod Errors {
+        pub const INVALID_ID: felt252 = 'SRC5: invalid id';
     }
 
     #[embeddable_as(SRC5Impl)]
@@ -33,7 +33,7 @@ mod SRC5Component {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Registers the given interface as supported by the contract.

@@ -1,12 +1,12 @@
-mod dual721;
-mod dual721_receiver;
-mod erc721;
-mod erc721_receiver;
-mod extensions;
-mod interface;
+pub mod dual721;
+pub mod dual721_receiver;
+pub mod erc721;
+pub mod erc721_receiver;
+pub mod extensions;
+pub mod interface;
 
-use erc721::ERC721Component;
-use erc721::ERC721HooksEmptyImpl;
-use erc721_receiver::ERC721ReceiverComponent;
-use interface::ERC721ABIDispatcher;
-use interface::ERC721ABIDispatcherTrait;
+pub use erc721::ERC721Component;
+pub use erc721::ERC721HooksEmptyImpl;
+pub use erc721_receiver::ERC721ReceiverComponent;
+pub use interface::ERC721ABIDispatcher;
+pub use interface::ERC721ABIDispatcherTrait;

@@ -261,7 +261,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/utils/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/utils/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.
@@ -403,9 +403,6 @@ Module containing utilities for testing the library.
 * xref:#testutils-assert_no_events_left[`++assert_no_events_left(address)++`]
 * xref:#testutils-drop_event[`++drop_event(address)++`]
 * xref:#testutils-drop_events[`++drop_events(address, n_events)++`]
-
-.Inner modules
-* xref:#testutils-constants[`++constants++`]
 --
 
 [#testutils-Functions]
@@ -514,25 +511,3 @@ If the queue is empty, this function won't do anything.
 Removes `n_events` from the queue for the given address.
 
 If the queue is empty, this function won't do anything.
-
-[#testutils-Inner-Modules]
-==== Inner modules
-
-[.contract-item]
-[[testutils-constants]]
-==== `[.contract-item-name]#++constants++#` [.item-kind]#module#
-
-See xref:#constants[`openzeppelin::tests::utils::constants`].
-
-[.contract]
-[[constants]]
-=== `++constants++`
-
-```cairo
-use openzeppelin::tests::utils::constants;
-```
-
-:constants: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.13.0/src/tests/utils/constants.cairo[constants.cairo]
-
-Module containing constants that are repeatedly used among tests.
-To see the full list, see {constants}.

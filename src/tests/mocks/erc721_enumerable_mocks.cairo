@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod ERC721EnumerableMock {
+pub(crate) mod ERC721EnumerableMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::ERC721HooksTrait;
     use openzeppelin::token::erc721::ERC721Component;
@@ -86,12 +86,12 @@ mod ERC721EnumerableMock {
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_enumerable.initializer();
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }
 
 #[starknet::contract]
-mod SnakeERC721EnumerableMock {
+pub(crate) mod SnakeERC721EnumerableMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::ERC721HooksTrait;
     use openzeppelin::token::erc721::ERC721Component;
@@ -176,6 +176,6 @@ mod SnakeERC721EnumerableMock {
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_enumerable.initializer();
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (security/pausable.cairo)
 
 /// # Pausable Component
 ///
@@ -7,7 +7,7 @@
 /// emergency stop mechanism. Only functions that call `assert_paused`
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
-mod PausableComponent {
+pub mod PausableComponent {
     use openzeppelin::security::interface::IPausable;
 
     use starknet::ContractAddress;
@@ -20,26 +20,26 @@ mod PausableComponent {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub enum Event {
         Paused: Paused,
         Unpaused: Unpaused,
     }
 
     /// Emitted when the pause is triggered by `account`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Paused {
-        account: ContractAddress
+    pub struct Paused {
+        pub account: ContractAddress
     }
 
     /// Emitted when the pause is lifted by `account`.
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct Unpaused {
-        account: ContractAddress
+    pub struct Unpaused {
+        pub account: ContractAddress
     }
 
-    mod Errors {
-        const PAUSED: felt252 = 'Pausable: paused';
-        const NOT_PAUSED: felt252 = 'Pausable: not paused';
+    pub mod Errors {
+        pub const PAUSED: felt252 = 'Pausable: paused';
+        pub const NOT_PAUSED: felt252 = 'Pausable: not paused';
     }
 
     #[embeddable_as(PausableImpl)]
@@ -53,7 +53,7 @@ mod PausableComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         /// Makes a function only callable when the contract is not paused.
@@ -73,7 +73,7 @@ mod PausableComponent {
         /// - The contract is not paused.
         ///
         /// Emits a `Paused` event.
-        fn _pause(ref self: ComponentState<TContractState>) {
+        fn pause(ref self: ComponentState<TContractState>) {
             self.assert_not_paused();
             self.Pausable_paused.write(true);
             self.emit(Paused { account: get_caller_address() });
@@ -86,7 +86,7 @@ mod PausableComponent {
         /// - The contract is paused.
         ///
         /// Emits an `Unpaused` event.
-        fn _unpause(ref self: ComponentState<TContractState>) {
+        fn unpause(ref self: ComponentState<TContractState>) {
             self.assert_paused();
             self.Pausable_paused.write(false);
             self.emit(Unpaused { account: get_caller_address() });

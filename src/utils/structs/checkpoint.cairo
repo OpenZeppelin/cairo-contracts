@@ -1,26 +1,27 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (utils/structs/checkpoint.cairo)
 
-use integer::u32_sqrt;
+use core::integer::u32_sqrt;
 use openzeppelin::utils::math;
+use starknet::storage_access::StorePacking;
 use super::storage_array::{StorageArray, StorageArrayTrait};
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
 #[derive(Copy, Drop, starknet::Store)]
-struct Trace {
-    checkpoints: StorageArray<Checkpoint>
+pub(crate) struct Trace {
+    pub(crate) checkpoints: StorageArray<Checkpoint>
 }
 
 /// Generic checkpoint representation.
 #[derive(Copy, Drop, Serde)]
-struct Checkpoint {
-    key: u64,
-    value: u256
+pub(crate) struct Checkpoint {
+    pub(crate) key: u64,
+    pub(crate) value: u256
 }
 
 #[generate_trait]
-impl TraceImpl of TraceTrait {
+pub(crate) impl TraceImpl of TraceTrait {
     /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint
     /// and returns both the previous and the new value.
     fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {
@@ -170,7 +171,7 @@ const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
 /// - `key` is stored at range [4,67] bits (0-indexed), taking the most significant usable bits.
 /// - `value.low` is stored at range [124, 251], taking the less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
-impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt252)> {
+impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;
         // shift-left by 184 bits
@@ -197,7 +198,7 @@ impl CheckpointStorePacking of starknet::StorePacking<Checkpoint, (felt252, felt
 
 #[cfg(test)]
 mod test {
-    use integer::BoundedInt;
+    use core::integer::BoundedInt;
     use super::Checkpoint;
     use super::CheckpointStorePacking;
     use super::_2_POW_184;

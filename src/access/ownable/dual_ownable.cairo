@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (access/ownable/dual_ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (access/ownable/dual_ownable.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -7,14 +7,14 @@ use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseOwnable {
-    contract_address: ContractAddress
+pub struct DualCaseOwnable {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseOwnableTrait {
+pub trait DualCaseOwnableTrait {
     fn owner(self: @DualCaseOwnable) -> ContractAddress;
     fn transfer_ownership(self: @DualCaseOwnable, new_owner: ContractAddress);
     fn renounce_ownership(self: @DualCaseOwnable);

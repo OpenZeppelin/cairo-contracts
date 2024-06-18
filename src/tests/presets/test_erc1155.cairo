@@ -1,19 +1,20 @@
+use core::num::traits::Zero;
 use openzeppelin::introspection;
 use openzeppelin::presets::ERC1155Upgradeable;
 use openzeppelin::presets::interfaces::{
     ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::test_ownable::assert_event_ownership_transferred;
+use openzeppelin::tests::access::common::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::erc1155_mocks::SnakeERC1155Mock;
-use openzeppelin::tests::token::test_erc1155::{
+use openzeppelin::tests::token::erc1155::common::{
     assert_only_event_transfer_single, assert_only_event_transfer_batch,
     assert_only_event_approval_for_all
 };
-use openzeppelin::tests::token::test_erc1155::{
+use openzeppelin::tests::token::erc1155::common::{
     setup_account, setup_receiver, setup_camel_receiver, setup_account_with_salt, setup_src5
 };
-use openzeppelin::tests::token::test_erc1155::{get_ids_and_values, get_ids_and_split_values};
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::token::erc1155::common::{get_ids_and_values, get_ids_and_split_values};
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2

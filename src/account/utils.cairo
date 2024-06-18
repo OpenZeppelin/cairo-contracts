@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.13.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.14.0 (account/utils.cairo)
 
-mod secp256k1;
-mod signature;
+pub mod secp256k1;
+pub mod signature;
 
-use signature::{is_valid_stark_signature, is_valid_eth_signature};
+pub use signature::{is_valid_stark_signature, is_valid_eth_signature};
+
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 
-const MIN_TRANSACTION_VERSION: u256 = 1;
-const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
+pub const MIN_TRANSACTION_VERSION: u256 = 1;
+pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + TRANSACTION_VERSION
-const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
+pub const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
-fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
+pub fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
     let mut res = ArrayTrait::new();
     loop {
         match calls.pop_front() {
@@ -29,5 +30,5 @@ fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
 
 fn execute_single_call(call: Call) -> Span<felt252> {
     let Call { to, selector, calldata } = call;
-    starknet::call_contract_syscall(to, selector, calldata).unwrap_syscall()
+    starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall()
 }

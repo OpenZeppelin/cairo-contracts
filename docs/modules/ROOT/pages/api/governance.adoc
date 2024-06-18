@@ -51,7 +51,6 @@ use openzeppelin::governance::timelock::interface::ITimelock;
 * xref:#ITimelock-CallSalt[`++CallSalt(id, salt)++`]
 * xref:#ITimelock-Cancelled[`++Cancelled(id)++`]
 * xref:#ITimelock-MinDelayChange[`++MinDelayChange(old_duration, new_duration)++`]
-
 --
 
 [#ITimelock-Functions]
@@ -336,6 +335,16 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 * xref:#TimelockControllerComponent-_execute[`++_execute(self, call)++`]
 --
 
+[.contract-index]
+.Events
+--
+* xref:#TimelockControllerComponent-CallScheduled[`++CallScheduled(id, index, call, predecessor, delay)++`]
+* xref:#TimelockControllerComponent-CallExecuted[`++CallExecuted(id, index, call)++`]
+* xref:#TimelockControllerComponent-CallSalt[`++CallSalt(id, salt)++`]
+* xref:#TimelockControllerComponent-Cancelled[`++Cancelled(id)++`]
+* xref:#TimelockControllerComponent-MinDelayChange[`++MinDelayChange(old_duration, new_duration)++`]
+--
+
 [#TimelockControllerComponent-Functions]
 ==== Functions
 
@@ -562,6 +571,39 @@ Private function that schedules an operation that is to become valid after a giv
 ==== `[.contract-item-name]#++_execute++#++(ref self: ContractState, call: Call)++` [.item-kind]#internal#
 
 Private function that executes an operation's calls.
+
+[#TimelockControllerComponent-Events]
+==== Events
+
+[.contract-item]
+[[TimelockControllerComponent-CallScheduled]]
+==== `[.contract-item-name]#++CallScheduled++#++(id: felt252, index: felt252, call: Call, predecessor: felt252, delay: u64)++` [.item-kind]#event#
+
+Emitted when `call` is scheduled as part of operation `id`.
+
+[.contract-item]
+[[TimelockControllerComponent-CallExecuted]]
+==== `[.contract-item-name]#++CallExecuted++#++(id: felt252, index: felt252, call: Call)++` [.item-kind]#event#
+
+Emitted when `call` is performed as part of operation `id`.
+
+[.contract-item]
+[[TimelockControllerComponent-CallSalt]]
+==== `[.contract-item-name]#++CallSalt++#++(id: felt252, salt: felt252)++` [.item-kind]#event#
+
+Emitted when a new proposal is scheduled with non-zero salt.
+
+[.contract-item]
+[[TimelockControllerComponent-Cancelled]]
+==== `[.contract-item-name]#++Cancelled++#++(id: felt252)++` [.item-kind]#event#
+
+Emitted when operation `id` is cancelled.
+
+[.contract-item]
+[[TimelockControllerComponent-MinDelayChange]]
+==== `[.contract-item-name]#++MinDelayChange++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
+
+Emitted when the minimum delay for future operations is modified.
 
 == Utils
 

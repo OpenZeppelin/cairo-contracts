@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.13.0 (governance/timelock/timelock_controller.cairo)
 
-/// # Timelock Controller Component
+/// # TimelockController Component
 ///
 /// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart contract,
 /// it enforces a timelock on all `only_owner` maintenance operations. This gives time for users

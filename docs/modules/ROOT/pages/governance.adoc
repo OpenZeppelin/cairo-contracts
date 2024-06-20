@@ -6,20 +6,25 @@ The Timelock Controller provides a means of enforcing time delays on the executi
 
 NOTE: The Timelock contract itself executes transactions, not the user. The Timelock should, therefore, hold associated funds, ownership, and access control roles.
 
-=== Timelocked operation lifecycle
+=== Operation lifecycle
 
 Timelocked operations are identified by a unique id (their hash) and follow a specific `OperationState` lifecycle:
 
 `Unset` → `Pending` → `Ready` → `Done`
 
+==== Schedule
+
 When a proposer schedules an operation, the `OperationState` moves from `Unset` to `Pending`.
 This starts a timer that must be greater than or equal to the minimum delay.
 The timer expires at a timestamp accessible through `get_timestamp`.
-
 Once the timer expires, the `OperationState` automatically moves to the `Ready` state.
 At this point, it can be executed.
 
+==== Execute
+
 By calling `execute`, an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
+
+==== Cancel
 
 The `cancel` function allows proposers to cancel any `Waiting` operations.
 This resets the operation to the `Unset` state.

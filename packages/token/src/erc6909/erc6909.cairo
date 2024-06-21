@@ -17,6 +17,7 @@ pub mod ERC6909Component {
     struct Storage {
         ERC6909_name: LegacyMap<u256, ByteArray>,
         ERC6909_symbol: LegacyMap<u256, ByteArray>,
+        ERC6909_decimals: LegacyMap<u256, u8>,
         ERC6909_balances: LegacyMap<(ContractAddress, u256), u256>,
         ERC6909_allowances: LegacyMap<(ContractAddress, ContractAddress, u256), u256>,
         ERC6909_operators: LegacyMap<(ContractAddress, ContractAddress), bool>,
@@ -302,7 +303,7 @@ pub mod ERC6909Component {
         /// @param id The id of the token.
         /// @return The decimals of the token.
         fn decimals(self: @ComponentState<TContractState>, id: u256) -> u8 {
-            18
+            self.ERC6909_decimals.read(id)
         }
     }
 
@@ -452,6 +453,21 @@ pub mod ERC6909Component {
         /// Sets the base URI.
         fn _set_contract_uri(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
             self.ERC6909_contract_uri.write(contract_uri);
+        }
+
+        /// Sets the token name.
+        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) { 
+          self.ERC6909_name.write(id, name);
+        }
+
+        /// Sets the token symbol.
+        fn _set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) { 
+          self.ERC6909_symbol.write(id, symbol);
+        }
+
+        /// Sets the token decimals.
+        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) { 
+          self.ERC6909_decimals.write(id, decimals);
         }
 
         /// @notice Sets or unsets a spender as an operator for the caller.

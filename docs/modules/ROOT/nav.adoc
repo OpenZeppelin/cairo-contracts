@@ -34,6 +34,8 @@
 **** xref:/api/erc721.adoc[API Reference]
 *** xref:erc1155.adoc[ERC1155]
 **** xref:/api/erc1155.adoc[API Reference]
+*** xref:erc6909.adoc[ERC6909]
+**** xref:/api/erc6909.adoc[API Reference]
 
 ** xref:udc.adoc[Universal Deployer Contract]
 *** xref:/api/udc.adoc[API Reference]

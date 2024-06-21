@@ -946,8 +946,7 @@ fn test_execute_batch_after_dependency() {
 // cancel
 //
 
-#[test]
-fn test_cancel_from_canceller() {
+fn cancel_from_canceller(operation_state: OperationState) {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
@@ -966,6 +965,12 @@ fn test_cancel_from_canceller() {
         timelock.contract_address, target_id, event_index, call, predecessor, delay
     );
 
+    if operation_state == OperationState::Ready {
+        // Fast-forward
+        testing::set_block_timestamp(delay);
+        assert_operation_state(timelock, OperationState::Ready, target_id);
+    }
+
     // Cancel
     timelock.cancel(target_id);
     assert_only_event_cancel(timelock.contract_address, target_id);
@@ -973,8 +978,51 @@ fn test_cancel_from_canceller() {
 }
 
 #[test]
+fn test_cancel_when_waiting() {
+    let waiting = OperationState::Waiting;
+    cancel_from_canceller(waiting);
+}
+
+#[test]
+fn test_cancel_when_ready() {
+    let ready = OperationState::Waiting;
+    cancel_from_canceller(ready);
+}
+
+#[test]
 #[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
-fn test_cancel_invalid_operation() {
+fn test_cancel_when_done() {
+    let (mut timelock, mut target) = setup_dispatchers();
+    let predecessor = NO_PREDECESSOR;
+    let salt = 0;
+    let delay = MIN_DELAY;
+
+    let call = single_operation(target.contract_address);
+    let target_id = timelock.hash_operation(call, predecessor, salt);
+    assert_operation_state(timelock, OperationState::Unset, target_id);
+
+    // Schedule
+    testing::set_contract_address(PROPOSER());
+    timelock.schedule(call, predecessor, salt, delay);
+    assert_operation_state(timelock, OperationState::Waiting, target_id);
+
+    // Fast-forward
+    testing::set_block_timestamp(delay);
+    assert_operation_state(timelock, OperationState::Ready, target_id);
+
+    // Execute
+    testing::set_contract_address(EXECUTOR());
+    timelock.execute(call, predecessor, salt);
+    assert_operation_state(timelock, OperationState::Done, target_id);
+
+    // Attempt cancel
+    testing::set_contract_address(PROPOSER()); // PROPOSER is also CANCELLER
+    timelock.cancel(target_id);
+}
+
+#[test]
+#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+fn test_cancel_when_unset() {
     let (mut timelock, _) = setup_dispatchers();
     let invalid_id = 0;
 

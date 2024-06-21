@@ -262,10 +262,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 * xref:api/access.adoc#AccessControlComponent-Embeddable-Impls[`++AccessControlImpl++`]
 * xref:api/access.adoc#AccessControlComponent-Embeddable-Impls[`++AccessControlCamelImpl++`]
-* xref:api/erc721.adoc#ERC721ReceiverComponent-Embeddable-Impls[`++ERC721ReceiverImpl++`]
-* xref:api/erc721.adoc#ERC721ReceiverComponent-Embeddable-Impls[`++ERC721ReceiverCamelImpl++`]
-* xref:api/erc1155.adoc#ERC1155ReceiverComponent-Embeddable-Impls[`++ERC1155ReceiverImpl++`]
-* xref:api/erc1155.adoc#ERC1155ReceiverComponent-Embeddable-Impls[`++ERC1155ReceiverCamelImpl++`]
 --
 
 [.contract-index#TimelockControllerComponent-Embeddable-Impls]
@@ -306,20 +302,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 * xref:api/access.adoc#IAccessControl-grantRole[`++grantRole(self, role, account)++`]
 * xref:api/access.adoc#IAccessControl-revokeRole[`++revokeRole(self, role, account)++`]
 * xref:api/access.adoc#IAccessControl-renounceRole[`++renounceRole(self, role, account)++`]
-
-.ERC721ReceiverImpl
-* xref:api/erc721.adoc#ERC721ReceiverComponent-on_erc721_received[`++on_erc721_received(self, operator, from, token_id, data) -> felt252++`]
-
-.ERC721ReceiverCamelImpl
-* xref:api/erc721.adoc#ERC721ReceiverComponent-onERC721Received[`++onERC721Received(self, operator, from, tokenId, data) -> felt252++`]
-
-.ERC1155ReceiverImpl
-* xref:api/erc1155.adoc#ERC721ReceiverComponent-on_erc1155_received[`++on_erc1155_received(self, operator, from, token_id, value, data) -> felt252++`]
-* xref:api/erc1155.adoc#ERC721ReceiverComponent-on_erc1155_batch_received[`++on_erc1155_batch_received(self, operator, from, token_ids, values, data) -> felt252++`]
-
-.ERC1155ReceiverCamelImpl
-* xref:api/erc1155.adoc#ERC721ReceiverComponent-onERC1155Received[`++onERC1155Received(self, operator, from, tokenId, value, data) -> felt252++`]
-* xref:api/erc1155.adoc#ERC721ReceiverComponent-onERC1155BatchReceived[`++onERC1155BatchReceived(self, operator, from, tokenIds, values, data) -> felt252++`]
 --
 
 [.contract-index]
@@ -507,8 +489,7 @@ Emits a {MinDelayChange} event.
 [[TimelockControllerComponent-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, min_delay: u64, proposers: Span<ContractAddress>, executors: Span<ContractState>, admin: ContractAddress)++` [.item-kind]#internal#
 
-Initializes the contract by registering support as a token receiver for
-ERC721 and ERC1155 safe transfers.
+Initializes the contract by registering support for SRC5 and AccessControl.
 
 This function also configures the contract with the following parameters:
 

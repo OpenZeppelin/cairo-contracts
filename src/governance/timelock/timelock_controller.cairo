@@ -27,18 +27,6 @@ pub mod TimelockControllerComponent {
     use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, Call};
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
-        ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl
-    };
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent::{
-        InternalImpl as ERC1155InternalImpl
-    };
-    use openzeppelin::token::erc1155::erc1155_receiver::ERC1155ReceiverComponent;
-    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::InternalImpl as ERC721ReceiverInternalImpl;
-    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent::{
-        ERC721ReceiverImpl, ERC721ReceiverCamelImpl
-    };
-    use openzeppelin::token::erc721::erc721_receiver::ERC721ReceiverComponent;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
 
@@ -122,8 +110,6 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +AccessControlComponent::HasComponent<TContractState>,
-        +ERC721ReceiverComponent::HasComponent<TContractState>,
-        +ERC1155ReceiverComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ITimelock<ComponentState<TContractState>> {
         /// Returns whether `id` corresponds to a registered operation.
@@ -377,8 +363,6 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
-        impl ERC721Receiver: ERC721ReceiverComponent::HasComponent<TContractState>,
-        impl ERC1155Receiver: ERC1155ReceiverComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of TimelockABI<ComponentState<TContractState>> {
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
@@ -546,80 +530,6 @@ pub mod TimelockControllerComponent {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.renounceRole(role, account);
         }
-
-        // IERC721Receiver
-        fn on_erc721_received(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            token_id: u256,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc721_receiver = get_dep_component!(self, ERC721Receiver);
-            erc721_receiver.on_erc721_received(operator, from, token_id, data)
-        }
-
-        // IERC721ReceiverCamel
-        fn onERC721Received(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            tokenId: u256,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc721_receiver = get_dep_component!(self, ERC721Receiver);
-            erc721_receiver.onERC721Received(operator, from, tokenId, data)
-        }
-
-        // IERC1155Receiver
-        fn on_erc1155_received(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            token_id: u256,
-            value: u256,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
-            erc1155_receiver.on_erc1155_received(operator, from, token_id, value, data)
-        }
-
-        fn on_erc1155_batch_received(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            token_ids: Span<u256>,
-            values: Span<u256>,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
-            erc1155_receiver.on_erc1155_batch_received(operator, from, token_ids, values, data)
-        }
-
-        // IERC1155ReceiverCamel
-        fn onERC1155Received(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            tokenId: u256,
-            value: u256,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
-            erc1155_receiver.onERC1155Received(operator, from, tokenId, value, data)
-        }
-
-        fn onERC1155BatchReceived(
-            self: @ComponentState<TContractState>,
-            operator: ContractAddress,
-            from: ContractAddress,
-            tokenIds: Span<u256>,
-            values: Span<u256>,
-            data: Span<felt252>
-        ) -> felt252 {
-            let erc1155_receiver = get_dep_component!(self, ERC1155Receiver);
-            erc1155_receiver.onERC1155BatchReceived(operator, from, tokenIds, values, data)
-        }
     }
 
     #[generate_trait]
@@ -628,12 +538,9 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
-        impl ERC721Receiver: ERC721ReceiverComponent::HasComponent<TContractState>,
-        impl ERC1155Receiver: ERC1155ReceiverComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by registering support as a token receiver for
-        /// ERC721 and ERC1155 safe transfers.
+        /// Initializes the contract by registering support for SRC5 and AccessControl.
         ///
         /// This function also configures the contract with the following parameters:
         ///
@@ -662,13 +569,6 @@ pub mod TimelockControllerComponent {
             executors: Span<ContractAddress>,
             admin: ContractAddress
         ) {
-            // Register as token receivers
-            let mut erc721_receiver = get_dep_component_mut!(ref self, ERC721Receiver);
-            erc721_receiver.initializer();
-
-            let mut erc1155_receiver = get_dep_component_mut!(ref self, ERC1155Receiver);
-            erc1155_receiver.initializer();
-
             // Register access control ID and self as default admin
             let mut access_component = get_dep_component_mut!(ref self, AccessControl);
             access_component.initializer();

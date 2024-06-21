@@ -10,7 +10,7 @@ NOTE: The Timelock contract itself executes transactions, not the user. The Time
 
 Timelocked operations are identified by a unique id (their hash) and follow a specific `OperationState` lifecycle:
 
-`Unset` → `Pending` → `Ready` → `Done`
+`Unset` → `Waiting` → `Ready` → `Done`
 
 ==== Schedule
 

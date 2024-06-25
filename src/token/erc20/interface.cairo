@@ -100,7 +100,7 @@ pub trait ERC20VotesABI<TState> {
         expiry: u64,
         signature: Array<felt252>
     );
-    
+
     // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;

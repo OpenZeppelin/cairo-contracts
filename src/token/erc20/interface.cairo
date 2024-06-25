@@ -100,11 +100,7 @@ pub trait ERC20VotesABI<TState> {
         expiry: u64,
         signature: Array<felt252>
     );
-
-    // Checkpoints
-    fn num_checkpoints(self: @TState, account: ContractAddress) -> u32;
-    fn checkpoints(self: @TState, account: ContractAddress, pos: u32) -> Checkpoint;
-
+    
     // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;

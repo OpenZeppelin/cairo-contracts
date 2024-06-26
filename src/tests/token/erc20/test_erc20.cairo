@@ -8,10 +8,8 @@ use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component;
-use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::testing;
 
 use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
 

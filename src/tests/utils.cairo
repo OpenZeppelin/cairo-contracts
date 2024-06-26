@@ -1,5 +1,6 @@
 pub(crate) mod constants;
 pub mod foundry;
+pub use foundry::declare_and_deploy;
 
 pub use foundry::spy_on;
 

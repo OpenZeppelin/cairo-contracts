@@ -14,12 +14,12 @@ use openzeppelin::token::erc20::extensions::erc20_votes::Delegation;
 use openzeppelin::utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
+use snforge_std::signature::KeyPairTrait;
+use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     cheat_block_timestamp_global, start_cheat_caller_address, cheat_chain_id_global, test_address
 };
 use snforge_std::{SpyOn, EventSpy, EventAssertions};
-use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::signature::KeyPairTrait;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};

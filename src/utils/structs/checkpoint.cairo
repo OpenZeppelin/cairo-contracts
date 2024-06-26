@@ -9,19 +9,19 @@ use super::storage_array::{StorageArray, StorageArrayTrait};
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
 #[derive(Copy, Drop, starknet::Store)]
-pub(crate) struct Trace {
-    pub(crate) checkpoints: StorageArray<Checkpoint>
+pub struct Trace {
+    pub checkpoints: StorageArray<Checkpoint>
 }
 
 /// Generic checkpoint representation.
 #[derive(Copy, Drop, Serde)]
-pub(crate) struct Checkpoint {
-    pub(crate) key: u64,
-    pub(crate) value: u256
+pub struct Checkpoint {
+    pub key: u64,
+    pub value: u256
 }
 
 #[generate_trait]
-pub(crate) impl TraceImpl of TraceTrait {
+pub impl TraceImpl of TraceTrait {
     /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint
     /// and returns both the previous and the new value.
     fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {

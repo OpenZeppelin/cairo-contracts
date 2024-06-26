@@ -176,3 +176,7 @@ Refer to [SECURITY.md](SECURITY.md) for more details.
 ## License
 
 OpenZeppelin Contracts for Cairo is released under the [MIT License](LICENSE).
+
+## Legal
+
+Your use of this Project is governed by the terms found at [www.openzeppelin.com/tos](www.openzeppelin.com/tos) (the "Terms").

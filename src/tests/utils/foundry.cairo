@@ -10,10 +10,10 @@ pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) ->
 }
 
 pub fn declare_and_deploy_at(
-    contract_name: ByteArray, contract_address: ContractAddress, calldata: Array<felt252>
+    contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
 ) {
     let contract_class = declare(contract_name).unwrap();
-    if let Result::Err(panic_data) = contract_class.deploy_at(@calldata, contract_address) {
+    if let Result::Err(panic_data) = contract_class.deploy_at(@calldata, target_address) {
         panic!("Failed to deploy, error: ${:?}", panic_data)
     }
 }

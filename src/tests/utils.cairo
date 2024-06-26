@@ -1,4 +1,7 @@
 pub(crate) mod constants;
+pub mod foundry;
+
+pub use foundry::spy_on;
 
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;

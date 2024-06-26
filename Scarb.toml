@@ -14,6 +14,7 @@ keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "stand
 
 [dependencies]
 starknet = "2.6.4"
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.25.0" }
 
 [lib]
 

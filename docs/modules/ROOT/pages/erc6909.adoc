@@ -19,22 +19,24 @@ required to manage multiple tokens under the same contract.
 Using Contracts for Cairo, constructing an ERC6909 contract requires integrating the `ERC6909Component`.
 
 Since some functions commonly found on token standards (such as `total_supply` or metadata) are not part of the EIP,
-the logic is implemented within the component but under separate modules for ease of use. Developers can choose which modules to 
-include in their contracts as they see fit. We followed the original {solidity-implementation} to replicate these in Cairo.
+the logic for these are implemented under separate modules for ease of use. Developers can choose which modules to 
+include within their contracts as they see fit. We followed the original {solidity-implementation} to replicate these in Cairo.
 
 Aside from the core `ERC6909`, the 3 optional modules that can be imported are:
 
+* `ERC6909Metadata`
 * `ERC6909ContentURI`
 * `ERC6909TokenSupply`
-* `ERC6909Metadata`
 
 Each module also has their camel counterparts:
 
+* `ERC6909MetadataCamel`
 * `ERC6909ContentURICamel`
 * `ERC6909TokenSupplyCamel`
-* `ERC6909MetadataCamel`
 
-To create the contract URI, it can be set up in  constructor by calling `_set_contract_uri`.
+To create the contract URI, it can be set up (ideally) in the constructor via `_set_contract_uri`.
+
+Here’s an example of a basic contract which includes the Content URI and Token Supply modules:
 
 [,cairo]
 ----
@@ -86,8 +88,7 @@ mod MyToken {
 ----
 
 `MyToken` integrates  the `ERC6909Impl`, `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl` with the embed directives which marks the implementations as external in the contract.
-While the `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl` are optional, it's generally recommended to include them to keep track of individual token supplies and URI's. Metadata
-is not part of the EIP, as such it is up to the developers to create this.
+While the `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl` are optional, it's generally recommended to include them to keep track of individual token supplies and URIs.
 The above example also includes the `ERC6909InternalImpl` instance, allowing the contract's constructor to set the `contract_uri` and mint an initial supply of tokens.
 
 == Interface
@@ -101,6 +102,8 @@ The above example also includes the `ERC6909InternalImpl` instance, allowing the
 :ierc6909-metadata: xref:/guides/erc6909-metadata.adoc[Creating ERC6909 Metadata]
 
 The following interface represents the full ABI of the Contracts for Cairo {erc6909-component}.
+
+To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
 
 [,cairo]
 ----
@@ -134,15 +137,15 @@ pub trait ERC6909ABI<TState> {
 :cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]
 :solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
 :dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
+:interface-id: https://community.starknet.io/t/starknet-standard-interface-detection/92664/23[interface ID]
 
 Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC6909 token standard.
 Some notable differences, however, can still be found, such as:
 
-* The `felt252` type is used to represent the `interfaceId`.
-* The `ByteArray` type is used to represent strings such as in the `contract_uri`.
+* The `ByteArray` type is used to represent strings in Cairo.
+* The `felt252` type is used to represent the  `byte4` interface ID. The {interface-id} is also calculated different in Cairo.
 * The component offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
-* Function selectors are calculated differently between {cairo-selectors} and {solidity-selectors}.
 
 == Customizing Token Metadata
 
@@ -153,7 +156,7 @@ the optional module defines these metadata properties for each token ID individu
 
 There are 3 internal methods which can be used to set individual id metadata: `_set_token_name(id, name)`, `_set_token_symbol(id, symbol)` and `_set_token_decimals(id, decimals)`.
 
-Developers can also just set a single `name`, `decimals` and `symbol` for the whole contract (just like in the ERC20 standard).
+Developers can also just set a single `name`, `decimals` and `symbol` for the whole contract which might prove to be simpler (just like in the ERC20 standard).
 
 [,cairo]
 ----

@@ -456,18 +456,20 @@ pub mod ERC6909Component {
         }
 
         /// Sets the token name.
-        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) { 
-          self.ERC6909_name.write(id, name);
+        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+            self.ERC6909_name.write(id, name);
         }
 
         /// Sets the token symbol.
-        fn _set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) { 
-          self.ERC6909_symbol.write(id, symbol);
+        fn _set_token_symbol(
+            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray
+        ) {
+            self.ERC6909_symbol.write(id, symbol);
         }
 
         /// Sets the token decimals.
-        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) { 
-          self.ERC6909_decimals.write(id, decimals);
+        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+            self.ERC6909_decimals.write(id, decimals);
         }
 
         /// @notice Sets or unsets a spender as an operator for the caller.
@@ -485,7 +487,7 @@ pub mod ERC6909Component {
         }
 
         /// Updates `sender`s allowance for `spender`  and `id` based on spent `amount`.
-        /// Does not update the allowance value in case of infinite allowance.
+        /// Does not update the allowance value in case of infinite allowance or if spender is operator.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,

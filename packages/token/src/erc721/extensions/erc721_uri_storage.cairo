@@ -11,6 +11,7 @@ pub trait IERC721URIstorage{
 #[starknet::component]
 pub mod ERC721URIstorageComponent {
     use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721:InternalImpl as ERC721Impl;
     use openzeppelin::token::erc721::interface::{IERC721,IERC721Metadata};
     use starknet::ContractAddress;
 
@@ -37,7 +38,6 @@ pub mod ERC721URIstorageComponent {
         TContractState,
         +HasComponent<TContractState>,
         +ERC721Component::HasComponent<TContractState>,
-        +ERC721Component::ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of super::IERC721URIstorage<ComponentState<TContractState>> {
 
@@ -73,6 +73,7 @@ pub mod ERC721URIstorageComponent {
         /// Returns the `token_uri` for the `token_id` 
         /// if needed, returns the concatenated string
         fn _token_uri(self: @ComponentState<ContractState>,token_id:u256)-> ByteArray{
+            ERC721Impl::_require_owned(token_id);
             let mut erc721_component= get_dep_component!(self, ERC721);
             let base_uri:ByteArray=erc721_component.base_uri();
             let token_uri:ByteArray= self.token_uris.read(token_id);

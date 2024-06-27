@@ -1,4 +1,4 @@
-use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventSpy, SpyOn};
+use snforge_std::{declare, ContractClassTrait, spy_events, EventSpy, SpyOn};
 use starknet::ContractAddress;
 
 pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress {

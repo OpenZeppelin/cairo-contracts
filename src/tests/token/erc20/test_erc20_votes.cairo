@@ -13,7 +13,7 @@ use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
 use openzeppelin::token::erc20::extensions::erc20_votes::Delegation;
 use openzeppelin::utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
+use openzeppelin::utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{

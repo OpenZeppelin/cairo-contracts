@@ -1,8 +1,7 @@
-use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component;
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{SpyOn, EventSpy, EventAssertions};
+use snforge_std::{EventSpy, EventAssertions};
 use starknet::ContractAddress;
 
 pub(crate) fn assert_event_approval(

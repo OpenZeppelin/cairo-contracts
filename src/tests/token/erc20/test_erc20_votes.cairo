@@ -19,7 +19,7 @@ use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSigne
 use snforge_std::{
     cheat_block_timestamp_global, start_cheat_caller_address, cheat_chain_id_global, test_address
 };
-use snforge_std::{SpyOn, EventSpy, EventAssertions};
+use snforge_std::{EventSpy, EventAssertions};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};

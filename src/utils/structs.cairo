@@ -1,2 +1,2 @@
-pub(crate) mod checkpoint;
-pub(crate) mod storage_array;
+pub mod checkpoint;
+pub mod storage_array;

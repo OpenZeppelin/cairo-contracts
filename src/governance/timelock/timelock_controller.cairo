@@ -48,8 +48,8 @@ pub mod TimelockControllerComponent {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
         CallSalt: CallSalt,
-        Cancelled: Cancelled,
-        MinDelayChange: MinDelayChange
+        CallCancelled: CallCancelled,
+        MinDelayChanged: MinDelayChanged
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
@@ -84,14 +84,14 @@ pub mod TimelockControllerComponent {
 
     /// Emitted when operation `id` is cancelled.
     #[derive(Drop, PartialEq, starknet::Event)]
-    pub struct Cancelled {
+    pub struct CallCancelled {
         #[key]
         pub id: felt252
     }
 
     /// Emitted when the minimum delay for future operations is modified.
     #[derive(Drop, PartialEq, starknet::Event)]
-    pub struct MinDelayChange {
+    pub struct MinDelayChanged {
         pub old_duration: u64,
         pub new_duration: u64
     }
@@ -261,13 +261,13 @@ pub mod TimelockControllerComponent {
         /// - The caller must have the `CANCELLER_ROLE` role.
         /// - `id` must be an operation.
         ///
-        /// Emits a `Cancelled` event.
+        /// Emits a `CallCancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
             self.assert_only_role(CANCELLER_ROLE);
             assert(Timelock::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
 
             self.TimelockController_timestamps.write(id, 0);
-            self.emit(Cancelled { id });
+            self.emit(CallCancelled { id });
         }
 
         /// Execute a (Ready) operation containing a single Call.
@@ -345,12 +345,12 @@ pub mod TimelockControllerComponent {
         /// and later executing an operation where the timelock is the target and the data
         /// is the serialized call to this function.
         ///
-        /// Emits a `MinDelayChange` event.
+        /// Emits a `MinDelayChanged` event.
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
             self.assert_only_self();
 
             let min_delay = self.TimelockController_min_delay.read();
-            self.emit(MinDelayChange { old_duration: min_delay, new_duration: new_delay });
+            self.emit(MinDelayChanged { old_duration: min_delay, new_duration: new_delay });
 
             self.TimelockController_min_delay.write(new_delay);
         }
@@ -560,7 +560,7 @@ pub mod TimelockControllerComponent {
         /// May emit a `RoleGranted` event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
         /// not zero).
         ///
-        /// Emits `MinDelayChange` event.
+        /// Emits `MinDelayChanged` event.
         fn initializer(
             ref self: ComponentState<TContractState>,
             min_delay: u64,
@@ -599,7 +599,7 @@ pub mod TimelockControllerComponent {
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
-            self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
+            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay })
         }
 
         /// Validates that the caller has the given `role`.

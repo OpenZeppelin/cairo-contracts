@@ -8,7 +8,7 @@ use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
-    CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
+    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
@@ -136,7 +136,7 @@ fn deploy_timelock() -> TimelockABIDispatcher {
     let address = utils::deploy(TimelockControllerMock::TEST_CLASS_HASH, calldata);
     // Events dropped:
     // - 5 RoleGranted: self, proposer, canceller, executor, admin
-    // - MinDelayChange
+    // - MinDelayChanged
     utils::drop_events(address, 6);
     TimelockABIDispatcher { contract_address: address }
 }
@@ -579,10 +579,7 @@ fn test_execute_bad_selector() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: expected Ready op',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
+        'Timelock: expected Ready op', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'
     )
 )]
 fn test_execute_reentrant_call() {
@@ -801,10 +798,7 @@ fn test_execute_batch_unauthorized() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: expected Ready op',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
+        'Timelock: expected Ready op', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'
     )
 )]
 fn test_execute_batch_reentrant_call() {
@@ -1190,7 +1184,7 @@ fn test_initializer_min_delay() {
     let delay = state.get_min_delay();
     assert_eq!(delay, MIN_DELAY);
 
-    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChange`:
+    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChanged`:
     // - Self administration
     // - 1 proposer
     // - 1 canceller
@@ -1617,13 +1611,13 @@ fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationS
 //
 
 //
-// MinDelayChange
+// MinDelayChanged
 //
 
 fn assert_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(
-        MinDelayChange { old_duration, new_duration }
+    let expected = TimelockControllerComponent::Event::MinDelayChanged(
+        MinDelayChanged { old_duration, new_duration }
     );
     assert!(event == expected);
 }
@@ -1752,12 +1746,12 @@ fn assert_only_events_execute_batch(contract: ContractAddress, id: felt252, call
 
 fn assert_event_cancel(contract: ContractAddress, id: felt252) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::Cancelled(Cancelled { id });
+    let expected = TimelockControllerComponent::Event::CallCancelled(CallCancelled { id });
     assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Cancelled"));
+    indexed_keys.append_serde(selector!("CallCancelled"));
     indexed_keys.append_serde(id);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
@@ -1768,13 +1762,13 @@ fn assert_only_event_cancel(contract: ContractAddress, id: felt252) {
 }
 
 //
-// MinDelayChange
+// MinDelayChanged
 //
 
 fn assert_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(
-        MinDelayChange { old_duration, new_duration }
+    let expected = TimelockControllerComponent::Event::MinDelayChanged(
+        MinDelayChanged { old_duration, new_duration }
     );
     assert!(event == expected);
 }

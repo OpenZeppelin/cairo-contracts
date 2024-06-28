@@ -75,7 +75,7 @@ pub mod ERC721URIstorageComponent {
         fn _token_uri(self: @ComponentState<ContractState>,token_id:u256)-> ByteArray{
             ERC721Impl::_require_owned(token_id);
             let mut erc721_component= get_dep_component!(self, ERC721);
-            let base_uri:ByteArray=erc721_component.base_uri();
+            let base_uri:ByteArray=erc721_component._base_uri();
             let token_uri:ByteArray= self.token_uris.read(token_id);
             if base_uri.len()==0{
                 return token_uri;

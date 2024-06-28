@@ -99,7 +99,9 @@ pub mod TimelockControllerComponent {
     pub mod Errors {
         pub const INVALID_OPERATION_LEN: felt252 = 'Timelock: invalid operation len';
         pub const INSUFFICIENT_DELAY: felt252 = 'Timelock: insufficient delay';
-        pub const UNEXPECTED_OPERATION_STATE: felt252 = 'Timelock: unexpected op state';
+        pub const EXPECTED_UNSET_OPERATION: felt252 = 'Timelock: expected Unset op';
+        pub const EXPECTED_PENDING_OPERATION: felt252 = 'Timelock: expected Pending op';
+        pub const EXPECTED_READY_OPERATION: felt252 = 'Timelock: expected Ready op';
         pub const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
         pub const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
     }
@@ -262,7 +264,7 @@ pub mod TimelockControllerComponent {
         /// Emits a `Cancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
             self.assert_only_role(CANCELLER_ROLE);
-            assert(Timelock::is_operation_pending(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
 
             self.TimelockController_timestamps.write(id, 0);
             self.emit(Cancelled { id });
@@ -633,7 +635,7 @@ pub mod TimelockControllerComponent {
         /// - `id` must be in the Ready OperationState.
         /// - `predecessor` must either be zero or be in the Done OperationState.
         fn _before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
-            assert(Timelock::is_operation_ready(self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(self, id), Errors::EXPECTED_READY_OPERATION);
             assert(
                 predecessor == 0 || Timelock::is_operation_done(self, predecessor),
                 Errors::UNEXECUTED_PREDECESSOR
@@ -646,13 +648,13 @@ pub mod TimelockControllerComponent {
         ///
         /// - `id` must be in the Ready OperationState.
         fn _after_call(ref self: ComponentState<TContractState>, id: felt252) {
-            assert(Timelock::is_operation_ready(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(@self, id), Errors::EXPECTED_READY_OPERATION);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 
         /// Private function that schedules an operation that is to become valid after a given `delay`.
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
-            assert(!Timelock::is_operation(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(!Timelock::is_operation(@self, id), Errors::EXPECTED_UNSET_OPERATION);
             assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);
             self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
         }

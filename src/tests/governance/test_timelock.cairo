@@ -288,7 +288,7 @@ fn test_schedule_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Unset op', 'ENTRYPOINT_FAILED'))]
 fn test_schedule_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -381,7 +381,7 @@ fn test_schedule_batch_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Unset op', 'ENTRYPOINT_FAILED'))]
 fn test_schedule_batch_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -428,7 +428,7 @@ fn test_schedule_batch_bad_min_delay() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -482,7 +482,7 @@ fn test_execute_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -579,7 +579,7 @@ fn test_execute_bad_selector() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: unexpected op state',
+        'Timelock: expected Ready op',
         'ENTRYPOINT_FAILED',
         'ENTRYPOINT_FAILED',
         'ENTRYPOINT_FAILED'
@@ -702,7 +702,7 @@ fn test_execute_after_dependency() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_batch_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -754,7 +754,7 @@ fn test_execute_batch_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_batch_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -801,7 +801,7 @@ fn test_execute_batch_unauthorized() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: unexpected op state',
+        'Timelock: expected Ready op',
         'ENTRYPOINT_FAILED',
         'ENTRYPOINT_FAILED',
         'ENTRYPOINT_FAILED'
@@ -990,7 +990,7 @@ fn test_cancel_when_ready() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Pending op', 'ENTRYPOINT_FAILED'))]
 fn test_cancel_when_done() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -1021,7 +1021,7 @@ fn test_cancel_when_done() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Pending op', 'ENTRYPOINT_FAILED'))]
 fn test_cancel_when_unset() {
     let (mut timelock, _) = setup_dispatchers();
     let invalid_id = 0;
@@ -1284,7 +1284,7 @@ fn test__before_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1300,7 +1300,7 @@ fn test__before_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1319,7 +1319,7 @@ fn test__before_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_when_already_done() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1409,7 +1409,7 @@ fn test__after_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
 
@@ -1424,7 +1424,7 @@ fn test__after_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
 
@@ -1442,7 +1442,7 @@ fn test__after_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_already_done() {
     let mut state = COMPONENT_STATE();
 
@@ -1484,7 +1484,7 @@ fn test__schedule() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Unset op',))]
 fn test__schedule_overwrite() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();

@@ -581,20 +581,22 @@ pub mod TimelockControllerComponent {
 
             // Register proposers and cancellers
             let mut i = 0;
-            while i < proposers.len() {
-                let proposer = proposers.at(i);
-                access_component._grant_role(PROPOSER_ROLE, *proposer);
-                access_component._grant_role(CANCELLER_ROLE, *proposer);
-                i += 1;
-            };
+            while i < proposers
+                .len() {
+                    let proposer = proposers.at(i);
+                    access_component._grant_role(PROPOSER_ROLE, *proposer);
+                    access_component._grant_role(CANCELLER_ROLE, *proposer);
+                    i += 1;
+                };
 
             // Register executors
             let mut i = 0;
-            while i < executors.len() {
-                let executor = executors.at(i);
-                access_component._grant_role(EXECUTOR_ROLE, *executor);
-                i += 1;
-            };
+            while i < executors
+                .len() {
+                    let executor = executors.at(i);
+                    access_component._grant_role(EXECUTOR_ROLE, *executor);
+                    i += 1;
+                };
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);

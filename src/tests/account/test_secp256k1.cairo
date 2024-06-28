@@ -1,7 +1,8 @@
 use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq,
+    DebugSecp256k1Point, Secp256k1PointPartialEq,
     Secp256k1PointStorePacking as StorePacking
 };
+use starknet::secp256k1::Secp256k1PointSerde;
 use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
 use starknet::secp256k1::Secp256k1Point;

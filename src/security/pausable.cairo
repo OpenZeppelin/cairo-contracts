@@ -14,7 +14,7 @@ pub mod PausableComponent {
     use starknet::get_caller_address;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         Pausable_paused: bool
     }
 

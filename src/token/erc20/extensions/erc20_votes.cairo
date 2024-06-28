@@ -8,11 +8,12 @@ use starknet::ContractAddress;
 
 /// # ERC20Votes Component
 ///
-/// The ERC20Votes component tracks voting units from ERC20 balances, which are a measure of voting power that can be
-/// transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
-/// "representative" that will pool delegated voting units from different accounts and can then use it to vote in
-/// decisions. In fact, voting units MUST be delegated in order to count as actual votes, and an account has to
-/// delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
+/// The ERC20Votes component tracks voting units from ERC20 balances, which are a measure of voting
+/// power that can be transferred, and provides a system of vote delegation, where an account can
+/// delegate its voting units to a sort of "representative" that will pool delegated voting units
+/// from different accounts and can then use it to vote in decisions. In fact, voting units MUST be
+/// delegated in order to count as actual votes, and an account has to delegate those votes to
+/// itself if it wishes to participate in decisions and does not have a trusted representative.
 #[starknet::component]
 pub mod ERC20VotesComponent {
     use core::num::traits::Zero;
@@ -24,12 +25,13 @@ pub mod ERC20VotesComponent {
     use openzeppelin::utils::nonces::NoncesComponent;
     use openzeppelin::utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
+    use starknet::storage::Map;
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    struct Storage {
-        ERC20Votes_delegatee: LegacyMap<ContractAddress, ContractAddress>,
-        ERC20Votes_delegate_checkpoints: LegacyMap<ContractAddress, Trace>,
+    pub struct Storage {
+        ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
+        ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
         ERC20Votes_total_checkpoints: Trace
     }
 
@@ -101,9 +103,10 @@ pub mod ERC20VotesComponent {
         ///
         /// - `timepoint` must be in the past.
         ///
-        /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
-        /// Votes that have not been delegated are still part of total supply, even though they would not participate in a
-        /// vote.
+        /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of
+        /// all delegated votes.
+        /// Votes that have not been delegated are still part of total supply, even though they
+        /// would not participate in a vote.
         fn get_past_total_supply(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
@@ -127,7 +130,8 @@ pub mod ERC20VotesComponent {
             self._delegate(sender, delegatee);
         }
 
-        /// Delegates votes from the sender to `delegatee` through a SNIP12 message signature validation.
+        /// Delegates votes from the sender to `delegatee` through a SNIP12 message signature
+        /// validation.
         ///
         /// Requirements:
         ///
@@ -286,6 +290,9 @@ pub mod ERC20VotesComponent {
 // Offchain message hash generation helpers.
 //
 
+//
+//
+// 
 // sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
 //
 // Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.

@@ -34,7 +34,7 @@ pub mod TimelockControllerComponent {
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
     pub const EXECUTOR_ROLE: felt252 = selector!("EXECUTOR_ROLE");
     pub const CANCELLER_ROLE: felt252 = selector!("CANCELLER_ROLE");
-    pub const DONE_TIMESTAMP: u64 = 1;
+    const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
     struct Storage {
@@ -342,7 +342,7 @@ pub mod TimelockControllerComponent {
         ///
         /// - The caller must be the timelock itself. This can only be achieved by scheduling
         /// and later executing an operation where the timelock is the target and the data
-        /// is the ABI-encoded call to this function.
+        /// is the serialized call to this function.
         ///
         /// Emits a `MinDelayChange` event.
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {

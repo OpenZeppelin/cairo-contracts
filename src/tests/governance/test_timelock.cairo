@@ -1242,17 +1242,17 @@ fn test_assert_only_role_or_open_role_with_open_role() {
     let min_delay = MIN_DELAY;
     let open_role = ZERO();
 
-    let proposers = array![open_role].span();
-    let executors = array![EXECUTOR()].span();
+    let proposers = array![PROPOSER()].span();
+    let executors = array![open_role].span();
     let admin = ADMIN();
 
     state.initializer(min_delay, proposers, executors, admin);
 
-    let is_open_role = contract_state.has_role(PROPOSER_ROLE, open_role);
+    let is_open_role = contract_state.has_role(EXECUTOR_ROLE, open_role);
     assert!(is_open_role);
 
     testing::set_caller_address(OTHER());
-    state.assert_only_role_or_open_role(PROPOSER_ROLE);
+    state.assert_only_role_or_open_role(EXECUTOR_ROLE);
 }
 
 //

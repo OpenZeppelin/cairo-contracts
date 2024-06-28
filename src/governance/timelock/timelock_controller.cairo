@@ -205,7 +205,7 @@ pub mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role_or_open_role(PROPOSER_ROLE);
+            self.assert_only_role(PROPOSER_ROLE);
 
             let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
@@ -231,7 +231,7 @@ pub mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role_or_open_role(PROPOSER_ROLE);
+            self.assert_only_role(PROPOSER_ROLE);
 
             let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
             self._schedule(id, delay);
@@ -261,7 +261,7 @@ pub mod TimelockControllerComponent {
         ///
         /// Emits a `Cancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
-            self.assert_only_role_or_open_role(CANCELLER_ROLE);
+            self.assert_only_role(CANCELLER_ROLE);
             assert(Timelock::is_operation_pending(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
 
             self.TimelockController_timestamps.write(id, 0);
@@ -598,6 +598,13 @@ pub mod TimelockControllerComponent {
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
             self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
+        }
+
+        /// Validates that the caller has the given `role`.
+        /// Otherwise it reverts.
+        fn assert_only_role(self: @ComponentState<TContractState>, role: felt252) {
+            let access_component = get_dep_component!(self, AccessControl);
+            access_component.assert_only_role(role);
         }
 
         /// Validates that the caller has the given `role`.

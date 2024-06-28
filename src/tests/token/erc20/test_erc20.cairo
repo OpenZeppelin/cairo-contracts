@@ -4,13 +4,11 @@ use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component;
-use openzeppelin::utils::serde::SerializedAppend;
+use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::testing;
 
 use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
 
@@ -28,7 +26,6 @@ fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
     state.mint(OWNER(), SUPPLY);
-    utils::drop_event(ZERO());
     state
 }
 
@@ -82,7 +79,7 @@ fn test_balanceOf() {
 #[test]
 fn test_allowance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
@@ -96,10 +93,13 @@ fn test_allowance() {
 #[test]
 fn test_approve() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+    let mut spy = utils::spy_on(contract_address);
+
+    start_cheat_caller_address(contract_address, OWNER());
     assert!(state.approve(SPENDER(), VALUE));
 
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), VALUE);
+    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -116,17 +116,20 @@ fn test_approve_from_zero() {
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test_approve_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(ZERO(), VALUE);
 }
 
 #[test]
 fn test__approve() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+    let mut spy = utils::spy_on(contract_address);
+
+    start_cheat_caller_address(contract_address, OWNER());
     state._approve(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), VALUE);
+    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -143,7 +146,7 @@ fn test__approve_from_zero() {
 #[should_panic(expected: ('ERC20: approve to 0',))]
 fn test__approve_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state._approve(OWNER(), ZERO(), VALUE);
 }
 
@@ -154,10 +157,13 @@ fn test__approve_to_zero() {
 #[test]
 fn test_transfer() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+    let mut spy = utils::spy_on(contract_address);
+
+    start_cheat_caller_address(contract_address, OWNER());
     assert!(state.transfer(RECIPIENT(), VALUE));
 
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
@@ -167,7 +173,7 @@ fn test_transfer() {
 #[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test_transfer_not_enough_balance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
 
     let balance_plus_one = SUPPLY + 1;
     state.transfer(RECIPIENT(), balance_plus_one);
@@ -184,17 +190,19 @@ fn test_transfer_from_zero() {
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transfer_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transfer(ZERO(), VALUE);
 }
 
 #[test]
 fn test__transfer() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = utils::spy_on(contract_address);
 
     state._transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
+    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
@@ -204,7 +212,7 @@ fn test__transfer() {
 #[should_panic(expected: ('ERC20: insufficient balance',))]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
 
     let balance_plus_one = SUPPLY + 1;
     state._transfer(OWNER(), RECIPIENT(), balance_plus_one);
@@ -231,15 +239,17 @@ fn test__transfer_to_zero() {
 #[test]
 fn test_transfer_from() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
+    let contract_address = test_address();
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(contract_address, OWNER());
+    state.approve(SPENDER(), VALUE);
+
+    let mut spy = utils::spy_on(contract_address);
+    start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(ZERO(), OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(ref spy, contract_address, OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -252,10 +262,10 @@ fn test_transfer_from() {
 #[test]
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), BoundedInt::max());
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     state.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
@@ -266,10 +276,10 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 #[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     let allowance_plus_one = VALUE + 1;
     state.transfer_from(OWNER(), RECIPIENT(), allowance_plus_one);
 }
@@ -278,10 +288,10 @@ fn test_transfer_from_greater_than_allowance() {
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transfer_from_to_zero_address() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     state.transfer_from(OWNER(), ZERO(), VALUE);
 }
 
@@ -295,15 +305,17 @@ fn test_transfer_from_from_zero_address() {
 #[test]
 fn test_transferFrom() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
-    state.approve(SPENDER(), VALUE);
-    utils::drop_event(ZERO());
+    let contract_address = test_address();
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(contract_address, OWNER());
+    state.approve(SPENDER(), VALUE);
+
+    let mut spy = utils::spy_on(contract_address);
+    start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(ZERO(), OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), VALUE);
+    assert_event_approval(ref spy, contract_address, OWNER(), SPENDER(), 0);
+    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -317,10 +329,10 @@ fn test_transferFrom() {
 #[test]
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), BoundedInt::max());
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     state.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
@@ -331,10 +343,10 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 #[should_panic(expected: ('ERC20: insufficient allowance',))]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     let allowance_plus_one = VALUE + 1;
     state.transferFrom(OWNER(), RECIPIENT(), allowance_plus_one);
 }
@@ -343,10 +355,10 @@ fn test_transferFrom_greater_than_allowance() {
 #[should_panic(expected: ('ERC20: transfer to 0',))]
 fn test_transferFrom_to_zero_address() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), VALUE);
 
-    testing::set_caller_address(SPENDER());
+    start_cheat_caller_address(test_address(), SPENDER());
     state.transferFrom(OWNER(), ZERO(), VALUE);
 }
 
@@ -364,13 +376,14 @@ fn test_transferFrom_from_zero_address() {
 #[test]
 fn test__spend_allowance_not_unlimited() {
     let mut state = setup();
+    let contract_address = test_address();
 
     state._approve(OWNER(), SPENDER(), SUPPLY);
-    utils::drop_event(ZERO());
 
+    let mut spy = utils::spy_on(contract_address);
     state._spend_allowance(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), SUPPLY - VALUE);
+    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), SUPPLY - VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, SUPPLY - VALUE);
@@ -395,9 +408,12 @@ fn test__spend_allowance_unlimited() {
 #[test]
 fn test_mint() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+
+    let mut spy = utils::spy_on(contract_address);
     state.mint(OWNER(), VALUE);
 
-    assert_only_event_transfer(ZERO(), ZERO(), OWNER(), VALUE);
+    assert_only_event_transfer(ref spy, contract_address, ZERO(), OWNER(), VALUE);
     assert_eq!(state.balance_of(OWNER()), VALUE);
     assert_eq!(state.total_supply(), VALUE);
 }
@@ -416,9 +432,12 @@ fn test_mint_to_zero() {
 #[test]
 fn test_burn() {
     let mut state = setup();
+    let contract_address = test_address();
+
+    let mut spy = utils::spy_on(contract_address);
     state.burn(OWNER(), VALUE);
 
-    assert_only_event_transfer(ZERO(), OWNER(), ZERO(), VALUE);
+    assert_only_event_transfer(ref spy, contract_address, OWNER(), ZERO(), VALUE);
     assert_eq!(state.total_supply(), SUPPLY - VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
 }

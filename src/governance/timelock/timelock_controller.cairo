@@ -581,12 +581,8 @@ pub mod TimelockControllerComponent {
 
             // Register proposers and cancellers
             let mut i = 0;
-            loop {
-                if i == proposers.len() {
-                    break;
-                }
-
-                let mut proposer = proposers.at(i);
+            while i < proposers.len() {
+                let proposer = proposers.at(i);
                 access_component._grant_role(PROPOSER_ROLE, *proposer);
                 access_component._grant_role(CANCELLER_ROLE, *proposer);
                 i += 1;
@@ -594,12 +590,8 @@ pub mod TimelockControllerComponent {
 
             // Register executors
             let mut i = 0;
-            loop {
-                if i == executors.len() {
-                    break;
-                }
-
-                let mut executor = executors.at(i);
+            while i < executors.len() {
+                let executor = executors.at(i);
                 access_component._grant_role(EXECUTOR_ROLE, *executor);
                 i += 1;
             };

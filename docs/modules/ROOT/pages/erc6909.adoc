@@ -1,8 +1,7 @@
-:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
-:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[fungibility-agnostic]
-:solidity-implementation: https://github.com/jtriley-eth/ERC-6909/tree/main/src
-
 = ERC6909
+
+:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[fungibility-agnostic]
+:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
 
 The ERC6909 minimal multi token standard is a specification for {fungibility-agnostic} token contracts.
 `token::erc6909::ERC6909Component` provides an approximation of {eip-6909} in Cairo for StarkNet.
@@ -10,11 +9,13 @@ The ERC6909 minimal multi token standard is a specification for {fungibility-agn
 == Minimal Multi Token Standard
 
 Similar to ERC1155, it uses a single smart contract to represent multiple tokens at once via IDs. The main difference is 
-that callbacks and batching have been removed from the interface and the permission system is a hybrid operator-approval
+that in ERC6909 the callbacks and batching have been removed from the interface and the permission system is a hybrid operator-approval
 scheme for granular and scalable permissions. Functionally, the interface has been reduced to the bare minimum 
 required to manage multiple tokens under the same contract.
 
 == Usage
+
+:solidity-implementation: https://github.com/jtriley-eth/ERC-6909/tree/main/src
 
 Using Contracts for Cairo, constructing an ERC6909 contract requires integrating the `ERC6909Component`.
 
@@ -24,17 +25,17 @@ include within their contracts as they see fit. We followed the original {solidi
 
 Aside from the core `ERC6909`, the 3 optional modules that can be imported are:
 
-* `ERC6909Metadata`
-* `ERC6909ContentURI`
-* `ERC6909TokenSupply`
+* `ERC6909Metadata` - Name, symbol, decimals of each token ID
+* `ERC6909ContentURI` - The URI of the contract & each token ID
+* `ERC6909TokenSupply` - The total supply of each token ID
 
-Each module also has their camel counterparts:
+Each module also has their camelCase counterparts:
 
 * `ERC6909MetadataCamel`
 * `ERC6909ContentURICamel`
 * `ERC6909TokenSupplyCamel`
 
-To create the contract URI, it can be set up (ideally) in the constructor via `_set_contract_uri`.
+The contract URI can be set up (ideally) in the constructor via `_set_contract_uri`.
 
 Here’s an example of a basic contract which includes the Content URI and Token Supply modules:
 
@@ -87,21 +88,22 @@ mod MyToken {
 }
 ----
 
-`MyToken` integrates  the `ERC6909Impl`, `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl` with the embed directives which marks the implementations as external in the contract.
+`MyToken` integrates  the `ERC6909MixinImpl` along with the optional `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl`. The embed directives mark the implementations as external in the contract.
 While the `ERC6909TokenSupplyImpl` and `ERC6909ContentURIImpl` are optional, it's generally recommended to include them to keep track of individual token supplies and URIs.
 The above example also includes the `ERC6909InternalImpl` instance, allowing the contract's constructor to set the `contract_uri` and mint an initial supply of tokens.
 
 == Interface
 
-:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
 :erc6909-component: xref:/api/erc6909.adoc#ERC6909Component[ERC6909Component]
+:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
 :ierc6909-interface: xref:/api/erc6909.adoc#IERC6909[IERC6909]
 
-:ierc6909-supply: xref:/guides/ierc6909-supply.adoc[Creating ERC6909 Supply]
-:ierc6909-content: xref:/guides/ierc6909-content.adoc[Creating ERC6909 Content URI]
-:ierc6909-metadata: xref:/guides/erc6909-metadata.adoc[Creating ERC6909 Metadata]
+:ierc6909-supply: xref:/guides/ierc6909-supply.adoc[IERC6909TokenSupply]
+:ierc6909-content: xref:/guides/ierc6909-content.adoc[IERC6909ContentURI]
+:ierc6909-metadata: xref:/guides/erc6909-metadata.adoc[IERC6909Metadata]
 
 The following interface represents the full ABI of the Contracts for Cairo {erc6909-component}.
+The interface includes the {ierc6909-interface} standard interface and the optional {ierc6909-metadata}, {ierc6909-supply} and {ierc6909-content}.
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
 
@@ -149,10 +151,8 @@ Some notable differences, however, can still be found, such as:
 
 == Customizing Token Metadata
 
-Metadata is not required as per the EIP so it is included as a separate optional module.
-
 Since ERC6909 is a multi-token standard, instead of having a single `name`, `decimals`, and `symbol` functions for the entire token contract,
-the optional module defines these metadata properties for each token ID individually.
+the optional `IERC6909Metadata` module defines these metadata properties for each token ID individually.
 
 There are 3 internal methods which can be used to set individual id metadata: `_set_token_name(id, name)`, `_set_token_symbol(id, symbol)` and `_set_token_decimals(id, decimals)`.
 

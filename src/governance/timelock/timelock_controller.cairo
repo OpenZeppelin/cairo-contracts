@@ -346,9 +346,7 @@ pub mod TimelockControllerComponent {
         ///
         /// Emits a `MinDelayChange` event.
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
-            let this = starknet::get_contract_address();
-            let caller = starknet::get_caller_address();
-            assert(caller == this, Errors::UNAUTHORIZED_CALLER);
+            self.assert_only_self();
 
             let min_delay = self.TimelockController_min_delay.read();
             self.emit(MinDelayChange { old_duration: min_delay, new_duration: new_delay });
@@ -612,6 +610,14 @@ pub mod TimelockControllerComponent {
             if !is_role_open {
                 access_component.assert_only_role(role);
             }
+        }
+
+        /// Validates that the caller is the timelock contract itself.
+        /// Otherwise it reverts.
+        fn assert_only_self(self: @ComponentState<TContractState>) {
+            let this = starknet::get_contract_address();
+            let caller = starknet::get_caller_address();
+            assert(caller == this, Errors::UNAUTHORIZED_CALLER);
         }
 
         /// Private function that checks before execution of an operation's calls.

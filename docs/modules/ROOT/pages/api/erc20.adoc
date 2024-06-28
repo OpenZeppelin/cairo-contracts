@@ -477,7 +477,6 @@ WARNING: To track voting units, this extension requires that the
 xref:#ERC20VotesComponent-transfer_voting_units[transfer_voting_units] function is called after every transfer,
 mint, or burn operation. For this, the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait] must be used.
 
-
 This extension keeps a history (checkpoints) of each account’s vote power. Vote power can be delegated either by calling
 the xref:#ERC20VotesComponent-delegate[delegate] function directly, or by providing a signature to be used with
 xref:#ERC20VotesComponent-delegate_by_sig[delegate_by_sig]. Voting power can be queried through the public accessors

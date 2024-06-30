@@ -6,6 +6,7 @@ pub(crate) mod erc20_mocks;
 pub(crate) mod erc20_votes_mocks;
 pub(crate) mod erc721_mocks;
 pub(crate) mod erc721_receiver_mocks;
+pub(crate) mod erc721_uri_storage_mocks;
 pub(crate) mod eth_account_mocks;
 pub(crate) mod initializable_mocks;
 pub(crate) mod non_implementing_mock;

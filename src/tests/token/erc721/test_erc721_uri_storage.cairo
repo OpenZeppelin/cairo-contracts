@@ -1,15 +1,17 @@
 use openzeppelin::tests::mocks::erc721_uri_storage_mocks::ERC721URIstorageMock;
 use openzeppelin::tests::utils::constants::{
-    DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
+    DATA, ZERO, OWNER, RECIPIENT, NAME, SYMBOL, TOKEN_ID,
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2,SAMPLE_URI
 };
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
+use openzeppelin::token::erc721::ERC721Component::ERC721MetadataImpl;
+use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721Impl;
 use openzeppelin::token::erc721::ERC721Component;
+use openzeppelin::token::erc721::extensions::erc721_uri_storage::MetadataUpdate;
 use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent;
-use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent::ERC721URIstorageImpl;
+use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent::{ERC721URIstorageImpl,InternalImpl};
 
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;

@@ -2,12 +2,17 @@
 pub(crate) mod ERC721URIstorageMock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent::InternalTrait as ERC20VotesInternalTrait;
+    use openzeppelin::token::erc721::extensions::ERC721Component::InternalImpl;
     use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent;
     use starknet::ContractAddress;
 
+    component!(path: ERC721URIstorageComponent, storage: erc721_uri_storage, event: ERC721URIstorageEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    //ERC721URIstorage
+    #[abi(embed_v0)]
+    impl ERC721URIstorageImpl=ERC721URIstorageComponent::ERC721URIstorageImpl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
@@ -20,9 +25,6 @@ pub(crate) mod ERC721URIstorageMock {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     
-    //ERC721URIstorage
-    #[abi(embed_v0)]
-    impl ERC721URIstorage=ERC721URIstorageComponent::ERC721URIstorageImpl<ContractState>
 
     #[storage]
     struct Storage {
@@ -39,6 +41,8 @@ pub(crate) mod ERC721URIstorageMock {
         ERC721URIstorageEvent: ERC721URIstorageComponent::Event,
         #[flat]
         ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]

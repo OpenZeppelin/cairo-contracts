@@ -43,7 +43,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = CONTRACT_STATE();
-    mock_state.erc721.initializer(NAME(), SYMBOL(), BASE_URI());
+    mock_state.erc721.initializer(NAME(), SYMBOL(), "");
     mock_state.erc721.mint(OWNER(), TOKEN_ID);
     utils::drop_event(ZERO());
     state
@@ -53,8 +53,8 @@ fn setup() -> ComponentState {
 fn test_token_uri() {
     let state = setup();
     let uri = state.token_uri(TOKEN_ID);
-    let expected = "";
-    assert_eq!(uri, expected);
+    let expected = 0;
+    assert_eq!(uri.len(), expected);
 }
 
 #[test]
@@ -68,10 +68,10 @@ fn test_token_uri_non_minted() {
 fn test_set_token_uri() {
     let mut state = setup();
 
-    state.set_token_uri(TOKEN_ID, SAMPLE_URI()); //internal function?
+    state.set_token_uri(TOKEN_ID, SAMPLE_URI()); //internal function
     assert_only_event_metadata_update(ZERO(), TOKEN_ID); //checking event is emitted or not 
 
-    let expected = format!("{}", SAMPLE_URI());
+    let expected = SAMPLE_URI();
     let uri = state.token_uri(TOKEN_ID);
 
     assert_eq!(uri, expected);
@@ -88,7 +88,7 @@ fn test_set_token_uri_nonexistent() {
     //check accessible after minting
     mock_contract_state.erc721.mint(RECIPIENT(), TOKEN_ID_2);
 
-    let expected = format!("{}", SAMPLE_URI());
+    let expected = SAMPLE_URI();
     let uri = state.token_uri(TOKEN_ID);
 
     assert_eq!(uri, expected);
@@ -96,7 +96,7 @@ fn test_set_token_uri_nonexistent() {
 
 #[test]
 fn test_set_base_uri() {
-    let mut _state = setup(); //its the component state
+    let mut _state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
     mock_contract_state.erc721._set_base_uri(BASE_URI());
@@ -108,7 +108,7 @@ fn test_set_base_uri() {
 
 #[test]
 fn test_base_uri_is_prefix() {
-    let mut state = setup(); //its the component state
+    let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
     mock_contract_state.erc721._set_base_uri(BASE_URI());
@@ -121,7 +121,7 @@ fn test_base_uri_is_prefix() {
 
 #[test]
 fn test_base_uri_2_is_set_as_prefix() {
-    let mut state = setup(); //its the component state
+    let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
     mock_contract_state.erc721._set_base_uri(BASE_URI_2());
@@ -135,7 +135,7 @@ fn test_base_uri_2_is_set_as_prefix() {
 
 #[test]
 fn test_base_uri_and_token_id() {
-    let mut state = setup(); //its the component state
+    let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
     mock_contract_state.erc721._set_base_uri(BASE_URI());

@@ -7,7 +7,6 @@ use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDi
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{test_address, start_cheat_caller_address};
-use starknet::testing::set_contract_address;
 
 //
 // Setup
@@ -250,7 +249,7 @@ fn test_dual_transfer_from() {
     start_cheat_caller_address(test_address(), OWNER());
     target.approve(OPERATOR(), VALUE);
 
-    set_contract_address(OPERATOR());
+    start_cheat_caller_address(test_address(), OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
     assert_eq!(target.balance_of(RECIPIENT()), VALUE);
 }
@@ -312,7 +311,7 @@ fn test_dual_transferFrom() {
     start_cheat_caller_address(test_address(), OWNER());
     target.approve(OPERATOR(), VALUE);
 
-    set_contract_address(OPERATOR());
+    start_cheat_caller_address(test_address(), OPERATOR());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
     assert_eq!(target.balanceOf(RECIPIENT()), VALUE);
 }

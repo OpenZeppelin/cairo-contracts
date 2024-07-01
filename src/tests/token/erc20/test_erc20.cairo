@@ -10,7 +10,7 @@ use openzeppelin::token::erc20::ERC20Component;
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 
-use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
+use super::common::ERC20SpyHelpers;
 
 //
 // Setup
@@ -99,7 +99,7 @@ fn test_approve() {
     start_cheat_caller_address(contract_address, OWNER());
     assert!(state.approve(SPENDER(), VALUE));
 
-    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), VALUE);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -129,7 +129,7 @@ fn test__approve() {
     start_cheat_caller_address(contract_address, OWNER());
     state._approve(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), VALUE);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, VALUE);
@@ -163,7 +163,7 @@ fn test_transfer() {
     start_cheat_caller_address(contract_address, OWNER());
     assert!(state.transfer(RECIPIENT(), VALUE));
 
-    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
@@ -202,7 +202,7 @@ fn test__transfer() {
 
     state._transfer(OWNER(), RECIPIENT(), VALUE);
 
-    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
     assert_eq!(state.balance_of(RECIPIENT()), VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
     assert_eq!(state.total_supply(), SUPPLY);
@@ -248,8 +248,8 @@ fn test_transfer_from() {
     start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(ref spy, contract_address, OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -314,8 +314,8 @@ fn test_transferFrom() {
     start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
-    assert_event_approval(ref spy, contract_address, OWNER(), SPENDER(), 0);
-    assert_only_event_transfer(ref spy, contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -383,7 +383,7 @@ fn test__spend_allowance_not_unlimited() {
     let mut spy = utils::spy_on(contract_address);
     state._spend_allowance(OWNER(), SPENDER(), VALUE);
 
-    assert_only_event_approval(ref spy, contract_address, OWNER(), SPENDER(), SUPPLY - VALUE);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), SUPPLY - VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, SUPPLY - VALUE);
@@ -413,7 +413,7 @@ fn test_mint() {
     let mut spy = utils::spy_on(contract_address);
     state.mint(OWNER(), VALUE);
 
-    assert_only_event_transfer(ref spy, contract_address, ZERO(), OWNER(), VALUE);
+    spy.assert_only_event_transfer(contract_address, ZERO(), OWNER(), VALUE);
     assert_eq!(state.balance_of(OWNER()), VALUE);
     assert_eq!(state.total_supply(), VALUE);
 }
@@ -437,7 +437,7 @@ fn test_burn() {
     let mut spy = utils::spy_on(contract_address);
     state.burn(OWNER(), VALUE);
 
-    assert_only_event_transfer(ref spy, contract_address, OWNER(), ZERO(), VALUE);
+    spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), VALUE);
     assert_eq!(state.total_supply(), SUPPLY - VALUE);
     assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
 }

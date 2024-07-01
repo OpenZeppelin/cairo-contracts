@@ -8,20 +8,20 @@ The ERC6909 minimal multi token standard is a specification for {fungibility-agn
 
 == Minimal Multi Token Standard
 
-Similar to ERC1155, it uses a single smart contract to represent multiple tokens at once via IDs. The main difference is 
-that in ERC6909 the callbacks and batching have been removed from the interface and the permission system is a hybrid operator-approval
+Similar to ERC1155, it uses a single smart contract to represent multiple tokens via unique IDs. The main difference is 
+that in ERC6909 "the callbacks and batching have been removed from the interface and the permission system is a hybrid operator-approval
 scheme for granular and scalable permissions. Functionally, the interface has been reduced to the bare minimum 
-required to manage multiple tokens under the same contract.
+required to manage multiple tokens under the same contract." {eip-6909}
 
 == Usage
 
-:solidity-implementation: https://github.com/jtriley-eth/ERC-6909/tree/main/src
+:solidity-implementation: https://github.com/jtriley-eth/ERC-6909/tree/main/src[sample Solidity implementations]
 
 Using Contracts for Cairo, constructing an ERC6909 contract requires integrating the `ERC6909Component`.
 
 Since some functions commonly found on token standards (such as `total_supply` or metadata) are not part of the EIP,
 the logic for these are implemented under separate modules for ease of use. Developers can choose which modules to 
-include within their contracts as they see fit. We followed the original {solidity-implementation} to replicate these in Cairo.
+include within their contracts as they see fit. We replicated the {solidity-implementation} in Cairo.
 
 Aside from the core `ERC6909`, the 3 optional modules that can be imported are:
 

@@ -10,20 +10,11 @@ pub(crate) mod DualCaseERC6909Mock {
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl =
-        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909TokenSupplyImpl =
-        ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
+    impl ERC6909TokenSupplyImpl = ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909TokenSupplyCamelImpl =
-        ERC6909Component::ERC6909TokenSupplyCamelImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURIImpl =
-        ERC6909Component::ERC6909ContentURIImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURICamelImpl =
-        ERC6909Component::ERC6909ContentURICamelImpl<ContractState>;
+    impl ERC6909ContentURIImpl = ERC6909Component::ERC6909ContentURIImpl<ContractState>;
 
     /// Internal logic
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -59,11 +50,9 @@ pub(crate) mod SnakeERC6909Mock {
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909TokenSupplyImpl =
-        ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
+    impl ERC6909TokenSupplyImpl = ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909ContentURIImpl =
-        ERC6909Component::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909ContentURIImpl = ERC6909Component::ERC6909ContentURIImpl<ContractState>;
 
     /// Internal logic
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -96,14 +85,11 @@ pub(crate) mod CamelERC6909Mock {
 
     /// ABI of Components
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl =
-        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909TokenSupplyCamelImpl =
-        ERC6909Component::ERC6909TokenSupplyCamelImpl<ContractState>;
+    impl ERC6909TokenSupplyCamelImpl = ERC6909Component::ERC6909TokenSupplyCamelImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909ContentURICamelImpl =
-        ERC6909Component::ERC6909ContentURICamelImpl<ContractState>;
+    impl ERC6909ContentURICamelImpl = ERC6909Component::ERC6909ContentURICamelImpl<ContractState>;
 
 
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;

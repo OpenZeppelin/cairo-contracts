@@ -49,5 +49,5 @@ pub(crate) impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
     ) {
         self.assert_event_transfer(contract, from, to, value);
         self.assert_no_events_left_from(contract);
-    }   
+    }
 }

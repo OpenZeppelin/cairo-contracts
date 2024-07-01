@@ -1,5 +1,5 @@
-use core::traits::TryInto;
 use core::poseidon::{Poseidon, PoseidonTrait};
+use core::traits::TryInto;
 use snforge_std::{declare, ContractClass, ContractClassTrait};
 use starknet::{ClassHash, ContractAddress};
 

@@ -3,8 +3,8 @@ use core::num::traits::Zero;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
-use openzeppelin::tests::utils;
 use openzeppelin::tests::utils::events::EventSpyExt;
+use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
     DelegateChanged, DelegateVotesChanged

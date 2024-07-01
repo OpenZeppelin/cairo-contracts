@@ -112,8 +112,8 @@ pub impl TraceImpl of TraceTrait {
 
 #[generate_trait]
 impl CheckpointImpl of CheckpointTrait {
-    /// Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-    /// or by updating the last one.
+    /// Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a
+    /// new checkpoint, or by updating the last one.
     fn _insert(ref self: StorageArray<Checkpoint>, key: u64, value: u256) -> (u256, u256) {
         let pos = self.len();
 
@@ -138,9 +138,9 @@ impl CheckpointImpl of CheckpointTrait {
         }
     }
 
-    /// Returns the index of the last (most recent) checkpoint with the key lower than or equal to the search key,
-    /// or `high` if there is none. `low` and `high` define a section where to do the search, with
-    /// inclusive `low` and exclusive `high`.
+    /// Returns the index of the last (most recent) checkpoint with the key lower than or equal to
+    /// the search key, or `high` if there is none. `low` and `high` define a section where to do
+    /// the search, with inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32) -> u32 {
         let mut _low = low;
         let mut _high = high;

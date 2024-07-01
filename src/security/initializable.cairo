@@ -11,7 +11,7 @@ pub mod InitializableComponent {
     use openzeppelin::security::interface::IInitializable;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         Initializable_initialized: bool
     }
 

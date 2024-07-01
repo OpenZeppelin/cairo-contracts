@@ -22,7 +22,7 @@ pub mod OwnableComponent {
     use starknet::get_caller_address;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         Ownable_owner: ContractAddress,
         Ownable_pending_owner: ContractAddress
     }

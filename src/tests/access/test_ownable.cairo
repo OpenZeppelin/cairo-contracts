@@ -1,11 +1,11 @@
 use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
+// use starknet::storage::StorageBaseTrait;
 use openzeppelin::access::ownable::OwnableComponent;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
-use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;
 
 use super::common::assert_only_event_ownership_transferred;

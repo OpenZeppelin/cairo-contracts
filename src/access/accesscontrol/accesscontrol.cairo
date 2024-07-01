@@ -13,11 +13,12 @@ pub mod AccessControlComponent {
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::Map;
 
     #[storage]
-    struct Storage {
-        AccessControl_role_admin: LegacyMap<felt252, felt252>,
-        AccessControl_role_member: LegacyMap<(felt252, ContractAddress), bool>,
+    pub struct Storage {
+        AccessControl_role_admin: Map<felt252, felt252>,
+        AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
     }
 
     #[event]
@@ -96,7 +97,7 @@ pub mod AccessControlComponent {
         fn grant_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let admin = AccessControl::get_role_admin(@self, role);
+            let admin = Self::get_role_admin(@self, role);
             self.assert_only_role(admin);
             self._grant_role(role, account);
         }
@@ -111,7 +112,7 @@ pub mod AccessControlComponent {
         fn revoke_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let admin = AccessControl::get_role_admin(@self, role);
+            let admin = Self::get_role_admin(@self, role);
             self.assert_only_role(admin);
             self._revoke_role(role, account);
         }

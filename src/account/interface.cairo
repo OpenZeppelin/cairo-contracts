@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.14.0 (account/interface.cairo)
 
-use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use starknet::ContractAddress;
 use starknet::account::Call;
 

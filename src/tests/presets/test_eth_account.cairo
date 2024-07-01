@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
 use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
+    DebugSecp256k1Point, Secp256k1PointPartialEq
 };
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;

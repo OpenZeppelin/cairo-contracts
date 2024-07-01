@@ -2,6 +2,7 @@
 use starknet::ContractAddress;
 
 // https://github.com/jtriley-eth/ERC-6909/blob/main/src/interfaces/IERC6909.sol
+// To generate Starknet IDs: https://community.starknet.io/t/starknet-standard-interface-detection
 pub const IERC6909_ID: felt252 = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee;
 
 #[starknet::interface]
@@ -151,6 +152,36 @@ pub trait IERC6909CamelOnly<TState> {
     fn supportsInterface(self: @TState, interface_id: felt252) -> bool;
 }
 
+
+// https://github.com/jtriley-eth/ERC-6909/blob/main/src/interfaces/IERC6909.sol
+#[starknet::interface]
+pub trait ERC6909ABI<TState> {
+    /// @notice IERC6909 standard interface
+    fn balance_of(self: @TState, owner: ContractAddress, id: u256) -> u256;
+    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress, id: u256) -> u256;
+    fn is_operator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
+    fn transfer(ref self: TState, receiver: ContractAddress, id: u256, amount: u256) -> bool;
+    fn transfer_from(
+        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
+    ) -> bool;
+    fn approve(ref self: TState, spender: ContractAddress, id: u256, amount: u256) -> bool;
+    fn set_operator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+
+    /// @notice IERC6909Camel
+    fn balanceOf(self: @TState, owner: ContractAddress, id: u256) -> u256;
+    fn isOperator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
+    fn transferFrom(
+        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
+    ) -> bool;
+    fn setOperator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
+    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+}
+
+//
+// Extensions
+//
+
 // https://github.com/jtriley-eth/ERC-6909/blob/main/src/interfaces/IERC6909Metadata.sol
 #[starknet::interface]
 pub trait IERC6909Metadata<TState> {
@@ -179,14 +210,6 @@ pub trait IERC6909TokenSupply<TState> {
     fn total_supply(self: @TState, id: u256) -> u256;
 }
 
-#[starknet::interface]
-pub trait IERC6909TokenSupplyCamel<TState> {
-    /// @notice Total supply of a token
-    /// @param id The id of the token.
-    /// @return The total supply of the token.
-    fn totalSupply(self: @TState, id: u256) -> u256;
-}
-
 //https://github.com/jtriley-eth/ERC-6909/blob/main/src/ERC6909ContentURI.sol
 #[starknet::interface]
 pub trait IERC6909ContentURI<TState> {
@@ -198,41 +221,4 @@ pub trait IERC6909ContentURI<TState> {
     /// @param id The id of the token.
     /// @return The token level URI.
     fn token_uri(self: @TState, id: u256) -> ByteArray;
-}
-
-#[starknet::interface]
-pub trait IERC6909ContentURICamel<TState> {
-    /// @notice Contract level URI
-    /// @return The contract level URI.
-    fn contractUri(self: @TState) -> ByteArray;
-
-    /// @notice Token level URI
-    /// @param id The id of the token.
-    /// @return The token level URI.
-    fn tokenUri(self: @TState, id: u256) -> ByteArray;
-}
-
-// https://github.com/jtriley-eth/ERC-6909/blob/main/src/interfaces/IERC6909.sol
-#[starknet::interface]
-pub trait ERC6909ABI<TState> {
-    /// @notice IERC6909 standard interface
-    fn balance_of(self: @TState, owner: ContractAddress, id: u256) -> u256;
-    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress, id: u256) -> u256;
-    fn is_operator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
-    fn transfer(ref self: TState, receiver: ContractAddress, id: u256, amount: u256) -> bool;
-    fn transfer_from(
-        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
-    ) -> bool;
-    fn approve(ref self: TState, spender: ContractAddress, id: u256, amount: u256) -> bool;
-    fn set_operator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
-    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
-
-    /// @notice IERC6909Camel
-    fn balanceOf(self: @TState, owner: ContractAddress, id: u256) -> u256;
-    fn isOperator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
-    fn transferFrom(
-        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
-    ) -> bool;
-    fn setOperator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
-    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
 }

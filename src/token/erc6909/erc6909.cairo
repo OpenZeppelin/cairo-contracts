@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc6909/erc6909.cairo)
+
 use core::starknet::{ContractAddress};
 
 /// # ERC6909 Component
@@ -15,14 +17,9 @@ pub mod ERC6909Component {
 
     #[storage]
     struct Storage {
-        ERC6909_name: LegacyMap<u256, ByteArray>,
-        ERC6909_symbol: LegacyMap<u256, ByteArray>,
-        ERC6909_decimals: LegacyMap<u256, u8>,
         ERC6909_balances: LegacyMap<(ContractAddress, u256), u256>,
         ERC6909_allowances: LegacyMap<(ContractAddress, ContractAddress, u256), u256>,
         ERC6909_operators: LegacyMap<(ContractAddress, ContractAddress), bool>,
-        ERC6909_total_supply: LegacyMap<u256, u256>,
-        ERC6909_contract_uri: ByteArray,
     }
 
     #[event]
@@ -281,98 +278,6 @@ pub mod ERC6909Component {
         }
     }
 
-    #[embeddable_as(ERC6909MetadataImpl)]
-    impl ERC6909Metadata<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
-    > of interface::IERC6909Metadata<ComponentState<TContractState>> {
-        /// @notice Name of a given token.
-        /// @param id The id of the token.
-        /// @return The name of the token.
-        fn name(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
-            self.ERC6909_name.read(id)
-        }
-
-        /// @notice Symbol of a given token.
-        /// @param id The id of the token.
-        /// @return The symbol of the token.
-        fn symbol(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
-            self.ERC6909_symbol.read(id)
-        }
-
-        /// @notice Decimals of a given token.
-        /// @param id The id of the token.
-        /// @return The decimals of the token.
-        fn decimals(self: @ComponentState<TContractState>, id: u256) -> u8 {
-            self.ERC6909_decimals.read(id)
-        }
-    }
-
-    #[embeddable_as(ERC6909TokenSupplyImpl)]
-    impl ERC6909TokenSupply<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
-    > of interface::IERC6909TokenSupply<ComponentState<TContractState>> {
-        /// @notice Total supply of a token
-        /// @param id The id of the token.
-        /// @return The total supply of the token.
-        fn total_supply(self: @ComponentState<TContractState>, id: u256) -> u256 {
-            self.ERC6909_total_supply.read(id)
-        }
-    }
-
-    #[embeddable_as(ERC6909TokenSupplyCamelImpl)]
-    impl ERC6909TokenSupplyCamel<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
-    > of interface::IERC6909TokenSupplyCamel<ComponentState<TContractState>> {
-        /// @notice Total supply of a token
-        /// @param id The id of the token.
-        /// @return The total supply of the token.
-        fn totalSupply(self: @ComponentState<TContractState>, id: u256) -> u256 {
-            ERC6909TokenSupply::total_supply(self, id)
-        }
-    }
-
-
-    #[embeddable_as(ERC6909ContentURIImpl)]
-    impl ERC6909ContentURI<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
-    > of interface::IERC6909ContentURI<ComponentState<TContractState>> {
-        /// @notice The contract level URI.
-        /// @return The URI of the contract.
-        fn contract_uri(self: @ComponentState<TContractState>) -> ByteArray {
-            self.ERC6909_contract_uri.read()
-        }
-
-        /// @notice Token level URI
-        /// @param id The id of the token.
-        /// @return The token level URI.
-        fn token_uri(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
-            let contract_uri = self.contract_uri();
-            if contract_uri.len() != 0 {
-                return "";
-            } else {
-                return format!("{}{}", contract_uri, id);
-            }
-        }
-    }
-
-    #[embeddable_as(ERC6909ContentURICamelImpl)]
-    impl ERC6909ContentURICamel<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
-    > of interface::IERC6909ContentURICamel<ComponentState<TContractState>> {
-        /// @notice Contract level URI
-        /// @return uri The contract level URI.
-        fn contractUri(self: @ComponentState<TContractState>) -> ByteArray {
-            ERC6909ContentURI::contract_uri(self)
-        }
-
-        /// @notice Token level URI
-        /// @param id The id of the token.
-        /// @return The token level URI.
-        fn tokenUri(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
-            ERC6909ContentURI::token_uri(self, id)
-        }
-    }
-
     /// internal
     #[generate_trait]
     pub impl InternalImpl<
@@ -413,8 +318,12 @@ pub mod ERC6909Component {
             self.update(get_caller_address(), account, Zero::zero(), id, amount);
         }
 
-        /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or burns) if `sender` (or `receiver`) is
-        /// the zero address.
+        /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or burns) 
+        /// if `sender` (or `receiver`) is the zero address.
+        ///
+        /// This function can be extended using the `before_update` and `after_update` hooks. 
+        /// The implementation does not keep track of individual token supplies and this logic is left
+        /// to the extensions instead.
         ///
         /// Emits a `Transfer` event.
         fn update(
@@ -427,49 +336,16 @@ pub mod ERC6909Component {
         ) {
             Hooks::before_update(ref self, sender, receiver, id, amount);
 
-            let zero_address = Zero::zero();
-            if (sender == zero_address) {
-                let total_supply = self.ERC6909_total_supply.read(id);
-                self.ERC6909_total_supply.write(id, total_supply + amount);
-            } else {
-                let sender_balance = self.ERC6909_balances.read((sender, id));
-                assert(sender_balance >= amount, Errors::INSUFFICIENT_BALANCE);
-                self.ERC6909_balances.write((sender, id), sender_balance - amount);
-            }
+            let sender_balance = self.ERC6909_balances.read((sender, id));
+            assert(sender_balance >= amount, Errors::INSUFFICIENT_BALANCE);
+            self.ERC6909_balances.write((sender, id), sender_balance - amount);
 
-            if (receiver == zero_address) {
-                let total_supply = self.ERC6909_total_supply.read(id);
-                self.ERC6909_total_supply.write(id, total_supply - amount);
-            } else {
-                let receiver_balance = self.ERC6909_balances.read((receiver, id));
-                self.ERC6909_balances.write((receiver, id), receiver_balance + amount);
-            }
+            let receiver_balance = self.ERC6909_balances.read((receiver, id));
+            self.ERC6909_balances.write((receiver, id), receiver_balance + amount);
 
             self.emit(Transfer { caller, sender, receiver, id, amount });
 
             Hooks::after_update(ref self, sender, receiver, id, amount);
-        }
-
-        /// Sets the base URI.
-        fn _set_contract_uri(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
-            self.ERC6909_contract_uri.write(contract_uri);
-        }
-
-        /// Sets the token name.
-        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
-            self.ERC6909_name.write(id, name);
-        }
-
-        /// Sets the token symbol.
-        fn _set_token_symbol(
-            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray
-        ) {
-            self.ERC6909_symbol.write(id, symbol);
-        }
-
-        /// Sets the token decimals.
-        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
-            self.ERC6909_decimals.write(id, decimals);
         }
 
         /// @notice Sets or unsets a spender as an operator for the caller.

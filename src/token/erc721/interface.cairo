@@ -58,11 +58,6 @@ pub trait IERC721MetadataCamelOnly<TState> {
     fn tokenURI(self: @TState, tokenId: u256) -> ByteArray;
 }
 
-#[starknet::interface]
-pub trait IERC721URIstorage<TState>{
-    fn token_uri(self: @TState,token_id:u256)->ByteArray;
-    fn set_token_uri(ref self: TState,token_id:u256,_token_uri:ByteArray);
-}
 
 //
 // ERC721 ABI
@@ -140,13 +135,11 @@ pub trait ERC721URIstorageABI<TState> {
     ) -> bool;
 
     // IERC721Metadata
-    // fn name(self: @TState) -> ByteArray;
-    // fn symbol(self: @TState) -> ByteArray;
-    // fn decimals(self: @TState) -> u8;
-
-    // IERC721URIstorage
+    fn name(self: @TState) -> ByteArray;
+    fn symbol(self: @TState) -> ByteArray;
     fn token_uri(self: @TState,token_id:u256)->ByteArray;
-    fn set_token_uri(ref self: TState,token_id:u256,_token_uri:ByteArray);
+    
+  //  fn set_token_uri(ref self: TState,token_id:u256,_token_uri:ByteArray);
 }
 
 //

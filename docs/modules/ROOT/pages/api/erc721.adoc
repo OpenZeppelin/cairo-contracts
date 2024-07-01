@@ -765,7 +765,7 @@ See <<ERC721URIstorageComponent-_token_uri,ERC721URIstorageComponent::_token_uri
 
 [.contract-item]
 [[ERC721URIstorageComponent-name]]
-==== `[.contract-item-name]#++name++#++(self: @ContractState) → ByteArray++` [.item-kind]#internall#
+==== `[.contract-item-name]#++name++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
 
 See <<IERC721Metadata-name,IERC721Metadata::name>>.
 

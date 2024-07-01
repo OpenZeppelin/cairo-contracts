@@ -137,9 +137,7 @@ pub trait ERC721URIstorageABI<TState> {
     // IERC721Metadata
     fn name(self: @TState) -> ByteArray;
     fn symbol(self: @TState) -> ByteArray;
-    fn token_uri(self: @TState,token_id:u256)->ByteArray;
-    
-  //  fn set_token_uri(ref self: TState,token_id:u256,_token_uri:ByteArray);
+    fn token_uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 //

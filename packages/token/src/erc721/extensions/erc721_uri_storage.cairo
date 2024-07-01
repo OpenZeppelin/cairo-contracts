@@ -6,10 +6,9 @@ pub mod ERC721URIstorageComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::{ERC721Component,ERC721HooksEmptyImpl,ERC721HooksTrait};
+    use openzeppelin::token::erc721::{ERC721Component,ERC721HooksEmptyImpl};
     use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721Impl;
-    use openzeppelin::token::erc721::ERC721Component::ERC721Metadata;
-    use openzeppelin::token::erc721::interface::{IERC721,IERC721Metadata,IERC721URIstorage};
+    use openzeppelin::token::erc721::interface::{IERC721,IERC721Metadata};
     use starknet::ContractAddress;
 
     #[storage]
@@ -27,7 +26,7 @@ pub mod ERC721URIstorageComponent {
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct MetadataUpdate{
         #[key]
-        token_id: u256,
+        pub token_id: u256,
     }
 
     #[embeddable_as(ERC721URIstorageImpl)]
@@ -36,10 +35,16 @@ pub mod ERC721URIstorageComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721Component::HasComponent<TContractState>,
-        +ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
-    > of IERC721URIstorage<ComponentState<TContractState>> {
+    > of IERC721Metadata<ComponentState<TContractState>> {
 
+        fn name(self:@ComponentState<TContractState>)->ByteArray{
+            self._name()
+        }
+        
+        fn symbol(self:@ComponentState<TContractState>)->ByteArray{
+            self._symbol()
+        }
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set, the return value will be an empty ByteArray.
         ///
@@ -48,11 +53,6 @@ pub mod ERC721URIstorageComponent {
         /// - `token_id` exists.
         fn token_uri(self: @ComponentState<TContractState>,token_id:u256)->ByteArray{
             self._token_uri(token_id)
-        }
-
-        /// Sets the Uniform Resource Identifier (URI) for the `token_id` token.
-        fn set_token_uri(ref self: ComponentState<TContractState>,token_id:u256,_token_uri:ByteArray){
-            self._set_token_uri(token_id,_token_uri);
         }
     }
 
@@ -66,9 +66,20 @@ pub mod ERC721URIstorageComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
-        impl Hooks: ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
+
+        fn _name(self:@ComponentState<TContractState>)->ByteArray{
+            let erc721_component= get_dep_component!(self, ERC721);
+            let name=erc721_component.ERC721_name.read();
+            return name;
+        }
+        
+        fn _symbol(self:@ComponentState<TContractState>)->ByteArray{
+            let erc721_component= get_dep_component!(self, ERC721);
+            let symbol=erc721_component.ERC721_symbol.read();
+            return symbol;
+        }
 
         /// Returns the `token_uri` for the `token_id` 
         /// if needed, returns the concatenated string
@@ -83,17 +94,21 @@ pub mod ERC721URIstorageComponent {
             if token_uri.len()>0{
                 return format!("{}{}",base_uri,token_uri);
             }
-            return ERC721Metadata::token_uri(erc721_component,token_id);
+
+            //token_uri implementation from the ERC721Metadata
+            if base_uri.len() == 0 {
+                return "";
+            } else {
+                return format!("{}{}", base_uri, token_id);
+            }
         }
 
         /// Sets or updates the `token_uri` for the respective `token_uri`
         ///
         /// Emits `MetadataUpdate` event
-        fn _set_token_uri(ref self: ComponentState<TContractState>,token_id:u256,_token_uri:ByteArray){
-            self.token_uris.write(token_id,_token_uri);
+        fn set_token_uri(ref self: ComponentState<TContractState>,token_id:u256,token_uri:ByteArray){
+            self.token_uris.write(token_id,token_uri);
             self.emit(MetadataUpdate{token_id:token_id});
         }
     }
 }
-
-

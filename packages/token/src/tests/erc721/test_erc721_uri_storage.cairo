@@ -89,7 +89,7 @@ fn test_set_token_uri_nonexistent() {
     mock_contract_state.erc721.mint(RECIPIENT(), TOKEN_ID_2);
 
     let expected = SAMPLE_URI();
-    let uri = state.token_uri(TOKEN_ID);
+    let uri = state.token_uri(TOKEN_ID_2);
 
     assert_eq!(uri, expected);
 }

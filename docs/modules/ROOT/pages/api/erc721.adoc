@@ -779,9 +779,14 @@ See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
 [[ERC721URIstorageComponent-_token_uri]]
 ==== `[.contract-item-name]#++_token_uri++#++(self: @ContractState, token_id: u256) → ByteArray++` [.item-kind]#internal#
 
-Returns the Uniform Resource Identifier (URI) for the `token_id` token. If a base URI is set, the resulting URI for each token will be the concatenation of the base URI and the token ID. For example, the base URI `https://token-cdn-domain/` would be returned as `https://token-cdn-domain/123` for token ID `123`.
+Returns the Uniform Resource Identifier (URI) for the `token_id` token. 
 
-If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.
+
+If a base URI is set and the token URI is set , the resulting URI for each token will be the concatenation of the base URI and the token URI. 
+If a base URI is set and the token URI is not set , the resulting URI for each token will be the concatenation of the base URI and the token ID. 
+If a base URI is not set and the token URI is set , the resulting URI for each token will be the token URI. 
+
+If the base URI and token URI is not set for `token_id`, the return value will be an empty `ByteArray`.
 
 [.contract-item]
 [[ERC721URIstorageComponent-se_token_uri]]

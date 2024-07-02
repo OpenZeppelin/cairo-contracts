@@ -328,7 +328,7 @@ pub mod ERC6909Component {
         /// Emits a `Transfer` event.
         fn update(
             ref self: ComponentState<TContractState>,
-            caller: ContractAddress,
+            caller: ContractAddress, // For the `Transfer` event
             sender: ContractAddress, // from
             receiver: ContractAddress, // to
             id: u256,
@@ -336,12 +336,18 @@ pub mod ERC6909Component {
         ) {
             Hooks::before_update(ref self, sender, receiver, id, amount);
 
-            let sender_balance = self.ERC6909_balances.read((sender, id));
-            assert(sender_balance >= amount, Errors::INSUFFICIENT_BALANCE);
-            self.ERC6909_balances.write((sender, id), sender_balance - amount);
+            let zero_address = Zero::zero();
 
-            let receiver_balance = self.ERC6909_balances.read((receiver, id));
-            self.ERC6909_balances.write((receiver, id), receiver_balance + amount);
+            if (sender != zero_address) {
+                let sender_balance = self.ERC6909_balances.read((sender, id));
+                assert(sender_balance >= amount, Errors::INSUFFICIENT_BALANCE);
+                self.ERC6909_balances.write((sender, id), sender_balance - amount);
+            }
+
+            if (receiver != zero_address) {
+                let receiver_balance = self.ERC6909_balances.read((receiver, id));
+                self.ERC6909_balances.write((receiver, id), receiver_balance + amount);
+            }
 
             self.emit(Transfer { caller, sender, receiver, id, amount });
 

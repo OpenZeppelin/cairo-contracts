@@ -47,7 +47,6 @@ pub mod ERC6909TokenSupplyComponent {
         /// @dev ideally this function should be called in a `before_update` or `after_update` hook.
         fn _update_token_supply(
             ref self: ComponentState<TContractState>,
-            caller: ContractAddress,
             sender: ContractAddress,
             receiver: ContractAddress,
             id: u256,

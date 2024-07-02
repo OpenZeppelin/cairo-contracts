@@ -1,7 +1,7 @@
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::erc721_uri_storage_mocks::ERC721URIstorageMock;
+use openzeppelin::tests::mocks::erc721_uri_storage_mocks::ERC721URIStorageMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, RECIPIENT, NAME, SYMBOL, TOKEN_ID, TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2,
     SAMPLE_URI
@@ -10,11 +10,11 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent::{
-    ERC721URIstorageImpl, InternalImpl
+use openzeppelin::token::erc721::extensions::ERC721URIStorageComponent::{
+    ERC721URIStorageImpl, InternalImpl
 };
-use openzeppelin::token::erc721::extensions::ERC721URIstorageComponent;
-use openzeppelin::token::erc721::extensions::erc721_uri_storage::ERC721URIstorageComponent::MetadataUpdate;
+use openzeppelin::token::erc721::extensions::ERC721URIStorageComponent;
+use openzeppelin::token::erc721::extensions::erc721_uri_storage::ERC721URIStorageComponent::MetadataUpdated;
 
 use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
@@ -30,13 +30,13 @@ use starknet::testing;
 //
 
 type ComponentState =
-    ERC721URIstorageComponent::ComponentState<ERC721URIstorageMock::ContractState>;
+    ERC721URIStorageComponent::ComponentState<ERC721URIStorageMock::ContractState>;
 
-fn CONTRACT_STATE() -> ERC721URIstorageMock::ContractState {
-    ERC721URIstorageMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> ERC721URIStorageMock::ContractState {
+    ERC721URIStorageMock::contract_state_for_testing()
 }
 fn COMPONENT_STATE() -> ComponentState {
-    ERC721URIstorageComponent::component_state_for_testing()
+    ERC721URIStorageComponent::component_state_for_testing()
 }
 
 //constructor is inside only
@@ -149,13 +149,13 @@ fn test_base_uri_and_token_id() {
 // Helpers
 //
 pub fn assert_event_metadata_update(contract: ContractAddress, token_id: u256) {
-    let event = utils::pop_log::<ERC721URIstorageComponent::Event>(contract).unwrap();
-    let expected = ERC721URIstorageComponent::Event::MetadataUpdate(MetadataUpdate { token_id });
+    let event = utils::pop_log::<ERC721URIStorageComponent::Event>(contract).unwrap();
+    let expected = ERC721URIStorageComponent::Event::MetadataUpdated(MetadataUpdated { token_id });
     assert!(event == expected);
 
     //check indexed keys
     let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("MetadataUpdate"));
+    indexed_keys.append_serde(selector!("MetadataUpdated"));
     indexed_keys.append_serde(token_id);
     utils::assert_indexed_keys(event, indexed_keys.span())
 }

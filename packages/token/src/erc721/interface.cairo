@@ -111,11 +111,11 @@ pub trait ERC721ABI<TState> {
 }
 
 //
-// ERC721URIstorage ABI
+// ERC721URIStorage ABI
 //
 
 #[starknet::interface]
-pub trait ERC721URIstorageABI<TState> {
+pub trait ERC721URIStorageABI<TState> {
     // IERC721
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn owner_of(self: @TState, token_id: u256) -> ContractAddress;

@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.14.0 (token/erc721/extensions/erc721_uri_storage.cairo)
 
 #[starknet::component]
-pub mod ERC721URIstorageComponent {
+pub mod ERC721URIStorageComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -13,24 +13,24 @@ pub mod ERC721URIstorageComponent {
 
     #[storage]
     struct Storage {
-        token_uris: LegacyMap<u256, ByteArray>,
+        ERC721URIStorage_token_uris: LegacyMap<u256, ByteArray>,
     }
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
     pub enum Event {
-        MetadataUpdate: MetadataUpdate,
+        MetadataUpdated: MetadataUpdated,
     }
 
     /// Emitted when `token_uri` is changed for `token_id`
     #[derive(Drop, PartialEq, starknet::Event)]
-    pub struct MetadataUpdate {
+    pub struct MetadataUpdated {
         #[key]
         pub token_id: u256,
     }
 
-    #[embeddable_as(ERC721URIstorageImpl)]
-    impl ERC721URIstorage<
+    #[embeddable_as(ERC721URIStorageImpl)]
+    impl ERC721URIStorage<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
@@ -44,6 +44,7 @@ pub mod ERC721URIstorageComponent {
         fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
             self._symbol()
         }
+
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
         /// If the URI is not set, the return value will be an empty ByteArray.
         ///
@@ -70,13 +71,13 @@ pub mod ERC721URIstorageComponent {
         fn _name(self: @ComponentState<TContractState>) -> ByteArray {
             let erc721_component = get_dep_component!(self, ERC721);
             let name = erc721_component.ERC721_name.read();
-            return name;
+            name
         }
 
         fn _symbol(self: @ComponentState<TContractState>) -> ByteArray {
             let erc721_component = get_dep_component!(self, ERC721);
             let symbol = erc721_component.ERC721_symbol.read();
-            return symbol;
+            symbol
         }
 
         /// Returns the `token_uri` for the `token_id` 
@@ -85,7 +86,7 @@ pub mod ERC721URIstorageComponent {
             let mut erc721_component = get_dep_component!(self, ERC721);
             ERC721Impl::_require_owned(erc721_component, token_id);
             let base_uri: ByteArray = ERC721Impl::_base_uri(erc721_component);
-            let token_uri: ByteArray = self.token_uris.read(token_id);
+            let token_uri: ByteArray = self.ERC721URIStorage_token_uris.read(token_id);
             if base_uri.len() == 0 {
                 return token_uri;
             }
@@ -94,21 +95,17 @@ pub mod ERC721URIstorageComponent {
             }
 
             //token_uri implementation from the ERC721Metadata
-            if base_uri.len() == 0 {
-                return "";
-            } else {
-                return format!("{}{}", base_uri, token_id);
-            }
+            return format!("{}{}", base_uri, token_id);
         }
 
         /// Sets or updates the `token_uri` for the respective `token_uri`
         ///
-        /// Emits `MetadataUpdate` event
+        /// Emits `MetadataUpdated` event
         fn set_token_uri(
             ref self: ComponentState<TContractState>, token_id: u256, token_uri: ByteArray
         ) {
-            self.token_uris.write(token_id, token_uri);
-            self.emit(MetadataUpdate { token_id: token_id });
+            self.ERC721URIStorage_token_uris.write(token_id, token_uri);
+            self.emit(MetadataUpdated { token_id: token_id });
         }
     }
 }

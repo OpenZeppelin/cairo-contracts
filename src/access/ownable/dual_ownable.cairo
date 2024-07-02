@@ -42,7 +42,7 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn renounce_ownership(self: @DualCaseOwnable) {
-        let mut args = array![];
+        let args = array![];
 
         try_selector_with_fallback(
             *self.contract_address,

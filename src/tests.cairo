@@ -1,11 +1,11 @@
-// #[cfg(test)]
-// mod access;
+#[cfg(test)]
+mod access;
 // #[cfg(test)]
 // mod account;
 // #[cfg(test)]
 // mod cryptography;
-// #[cfg(test)]
-// mod introspection;
+#[cfg(test)]
+mod introspection;
 mod mocks;
 // #[cfg(test)]
 // mod presets;

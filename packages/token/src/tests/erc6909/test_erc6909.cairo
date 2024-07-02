@@ -7,8 +7,7 @@ use openzeppelin::tests::utils::constants::{
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc6909::ERC6909Component::{
-    InternalImpl, ERC6909Impl, ERC6909CamelOnlyImpl, ERC6909TokenSupplyImpl,
-    ERC6909TokenSupplyCamelImpl
+    InternalImpl, ERC6909Impl, ERC6909CamelOnlyImpl
 };
 use openzeppelin::token::erc6909::ERC6909Component::{Approval, Transfer, OperatorSet};
 use openzeppelin::token::erc6909::ERC6909Component;
@@ -41,20 +40,6 @@ fn setup() -> ComponentState {
 //
 
 #[test]
-fn test_total_supply() {
-    let mut state = COMPONENT_STATE();
-    state.mint(OWNER(), TOKEN_ID, SUPPLY);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY);
-}
-
-#[test]
-fn test_totalSupply() {
-    let mut state = COMPONENT_STATE();
-    state.mint(OWNER(), TOKEN_ID, SUPPLY);
-    assert_eq!(state.totalSupply(TOKEN_ID), SUPPLY);
-}
-
-#[test]
 fn test_balance_of() {
     let mut state = COMPONENT_STATE();
     state.mint(OWNER(), TOKEN_ID, SUPPLY);
@@ -76,6 +61,41 @@ fn test_allowance() {
     let allowance = state.allowance(OWNER(), SPENDER(), TOKEN_ID);
     assert_eq!(allowance, VALUE);
 }
+
+#[test]
+fn test_set_supports_interface() {
+    let mut state = setup();
+    // IERC6909_ID as defined in `interface.cairo` = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
+    assert!(
+        state.supports_interface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee)
+    );
+    assert_eq!(state.supports_interface(0x32cb), false);
+    assert_eq!(
+        state.supports_interface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ef),
+        false
+    );
+
+    // id == ISRC5_ID || id == IERC6909_ID
+    assert!(state.supports_interface(ISRC5_ID))
+}
+
+#[test]
+fn test_set_supportsInterface() {
+    let mut state = setup();
+    // IERC6909_ID as defined in `interface.cairo` = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
+    assert!(
+        state.supportsInterface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee)
+    );
+    assert_eq!(state.supportsInterface(0x32cb), false);
+    assert_eq!(
+        state.supportsInterface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ef),
+        false
+    );
+
+    // id == ISRC5_ID || id == IERC6909_ID
+    assert!(state.supportsInterface(ISRC5_ID))
+}
+
 
 //
 // approve & _approve
@@ -144,7 +164,6 @@ fn test_transfer() {
     assert_only_event_transfer(ZERO(), OWNER(), OWNER(), RECIPIENT(), TOKEN_ID, VALUE);
     assert_eq!(state.balance_of(RECIPIENT(), TOKEN_ID), VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY);
 }
 
 #[test]
@@ -178,7 +197,6 @@ fn test__transfer() {
     assert_only_event_transfer(ZERO(), OWNER(), OWNER(), RECIPIENT(), TOKEN_ID, VALUE);
     assert_eq!(state.balance_of(RECIPIENT(), TOKEN_ID), VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY);
 }
 
 #[test]
@@ -237,7 +255,6 @@ fn test_transfer_from() {
 
     assert_eq!(state.balance_of(RECIPIENT(), TOKEN_ID), VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY);
 }
 
 #[test]
@@ -314,7 +331,6 @@ fn test_transferFrom() {
 
     assert_eq!(state.balance_of(RECIPIENT(), TOKEN_ID), VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY);
     assert_eq!(allowance, 0);
 }
 
@@ -407,7 +423,6 @@ fn test__mint() {
 
     assert_only_event_transfer(ZERO(), ZERO(), ZERO(), OWNER(), TOKEN_ID, VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), VALUE);
 }
 
 #[test]
@@ -428,7 +443,6 @@ fn test__burn() {
 
     assert_only_event_transfer(ZERO(), ZERO(), OWNER(), ZERO(), TOKEN_ID, VALUE);
     assert_eq!(state.balance_of(OWNER(), TOKEN_ID), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(TOKEN_ID), SUPPLY - VALUE);
 }
 
 #[test]
@@ -437,25 +451,6 @@ fn test__burn_from_zero() {
     let mut state = setup();
     state.burn(ZERO(), TOKEN_ID, VALUE);
 }
-
-// 
-// supports_interface
-//
-#[test]
-fn test_set_supports_interface() {
-    let mut state = setup();
-    // IERC6909_ID as defined in `interface.cairo` = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
-    assert!(
-        state.supports_interface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee)
-    );
-    assert_eq!(state.supports_interface(0x32cb), false);
-    assert_eq!(
-        state.supports_interface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ef),
-        false
-    );
-    assert!(state.supports_interface(ISRC5_ID))
-}
-
 
 //
 // is_operator & set_operator

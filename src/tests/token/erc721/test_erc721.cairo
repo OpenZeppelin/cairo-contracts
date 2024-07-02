@@ -7,12 +7,10 @@ use openzeppelin::tests::utils::constants::{
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::ERC721CamelOnlyImpl;
+use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
-
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapMemberAccessTrait;

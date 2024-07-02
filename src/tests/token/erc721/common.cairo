@@ -26,7 +26,7 @@ pub(crate) fn assert_only_event_approval_for_all(
     approved: bool
 ) {
     assert_event_approval_for_all(ref spy, contract, owner, operator, approved);
-    assert(spy.events.len() == 0, 'Events remaining on queue');
+    utils::assert_no_events_left(ref spy);
 }
 
 pub(crate) fn assert_event_approval(
@@ -48,7 +48,7 @@ pub(crate) fn assert_only_event_approval(
     token_id: u256
 ) {
     assert_event_approval(ref spy, contract, owner, approved, token_id);
-    assert(spy.events.len() == 0, 'Events remaining on queue');
+    utils::assert_no_events_left(ref spy);
 }
 
 pub(crate) fn assert_event_transfer(
@@ -70,5 +70,5 @@ pub(crate) fn assert_only_event_transfer(
     token_id: u256
 ) {
     assert_event_transfer(ref spy, contract, from, to, token_id);
-    assert(spy.events.len() == 0, 'Events remaining on queue');
+    utils::assert_no_events_left(ref spy);
 }

@@ -48,7 +48,7 @@ impl DualCaseERC20Impl of DualCaseERC20Trait {
     }
 
     fn total_supply(self: @DualCaseERC20) -> u256 {
-        let mut args = array![];
+        let args = array![];
         try_selector_with_fallback(
             *self.contract_address, selectors::total_supply, selectors::totalSupply, args.span()
         )

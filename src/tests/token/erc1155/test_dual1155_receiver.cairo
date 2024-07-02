@@ -21,7 +21,7 @@ use openzeppelin::token::erc1155::interface::{
 //
 
 fn setup_snake() -> (DualCaseERC1155Receiver, IERC1155ReceiverDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let calldata = ArrayTrait::new();
     let target = utils::deploy(SnakeERC1155ReceiverMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155Receiver { contract_address: target },
@@ -30,7 +30,7 @@ fn setup_snake() -> (DualCaseERC1155Receiver, IERC1155ReceiverDispatcher) {
 }
 
 fn setup_camel() -> (DualCaseERC1155Receiver, IERC1155ReceiverCamelDispatcher) {
-    let mut calldata = ArrayTrait::new();
+    let calldata = ArrayTrait::new();
     let target = utils::deploy(CamelERC1155ReceiverMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155Receiver { contract_address: target },

@@ -22,12 +22,12 @@ pub(crate) fn setup_camel_receiver() -> ContractAddress {
 }
 
 pub(crate) fn setup_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::deploy(SnakeAccountMock::TEST_CLASS_HASH, calldata)
 }
 
 pub(crate) fn setup_account_with_salt(salt: felt252) -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::deploy_with_salt(SnakeAccountMock::TEST_CLASS_HASH, calldata, salt)
 }
 

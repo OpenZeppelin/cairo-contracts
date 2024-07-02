@@ -45,12 +45,8 @@ fn setup_non_erc1155_receiver() -> DualCaseERC1155Receiver {
 }
 
 fn setup_erc1155_receiver_panic() -> (DualCaseERC1155Receiver, DualCaseERC1155Receiver) {
-    let snake_target = utils::deploy(
-        SnakeERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]
-    );
-    let camel_target = utils::deploy(
-        CamelERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]
-    );
+    let snake_target = utils::deploy(SnakeERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseERC1155Receiver { contract_address: snake_target },
         DualCaseERC1155Receiver { contract_address: camel_target }

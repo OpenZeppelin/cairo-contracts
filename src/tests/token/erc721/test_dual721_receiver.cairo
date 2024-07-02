@@ -47,12 +47,8 @@ fn setup_non_erc721_receiver() -> DualCaseERC721Receiver {
 }
 
 fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Receiver) {
-    let snake_target = utils::deploy(
-        SnakeERC721ReceiverPanicMock::TEST_CLASS_HASH, array![]
-    );
-    let camel_target = utils::deploy(
-        CamelERC721ReceiverPanicMock::TEST_CLASS_HASH, array![]
-    );
+    let snake_target = utils::deploy(SnakeERC721ReceiverPanicMock::TEST_CLASS_HASH, array![]);
+    let camel_target = utils::deploy(CamelERC721ReceiverPanicMock::TEST_CLASS_HASH, array![]);
     (
         DualCaseERC721Receiver { contract_address: snake_target },
         DualCaseERC721Receiver { contract_address: camel_target }

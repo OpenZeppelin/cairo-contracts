@@ -1,7 +1,5 @@
-use core::poseidon::{Poseidon, PoseidonTrait};
-use core::traits::TryInto;
 use snforge_std::{declare, ContractClass, ContractClassTrait};
-use starknet::{ClassHash, ContractAddress};
+use starknet::ContractAddress;
 
 pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {
     match contract_class.deploy(@calldata) {

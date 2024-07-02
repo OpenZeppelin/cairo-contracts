@@ -22,7 +22,27 @@ pub impl EventSpyExtImpl of EventSpyExt {
     }
 
     fn drop_event_from(ref self: EventSpy, from_address: ContractAddress) {
-        self.drop_events_from(from_address, 1);
+        self.drop_n_events_from(from_address, 1);
+    }
+
+    fn drop_n_events_from(ref self: EventSpy, from_address: ContractAddress, number_to_drop: u32) {
+        self.fetch_events();
+        let mut dropped_number = 0;
+        let mut new_events: Array<(ContractAddress, Event)> = array![];
+        while let Option::Some((from, event)) = self
+            .events
+            .pop_front() {
+                if from == from_address && dropped_number < number_to_drop {
+                    dropped_number += 1;
+                } else {
+                    new_events.append((from, event));
+                }
+            };
+        assert!(
+            number_to_drop == dropped_number,
+            "Event utils: Expected to drop ${number_to_drop}, actual ${dropped_number}"
+        );
+        self.events = new_events;
     }
 
     fn drop_all_events(ref self: EventSpy) {
@@ -40,26 +60,6 @@ pub impl EventSpyExtImpl of EventSpyExt {
                     new_events.append((from, event));
                 }
             };
-        self.events = new_events;
-    }
-
-    fn drop_events_from(ref self: EventSpy, from_address: ContractAddress, number_to_drop: u32) {
-        self.fetch_events();
-        let mut dropped_number = 0;
-        let mut new_events: Array<(ContractAddress, Event)> = array![];
-        while let Option::Some((from, event)) = self
-            .events
-            .pop_front() {
-                if from == from_address && dropped_number < number_to_drop {
-                    dropped_number += 1;
-                } else {
-                    new_events.append((from, event));
-                }
-            };
-        assert!(
-            number_to_drop == dropped_number,
-            "Event utils: Expected to drop ${number_to_drop}, actual ${dropped_number}"
-        );
         self.events = new_events;
     }
 

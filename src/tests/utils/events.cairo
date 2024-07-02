@@ -1,10 +1,6 @@
-use core::array::ArrayTrait;
-use core::array::SpanTrait;
-use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
-use openzeppelin::upgrades::UpgradeableComponent;
 use snforge_std::cheatcodes::events::EventFetcher;
 use snforge_std::{spy_events, SpyOn, Event, EventSpy, EventAssertions};
-use starknet::{ContractAddress, ClassHash};
+use starknet::ContractAddress;
 
 pub fn spy_on(contract_address: ContractAddress) -> EventSpy {
     spy_events(SpyOn::One(contract_address))
@@ -12,14 +8,14 @@ pub fn spy_on(contract_address: ContractAddress) -> EventSpy {
 
 #[generate_trait]
 pub impl EventSpyExtImpl of EventSpyExt {
-    fn assert_only_event<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
+    fn assert_only_event<T, +starknet::Event<T>, +Drop<T>>(
         ref self: EventSpy, from_address: ContractAddress, event: T
     ) {
         self.assert_emitted_single(from_address, event);
         self.assert_no_events_left_from(from_address);
     }
 
-    fn assert_emitted_single<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
+    fn assert_emitted_single<T, +starknet::Event<T>, +Drop<T>>(
         ref self: EventSpy, from_address: ContractAddress, expected_event: T
     ) {
         self.assert_emitted(@array![(from_address, expected_event)]);
@@ -49,7 +45,7 @@ pub impl EventSpyExtImpl of EventSpyExt {
 
     fn drop_events_from(ref self: EventSpy, from_address: ContractAddress, number_to_drop: u32) {
         self.fetch_events();
-        let mut dropped_number: u32 = 0;
+        let mut dropped_number = 0;
         let mut new_events: Array<(ContractAddress, Event)> = array![];
         while let Option::Some((from, event)) = self
             .events
@@ -78,14 +74,17 @@ pub impl EventSpyExtImpl of EventSpyExt {
     }
 
     fn count_events_from(self: @EventSpy, from_address: ContractAddress) -> u32 {
-        let mut result: u32 = 0;
+        let mut result = 0;
         let mut events = self.events.span();
-        while let Option::Some((from, _)) = events
-            .pop_front() {
-                if from_address == *from {
-                    result += 1;
-                }
-            };
+        let mut index = 0;
+        let length = events.len();
+        while index < length {
+            let (from, _) = events.at(index);
+            if from_address == *from {
+                result += 1;
+            }
+            index += 1;
+        };
         result
     }
 }

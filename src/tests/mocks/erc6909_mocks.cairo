@@ -10,49 +10,8 @@ pub(crate) mod DualCaseERC6909Mock {
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909TokenSupplyImpl = ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURIImpl = ERC6909Component::ERC6909ContentURIImpl<ContractState>;
-
-    /// Internal logic
-    impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc6909: ERC6909Component::Storage
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC6909Event: ERC6909Component::Event
-    }
-
-    #[constructor]
-    fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
-        self.erc6909.mint(receiver, id, amount);
-        self.erc6909._set_contract_uri("URI");
-    }
-}
-
-#[starknet::contract]
-pub(crate) mod SnakeERC6909Mock {
-    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
-    use starknet::ContractAddress;
-
-    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-
-    /// ABI of Components
-    #[abi(embed_v0)]
-    impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909TokenSupplyImpl = ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURIImpl = ERC6909Component::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl =
+        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
 
     /// Internal logic
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -81,17 +40,15 @@ pub(crate) mod CamelERC6909Mock {
     use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
     use starknet::ContractAddress;
 
+    /// Component
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
 
-    /// ABI of Components
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909TokenSupplyCamelImpl = ERC6909Component::ERC6909TokenSupplyCamelImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURICamelImpl = ERC6909Component::ERC6909ContentURICamelImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl =
+        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
 
-
+    // `ERC6909Impl` is not embedded because it would defeat the purpose of the
+    // mock. The `ERC6909Impl` case-agnostic methods are manually exposed.
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
 
@@ -118,7 +75,7 @@ pub(crate) mod CamelERC6909Mock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress, id: u256
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress, id: u256,
         ) -> u256 {
             self.erc6909.allowance(owner, spender, id)
         }
@@ -156,14 +113,14 @@ pub(crate) mod SnakeERC6909Panic {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn balance_of(self: @ContractState, owner: ContractAddress, id: u256) -> u256 {
+        fn balance_of(self: @ContractState, account: ContractAddress, id: u256) -> u256 {
             panic!("Some error");
             3
         }
 
         #[external(v0)]
         fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress, id: u256
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress, id: u256,
         ) -> u256 {
             panic!("Some error");
             3
@@ -171,16 +128,14 @@ pub(crate) mod SnakeERC6909Panic {
 
         #[external(v0)]
         fn is_operator(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress,
         ) -> bool {
             panic!("Some error");
             false
         }
 
         #[external(v0)]
-        fn transfer(
-            ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256
-        ) -> bool {
+        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
             panic!("Some error");
             false
         }
@@ -198,9 +153,7 @@ pub(crate) mod SnakeERC6909Panic {
         }
 
         #[external(v0)]
-        fn approve(
-            ref self: ContractState, spender: ContractAddress, id: u256, amount: u256
-        ) -> bool {
+        fn approve(ref self: ContractState, to: ContractAddress, id: u256) -> bool {
             panic!("Some error");
             false
         }
@@ -230,24 +183,16 @@ pub(crate) mod CamelERC6909Panic {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn balanceOf(self: @ContractState, owner: ContractAddress, id: u256) -> u256 {
+        fn balanceOf(self: @ContractState, account: ContractAddress, id: u256) -> u256 {
             panic!("Some error");
             3
-        }
-
-        #[external(v0)]
-        fn isOperator(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
-        ) -> bool {
-            panic!("Some error");
-            false
         }
 
         #[external(v0)]
         fn transferFrom(
             ref self: ContractState,
             sender: ContractAddress,
-            receiver: ContractAddress,
+            recipient: ContractAddress,
             id: u256,
             amount: u256
         ) -> bool {
@@ -266,5 +211,14 @@ pub(crate) mod CamelERC6909Panic {
             panic!("Some error");
             false
         }
+
+        #[external(v0)]
+        fn isOperator(
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress,
+        ) -> bool {
+            panic!("Some error");
+            false
+        }
     }
 }
+

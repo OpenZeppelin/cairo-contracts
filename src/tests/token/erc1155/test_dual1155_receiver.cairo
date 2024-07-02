@@ -21,7 +21,7 @@ use openzeppelin::token::erc1155::interface::{
 //
 
 fn setup_snake() -> (DualCaseERC1155Receiver, IERC1155ReceiverDispatcher) {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(SnakeERC1155ReceiverMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155Receiver { contract_address: target },
@@ -30,7 +30,7 @@ fn setup_snake() -> (DualCaseERC1155Receiver, IERC1155ReceiverDispatcher) {
 }
 
 fn setup_camel() -> (DualCaseERC1155Receiver, IERC1155ReceiverCamelDispatcher) {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(CamelERC1155ReceiverMock::TEST_CLASS_HASH, calldata);
     (
         DualCaseERC1155Receiver { contract_address: target },
@@ -39,17 +39,17 @@ fn setup_camel() -> (DualCaseERC1155Receiver, IERC1155ReceiverCamelDispatcher) {
 }
 
 fn setup_non_erc1155_receiver() -> DualCaseERC1155Receiver {
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let target = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, calldata);
     DualCaseERC1155Receiver { contract_address: target }
 }
 
 fn setup_erc1155_receiver_panic() -> (DualCaseERC1155Receiver, DualCaseERC1155Receiver) {
     let snake_target = utils::deploy(
-        SnakeERC1155ReceiverPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
+        SnakeERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]
     );
     let camel_target = utils::deploy(
-        CamelERC1155ReceiverPanicMock::TEST_CLASS_HASH, ArrayTrait::new()
+        CamelERC1155ReceiverPanicMock::TEST_CLASS_HASH, array![]
     );
     (
         DualCaseERC1155Receiver { contract_address: snake_target },

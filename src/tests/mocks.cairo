@@ -14,4 +14,5 @@ pub(crate) mod ownable_mocks;
 pub(crate) mod pausable_mocks;
 pub(crate) mod reentrancy_mocks;
 pub(crate) mod src5_mocks;
+pub(crate) mod timelock_mocks;
 pub(crate) mod upgrades_mocks;

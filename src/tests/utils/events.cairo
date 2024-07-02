@@ -13,16 +13,20 @@ pub fn spy_on(contract_address: ContractAddress) -> EventSpy {
 #[generate_trait]
 pub impl EventSpyExtImpl of EventSpyExt {
     fn assert_only_event<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
-        ref self: EventSpy, from: ContractAddress, event: T
+        ref self: EventSpy, from_address: ContractAddress, event: T
     ) {
-        self.assert_emitted_single(from, event);
-        self.assert_no_events_left_from(from);
+        self.assert_emitted_single(from_address, event);
+        self.assert_no_events_left_from(from_address);
     }
 
     fn assert_emitted_single<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
-        ref self: EventSpy, from: ContractAddress, expected_event: T
+        ref self: EventSpy, from_address: ContractAddress, expected_event: T
     ) {
-        self.assert_emitted(@array![(from, expected_event)]);
+        self.assert_emitted(@array![(from_address, expected_event)]);
+    }
+
+    fn drop_event_from(ref self: EventSpy, from_address: ContractAddress) {
+        self.drop_events_from(from_address, 1);
     }
 
     fn drop_all_events(ref self: EventSpy) {
@@ -43,16 +47,14 @@ pub impl EventSpyExtImpl of EventSpyExt {
         self.events = new_events;
     }
 
-    fn drop_events_from(
-        ref self: EventSpy, contract_address: ContractAddress, number_to_drop: u32
-    ) {
+    fn drop_events_from(ref self: EventSpy, from_address: ContractAddress, number_to_drop: u32) {
         self.fetch_events();
         let mut dropped_number: u32 = 0;
         let mut new_events: Array<(ContractAddress, Event)> = array![];
         while let Option::Some((from, event)) = self
             .events
             .pop_front() {
-                if from == contract_address && dropped_number < number_to_drop {
+                if from == from_address && dropped_number < number_to_drop {
                     dropped_number += 1;
                 } else {
                     new_events.append((from, event));
@@ -70,17 +72,17 @@ pub impl EventSpyExtImpl of EventSpyExt {
         assert!(self.events.len() == 0, "Events remaining on queue");
     }
 
-    fn assert_no_events_left_from(ref self: EventSpy, contract_address: ContractAddress) {
+    fn assert_no_events_left_from(ref self: EventSpy, from_address: ContractAddress) {
         self.fetch_events();
-        assert!(self.count_events_from(contract_address) == 0, "Events remaining on queue");
+        assert!(self.count_events_from(from_address) == 0, "Events remaining on queue");
     }
 
-    fn count_events_from(self: @EventSpy, from: ContractAddress) -> u32 {
+    fn count_events_from(self: @EventSpy, from_address: ContractAddress) -> u32 {
         let mut result: u32 = 0;
         let mut events = self.events.span();
-        while let Option::Some((from_address, _)) = events
+        while let Option::Some((from, _)) = events
             .pop_front() {
-                if from == *from_address {
+                if from_address == *from {
                     result += 1;
                 }
             };

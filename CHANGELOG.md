@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- TimelockController component (#996)
+- HashCall implementation (#996)
+- CallPartialEq (#996)
+
 ## 0.14.0 (2024-06-14)
 
 ### Changed (Breaking)

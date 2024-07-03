@@ -2,15 +2,11 @@ use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
 use openzeppelin::security::PausableComponent::{Paused, Unpaused};
 use openzeppelin::security::PausableComponent;
 use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
-use openzeppelin::tests::utils::constants::{CALLER, ZERO};
+use openzeppelin::tests::utils::constants::CALLER;
 use openzeppelin::tests::utils;
 use snforge_std::{EventSpy, EventAssertions};
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::testing;
-use super::common::{assert_event_paused, assert_only_event_paused};
-use super::common::{assert_event_unpaused, assert_only_event_unpaused};
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 
@@ -121,3 +117,36 @@ fn test_unpause_when_unpaused() {
     assert!(!state.is_paused());
     state.unpause();
 }
+
+//
+// Helpers
+//
+
+fn assert_event_paused(
+    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
+) {
+    let expected = PausableComponent::Event::Paused(Paused { account });
+    spy.assert_emitted(@array![(contract, expected)]);
+}
+
+fn assert_only_event_paused(
+    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
+) {
+    assert_event_paused(ref spy, contract, account);
+    assert(spy.events.len() == 0, 'Events remaining on queue');
+}
+
+fn assert_event_unpaused(
+    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
+) {
+    let expected = PausableComponent::Event::Unpaused(Unpaused { account });
+    spy.assert_emitted(@array![(contract, expected)]);
+}
+
+fn assert_only_event_unpaused(
+    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
+) {
+    assert_event_unpaused(ref spy, contract, account);
+    assert(spy.events.len() == 0, 'Events remaining on queue');
+}
+

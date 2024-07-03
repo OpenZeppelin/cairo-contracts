@@ -18,9 +18,9 @@ use openzeppelin::utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    cheat_block_timestamp_global, start_cheat_caller_address, cheat_chain_id_global, test_address
+    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global, test_address
 };
-use snforge_std::{EventSpy, EventAssertions};
+use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
@@ -165,7 +165,7 @@ fn test_get_past_total_supply_future_lookup() {
 fn test_delegate() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
 
@@ -258,7 +258,7 @@ fn test_delegate_by_sig() {
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
 

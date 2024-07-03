@@ -7,7 +7,7 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin::token::erc20::ERC20Component;
-use snforge_std::{test_address, start_cheat_caller_address};
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 
 use super::common::ERC20SpyHelpers;
@@ -94,7 +94,7 @@ fn test_allowance() {
 fn test_approve() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
     assert!(state.approve(SPENDER(), VALUE));
@@ -124,7 +124,7 @@ fn test_approve_to_zero() {
 fn test__approve() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
     state._approve(OWNER(), SPENDER(), VALUE);
@@ -158,7 +158,7 @@ fn test__approve_to_zero() {
 fn test_transfer() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
     assert!(state.transfer(RECIPIENT(), VALUE));
@@ -198,7 +198,7 @@ fn test_transfer_to_zero() {
 fn test__transfer() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     state._transfer(OWNER(), RECIPIENT(), VALUE);
 
@@ -244,7 +244,7 @@ fn test_transfer_from() {
     start_cheat_caller_address(contract_address, OWNER());
     state.approve(SPENDER(), VALUE);
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
 
@@ -310,7 +310,7 @@ fn test_transferFrom() {
     start_cheat_caller_address(contract_address, OWNER());
     state.approve(SPENDER(), VALUE);
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
     assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
 
@@ -380,7 +380,7 @@ fn test__spend_allowance_not_unlimited() {
 
     state._approve(OWNER(), SPENDER(), SUPPLY);
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
     state._spend_allowance(OWNER(), SPENDER(), VALUE);
 
     spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), SUPPLY - VALUE);
@@ -410,7 +410,7 @@ fn test_mint() {
     let mut state = COMPONENT_STATE();
     let contract_address = test_address();
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
     state.mint(OWNER(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, ZERO(), OWNER(), VALUE);
@@ -434,7 +434,7 @@ fn test_burn() {
     let mut state = setup();
     let contract_address = test_address();
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
     state.burn(OWNER(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), VALUE);

@@ -4,4 +4,4 @@ pub(crate) mod events;
 pub(crate) mod signing;
 pub use common::{declare_class, declare_and_deploy, declare_and_deploy_at, deploy, deploy_at};
 
-pub use events::{spy_on, EventSpyExt};
+pub use events::EventSpyExt;

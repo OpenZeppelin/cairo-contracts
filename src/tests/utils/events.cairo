@@ -1,10 +1,5 @@
-use snforge_std::cheatcodes::events::EventFetcher;
-use snforge_std::{spy_events, SpyOn, Event, EventSpy, EventAssertions};
+use snforge_std::{EventSpyTrait, EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
-
-pub fn spy_on(contract_address: ContractAddress) -> EventSpy {
-    spy_events(SpyOn::One(contract_address))
-}
 
 #[generate_trait]
 pub impl EventSpyExtImpl of EventSpyExt {
@@ -19,63 +14,40 @@ pub impl EventSpyExtImpl of EventSpyExt {
         ref self: EventSpy, from_address: ContractAddress, expected_event: T
     ) {
         self.assert_emitted(@array![(from_address, expected_event)]);
+        self._event_offset += 1;
     }
 
-    fn drop_event_from(ref self: EventSpy, from_address: ContractAddress) {
-        self.drop_n_events_from(from_address, 1);
+    fn drop_event(ref self: EventSpy) {
+        self.drop_n_events(1);
     }
 
-    fn drop_n_events_from(ref self: EventSpy, from_address: ContractAddress, number_to_drop: u32) {
-        self.fetch_events();
-        let mut dropped_number = 0;
-        let mut new_events: Array<(ContractAddress, Event)> = array![];
-        while let Option::Some((from, event)) = self
-            .events
-            .pop_front() {
-                if from == from_address && dropped_number < number_to_drop {
-                    dropped_number += 1;
-                } else {
-                    new_events.append((from, event));
-                }
-            };
+    fn drop_n_events(ref self: EventSpy, number_to_drop: u32) {
+        let events = self.get_events().events;
+        let len = events.len();
         assert!(
-            number_to_drop == dropped_number,
-            "Event utils: Expected to drop ${number_to_drop}, actual ${dropped_number}"
+            len >= number_to_drop, 
+            "Not enough events to drop. ${len} events, ${number_to_drop} to drop"
         );
-        self.events = new_events;
+        self._event_offset += number_to_drop;
     }
 
     fn drop_all_events(ref self: EventSpy) {
-        self.fetch_events();
-        self.events = array![];
-    }
-
-    fn drop_all_events_from(ref self: EventSpy, from_address: ContractAddress) {
-        self.fetch_events();
-        let mut new_events: Array<(ContractAddress, Event)> = array![];
-        while let Option::Some((from, event)) = self
-            .events
-            .pop_front() {
-                if from != from_address {
-                    new_events.append((from, event));
-                }
-            };
-        self.events = new_events;
+        let events = self.get_events().events;
+        self._event_offset += events.len();
     }
 
     fn assert_no_events_left(ref self: EventSpy) {
-        self.fetch_events();
-        assert!(self.events.len() == 0, "Events remaining on queue");
+        let events = self.get_events().events;
+        assert!(events.len() == 0, "Events remaining on queue");
     }
 
     fn assert_no_events_left_from(ref self: EventSpy, from_address: ContractAddress) {
-        self.fetch_events();
         assert!(self.count_events_from(from_address) == 0, "Events remaining on queue");
     }
 
-    fn count_events_from(self: @EventSpy, from_address: ContractAddress) -> u32 {
+    fn count_events_from(ref self: EventSpy, from_address: ContractAddress) -> u32 {
         let mut result = 0;
-        let mut events = self.events.span();
+        let mut events = self.get_events().events;
         let mut index = 0;
         let length = events.len();
         while index < length {

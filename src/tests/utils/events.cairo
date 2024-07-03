@@ -25,7 +25,7 @@ pub impl EventSpyExtImpl of EventSpyExt {
         let events = self.get_events().events;
         let len = events.len();
         assert!(
-            len >= number_to_drop, 
+            len >= number_to_drop,
             "Not enough events to drop. ${len} events, ${number_to_drop} to drop"
         );
         self._event_offset += number_to_drop;

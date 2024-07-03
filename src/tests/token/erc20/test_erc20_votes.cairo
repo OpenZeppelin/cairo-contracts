@@ -18,7 +18,8 @@ use openzeppelin::utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global, test_address
+    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
+    test_address
 };
 use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;

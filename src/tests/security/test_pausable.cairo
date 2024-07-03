@@ -122,9 +122,7 @@ fn test_unpause_when_unpaused() {
 // Helpers
 //
 
-fn assert_event_paused(
-    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
-) {
+fn assert_event_paused(ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,) {
     let expected = PausableComponent::Event::Paused(Paused { account });
     spy.assert_emitted(@array![(contract, expected)]);
 }
@@ -136,9 +134,7 @@ fn assert_only_event_paused(
     assert(spy.events.len() == 0, 'Events remaining on queue');
 }
 
-fn assert_event_unpaused(
-    ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,
-) {
+fn assert_event_unpaused(ref spy: EventSpy, contract: ContractAddress, account: ContractAddress,) {
     let expected = PausableComponent::Event::Unpaused(Unpaused { account });
     spy.assert_emitted(@array![(contract, expected)]);
 }

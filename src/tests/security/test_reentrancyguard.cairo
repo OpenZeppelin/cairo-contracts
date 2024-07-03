@@ -5,6 +5,7 @@ use openzeppelin::tests::mocks::reentrancy_mocks::{
 };
 use openzeppelin::tests::utils;
 use starknet::storage::StorageMemberAccessTrait;
+use snforge_std::{test_address, start_cheat_caller_address};
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 
@@ -12,10 +13,15 @@ fn COMPONENT_STATE() -> ComponentState {
     ReentrancyGuardComponent::component_state_for_testing()
 }
 
-fn deploy_mock() -> IReentrancyMockDispatcher {
+//fn deploy_mock() -> IReentrancyMockDispatcher {
+//    let calldata = array![];
+//    let address = utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
+//    IReentrancyMockDispatcher { contract_address: address }
+//}
+
+fn deploy_mock() -> ContractAddress {
     let calldata = array![];
-    let address = utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
-    IReentrancyMockDispatcher { contract_address: address }
+    utils::declare_and_deploy("ReentrancyMock", calldata)
 }
 
 //
@@ -77,7 +83,8 @@ fn test_remote_callback() {
 
     // Deploy attacker
     let calldata = ArrayTrait::new();
-    let attacker_addr = utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
+    //let attacker_addr = utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
+    let attacker_addr = utils::declare_and_deploy("ReentrancyMock", calldata)
 
     contract.count_and_call(attacker_addr);
 }

@@ -181,7 +181,6 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 
     fn version() -> felt252 { 'v1' }
 }
-
 ----
 
 === 5. Generate the hash.

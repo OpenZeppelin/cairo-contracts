@@ -3,6 +3,7 @@ use core::num::traits::Zero;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
@@ -17,9 +18,10 @@ use openzeppelin::utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    cheat_block_timestamp_global, start_cheat_caller_address, cheat_chain_id_global, test_address
+    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
+    test_address
 };
-use snforge_std::{EventSpy, EventAssertions};
+use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
@@ -164,37 +166,37 @@ fn test_get_past_total_supply_future_lookup() {
 fn test_delegate() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
 
     // Delegate from zero
     state.delegate(OWNER());
 
-    assert_event_delegate_changed(ref spy, contract_address, OWNER(), ZERO(), OWNER());
-    assert_only_event_delegate_votes_changed(ref spy, contract_address, OWNER(), 0, SUPPLY);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), OWNER());
+    spy.assert_only_event_delegate_votes_changed(contract_address, OWNER(), 0, SUPPLY);
     assert_eq!(state.get_votes(OWNER()), SUPPLY);
 
     // Delegate from non-zero to non-zero
     state.delegate(RECIPIENT());
 
-    assert_event_delegate_changed(ref spy, contract_address, OWNER(), OWNER(), RECIPIENT());
-    assert_event_delegate_votes_changed(ref spy, contract_address, OWNER(), SUPPLY, 0);
-    assert_only_event_delegate_votes_changed(ref spy, contract_address, RECIPIENT(), 0, SUPPLY);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), OWNER(), RECIPIENT());
+    spy.assert_event_delegate_votes_changed(contract_address, OWNER(), SUPPLY, 0);
+    spy.assert_only_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, SUPPLY);
     assert!(state.get_votes(OWNER()).is_zero());
     assert_eq!(state.get_votes(RECIPIENT()), SUPPLY);
 
     // Delegate to zero
     state.delegate(ZERO());
 
-    assert_event_delegate_changed(ref spy, contract_address, OWNER(), RECIPIENT(), ZERO());
-    assert_event_delegate_votes_changed(ref spy, contract_address, RECIPIENT(), SUPPLY, 0);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), RECIPIENT(), ZERO());
+    spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT(), SUPPLY, 0);
     assert!(state.get_votes(RECIPIENT()).is_zero());
 
     // Delegate from zero to zero
     state.delegate(ZERO());
 
-    assert_only_event_delegate_changed(ref spy, contract_address, OWNER(), ZERO(), ZERO());
+    spy.assert_only_event_delegate_changed(contract_address, OWNER(), ZERO(), ZERO());
 }
 
 #[test]
@@ -257,11 +259,11 @@ fn test_delegate_by_sig() {
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    let mut spy = utils::spy_on(contract_address);
+    let mut spy = spy_events();
 
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
 
-    assert_only_event_delegate_changed(ref spy, contract_address, delegator, ZERO(), delegatee);
+    spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
     assert_eq!(state.delegates(account), delegatee);
 }
 
@@ -354,50 +356,53 @@ fn test_get_voting_units() {
 // Helpers
 //
 
-fn assert_event_delegate_changed(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    delegator: ContractAddress,
-    from_delegate: ContractAddress,
-    to_delegate: ContractAddress
-) {
-    let expected = ERC20VotesComponent::Event::DelegateChanged(
-        DelegateChanged { delegator, from_delegate, to_delegate }
-    );
-    spy.assert_emitted(@array![(contract, expected)]);
-}
+#[generate_trait]
+impl VotesSpyHelpersImpl of VotesSpyHelpers {
+    fn assert_event_delegate_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegator: ContractAddress,
+        from_delegate: ContractAddress,
+        to_delegate: ContractAddress
+    ) {
+        let expected = ERC20VotesComponent::Event::DelegateChanged(
+            DelegateChanged { delegator, from_delegate, to_delegate }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-fn assert_only_event_delegate_changed(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    delegator: ContractAddress,
-    from_delegate: ContractAddress,
-    to_delegate: ContractAddress
-) {
-    assert_event_delegate_changed(ref spy, contract, delegator, from_delegate, to_delegate);
-    assert(spy.events.len() == 0, 'Events remaining on queue');
-}
+    fn assert_only_event_delegate_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegator: ContractAddress,
+        from_delegate: ContractAddress,
+        to_delegate: ContractAddress
+    ) {
+        self.assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
+        self.assert_no_events_left_from(contract);
+    }
 
-fn assert_event_delegate_votes_changed(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    delegate: ContractAddress,
-    previous_votes: u256,
-    new_votes: u256
-) {
-    let expected = ERC20VotesComponent::Event::DelegateVotesChanged(
-        DelegateVotesChanged { delegate, previous_votes, new_votes }
-    );
-    spy.assert_emitted(@array![(contract, expected)]);
-}
+    fn assert_event_delegate_votes_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegate: ContractAddress,
+        previous_votes: u256,
+        new_votes: u256
+    ) {
+        let expected = ERC20VotesComponent::Event::DelegateVotesChanged(
+            DelegateVotesChanged { delegate, previous_votes, new_votes }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-fn assert_only_event_delegate_votes_changed(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    delegate: ContractAddress,
-    previous_votes: u256,
-    new_votes: u256
-) {
-    assert_event_delegate_votes_changed(ref spy, contract, delegate, previous_votes, new_votes);
-    assert(spy.events.len() == 0, 'Events remaining on queue');
+    fn assert_only_event_delegate_votes_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegate: ContractAddress,
+        previous_votes: u256,
+        new_votes: u256
+    ) {
+        self.assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
+        self.assert_no_events_left_from(contract);
+    }
 }

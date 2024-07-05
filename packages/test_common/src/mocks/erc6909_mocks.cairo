@@ -10,7 +10,8 @@ pub(crate) mod DualCaseERC6909Mock {
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl =
+        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
 
     /// Internal logic
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -169,7 +170,9 @@ pub(crate) mod SnakeERC6909Panic {
         }
 
         #[external(v0)]
-        fn transfer(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) -> bool {
+        fn transfer(
+            ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256
+        ) -> bool {
             panic!("Some error");
             false
         }
@@ -187,7 +190,9 @@ pub(crate) mod SnakeERC6909Panic {
         }
 
         #[external(v0)]
-        fn approve(ref self: ContractState, spender: ContractAddress, id: u256, amount: u256) -> bool {
+        fn approve(
+            ref self: ContractState, spender: ContractAddress, id: u256, amount: u256
+        ) -> bool {
             panic!("Some error");
             false
         }

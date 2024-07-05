@@ -7,15 +7,10 @@ use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2
 };
-use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelImpl;
-use openzeppelin::token::erc1155::ERC1155Component::{
-    ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl
-};
-use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
+use openzeppelin::token::erc1155::ERC1155Component::{ERC1155Impl, InternalImpl};
 use openzeppelin::token::erc1155::ERC1155Component;
 use openzeppelin::token::erc1155;
-use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

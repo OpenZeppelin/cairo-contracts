@@ -5,7 +5,7 @@ use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin::token::erc1155::ERC1155Component;
-use snforge_std::{EventSpy, ContractClassTrait, get_class_hash};
+use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 

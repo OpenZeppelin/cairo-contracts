@@ -5,7 +5,7 @@ use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin::token::erc1155::ERC1155Component;
-use snforge_std::EventSpy;
+use snforge_std::{EventSpy, ContractClassTrait, get_class_hash};
 use starknet::ContractAddress;
 
 
@@ -22,9 +22,11 @@ pub(crate) fn setup_account() -> ContractAddress {
     utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
-pub(crate) fn setup_account_at(address: ContractAddress) {
+pub(crate) fn deploy_another_account_at(
+    existing: ContractAddress, target_address: ContractAddress
+) {
     let mut calldata = array![PUBKEY];
-    utils::declare_and_deploy_at("SnakeAccountMock", address, calldata)
+    utils::deploy_another_at(existing, target_address, calldata);
 }
 
 pub(crate) fn setup_src5() -> ContractAddress {
@@ -44,7 +46,7 @@ pub(crate) fn get_ids_and_split_values(split: u256) -> (Span<u256>, Span<u256>) 
 }
 
 #[generate_trait]
-pub(crate) impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
+pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
     fn assert_event_approval_for_all(
         ref self: EventSpy,
         contract: ContractAddress,

@@ -1,74 +1,76 @@
-use openzeppelin::tests::utils;
+use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, EventAssertions};
+use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
-pub(crate) fn assert_event_approval_for_all(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    owner: ContractAddress,
-    operator: ContractAddress,
-    approved: bool
-) {
-    let expected = ERC721Component::Event::ApprovalForAll(
-        ApprovalForAll { owner, operator, approved }
-    );
-    spy.assert_emitted(@array![(contract, expected)]);
-}
+#[generate_trait]
+pub(crate) impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
+    fn assert_event_approval_for_all(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        owner: ContractAddress,
+        operator: ContractAddress,
+        approved: bool
+    ) {
+        let expected = ERC721Component::Event::ApprovalForAll(
+            ApprovalForAll { owner, operator, approved }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-pub(crate) fn assert_only_event_approval_for_all(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    owner: ContractAddress,
-    operator: ContractAddress,
-    approved: bool
-) {
-    assert_event_approval_for_all(ref spy, contract, owner, operator, approved);
-    utils::assert_no_events_left(ref spy);
-}
+    fn assert_only_event_approval_for_all(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        owner: ContractAddress,
+        operator: ContractAddress,
+        approved: bool
+    ) {
+        self.assert_event_approval_for_all(contract, owner, operator, approved);
+        self.assert_no_events_left_from(contract);
+    }
 
-pub(crate) fn assert_event_approval(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    owner: ContractAddress,
-    approved: ContractAddress,
-    token_id: u256
-) {
-    let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
-    spy.assert_emitted(@array![(contract, expected)]);
-}
+    fn assert_event_approval(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        owner: ContractAddress,
+        approved: ContractAddress,
+        token_id: u256
+    ) {
+        let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
+        self.assert_emitted_single(contract, expected);
+    }
 
-pub(crate) fn assert_only_event_approval(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    owner: ContractAddress,
-    approved: ContractAddress,
-    token_id: u256
-) {
-    assert_event_approval(ref spy, contract, owner, approved, token_id);
-    utils::assert_no_events_left(ref spy);
-}
+    fn assert_only_event_approval(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        owner: ContractAddress,
+        approved: ContractAddress,
+        token_id: u256
+    ) {
+        self.assert_event_approval(contract, owner, approved, token_id);
+        self.assert_no_events_left_from(contract);
+    }
 
-pub(crate) fn assert_event_transfer(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    from: ContractAddress,
-    to: ContractAddress,
-    token_id: u256
-) {
-    let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
-    spy.assert_emitted(@array![(contract, expected)]);
-}
+    fn assert_event_transfer(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256
+    ) {
+        let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
+        self.assert_emitted_single(contract, expected);
+    }
 
-pub(crate) fn assert_only_event_transfer(
-    ref spy: EventSpy,
-    contract: ContractAddress,
-    from: ContractAddress,
-    to: ContractAddress,
-    token_id: u256
-) {
-    assert_event_transfer(ref spy, contract, from, to, token_id);
-    utils::assert_no_events_left(ref spy);
+    fn assert_only_event_transfer(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256
+    ) {
+        self.assert_event_transfer(contract, from, to, token_id);
+        self.assert_no_events_left_from(contract);
+    }
 }

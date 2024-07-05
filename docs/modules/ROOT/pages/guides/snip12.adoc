@@ -163,7 +163,7 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 }
 ----
 
-In the above example, no storage reads are required avoiding unnecessary extra gas-wise costs, but in
+In the above example, no storage reads are required which avoids unnecessary extra gas costs, but in
 some cases we may need to read from storage to get the domain separator values. This can be accomplished even when
 the trait is not bounded to the ContractState, like this:
 

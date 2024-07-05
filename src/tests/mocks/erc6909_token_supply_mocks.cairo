@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC6909TokenSupplyMock {
     use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent::InternalTrait as ERC6909TokenSupplyInternalTrait;
+    use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent::InternalTrait;
     use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent;
     use starknet::ContractAddress;
 

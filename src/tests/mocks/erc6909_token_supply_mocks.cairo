@@ -72,19 +72,4 @@ pub(crate) mod DualCaseERC6909TokenSupplyMock {
             erc6909_token_supply_component._update_token_supply(from, recipient, id, amount);
         }
     }
-
-    // These functions are for testing purposes only
-    #[abi(per_item)]
-    #[generate_trait]
-    pub impl ExternalImpl of ExternalTrait {
-        #[external(v0)]
-        fn public_mint(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
-            self.erc6909.mint(receiver, id, amount);
-        }
-
-        #[external(v0)]
-        fn public_burn(ref self: ContractState, owner: ContractAddress, id: u256, amount: u256) {
-            self.erc6909.burn(owner, id, amount);
-        }
-    }
 }

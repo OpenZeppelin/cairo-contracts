@@ -1,3 +1,5 @@
+pub(crate) mod erc6909_content_uri_mocks;
+pub(crate) mod erc6909_metadata_mocks;
 // pub(crate) mod nonces_mocks;
 // pub(crate) mod ownable_mocks;
 // pub(crate) mod pausable_mocks;

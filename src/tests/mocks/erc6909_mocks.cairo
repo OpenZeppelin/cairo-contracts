@@ -10,11 +10,45 @@ pub(crate) mod DualCaseERC6909Mock {
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909CamelOnlyImpl =
-        ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
+    impl ERC6909CamelOnlyImpl = ERC6909Component::ERC6909CamelOnlyImpl<ContractState>;
 
     /// Internal logic
     impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc6909: ERC6909Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
+        self.erc6909.mint(receiver, id, amount);
+    }
+}
+
+#[starknet::contract]
+pub(crate) mod SnakeERC6909Mock {
+    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    /// Component
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+
+    /// ABI of Components
+    #[abi(embed_v0)]
+    impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
+
+    /// Internal logic
+    impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+
 
     #[storage]
     struct Storage {
@@ -135,7 +169,7 @@ pub(crate) mod SnakeERC6909Panic {
         }
 
         #[external(v0)]
-        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+        fn transfer(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) -> bool {
             panic!("Some error");
             false
         }
@@ -153,7 +187,7 @@ pub(crate) mod SnakeERC6909Panic {
         }
 
         #[external(v0)]
-        fn approve(ref self: ContractState, to: ContractAddress, id: u256) -> bool {
+        fn approve(ref self: ContractState, spender: ContractAddress, id: u256, amount: u256) -> bool {
             panic!("Some error");
             false
         }

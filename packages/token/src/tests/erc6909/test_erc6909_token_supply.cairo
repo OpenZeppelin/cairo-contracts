@@ -1,11 +1,11 @@
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
 use openzeppelin::tests::mocks::erc6909_token_supply_mocks::DualCaseERC6909TokenSupplyMock;
-use openzeppelin::tests::mocks::erc6909_token_supply_mocks::DualCaseERC6909TokenSupplyMock::ExternalTrait;
 use openzeppelin::tests::utils::constants::{OWNER, SPENDER, RECIPIENT, SUPPLY, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc6909::ERC6909Component::{InternalImpl as InternalERC6909Impl, ERC6909Impl};
-use openzeppelin::token::erc6909::ERC6909Component::{Approval, Transfer, OperatorSet};
+use openzeppelin::token::erc6909::ERC6909Component::{
+    InternalImpl as InternalERC6909Impl, ERC6909Impl
+};
 use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent::{
     ERC6909TokenSupplyImpl, InternalImpl,
 };
@@ -98,7 +98,7 @@ fn test_mint_increase_supply() {
     let new_token_id = TOKEN_ID + 69;
 
     testing::set_caller_address(OWNER());
-    mock_state.public_mint(OWNER(), new_token_id, SUPPLY * 2);
+    mock_state.erc6909.mint(OWNER(), new_token_id, SUPPLY * 2);
 
     let mut old_token_id_supply = mock_state.total_supply(TOKEN_ID);
     let mut new_token_id_supply = mock_state.total_supply(new_token_id);
@@ -115,13 +115,13 @@ fn test_burn_decrease_supply() {
     let new_token_id = TOKEN_ID + 69;
 
     testing::set_caller_address(OWNER());
-    mock_state.public_mint(OWNER(), new_token_id, SUPPLY * 2);
+    mock_state.erc6909.mint(OWNER(), new_token_id, SUPPLY * 2);
 
     let mut new_token_id_supply = mock_state.total_supply(new_token_id);
     assert_eq!(new_token_id_supply, SUPPLY * 2);
 
     testing::set_caller_address(OWNER());
-    mock_state.public_burn(OWNER(), new_token_id, SUPPLY * 2);
+    mock_state.erc6909.burn(OWNER(), new_token_id, SUPPLY * 2);
 
     let mut new_token_id_supply = mock_state.total_supply(new_token_id);
     assert_eq!(new_token_id_supply, 0);

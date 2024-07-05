@@ -11,7 +11,6 @@ pub(crate) mod DualCaseERC6909TokenSupplyMock {
         event: ERC6909TokenSupplyEvent
     );
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // ERC6909TokenSupply
     #[abi(embed_v0)]
@@ -38,6 +37,11 @@ pub(crate) mod DualCaseERC6909TokenSupplyMock {
         ERC6909TokenSupplyEvent: ERC6909TokenSupplyComponent::Event,
         #[flat]
         ERC6909Event: ERC6909Component::Event,
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
+        self.erc6909.mint(receiver, id, amount);
     }
 
     impl ERC6909TokenSupplyHooksImpl<
@@ -69,15 +73,18 @@ pub(crate) mod DualCaseERC6909TokenSupplyMock {
         }
     }
 
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray,
-        fixed_supply: u256,
-        recipient: ContractAddress
-    ) {
-        self.erc6909.initializer(name, symbol);
-        self.erc6909.mint(recipient, fixed_supply);
+    // These functions are for testing purposes only
+    #[abi(per_item)]
+    #[generate_trait]
+    pub impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn public_mint(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
+            self.erc6909.mint(receiver, id, amount);
+        }
+
+        #[external(v0)]
+        fn public_burn(ref self: ContractState, owner: ContractAddress, id: u256, amount: u256) {
+            self.erc6909.burn(owner, id, amount);
+        }
     }
 }

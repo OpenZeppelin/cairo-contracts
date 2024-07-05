@@ -123,7 +123,7 @@ fn test_unpause_when_unpaused() {
 //
 
 #[generate_trait]
- impl PausableSpyHelpersImpl of PausableSpyHelpers {
+impl PausableSpyHelpersImpl of PausableSpyHelpers {
     fn assert_event_paused(
         ref self: EventSpy, contract: ContractAddress, account: ContractAddress
     ) {

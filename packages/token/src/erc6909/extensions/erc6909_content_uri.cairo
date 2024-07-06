@@ -5,7 +5,7 @@ use starknet::ContractAddress;
 
 /// # ERC6909ContentURI Component
 ///
-/// The ERC6909Content component allows to set the contract and token ID URIs.
+/// The ERC6909ContentURI component allows to set the contract and token ID URIs.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin::token::erc6909::ERC6909Component;

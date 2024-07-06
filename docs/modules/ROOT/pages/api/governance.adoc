@@ -2,8 +2,8 @@
 :CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
 :CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
 :CallSalt: xref:ITimelock-CallSalt[CallSalt]
-:Cancelled: xref:ITimelock-Cancelled[Cancelled]
-:MinDelayChange: xref:ITimelock-MinDelayChange[MinDelayChange]
+:CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
+:MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
 :RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
 
 = Governance
@@ -49,8 +49,8 @@ use openzeppelin::governance::timelock::interface::ITimelock;
 * xref:#ITimelock-CallScheduled[`++CallScheduled(id, index, call, predecessor, delay)++`]
 * xref:#ITimelock-CallExecuted[`++CallExecuted(id, index, call)++`]
 * xref:#ITimelock-CallSalt[`++CallSalt(id, salt)++`]
-* xref:#ITimelock-Cancelled[`++Cancelled(id)++`]
-* xref:#ITimelock-MinDelayChange[`++MinDelayChange(old_duration, new_duration)++`]
+* xref:#ITimelock-CallCancelled[`++CallCancelled(id)++`]
+* xref:#ITimelock-MinDelayChanged[`++MinDelayChanged(old_duration, new_duration)++`]
 --
 
 [#ITimelock-Functions]
@@ -156,7 +156,7 @@ Requirements:
 - The caller must have the `CANCELLER_ROLE` role.
 - `id` must be an operation.
 
-Emits a {Cancelled} event.
+Emits a {CallCancelled} event.
 
 [.contract-item]
 [[ITimelock-execute]]
@@ -206,7 +206,7 @@ Requirements:
 and later executing an operation where the timelock is the target and the data
 is the ABI-encoded call to this function.
 
-Emits a {MinDelayChange} event.
+Emits a {MinDelayChanged} event.
 
 [#ITimelock-Events]
 ==== Events
@@ -230,14 +230,14 @@ Emitted when `call` is performed as part of operation `id`.
 Emitted when a new proposal is scheduled with non-zero salt.
 
 [.contract-item]
-[[ITimelock-Cancelled]]
-==== `[.contract-item-name]#++Cancelled++#++(id: felt252)++` [.item-kind]#event#
+[[ITimelock-CallCancelled]]
+==== `[.contract-item-name]#++CallCancelled++#++(id: felt252)++` [.item-kind]#event#
 
 Emitted when operation `id` is cancelled.
 
 [.contract-item]
-[[ITimelock-MinDelayChange]]
-==== `[.contract-item-name]#++MinDelayChange++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
+[[ITimelock-MinDelayChanged]]
+==== `[.contract-item-name]#++MinDelayChanged++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
 
 Emitted when the minimum delay for future operations is modified.
 
@@ -323,8 +323,8 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 * xref:#TimelockControllerComponent-CallScheduled[`++CallScheduled(id, index, call, predecessor, delay)++`]
 * xref:#TimelockControllerComponent-CallExecuted[`++CallExecuted(id, index, call)++`]
 * xref:#TimelockControllerComponent-CallSalt[`++CallSalt(id, salt)++`]
-* xref:#TimelockControllerComponent-Cancelled[`++Cancelled(id)++`]
-* xref:#TimelockControllerComponent-MinDelayChange[`++MinDelayChange(old_duration, new_duration)++`]
+* xref:#TimelockControllerComponent-CallCancelled[`++CallCancelled(id)++`]
+* xref:#TimelockControllerComponent-MinDelayChanged[`++MinDelayChanged(old_duration, new_duration)++`]
 --
 
 [#TimelockControllerComponent-Functions]
@@ -430,7 +430,7 @@ Requirements:
 - The caller must have the `CANCELLER_ROLE` role.
 - `id` must be an operation.
 
-Emits a {Cancelled} event.
+Emits a {CallCancelled} event.
 
 [.contract-item]
 [[TimelockControllerComponent-execute]]
@@ -480,7 +480,7 @@ Requirements:
 and later executing an operation where the timelock is the target and the data
 is the ABI-encoded call to this function.
 
-Emits a {MinDelayChange} event.
+Emits a {MinDelayChanged} event.
 
 [#TimelockControllerComponent-Internal-Functions]
 ==== Internal functions
@@ -510,7 +510,7 @@ Emits a {RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE`
 May emit a {RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
 not zero).
 
-Emits {MinDelayChange} event.
+Emits {MinDelayChanged} event.
 
 [.contract-item]
 [[TimelockControllerComponent-assert_only_role_or_open_role]]
@@ -575,14 +575,14 @@ Emitted when `call` is performed as part of operation `id`.
 Emitted when a new proposal is scheduled with non-zero salt.
 
 [.contract-item]
-[[TimelockControllerComponent-Cancelled]]
-==== `[.contract-item-name]#++Cancelled++#++(id: felt252)++` [.item-kind]#event#
+[[TimelockControllerComponent-CallCancelled]]
+==== `[.contract-item-name]#++CallCancelled++#++(id: felt252)++` [.item-kind]#event#
 
 Emitted when operation `id` is cancelled.
 
 [.contract-item]
-[[TimelockControllerComponent-MinDelayChange]]
-==== `[.contract-item-name]#++MinDelayChange++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
+[[TimelockControllerComponent-MinDelayChanged]]
+==== `[.contract-item-name]#++MinDelayChanged++#++(old_duration: u64, new_duration: u64)++` [.item-kind]#event#
 
 Emitted when the minimum delay for future operations is modified.
 

@@ -184,7 +184,6 @@ fn test_hash_operation() {
 
     // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
-        .update_with(4) // total elements of call
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
@@ -215,7 +214,6 @@ fn test_hash_operation_batch() {
 
     // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
-        .update_with(13) // total elements of Call span
         .update_with(3) // total number of Calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector

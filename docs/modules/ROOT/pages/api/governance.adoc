@@ -310,7 +310,9 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 .InternalImpl
 
 * xref:#TimelockControllerComponent-initializer[`++initializer(self, min_delay, proposers, executors, admin)++`]
+* xref:#TimelockControllerComponent-assert_only_role[`++assert_only_role(self, role)++`]
 * xref:#TimelockControllerComponent-assert_only_role_or_open_role[`++assert_only_role_or_open_role(self, role)++`]
+* xref:#TimelockControllerComponent-assert_only_self[`++assert_only_self(self)++`]
 * xref:#TimelockControllerComponent-_before_call[`++_before_call(self, id, predecessor)++`]
 * xref:#TimelockControllerComponent-_after_call[`++_after_call(self, id)++`]
 * xref:#TimelockControllerComponent-_schedule[`++_schedule(self, id, delay)++`]
@@ -513,12 +515,24 @@ not zero).
 Emits {MinDelayChanged} event.
 
 [.contract-item]
+[[TimelockControllerComponent-assert_only_role]]
+==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
+
+Validates that the caller has the given `role`.
+Otherwise it reverts.
+
+[.contract-item]
 [[TimelockControllerComponent-assert_only_role_or_open_role]]
 ==== `[.contract-item-name]#++assert_only_role_or_open_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
 
 Validates that the caller has the given `role`.
-If `role` is granted to the zero address, then this is considered an open role which
-allows anyone to be the caller.
+If `role` is granted to the zero address, then this is considered an open role which allows anyone to be the caller.
+
+[.contract-item]
+[[TimelockControllerComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Validates that the caller is the timelock contract itself. Otherwise it reverts.
 
 [.contract-item]
 [[TimelockControllerComponent-_before_call]]

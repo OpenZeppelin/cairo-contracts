@@ -13,7 +13,7 @@ pub struct Call {
     pub calldata: Span<felt252>
 }
 
-pub(crate) impl HashCallImpl<S, +Serde<Call>, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
+pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
     fn update_state(mut state: S, value: @Call) -> S {
         let Call { to, selector, mut calldata } = *value;
         state = state.update_with(to).update_with(selector).update_with(calldata.len());

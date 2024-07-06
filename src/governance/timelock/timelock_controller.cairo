@@ -24,7 +24,7 @@ pub mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, Call};
+    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, Call};
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
@@ -34,7 +34,7 @@ pub mod TimelockControllerComponent {
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
     pub const EXECUTOR_ROLE: felt252 = selector!("EXECUTOR_ROLE");
     pub const CANCELLER_ROLE: felt252 = selector!("CANCELLER_ROLE");
-    pub const DONE_TIMESTAMP: u64 = 1;
+    const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
     struct Storage {
@@ -48,8 +48,8 @@ pub mod TimelockControllerComponent {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
         CallSalt: CallSalt,
-        Cancelled: Cancelled,
-        MinDelayChange: MinDelayChange
+        CallCancelled: CallCancelled,
+        MinDelayChanged: MinDelayChanged
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
@@ -84,14 +84,14 @@ pub mod TimelockControllerComponent {
 
     /// Emitted when operation `id` is cancelled.
     #[derive(Drop, PartialEq, starknet::Event)]
-    pub struct Cancelled {
+    pub struct CallCancelled {
         #[key]
         pub id: felt252
     }
 
     /// Emitted when the minimum delay for future operations is modified.
     #[derive(Drop, PartialEq, starknet::Event)]
-    pub struct MinDelayChange {
+    pub struct MinDelayChanged {
         pub old_duration: u64,
         pub new_duration: u64
     }
@@ -99,7 +99,9 @@ pub mod TimelockControllerComponent {
     pub mod Errors {
         pub const INVALID_OPERATION_LEN: felt252 = 'Timelock: invalid operation len';
         pub const INSUFFICIENT_DELAY: felt252 = 'Timelock: insufficient delay';
-        pub const UNEXPECTED_OPERATION_STATE: felt252 = 'Timelock: unexpected op state';
+        pub const EXPECTED_UNSET_OPERATION: felt252 = 'Timelock: expected Unset op';
+        pub const EXPECTED_PENDING_OPERATION: felt252 = 'Timelock: expected Pending op';
+        pub const EXPECTED_READY_OPERATION: felt252 = 'Timelock: expected Ready op';
         pub const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
         pub const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
     }
@@ -118,15 +120,14 @@ pub mod TimelockControllerComponent {
             Timelock::get_operation_state(self, id) != OperationState::Unset
         }
 
-        /// Returns whether the `id` OperationState is Waiting or not.
-        /// Note that a Waiting operation may also be Ready.
+        /// Returns whether the `id` OperationState is pending or not.
+        /// Note that a pending operation may be either Waiting or Ready.
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
             let state = Timelock::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready
         }
 
         /// Returns whether the `id` OperationState is Ready or not.
-        /// Note that a Pending operation may also be Ready.
         fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
             Timelock::get_operation_state(self, id) == OperationState::Ready
         }
@@ -206,7 +207,7 @@ pub mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role_or_open_role(PROPOSER_ROLE);
+            self.assert_only_role(PROPOSER_ROLE);
 
             let id = Timelock::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
@@ -232,7 +233,7 @@ pub mod TimelockControllerComponent {
             salt: felt252,
             delay: u64
         ) {
-            self.assert_only_role_or_open_role(PROPOSER_ROLE);
+            self.assert_only_role(PROPOSER_ROLE);
 
             let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
             self._schedule(id, delay);
@@ -260,13 +261,13 @@ pub mod TimelockControllerComponent {
         /// - The caller must have the `CANCELLER_ROLE` role.
         /// - `id` must be an operation.
         ///
-        /// Emits a `Cancelled` event.
+        /// Emits a `CallCancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
-            self.assert_only_role_or_open_role(CANCELLER_ROLE);
-            assert(Timelock::is_operation_pending(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            self.assert_only_role(CANCELLER_ROLE);
+            assert(Timelock::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
 
             self.TimelockController_timestamps.write(id, 0);
-            self.emit(Cancelled { id });
+            self.emit(CallCancelled { id });
         }
 
         /// Execute a (Ready) operation containing a single Call.
@@ -342,16 +343,14 @@ pub mod TimelockControllerComponent {
         ///
         /// - The caller must be the timelock itself. This can only be achieved by scheduling
         /// and later executing an operation where the timelock is the target and the data
-        /// is the ABI-encoded call to this function.
+        /// is the serialized call to this function.
         ///
-        /// Emits a `MinDelayChange` event.
+        /// Emits a `MinDelayChanged` event.
         fn update_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
-            let this = starknet::get_contract_address();
-            let caller = starknet::get_caller_address();
-            assert(caller == this, Errors::UNAUTHORIZED_CALLER);
+            self.assert_only_self();
 
             let min_delay = self.TimelockController_min_delay.read();
-            self.emit(MinDelayChange { old_duration: min_delay, new_duration: new_delay });
+            self.emit(MinDelayChanged { old_duration: min_delay, new_duration: new_delay });
 
             self.TimelockController_min_delay.write(new_delay);
         }
@@ -561,7 +560,7 @@ pub mod TimelockControllerComponent {
         /// May emit a `RoleGranted` event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
         /// not zero).
         ///
-        /// Emits `MinDelayChange` event.
+        /// Emits `MinDelayChanged` event.
         fn initializer(
             ref self: ComponentState<TContractState>,
             min_delay: u64,
@@ -581,32 +580,33 @@ pub mod TimelockControllerComponent {
 
             // Register proposers and cancellers
             let mut i = 0;
-            loop {
-                if i == proposers.len() {
-                    break;
-                }
-
-                let mut proposer = proposers.at(i);
-                access_component._grant_role(PROPOSER_ROLE, *proposer);
-                access_component._grant_role(CANCELLER_ROLE, *proposer);
-                i += 1;
-            };
+            while i < proposers
+                .len() {
+                    let proposer = proposers.at(i);
+                    access_component._grant_role(PROPOSER_ROLE, *proposer);
+                    access_component._grant_role(CANCELLER_ROLE, *proposer);
+                    i += 1;
+                };
 
             // Register executors
             let mut i = 0;
-            loop {
-                if i == executors.len() {
-                    break;
-                }
-
-                let mut executor = executors.at(i);
-                access_component._grant_role(EXECUTOR_ROLE, *executor);
-                i += 1;
-            };
+            while i < executors
+                .len() {
+                    let executor = executors.at(i);
+                    access_component._grant_role(EXECUTOR_ROLE, *executor);
+                    i += 1;
+                };
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
-            self.emit(MinDelayChange { old_duration: 0, new_duration: min_delay })
+            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay })
+        }
+
+        /// Validates that the caller has the given `role`.
+        /// Otherwise it reverts.
+        fn assert_only_role(self: @ComponentState<TContractState>, role: felt252) {
+            let access_component = get_dep_component!(self, AccessControl);
+            access_component.assert_only_role(role);
         }
 
         /// Validates that the caller has the given `role`.
@@ -620,6 +620,14 @@ pub mod TimelockControllerComponent {
             }
         }
 
+        /// Validates that the caller is the timelock contract itself.
+        /// Otherwise it reverts.
+        fn assert_only_self(self: @ComponentState<TContractState>) {
+            let this = starknet::get_contract_address();
+            let caller = starknet::get_caller_address();
+            assert(caller == this, Errors::UNAUTHORIZED_CALLER);
+        }
+
         /// Private function that checks before execution of an operation's calls.
         ///
         /// Requirements:
@@ -627,7 +635,7 @@ pub mod TimelockControllerComponent {
         /// - `id` must be in the Ready OperationState.
         /// - `predecessor` must either be zero or be in the Done OperationState.
         fn _before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
-            assert(Timelock::is_operation_ready(self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(self, id), Errors::EXPECTED_READY_OPERATION);
             assert(
                 predecessor == 0 || Timelock::is_operation_done(self, predecessor),
                 Errors::UNEXECUTED_PREDECESSOR
@@ -640,13 +648,13 @@ pub mod TimelockControllerComponent {
         ///
         /// - `id` must be in the Ready OperationState.
         fn _after_call(ref self: ComponentState<TContractState>, id: felt252) {
-            assert(Timelock::is_operation_ready(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(Timelock::is_operation_ready(@self, id), Errors::EXPECTED_READY_OPERATION);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 
         /// Private function that schedules an operation that is to become valid after a given `delay`.
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
-            assert(!Timelock::is_operation(@self, id), Errors::UNEXPECTED_OPERATION_STATE);
+            assert(!Timelock::is_operation(@self, id), Errors::EXPECTED_UNSET_OPERATION);
             assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);
             self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
         }

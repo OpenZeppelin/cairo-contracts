@@ -3,17 +3,11 @@ pub(crate) mod TimelockControllerMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::governance::timelock::TimelockControllerComponent;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
-    use openzeppelin::token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: TimelockControllerComponent, storage: timelock, event: TimelockEvent);
-    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-    component!(
-        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
-    );
 
     // Timelock Mixin
     #[abi(embed_v0)]
@@ -28,11 +22,7 @@ pub(crate) mod TimelockControllerMock {
         #[substorage(v0)]
         src5: SRC5Component::Storage,
         #[substorage(v0)]
-        timelock: TimelockControllerComponent::Storage,
-        #[substorage(v0)]
-        erc721_receiver: ERC721ReceiverComponent::Storage,
-        #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        timelock: TimelockControllerComponent::Storage
     }
 
     #[event]
@@ -43,11 +33,7 @@ pub(crate) mod TimelockControllerMock {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        TimelockEvent: TimelockControllerComponent::Event,
-        #[flat]
-        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
-        #[flat]
-        ERC1155ReceiverEvent: ERC1155ReceiverComponent::Event,
+        TimelockEvent: TimelockControllerComponent::Event
     }
 
     #[constructor]

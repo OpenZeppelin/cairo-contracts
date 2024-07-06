@@ -8,7 +8,7 @@ use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
-    CallScheduled, CallExecuted, CallSalt, Cancelled, MinDelayChange
+    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
 };
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
@@ -136,7 +136,7 @@ fn deploy_timelock() -> TimelockABIDispatcher {
     let address = utils::deploy(TimelockControllerMock::TEST_CLASS_HASH, calldata);
     // Events dropped:
     // - 5 RoleGranted: self, proposer, canceller, executor, admin
-    // - MinDelayChange
+    // - MinDelayChanged
     utils::drop_events(address, 6);
     TimelockABIDispatcher { contract_address: address }
 }
@@ -184,7 +184,6 @@ fn test_hash_operation() {
 
     // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
-        .update_with(4) // total elements of call
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
@@ -215,7 +214,6 @@ fn test_hash_operation_batch() {
 
     // Manually set hash elements
     let mut expected_hash = PoseidonTrait::new()
-        .update_with(13) // total elements of Call span
         .update_with(3) // total number of Calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
@@ -288,7 +286,7 @@ fn test_schedule_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Unset op', 'ENTRYPOINT_FAILED'))]
 fn test_schedule_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -381,7 +379,7 @@ fn test_schedule_batch_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Unset op', 'ENTRYPOINT_FAILED'))]
 fn test_schedule_batch_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -428,7 +426,7 @@ fn test_schedule_batch_bad_min_delay() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -482,7 +480,7 @@ fn test_execute_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -579,10 +577,7 @@ fn test_execute_bad_selector() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: unexpected op state',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
+        'Timelock: expected Ready op', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'
     )
 )]
 fn test_execute_reentrant_call() {
@@ -702,7 +697,7 @@ fn test_execute_after_dependency() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_batch_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -754,7 +749,7 @@ fn test_execute_batch_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Ready op', 'ENTRYPOINT_FAILED'))]
 fn test_execute_batch_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -801,10 +796,7 @@ fn test_execute_batch_unauthorized() {
 #[test]
 #[should_panic(
     expected: (
-        'Timelock: unexpected op state',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
+        'Timelock: expected Ready op', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED'
     )
 )]
 fn test_execute_batch_reentrant_call() {
@@ -990,7 +982,7 @@ fn test_cancel_when_ready() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Pending op', 'ENTRYPOINT_FAILED'))]
 fn test_cancel_when_done() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -1021,7 +1013,7 @@ fn test_cancel_when_done() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Timelock: expected Pending op', 'ENTRYPOINT_FAILED'))]
 fn test_cancel_when_unset() {
     let (mut timelock, _) = setup_dispatchers();
     let invalid_id = 0;
@@ -1190,7 +1182,7 @@ fn test_initializer_min_delay() {
     let delay = state.get_min_delay();
     assert_eq!(delay, MIN_DELAY);
 
-    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChange`:
+    // The initializer emits 4 `RoleGranted` events prior to `MinDelayChanged`:
     // - Self administration
     // - 1 proposer
     // - 1 canceller
@@ -1248,17 +1240,17 @@ fn test_assert_only_role_or_open_role_with_open_role() {
     let min_delay = MIN_DELAY;
     let open_role = ZERO();
 
-    let proposers = array![open_role].span();
-    let executors = array![EXECUTOR()].span();
+    let proposers = array![PROPOSER()].span();
+    let executors = array![open_role].span();
     let admin = ADMIN();
 
     state.initializer(min_delay, proposers, executors, admin);
 
-    let is_open_role = contract_state.has_role(PROPOSER_ROLE, open_role);
+    let is_open_role = contract_state.has_role(EXECUTOR_ROLE, open_role);
     assert!(is_open_role);
 
     testing::set_caller_address(OTHER());
-    state.assert_only_role_or_open_role(PROPOSER_ROLE);
+    state.assert_only_role_or_open_role(EXECUTOR_ROLE);
 }
 
 //
@@ -1284,7 +1276,7 @@ fn test__before_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1300,7 +1292,7 @@ fn test__before_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1319,7 +1311,7 @@ fn test__before_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__before_call_when_already_done() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1409,7 +1401,7 @@ fn test__after_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
 
@@ -1424,7 +1416,7 @@ fn test__after_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
 
@@ -1442,7 +1434,7 @@ fn test__after_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Ready op',))]
 fn test__after_call_already_done() {
     let mut state = COMPONENT_STATE();
 
@@ -1484,7 +1476,7 @@ fn test__schedule() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: unexpected op state',))]
+#[should_panic(expected: ('Timelock: expected Unset op',))]
 fn test__schedule_overwrite() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();
@@ -1617,13 +1609,13 @@ fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationS
 //
 
 //
-// MinDelayChange
+// MinDelayChanged
 //
 
 fn assert_event_delay_change(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(
-        MinDelayChange { old_duration, new_duration }
+    let expected = TimelockControllerComponent::Event::MinDelayChanged(
+        MinDelayChanged { old_duration, new_duration }
     );
     assert!(event == expected);
 }
@@ -1752,12 +1744,12 @@ fn assert_only_events_execute_batch(contract: ContractAddress, id: felt252, call
 
 fn assert_event_cancel(contract: ContractAddress, id: felt252) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::Cancelled(Cancelled { id });
+    let expected = TimelockControllerComponent::Event::CallCancelled(CallCancelled { id });
     assert!(event == expected);
 
     // Check indexed keys
     let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Cancelled"));
+    indexed_keys.append_serde(selector!("CallCancelled"));
     indexed_keys.append_serde(id);
     utils::assert_indexed_keys(event, indexed_keys.span());
 }
@@ -1768,13 +1760,13 @@ fn assert_only_event_cancel(contract: ContractAddress, id: felt252) {
 }
 
 //
-// MinDelayChange
+// MinDelayChanged
 //
 
 fn assert_event_delay(contract: ContractAddress, old_duration: u64, new_duration: u64) {
     let event = utils::pop_log::<TimelockControllerComponent::Event>(contract).unwrap();
-    let expected = TimelockControllerComponent::Event::MinDelayChange(
-        MinDelayChange { old_duration, new_duration }
+    let expected = TimelockControllerComponent::Event::MinDelayChanged(
+        MinDelayChanged { old_duration, new_duration }
     );
     assert!(event == expected);
 }

@@ -1,9 +1,10 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC6909MetadataMock {
-    use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent::InternalTrait as ERC6909MetadataInternalTrait;
+    use openzeppelin::token::erc6909::ERC6909Component;
+    use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent::InternalTrait;
     use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent;
-    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
     use starknet::ContractAddress;
+
     component!(
         path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent
     );
@@ -39,5 +40,35 @@ pub(crate) mod DualCaseERC6909MetadataMock {
     #[constructor]
     fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) {
         self.erc6909.mint(receiver, id, amount);
+    }
+
+    impl ERC6909MetadataHooksImpl<
+        TContractState,
+        impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
+        impl HasComponent: ERC6909Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of ERC6909Component::ERC6909HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {}
+
+        /// Update after any transfer
+        fn after_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {
+            let mut erc6909_metadata_component = get_dep_component_mut!(ref self, ERC6909Metadata);
+            let name = "MyERC6909Token";
+            let symbol = "MET";
+            let decimals = 18;
+            erc6909_metadata_component._update_token_metadata(from, id, name, symbol, decimals);
+        }
     }
 }

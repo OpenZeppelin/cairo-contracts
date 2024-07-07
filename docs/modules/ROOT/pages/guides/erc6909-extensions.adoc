@@ -1,0 +1,322 @@
+= ERC6909 Extensions
+
+:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
+
+{eip-6909} is a multi-token standard with functionality similar to ERC20s, but does not define
+certain characteristics typically found across fungible tokens: Such as metadata and 
+token supplies.
+
+There are 3 optional extensions which can also be imported into `MyERC6909Token` out of the box:
+
+* `ERC6909ContentURI` - Allows to set the base contract URI and thus show individual token URIs.
+* `ERC6909Metadata` - Allows to set the `name`, `symbol` and `decimals` of each token ID.
+* `ERC6909TokenSupply` - Allows to keep track of individual token supplies upon mints and burns.
+
+The `ERC6909Component` always requires for hooks to be implemented. In the case of the first extension
+(Content URI) simply importing the `HooksEmptyImpl` is enough. The other extensions make use of hooks 
+so we must implement these.
+
+This guide will go over these extensions and how to integrate them into your `ERC6909` contracts, with an example
+for each component integration.
+
+
+== ERC6909 Content URI
+
+Let's say we want to create a ERC6909 token named `MyERC6909TokenWithURI` with a contract URI. As explained the 
+contract URI is not part of the {eip-6909} but rather an optional extension. Therefore to achieve 
+this we can make use of the `ERC6909ContentURI` extension.
+
+[,cairo]
+----
+#[starknet::contract]
+pub mod MyERC6909ContentURI {
+    // 1. Import the Content URI Component
+    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
+    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
+    use starknet::ContractAddress;
+
+    // 2. Declare the component to access its storage and events
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
+
+    // 3. Embed ABI to access external functions
+    #[abi(embed_v0)]
+    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+
+    // 4. Implement internal implementations to access internal functions
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909ContentURIInternalImpl = ERC6909ContentURIComponent::InternalImpl<ContractState>;
+
+    // 5. Include component storage and events
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        erc6909_content_uri: ERC6909ContentURIComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        ERC6909ContentURIEvent: ERC6909ContentURIComponent::Event,
+    }
+
+    // 6. Initialize contract URI in the constructor via the component's internal `initializer` function
+    #[constructor]
+    fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray) {
+        self.erc6909.mint(receiver, id, amount);
+        self.erc6909_content_uri.initializer(uri);
+    }
+}
+----
+
+There's a few things happening in our contract so let's go from the beginning.
+
+To include the URI extension we must import the `ERC6909ContentURI` component (along with the `ERC6909` base component).
+
+The `ERC6909Component` always requires us to implement the hooks, we are simply importing the `ERC6909HooksEmptyImpl` as we do not
+require any hooks for our token, so importing empty hooks suffices in this case.
+
+Once imported, we declare both components with `component!(path, storage, events)`.
+This tells the compiler to generate an implementation for `HasComponent<TContractState>`, constructing the component state from the associated storage and event types (step 5).
+
+We then embed the ABI for both components so each function in the implementation is now accessible externally, and the impl/interface are reflected in the ABI.
+Notice that we are also implementing the `ERC6909InternalImpl` and `ERC6909COntentURIInternalImpl` to access the internal functions of each component (such as `mint` or `initializer`).
+
+Finally, in the constructor we mint an initial token supply to `receiver` and set the contract URI via `ERC6909ContentURIComponent` initializer. Notice that the `initializer`
+function is called in the constructor in this case, but since it is an internal function it can be called anytime, however it is usually recomended to set it once in the 
+constructor to not be accessible again.
+
+== ERC6909 Metadata
+
+Now let's say we want to add Metadata to our token. To do this we can import the `ERC6909MetadataComponent`. Since ERC6909 is a multi-token standard,
+each token ID can have different metadata associated with it!
+
+To set the individual token IDs metadata we have two options:
+
+* Set the metadata during mints via hooks
+* Set the metadata for each token manually
+
+The easiest way to set the metadata is via hooks. To do so, we import the `ERC6909MetadataComponent` and follow the same steps as above, with one small
+exception: We do not import the `ERC6909EmptyHooksImpl` and instead we define the logic ourselves. Here's what it would look like:
+
+[,cairo]
+----
+#[starknet::contract]
+pub mod MyERC6909TokenMetadata {
+    // 1. Import the Metadata Component
+    use openzeppelin::token::erc6909::ERC6909Component;
+    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
+    use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent;
+    use starknet::ContractAddress;
+
+    // 2. Declare the component to access its storage and events
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
+    component!(path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent);
+
+    // 3. Embed ABI to access external functions
+    #[abi(embed_v0)]
+    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+
+    // 4. Implement internal implementations to access internal functions
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909ContentURIInternalImpl = ERC6909ContentURIComponent::InternalImpl<ContractState>;
+    impl ERC6909MetadataInternalImpl = ERC6909MetadataComponent::InternalImpl<ContractState>;
+
+    // 5. Include component storage and events
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        erc6909_content_uri: ERC6909ContentURIComponent::Storage,
+        #[substorage(v0)]
+        erc6909_metadata: ERC6909MetadataComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        ERC6909ContentURIEvent: ERC6909ContentURIComponent::Event,
+        #[flat]
+        ERC6909MetadataEvent: ERC6909MetadataComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray
+    ) {
+        self.erc6909.mint(receiver, id, amount);
+        self.erc6909_content_uri.initializer(uri);
+    }
+
+    // 6. Use the `_update_token_metadata` internal function to update token metadata during mints
+    impl ERC6909MetadataHooksImpl<
+        TContractState,
+        impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
+        impl HasComponent: ERC6909Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of ERC6909Component::ERC6909HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {}
+
+        fn after_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {
+            let mut erc6909_metadata_component = get_dep_component_mut!(ref self, ERC6909Metadata);
+
+            let name = "MyERC6909Token";
+            let symbol = "MET";
+            let decimals = 18;
+
+            // `_update_token_metadata` is only called if this is a mint
+            erc6909_metadata_component._update_token_metadata(from, id, name, symbol, decimals);
+        }
+    }
+}
+---
+
+The `ERC6909Metadata` component has a function to check and update metadata if it hasn't been set yet. The `_update_token_metadata`
+updates token metadata only upon mints, not transfers or burns. Thus while minting a new token ID, if it has not metadata associated with it
+we can make use of the `after_update` hook to set the new metadata.
+
+In this case we used a fixed name and symbol, but during the hook you could define your own logic. For example, if the underlying deposit
+is something like an LP Token, you could get the symbol of each token in the LP and use both as symbol, etc.
+
+The rest of the contract is identical to the `ContentURI` implementation shown above.
+
+== ERC6909 Token Supply
+
+Keeping track of each token ID supply in our ERC6909 contract is also possible by importing the `ERC6909TokenSupplyComponent` extension . The mechanism is the same as
+the `ERC6909Metadata` implementation. 
+
+The `ERC6909TokenSupplyComponent` implementation has a function to be used in the ERC6909 hooks to update supply upon mints and burns. 
+
+Here is an example of how to implement it:
+
+[,cairo]
+----
+#[starknet::contract]
+pub mod MyERC6909TokenTotalSupply {
+    // 1. Import the Metadata Component
+    use openzeppelin::token::erc6909::ERC6909Component;
+    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
+    use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent;
+    use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent;
+    use starknet::ContractAddress;
+
+    // 2. Declare the component to access its storage and events
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
+    component!(path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent);
+    component!(path: ERC6909TokenSupplyComponent, storage: erc6909_token_supply, event: ERC6909TokenSupplyEvent);
+
+    // 3. Embed ABI to access external functions
+    #[abi(embed_v0)]
+    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909TokenSupplyComponentImpl = ERC6909TokenSupplyComponent::ERC6909TokenSupplyImpl<ContractState>;
+
+    // 4. Implement internal implementations to access internal functions
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909ContentURIInternalImpl = ERC6909ContentURIComponent::InternalImpl<ContractState>;
+    impl ERC6909MetadataInternalImpl = ERC6909MetadataComponent::InternalImpl<ContractState>;
+    impl ERC6909TokenSuppplyInternalImpl = ERC6909TokenSupplyComponent::InternalImpl<ContractState>;
+
+    // 5. Include component storage and events
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        erc6909_content_uri: ERC6909ContentURIComponent::Storage,
+        #[substorage(v0)]
+        erc6909_metadata: ERC6909MetadataComponent::Storage,
+        #[substorage(v0)]
+        erc6909_token_supply: ERC6909TokenSupplyComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        ERC6909ContentURIEvent: ERC6909ContentURIComponent::Event,
+        #[flat]
+        ERC6909MetadataEvent: ERC6909MetadataComponent::Event,
+        #[flat]
+        ERC6909TokenSupplyEvent: ERC6909TokenSupplyComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray
+    ) {
+        self.erc6909.mint(receiver, id, amount);
+        self.erc6909_content_uri.initializer(uri);
+    }
+
+    // 6. Use the `_update_token_supply` to update Token ID supply during mints and burns.
+    impl ERC6909TokenSupplyHooksImpl<
+        TContractState,
+        impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
+        impl ERC6909TokenSupply: ERC6909TokenSupplyComponent::HasComponent<TContractState>,
+        impl HasComponent: ERC6909Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of ERC6909Component::ERC6909HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {}
+
+        fn after_update(
+            ref self: ERC6909Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256
+        ) {
+            let mut erc6909_metadata_component = get_dep_component_mut!(ref self, ERC6909Metadata);
+            erc6909_metadata_component._update_token_metadata(from, id, "MyERC6909Token", "MET", 18);
+
+            // Will only update during mints and burns
+            let mut erc6909_token_supply_component = get_dep_component_mut!(ref self, ERC6909TokenSupply);
+            erc6909_token_supply_component._update_token_supply(from, recipient, id, amount);
+        }
+    }
+}
+---
+
+The logic is the exact same as when implementing the Metadata component. The `ERC6909TokenSupplyComponent` has an internal
+function (`_update_token_supply`) which updates the supply of a token ID only upon mints and/or burns.

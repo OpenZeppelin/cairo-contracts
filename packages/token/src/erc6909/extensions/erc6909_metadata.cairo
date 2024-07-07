@@ -6,6 +6,7 @@ use starknet::ContractAddress;
 /// # ERC6909Metadata Component
 ///
 /// The ERC6909Metadata component allows to set metadata to the individual token IDs.
+/// The internal function `_update_token_metadata` should be used inside the ERC6909 Hooks.
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
     use core::num::traits::Zero;
@@ -58,13 +59,13 @@ pub mod ERC6909MetadataComponent {
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// @notice Updates the total supply of a token ID. To keep track of token ID supplies, 
-        /// @dev ideally this function should be called in a `before_update` or `after_update` hook.
-        /// @param sender The address of the sender
-        /// @param id The ID of the token
-        /// @param name The name of the token
-        /// @param symbol The symbol of the token
-        /// @param decimals The decimals of the token
+        /// @notice Updates the metadata of a token ID.
+        /// @notice Ideally this function should be called in a `before_update` or `after_update` hook during mints.
+        /// @param sender The address of the sender.
+        /// @param id The ID of the token.
+        /// @param name The name of the token.
+        /// @param symbol The symbol of the token.
+        /// @param decimals The decimals of the token.
         fn _update_token_metadata(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -77,24 +78,24 @@ pub mod ERC6909MetadataComponent {
 
             // In case of new ID mints update the token metadata
             if (sender == zero_address) {
-                let token_exists = self._token_exists(id);
-                if (!token_exists) {
+                let token_metadata_exists = self._token_metadata_exists(id);
+                if (!token_metadata_exists) {
                     self._set_token_metadata(id, name, symbol, decimals)
                 }
             }
         }
 
-        /// @notice Checks if a token has metadata at the time of minting
-        /// @param id The ID of the token
-        /// @return Whether or not the token has metadata
-        fn _token_exists(self: @ComponentState<TContractState>, id: u256) -> bool {
+        /// @notice Checks if a token has metadata at the time of minting.
+        /// @param id The ID of the token.
+        /// @return Whether or not the token has metadata.
+        fn _token_metadata_exists(self: @ComponentState<TContractState>, id: u256) -> bool {
             return self.ERC6909Metadata_name.read(id).len() > 0;
         }
 
-        /// @notice Updates the token metadata for `id`
-        /// @param id The ID of the token
-        /// @param name The name of the token
-        /// @param decimals The decimals of the token
+        /// @notice Updates the token metadata for `id`.
+        /// @param id The ID of the token.
+        /// @param name The name of the token.
+        /// @param decimals The decimals of the token.
         fn _set_token_metadata(
             ref self: ComponentState<TContractState>,
             id: u256,
@@ -107,19 +108,23 @@ pub mod ERC6909MetadataComponent {
             self._set_token_decimals(id, decimals);
         }
 
-        /// Sets the token name.
+        /// @notice Sets the token name.
+        /// @param id The id of the token.
+        /// @param name The name of the token.
         fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
             self.ERC6909Metadata_name.write(id, name);
         }
 
-        /// Sets the token symbol.
-        fn _set_token_symbol(
-            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray
-        ) {
+        /// @notice Sets the token symbol.
+        /// @param id The id of the token.
+        /// @param symbol The symbol of the token.
+        fn _set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
             self.ERC6909Metadata_symbol.write(id, symbol);
         }
 
-        /// Sets the token decimals.
+        /// @notice Sets the token decimals.
+        /// @param id The id of the token.
+        /// @param decimals The decimals of the token.
         fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
             self.ERC6909Metadata_decimals.write(id, decimals);
         }

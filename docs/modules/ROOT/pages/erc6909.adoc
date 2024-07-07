@@ -15,10 +15,13 @@ required to manage multiple tokens under the same contract." {eip-6909}
 
 == Usage
 
-:solidity-implementation: https://github.com/jtriley-eth/ERC-6909/tree/main/src[sample Solidity implementations]
+:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
+:erc20-extensions: xref:/guides/erc6909-extensions.adoc[ERC6909 Extensions]
+
+The ERC6909 minimal multi token standard is a specification for {fungibility-agnostic} token contracts.
 
 Using Contracts for Cairo, constructing an ERC6909 contract requires integrating the `ERC6909Component`.
-Here's what that looks like:
+Here's an example of a basic ERC6909 contract:
 
 [,cairo]
 ----
@@ -60,7 +63,10 @@ mod MyERC6909Token {
 }
 ----
 
-`MyERC6909Token` integrates the `ERC6909Impl` with the embed directive which marks the implementation as external in the contract.
+`MyERC6909Token` integrates the `ERC6909Impl` with the embed directive which marks the implementation as external in the contract
+by importing the `ERC6909Mixin` which has both camel and snake-case functions.
+
+The above example also includes the `ERC6909InternalImpl` instance to access internal functions (such as `mint`)
 
 There are 3 optional extensions which can also be imported into `MyERC6909Token`:
 
@@ -68,68 +74,7 @@ There are 3 optional extensions which can also be imported into `MyERC6909Token`
 * `ERC6909Metadata` - Allows to set the `name`, `symbol` and `decimals` of each token ID.
 * `ERC6909TokenSupply` - Allows to keep track of individual token supplies upon mints and burns.
 
-Here is an example of how to include the content URI component in your ERC6909 contract:
-
-[,cairo]
-----
-#[starknet::contract]
-pub(crate) mod MyERC6909TokenWithURI {
-    // 1. Import `ERC6909Component` and `ERC6909ContentURIComponent` with trait to use internal functions
-    use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::ERC6909HooksEmptyImpl;
-    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent::InternalTrait;
-    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
-
-    use starknet::{ContractAddress, get_caller_address};
-
-    // 2. Declare both components
-    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
-
-    // 3. Embed both component implementations to expose their external functions
-    #[abi(embed_v0)]
-    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
-
-    impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
-
-    // 4. Set substorage, allowing the contract to have indirect access to each component’s storage
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc6909: ERC6909Component::Storage,
-        #[substorage(v0)]
-        erc6909_content_uri: ERC6909ContentURIComponent::Storage,
-    }
-
-    // 5. Flatten the component events to remove the first key in the event logs, which is the component ID
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC6909Event: ERC6909Component::Event,
-        #[flat]
-        ERC6909ContentURIEvent: ERC6909ContentURIComponent::Event,
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray
-    ) {
-        self.erc6909.mint(receiver, id, amount);
-        self.erc6909_content_uri.initializer(uri)
-    }
-}
-----
-
-`MyERC6909TokenWithURI` integrates both the `ERC6909Impl` and `ERC6909ContentURIImpl` with the embed directive which marks the implementations as external in the contract.
-The above example also includes 2 internal implementations. 
-The `ERC6909InternalImpl` allows contract's constructor to create an initial supply of tokens via ERC6909's `mint` method.
-The `ERC6909ContentURIComponent::InternalTrait` similarly allows the contract's constructor to set the URI via ERC6909ContentURI's `initializer` method
-
-// TODO
-TIP: For a more complete guide on ERC6909 token mechanisms, see {erc6909-supply}.
+TIP: For a more complete guide on using these extensions, see {erc6909-extensions}.
 
 == Interface
 
@@ -140,11 +85,9 @@ TIP: For a more complete guide on ERC6909 token mechanisms, see {erc6909-supply}
 :ierc6909_contenturi-interface: xref:/api/erc6909.adoc#IERC6909ContentURI[IERC6909ContentURI]
 :erc6909-component: xref:/api/erc6909.adoc#ERC6909Component[ERC6909Component]
 
-// TODO?
-//:erc6909-supply: xref:/guides/erc20-supply.adoc[Creating ERC20 Supply]
-
 The following interface represents the full ABI of the Contracts for Cairo {erc6909-component}.
 The interface includes the {ierc6909-interface} standard interface.
+
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
 
 [,cairo]
@@ -188,86 +131,3 @@ Some notable differences, however, can still be found, such as:
 * The `felt252` type is used to represent the  `byte4` interface ID. The {interface-id} is also calculated different in Cairo.
 * The component offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
 * `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
-
-== Customizing Token Metadata
-
-Since ERC6909 is a multi-token standard, instead of having a single `name`, `decimals`, and `symbol`,
-the optional `IERC6909Metadata` module defines these metadata properties for each token ID individually.
-
-There are 3 internal methods which can be used to set individual id metadata: `_set_token_name(id, name)`, `_set_token_symbol(id, symbol)` and `_set_token_decimals(id, decimals)`.
-
-[,cairo]
-----
-#[starknet::contract]
-mod MyERC6909TokenWithMetadata {
-    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
-    use starknet::ContractAddress;
-
-    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-
-    // ERC6909 Mixin
-    #[abi(embed_v0)]
-    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
-
-    // Optional to keep track of token supplies and URIs. 
-    // In this case we only use the snake_case implementations.
-    #[abi(embed_v0)]
-    impl ERC6909TokenSupplyImpl = ERC6909Component::ERC6909TokenSupplyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC6909ContentURIImpl = ERC6909Component::ERC6909ContentURIImpl<ContractState>;
-
-    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc6909: ERC6909Component::Storage
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC6909Event: ERC6909Component::Event
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        recipient: ContractAddress,
-        token_id: u256,
-        initial_supply: u256,
-        contract_uri: ByteArray
-    ) {
-        self.erc6909._set_contract_uri(contract_uri);
-        self.erc6909.mint(recipient, token_id, initial_supply);
-    }
-
-    #[abi(per_item)]
-    #[generate_trait]
-    impl MetadataImpl of MetadataTrait {
-        #[external(v0)]
-        fn name(self: @ContractState) -> ByteArray {
-          "MyToken"
-        }
-
-        #[external(v0)]
-        fn symbol(self: @ContractState) -> ByteArray {
-          "MTK"
-        }
-
-        #[external(v0)]
-        fn decimals(self: @ContractState) -> u8 {
-          18
-        }
-    }
-}
-----
-
-== Storing ERC6909 URIs
-
-Token URI and Contract URI are also not part of the EIP. To implement these, the implementation `ERC6909ContentURIImpl` must be imported in the token contract. The contract URI
-ideally would be initialized in the constructor via `_set_contract_uri` as shown above.
-
-The base URI is stored as a ByteArray and the full token URI is returned as the ByteArray concatenation of the base URI and the token ID through the token_uri method. 
-This design mirrors OpenZeppelin’s default Solidity implementation for ERC721.

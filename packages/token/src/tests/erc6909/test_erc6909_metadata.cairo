@@ -44,34 +44,32 @@ fn setup() -> (ComponentState, DualCaseERC6909MetadataMock::ContractState) {
     (state, mock_state)
 }
 
-//
 // Getters
-//
 
+// The mocks use this metadata
+// Check that minting a token updates the metadata using the ERC6909Hooks
 #[test]
 fn test_name() {
     let (mut state, _) = setup();
     let mut name = state.ERC6909Metadata_name.read(TOKEN_ID);
-    assert_eq!(name, "");
+    assert_eq!(name, "MyERC6909Token");
 }
 
 #[test]
 fn test_symbol() {
     let (mut state, _) = setup();
     let mut symbol = state.ERC6909Metadata_symbol.read(TOKEN_ID);
-    assert_eq!(symbol, "");
+    assert_eq!(symbol, "MET");
 }
 
 #[test]
 fn test_decimals() {
     let (mut state, _) = setup();
     let mut decimals = state.ERC6909Metadata_decimals.read(TOKEN_ID);
-    assert_eq!(decimals, 0);
+    assert_eq!(decimals, 18);
 }
 
-//
 // internal setters
-//
 
 #[test]
 fn test_set_name() {

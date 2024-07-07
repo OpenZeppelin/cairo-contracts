@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
-use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
-use openzeppelin::presets::ERC721Upgradeable;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_presets::ERC721Upgradeable::InternalImpl;
+use openzeppelin_presets::ERC721Upgradeable;
+use openzeppelin_presets::interfaces::{
     ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::common::assert_event_ownership_transferred;
@@ -22,14 +22,14 @@ use openzeppelin::tests::utils::constants::{
     BASE_URI
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
-use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::{
+use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
+use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
 };
-use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::testing;
 use starknet::{ContractAddress, ClassHash};
 

@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
-use openzeppelin::introspection;
-use openzeppelin::presets::ERC1155Upgradeable;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_introspection;
+use openzeppelin_presets::ERC1155Upgradeable;
+use openzeppelin_presets::interfaces::{
     ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::common::assert_event_ownership_transferred;
@@ -20,12 +20,10 @@ use openzeppelin::tests::utils::constants::{
     TOKEN_VALUE, TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc1155::interface::{
-    IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait
-};
-use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
-use openzeppelin::token::erc1155;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc1155::interface::{IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait};
+use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
+use openzeppelin_token::erc1155;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::testing;
 use starknet::{ContractAddress, ClassHash};
 

@@ -6,13 +6,13 @@ use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
-use openzeppelin::token::erc1155::interface::IERC1155_ID;
-use openzeppelin::token::erc1155::interface::{
+use openzeppelin_token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
+use openzeppelin_token::erc1155::interface::IERC1155_ID;
+use openzeppelin_token::erc1155::interface::{
     IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait
 };
-use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
 

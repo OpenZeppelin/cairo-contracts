@@ -2,5 +2,61 @@
 version = 1
 
 [[package]]
-name = "openzeppelin"
-version = "0.14.0"
+name = "openzeppelin_access"
+version = "0.1.0"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_account"
+version = "0.1.0"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_governance"
+version = "0.1.0"
+dependencies = [
+ "openzeppelin_introspection",
+ "openzeppelin_utils",
+]
+
+[[package]]
+name = "openzeppelin_introspection"
+version = "0.1.0"
+
+[[package]]
+name = "openzeppelin_presets"
+version = "0.1.0"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_account",
+ "openzeppelin_introspection",
+ "openzeppelin_token",
+ "openzeppelin_upgrades",
+]
+
+[[package]]
+name = "openzeppelin_security"
+version = "0.1.0"
+
+[[package]]
+name = "openzeppelin_token"
+version = "0.1.0"
+dependencies = [
+ "openzeppelin_account",
+ "openzeppelin_governance",
+ "openzeppelin_introspection",
+]
+
+[[package]]
+name = "openzeppelin_upgrades"
+version = "0.1.0"
+
+[[package]]
+name = "openzeppelin_utils"
+version = "0.1.0"

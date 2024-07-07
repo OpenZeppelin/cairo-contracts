@@ -1,7 +1,7 @@
-use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
-use openzeppelin::access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
+use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 pub(crate) fn assert_only_event_ownership_transferred(

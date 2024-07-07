@@ -1,7 +1,7 @@
 use openzeppelin::tests::utils::constants::ZERO;
 use openzeppelin::tests::utils;
-use openzeppelin::upgrades::UpgradeableComponent::Upgraded;
-use openzeppelin::upgrades::UpgradeableComponent;
+use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
+use openzeppelin_upgrades::UpgradeableComponent;
 use starknet::{ContractAddress, ClassHash};
 
 pub(crate) fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {

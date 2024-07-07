@@ -1,4 +1,4 @@
-use openzeppelin::account::utils::signature::{is_valid_stark_signature, is_valid_eth_signature};
+use openzeppelin_account::utils::signature::{is_valid_stark_signature, is_valid_eth_signature};
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 

@@ -1,11 +1,11 @@
-use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::tests::mocks::erc1155_receiver_mocks::DualCaseERC1155ReceiverMock;
 use openzeppelin::tests::utils::constants::{OWNER, OPERATOR, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA};
-use openzeppelin::token::erc1155::ERC1155ReceiverComponent::{
+use openzeppelin_token::erc1155::ERC1155ReceiverComponent::{
     ERC1155ReceiverImpl, ERC1155ReceiverCamelImpl, InternalImpl
 };
-use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
 
 fn STATE() -> DualCaseERC1155ReceiverMock::ContractState {
     DualCaseERC1155ReceiverMock::contract_state_for_testing()

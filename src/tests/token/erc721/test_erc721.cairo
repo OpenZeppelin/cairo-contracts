@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
-use openzeppelin::account::AccountComponent;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection::src5;
-use openzeppelin::introspection;
+use openzeppelin_account::AccountComponent;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_introspection::src5;
+use openzeppelin_introspection;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
@@ -14,13 +14,11 @@ use openzeppelin::tests::utils::constants::{
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::{
-    ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
-};
-use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
-use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::IERC721;
-use openzeppelin::token::erc721;
+use openzeppelin_token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl};
+use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
+use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_token::erc721::interface::IERC721;
+use openzeppelin_token::erc721;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::storage::StorageMapMemberAccessTrait;

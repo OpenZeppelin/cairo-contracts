@@ -1,7 +1,7 @@
 use core::hash::{Hash, HashStateTrait, HashStateExTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
 use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT};
-use openzeppelin::utils::cryptography::snip12::{
+use openzeppelin_utils::cryptography::snip12::{
     STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHashImpl, SNIP12Metadata
 };
 use starknet::ContractAddress;

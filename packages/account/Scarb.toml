@@ -1,0 +1,15 @@
+
+[package]
+name = "openzeppelin_account"
+version = "0.1.0"
+description = ""
+homepage = ""
+edition = "2023_11"
+
+[tool]
+fmt.workspace = true
+
+[dependencies]
+starknet = "2.6.4"
+openzeppelin_introspection = { path = "../introspection" }
+openzeppelin_utils = { path = "../utils" }

@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub(crate) mod DualCaseAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
@@ -40,9 +40,9 @@ pub(crate) mod DualCaseAccessControlMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
@@ -84,9 +84,9 @@ pub(crate) mod SnakeAccessControlMock {
 
 #[starknet::contract]
 pub(crate) mod CamelAccessControlMock {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);

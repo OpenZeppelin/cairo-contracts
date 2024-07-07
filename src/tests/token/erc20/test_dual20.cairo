@@ -5,10 +5,10 @@ use openzeppelin::tests::utils::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
-use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
+use openzeppelin_token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::testing::set_contract_address;
 
 //

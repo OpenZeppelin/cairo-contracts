@@ -1,9 +1,9 @@
 #[starknet::contract(account)]
 pub(crate) mod DualCaseEthAccountMock {
-    use openzeppelin::account::EthAccountComponent;
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::EthAccountComponent;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -45,10 +45,10 @@ pub(crate) mod DualCaseEthAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod SnakeEthAccountMock {
-    use openzeppelin::account::EthAccountComponent;
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::EthAccountComponent;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -86,10 +86,10 @@ pub(crate) mod SnakeEthAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod CamelEthAccountMock {
-    use openzeppelin::account::EthAccountComponent;
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::EthAccountComponent;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -150,8 +150,8 @@ pub(crate) mod CamelEthAccountMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeEthAccountPanicMock {
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::Secp256Trait;
 
@@ -192,8 +192,8 @@ pub(crate) mod SnakeEthAccountPanicMock {
 
 #[starknet::contract]
 pub(crate) mod CamelEthAccountPanicMock {
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::Secp256Trait;
 

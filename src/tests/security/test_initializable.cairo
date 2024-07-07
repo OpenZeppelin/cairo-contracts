@@ -1,5 +1,5 @@
-use openzeppelin::security::InitializableComponent::{InitializableImpl, InternalImpl};
-use openzeppelin::security::InitializableComponent;
+use openzeppelin_security::InitializableComponent::{InitializableImpl, InternalImpl};
+use openzeppelin_security::InitializableComponent;
 use openzeppelin::tests::mocks::initializable_mocks::InitializableMock;
 
 type ComponentState = InitializableComponent::ComponentState<InitializableMock::ContractState>;

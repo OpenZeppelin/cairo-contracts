@@ -1,22 +1,22 @@
-use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::EthAccountComponent;
-use openzeppelin::account::interface::EthPublicKey;
-use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin::account::utils::secp256k1::{
+use openzeppelin_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin_account::EthAccountComponent;
+use openzeppelin_account::interface::EthPublicKey;
+use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin_account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
 use openzeppelin::tests::utils::constants::{
     ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::testing;
 use starknet::{contract_address_const, ContractAddress};

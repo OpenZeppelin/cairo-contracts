@@ -1,10 +1,10 @@
-use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::AccountComponent;
+use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin_account::AccountComponent;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, NEW_PUBKEY};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 #[derive(Drop)]

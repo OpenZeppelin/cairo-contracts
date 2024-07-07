@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
-use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
-use openzeppelin::access::ownable::OwnableComponent;
-use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
+use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
+use openzeppelin_access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;

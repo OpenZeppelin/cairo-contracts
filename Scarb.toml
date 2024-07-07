@@ -1,4 +1,15 @@
-[package]
+[workspace]
+members = [
+    "packages/access",
+    "packages/account",
+    "packages/governance",
+    "packages/introspection",
+    "packages/presets",
+    "packages/security",
+    "packages/token",
+    "packages/upgrades",
+    "packages/utils",
+]
 name = "openzeppelin"
 version = "0.14.0"
 edition = "2023_11"
@@ -10,9 +21,16 @@ documentation = "https://docs.openzeppelin.com/contracts-cairo"
 readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
 license-file = "LICENSE"
-keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "cairo",
+    "contracts",
+    "security",
+    "standards",
+]
 
-[dependencies]
+[workspace.dependencies]
 starknet = "2.6.4"
 
 [lib]
@@ -22,5 +40,5 @@ allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
 
-[tool.fmt]
+[workspace.tool.fmt]
 sort-module-level-items = true

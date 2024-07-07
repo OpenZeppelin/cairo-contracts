@@ -1,7 +1,7 @@
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
-use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 pub(crate) fn assert_event_approval_for_all(

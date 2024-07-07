@@ -1,9 +1,9 @@
 use core::num::traits::Zero;
-use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::presets::AccountUpgradeable;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin_account::interface::ISRC6_ID;
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_presets::AccountUpgradeable;
+use openzeppelin_presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::account::starknet::common::{
@@ -19,9 +19,9 @@ use openzeppelin::tests::utils::constants::{
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::testing;
 use starknet::{ContractAddress, ClassHash};

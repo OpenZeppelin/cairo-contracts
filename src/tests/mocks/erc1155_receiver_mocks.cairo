@@ -2,8 +2,8 @@ use openzeppelin::tests::utils::constants::SUCCESS;
 
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -42,8 +42,8 @@ pub(crate) mod DualCaseERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC1155ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -86,8 +86,8 @@ pub(crate) mod SnakeERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC1155ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc1155::ERC1155ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);

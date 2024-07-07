@@ -36,8 +36,8 @@ Here's the setup:
 ----
 #[starknet::contract]
 mod MigratingContract {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::security::initializable::InitializableComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_security::initializable::InitializableComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
@@ -84,7 +84,7 @@ The contract should implement an `InternalImpl` and add a function to register t
 ----
 #[starknet::contract]
 mod MigratingContract {
-    use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
+    use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 
     (...)
 

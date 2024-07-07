@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod SRC5Mock {
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 

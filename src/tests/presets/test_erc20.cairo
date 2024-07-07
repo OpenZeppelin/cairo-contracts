@@ -1,8 +1,8 @@
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
-use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
-use openzeppelin::presets::ERC20Upgradeable;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
+use openzeppelin_presets::ERC20Upgradeable;
+use openzeppelin_presets::interfaces::{
     ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::common::assert_event_ownership_transferred;
@@ -15,9 +15,9 @@ use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ClassHash;
 use starknet::testing;
 

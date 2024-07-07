@@ -1,12 +1,12 @@
 use core::num::traits::Zero;
-use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::utils::secp256k1::{
+use openzeppelin_account::interface::ISRC6_ID;
+use openzeppelin_account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
 };
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::presets::EthAccountUpgradeable;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_presets::EthAccountUpgradeable;
+use openzeppelin_presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::account::ethereum::common::{
@@ -21,9 +21,9 @@ use openzeppelin::tests::utils::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::testing;

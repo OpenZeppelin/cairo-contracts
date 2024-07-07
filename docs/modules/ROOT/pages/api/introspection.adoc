@@ -13,7 +13,7 @@ Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/T
 === `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/introspection/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::introspection::interface::ISRC5;
+use openzeppelin_introspection::interface::ISRC5;
 ```
 
 Interface of the SRC5 Introspection Standard as defined in {snip5}.
@@ -47,7 +47,7 @@ on how to compute this ID.
 === `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/introspection/src5.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::introspection::src5::SRC5Component;
+use openzeppelin_introspection::src5::SRC5Component;
 ```
 
 SRC5 component extending xref:ISRC5[`ISRC5`].

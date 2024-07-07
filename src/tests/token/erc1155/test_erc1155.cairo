@@ -1,21 +1,21 @@
 use core::num::traits::Zero;
 use core::starknet::storage::StorageMemberAccessTrait;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_introspection;
 use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc1155::ERC1155Component::ERC1155CamelImpl;
-use openzeppelin::token::erc1155::ERC1155Component::{
+use openzeppelin_token::erc1155::ERC1155Component::ERC1155CamelImpl;
+use openzeppelin_token::erc1155::ERC1155Component::{
     ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl
 };
-use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
-use openzeppelin::token::erc1155::ERC1155Component;
-use openzeppelin::token::erc1155;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
+use openzeppelin_token::erc1155::ERC1155Component;
+use openzeppelin_token::erc1155;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing;
 

@@ -5,14 +5,14 @@ use openzeppelin::tests::mocks::erc1155_receiver_mocks::{
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc1155::dual1155_receiver::{
+use openzeppelin_token::erc1155::dual1155_receiver::{
     DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait
 };
-use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
-use openzeppelin::token::erc1155::interface::{
+use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin_token::erc1155::interface::{
     IERC1155ReceiverCamelDispatcher, IERC1155ReceiverCamelDispatcherTrait
 };
-use openzeppelin::token::erc1155::interface::{
+use openzeppelin_token::erc1155::interface::{
     IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait
 };
 

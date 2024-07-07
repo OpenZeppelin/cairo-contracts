@@ -1,5 +1,5 @@
-use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
-use openzeppelin::security::ReentrancyGuardComponent;
+use openzeppelin_security::ReentrancyGuardComponent::InternalImpl;
+use openzeppelin_security::ReentrancyGuardComponent;
 use openzeppelin::tests::mocks::reentrancy_mocks::{
     Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };

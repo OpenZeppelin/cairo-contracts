@@ -1,16 +1,16 @@
 use core::num::traits::Zero;
-use openzeppelin::access::ownable::dual_ownable::DualCaseOwnable;
-use openzeppelin::access::ownable::dual_ownable::DualCaseOwnableTrait;
-use openzeppelin::access::ownable::interface::IOwnableCamelOnlyDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableDispatcher;
-use openzeppelin::access::ownable::interface::IOwnableDispatcherTrait;
+use openzeppelin_access::ownable::dual_ownable::DualCaseOwnable;
+use openzeppelin_access::ownable::dual_ownable::DualCaseOwnableTrait;
+use openzeppelin_access::ownable::interface::IOwnableCamelOnlyDispatcher;
+use openzeppelin_access::ownable::interface::IOwnableDispatcher;
+use openzeppelin_access::ownable::interface::IOwnableDispatcherTrait;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::mocks::ownable_mocks::{
     CamelOwnableMock, CamelOwnablePanicMock, SnakeOwnableMock, SnakeOwnablePanicMock
 };
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::testing::set_contract_address;
 
 //

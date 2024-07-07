@@ -1,11 +1,11 @@
-use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
-use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
-use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
+use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin_access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
+use openzeppelin_access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
+use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin_access::accesscontrol::interface::IAccessControlCamelDispatcher;
+use openzeppelin_access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin_access::accesscontrol::interface::IAccessControlDispatcher;
+use openzeppelin_access::accesscontrol::interface::IAccessControlDispatcherTrait;
 use openzeppelin::tests::mocks::accesscontrol_mocks::{
     CamelAccessControlMock, SnakeAccessControlMock, CamelAccessControlPanicMock,
     SnakeAccessControlPanicMock
@@ -13,7 +13,7 @@ use openzeppelin::tests::mocks::accesscontrol_mocks::{
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use starknet::testing::set_contract_address;

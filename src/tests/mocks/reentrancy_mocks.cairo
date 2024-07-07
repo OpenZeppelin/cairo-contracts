@@ -17,7 +17,7 @@ pub(crate) trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 pub(crate) mod ReentrancyMock {
-    use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
+    use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
     use super::IAttackerDispatcher;

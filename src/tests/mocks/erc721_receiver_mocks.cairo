@@ -2,8 +2,8 @@ use openzeppelin::tests::utils::constants::SUCCESS;
 
 #[starknet::contract]
 pub(crate) mod DualCaseERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
@@ -72,8 +72,8 @@ pub(crate) mod DualCaseERC721ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
@@ -131,8 +131,8 @@ pub(crate) mod SnakeERC721ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC721ReceiverMock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721ReceiverComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);

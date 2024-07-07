@@ -1,10 +1,10 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC20VotesMock {
-    use openzeppelin::token::erc20::ERC20Component;
-    use openzeppelin::token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
-    use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
-    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
-    use openzeppelin::utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
+    use openzeppelin_token::erc20::extensions::ERC20VotesComponent;
+    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     component!(path: ERC20VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);

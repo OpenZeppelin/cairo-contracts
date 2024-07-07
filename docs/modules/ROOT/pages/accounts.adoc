@@ -112,8 +112,8 @@ Constructing an account contract requires integrating both {account-component} a
 ----
 #[starknet::contract(account)]
 mod MyAccount {
-    use openzeppelin::account::AccountComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::AccountComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -202,10 +202,10 @@ Here’s an example of a basic contract:
 ----
 #[starknet::contract(account)]
 mod MyEthAccount {
-    use openzeppelin::account::EthAccountComponent;
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::EthAccountComponent;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ClassHash;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -304,8 +304,8 @@ First, let's take the example account we created before and deploy it:
 ```[,cairo]
 #[starknet::contract(account)]
 mod MyAccount {
-    use openzeppelin::account::AccountComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::AccountComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -387,10 +387,10 @@ First, let's take the example account we created before and deploy it:
 ```[,cairo]
 #[starknet::contract(account)]
 mod MyEthAccount {
-    use openzeppelin::account::EthAccountComponent;
-    use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::EthAccountComponent;
+    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);

@@ -7,14 +7,14 @@ use openzeppelin::tests::mocks::erc721_receiver_mocks::{
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::dual721_receiver::{
+use openzeppelin_token::erc721::dual721_receiver::{
     DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
 };
-use openzeppelin::token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin::token::erc721::interface::{
+use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
+use openzeppelin_token::erc721::interface::{
     IERC721ReceiverCamelDispatcher, IERC721ReceiverCamelDispatcherTrait
 };
-use openzeppelin::token::erc721::interface::{
+use openzeppelin_token::erc721::interface::{
     IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait
 };
 

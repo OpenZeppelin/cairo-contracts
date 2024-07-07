@@ -6,13 +6,13 @@ use openzeppelin::tests::utils::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, BASE_URI, TOKEN_ID
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
-use openzeppelin::token::erc721::interface::IERC721_ID;
-use openzeppelin::token::erc721::interface::{
+use openzeppelin_token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
+use openzeppelin_token::erc721::interface::IERC721_ID;
+use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
 };
-use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::testing::set_caller_address;
 use starknet::testing::set_contract_address;

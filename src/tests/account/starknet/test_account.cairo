@@ -1,18 +1,18 @@
 use core::num::traits::Zero;
-use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::AccountComponent;
-use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin_account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin_account::AccountComponent;
+use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;

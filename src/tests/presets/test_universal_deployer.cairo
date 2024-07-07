@@ -1,14 +1,14 @@
-use openzeppelin::presets::universal_deployer::UniversalDeployer::ContractDeployed;
-use openzeppelin::presets::universal_deployer::UniversalDeployer;
+use openzeppelin_presets::universal_deployer::UniversalDeployer::ContractDeployed;
+use openzeppelin_presets::universal_deployer::UniversalDeployer;
 use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin::utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
-use openzeppelin::utils::interfaces::{
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
+use openzeppelin_utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::testing;

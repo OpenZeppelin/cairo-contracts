@@ -1,12 +1,12 @@
 use core::num::traits::Zero;
-use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
-use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferStarted;
-use openzeppelin::access::ownable::OwnableComponent;
-use openzeppelin::access::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
+use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
+use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferStarted;
+use openzeppelin_access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseTwoStepOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;

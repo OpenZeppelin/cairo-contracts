@@ -6,7 +6,7 @@ use openzeppelin::tests::mocks::upgrades_mocks::{
 };
 use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO};
 use openzeppelin::tests::utils;
-use openzeppelin::upgrades::UpgradeableComponent;
+use openzeppelin_upgrades::UpgradeableComponent;
 use starknet::ClassHash;
 
 use super::common::assert_only_event_upgraded;

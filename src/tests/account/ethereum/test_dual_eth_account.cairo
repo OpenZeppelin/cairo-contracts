@@ -1,17 +1,17 @@
-use openzeppelin::account::dual_eth_account::{DualCaseEthAccountABI, DualCaseEthAccount};
-use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin::account::utils::secp256k1::{
+use openzeppelin_account::dual_eth_account::{DualCaseEthAccountABI, DualCaseEthAccount};
+use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin_account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
 };
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin::tests::mocks::eth_account_mocks::{
     CamelEthAccountPanicMock, CamelEthAccountMock, SnakeEthAccountMock, SnakeEthAccountPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::ETH_PUBKEY;
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::testing;
 
 use super::common::{NEW_ETH_PUBKEY, SIGNED_TX_DATA};

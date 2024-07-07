@@ -1,4 +1,4 @@
-use openzeppelin::account::interface::EthPublicKey;
+use openzeppelin_account::interface::EthPublicKey;
 use starknet::ClassHash;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;

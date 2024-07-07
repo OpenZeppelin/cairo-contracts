@@ -25,7 +25,7 @@ The contract should first import the component and declare it with the `componen
 #[starknet::contract]
 mod MyContract {
     // Import the component
-    use openzeppelin::security::InitializableComponent;
+    use openzeppelin_security::InitializableComponent;
 
     // Declare the component
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
@@ -40,7 +40,7 @@ Note that even if the component doesn't define any events, the compiler will sti
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::security::InitializableComponent;
+    use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
@@ -79,7 +79,7 @@ Integrating an implementation looks like this:
 [,cairo]
 ----
 mod MyContract {
-    use openzeppelin::security::InitializableComponent;
+    use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
@@ -99,7 +99,7 @@ A function on the contract level can expose it like this:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::security::InitializableComponent;
+    use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
@@ -202,8 +202,8 @@ Here's a full example of an account contract that embeds the `AccountMixinImpl`:
 ----
 #[starknet::contract]
 mod Account {
-    use openzeppelin::account::AccountComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_account::AccountComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -254,7 +254,7 @@ Let's look at how a contract would integrate {ownable-component}:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelinaccess::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -297,8 +297,8 @@ Creating a contract with `AccessControlComponent` should look like this:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelinaccess::accesscontrol::AccessControlComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -358,10 +358,10 @@ Here's the setup:
 ----
 #[starknet::contract]
 mod ERC20Pausable {
-    use openzeppelin::security::pausable::PausableComponent;
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_security::pausable::PausableComponent;
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     // Import the ERC20 interfaces to create custom implementations
-    use openzeppelin::token::erc20::interface::{IERC20, IERC20CamelOnly};
+    use openzeppelin_token::erc20::interface::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
@@ -462,7 +462,7 @@ To do so, use the same syntax as calling an implementation method except replace
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelin::security::InitializableComponent;
+    use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 

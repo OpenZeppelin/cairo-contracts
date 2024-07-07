@@ -16,7 +16,7 @@ required to manage multiple tokens under the same contract." {eip-6909}
 == Usage
 
 :eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
-:erc20-extensions: xref:/guides/erc6909-extensions.adoc[ERC6909 Extensions]
+:erc6909-extensions: xref:/guides/erc6909-extensions.adoc[ERC6909 Extensions]
 
 The ERC6909 minimal multi token standard is a specification for {fungibility-agnostic} token contracts.
 

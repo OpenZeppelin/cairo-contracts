@@ -28,7 +28,7 @@ pub mod ERC6909TokenSupplyComponent {
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>
     > of IERC6909TokenSupply<ComponentState<TContractState>> {
-        /// @notice Total supply of a token
+        /// @notice Total supply of a token.
         /// @param id The id of the token.
         /// @return The total supply of the token.
         fn total_supply(self: @ComponentState<TContractState>, id: u256) -> u256 {
@@ -48,8 +48,12 @@ pub mod ERC6909TokenSupplyComponent {
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// @notice Updates the total supply of a token ID. To keep track of token ID supplies, 
-        /// @dev ideally this function should be called in a `before_update` or `after_update` hook.
+        /// @notice Updates the total supply of a token ID.
+        /// @notice Ideally this function should be called in a `before_update` or `after_update` hook during mints and burns.
+        /// @param sender The address of the sender.
+        /// @param receiver The address of the receiver.
+        /// @param id The ID of the token.
+        /// @param amount The amount being minted or burnt.
         fn _update_token_supply(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,

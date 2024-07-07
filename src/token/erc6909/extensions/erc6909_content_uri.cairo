@@ -6,6 +6,7 @@ use starknet::ContractAddress;
 /// # ERC6909ContentURI Component
 ///
 /// The ERC6909ContentURI component allows to set the contract and token ID URIs.
+/// The internal function `initializer` should be used ideally in the constructor.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin::token::erc6909::ERC6909Component;
@@ -51,7 +52,8 @@ pub mod ERC6909ContentURIComponent {
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Sets the base URI.
+        /// @notice Sets the base URI.
+        /// @param contract_uri The base contract URI
         fn initializer(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
             self.ERC6909ContentURI_contract_uri.write(contract_uri);
         }

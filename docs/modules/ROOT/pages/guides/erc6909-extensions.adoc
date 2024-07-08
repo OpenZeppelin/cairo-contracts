@@ -97,7 +97,7 @@ We then embed the ABI for both components so each function in the implementation
 Notice that we are also implementing the `ERC6909InternalImpl` and `ERC6909COntentURIInternalImpl` to access the internal functions of each component (such as `mint` or `initializer`).
 
 Finally, in the constructor we mint an initial token supply to `receiver` and set the contract URI via `ERC6909ContentURIComponent` initializer. Notice that the `initializer`
-function is called in the constructor in this case, but since it is an internal function it can be called anytime, however it is usually recomended to set it once in the 
+function is called in the constructor in this case, but since it is an internal function it can be called anytime, however it is usually recommended to set it once in the
 constructor to not be accessible again.
 
 == ERC6909 Metadata

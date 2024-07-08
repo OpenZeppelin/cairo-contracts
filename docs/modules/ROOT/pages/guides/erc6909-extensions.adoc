@@ -2,11 +2,11 @@
 
 :eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
 
-{eip-6909} is a multi-token standard with functionality similar to ERC20s, but does not define
+{eip-6909} is a fungible-agnostic multi-token standard, but does not define
 certain characteristics typically found across fungible tokens: Such as metadata and 
 token supplies.
 
-There are 3 optional extensions which can also be imported into `MyERC6909Token` out of the box:
+This is why there are 3 optional extensions which can also be imported into `MyERC6909Token` out of the box to be more accessible:
 
 * `ERC6909ContentURI` - Allows to set the base contract URI and thus show individual token URIs.
 * `ERC6909Metadata` - Allows to set the `name`, `symbol` and `decimals` of each token ID.
@@ -30,20 +30,25 @@ this we can make use of the `ERC6909ContentURI` extension.
 ----
 #[starknet::contract]
 pub mod MyERC6909ContentURI {
+    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
     // 1. Import the Content URI Component
     use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
-    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
     use starknet::ContractAddress;
 
     // 2. Declare the component to access its storage and events
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
+    component!(
+        path: ERC6909ContentURIComponent,
+        storage: erc6909_content_uri,
+        event: ERC6909ContentURIEvent
+    );
 
     // 3. Embed ABI to access external functions
     #[abi(embed_v0)]
     impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909ContentURIComponentImpl =
+        ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
 
     // 4. Implement internal implementations to access internal functions
     impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -69,7 +74,9 @@ pub mod MyERC6909ContentURI {
 
     // 6. Initialize contract URI in the constructor via the component's internal `initializer` function
     #[constructor]
-    fn constructor(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray) {
+    fn constructor(
+        ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256, uri: ByteArray
+    ) {
         self.erc6909.mint(receiver, id, amount);
         self.erc6909_content_uri.initializer(uri);
     }
@@ -118,16 +125,24 @@ pub mod MyERC6909TokenMetadata {
 
     // 2. Declare the component to access its storage and events
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
-    component!(path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent);
+    component!(
+        path: ERC6909ContentURIComponent,
+        storage: erc6909_content_uri,
+        event: ERC6909ContentURIEvent
+    );
+    component!(
+        path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent
+    );
 
     // 3. Embed ABI to access external functions
     #[abi(embed_v0)]
     impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909ContentURIComponentImpl =
+        ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+    impl ERC6909MetadataComponentImpl =
+        ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
 
     // 4. Implement internal implementations to access internal functions
     impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -164,7 +179,6 @@ pub mod MyERC6909TokenMetadata {
         self.erc6909_content_uri.initializer(uri);
     }
 
-    // 6. Use the `_update_token_metadata` internal function to update token metadata during mints
     impl ERC6909MetadataHooksImpl<
         TContractState,
         impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
@@ -179,6 +193,7 @@ pub mod MyERC6909TokenMetadata {
             amount: u256
         ) {}
 
+        // Update after any transfer
         fn after_update(
             ref self: ERC6909Component::ComponentState<TContractState>,
             from: ContractAddress,
@@ -192,12 +207,11 @@ pub mod MyERC6909TokenMetadata {
             let symbol = "MET";
             let decimals = 18;
 
-            // `_update_token_metadata` is only called if this is a mint
             erc6909_metadata_component._update_token_metadata(from, id, name, symbol, decimals);
         }
     }
 }
----
+----
 
 The `ERC6909Metadata` component has a function to check and update metadata if it hasn't been set yet. The `_update_token_metadata`
 updates token metadata only upon mints, not transfers or burns. Thus while minting a new token ID, if it has not metadata associated with it
@@ -230,19 +244,32 @@ pub mod MyERC6909TokenTotalSupply {
 
     // 2. Declare the component to access its storage and events
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
-    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
-    component!(path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent);
-    component!(path: ERC6909TokenSupplyComponent, storage: erc6909_token_supply, event: ERC6909TokenSupplyEvent);
+    component!(
+        path: ERC6909ContentURIComponent,
+        storage: erc6909_content_uri,
+        event: ERC6909ContentURIEvent
+    );
+    component!(
+        path: ERC6909MetadataComponent, storage: erc6909_metadata, event: ERC6909MetadataEvent
+    );
+    component!(
+        path: ERC6909TokenSupplyComponent,
+        storage: erc6909_token_supply,
+        event: ERC6909TokenSupplyEvent
+    );
 
     // 3. Embed ABI to access external functions
     #[abi(embed_v0)]
     impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909ContentURIComponentImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909ContentURIComponentImpl =
+        ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+    impl ERC6909MetadataComponentImpl =
+        ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC6909TokenSupplyComponentImpl = ERC6909TokenSupplyComponent::ERC6909TokenSupplyImpl<ContractState>;
+    impl ERC6909TokenSupplyComponentImpl =
+        ERC6909TokenSupplyComponent::ERC6909TokenSupplyImpl<ContractState>;
 
     // 4. Implement internal implementations to access internal functions
     impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
@@ -284,7 +311,6 @@ pub mod MyERC6909TokenTotalSupply {
         self.erc6909_content_uri.initializer(uri);
     }
 
-    // 6. Use the `_update_token_supply` to update Token ID supply during mints and burns.
     impl ERC6909TokenSupplyHooksImpl<
         TContractState,
         impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
@@ -308,15 +334,17 @@ pub mod MyERC6909TokenTotalSupply {
             amount: u256
         ) {
             let mut erc6909_metadata_component = get_dep_component_mut!(ref self, ERC6909Metadata);
-            erc6909_metadata_component._update_token_metadata(from, id, "MyERC6909Token", "MET", 18);
+            erc6909_metadata_component
+                ._update_token_metadata(from, id, "MyERC6909Token", "MET", 18);
 
-            // Will only update during mints and burns
-            let mut erc6909_token_supply_component = get_dep_component_mut!(ref self, ERC6909TokenSupply);
+            let mut erc6909_token_supply_component = get_dep_component_mut!(
+                ref self, ERC6909TokenSupply
+            );
             erc6909_token_supply_component._update_token_supply(from, recipient, id, amount);
         }
     }
 }
----
+----
 
 The logic is the exact same as when implementing the Metadata component. The `ERC6909TokenSupplyComponent` has an internal
 function (`_update_token_supply`) which updates the supply of a token ID only upon mints and/or burns.

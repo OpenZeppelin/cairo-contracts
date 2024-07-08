@@ -54,6 +54,7 @@
 *** xref:erc4626.adoc[ERC4626]
 **** xref:/api/erc20.adoc#ERC4626Component[API Reference]
 *** xref:erc6909.adoc[ERC6909]
+**** xref:/guides/erc6909-extensions.adoc[Extensions]
 **** xref:/api/erc6909.adoc[API Reference]
 *** xref:/api/token_common.adoc[Common]
 

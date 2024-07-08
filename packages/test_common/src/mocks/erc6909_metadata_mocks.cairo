@@ -11,7 +11,8 @@ pub(crate) mod DualCaseERC6909MetadataMock {
 
     // ERC6909Metadata
     #[abi(embed_v0)]
-    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+    impl ERC6909MetadataComponentImpl =
+        ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
 
     // ERC6909Mixin
     #[abi(embed_v0)]

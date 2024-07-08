@@ -118,7 +118,9 @@ pub mod ERC6909MetadataComponent {
         /// @notice Sets the token symbol.
         /// @param id The id of the token.
         /// @param symbol The symbol of the token.
-        fn _set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
+        fn _set_token_symbol(
+            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray
+        ) {
             self.ERC6909Metadata_symbol.write(id, symbol);
         }
 

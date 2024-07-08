@@ -82,9 +82,9 @@ pub mod ERC6909Component {
         pub const INSUFFICIENT_BALANCE: felt252 = 'ERC6909: insufficient balance';
         /// @dev Thrown when spender allowance for id is insufficient.
         pub const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC6909: insufficient allowance';
-        /// @dev Thrown when transfering from the zero address
+        /// @dev Thrown when transferring from the zero address
         pub const TRANSFER_FROM_ZERO: felt252 = 'ERC6909: transfer from 0';
-        /// @dev Thrown when transfering to the zero address
+        /// @dev Thrown when transferring to the zero address
         pub const TRANSFER_TO_ZERO: felt252 = 'ERC6909: transfer to 0';
         /// @dev Thrown when minting to the zero address
         pub const MINT_TO_ZERO: felt252 = 'ERC6909: mint to 0';

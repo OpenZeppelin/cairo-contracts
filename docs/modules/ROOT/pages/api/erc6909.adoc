@@ -2,7 +2,6 @@
 :eip6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
 :erc6909-guide: xref:erc6909.adoc[ERC6909 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
-//:custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
 
 = ERC6909
 
@@ -106,7 +105,7 @@ Sets or unsets `spender` as an operator for the caller.
 Emits an <<ERC6909-OperatorSet,OperatorSet>> event.
 
 [.contract-item]
-[[IERC6909-set_operator]]
+[[IERC6909-supports_interface]]
 ==== `[.contract-item-name]#++supports_interface++#++(interface_id: felt252) → bool++` [.item-kind]#external#
 
 Checks if a contract implements `interface_id`.

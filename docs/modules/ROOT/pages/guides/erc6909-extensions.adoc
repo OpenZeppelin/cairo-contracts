@@ -30,9 +30,9 @@ this we can make use of the `ERC6909ContentURI` extension.
 ----
 #[starknet::contract]
 pub mod MyERC6909ContentURI {
-    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
     // 1. Import the Content URI Component
     use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
+    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
     use starknet::ContractAddress;
 
     // 2. Declare the component to access its storage and events
@@ -179,7 +179,8 @@ pub mod MyERC6909TokenMetadata {
         self.erc6909_content_uri.initializer(uri);
     }
 
-    impl ERC6909MetadataHooksImpl<
+    // 6. Implement the hook to set update metadata upon mints
+    impl ERC6909HooksImpl<
         TContractState,
         impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
         impl HasComponent: ERC6909Component::HasComponent<TContractState>,
@@ -193,7 +194,6 @@ pub mod MyERC6909TokenMetadata {
             amount: u256
         ) {}
 
-        // Update after any transfer
         fn after_update(
             ref self: ERC6909Component::ComponentState<TContractState>,
             from: ContractAddress,
@@ -311,7 +311,8 @@ pub mod MyERC6909TokenTotalSupply {
         self.erc6909_content_uri.initializer(uri);
     }
 
-    impl ERC6909TokenSupplyHooksImpl<
+    // 6. Implement the hook to update total supply upon mints and burns
+    impl ERC6909HooksImpl<
         TContractState,
         impl ERC6909Metadata: ERC6909MetadataComponent::HasComponent<TContractState>,
         impl ERC6909TokenSupply: ERC6909TokenSupplyComponent::HasComponent<TContractState>,

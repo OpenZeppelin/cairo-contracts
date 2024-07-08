@@ -1,6 +1,5 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC6909ContentURIMock {
-    use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent::InternalTrait as ERC6909ContentURIInternalTrait;
     use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
     use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -20,7 +19,9 @@ pub(crate) mod DualCaseERC6909ContentURIMock {
     // ERC6909Mixin
     #[abi(embed_v0)]
     impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
-    impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909ContentURIInternalImpl = ERC6909ContentURIComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {

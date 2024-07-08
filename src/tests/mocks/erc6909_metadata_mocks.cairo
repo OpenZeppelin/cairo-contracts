@@ -1,7 +1,6 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC6909MetadataMock {
     use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent::InternalTrait;
     use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent;
     use starknet::ContractAddress;
 
@@ -12,13 +11,14 @@ pub(crate) mod DualCaseERC6909MetadataMock {
 
     // ERC6909Metadata
     #[abi(embed_v0)]
-    impl ERC6909MetadataComponentImpl =
-        ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
+    impl ERC6909MetadataComponentImpl = ERC6909MetadataComponent::ERC6909MetadataImpl<ContractState>;
 
     // ERC6909Mixin
     #[abi(embed_v0)]
     impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
-    impl InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909MetadataInternalImpl = ERC6909MetadataComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {

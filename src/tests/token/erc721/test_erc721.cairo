@@ -23,7 +23,6 @@ use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::storage::StorageMapMemberAccessTrait;
 use starknet::testing;
 
 use super::common::{

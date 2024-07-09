@@ -18,7 +18,7 @@ const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 /// `deployer_address` should be the zero address if the deployment is origin-independent (deployed
 /// from zero).
 /// For more information, see
-/// 
+///
 /// https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
 pub fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,

@@ -1,8 +1,6 @@
 use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointPartialEq,
-    Secp256k1PointStorePacking as StorePacking
+    DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointStorePacking as StorePacking
 };
-use starknet::secp256k1::Secp256k1PointSerde;
 use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
 use starknet::secp256k1::Secp256k1Point;
@@ -98,7 +96,7 @@ fn test_secp256k1_deserialization() {
 
     big_point_1.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
     let mut expected_serialization = expected_serialization.span();
-    let deserialized_point = Secp256k1PointSerde::deserialize(ref expected_serialization).unwrap();
+    let deserialized_point = Serde::deserialize(ref expected_serialization).unwrap();
 
     assert_eq!(big_point_1, deserialized_point);
 
@@ -108,7 +106,7 @@ fn test_secp256k1_deserialization() {
 
     big_point_2.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
     let mut expected_serialization = expected_serialization.span();
-    let deserialized_point = Secp256k1PointSerde::deserialize(ref expected_serialization).unwrap();
+    let deserialized_point = Serde::deserialize(ref expected_serialization).unwrap();
 
     assert_eq!(big_point_2, deserialized_point);
 }

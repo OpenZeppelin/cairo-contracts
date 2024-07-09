@@ -1,6 +1,5 @@
 use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
-// use starknet::storage::StorageBaseTrait;
 use openzeppelin::access::ownable::OwnableComponent;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;

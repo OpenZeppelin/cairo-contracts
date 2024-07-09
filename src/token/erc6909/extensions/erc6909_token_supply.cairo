@@ -10,10 +10,9 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC6909TokenSupplyComponent {
     use core::num::traits::Zero;
-    use core::starknet::{ContractAddress};
     use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::interface::IERC6909;
-    use openzeppelin::token::erc6909::interface::IERC6909TokenSupply;
+    use openzeppelin::token::erc6909::interface;
+    use starknet::ContractAddress;
 
     #[storage]
     struct Storage {
@@ -27,7 +26,7 @@ pub mod ERC6909TokenSupplyComponent {
         +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>
-    > of IERC6909TokenSupply<ComponentState<TContractState>> {
+    > of interface::IERC6909TokenSupply<ComponentState<TContractState>> {
         /// @notice Total supply of a token.
         /// @param id The id of the token.
         /// @return The total supply of the token.

@@ -1,13 +1,16 @@
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
-use openzeppelin::access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControlDispatcher, IAccessControlDispatcherTrait, IAccessControlCamelDispatcher, IAccessControlCamelDispatcherTrait};
+use openzeppelin::access::accesscontrol::interface::{
+    IACCESSCONTROL_ID, IAccessControlDispatcher, IAccessControlDispatcherTrait,
+    IAccessControlCamelDispatcher, IAccessControlCamelDispatcherTrait
+};
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
-use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
 use openzeppelin::tests::utils;
+use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_caller_address, test_address};
+use starknet::ContractAddress;
 
 //
 // Setup

@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
 
-
 ## 0.14.0 (2024-06-14)
 
 ### Changed (Breaking)

@@ -1,5 +1,5 @@
 // Version
-:class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.6.5[cairo 2.6.5]
+:class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.6.4[cairo 2.6.4]
 
 // Class Hashes
 :ERC20Upgradeable-class-hash: 0x02718db92cfa9342bd19306fb1d10cb5c61385293b4bdaac23c36577dd7ed882

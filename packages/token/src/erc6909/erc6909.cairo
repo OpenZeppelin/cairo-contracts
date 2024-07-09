@@ -11,9 +11,10 @@ use core::starknet::{ContractAddress};
 pub mod ERC6909Component {
     use core::integer::BoundedInt;
     use core::num::traits::Zero;
-    use core::starknet::{ContractAddress, get_caller_address};
     use openzeppelin::introspection::interface::ISRC5_ID;
     use openzeppelin::token::erc6909::interface;
+    use starknet::ContractAddress;
+    use starknet::get_caller_address;
 
     #[storage]
     struct Storage {

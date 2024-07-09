@@ -1,5 +1,5 @@
-// #[cfg(test)]
-// mod access;
+#[cfg(test)]
+mod access;
 // #[cfg(test)]
 // mod account;
 // #[cfg(test)]

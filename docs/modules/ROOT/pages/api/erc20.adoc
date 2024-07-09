@@ -506,6 +506,7 @@ By default, token balance does not account for voting power. This makes transfer
 * xref:#ERC20VotesComponent-_delegate[`++_delegate(self, account, delegatee)++`]
 * xref:#ERC20VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
 * xref:#ERC20VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
+* xref:#ERC20VotesComponent-num_checkpoints[`++num_checkpoints(self, account)++`]
 * xref:#ERC20VotesComponent-checkpoints[`++checkpoints(self, account, pos)++`]
 * xref:#ERC20VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
 --

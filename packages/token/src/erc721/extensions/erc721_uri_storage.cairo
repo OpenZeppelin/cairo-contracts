@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.14.0 (token/erc721/extensions/erc721_uri_storage.cairo)
-// todo: add module description
+
+/// # ERC721URIStorage Component
+///
+/// The ERC721URIStorage component enhances ERC721 tokens by keeping track of unique URIs with each token id,
+/// and providing a functionality of metadata updates. Each token's URI, set during minting, is immutable, ensuring 
+/// the integrity of the metadata. It provides a reliable mechanism for linking on-chain tokens to off-chain metadata.
 
 #[starknet::component]
 pub mod ERC721URIStorageComponent {
@@ -47,8 +52,8 @@ pub mod ERC721URIStorageComponent {
             erc721_component.ERC721_symbol.read()
         }
 
+
         /// Returns the Uniform Resource Identifier (URI) for the `token_id` token.
-        /// If the URI is not set, the return value will be an empty ByteArray.
         ///
         /// Requirements:
         ///

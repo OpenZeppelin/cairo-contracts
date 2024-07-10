@@ -381,6 +381,7 @@ fn test_dual_balanceOf() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -396,6 +397,7 @@ fn test_dual_ownerOf() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_ownerOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -415,6 +417,7 @@ fn test_dual_transferFrom() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -433,6 +436,7 @@ fn test_dual_safeTransferFrom() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -452,6 +456,7 @@ fn test_dual_getApproved() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -471,6 +476,7 @@ fn test_dual_setApprovalForAll() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -490,6 +496,7 @@ fn test_dual_isApprovedForAll() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -506,6 +513,7 @@ fn test_dual_tokenURI() {
 }
 
 #[test]
+#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();

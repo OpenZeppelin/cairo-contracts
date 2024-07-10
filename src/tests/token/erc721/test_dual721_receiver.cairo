@@ -16,7 +16,7 @@ use openzeppelin::token::erc721::interface::{
 //
 
 fn setup_snake() -> (DualCaseERC721Receiver, IERC721ReceiverDispatcher) {
-    let mut calldata = array![];
+    let calldata = array![];
     let target = utils::declare_and_deploy("SnakeERC721ReceiverMock", calldata);
     (
         DualCaseERC721Receiver { contract_address: target },
@@ -25,7 +25,7 @@ fn setup_snake() -> (DualCaseERC721Receiver, IERC721ReceiverDispatcher) {
 }
 
 fn setup_camel() -> (DualCaseERC721Receiver, IERC721ReceiverCamelDispatcher) {
-    let mut calldata = array![];
+    let calldata = array![];
     let target = utils::declare_and_deploy("CamelERC721ReceiverMock", calldata);
     (
         DualCaseERC721Receiver { contract_address: target },
@@ -53,7 +53,6 @@ fn setup_erc721_receiver_panic() -> (DualCaseERC721Receiver, DualCaseERC721Recei
 //
 
 #[test]
-#[ignore]
 fn test_dual_on_erc721_received() {
     let (dispatcher, _) = setup_snake();
 
@@ -72,7 +71,7 @@ fn test_dual_no_on_erc721_received() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
@@ -94,7 +93,7 @@ fn test_dual_onERC721Received() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));

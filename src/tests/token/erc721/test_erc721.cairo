@@ -47,12 +47,12 @@ fn setup_camel_receiver() -> ContractAddress {
 }
 
 fn setup_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 fn setup_camel_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::declare_and_deploy("CamelAccountMock", calldata)
 }
 
@@ -955,7 +955,6 @@ fn test_safeTransferFrom_approved() {
 fn test_safe_transfer_from_approved_camel() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = spy_events();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -964,6 +963,8 @@ fn test_safe_transfer_from_approved_camel() {
 
     start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
+
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
@@ -977,7 +978,6 @@ fn test_safe_transfer_from_approved_camel() {
 fn test_safeTransferFrom_approved_camel() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = spy_events();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -986,6 +986,8 @@ fn test_safeTransferFrom_approved_camel() {
 
     start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
+
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
@@ -1065,7 +1067,6 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 fn test_safeTransferFrom_approved_for_all_camel() {
     let mut state = setup();
     let contract_address = test_address();
-    let mut spy = spy_events();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
@@ -1074,6 +1075,8 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 
     start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
+
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
@@ -1468,14 +1471,15 @@ fn test__approve_with_optional_event_auth_is_owner() {
 fn test__approve_with_optional_event_auth_is_approved_for_all() {
     let mut state = setup();
     let auth = CALLER();
+    let contract_address = test_address();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     state.set_approval_for_all(auth, true);
 
     let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, auth, false);
-    spy.assert_no_events_left_from(test_address());
+    spy.assert_no_events_left_from(contract_address);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());

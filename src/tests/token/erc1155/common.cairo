@@ -18,14 +18,14 @@ pub(crate) fn setup_camel_receiver() -> ContractAddress {
 }
 
 pub(crate) fn setup_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
 pub(crate) fn deploy_another_account_at(
     existing: ContractAddress, target_address: ContractAddress
 ) {
-    let mut calldata = array![PUBKEY];
+    let calldata = array![PUBKEY];
     utils::deploy_another_at(existing, target_address, calldata);
 }
 
@@ -60,6 +60,17 @@ pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         self.assert_emitted_single(contract, expected);
     }
 
+    fn assert_only_event_approval_for_all(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        owner: ContractAddress,
+        operator: ContractAddress,
+        approved: bool
+    ) {
+        self.assert_event_approval_for_all(contract, owner, operator, approved);
+        self.assert_no_events_left_from(contract);
+    }
+
     fn assert_event_transfer_single(
         ref self: EventSpy,
         contract: ContractAddress,
@@ -71,21 +82,6 @@ pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
     ) {
         let expected = ERC1155Component::Event::TransferSingle(
             TransferSingle { operator, from, to, id: token_id, value }
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_event_transfer_batch(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        operator: ContractAddress,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>
-    ) {
-        let expected = ERC1155Component::Event::TransferBatch(
-            TransferBatch { operator, from, to, ids: token_ids, values }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -103,6 +99,21 @@ pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         self.assert_no_events_left_from(contract);
     }
 
+    fn assert_event_transfer_batch(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        operator: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>
+    ) {
+        let expected = ERC1155Component::Event::TransferBatch(
+            TransferBatch { operator, from, to, ids: token_ids, values }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
     fn assert_only_event_transfer_batch(
         ref self: EventSpy,
         contract: ContractAddress,
@@ -113,17 +124,6 @@ pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         values: Span<u256>
     ) {
         self.assert_event_transfer_batch(contract, operator, from, to, token_ids, values);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_only_event_approval_for_all(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        owner: ContractAddress,
-        operator: ContractAddress,
-        approved: bool
-    ) {
-        self.assert_event_approval_for_all(contract, owner, operator, approved);
         self.assert_no_events_left_from(contract);
     }
 }

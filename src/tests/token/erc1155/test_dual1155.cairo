@@ -10,7 +10,7 @@ use openzeppelin::token::erc1155::interface::{
 };
 use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{test_address, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::ContractAddress;
 
 use super::common::{setup_account, setup_receiver};
@@ -89,7 +89,7 @@ fn test_dual_no_uri() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_uri_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.uri(TOKEN_ID);
@@ -116,7 +116,7 @@ fn test_dual_no_balance_of() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.balance_of(OWNER(), TOKEN_ID);
@@ -145,7 +145,7 @@ fn test_dual_no_balance_of_batch() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_balance_of_batch_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     let (accounts, token_ids) = get_accounts_and_ids();
@@ -173,7 +173,7 @@ fn test_dual_no_safe_transfer_from() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
@@ -205,7 +205,7 @@ fn test_dual_no_safe_batch_transfer_from() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_safe_batch_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -235,7 +235,7 @@ fn test_dual_no_is_approved_for_all() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_is_approved_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -263,7 +263,7 @@ fn test_dual_no_set_approval_for_all() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_set_approval_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.set_approval_for_all(OPERATOR(), true);
@@ -287,7 +287,7 @@ fn test_dual_no_supports_interface() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
     dispatcher.supports_interface(IERC1155_ID);
@@ -306,7 +306,7 @@ fn test_dual_balanceOf() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.balance_of(OWNER(), TOKEN_ID);
@@ -326,7 +326,7 @@ fn test_dual_balanceOfBatch() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOfBatch_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     let (accounts, token_ids) = get_accounts_and_ids();
@@ -346,7 +346,7 @@ fn test_dual_safeTransferFrom() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
@@ -368,7 +368,7 @@ fn test_dual_safeBatchTransferFrom() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_safeBatchTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -390,7 +390,7 @@ fn test_dual_isApprovedForAll() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -410,7 +410,7 @@ fn test_dual_setApprovalForAll() {
 
 #[test]
 #[ignore]
-#[should_panic(expected: ("Some error", 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ("Some error",))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
     dispatcher.set_approval_for_all(OPERATOR(), true);

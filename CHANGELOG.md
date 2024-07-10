@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.15.0-rc.0 (2024-07-8)
+
+### Changed
+
+- `Trace`, `Checkpoint`, and `StorageArray` structs made public.
+
+### Changed (Breaking)
+
+- Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
+
 ## 0.14.0 (2024-06-14)
 
 ### Changed (Breaking)

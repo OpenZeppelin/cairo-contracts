@@ -24,7 +24,7 @@ pub mod ERC721Component {
     use starknet::storage::Map;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         ERC721_name: ByteArray,
         ERC721_symbol: ByteArray,
         ERC721_owners: Map<u256, ContractAddress>,

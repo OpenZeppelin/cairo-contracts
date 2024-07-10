@@ -24,7 +24,7 @@ pub mod ERC1155Component {
     use starknet::storage::Map;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         ERC1155_balances: Map<(u256, ContractAddress), u256>,
         ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
         ERC1155_uri: ByteArray,
@@ -668,7 +668,6 @@ pub mod ERC1155Component {
         ///
         /// For example, the `https://token-cdn-domain/\{id\}.json` URI would be
         /// interpreted by clients as
-        ///
         ///
         /// `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
         /// for token type ID 0x4cce0.

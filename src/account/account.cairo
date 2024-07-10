@@ -21,7 +21,7 @@ pub mod AccountComponent {
     use starknet::get_tx_info;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         Account_public_key: felt252
     }
 

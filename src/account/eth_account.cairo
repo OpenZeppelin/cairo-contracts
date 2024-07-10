@@ -25,7 +25,7 @@ pub mod EthAccountComponent {
     use starknet::get_tx_info;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         EthAccount_public_key: EthPublicKey
     }
 

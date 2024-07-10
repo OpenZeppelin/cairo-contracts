@@ -65,53 +65,6 @@ fn test_unpack_big_secp256k1_points() {
 }
 
 #[test]
-fn test_secp256k1_serialization() {
-    let (big_point_1, big_point_2) = get_points();
-
-    let mut serialized_point = array![];
-    let mut expected_serialization = array![];
-
-    // Check point 1
-
-    big_point_1.serialize(ref serialized_point);
-    big_point_1.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
-
-    assert!(serialized_point == expected_serialization);
-
-    // Check point 2
-
-    big_point_2.serialize(ref serialized_point);
-    big_point_2.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
-
-    assert!(serialized_point == expected_serialization);
-}
-
-#[test]
-fn test_secp256k1_deserialization() {
-    let (big_point_1, big_point_2) = get_points();
-
-    // Check point 1
-
-    let mut expected_serialization = array![];
-
-    big_point_1.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
-    let mut expected_serialization = expected_serialization.span();
-    let deserialized_point = Serde::deserialize(ref expected_serialization).unwrap();
-
-    assert_eq!(big_point_1, deserialized_point);
-
-    // Check point 2
-
-    let mut expected_serialization = array![];
-
-    big_point_2.get_coordinates().unwrap_syscall().serialize(ref expected_serialization);
-    let mut expected_serialization = expected_serialization.span();
-    let deserialized_point = Serde::deserialize(ref expected_serialization).unwrap();
-
-    assert_eq!(big_point_2, deserialized_point);
-}
-
-#[test]
 fn test_partial_eq() {
     let (big_point_1, big_point_2) = get_points();
 

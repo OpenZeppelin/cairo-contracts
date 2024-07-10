@@ -10,7 +10,7 @@ pub mod SRC5Component {
     use starknet::storage::Map;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         SRC5_supported_interfaces: Map<felt252, bool>
     }
 

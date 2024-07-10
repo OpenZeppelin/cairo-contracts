@@ -8,7 +8,7 @@ pub mod NoncesComponent {
     use starknet::storage::Map;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         Nonces_nonces: Map<ContractAddress, felt252>
     }
 

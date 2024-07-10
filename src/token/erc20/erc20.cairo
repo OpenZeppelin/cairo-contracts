@@ -22,7 +22,7 @@ pub mod ERC20Component {
     use starknet::storage::Map;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         ERC20_name: ByteArray,
         ERC20_symbol: ByteArray,
         ERC20_total_supply: u256,

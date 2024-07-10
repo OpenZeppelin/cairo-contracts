@@ -18,7 +18,7 @@ pub mod ERC1155ReceiverComponent {
     use starknet::ContractAddress;
 
     #[storage]
-    pub struct Storage {}
+    struct Storage {}
 
     #[embeddable_as(ERC1155ReceiverImpl)]
     impl ERC1155Receiver<

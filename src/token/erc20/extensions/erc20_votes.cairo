@@ -29,7 +29,7 @@ pub mod ERC20VotesComponent {
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
         ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
         ERC20Votes_total_checkpoints: Trace
@@ -290,9 +290,6 @@ pub mod ERC20VotesComponent {
 // Offchain message hash generation helpers.
 //
 
-//
-//
-//
 // sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
 //
 // Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.

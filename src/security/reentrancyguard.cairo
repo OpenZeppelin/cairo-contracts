@@ -10,7 +10,7 @@ pub mod ReentrancyGuardComponent {
     use starknet::get_caller_address;
 
     #[storage]
-    pub struct Storage {
+    struct Storage {
         ReentrancyGuard_entered: bool
     }
 

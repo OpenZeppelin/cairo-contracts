@@ -17,7 +17,7 @@ pub mod ERC721ReceiverComponent {
     use starknet::ContractAddress;
 
     #[storage]
-    pub struct Storage {}
+    struct Storage {}
 
     #[embeddable_as(ERC721ReceiverImpl)]
     impl ERC721Receiver<

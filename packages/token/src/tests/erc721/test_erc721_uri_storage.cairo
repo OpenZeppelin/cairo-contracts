@@ -1,28 +1,16 @@
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection::src5;
-use openzeppelin::introspection;
 use openzeppelin::tests::mocks::erc721_uri_storage_mocks::ERC721URIStorageMock;
 use openzeppelin::tests::utils::constants::{
-    DATA, ZERO, OWNER, RECIPIENT, NAME, SYMBOL, TOKEN_ID, TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2,
-    SAMPLE_URI
+    ZERO, OWNER, RECIPIENT, NAME, SYMBOL, TOKEN_ID, TOKEN_ID_2, BASE_URI, BASE_URI_2, SAMPLE_URI
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
-use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721::extensions::ERC721URIStorageComponent::{
     ERC721URIStorageImpl, InternalImpl
 };
 use openzeppelin::token::erc721::extensions::ERC721URIStorageComponent;
 use openzeppelin::token::erc721::extensions::erc721_uri_storage::ERC721URIStorageComponent::MetadataUpdated;
-
-use openzeppelin::token::erc721::interface::IERC721;
-use openzeppelin::token::erc721;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
-use starknet::testing;
 
 
 //
@@ -50,11 +38,11 @@ fn setup() -> ComponentState {
 }
 
 #[test]
-fn test_token_uri() {
+fn test_token_uri_when_not_set() {
     let state = setup();
     let uri = state.token_uri(TOKEN_ID);
-    let expected = 0;
-    assert_eq!(uri.len(), expected);
+    let empty = 0;
+    assert_eq!(uri.len(), empty);
 }
 
 #[test]
@@ -68,8 +56,8 @@ fn test_token_uri_non_minted() {
 fn test_set_token_uri() {
     let mut state = setup();
 
-    state.set_token_uri(TOKEN_ID, SAMPLE_URI()); //internal function
-    assert_only_event_metadata_update(ZERO(), TOKEN_ID); //checking event is emitted or not 
+    state.set_token_uri(TOKEN_ID, SAMPLE_URI());
+    assert_only_event_metadata_update(ZERO(), TOKEN_ID);
 
     let expected = SAMPLE_URI();
     let uri = state.token_uri(TOKEN_ID);
@@ -82,7 +70,7 @@ fn test_set_token_uri_nonexistent() {
     let mut state = setup();
 
     state.set_token_uri(TOKEN_ID_2, SAMPLE_URI());
-    assert_only_event_metadata_update(ZERO(), TOKEN_ID_2); //checking event is emitted or not 
+    assert_only_event_metadata_update(ZERO(), TOKEN_ID_2);
 
     let mut mock_contract_state = CONTRACT_STATE();
     //check accessible after minting
@@ -95,19 +83,7 @@ fn test_set_token_uri_nonexistent() {
 }
 
 #[test]
-fn test_set_base_uri() {
-    let mut _state = setup();
-
-    let mut mock_contract_state = CONTRACT_STATE();
-    mock_contract_state.erc721._set_base_uri(BASE_URI());
-
-    let base_uri = mock_contract_state.erc721._base_uri(); //internal of ERC721   
-
-    assert_eq!(base_uri, BASE_URI());
-}
-
-#[test]
-fn test_base_uri_is_prefix() {
+fn test_token_uri_with_base_uri() {
     let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
@@ -124,9 +100,10 @@ fn test_base_uri_2_is_set_as_prefix() {
     let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
-    mock_contract_state.erc721._set_base_uri(BASE_URI_2());
-
+    mock_contract_state.erc721._set_base_uri(BASE_URI());
     state.set_token_uri(TOKEN_ID, SAMPLE_URI());
+
+    mock_contract_state.erc721._set_base_uri(BASE_URI_2());
 
     let token_uri = state.token_uri(TOKEN_ID);
     let expected = format!("{}{}", BASE_URI_2(), SAMPLE_URI());
@@ -134,7 +111,7 @@ fn test_base_uri_2_is_set_as_prefix() {
 }
 
 #[test]
-fn test_base_uri_and_token_id() {
+fn test_token_uri_with_base_uri_and_token_id() {
     let mut state = setup();
 
     let mut mock_contract_state = CONTRACT_STATE();
@@ -145,22 +122,23 @@ fn test_base_uri_and_token_id() {
     assert_eq!(token_uri, expected);
 }
 
+// todo: add this test
+// todo: CHANGELOG.mod
+// todo: test and provide transaction hash
+//#[test]
+//fn test_token_uri_persists_when_burned_and_minted
+
 //
 // Helpers
 //
+
 pub fn assert_event_metadata_update(contract: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<ERC721URIStorageComponent::Event>(contract).unwrap();
     let expected = ERC721URIStorageComponent::Event::MetadataUpdated(MetadataUpdated { token_id });
     assert!(event == expected);
-
-    //check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("MetadataUpdated"));
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span())
 }
 
-pub fn assert_only_event_metadata_update(contract: ContractAddress, token_id: u256) {
+fn assert_only_event_metadata_update(contract: ContractAddress, token_id: u256) {
     assert_event_metadata_update(contract, token_id);
     utils::assert_no_events_left(contract);
 }

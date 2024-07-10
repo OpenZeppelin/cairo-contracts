@@ -11,7 +11,7 @@ pub(crate) mod ERC721URIStorageMock {
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    //ERC721URIStorage
+    // ERC721URIStorage
     #[abi(embed_v0)]
     impl ERC721URIStorageImpl =
         ERC721URIStorageComponent::ERC721URIStorageImpl<ContractState>;
@@ -24,7 +24,6 @@ pub(crate) mod ERC721URIStorageMock {
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-
 
     #[storage]
     struct Storage {

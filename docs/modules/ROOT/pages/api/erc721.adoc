@@ -689,7 +689,6 @@ See <<IERC721-ApprovalForAll,IERC721::ApprovalForAll>>.
 
 See <<IERC721-Transfer,IERC721::Transfer>>.
 
-
 == Extensions
 
 [.contract]
@@ -702,14 +701,14 @@ use openzeppelin::token::extensions::ERC721URIStorageComponent;
 
 :MetadataUpdated: xref:ERC721URIStorageComponent-MetadataUpdated[MetadataUpdated]
 
-Extension of ERC721 to support dynamic NFTs. It is an implementation of <<IERC721Metadata, IERC721Metadata>> but with a different `token_uri` behavior
+Extension of ERC721 to support dynamic NFTs.
+It is an implementation of <<IERC721Metadata, IERC721Metadata>> but with a different `token_uri` behavior.
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
-This extension keeps a track of URIs of each `token_id` of a particular ERC721 token. The `token_uri` of any `token_id` can be set by calling the 
-internal function, xref:#ERC721URIStorageComponent-set_token_uri[set_token_uri]. Updated `token_uri` can be queried through the external function 
-xref:#ERC721URIStorageComponent-token_uri[token_uri] or the internal function xref:#ERC721URIStorageComponent-_token_uri[_token_uri].
-
+This extension keeps a track of URIs of each token id of a particular ERC721 token. The URI of any `token_id` can be set by calling the 
+internal function, xref:#ERC721URIStorageComponent-set_token_uri[set_token_uri]. Updated `token_uri` can be queried through the external function  
+xref:#ERC721URIStorageComponent-token_uri[token_uri].
 
 [.contract-index#ERC721URIStorageComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -718,7 +717,7 @@ xref:#ERC721URIStorageComponent-token_uri[token_uri] or the internal function xr
 .ERC721URIStorageImpl
 * xref:#ERC721URIStorageComponent-name[`++name(self)++`]
 * xref:#ERC721URIStorageComponent-symbol[`++symbol(self)++`]
-* xref:#ERC721URIStorageComponent-token_uri[`++token_uri(self,token_id)++`]
+* xref:#ERC721URIStorageComponent-token_uri[`++token_uri(self, token_id)++`]
 
 --
 
@@ -726,10 +725,7 @@ xref:#ERC721URIStorageComponent-token_uri[token_uri] or the internal function xr
 .Internal implementations
 --
 .InternalImpl
-* xref:#ERC721URIStorageComponent-_name[`++_name(self)++`]
-* xref:#ERC721URIStorageComponent-_symbol[`++_symbol(self)++`]
-* xref:#ERC721URIStorageComponent-_token_uri[`++_token_uri(self,token_id)++`]
-* xref:#ERC721URIStorageComponent-set_token_uri[`++set_token_uri(self,token_id,token_uri)++`]
+* xref:#ERC721URIStorageComponent-set_token_uri[`++set_token_uri(self, token_id, token_uri)++`]
 
 --
 
@@ -758,39 +754,23 @@ See <<IERC721Metadata-symbol,IERC721::symbol>>.
 [[ERC721URIStorageComponent-token_uri]]
 ==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, token_id : u256) → ByteArray++` [.item-kind]#external#
 
-See <<ERC721URIStorageComponent-_token_uri,ERC721URIStorageComponent::_token_uri>>
+Returns the Uniform Resource Identifier (URI) for the `token_id` token.
+
+
+If a base URI is set and the token URI is set , the resulting URI for each token will be the concatenation of the base URI and the token URI. 
+
+If a base URI is set and the token URI is not set , the resulting URI for each token will be the concatenation of the base URI and the `token_id`. 
+
+If a base URI is not set and the token URI is set , the resulting URI for each token will be the token URI. 
+
+If the base URI and token URI are not set for `token_id`, the return value will be an empty `ByteArray`.
 
 [#ERC721URIStorageComponent-Internal-functions]
 ==== Internal functions
 
 [.contract-item]
-[[ERC721URIStorageComponent-name]]
-==== `[.contract-item-name]#++name++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
-
-See <<IERC721Metadata-name,IERC721Metadata::name>>.
-
-[.contract-item]
-[[ERC721URIStorageComponent-symbol]]
-==== `[.contract-item-name]#++symbol++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
-
-See <<IERC721Metadata-symbol,IERC721Metadata::symbol>>.
-
-[.contract-item]
-[[ERC721URIStorageComponent-_token_uri]]
-==== `[.contract-item-name]#++_token_uri++#++(self: @ContractState, token_id: u256) → ByteArray++` [.item-kind]#internal#
-
-Returns the Uniform Resource Identifier (URI) for the `token_id` token. 
-
-
-If a base URI is set and the token URI is set , the resulting URI for each token will be the concatenation of the base URI and the token URI. 
-If a base URI is set and the token URI is not set , the resulting URI for each token will be the concatenation of the base URI and the token ID. 
-If a base URI is not set and the token URI is set , the resulting URI for each token will be the token URI. 
-
-If the base URI and token URI is not set for `token_id`, the return value will be an empty `ByteArray`.
-
-[.contract-item]
-[[ERC721URIStorageComponent-se_token_uri]]
-==== `[.contract-item-name]#++set_token_uri++#++(ref self: ContractState,token_id: u256,token_uri: ByteArray)++` [.item-kind]#internal#
+[[ERC721URIStorageComponent-set_token_uri]]
+==== `[.contract-item-name]#++set_token_uri++#++(ref self: ContractState, token_id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
 
 Sets the `token_uri` of `token_id`.
 
@@ -803,7 +783,7 @@ Emits a {MetadataUpdated} event.
 [[ERC721URIStorageComponent-MetadataUpdated]]
 ==== `[.contract-item-name]#++MetadataUpdated++#++(token_id: u256)++` [.item-kind]#event#
 
-Emitted when `token_uri` of `token_id` is set.
+Emitted when the URI of `token_id` is set.
 
 == Receiver
 

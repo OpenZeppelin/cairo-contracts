@@ -64,7 +64,7 @@ pub mod ERC721URIStorageComponent {
                 return token_uri;
             }
 
-             // If both are set, concatenate the base_uri and token_uri.
+            // If both are set, concatenate the base_uri and token_uri.
             if token_uri.len() > 0 {
                 return format!("{}{}", base_uri, token_uri);
             }

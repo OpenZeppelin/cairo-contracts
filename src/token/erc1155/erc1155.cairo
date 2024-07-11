@@ -668,7 +668,6 @@ pub mod ERC1155Component {
         ///
         /// For example, the `https://token-cdn-domain/\{id\}.json` URI would be
         /// interpreted by clients as
-        ///
         /// `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
         /// for token type ID 0x4cce0.
         ///

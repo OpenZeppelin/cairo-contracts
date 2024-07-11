@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Bump scarb to v2.7.0-rc.1 (#1025)
+
 ## 0.15.0-rc.0 (2024-07-8)
 
 ### Changed
@@ -101,9 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
 
-### Changed
 
-- Bump scarb to v2.6.3 (#946)
 
 ### Fixed
 

@@ -3,15 +3,7 @@
 
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use starknet::ContractAddress;
-
-// TMP until cairo v2.7 release, then use SN `Call` struct
-// `Call` from v2.6 does not derive Copy trait
-#[derive(Drop, Copy, Serde, Debug)]
-pub struct Call {
-    pub to: ContractAddress,
-    pub selector: felt252,
-    pub calldata: Span<felt252>
-}
+use starknet::account::Call;
 
 pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> {
     fn update_state(mut state: S, value: @Call) -> S {
@@ -37,7 +29,7 @@ pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<@Span<Cal
     }
 }
 
-impl CallPartialEq of PartialEq<Call> {
+pub(crate) impl CallPartialEq of PartialEq<Call> {
     #[inline(always)]
     fn eq(lhs: @Call, rhs: @Call) -> bool {
         let mut lhs_arr = array![];

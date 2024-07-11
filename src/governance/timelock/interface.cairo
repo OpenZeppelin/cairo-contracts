@@ -2,8 +2,8 @@
 // OpenZeppelin Contracts for Cairo v0.14.0 (governance/timelock/interface.cairo)
 
 use openzeppelin::governance::timelock::utils::OperationState;
-use openzeppelin::governance::timelock::utils::call_impls::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 
 #[starknet::interface]
 pub trait ITimelock<TState> {

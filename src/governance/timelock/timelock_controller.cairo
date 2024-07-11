@@ -25,11 +25,12 @@ pub mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
     use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, Call};
+    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
+    use starknet::account::Call;
     use starknet::storage::Map;
 
     // Constants

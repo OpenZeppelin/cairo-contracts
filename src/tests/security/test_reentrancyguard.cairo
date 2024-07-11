@@ -4,7 +4,6 @@ use openzeppelin::tests::mocks::reentrancy_mocks::{
     Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin::tests::utils;
-use starknet::storage::StorageMemberAccessTrait;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 
@@ -76,7 +75,7 @@ fn test_remote_callback() {
     let contract = deploy_mock();
 
     // Deploy attacker
-    let calldata = ArrayTrait::new();
+    let calldata = array![];
     let attacker_addr = utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
 
     contract.count_and_call(attacker_addr);

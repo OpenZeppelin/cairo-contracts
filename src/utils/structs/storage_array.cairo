@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (utils/structs/storage_array.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/structs/storage_array.cairo)
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
@@ -13,7 +13,7 @@ const NOT_IMPLEMENTED: felt252 = 'Not implemented';
 
 /// Represents an Array that can be stored in storage.
 #[derive(Copy, Drop)]
-pub(crate) struct StorageArray<T> {
+pub struct StorageArray<T> {
     address_domain: u32,
     base: StorageBaseAddress
 }
@@ -52,7 +52,7 @@ impl StoreStorageArray<T, impl TDrop: Drop<T>, impl TStore: Store<T>> of Store<S
 ///
 /// `read_at` and `write_at` don't check the length of the array, caution must be exercised.
 /// The current length of the array is stored at the base StorageBaseAddress as felt.
-pub(crate) trait StorageArrayTrait<T> {
+pub trait StorageArrayTrait<T> {
     fn read_at(self: @StorageArray<T>, index: usize) -> T;
     fn write_at(ref self: StorageArray<T>, index: usize, value: T) -> ();
     fn append(ref self: StorageArray<T>, value: T) -> ();

@@ -12,7 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TimelockController component (#996)
 - HashCall implementation (#996)
-- CallPartialEq (#996)
+
+### Changed
+
+- Bump scarb to v2.7.0-rc.1 (#1025)
+
+## 0.15.0-rc.0 (2024-07-8)
+
+### Changed
+
+- `Trace`, `Checkpoint`, and `StorageArray` structs made public.
+
+### Changed (Breaking)
+
+- Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
 
 ## 0.14.0 (2024-06-14)
 
@@ -96,10 +109,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UDC preset contract (#919)
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
-
-### Changed
-
-- Bump scarb to v2.6.3 (#946)
 
 ### Fixed
 

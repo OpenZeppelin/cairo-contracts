@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/utils.cairo)
 
 pub mod secp256k1;
 pub mod signature;
@@ -15,7 +15,7 @@ pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
 pub const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
 pub fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
-    let mut res = ArrayTrait::new();
+    let mut res = array![];
     loop {
         match calls.pop_front() {
             Option::Some(call) => {

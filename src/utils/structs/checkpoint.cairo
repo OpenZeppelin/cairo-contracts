@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/structs/checkpoint.cairo)
 
 use core::integer::u32_sqrt;
 use openzeppelin::utils::math;
@@ -9,19 +9,19 @@ use super::storage_array::{StorageArray, StorageArrayTrait};
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
 #[derive(Copy, Drop, starknet::Store)]
-pub(crate) struct Trace {
-    pub(crate) checkpoints: StorageArray<Checkpoint>
+pub struct Trace {
+    pub checkpoints: StorageArray<Checkpoint>
 }
 
 /// Generic checkpoint representation.
 #[derive(Copy, Drop, Serde)]
-pub(crate) struct Checkpoint {
-    pub(crate) key: u64,
-    pub(crate) value: u256
+pub struct Checkpoint {
+    pub key: u64,
+    pub value: u256
 }
 
 #[generate_trait]
-pub(crate) impl TraceImpl of TraceTrait {
+pub impl TraceImpl of TraceTrait {
     /// Pushes a (`key`, `value`) pair into a Trace so that it is stored as the checkpoint
     /// and returns both the previous and the new value.
     fn push(ref self: Trace, key: u64, value: u256) -> (u256, u256) {
@@ -112,8 +112,8 @@ pub(crate) impl TraceImpl of TraceTrait {
 
 #[generate_trait]
 impl CheckpointImpl of CheckpointTrait {
-    /// Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
-    /// or by updating the last one.
+    /// Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a
+    /// new checkpoint, or by updating the last one.
     fn _insert(ref self: StorageArray<Checkpoint>, key: u64, value: u256) -> (u256, u256) {
         let pos = self.len();
 
@@ -138,9 +138,9 @@ impl CheckpointImpl of CheckpointTrait {
         }
     }
 
-    /// Returns the index of the last (most recent) checkpoint with the key lower than or equal to the search key,
-    /// or `high` if there is none. `low` and `high` define a section where to do the search, with
-    /// inclusive `low` and exclusive `high`.
+    /// Returns the index of the last (most recent) checkpoint with the key lower than or equal to
+    /// the search key, or `high` if there is none. `low` and `high` define a section where to do
+    /// the search, with inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(self: @StorageArray<Checkpoint>, key: u64, low: u32, high: u32) -> u32 {
         let mut _low = low;
         let mut _high = high;

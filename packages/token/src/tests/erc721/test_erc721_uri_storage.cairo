@@ -122,26 +122,22 @@ fn test_token_uri_with_base_uri_and_token_id() {
     assert_eq!(token_uri, expected);
 }
 
-// todo: add this test
 // todo: test and provide transaction hash
-//#[test]
-//fn test_token_uri_persists_when_burned_and_minted() {
-//    let mut state = setup();
-//
-//    state.set_token_uri(TOKEN_ID, SAMPLE_URI());
-//
-//    let mut mock_contract_state = CONTRACT_STATE();
-//    mock_contract_state.erc721.burn(TOKEN_ID);
-//
-//    //must panic with error 'ERC721: invalid token ID'
-//    state.token_uri(TOKEN_ID);
-//
-//    mock_contract_state.erc721.mint(OWNER(), TOKEN_ID);
-//
-//    let token_uri = state.token_uri(TOKEN_ID);
-//    let expected = SAMPLE_URI();
-//    assert_eq!(token_uri, expected);
-//}
+#[test]
+fn test_token_uri_persists_when_burned_and_minted() {
+    let mut state = setup();
+
+    state.set_token_uri(TOKEN_ID, SAMPLE_URI());
+
+    let mut mock_contract_state = CONTRACT_STATE();
+    mock_contract_state.erc721.burn(TOKEN_ID);
+
+    mock_contract_state.erc721.mint(OWNER(), TOKEN_ID);
+
+    let token_uri = state.token_uri(TOKEN_ID);
+    let expected = SAMPLE_URI();
+    assert_eq!(token_uri, expected);
+}
 
 //
 // Helpers

@@ -3,9 +3,10 @@
 
 /// # TimelockController Component
 ///
-/// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart contract,
-/// it enforces a timelock on all `only_owner` maintenance operations. This gives time for users
-/// of the controlled contract to exit before a potentially dangerous maintenance operation is applied.
+/// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart
+/// contract, it enforces a timelock on all `only_owner` maintenance operations. This gives time for
+/// users of the controlled contract to exit before a potentially dangerous maintenance operation is
+/// applied.
 ///
 /// By default, this component is self administered, meaning administration tasks have to go through
 /// the timelock process. The proposer role is in charge of proposing operations. A common use case
@@ -28,8 +29,8 @@ pub mod TimelockControllerComponent {
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
     use starknet::SyscallResultTrait;
+    use starknet::storage::Map;
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -550,11 +551,11 @@ pub mod TimelockControllerComponent {
         /// - `admin`: optional account to be granted admin role; disable with zero address.
         ///
         /// WARNING: The optional admin can aid with initial configuration of roles after deployment
-        /// without being subject to delay, but this role should be subsequently renounced in favor of
-        /// administration through timelocked proposals.
+        /// without being subject to delay, but this role should be subsequently renounced in favor
+        /// of administration through timelocked proposals.
         ///
-        /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE` admin
-        /// `CANCELLER_ROLE` roles.
+        /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE`
+        /// admin `CANCELLER_ROLE` roles.
         ///
         /// Emits a `RoleGranted` event for each account in `executors` with `EXECUTOR_ROLE` role.
         ///
@@ -581,22 +582,20 @@ pub mod TimelockControllerComponent {
 
             // Register proposers and cancellers
             let mut i = 0;
-            while i < proposers
-                .len() {
-                    let proposer = proposers.at(i);
-                    access_component._grant_role(PROPOSER_ROLE, *proposer);
-                    access_component._grant_role(CANCELLER_ROLE, *proposer);
-                    i += 1;
-                };
+            while i < proposers.len() {
+                let proposer = proposers.at(i);
+                access_component._grant_role(PROPOSER_ROLE, *proposer);
+                access_component._grant_role(CANCELLER_ROLE, *proposer);
+                i += 1;
+            };
 
             // Register executors
             let mut i = 0;
-            while i < executors
-                .len() {
-                    let executor = executors.at(i);
-                    access_component._grant_role(EXECUTOR_ROLE, *executor);
-                    i += 1;
-                };
+            while i < executors.len() {
+                let executor = executors.at(i);
+                access_component._grant_role(EXECUTOR_ROLE, *executor);
+                i += 1;
+            };
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
@@ -653,7 +652,8 @@ pub mod TimelockControllerComponent {
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 
-        /// Private function that schedules an operation that is to become valid after a given `delay`.
+        /// Private function that schedules an operation that is to become valid after a given
+        /// `delay`.
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
             assert(!Timelock::is_operation(@self, id), Errors::EXPECTED_UNSET_OPERATION);
             assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);

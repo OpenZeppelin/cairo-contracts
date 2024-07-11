@@ -17,11 +17,10 @@ pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<@Call, S> 
     fn update_state(mut state: S, value: @Call) -> S {
         let Call { to, selector, mut calldata } = *value;
         state = state.update_with(to).update_with(selector).update_with(calldata.len());
-        while calldata
-            .len() > 0 {
-                let elem = *calldata.pop_front().unwrap();
-                state = state.update_with(elem);
-            };
+        while calldata.len() > 0 {
+            let elem = *calldata.pop_front().unwrap();
+            state = state.update_with(elem);
+        };
         state
     }
 }
@@ -30,11 +29,10 @@ pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<@Span<Cal
     fn update_state(mut state: S, value: @Span<Call>) -> S {
         let mut calls = *value;
         state = state.update_with(calls.len());
-        while calls
-            .len() > 0 {
-                let call = calls.pop_front().unwrap();
-                state = state.update_with(call);
-            };
+        while calls.len() > 0 {
+            let call = calls.pop_front().unwrap();
+            state = state.update_with(call);
+        };
         state
     }
 }

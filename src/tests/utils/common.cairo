@@ -1,4 +1,5 @@
-use snforge_std::{declare, ContractClass, ContractClassTrait};
+use core::starknet::SyscallResultTrait;
+use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
 use starknet::ContractAddress;
 
 pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {
@@ -17,18 +18,27 @@ pub fn deploy_at(
     };
 }
 
+/// Deploys a contract from the class hash of another contract which is already deployed.
+pub fn deploy_another_at(
+    existing: ContractAddress, target_address: ContractAddress, calldata: Array<felt252>
+) {
+    let class_hash = get_class_hash(existing);
+    let contract_class = ContractClassTrait::new(class_hash);
+    deploy_at(contract_class, target_address, calldata)
+}
+
 pub fn declare_class(contract_name: ByteArray) -> ContractClass {
-    declare(contract_name).unwrap()
+    declare(contract_name).unwrap_syscall()
 }
 
 pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress {
-    let contract_class = declare(contract_name).unwrap();
+    let contract_class = declare(contract_name).unwrap_syscall();
     deploy(contract_class, calldata)
 }
 
 pub fn declare_and_deploy_at(
     contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
 ) {
-    let contract_class = declare(contract_name).expect('Failed to declare contract');
+    let contract_class = declare(contract_name).unwrap_syscall();
     deploy_at(contract_class, target_address, calldata)
 }

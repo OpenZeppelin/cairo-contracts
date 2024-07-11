@@ -35,7 +35,7 @@ use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
+//use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 use starknet::testing;
 
 type ComponentState =

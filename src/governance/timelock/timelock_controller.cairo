@@ -28,6 +28,7 @@ pub mod TimelockControllerComponent {
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
     use starknet::SyscallResultTrait;
 
     // Constants
@@ -38,7 +39,7 @@ pub mod TimelockControllerComponent {
 
     #[storage]
     struct Storage {
-        TimelockController_timestamps: LegacyMap<felt252, u64>,
+        TimelockController_timestamps: Map<felt252, u64>,
         TimelockController_min_delay: u64
     }
 
@@ -117,24 +118,24 @@ pub mod TimelockControllerComponent {
         /// Returns whether `id` corresponds to a registered operation.
         /// This includes the OperationStates: Waiting, Ready, and Done.
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) != OperationState::Unset
+            Self::get_operation_state(self, id) != OperationState::Unset
         }
 
         /// Returns whether the `id` OperationState is pending or not.
         /// Note that a pending operation may be either Waiting or Ready.
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            let state = Timelock::get_operation_state(self, id);
+            let state = Self::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready
         }
 
         /// Returns whether the `id` OperationState is Ready or not.
         fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) == OperationState::Ready
+            Self::get_operation_state(self, id) == OperationState::Ready
         }
 
         /// Returns whether the `id` OperationState is Done or not.
         fn is_operation_done(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) == OperationState::Done
+            Self::get_operation_state(self, id) == OperationState::Done
         }
 
         /// Returns the timestamp at which `id` becomes Ready.
@@ -149,7 +150,7 @@ pub mod TimelockControllerComponent {
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252
         ) -> OperationState {
-            let timestamp = Timelock::get_timestamp(self, id);
+            let timestamp = Self::get_timestamp(self, id);
             if (timestamp == 0) {
                 return OperationState::Unset;
             } else if (timestamp == DONE_TIMESTAMP) {
@@ -209,7 +210,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
-            let id = Timelock::hash_operation(@self, call, predecessor, salt);
+            let id = Self::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
             self.emit(CallScheduled { id, index: 0, call, predecessor, delay });
 
@@ -235,7 +236,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
-            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
+            let id = Self::hash_operation_batch(@self, calls, predecessor, salt);
             self._schedule(id, delay);
 
             let mut index = 0;
@@ -264,7 +265,7 @@ pub mod TimelockControllerComponent {
         /// Emits a `CallCancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
             self.assert_only_role(CANCELLER_ROLE);
-            assert(Timelock::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
+            assert(Self::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
 
             self.TimelockController_timestamps.write(id, 0);
             self.emit(CallCancelled { id });
@@ -291,7 +292,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = Timelock::hash_operation(@self, call, predecessor, salt);
+            let id = Self::hash_operation(@self, call, predecessor, salt);
             self._before_call(id, predecessor);
             self._execute(call);
             self.emit(CallExecuted { id, index: 0, call });
@@ -319,7 +320,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
+            let id = Self::hash_operation_batch(@self, calls, predecessor, salt);
             self._before_call(id, predecessor);
 
             let mut index = 0;

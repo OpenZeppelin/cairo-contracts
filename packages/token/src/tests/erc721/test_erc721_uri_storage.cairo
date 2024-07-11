@@ -122,7 +122,6 @@ fn test_token_uri_with_base_uri_and_token_id() {
     assert_eq!(token_uri, expected);
 }
 
-// todo: test and provide transaction hash
 #[test]
 fn test_token_uri_persists_when_burned_and_minted() {
     let mut state = setup();

@@ -36,7 +36,7 @@ pub mod ERC2981Component {
     /// Emitted when token id `token_id` royalty is updated to fees ratio `fees_ratio`
     /// and receiver `receiver`. 
     #[derive(Drop, starknet::Event)]
-    struct TokenRoyaltyUpdated {
+    pub struct TokenRoyaltyUpdated {
         #[key]
         token_id: u256,
         fees_ratio: FeesRatio,
@@ -45,7 +45,7 @@ pub mod ERC2981Component {
 
     /// Emitted when default royalty is updated to fees ratio `fees_ratio` and receiver `receiver`.
     #[derive(Drop, starknet::Event)]
-    struct DefaultRoyaltyUpdated {
+    pub struct DefaultRoyaltyUpdated {
         fees_ratio: FeesRatio,
         receiver: ContractAddress,
     }

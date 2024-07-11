@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (governance/timelock/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (governance/timelock/interface.cairo)
 
 use openzeppelin::governance::timelock::utils::OperationState;
 use starknet::ContractAddress;

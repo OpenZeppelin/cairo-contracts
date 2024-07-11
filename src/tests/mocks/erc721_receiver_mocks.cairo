@@ -65,7 +65,7 @@ pub(crate) mod DualCaseERC721ReceiverMock {
             tokenId: u256,
             data: Span<felt252>
         ) -> felt252 {
-            ExternalTrait::on_erc721_received(self, operator, from, tokenId, data)
+            Self::on_erc721_received(self, operator, from, tokenId, data)
         }
     }
 }

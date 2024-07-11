@@ -327,8 +327,8 @@ pub mod AccountComponent {
 
         /// Validates that `new_owner` accepted the ownership of the contract.
         ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
+        /// WARNING: This function assumes that `current_owner` is the current owner of the
+        /// contract, and does not validate this assumption.
         ///
         /// Requirements:
         ///

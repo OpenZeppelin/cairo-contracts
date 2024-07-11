@@ -4,7 +4,6 @@ use openzeppelin::tests::mocks::reentrancy_mocks::{
     Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin::tests::utils;
-use starknet::storage::StorageMemberAccessTrait;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 

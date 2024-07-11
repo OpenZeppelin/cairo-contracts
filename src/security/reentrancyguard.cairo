@@ -22,7 +22,8 @@ pub mod ReentrancyGuardComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
     > of InternalTrait<TContractState> {
-        /// Prevents a contract's function from calling itself or another protected function, directly or indirectly.
+        /// Prevents a contract's function from calling itself or another protected function,
+        /// directly or indirectly.
         fn start(ref self: ComponentState<TContractState>) {
             assert(!self.ReentrancyGuard_entered.read(), Errors::REENTRANT_CALL);
             self.ReentrancyGuard_entered.write(true);

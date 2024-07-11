@@ -7,10 +7,11 @@
 #[starknet::component]
 pub mod SRC5Component {
     use openzeppelin::introspection::interface;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        SRC5_supported_interfaces: LegacyMap<felt252, bool>
+        SRC5_supported_interfaces: Map<felt252, bool>
     }
 
     pub mod Errors {

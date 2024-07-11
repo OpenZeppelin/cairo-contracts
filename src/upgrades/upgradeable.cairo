@@ -25,7 +25,7 @@ pub mod UpgradeableComponent {
         pub class_hash: ClassHash
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_CLASS: felt252 = 'Class hash cannot be zero';
     }
 

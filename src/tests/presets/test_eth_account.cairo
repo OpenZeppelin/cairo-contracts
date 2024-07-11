@@ -1,8 +1,6 @@
 use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
-};
+use openzeppelin::account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
@@ -104,7 +102,7 @@ fn test_constructor() {
 //
 
 #[test]
-fn test_public_key_setter_and_getter_2() {
+fn test_public_key_setter_and_getter() {
     let dispatcher = setup_dispatcher();
     let new_public_key = NEW_ETH_PUBKEY();
 
@@ -505,7 +503,7 @@ fn set_contract_and_caller(address: ContractAddress) {
 fn get_accept_ownership_signature() -> Span<felt252> {
     let mut output = array![];
 
-    // 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c =
+    // 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d =
     // PoseidonTrait::new()
     //             .update_with('StarkNet Message')
     //             .update_with('accept_ownership')
@@ -518,10 +516,10 @@ fn get_accept_ownership_signature() -> Span<felt252> {
     // - public_key:
     //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
     //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x054308383e1c733aa36ccf3cc62e3107b6bcb10bafcab39912108c6b52655b4c
+    // - msg_hash: 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d
     EthSignature {
-        r: 0xc4de7637e4206e64ddae9261782dad6d3c99eaaede20ff3fb183f751b94ee9ff,
-        s: 0x77c24e1ad34f5ba0627048f6a11c1e7ee1ddd3b5d518ee4c71ebd5725390f860,
+        r: 0x518caf844e08000c67ef7f9f56105ae52b9f7532baac1561bbfb4a8fb691ba80,
+        s: 0x559ce65943263032ff0b5906466cd67fd15f7965c8befc162a276abcd63f7c2c,
     }
         .serialize(ref output);
 

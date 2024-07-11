@@ -12,7 +12,7 @@ pub mod EthAccountComponent {
     use core::starknet::secp256_trait::Secp256PointTrait;
     use openzeppelin::account::interface::EthPublicKey;
     use openzeppelin::account::interface;
-    use openzeppelin::account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointStorePacking};
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointStorePacking;
     use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
     use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
@@ -333,8 +333,8 @@ pub mod EthAccountComponent {
 
         /// Validates that `new_owner` accepted the ownership of the contract.
         ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
+        /// WARNING: This function assumes that `current_owner` is the current owner of the
+        /// contract, and does not validate this assumption.
         ///
         /// Requirements:
         ///

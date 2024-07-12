@@ -62,7 +62,7 @@ fn test_dual_on_erc721_received() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_on_erc721_received() {
     let dispatcher = setup_non_erc721_receiver();
@@ -70,7 +70,6 @@ fn test_dual_no_on_erc721_received() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
@@ -82,7 +81,7 @@ fn test_dual_on_erc721_received_exists_and_panics() {
 //
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_onERC721Received() {
     let (dispatcher, _) = setup_camel();
 
@@ -92,7 +91,7 @@ fn test_dual_onERC721Received() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();

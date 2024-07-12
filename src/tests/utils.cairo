@@ -3,7 +3,8 @@ pub(crate) mod constants;
 pub(crate) mod events;
 pub(crate) mod signing;
 pub use common::{
-    declare_class, declare_and_deploy, declare_and_deploy_at, deploy, deploy_at, deploy_another_at
+    declare_class, declare_and_deploy, declare_and_deploy_at, declare_and_deploy_with_caller,
+    deploy, deploy_at, deploy_another_at
 };
 
 pub use events::EventSpyExt;

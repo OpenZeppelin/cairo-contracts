@@ -71,16 +71,19 @@ fn setup_erc1155_panic() -> (DualCaseERC1155, DualCaseERC1155) {
 //
 
 #[test]
-#[ignore]
-fn test_dual_uri() {
+fn test_dual_uri_snake() {
     let (snake_dispatcher, _, _) = setup_snake();
-    let (camel_dispatcher, _, _) = setup_camel();
     assert_eq!(snake_dispatcher.uri(TOKEN_ID), "URI");
+}
+
+#[test]
+fn test_dual_uri_camel() {
+    let (camel_dispatcher, _, _) = setup_camel();
     assert_eq!(camel_dispatcher.uri(TOKEN_ID), "URI");
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_uri() {
     let dispatcher = setup_non_erc1155();
@@ -88,7 +91,6 @@ fn test_dual_no_uri() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_uri_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -100,14 +102,13 @@ fn test_dual_uri_exists_and_panics() {
 //
 
 #[test]
-#[ignore]
 fn test_dual_balance_of() {
     let (dispatcher, _, owner) = setup_snake();
     assert_eq!(dispatcher.balance_of(owner, TOKEN_ID), TOKEN_VALUE);
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc1155();
@@ -115,7 +116,6 @@ fn test_dual_no_balance_of() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -123,7 +123,6 @@ fn test_dual_balance_of_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_balance_of_batch() {
     let (dispatcher, _, owner) = setup_snake();
     let accounts = array![owner, RECIPIENT()].span();
@@ -135,7 +134,7 @@ fn test_dual_balance_of_batch() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of_batch() {
     let dispatcher = setup_non_erc1155();
@@ -144,7 +143,6 @@ fn test_dual_no_balance_of_batch() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balance_of_batch_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -153,7 +151,6 @@ fn test_dual_balance_of_batch_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_safe_transfer_from() {
     let (dispatcher, target, owner) = setup_snake();
     let receiver = setup_receiver();
@@ -164,7 +161,7 @@ fn test_dual_safe_transfer_from() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc1155();
@@ -172,7 +169,6 @@ fn test_dual_no_safe_transfer_from() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -180,7 +176,6 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_safe_batch_transfer_from() {
     let (dispatcher, target, owner) = setup_snake();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -194,7 +189,7 @@ fn test_dual_safe_batch_transfer_from() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_batch_transfer_from() {
     let dispatcher = setup_non_erc1155();
@@ -204,7 +199,6 @@ fn test_dual_no_safe_batch_transfer_from() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safe_batch_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -214,7 +208,6 @@ fn test_dual_safe_batch_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_is_approved_for_all() {
     let (dispatcher, target, _) = setup_snake();
 
@@ -226,7 +219,7 @@ fn test_dual_is_approved_for_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_approved_for_all() {
     let dispatcher = setup_non_erc1155();
@@ -234,7 +227,6 @@ fn test_dual_no_is_approved_for_all() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_is_approved_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -242,7 +234,6 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_set_approval_for_all() {
     let (dispatcher, target, _) = setup_snake();
 
@@ -254,7 +245,7 @@ fn test_dual_set_approval_for_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_approval_for_all() {
     let dispatcher = setup_non_erc1155();
@@ -262,7 +253,6 @@ fn test_dual_no_set_approval_for_all() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_set_approval_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -270,7 +260,6 @@ fn test_dual_set_approval_for_all_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_supports_interface() {
     let (dispatcher, _, _) = setup_snake();
     let supports_ierc1155 = dispatcher.supports_interface(IERC1155_ID);
@@ -278,7 +267,7 @@ fn test_dual_supports_interface() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_erc1155();
@@ -286,7 +275,6 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[ignore]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_panic();
@@ -298,14 +286,14 @@ fn test_dual_supports_interface_exists_and_panics() {
 //
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_balanceOf() {
     let (dispatcher, _, owner) = setup_camel();
     assert_eq!(dispatcher.balance_of(owner, TOKEN_ID), TOKEN_VALUE);
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
@@ -313,7 +301,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_balanceOfBatch() {
     let (dispatcher, _, owner) = setup_camel();
     let accounts = array![owner, RECIPIENT()].span();
@@ -325,7 +313,7 @@ fn test_dual_balanceOfBatch() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOfBatch_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
@@ -334,7 +322,7 @@ fn test_dual_balanceOfBatch_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_safeTransferFrom() {
     let (dispatcher, target, owner) = setup_camel();
     let receiver = setup_receiver();
@@ -345,7 +333,7 @@ fn test_dual_safeTransferFrom() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
@@ -353,7 +341,7 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_safeBatchTransferFrom() {
     let (dispatcher, target, owner) = setup_camel();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -367,7 +355,7 @@ fn test_dual_safeBatchTransferFrom() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safeBatchTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
@@ -377,7 +365,7 @@ fn test_dual_safeBatchTransferFrom_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_isApprovedForAll() {
     let (dispatcher, target, _) = setup_camel();
 
@@ -389,7 +377,7 @@ fn test_dual_isApprovedForAll() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();
@@ -397,7 +385,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_setApprovalForAll() {
     let (dispatcher, target, _) = setup_camel();
 
@@ -409,7 +397,7 @@ fn test_dual_setApprovalForAll() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_panic();

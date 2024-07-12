@@ -24,8 +24,8 @@ fn setup_snake() -> (DualCaseERC721, IERC721Dispatcher) {
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
 
-    start_cheat_caller_address(test_address(), OWNER());
-    let target = utils::declare_and_deploy("SnakeERC721Mock", calldata);
+    let target = utils::declare_and_deploy_with_caller("SnakeERC721Mock", calldata, OWNER());
+    start_cheat_caller_address(target, OWNER());
     (DualCaseERC721 { contract_address: target }, IERC721Dispatcher { contract_address: target })
 }
 
@@ -37,8 +37,8 @@ fn setup_camel() -> (DualCaseERC721, IERC721CamelOnlyDispatcher) {
     calldata.append_serde(OWNER());
     calldata.append_serde(TOKEN_ID);
 
-    start_cheat_caller_address(test_address(), OWNER());
-    let target = utils::declare_and_deploy("CamelERC721Mock", calldata);
+    let target = utils::declare_and_deploy_with_caller("CamelERC721Mock", calldata, OWNER());
+    start_cheat_caller_address(target, OWNER());
     (
         DualCaseERC721 { contract_address: target },
         IERC721CamelOnlyDispatcher { contract_address: target }
@@ -69,17 +69,16 @@ fn setup_receiver() -> ContractAddress {
 //
 
 #[test]
-#[ignore]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_name() {
     let (snake_dispatcher, _) = setup_snake();
-    let (camel_dispatcher, _) = setup_camel();
     assert_eq!(snake_dispatcher.name(), NAME());
+
+    let (camel_dispatcher, _) = setup_camel();
     assert_eq!(camel_dispatcher.name(), NAME());
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_name() {
     let dispatcher = setup_non_erc721();
@@ -94,7 +93,6 @@ fn test_dual_name_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_symbol() {
     let (snake_dispatcher, _) = setup_snake();
     let (camel_dispatcher, _) = setup_camel();
@@ -103,7 +101,7 @@ fn test_dual_symbol() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_symbol() {
     let dispatcher = setup_non_erc721();
@@ -118,23 +116,22 @@ fn test_dual_symbol_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_approve() {
     let (snake_dispatcher, snake_target) = setup_snake();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(snake_dispatcher.contract_address, OWNER());
     snake_dispatcher.approve(SPENDER(), TOKEN_ID);
     assert_eq!(snake_target.get_approved(TOKEN_ID), SPENDER());
 
     let (camel_dispatcher, camel_target) = setup_camel();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(camel_dispatcher.contract_address, OWNER());
     camel_dispatcher.approve(SPENDER(), TOKEN_ID);
     assert_eq!(camel_target.getApproved(TOKEN_ID), SPENDER());
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_approve() {
     let dispatcher = setup_non_erc721();
@@ -153,14 +150,13 @@ fn test_dual_approve_exists_and_panics() {
 //
 
 #[test]
-#[ignore]
 fn test_dual_balance_of() {
     let (dispatcher, _) = setup_snake();
     assert_eq!(dispatcher.balance_of(OWNER()), 1);
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_balance_of() {
     let dispatcher = setup_non_erc721();
@@ -175,14 +171,13 @@ fn test_dual_balance_of_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_owner_of() {
     let (dispatcher, _) = setup_snake();
     assert_eq!(dispatcher.owner_of(TOKEN_ID), OWNER());
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_owner_of() {
     let dispatcher = setup_non_erc721();
@@ -197,7 +192,6 @@ fn test_dual_owner_of_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_transfer_from() {
     let (dispatcher, target) = setup_snake();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
@@ -205,7 +199,7 @@ fn test_dual_transfer_from() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_from() {
     let dispatcher = setup_non_erc721();
@@ -220,7 +214,6 @@ fn test_dual_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_safe_transfer_from() {
     let (dispatcher, target) = setup_snake();
     let receiver = setup_receiver();
@@ -229,7 +222,7 @@ fn test_dual_safe_transfer_from() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_safe_transfer_from() {
     let dispatcher = setup_non_erc721();
@@ -244,17 +237,16 @@ fn test_dual_safe_transfer_from_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_get_approved() {
     let (dispatcher, target) = setup_snake();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     target.approve(SPENDER(), TOKEN_ID);
     assert_eq!(dispatcher.get_approved(TOKEN_ID), SPENDER());
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_approved() {
     let dispatcher = setup_non_erc721();
@@ -269,11 +261,10 @@ fn test_dual_get_approved_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_set_approval_for_all() {
     let (dispatcher, target) = setup_snake();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
 
     let is_approved_for_all = target.is_approved_for_all(OWNER(), OPERATOR());
@@ -281,7 +272,7 @@ fn test_dual_set_approval_for_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_approval_for_all() {
     let dispatcher = setup_non_erc721();
@@ -296,11 +287,10 @@ fn test_dual_set_approval_for_all_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_is_approved_for_all() {
     let (dispatcher, target) = setup_snake();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     target.set_approval_for_all(OPERATOR(), true);
 
     let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -308,7 +298,7 @@ fn test_dual_is_approved_for_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_approved_for_all() {
     let dispatcher = setup_non_erc721();
@@ -323,7 +313,6 @@ fn test_dual_is_approved_for_all_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_token_uri() {
     let (dispatcher, _) = setup_snake();
     let uri = dispatcher.token_uri(TOKEN_ID);
@@ -332,7 +321,7 @@ fn test_dual_token_uri() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_token_uri() {
     let dispatcher = setup_non_erc721();
@@ -347,7 +336,6 @@ fn test_dual_token_uri_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
 fn test_dual_supports_interface() {
     let (dispatcher, _) = setup_snake();
     let supports_ierc721 = dispatcher.supports_interface(IERC721_ID);
@@ -355,7 +343,7 @@ fn test_dual_supports_interface() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_erc721();
@@ -374,14 +362,14 @@ fn test_dual_supports_interface_exists_and_panics() {
 //
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_balanceOf() {
     let (dispatcher, _) = setup_camel();
     assert_eq!(dispatcher.balance_of(OWNER()), 1);
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -389,7 +377,7 @@ fn test_dual_balanceOf_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_ownerOf() {
     let (dispatcher, _) = setup_camel();
     let current_owner = dispatcher.owner_of(TOKEN_ID);
@@ -397,7 +385,7 @@ fn test_dual_ownerOf() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_ownerOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -405,11 +393,11 @@ fn test_dual_ownerOf_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_transferFrom() {
     let (dispatcher, target) = setup_camel();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 
     let current_owner = target.ownerOf(TOKEN_ID);
@@ -417,7 +405,7 @@ fn test_dual_transferFrom() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -425,7 +413,7 @@ fn test_dual_transferFrom_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_safeTransferFrom() {
     let (dispatcher, target) = setup_camel();
     let receiver = setup_receiver();
@@ -436,7 +424,7 @@ fn test_dual_safeTransferFrom() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -444,11 +432,11 @@ fn test_dual_safeTransferFrom_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_getApproved() {
     let (dispatcher, _) = setup_camel();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.approve(SPENDER(), TOKEN_ID);
 
     let approved = dispatcher.get_approved(TOKEN_ID);
@@ -456,7 +444,7 @@ fn test_dual_getApproved() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -464,11 +452,11 @@ fn test_dual_getApproved_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_setApprovalForAll() {
     let (dispatcher, target) = setup_camel();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.set_approval_for_all(OPERATOR(), true);
 
     let is_approved_for_all = target.isApprovedForAll(OWNER(), OPERATOR());
@@ -476,7 +464,7 @@ fn test_dual_setApprovalForAll() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -484,11 +472,11 @@ fn test_dual_setApprovalForAll_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_isApprovedForAll() {
     let (dispatcher, target) = setup_camel();
 
-    start_cheat_caller_address(test_address(), OWNER());
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     target.setApprovalForAll(OPERATOR(), true);
 
     let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -496,7 +484,7 @@ fn test_dual_isApprovedForAll() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
@@ -504,7 +492,7 @@ fn test_dual_isApprovedForAll_exists_and_panics() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_tokenURI() {
     let (dispatcher, _) = setup_camel();
     let uri = dispatcher.token_uri(TOKEN_ID);
@@ -513,7 +501,7 @@ fn test_dual_tokenURI() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();

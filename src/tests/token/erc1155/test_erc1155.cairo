@@ -158,7 +158,7 @@ fn test_safe_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_owner_to_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -197,7 +197,7 @@ fn test_safeTransferFrom_owner_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_owner_to_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -423,7 +423,7 @@ fn test_safe_batch_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_batch_transfer_from_owner_to_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -464,7 +464,7 @@ fn test_safeBatchTransferFrom_owner_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -919,7 +919,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_update_wac_single_from_non_zero_to_non_zero_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -983,7 +983,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_update_wac_batch_from_non_zero_to_non_zero_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();
@@ -1061,7 +1061,7 @@ fn test_update_wac_from_zero_to_non_zero() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_update_wac_from_zero_to_non_zero_camel_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_camel_receiver();

@@ -12,7 +12,6 @@ use openzeppelin::tests::utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
 use openzeppelin::tests::utils::events::EventSpyExt;
-use openzeppelin::tests::utils;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 
@@ -114,7 +113,7 @@ fn test_grant_role() {
     start_cheat_caller_address(contract_address, ADMIN());
     state.grant_role(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_granted(contract_address, ROLE, AUTHORIZED(), ADMIN());
+    spy.assert_only_event_role_granted(contract_address, ROLE, AUTHORIZED(), ADMIN());
 
     let has_role = state.has_role(ROLE, AUTHORIZED());
     assert!(has_role);
@@ -128,7 +127,7 @@ fn test_grantRole() {
     start_cheat_caller_address(contract_address, ADMIN());
     state.grantRole(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_granted(contract_address, ROLE, AUTHORIZED(), ADMIN());
+    spy.assert_only_event_role_granted(contract_address, ROLE, AUTHORIZED(), ADMIN());
 
     let has_role = state.hasRole(ROLE, AUTHORIZED());
     assert!(has_role);
@@ -199,7 +198,7 @@ fn test_revoke_role_for_granted_role() {
     let mut spy = spy_events();
     state.revoke_role(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_revoked(contract_address, ROLE, AUTHORIZED(), ADMIN());
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED(), ADMIN());
 
     let has_not_role = !state.has_role(ROLE, AUTHORIZED());
     assert!(has_not_role);
@@ -216,7 +215,7 @@ fn test_revokeRole_for_granted_role() {
     let mut spy = spy_events();
     state.revokeRole(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_revoked(contract_address, ROLE, AUTHORIZED(), ADMIN());
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED(), ADMIN());
 
     let has_not_role = !state.hasRole(ROLE, AUTHORIZED());
     assert!(has_not_role);
@@ -294,7 +293,7 @@ fn test_renounce_role_for_granted_role() {
     start_cheat_caller_address(contract_address, AUTHORIZED());
     state.renounce_role(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_revoked(contract_address, ROLE, AUTHORIZED(), AUTHORIZED());
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED(), AUTHORIZED());
 
     let has_not_role = !state.has_role(ROLE, AUTHORIZED());
     assert!(has_not_role);
@@ -312,7 +311,7 @@ fn test_renounceRole_for_granted_role() {
     start_cheat_caller_address(contract_address, AUTHORIZED());
     state.renounceRole(ROLE, AUTHORIZED());
 
-    spy.assert_event_role_revoked(contract_address, ROLE, AUTHORIZED(), AUTHORIZED());
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED(), AUTHORIZED());
 
     let has_not_role = !state.hasRole(ROLE, AUTHORIZED());
     assert!(has_not_role);
@@ -384,7 +383,10 @@ fn test_set_role_admin() {
     assert_eq!(state.get_role_admin(ROLE), DEFAULT_ADMIN_ROLE);
     state.set_role_admin(ROLE, OTHER_ROLE);
 
-    spy.assert_event_role_admin_changed(contract_address, ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE);
+    spy
+        .assert_only_event_role_admin_changed(
+            contract_address, ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE
+        );
 
     let current_admin_role = state.get_role_admin(ROLE);
     assert_eq!(current_admin_role, OTHER_ROLE);
@@ -466,9 +468,9 @@ fn test_default_admin_role_is_its_own_admin() {
 
 #[generate_trait]
 impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
-    fn assert_event_role_revoked(
+    fn assert_only_event_role_revoked(
         ref self: EventSpy,
-        from_address: ContractAddress,
+        contract: ContractAddress,
         role: felt252,
         account: ContractAddress,
         sender: ContractAddress
@@ -476,12 +478,12 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         let expected = AccessControlComponent::Event::RoleRevoked(
             RoleRevoked { role, account, sender }
         );
-        self.assert_only_event(from_address, expected);
+        self.assert_only_event(contract, expected);
     }
 
-    fn assert_event_role_granted(
+    fn assert_only_event_role_granted(
         ref self: EventSpy,
-        from_address: ContractAddress,
+        contract: ContractAddress,
         role: felt252,
         account: ContractAddress,
         sender: ContractAddress
@@ -489,10 +491,10 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         let expected = AccessControlComponent::Event::RoleGranted(
             RoleGranted { role, account, sender }
         );
-        self.assert_only_event(from_address, expected);
+        self.assert_only_event(contract, expected);
     }
 
-    fn assert_event_role_admin_changed(
+    fn assert_only_event_role_admin_changed(
         ref self: EventSpy,
         from_address: ContractAddress,
         role: felt252,

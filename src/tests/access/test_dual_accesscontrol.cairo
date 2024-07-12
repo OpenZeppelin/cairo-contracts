@@ -1,15 +1,16 @@
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
 use openzeppelin::access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
-use openzeppelin::access::accesscontrol::interface::{
-    IACCESSCONTROL_ID, IAccessControlDispatcher, IAccessControlDispatcherTrait,
-    IAccessControlCamelDispatcher, IAccessControlCamelDispatcherTrait
-};
+use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlCamelDispatcherTrait;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcher;
+use openzeppelin::access::accesscontrol::interface::IAccessControlDispatcherTrait;
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{start_cheat_caller_address, test_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::ContractAddress;
 
 //
@@ -62,7 +63,7 @@ fn test_dual_supports_interface() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_accesscontrol();
@@ -84,7 +85,7 @@ fn test_dual_has_role() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_has_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -106,7 +107,7 @@ fn test_dual_get_role_admin() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_role_admin() {
     let dispatcher = setup_non_accesscontrol();
@@ -131,7 +132,7 @@ fn test_dual_grant_role() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_grant_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -156,7 +157,7 @@ fn test_dual_revoke_role() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_revoke_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -181,7 +182,7 @@ fn test_dual_renounce_role() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when ENTRYPOINT_NOT_FOUND issue is solved
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -200,7 +201,7 @@ fn test_dual_renounce_role_exists_and_panics() {
 //
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 fn test_dual_hasRole() {
     let (dispatcher, _) = setup_camel();
 
@@ -209,7 +210,7 @@ fn test_dual_hasRole() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 #[should_panic(expected: ("Some error",))]
 fn test_dual_hasRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
@@ -217,7 +218,7 @@ fn test_dual_hasRole_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 fn test_dual_getRoleAdmin() {
     let (dispatcher, _) = setup_camel();
 
@@ -226,7 +227,7 @@ fn test_dual_getRoleAdmin() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 #[should_panic(expected: ("Some error",))]
 fn test_dual_getRoleAdmin_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
@@ -234,7 +235,7 @@ fn test_dual_getRoleAdmin_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 fn test_dual_grantRole() {
     let (dispatcher, target) = setup_camel();
     start_cheat_caller_address(target.contract_address, ADMIN());
@@ -245,7 +246,7 @@ fn test_dual_grantRole() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 #[should_panic(expected: ("Some error",))]
 fn test_dual_grantRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
@@ -253,7 +254,7 @@ fn test_dual_grantRole_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 fn test_dual_revokeRole() {
     let (dispatcher, target) = setup_camel();
     start_cheat_caller_address(target.contract_address, ADMIN());
@@ -265,7 +266,7 @@ fn test_dual_revokeRole() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 #[should_panic(expected: ("Some error",))]
 fn test_dual_revokeRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
@@ -273,7 +274,7 @@ fn test_dual_revokeRole_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 fn test_dual_renounceRole() {
     let (dispatcher, target) = setup_camel();
     start_cheat_caller_address(target.contract_address, ADMIN());
@@ -284,7 +285,7 @@ fn test_dual_renounceRole() {
 }
 
 #[test]
-#[ignore] // TODO: Enable when try/catch is supported
+#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
 #[should_panic(expected: ("Some error",))]
 fn test_dual_renounceRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();

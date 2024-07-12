@@ -37,21 +37,6 @@ pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) ->
     deploy(contract_class, calldata)
 }
 
-pub fn declare_and_deploy_with_caller(
-    contract_name: ByteArray, calldata: Array<felt252>, caller: ContractAddress
-) -> ContractAddress {
-    let contract_class = declare(contract_name).unwrap_syscall();
-
-    // Precalculate the address before the constructor call (deploy) itself
-    let contract_address = contract_class.precalculate_address(@calldata);
-
-    start_cheat_caller_address(contract_address, caller);
-    deploy(contract_class, calldata);
-    stop_cheat_caller_address(contract_address);
-
-    contract_address
-}
-
 pub fn declare_and_deploy_at(
     contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
 ) {

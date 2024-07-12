@@ -28,6 +28,5 @@ pub(crate) impl OwnableSpyHelpersImpl of OwnableSpyHelpers {
             OwnershipTransferred { previous_owner, new_owner }
         );
         self.assert_emitted_single(contract, expected);
-    // TODO(immrsd): Add keys check later
     }
 }

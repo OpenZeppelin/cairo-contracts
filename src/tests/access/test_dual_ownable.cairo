@@ -65,7 +65,7 @@ fn test_dual_owner() {
 }
 
 #[test]
-#[ignore] // TODO: Enable test once it's supported
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_owner() {
     let dispatcher = setup_non_ownable();
@@ -94,7 +94,7 @@ fn test_dual_transfer_ownership() {
 }
 
 #[test]
-#[ignore] // TODO: Enable test once it's supported
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_transfer_ownership() {
     let dispatcher = setup_non_ownable();
@@ -119,7 +119,7 @@ fn test_dual_renounce_ownership() {
 }
 
 #[test]
-#[ignore] // TODO: Enable test once it's supported
+#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_ownership() {
     let dispatcher = setup_non_ownable();

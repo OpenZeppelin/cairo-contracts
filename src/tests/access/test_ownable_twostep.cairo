@@ -351,6 +351,5 @@ impl TwoStepSpyHelpersImpl of TwoStepSpyHelpers {
             OwnershipTransferStarted { previous_owner, new_owner }
         );
         self.assert_emitted_single(from_address, expected);
-    // TODO(immrsd): Add keys check later
     }
 }

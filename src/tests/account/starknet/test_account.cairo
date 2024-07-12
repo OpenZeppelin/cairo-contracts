@@ -19,10 +19,10 @@ use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::signature::SignerTrait;
 use snforge_std::signature::stark_curve::{StarkCurveSignerImpl, StarkCurveKeyPairImpl};
-use snforge_std::{EventSpy, spy_events, declare, test_address, start_cheat_caller_address};
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
 };
+use snforge_std::{EventSpy, spy_events, declare, test_address, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::contract_address_const;
 use starknet::{ContractAddress, ClassHash};

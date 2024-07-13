@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc20/erc20.cairo)
 
 use starknet::ContractAddress;
 
@@ -9,7 +9,8 @@ use starknet::ContractAddress;
 /// non-standard implementations that can be used to create an ERC20 contract. This
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
-/// See [the documentation](https://docs.openzeppelin.com/contracts-cairo/0.14.0/guides/erc20-supply)
+/// See [the documentation]
+/// (https://docs.openzeppelin.com/contracts-cairo/0.15.0-rc.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -18,14 +19,15 @@ pub mod ERC20Component {
     use openzeppelin::token::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
         ERC20_name: ByteArray,
         ERC20_symbol: ByteArray,
         ERC20_total_supply: u256,
-        ERC20_balances: LegacyMap<ContractAddress, u256>,
-        ERC20_allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
+        ERC20_balances: Map<ContractAddress, u256>,
+        ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]
@@ -294,7 +296,8 @@ pub mod ERC20Component {
         TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
-        /// To prevent reinitialization, this should only be used inside of a contract's constructor.
+        /// To prevent reinitialization, this should only be used inside of a contract's
+        /// constructor.
         fn initializer(
             ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
         ) {
@@ -330,8 +333,8 @@ pub mod ERC20Component {
         }
 
 
-        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
-        /// the zero address.
+        /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns)
+        /// if `from` (or `to`) is the zero address.
         ///
         /// NOTE: This function can be extended using the `ERC20HooksTrait`, to add
         /// functionality before and/or after the transfer, mint, or burn.

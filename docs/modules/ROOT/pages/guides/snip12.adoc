@@ -163,9 +163,25 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 }
 ----
 
-NOTE: These params could be set in the contract constructor, but then two storage reads would be executed every time
-a message hash needs to be generated, and this is unnecessary overhead. When Starknet implements immutable storage
-set in constructor, that approach will be more efficient.
+In the above example, no storage reads are required which avoids unnecessary extra gas costs, but in
+some cases we may need to read from storage to get the domain separator values. This can be accomplished even when
+the trait is not bounded to the ContractState, like this:
+
+[,cairo]
+----
+use openzeppelin::utils::snip12::SNIP12Metadata;
+
+impl SNIP12MetadataImpl of SNIP12Metadata {
+    fn name() -> felt252 {
+        let state = unsafe_new_contract_state();
+
+        // Some logic to get the name from storage
+        state.erc20.name().at(0).unwrap().into()
+    }
+
+    fn version() -> felt252 { 'v1' }
+}
+----
 
 === 5. Generate the hash.
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.12.0 (token/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
+// OpenZeppelin Contracts for Cairo v0.12.0
+// (token/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
 
 /// # ERC721Enumerable Component
 ///
@@ -96,10 +97,11 @@ pub mod ERC721EnumerableComponent {
         /// When a token is minted (or burned), `token_id` is added to (or removed from)
         /// the token-tracking structures.
         ///
-        /// When a token is transferred, minted, or burned, the ownership-tracking data structures reflect
-        /// the change in ownership of `token_id`.
+        /// When a token is transferred, minted, or burned, the ownership-tracking data structures
+        /// reflect the change in ownership of `token_id`.
         ///
-        /// This must be added to the implementing contract's `ERC721HooksTrait::before_update` hook.
+        /// This must be added to the implementing contract's `ERC721HooksTrait::before_update`
+        /// hook.
         fn before_update(
             ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256
         ) {
@@ -200,9 +202,9 @@ pub mod ERC721EnumerableComponent {
             // Remove one from total supply
             self.ERC721Enumerable_all_tokens_len.write(last_token_index);
 
-            // When the token to delete is the last token, the swap operation is unnecessary. However,
-            // since this occurs rarely (when the last minted token is burnt), we still do the swap
-            // which avoids the additional expense of including an `if` statement
+            // When the token to delete is the last token, the swap operation is unnecessary.
+            // However, since this occurs rarely (when the last minted token is burnt), we still do
+            // the swap which avoids the additional expense of including an `if` statement
             self.ERC721Enumerable_all_tokens_index.write(last_token_id, this_token_index);
             self.ERC721Enumerable_all_tokens.write(this_token_index, last_token_id);
         }

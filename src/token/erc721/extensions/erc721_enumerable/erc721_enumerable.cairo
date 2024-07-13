@@ -15,14 +15,15 @@ pub mod ERC721EnumerableComponent {
     use openzeppelin::token::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
     use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        ERC721Enumerable_owned_tokens: LegacyMap<(ContractAddress, u256), u256>,
-        ERC721Enumerable_owned_tokens_index: LegacyMap<u256, u256>,
+        ERC721Enumerable_owned_tokens: Map<(ContractAddress, u256), u256>,
+        ERC721Enumerable_owned_tokens_index: Map<u256, u256>,
         ERC721Enumerable_all_tokens_len: u256,
-        ERC721Enumerable_all_tokens: LegacyMap<u256, u256>,
-        ERC721Enumerable_all_tokens_index: LegacyMap<u256, u256>
+        ERC721Enumerable_all_tokens: Map<u256, u256>,
+        ERC721Enumerable_all_tokens_index: Map<u256, u256>
     }
 
     pub mod Errors {

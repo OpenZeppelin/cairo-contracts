@@ -10,7 +10,6 @@ use openzeppelin::token::erc721::extensions::erc721_enumerable::ERC721Enumerable
 use openzeppelin::token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
 use openzeppelin::token::erc721::extensions::erc721_enumerable::interface;
 use starknet::ContractAddress;
-use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 
 // Token IDs
 const TOKEN_1: u256 = 'TOKEN_1';
@@ -542,7 +541,7 @@ fn assert_dual_token_by_index(expected_token_list: Span<u256>) {
 }
 
 fn assert_after_update_all_tokens_list(expected_list: Span<u256>) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let mut i = 0;
     loop {
@@ -558,7 +557,7 @@ fn assert_after_update_all_tokens_list(expected_list: Span<u256>) {
 }
 
 fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: Span<u256>) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let mut i = 0;
     loop {
@@ -574,28 +573,28 @@ fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: 
 }
 
 fn assert_all_tokens_index_to_id(index: u256, exp_token_id: u256) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let index_to_id = state.ERC721Enumerable_all_tokens.read(index);
     assert_eq!(index_to_id, exp_token_id);
 }
 
 fn assert_all_tokens_id_to_index(token_id: u256, exp_index: u256) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let id_to_index = state.ERC721Enumerable_all_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
 }
 
 fn assert_owner_tokens_index_to_id(owner: ContractAddress, index: u256, exp_token_id: u256) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let index_to_id = state.ERC721Enumerable_owned_tokens.read((owner, index));
     assert_eq!(index_to_id, exp_token_id);
 }
 
 fn assert_owner_tokens_id_to_index(token_id: u256, exp_index: u256) {
-    let state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     let id_to_index = state.ERC721Enumerable_owned_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);

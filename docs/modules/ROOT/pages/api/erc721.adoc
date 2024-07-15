@@ -701,14 +701,14 @@ use openzeppelin::token::extensions::ERC721URIStorageComponent;
 
 :MetadataUpdated: xref:ERC721URIStorageComponent-MetadataUpdated[MetadataUpdated]
 
-Extension of ERC721 to support dynamic NFTs.
+Extension of ERC721 to support storage-based URI management.
 It is an implementation of <<IERC721Metadata, IERC721Metadata>> but with a different `token_uri` behavior.
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
-This extension keeps a track of URIs of each token id of a particular ERC721 token. The URI of any `token_id` can be set by calling the 
-internal function, xref:#ERC721URIStorageComponent-set_token_uri[set_token_uri]. Updated `token_uri` can be queried through the external function  
-xref:#ERC721URIStorageComponent-token_uri[token_uri].
+The ERC721URIStorage component provides a flexible IERC721Metadata implementation that enables storage-based token URI management.
+The URI of any `token_id` can be set by calling the internal function, xref:#ERC721URIStorageComponent-set_token_uri[set_token_uri].
+Updated `token_uri` can be queried through the external function xref:#ERC721URIStorageComponent-token_uri[token_uri].
 
 [.contract-index#ERC721URIStorageComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -757,11 +757,11 @@ See <<IERC721Metadata-symbol,IERC721::symbol>>.
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 
-If a base URI is set and the token URI is set , the resulting URI for each token will be the concatenation of the base URI and the token URI. 
+If a base URI is set and the token URI is set, the resulting URI for each token will be the concatenation of the base URI and the token URI. 
 
-If a base URI is set and the token URI is not set , the resulting URI for each token will be the concatenation of the base URI and the `token_id`. 
+If a base URI is set and the token URI is not set, the resulting URI for each token will be the concatenation of the base URI and the `token_id`. 
 
-If a base URI is not set and the token URI is set , the resulting URI for each token will be the token URI. 
+If a base URI is not set and the token URI is set, the resulting URI for each token will be the token URI. 
 
 If the base URI and token URI are not set for `token_id`, the return value will be an empty `ByteArray`.
 

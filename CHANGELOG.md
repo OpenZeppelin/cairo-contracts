@@ -42,10 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (2024-07-10)
 
-- ERC721URIStorage (2024-07-10) in `/src/token/erc721/extensions`
-- ERC721URIStorage mock in `/src/tests/mocks/`
-- ERC721URIStorage tests in `/src/tests/token/erc721/`
-- Documentation for ERC721URIStorage extension in `/docs/modules/ROOT/api/erc721`
+- ERC721URIStorage (#1031)
 
 ## 0.14.0 (2024-06-14)
 

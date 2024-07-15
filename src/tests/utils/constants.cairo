@@ -45,7 +45,6 @@ pub(crate) fn BASE_URI_2() -> ByteArray {
     "https://api.example.com/v2/"
 }
 
-
 pub(crate) fn SAMPLE_URI() -> ByteArray {
     "mock://mytoken"
 }

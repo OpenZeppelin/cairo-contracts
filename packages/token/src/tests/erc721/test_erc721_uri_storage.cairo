@@ -27,7 +27,6 @@ fn COMPONENT_STATE() -> ComponentState {
     ERC721URIStorageComponent::component_state_for_testing()
 }
 
-//constructor is inside only
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = CONTRACT_STATE();
@@ -73,7 +72,7 @@ fn test_set_token_uri_nonexistent() {
     assert_only_event_metadata_update(ZERO(), TOKEN_ID_2);
 
     let mut mock_contract_state = CONTRACT_STATE();
-    //check accessible after minting
+    // Check that the URI is accessible after minting
     mock_contract_state.erc721.mint(RECIPIENT(), TOKEN_ID_2);
 
     let expected = SAMPLE_URI();
@@ -142,7 +141,7 @@ fn test_token_uri_persists_when_burned_and_minted() {
 // Helpers
 //
 
-pub fn assert_event_metadata_update(contract: ContractAddress, token_id: u256) {
+fn assert_event_metadata_update(contract: ContractAddress, token_id: u256) {
     let event = utils::pop_log::<ERC721URIStorageComponent::Event>(contract).unwrap();
     let expected = ERC721URIStorageComponent::Event::MetadataUpdated(MetadataUpdated { token_id });
     assert!(event == expected);

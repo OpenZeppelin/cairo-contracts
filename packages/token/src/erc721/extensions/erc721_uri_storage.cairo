@@ -3,10 +3,8 @@
 
 /// # ERC721URIStorage Component
 ///
-/// The ERC721URIStorage component enhances ERC721 tokens by keeping track of unique URIs with each token id,
-/// and providing a functionality of metadata updates. Each token's URI, set during minting, is immutable, ensuring 
-/// the integrity of the metadata. It provides a reliable mechanism for linking on-chain tokens to off-chain metadata.
-
+/// The ERC721URIStorage component provides a flexible IERC721Metadata implementation that enables
+/// storage-based token URI management.
 #[starknet::component]
 pub mod ERC721URIStorageComponent {
     use openzeppelin::introspection::src5::SRC5Component;
@@ -64,12 +62,12 @@ pub mod ERC721URIStorageComponent {
             let base_uri: ByteArray = ERC721Impl::_base_uri(erc721_component);
             let token_uri: ByteArray = self.ERC721URIStorage_token_uris.read(token_id);
 
-            // If there is no base_uri, return the token_uri.
+            // If there is no base_uri, return the token_uri
             if base_uri.len() == 0 {
                 return token_uri;
             }
 
-            // If both are set, concatenate the base_uri and token_uri.
+            // If both are set, concatenate the base_uri and token_uri
             if token_uri.len() > 0 {
                 return format!("{}{}", base_uri, token_uri);
             }
@@ -91,7 +89,7 @@ pub mod ERC721URIStorageComponent {
         +ERC721Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Sets or updates the `token_uri` for the respective `token_id`
+        /// Sets or updates the `token_uri` for the respective `token_id`.
         ///
         /// Emits `MetadataUpdated` event.
         fn set_token_uri(

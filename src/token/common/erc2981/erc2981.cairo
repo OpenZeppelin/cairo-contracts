@@ -12,147 +12,57 @@ pub mod ERC2981Component {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc2981::interface::{IERC2981, IERC2981Setup, IERC2981_ID};
-
-    use openzeppelin::token::erc2981::{FeesRatio, FeesImpl, FeesRatioDefault};
+    use openzeppelin::token::common::erc2981::interface::{IERC2981, IERC2981_ID};
 
     use starknet::ContractAddress;
 
+    #[derive(Serde, Drop, PartialEq, starknet::Store)]
+    struct RoyaltyInfo {
+        pub receiver: ContractAddress,
+        pub royalty_fraction: u256,
+    }
+
     #[storage]
     struct Storage {
-        default_receiver: ContractAddress,
-        default_fees: FeesRatio,
-        token_receiver: LegacyMap<u256, ContractAddress>,
-        token_fees: LegacyMap<u256, FeesRatio>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    pub enum Event {
-        TokenRoyaltyUpdated: TokenRoyaltyUpdated,
-        DefaultRoyaltyUpdated: DefaultRoyaltyUpdated,
-    }
-
-    /// Emitted when token id `token_id` royalty is updated to fees ratio `fees_ratio`
-    /// and receiver `receiver`. 
-    #[derive(Drop, starknet::Event)]
-    pub struct TokenRoyaltyUpdated {
-        #[key]
-        token_id: u256,
-        fees_ratio: FeesRatio,
-        receiver: ContractAddress,
-    }
-
-    /// Emitted when default royalty is updated to fees ratio `fees_ratio` and receiver `receiver`.
-    #[derive(Drop, starknet::Event)]
-    pub struct DefaultRoyaltyUpdated {
-        fees_ratio: FeesRatio,
-        receiver: ContractAddress,
-    }
-
-    pub mod Errors {
-        pub const NOT_VALID_FEES_RATIO: felt252 = 'Fees ratio is not valid';
+        default_royalty_info: RoyaltyInfo,
+        token_royalty_info: LegacyMap<u256, RoyaltyInfo>,
     }
 
     //
     // External
     //
-
     #[embeddable_as(ERC2981Impl)]
     impl ERC2981<
-        TContractState, +HasComponent<TContractState>
+        TContractState,
+        +HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>,
     > of IERC2981<ComponentState<TContractState>> {
         /// Returns the receiver address and amount to send for royalty
         /// for token id `token_id` and sale price `sale_price`
         fn royalty_info(
             self: @ComponentState<TContractState>, token_id: u256, sale_price: u256
         ) -> (ContractAddress, u256) {
-            let receiver = self.token_receiver.read(token_id);
-            if !receiver.is_zero() {
-                let fees_ratio = self.token_fees.read(token_id);
-                (receiver, fees_ratio.compute_amount(sale_price))
-            } else {
-                let fees_ratio = self.default_fees.read();
-                (self.default_receiver.read(), fees_ratio.compute_amount(sale_price))
+            let royalty_info: RoyaltyInfo = self.token_royalty_info.read(token_id);
+            let mut royalty_receiver = royalty_info.receiver;
+            let mut royalty_fraction = royalty_info.royalty_fraction;
+
+            if royalty_receiver.is_zero() {
+                let default_royalty_info: RoyaltyInfo = self.default_royalty_info.read();
+                royalty_receiver = default_royalty_info.receiver;
+                royalty_fraction = default_royalty_info.royalty_fraction;
             }
+
+            let royalty_amount: u256 = (sale_price * royalty_fraction) / self._fee_denominator();
+
+            (royalty_receiver, royalty_amount)
         }
     }
 
-    #[embeddable_as(ERC2981SetupImpl)]
-    impl ERC2981Setup<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl Ownable: OwnableComponent::HasComponent<TContractState>,
-    > of IERC2981Setup<ComponentState<TContractState>> {
-        /// Returns the default royalty.
-        fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, FeesRatio) {
-            (self.default_receiver.read(), self.default_fees.read())
-        }
-
-        /// Set the default royalty.
-        /// 
-        /// Requirements:
-        /// - The caller is the owner.
-        /// 
-        /// Emits a `DefaultRoyaltyUpdated` even.
-        fn set_default_royalty(
-            ref self: ComponentState<TContractState>,
-            receiver: ContractAddress,
-            fees_ratio: FeesRatio
-        ) {
-            let ownable_component = get_dep_component!(@self, Ownable);
-            ownable_component.assert_only_owner();
-            assert(fees_ratio.is_valid(), Errors::NOT_VALID_FEES_RATIO);
-
-            self.default_receiver.write(receiver);
-            self.default_fees.write(fees_ratio);
-            self.emit(DefaultRoyaltyUpdated { fees_ratio: fees_ratio, receiver: receiver, });
-        }
-
-        /// Returns the royalty for given token id `token_id`
-        fn token_royalty(
-            self: @ComponentState<TContractState>, token_id: u256
-        ) -> (ContractAddress, FeesRatio) {
-            let fees_ratio: FeesRatio = self.token_fees.read(token_id);
-            if !fees_ratio.denominator.is_zero() {
-                (self.token_receiver.read(token_id), fees_ratio)
-            } else {
-                (self.token_receiver.read(token_id), Default::default())
-            }
-        }
-
-        /// Set the royalty for given token id `token_id`
-        /// 
-        /// Requirements:
-        /// - The caller is the owner
-        /// 
-        /// Emits a `TokenRoyaltyUpdated` event.
-        fn set_token_royalty(
-            ref self: ComponentState<TContractState>,
-            token_id: u256,
-            receiver: ContractAddress,
-            fees_ratio: FeesRatio
-        ) {
-            let ownable_component = get_dep_component!(@self, Ownable);
-            ownable_component.assert_only_owner();
-            assert(fees_ratio.is_valid(), Errors::NOT_VALID_FEES_RATIO);
-
-            self.token_receiver.write(token_id, receiver);
-
-            self.token_fees.write(token_id, fees_ratio);
-            self
-                .emit(
-                    TokenRoyaltyUpdated {
-                        token_id: token_id, fees_ratio: fees_ratio, receiver: receiver,
-                    }
-                );
-        }
-    }
 
     //
     // Internal
     //
-
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -164,13 +74,70 @@ pub mod ERC2981Component {
         fn initializer(
             ref self: ComponentState<TContractState>,
             default_receiver: ContractAddress,
-            default_fees: FeesRatio
+            default_royalty_fraction: u256
         ) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
 
-            self.default_receiver.write(default_receiver);
-            self.default_fees.write(default_fees);
+            self._set_default_royalty(default_receiver, default_royalty_fraction)
+        }
+
+
+        /// The denominator with which to interpret the fee set in {_set_token_royalty} and {_set_default_royalty} as a
+        /// fraction of the sale price. 
+        /// Defaults to 10000 so fees are expressed in basis points
+        fn _fee_denominator(self: @ComponentState<TContractState>) -> u256 {
+            10000
+        }
+
+
+        /// Sets the royalty information that all ids in this contract will default to.
+        ///
+        /// Requirements:
+        ///
+        /// - `receiver` cannot be the zero address.
+        /// - `fee_numerator` cannot be greater than the fee denominator.
+        fn _set_default_royalty(
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u256,
+        ) {
+            let denominator = self._fee_denominator();
+            assert!(fee_numerator <= denominator, "Invalid default royalty");
+            assert!(!receiver.is_zero(), "Invalid default royalty receiver");
+            self
+                .default_royalty_info
+                .write(RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
+        }
+
+
+        /// Sets the royalty information for a specific token id, overriding the global default.
+        ///
+        /// Requirements:
+        ///
+        /// - `receiver` cannot be the zero address.
+        /// - `fee_numerator` cannot be greater than the fee denominator.
+        fn _set_token_royalty(
+            ref self: ComponentState<TContractState>,
+            token_id: u256,
+            receiver: ContractAddress,
+            fee_numerator: u256
+        ) {
+            let denominator = self._fee_denominator();
+            assert!(fee_numerator <= denominator, "Invalid token royalty");
+            assert!(!receiver.is_zero(), "Invalid token royalty receiver");
+
+            self
+                .token_royalty_info
+                .write(token_id, RoyaltyInfo { receiver, royalty_fraction: fee_numerator },)
+        }
+
+
+        /// Resets royalty information for the token id back to the global default.
+        fn _reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
+            self
+                .token_royalty_info
+                .write(token_id, RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 },)
         }
     }
 }

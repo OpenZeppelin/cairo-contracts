@@ -7,8 +7,6 @@
 pub mod ERC2981Component {
     use core::num::traits::Zero;
 
-    use openzeppelin::access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -90,6 +88,13 @@ pub mod ERC2981Component {
             10000
         }
 
+        /// Returns the royalty information that all ids in this contract will default to.
+        fn _default_royalty(
+            self: @ComponentState<TContractState>
+        ) -> (ContractAddress, u256, u256) {
+            let royalty_info: RoyaltyInfo = self.default_royalty_info.read();
+            (royalty_info.receiver, royalty_info.royalty_fraction, self._fee_denominator())
+        }
 
         /// Sets the royalty information that all ids in this contract will default to.
         ///
@@ -130,6 +135,22 @@ pub mod ERC2981Component {
             self
                 .token_royalty_info
                 .write(token_id, RoyaltyInfo { receiver, royalty_fraction: fee_numerator },)
+        }
+
+        /// Returns the royalty information that all ids in this contract will default to.
+        fn _token_royalty(
+            self: @ComponentState<TContractState>, token_id: u256
+        ) -> (ContractAddress, u256, u256) {
+            let royalty_info: RoyaltyInfo = self.token_royalty_info.read(token_id);
+            let mut receiver = royalty_info.receiver;
+            let mut royalty_fraction = royalty_info.royalty_fraction;
+
+            if receiver.is_zero() {
+                let default_royalty_info: RoyaltyInfo = self.default_royalty_info.read();
+                receiver = default_royalty_info.receiver;
+                royalty_fraction = default_royalty_info.royalty_fraction;
+            };
+            (receiver, royalty_fraction, self._fee_denominator())
         }
 
 

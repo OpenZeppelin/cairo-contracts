@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+<<<<<<< HEAD
 - TimelockController component (#996)
 - HashCall implementation (#996)
 - Separated package for each submodule (#1065)
@@ -22,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `openzeppelin_token`
   - `openzeppelin_upgrades`
   - `openzeppelin_utils`
+=======
+- ERC721URIStorage (#1031)
+>>>>>>> e4e7368 (updated cairo version)
 
 ### Changed
 
@@ -40,9 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
 
-### Added (2024-07-10)
-
-- ERC721URIStorage (#1031)
 
 ## 0.14.0 (2024-06-14)
 

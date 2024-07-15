@@ -693,7 +693,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 
 [.contract]
 [[ERC721URIStorageComponent]]
-=== `++ERC721URIStorageComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc721/extensions/erc721_uri_storage.cairo[{github-icon},role=heading-link]
+=== `++ERC721URIStorageComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/token/erc721/extensions/erc721_uri_storage.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::extensions::ERC721URIStorageComponent;
@@ -708,7 +708,7 @@ NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for t
 
 The ERC721URIStorage component provides a flexible IERC721Metadata implementation that enables storage-based token URI management.
 The URI of any `token_id` can be set by calling the internal function, xref:#ERC721URIStorageComponent-set_token_uri[set_token_uri].
-Updated `token_uri` can be queried through the external function xref:#ERC721URIStorageComponent-token_uri[token_uri].
+The updated URI can be queried through the external function xref:#ERC721URIStorageComponent-token_uri[token_uri].
 
 [.contract-index#ERC721URIStorageComponent-Embeddable-Impls]
 .Embeddable Implementations

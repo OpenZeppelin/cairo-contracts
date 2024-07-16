@@ -11,8 +11,8 @@ pub mod ERC721URIStorageComponent {
     use openzeppelin::token::erc721::ERC721Component::InternalImpl as ERC721Impl;
     use openzeppelin::token::erc721::interface::IERC721Metadata;
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-    use starknet::storage::Map;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {

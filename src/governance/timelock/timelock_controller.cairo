@@ -177,7 +177,7 @@ pub mod TimelockControllerComponent {
             self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
         ) -> felt252 {
             PoseidonTrait::new()
-                .update_with(@call)
+                .update_with(call)
                 .update_with(predecessor)
                 .update_with(salt)
                 .finalize()
@@ -191,7 +191,7 @@ pub mod TimelockControllerComponent {
             salt: felt252
         ) -> felt252 {
             PoseidonTrait::new()
-                .update_with(@calls)
+                .update_with(calls)
                 .update_with(predecessor)
                 .update_with(salt)
                 .finalize()

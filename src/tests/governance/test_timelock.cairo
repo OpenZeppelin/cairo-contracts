@@ -17,7 +17,7 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
     TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::utils::OperationState;
+use openzeppelin::governance::timelock::OperationState;
 use openzeppelin::governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;

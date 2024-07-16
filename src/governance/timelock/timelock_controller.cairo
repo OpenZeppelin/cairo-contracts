@@ -24,7 +24,6 @@ pub mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
-    use openzeppelin::governance::timelock::utils::OperationState;
     use openzeppelin::governance::timelock::utils::call_impls::{
         HashCallImpl, HashCallsImpl, CallPartialEq
     };
@@ -34,6 +33,7 @@ pub mod TimelockControllerComponent {
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::storage::Map;
+    use super::OperationState;
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -669,4 +669,12 @@ pub mod TimelockControllerComponent {
             starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
     }
+}
+
+#[derive(Drop, Serde, PartialEq, Debug)]
+pub enum OperationState {
+    Unset,
+    Waiting,
+    Ready,
+    Done
 }

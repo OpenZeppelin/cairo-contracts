@@ -2,29 +2,27 @@
 // OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (governance/timelock/utils/call_impls.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
-use starknet::ContractAddress;
 use starknet::account::Call;
 
 pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
     fn update_state(mut state: S, value: Call) -> S {
-        let Call { to, selector, mut calldata } = value;
+        let Call { to, selector, calldata } = value;
         state = state.update_with(to).update_with(selector).update_with(calldata.len());
-        while calldata.len() > 0 {
-            let elem = *calldata.pop_front().unwrap();
-            state = state.update_with(elem);
+        for elem in calldata {
+            state = state.update_with(*elem);
         };
+
         state
     }
 }
 
 pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call>, S> {
     fn update_state(mut state: S, value: Span<Call>) -> S {
-        let mut calls = value;
-        state = state.update_with(calls.len());
-        while calls.len() > 0 {
-            let call = calls.pop_front().unwrap();
+        state = state.update_with(value.len());
+        for call in value {
             state = state.update_with(*call);
         };
+
         state
     }
 }

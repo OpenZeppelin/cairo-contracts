@@ -244,13 +244,8 @@ pub mod TimelockControllerComponent {
             self._schedule(id, delay);
 
             let mut index = 0;
-            loop {
-                if index == calls.len() {
-                    break;
-                }
-
-                let call = *calls.at(index);
-                self.emit(CallScheduled { id, index: index.into(), call, predecessor, delay });
+            for call in calls {
+                self.emit(CallScheduled { id, index, call: *call, predecessor, delay });
                 index += 1;
             };
 
@@ -328,14 +323,9 @@ pub mod TimelockControllerComponent {
             self._before_call(id, predecessor);
 
             let mut index = 0;
-            loop {
-                if index == calls.len() {
-                    break;
-                }
-
-                let call = *calls.at(index);
-                self._execute(call);
-                self.emit(CallExecuted { id, index: index.into(), call });
+            for call in calls {
+                self._execute(*call);
+                self.emit(CallExecuted { id, index, call: *call });
                 index += 1;
             };
 
@@ -584,25 +574,19 @@ pub mod TimelockControllerComponent {
             };
 
             // Register proposers and cancellers
-            let mut i = 0;
-            while i < proposers.len() {
-                let proposer = proposers.at(i);
+            for proposer in proposers {
                 access_component._grant_role(PROPOSER_ROLE, *proposer);
                 access_component._grant_role(CANCELLER_ROLE, *proposer);
-                i += 1;
             };
 
             // Register executors
-            let mut i = 0;
-            while i < executors.len() {
-                let executor = executors.at(i);
+            for executor in executors {
                 access_component._grant_role(EXECUTOR_ROLE, *executor);
-                i += 1;
             };
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
-            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay })
+            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay });
         }
 
         /// Validates that the caller has the given `role`.

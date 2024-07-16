@@ -635,9 +635,9 @@ fn test_safeTransferFrom_to_account_camel() {
 #[test]
 fn test_safe_transfer_from_to_receiver() {
     let mut state = setup();
+    let receiver = setup_receiver();
     let contract_address = test_address();
     let mut spy = spy_events();
-    let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -653,9 +653,9 @@ fn test_safe_transfer_from_to_receiver() {
 #[test]
 fn test_safeTransferFrom_to_receiver() {
     let mut state = setup();
+    let receiver = setup_receiver();
     let contract_address = test_address();
     let mut spy = spy_events();
-    let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -669,12 +669,12 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_to_receiver_camel() {
     let mut state = setup();
+    let receiver = setup_camel_receiver();
     let contract_address = test_address();
     let mut spy = spy_events();
-    let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -688,12 +688,12 @@ fn test_safe_transfer_from_to_receiver_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_to_receiver_camel() {
     let mut state = setup();
-    let contract_address = test_address();
-    let mut spy = spy_events();
     let receiver = setup_camel_receiver();
+    let mut spy = spy_events();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
@@ -731,7 +731,7 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let mut state = setup();
@@ -744,7 +744,7 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let mut state = setup();
@@ -757,7 +757,7 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
@@ -770,7 +770,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
@@ -861,16 +861,17 @@ fn test_safeTransferFrom_to_owner() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_to_owner_camel() {
     let mut state = COMPONENT_STATE();
-    let contract_address = test_address();
-    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
+    let contract_address = test_address();
 
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(owner, token_id);
+
+    let mut spy = spy_events();
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -884,11 +885,10 @@ fn test_safe_transfer_from_to_owner_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let contract_address = test_address();
-    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
 
@@ -897,6 +897,8 @@ fn test_safeTransferFrom_to_owner_camel() {
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
+
+    let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
@@ -951,7 +953,7 @@ fn test_safeTransferFrom_approved() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_approved_camel() {
     let mut state = setup();
     let contract_address = test_address();
@@ -974,7 +976,7 @@ fn test_safe_transfer_from_approved_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_approved_camel() {
     let mut state = setup();
     let contract_address = test_address();
@@ -1041,7 +1043,7 @@ fn test_safeTransferFrom_approved_for_all() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_approved_for_all_camel() {
     let mut state = setup();
     let contract_address = test_address();
@@ -1063,7 +1065,7 @@ fn test_safe_transfer_from_approved_for_all_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_approved_for_all_camel() {
     let mut state = setup();
     let contract_address = test_address();
@@ -1196,7 +1198,7 @@ fn test__safe_mint_to_receiver() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test__safe_mint_to_receiver_camel() {
     let mut state = COMPONENT_STATE();
     let contract_address = test_address();
@@ -1242,7 +1244,7 @@ fn test__safe_mint_to_account_camel() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = COMPONENT_STATE();
@@ -1267,7 +1269,7 @@ fn test__safe_mint_to_receiver_failure() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure_camel() {
     let mut state = COMPONENT_STATE();

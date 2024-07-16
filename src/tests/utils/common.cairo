@@ -1,5 +1,6 @@
 use core::starknet::SyscallResultTrait;
 use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
+use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
 use starknet::ContractAddress;
 
 pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {

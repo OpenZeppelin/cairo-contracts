@@ -495,34 +495,29 @@ pub mod TimelockControllerComponent {
         fn hasRole(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) -> bool {
-            let access_control = get_dep_component!(self, AccessControl);
-            access_control.hasRole(role, account)
+            Self::has_role(self, role, account)
         }
 
         fn getRoleAdmin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
-            let access_control = get_dep_component!(self, AccessControl);
-            access_control.getRoleAdmin(role)
+            Self::getRoleAdmin(self, role)
         }
 
         fn grantRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.grantRole(role, account);
+            Self::grant_role(ref self, role, account);
         }
 
         fn revokeRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.revokeRole(role, account);
+            Self::revoke_role(ref self, role, account);
         }
 
         fn renounceRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.renounceRole(role, account);
+            Self::renounce_role(ref self, role, account);
         }
     }
 

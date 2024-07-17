@@ -7,8 +7,7 @@ use openzeppelin::tests::utils::constants::{CLASS_HASH_ZERO, ZERO, FELT_VALUE as
 use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::upgrades::UpgradeableComponent;
 use snforge_std::ContractClass;
-use snforge_std::{ContractClassTrait, spy_events, EventSpy};
-use starknet::ClassHash;
+use snforge_std::{spy_events, EventSpy};
 
 use super::common::UpgradableSpyHelpers;
 

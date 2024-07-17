@@ -7,8 +7,8 @@ mod access;
 #[cfg(test)]
 mod introspection;
 mod mocks;
-// #[cfg(test)]
-// mod presets;
+#[cfg(test)]
+mod presets;
 #[cfg(test)]
 mod security;
 #[cfg(test)]
